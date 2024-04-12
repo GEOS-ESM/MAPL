@@ -1,0 +1,1077 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_regridder &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_regridder
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">23 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/RegridderManager.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/regriddermanager.f90.html'>RegridderManager.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_regriddermanager.html'>mapl3g_RegridderManager</a></li>
+            <li class="breadcrumb-item active" aria-current="page">get_regridder</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_regridder.html#src">get_regridder</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function get_regridder(this, spec, rc) result(regriddr)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/regriddermanager.html'>RegridderManager</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~652"></span>
+              class(<a href='../type/regriddermanager.html'>RegridderManager</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec~4"></span>
+              class(<a href='../type/regridderspec.html'>RegridderSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>spec</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~136"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-regriddr~2"></span>
+          class(Regridder), pointer
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_regridder~~CallsGraph Pages: 1 -->
+<svg id="procget_regridderCallsGraph" width="641pt" height="232pt"
+ viewBox="0.00 0.00 641.00 232.05" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_regridder~~CallsGraph" class="graph" transform="scale(1.74 1.74) rotate(0) translate(4 400)">
+<title>proc~~get_regridder~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-400 1112,-400 1112,4 -4,4"/>
+<!-- proc~get_regridder -->
+<g id="proc~~get_regridder~~CallsGraph_node1" class="node">
+<title>proc~get_regridder</title>
+<polygon fill="none" stroke="black" points="194,-253 0,-253 0,-229 194,-229 194,-253"/>
+<text text-anchor="middle" x="97" y="-238.6" font-family="Helvetica,sans-Serif" font-size="10.50">RegridderManager%get_regridder</text>
+</g>
+<!-- find -->
+<g id="proc~~get_regridder~~CallsGraph_node2" class="node">
+<title>find</title>
+<polygon fill="#777777" stroke="#777777" points="360.5,-396 306.5,-396 306.5,-372 360.5,-372 360.5,-396"/>
+<text text-anchor="middle" x="333.5" y="-381.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find</text>
+</g>
+<!-- proc~get_regridder&#45;&gt;find -->
+<g id="proc~~get_regridder~~CallsGraph_edge1" class="edge">
+<title>proc~get_regridder&#45;&gt;find</title>
+<path fill="none" stroke="#ff0000" d="M107.39,-253.36C127.12,-278.4 175.58,-335.08 230,-363 250.51,-373.52 275.86,-378.77 296.23,-381.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="296.04,-384.89 306.37,-382.54 296.83,-377.94 296.04,-384.89"/>
+</g>
+<!-- none~of~274 -->
+<g id="proc~~get_regridder~~CallsGraph_node3" class="node">
+<title>none~of~274</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node3"><a xlink:href="../type/regriddervector.html#boundprocedure-of~274" xlink:title="RegridderVector%of">
+<polygon fill="#a7506f" stroke="#a7506f" points="393,-354 274,-354 274,-330 393,-330 393,-354"/>
+<text text-anchor="middle" x="333.5" y="-339.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderVector%of</text>
+</a>
+</g>
+</g>
+<!-- proc~get_regridder&#45;&gt;none~of~274 -->
+<g id="proc~~get_regridder~~CallsGraph_edge2" class="edge">
+<title>proc~get_regridder&#45;&gt;none~of~274</title>
+<path fill="none" stroke="#ff0000" d="M113.72,-253.02C137.55,-270.64 184.84,-303.3 230,-321 240.66,-325.18 252.29,-328.57 263.75,-331.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.24,-334.79 273.76,-333.56 264.77,-327.95 263.24,-334.79"/>
+</g>
+<!-- proc~add_regridder -->
+<g id="proc~~get_regridder~~CallsGraph_node4" class="node">
+<title>proc~add_regridder</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node4"><a xlink:href="../proc/add_regridder.html" xlink:title="RegridderManager%add_regridder">
+<polygon fill="#d9534f" stroke="#d9534f" points="432,-312 235,-312 235,-288 432,-288 432,-312"/>
+<text text-anchor="middle" x="333.5" y="-297.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderManager%add_regridder</text>
+</a>
+</g>
+</g>
+<!-- proc~get_regridder&#45;&gt;proc~add_regridder -->
+<g id="proc~~get_regridder~~CallsGraph_edge3" class="edge">
+<title>proc~get_regridder&#45;&gt;proc~add_regridder</title>
+<path fill="none" stroke="#ff0000" d="M145.74,-253.01C183.02,-262.39 234.98,-275.46 274.63,-285.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="273.88,-288.86 284.43,-287.91 275.58,-282.07 273.88,-288.86"/>
+</g>
+<!-- proc~make_regridder -->
+<g id="proc~~get_regridder~~CallsGraph_node5" class="node">
+<title>proc~make_regridder</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node5"><a xlink:href="../proc/make_regridder.html" xlink:title="RegridderManager%make_regridder">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="437,-193 230,-193 230,-169 437,-169 437,-193"/>
+<text text-anchor="middle" x="333.5" y="-178.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderManager%make_regridder</text>
+</a>
+</g>
+</g>
+<!-- proc~get_regridder&#45;&gt;proc~make_regridder -->
+<g id="proc~~get_regridder~~CallsGraph_edge4" class="edge">
+<title>proc~get_regridder&#45;&gt;proc~make_regridder</title>
+<path fill="none" stroke="#ff0000" d="M145.17,-228.93C182.78,-219.31 235.57,-205.8 275.54,-195.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="276.58,-198.92 285.4,-193.05 274.85,-192.14 276.58,-198.92"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~get_regridder~~CallsGraph_node6" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node6"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="629,-276 547,-276 547,-252 629,-252 629,-276"/>
+<text text-anchor="middle" x="588" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~get_regridder&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_regridder~~CallsGraph_edge5" class="edge">
+<title>proc~get_regridder&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M194.03,-245.52C296.78,-250.35 455.83,-257.83 536.45,-261.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="536.67,-265.14 546.82,-262.11 537,-258.14 536.67,-265.14"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~get_regridder~~CallsGraph_node7" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node7"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="626,-234 550,-234 550,-210 626,-210 626,-234"/>
+<text text-anchor="middle" x="588" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~get_regridder&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_regridder~~CallsGraph_edge6" class="edge">
+<title>proc~get_regridder&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M194.03,-237.27C298.11,-233.22 459.96,-226.94 539.54,-223.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="539.9,-227.33 549.75,-223.45 539.62,-220.34 539.9,-227.33"/>
+</g>
+<!-- proc~vector_back~21 -->
+<g id="proc~~get_regridder~~CallsGraph_node8" class="node">
+<title>proc~vector_back~21</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node8"><a xlink:href="../proc/vector_back~21.html" xlink:title="RegridderVector%vector_back">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="420,-151 247,-151 247,-127 420,-127 420,-151"/>
+<text text-anchor="middle" x="333.5" y="-136.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderVector%vector_back</text>
+</a>
+</g>
+</g>
+<!-- proc~get_regridder&#45;&gt;proc~vector_back~21 -->
+<g id="proc~~get_regridder~~CallsGraph_edge7" class="edge">
+<title>proc~get_regridder&#45;&gt;proc~vector_back~21</title>
+<path fill="none" stroke="#ff0000" d="M113.7,-228.82C137.49,-210.97 184.74,-177.88 230,-160 235.82,-157.7 241.93,-155.64 248.15,-153.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="249.28,-157.11 257.98,-151.07 247.41,-150.37 249.28,-157.11"/>
+</g>
+<!-- proc~vector_begin~11 -->
+<g id="proc~~get_regridder~~CallsGraph_node9" class="node">
+<title>proc~vector_begin~11</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node9"><a xlink:href="../proc/vector_begin~11.html" xlink:title="RegridderSpecVector%vector_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="435.5,-109 231.5,-109 231.5,-85 435.5,-85 435.5,-109"/>
+<text text-anchor="middle" x="333.5" y="-94.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpecVector%vector_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~get_regridder&#45;&gt;proc~vector_begin~11 -->
+<g id="proc~~get_regridder~~CallsGraph_edge8" class="edge">
+<title>proc~get_regridder&#45;&gt;proc~vector_begin~11</title>
+<path fill="none" stroke="#ff0000" d="M107.06,-228.92C126.55,-203.87 175.15,-146.28 230,-118 233.97,-115.95 238.12,-114.11 242.38,-112.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="243.6,-115.72 251.85,-109.07 241.26,-109.12 243.6,-115.72"/>
+</g>
+<!-- proc~vector_of_size_kind~21 -->
+<g id="proc~~get_regridder~~CallsGraph_node16" class="node">
+<title>proc~vector_of_size_kind~21</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node16"><a xlink:href="../proc/vector_of_size_kind~21.html" xlink:title="RegridderVector%vector_of_size_kind">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="693.5,-360 482.5,-360 482.5,-336 693.5,-336 693.5,-360"/>
+<text text-anchor="middle" x="588" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderVector%vector_of_size_kind</text>
+</a>
+</g>
+</g>
+<!-- none~of~274&#45;&gt;proc~vector_of_size_kind~21 -->
+<g id="proc~~get_regridder~~CallsGraph_edge9" class="edge">
+<title>none~of~274&#45;&gt;proc~vector_of_size_kind~21</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M393.06,-343.39C416.74,-343.95 444.93,-344.62 472.38,-345.28"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="472.37,-348.78 482.45,-345.52 472.54,-341.78 472.37,-348.78"/>
+</g>
+<!-- proc~vector_push_back~11 -->
+<g id="proc~~get_regridder~~CallsGraph_node17" class="node">
+<title>proc~vector_push_back~11</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node17"><a xlink:href="../proc/vector_push_back~11.html" xlink:title="RegridderSpecVector%vector_push_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="703,-318 473,-318 473,-294 703,-294 703,-318"/>
+<text text-anchor="middle" x="588" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpecVector%vector_push_back</text>
+</a>
+</g>
+</g>
+<!-- proc~add_regridder&#45;&gt;proc~vector_push_back~11 -->
+<g id="proc~~get_regridder~~CallsGraph_edge10" class="edge">
+<title>proc~add_regridder&#45;&gt;proc~vector_push_back~11</title>
+<path fill="none" stroke="#7fff00" d="M432.12,-302.32C442.11,-302.56 452.36,-302.8 462.59,-303.04"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="462.72,-306.55 472.8,-303.29 462.89,-299.55 462.72,-306.55"/>
+</g>
+<!-- proc~make_regridder&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_regridder~~CallsGraph_edge15" class="edge">
+<title>proc~make_regridder&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff3f" d="M356.89,-193.03C383.75,-206.99 430.49,-229.78 473,-243 493.55,-249.39 516.82,-254.11 536.96,-257.43"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="536.44,-260.89 546.87,-259 537.54,-253.98 536.44,-260.89"/>
+</g>
+<!-- proc~make_regridder&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_regridder~~CallsGraph_edge16" class="edge">
+<title>proc~make_regridder&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff3f" d="M408.55,-193.02C450.98,-199.91 502.96,-208.35 539.85,-214.34"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="539.4,-217.82 549.84,-215.97 540.53,-210.91 539.4,-217.82"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~get_regridder~~CallsGraph_node10" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node10"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="627.5,-108 548.5,-108 548.5,-84 627.5,-84 627.5,-108"/>
+<text text-anchor="middle" x="588" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~make_regridder&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_regridder~~CallsGraph_edge11" class="edge">
+<title>proc~make_regridder&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff3f" d="M418,-168.94C424.65,-166.49 431.07,-163.54 437,-160 458.4,-147.23 451.47,-129.56 473,-117 492.57,-105.59 516.98,-100.15 538.18,-97.64"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="538.69,-101.11 548.29,-96.63 537.99,-94.14 538.69,-101.11"/>
+</g>
+<!-- none~make_regridder~3 -->
+<g id="proc~~get_regridder~~CallsGraph_node11" class="node">
+<title>none~make_regridder~3</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node11"><a xlink:href="../type/regridderfactory.html#boundprocedure-make_regridder~3" xlink:title="RegridderFactory%make_regridder">
+<polygon fill="#a7506f" stroke="#a7506f" points="687.5,-66 488.5,-66 488.5,-42 687.5,-42 687.5,-66"/>
+<text text-anchor="middle" x="588" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderFactory%make_regridder</text>
+</a>
+</g>
+</g>
+<!-- proc~make_regridder&#45;&gt;none~make_regridder~3 -->
+<g id="proc~~get_regridder~~CallsGraph_edge12" class="edge">
+<title>proc~make_regridder&#45;&gt;none~make_regridder~3</title>
+<path fill="none" stroke="#00ff3f" d="M423.25,-168.87C428.15,-166.38 432.78,-163.45 437,-160 468.74,-134.01 441,-100.67 473,-75 475.06,-73.35 477.21,-71.81 479.43,-70.38"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="481.34,-73.32 488.34,-65.37 477.91,-67.22 481.34,-73.32"/>
+</g>
+<!-- none~of~295 -->
+<g id="proc~~get_regridder~~CallsGraph_node12" class="node">
+<title>none~of~295</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node12"><a xlink:href="../type/regridderfactoryvector.html#boundprocedure-of~295" xlink:title="RegridderFactoryVector%of">
+<polygon fill="#a7506f" stroke="#a7506f" points="667,-24 509,-24 509,0 667,0 667,-24"/>
+<text text-anchor="middle" x="588" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderFactoryVector%of</text>
+</a>
+</g>
+</g>
+<!-- proc~make_regridder&#45;&gt;none~of~295 -->
+<g id="proc~~get_regridder~~CallsGraph_edge13" class="edge">
+<title>proc~make_regridder&#45;&gt;none~of~295</title>
+<path fill="none" stroke="#00ff3f" d="M424.72,-168.93C429.13,-166.42 433.27,-163.46 437,-160 479.99,-120.08 429.61,-72.49 473,-33 480.53,-26.14 489.55,-21.18 499.16,-17.62"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="500.46,-20.88 508.94,-14.52 498.35,-14.21 500.46,-20.88"/>
+</g>
+<!-- proc~get_param -->
+<g id="proc~~get_regridder~~CallsGraph_node14" class="node">
+<title>proc~get_param</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node14"><a xlink:href="../proc/get_param.html" xlink:title="RegridderSpec%get_param">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="667.5,-192 508.5,-192 508.5,-168 667.5,-168 667.5,-192"/>
+<text text-anchor="middle" x="588" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpec%get_param</text>
+</a>
+</g>
+</g>
+<!-- proc~make_regridder&#45;&gt;proc~get_param -->
+<g id="proc~~get_regridder~~CallsGraph_edge14" class="edge">
+<title>proc~make_regridder&#45;&gt;proc~get_param</title>
+<path fill="none" stroke="#00ff3f" d="M437.2,-180.59C457.43,-180.51 478.5,-180.43 498.22,-180.35"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="498.42,-183.85 508.41,-180.31 498.39,-176.85 498.42,-183.85"/>
+</g>
+<!-- supports -->
+<g id="proc~~get_regridder~~CallsGraph_node18" class="node">
+<title>supports</title>
+<polygon fill="#777777" stroke="#777777" points="617,-150 559,-150 559,-126 617,-126 617,-150"/>
+<text text-anchor="middle" x="588" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">supports</text>
+</g>
+<!-- proc~make_regridder&#45;&gt;supports -->
+<g id="proc~~get_regridder~~CallsGraph_edge17" class="edge">
+<title>proc~make_regridder&#45;&gt;supports</title>
+<path fill="none" stroke="#00ff3f" d="M405.17,-168.96C451.71,-161.04 510.84,-150.97 548.81,-144.5"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="549.66,-147.91 558.93,-142.78 548.48,-141.01 549.66,-147.91"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~get_regridder~~CallsGraph_node13" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node13"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="934.5,-276 819.5,-276 819.5,-252 934.5,-252 934.5,-276"/>
+<text text-anchor="middle" x="877" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_regridder~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M629.21,-264C675.83,-264 753.39,-264 809.12,-264"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="809.27,-267.5 819.27,-264 809.27,-260.5 809.27,-267.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~get_regridder~~CallsGraph_node15" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node15"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="943.5,-234 810.5,-234 810.5,-210 943.5,-210 943.5,-234"/>
+<text text-anchor="middle" x="877" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_regridder~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M629.21,-258.12C673.43,-251.64 745.5,-241.1 800.36,-233.07"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="801.01,-236.51 810.4,-231.6 800,-229.59 801.01,-236.51"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_regridder~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#003fff" d="M626.23,-222C670.06,-222 743.99,-222 800.08,-222"/>
+<polygon fill="#003fff" stroke="#003fff" points="800.33,-225.5 810.33,-222 800.33,-218.5 800.33,-225.5"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~get_regridder~~CallsGraph_node24" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node24"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="944,-150 810,-150 810,-126 944,-126 944,-150"/>
+<text text-anchor="middle" x="877" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~get_regridder~~CallsGraph_edge21" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M627.71,-101.66C671.64,-108.09 744.38,-118.74 799.81,-126.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="799.54,-130.35 809.95,-128.33 800.56,-123.42 799.54,-130.35"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~get_regridder~~CallsGraph_node25" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node25"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="951,-108 803,-108 803,-84 951,-84 951,-108"/>
+<text text-anchor="middle" x="877" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~get_regridder~~CallsGraph_edge22" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M627.71,-96C669.75,-96 738.18,-96 792.57,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="792.9,-99.5 802.9,-96 792.9,-92.5 792.9,-99.5"/>
+</g>
+<!-- proc~make_regridder_typesafe -->
+<g id="proc~~get_regridder~~CallsGraph_node23" class="node">
+<title>proc~make_regridder_typesafe</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node23"><a xlink:href="../proc/make_regridder_typesafe.html" xlink:title="EsmfRegridderFactory%make_regridder_typesafe">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1015,-66 739,-66 739,-42 1015,-42 1015,-66"/>
+<text text-anchor="middle" x="877" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridderFactory%make_regridder_typesafe</text>
+</a>
+</g>
+</g>
+<!-- none~make_regridder~3&#45;&gt;proc~make_regridder_typesafe -->
+<g id="proc~~get_regridder~~CallsGraph_edge23" class="edge">
+<title>none~make_regridder~3&#45;&gt;proc~make_regridder_typesafe</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M687.77,-54C701.01,-54 714.82,-54 728.68,-54"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="728.77,-57.5 738.77,-54 728.77,-50.5 728.77,-57.5"/>
+</g>
+<!-- proc~vector_of_size_kind~22 -->
+<g id="proc~~get_regridder~~CallsGraph_node27" class="node">
+<title>proc~vector_of_size_kind~22</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node27"><a xlink:href="../proc/vector_of_size_kind~22.html" xlink:title="RegridderFactoryVector%vector_of_size_kind">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1002,-24 752,-24 752,0 1002,0 1002,-24"/>
+<text text-anchor="middle" x="877" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderFactoryVector%vector_of_size_kind</text>
+</a>
+</g>
+</g>
+<!-- none~of~295&#45;&gt;proc~vector_of_size_kind~22 -->
+<g id="proc~~get_regridder~~CallsGraph_edge24" class="edge">
+<title>none~of~295&#45;&gt;proc~vector_of_size_kind~22</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M667.04,-12C690.12,-12 716.08,-12 741.64,-12"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="741.8,-15.5 751.8,-12 741.8,-8.5 741.8,-15.5"/>
+</g>
+<!-- at -->
+<g id="proc~~get_regridder~~CallsGraph_node19" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1106.5,-276 1052.5,-276 1052.5,-252 1106.5,-252 1106.5,-276"/>
+<text text-anchor="middle" x="1079.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~get_regridder~~CallsGraph_edge25" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ff00" d="M934.65,-264C969.25,-264 1012.45,-264 1042.44,-264"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1042.45,-267.5 1052.45,-264 1042.45,-260.5 1042.45,-267.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~get_regridder~~CallsGraph_node20" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1106.5,-318 1052.5,-318 1052.5,-294 1106.5,-294 1106.5,-318"/>
+<text text-anchor="middle" x="1079.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~get_regridder~~CallsGraph_edge26" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ff00" d="M934.74,-270.53C959.56,-273.94 988.91,-278.73 1015,-285 1024.02,-287.17 1033.6,-290.03 1042.51,-292.94"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1041.62,-296.33 1052.22,-296.21 1043.86,-289.7 1041.62,-296.33"/>
+</g>
+<!-- proc~initialize~21 -->
+<g id="proc~~get_regridder~~CallsGraph_node22" class="node">
+<title>proc~initialize~21</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node22"><a xlink:href="../proc/initialize~21.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1108,-234 1051,-234 1051,-210 1108,-210 1108,-234"/>
+<text text-anchor="middle" x="1079.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~21 -->
+<g id="proc~~get_regridder~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~21</title>
+<path fill="none" stroke="#00a9ff" d="M943.65,-222C975.81,-222 1013.39,-222 1040.7,-222"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="1040.99,-225.5 1050.99,-222 1040.99,-218.5 1040.99,-225.5"/>
+</g>
+<!-- none~resize~70 -->
+<g id="proc~~get_regridder~~CallsGraph_node21" class="node">
+<title>none~resize~70</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node21"><a xlink:href="../type/regridderspecvector.html#boundprocedure-resize~70" xlink:title="RegridderSpecVector%resize">
+<polygon fill="#a7506f" stroke="#a7506f" points="960,-360 794,-360 794,-336 960,-336 960,-360"/>
+<text text-anchor="middle" x="877" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpecVector%resize</text>
+</a>
+</g>
+</g>
+<!-- proc~vector_push_back~11&#45;&gt;none~resize~70 -->
+<g id="proc~~get_regridder~~CallsGraph_edge28" class="edge">
+<title>proc~vector_push_back~11&#45;&gt;none~resize~70</title>
+<path fill="none" stroke="#aa00ff" d="M671.24,-318.04C706.37,-323.18 747.52,-329.2 783.69,-334.49"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="783.34,-337.98 793.75,-335.96 784.36,-331.05 783.34,-337.98"/>
+</g>
+<!-- proc~vector_grow_to~11 -->
+<g id="proc~~get_regridder~~CallsGraph_node26" class="node">
+<title>proc~vector_grow_to~11</title>
+<g id="a_proc~~get_regridder~~CallsGraph_node26"><a xlink:href="../proc/vector_grow_to~11.html" xlink:title="RegridderSpecVector%vector_grow_to">
+<polygon fill="#d9534f" stroke="#d9534f" points="984.5,-318 769.5,-318 769.5,-294 984.5,-294 984.5,-318"/>
+<text text-anchor="middle" x="877" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpecVector%vector_grow_to</text>
+</a>
+</g>
+</g>
+<!-- proc~vector_push_back~11&#45;&gt;proc~vector_grow_to~11 -->
+<g id="proc~~get_regridder~~CallsGraph_edge29" class="edge">
+<title>proc~vector_push_back~11&#45;&gt;proc~vector_grow_to~11</title>
+<path fill="none" stroke="#aa00ff" d="M703.25,-306C721.59,-306 740.59,-306 758.98,-306"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="759.13,-309.5 769.13,-306 759.13,-302.5 759.13,-309.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_regridderCallsGraph = svgPanZoom('#procget_regridderCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_regridder~~CalledByGraph Pages: 1 -->
+<svg id="procget_regridderCalledByGraph" width="641pt" height="205pt"
+ viewBox="0.00 0.00 641.00 204.77" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_regridder~~CalledByGraph" class="graph" transform="scale(1.39 1.39) rotate(0) translate(4 280)">
+<title>proc~~get_regridder~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-280 885,-280 885,4 -4,4"/>
+<!-- proc~get_regridder -->
+<g id="proc~~get_regridder~~CalledByGraph_node1" class="node">
+<title>proc~get_regridder</title>
+<polygon fill="none" stroke="black" points="881,-150 687,-150 687,-126 881,-126 881,-150"/>
+<text text-anchor="middle" x="784" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50">RegridderManager%get_regridder</text>
+</g>
+<!-- proc~new_scalarregridaction -->
+<g id="proc~~get_regridder~~CalledByGraph_node2" class="node">
+<title>proc~new_scalarregridaction</title>
+<g id="a_proc~~get_regridder~~CalledByGraph_node2"><a xlink:href="../proc/new_scalarregridaction.html" xlink:title="new_ScalarRegridAction">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="640,-276 499,-276 499,-252 640,-252 640,-276"/>
+<text text-anchor="middle" x="569.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">new_ScalarRegridAction</text>
+</a>
+</g>
+</g>
+<!-- proc~new_scalarregridaction&#45;&gt;proc~get_regridder -->
+<g id="proc~~get_regridder~~CalledByGraph_edge1" class="edge">
+<title>proc~new_scalarregridaction&#45;&gt;proc~get_regridder</title>
+<path fill="none" stroke="#ff0000" d="M628.73,-251.92C636.41,-249.44 644.02,-246.49 651,-243 695.95,-220.53 739.95,-181.01 764.07,-157.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="766.85,-159.57 771.47,-150.03 761.91,-154.6 766.85,-159.57"/>
+</g>
+<!-- proc~test_basic -->
+<g id="proc~~get_regridder~~CalledByGraph_node3" class="node">
+<title>proc~test_basic</title>
+<g id="a_proc~~get_regridder~~CalledByGraph_node3"><a xlink:href="../proc/test_basic.html" xlink:title="test_basic">
+<polygon fill="#d9534f" stroke="#d9534f" points="602,-234 537,-234 537,-210 602,-210 602,-234"/>
+<text text-anchor="middle" x="569.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_basic</text>
+</a>
+</g>
+</g>
+<!-- proc~test_basic&#45;&gt;proc~get_regridder -->
+<g id="proc~~get_regridder~~CalledByGraph_edge2" class="edge">
+<title>proc~test_basic&#45;&gt;proc~get_regridder</title>
+<path fill="none" stroke="#ff0000" d="M602.27,-215.19C617.26,-211.6 635.26,-206.75 651,-201 686.69,-187.96 725.75,-168.64 752.05,-154.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="753.94,-157.8 761.14,-150.03 750.66,-151.62 753.94,-157.8"/>
+</g>
+<!-- proc~test_basic~2 -->
+<g id="proc~~get_regridder~~CalledByGraph_node4" class="node">
+<title>proc~test_basic~2</title>
+<g id="a_proc~~get_regridder~~CalledByGraph_node4"><a xlink:href="../proc/test_basic~2.html" xlink:title="test_basic">
+<polygon fill="#d9534f" stroke="#d9534f" points="602,-192 537,-192 537,-168 602,-168 602,-192"/>
+<text text-anchor="middle" x="569.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_basic</text>
+</a>
+</g>
+</g>
+<!-- proc~test_basic~2&#45;&gt;proc~get_regridder -->
+<g id="proc~~get_regridder~~CalledByGraph_edge3" class="edge">
+<title>proc~test_basic~2&#45;&gt;proc~get_regridder</title>
+<path fill="none" stroke="#ff0000" d="M602.31,-173.71C631.1,-168.02 674.54,-159.44 711.61,-152.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="712.74,-155.45 721.87,-150.08 711.39,-148.59 712.74,-155.45"/>
+</g>
+<!-- proc~test_do_not_reuse_regridder -->
+<g id="proc~~get_regridder~~CalledByGraph_node5" class="node">
+<title>proc~test_do_not_reuse_regridder</title>
+<g id="a_proc~~get_regridder~~CalledByGraph_node5"><a xlink:href="../proc/test_do_not_reuse_regridder.html" xlink:title="test_do_not_reuse_regridder">
+<polygon fill="#d9534f" stroke="#d9534f" points="651,-150 488,-150 488,-126 651,-126 651,-150"/>
+<text text-anchor="middle" x="569.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_do_not_reuse_regridder</text>
+</a>
+</g>
+</g>
+<!-- proc~test_do_not_reuse_regridder&#45;&gt;proc~get_regridder -->
+<g id="proc~~get_regridder~~CalledByGraph_edge4" class="edge">
+<title>proc~test_do_not_reuse_regridder&#45;&gt;proc~get_regridder</title>
+<path fill="none" stroke="#ff0000" d="M651.14,-138C659.49,-138 668.07,-138 676.65,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="676.71,-141.5 686.71,-138 676.71,-134.5 676.71,-141.5"/>
+</g>
+<!-- proc~test_regrid_3d -->
+<g id="proc~~get_regridder~~CalledByGraph_node6" class="node">
+<title>proc~test_regrid_3d</title>
+<g id="a_proc~~get_regridder~~CalledByGraph_node6"><a xlink:href="../proc/test_regrid_3d.html" xlink:title="test_regrid_3d">
+<polygon fill="#d9534f" stroke="#d9534f" points="613.5,-108 525.5,-108 525.5,-84 613.5,-84 613.5,-108"/>
+<text text-anchor="middle" x="569.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_regrid_3d</text>
+</a>
+</g>
+</g>
+<!-- proc~test_regrid_3d&#45;&gt;proc~get_regridder -->
+<g id="proc~~get_regridder~~CalledByGraph_edge5" class="edge">
+<title>proc~test_regrid_3d&#45;&gt;proc~get_regridder</title>
+<path fill="none" stroke="#ff0000" d="M613.5,-104.5C641.75,-110.08 679.37,-117.52 711.99,-123.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="711.45,-127.43 721.94,-125.93 712.81,-120.56 711.45,-127.43"/>
+</g>
+<!-- proc~test_regrid_values -->
+<g id="proc~~get_regridder~~CalledByGraph_node7" class="node">
+<title>proc~test_regrid_values</title>
+<g id="a_proc~~get_regridder~~CalledByGraph_node7"><a xlink:href="../proc/test_regrid_values.html" xlink:title="test_regrid_values">
+<polygon fill="#d9534f" stroke="#d9534f" points="624,-66 515,-66 515,-42 624,-42 624,-66"/>
+<text text-anchor="middle" x="569.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_regrid_values</text>
+</a>
+</g>
+</g>
+<!-- proc~test_regrid_values&#45;&gt;proc~get_regridder -->
+<g id="proc~~get_regridder~~CalledByGraph_edge6" class="edge">
+<title>proc~test_regrid_values&#45;&gt;proc~get_regridder</title>
+<path fill="none" stroke="#ff0000" d="M622.48,-66.01C632.06,-68.66 641.91,-71.68 651,-75 686.69,-88.04 725.75,-107.36 752.05,-121.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="750.66,-124.38 761.14,-125.97 753.94,-118.2 750.66,-124.38"/>
+</g>
+<!-- proc~test_reuse_regridder -->
+<g id="proc~~get_regridder~~CalledByGraph_node8" class="node">
+<title>proc~test_reuse_regridder</title>
+<g id="a_proc~~get_regridder~~CalledByGraph_node8"><a xlink:href="../proc/test_reuse_regridder.html" xlink:title="test_reuse_regridder">
+<polygon fill="#d9534f" stroke="#d9534f" points="630,-24 509,-24 509,0 630,0 630,-24"/>
+<text text-anchor="middle" x="569.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_reuse_regridder</text>
+</a>
+</g>
+</g>
+<!-- proc~test_reuse_regridder&#45;&gt;proc~get_regridder -->
+<g id="proc~~get_regridder~~CalledByGraph_edge7" class="edge">
+<title>proc~test_reuse_regridder&#45;&gt;proc~get_regridder</title>
+<path fill="none" stroke="#ff0000" d="M628.73,-24.08C636.41,-26.56 644.02,-29.51 651,-33 695.95,-55.47 739.95,-94.99 764.07,-118.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="761.91,-121.4 771.47,-125.97 766.85,-116.43 761.91,-121.4"/>
+</g>
+<!-- interface~regridaction -->
+<g id="proc~~get_regridder~~CalledByGraph_node9" class="node">
+<title>interface~regridaction</title>
+<g id="a_proc~~get_regridder~~CalledByGraph_node9"><a xlink:href="../interface/regridaction.html" xlink:title="RegridAction">
+<polygon fill="#a7506f" stroke="#a7506f" points="452,-276 372,-276 372,-252 452,-252 452,-276"/>
+<text text-anchor="middle" x="412" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridAction</text>
+</a>
+</g>
+</g>
+<!-- interface~regridaction&#45;&gt;proc~new_scalarregridaction -->
+<g id="proc~~get_regridder~~CalledByGraph_edge8" class="edge">
+<title>interface~regridaction&#45;&gt;proc~new_scalarregridaction</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M452.24,-264C463.39,-264 475.94,-264 488.58,-264"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="488.7,-267.5 498.7,-264 488.7,-260.5 488.7,-267.5"/>
+</g>
+<!-- proc~make_action~5 -->
+<g id="proc~~get_regridder~~CalledByGraph_node10" class="node">
+<title>proc~make_action~5</title>
+<g id="a_proc~~get_regridder~~CalledByGraph_node10"><a xlink:href="../proc/make_action~5.html" xlink:title="FieldSpec%make_action">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="336,-276 194,-276 194,-252 336,-252 336,-276"/>
+<text text-anchor="middle" x="265" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec%make_action</text>
+</a>
+</g>
+</g>
+<!-- proc~make_action~5&#45;&gt;interface~regridaction -->
+<g id="proc~~get_regridder~~CalledByGraph_edge9" class="edge">
+<title>proc~make_action~5&#45;&gt;interface~regridaction</title>
+<path fill="none" stroke="#ff0000" d="M336.38,-264C344.9,-264 353.46,-264 361.59,-264"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="361.62,-267.5 371.62,-264 361.62,-260.5 361.62,-267.5"/>
+</g>
+<!-- proc~make_action~4 -->
+<g id="proc~~get_regridder~~CalledByGraph_node11" class="node">
+<title>proc~make_action~4</title>
+<g id="a_proc~~get_regridder~~CalledByGraph_node11"><a xlink:href="../proc/make_action~4.html" xlink:title="BracketSpec%make_action">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="158,-276 0,-276 0,-252 158,-252 158,-276"/>
+<text text-anchor="middle" x="79" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BracketSpec%make_action</text>
+</a>
+</g>
+</g>
+<!-- proc~make_action~4&#45;&gt;proc~make_action~5 -->
+<g id="proc~~get_regridder~~CalledByGraph_edge10" class="edge">
+<title>proc~make_action~4&#45;&gt;proc~make_action~5</title>
+<path fill="none" stroke="#ff0000" d="M158.03,-264C166.46,-264 175.04,-264 183.5,-264"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="183.73,-267.5 193.73,-264 183.73,-260.5 183.73,-267.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_regridderCalledByGraph = svgPanZoom('#procget_regridderCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">get_regridder</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">regriddr</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Regridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regriddr</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">RegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Regridder</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmp_regridder</span>
+
+<span class="w">      </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">specs</span><span class="p">%</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">specs</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">        </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">find</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">))</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">regriddr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">regridders</span><span class="p">%</span><span class="n">of</span><span class="p">((</span><span class="n">iter</span><span class="o">-</span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">             </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end if</span>
+
+<span class="k">          </span><span class="n">tmp_regridder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">make_regridder</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">add_regridder</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_regridder</span><span class="p">)</span>
+<span class="w">          </span><span class="n">regriddr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">regridders</span><span class="p">%</span><span class="n">back</span><span class="p">()</span>
+
+<span class="w">        </span><span class="k">end associate</span>
+<span class="k">      end associate</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">get_regridder</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

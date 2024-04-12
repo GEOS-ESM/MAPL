@@ -1,0 +1,712 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>clock_advance &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>clock_advance
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">16 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/GenericCoupler.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/genericcoupler.f90.html'>GenericCoupler.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_genericcoupler.html'>mapl3g_GenericCoupler</a></li>
+            <li class="breadcrumb-item active" aria-current="page">clock_advance</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/clock_advance~2.html#src">clock_advance</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private recursive subroutine clock_advance(gridcomp, importState, exportState, clock, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gridcomp~15"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gridcomp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-importstate~18"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>importState</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-exportstate~18"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>exportState</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~47"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clock</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~790"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~clock_advance~2~~CallsGraph Pages: 1 -->
+<svg id="procclock_advance2CallsGraph" width="641pt" height="180pt"
+ viewBox="0.00 0.00 641.00 179.53" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~clock_advance~2~~CallsGraph" class="graph" transform="scale(1.62 1.62) rotate(0) translate(4 287)">
+<title>proc~~clock_advance~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-287 1035,-287 1035,4 -4,4"/>
+<!-- proc~clock_advance~2 -->
+<g id="proc~~clock_advance~2~~CallsGraph_node1" class="node">
+<title>proc~clock_advance~2</title>
+<polygon fill="none" stroke="black" points="91,-191 0,-191 0,-167 91,-167 91,-191"/>
+<text text-anchor="middle" x="45.5" y="-176.6" font-family="Helvetica,sans-Serif" font-size="10.50">clock_advance</text>
+</g>
+<!-- ESMF_ClockAdvance -->
+<g id="proc~~clock_advance~2~~CallsGraph_node2" class="node">
+<title>ESMF_ClockAdvance</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockadvance.html" xlink:title="ESMF_ClockAdvance">
+<polygon fill="#d9534f" stroke="#d9534f" points="303.5,-271 182.5,-271 182.5,-247 303.5,-247 303.5,-271"/>
+<text text-anchor="middle" x="243" y="-256.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockAdvance</text>
+</a>
+</g>
+</g>
+<!-- proc~clock_advance~2&#45;&gt;ESMF_ClockAdvance -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge1" class="edge">
+<title>proc~clock_advance~2&#45;&gt;ESMF_ClockAdvance</title>
+<path fill="none" stroke="#ff0000" d="M60.96,-191.13C76.37,-203.46 101.96,-222.22 127,-233 141.27,-239.14 157.18,-243.93 172.51,-247.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="171.95,-251.08 182.47,-249.89 173.5,-244.26 171.95,-251.08"/>
+</g>
+<!-- proc~clock_advance~3 -->
+<g id="proc~~clock_advance~2~~CallsGraph_node3" class="node">
+<title>proc~clock_advance~3</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node3"><a xlink:href="../proc/clock_advance~3.html" xlink:title="CouplerMetaComponent%clock_advance">
+<polygon fill="#d9534f" stroke="#d9534f" points="359,-108 127,-108 127,-84 359,-84 359,-108"/>
+<text text-anchor="middle" x="243" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CouplerMetaComponent%clock_advance</text>
+</a>
+</g>
+</g>
+<!-- proc~clock_advance~2&#45;&gt;proc~clock_advance~3 -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge2" class="edge">
+<title>proc~clock_advance~2&#45;&gt;proc~clock_advance~3</title>
+<path fill="none" stroke="#ff0000" d="M60.34,-166.9C75.63,-154.15 101.5,-134.36 127,-123 137.98,-118.11 149.95,-114.04 161.9,-110.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="163.13,-113.97 171.9,-108.02 161.33,-107.21 163.13,-113.97"/>
+</g>
+<!-- proc~get_coupler_meta -->
+<g id="proc~~clock_advance~2~~CallsGraph_node4" class="node">
+<title>proc~get_coupler_meta</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node4"><a xlink:href="../proc/get_coupler_meta.html" xlink:title="get_coupler_meta">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="297.5,-191 188.5,-191 188.5,-167 297.5,-167 297.5,-191"/>
+<text text-anchor="middle" x="243" y="-176.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_coupler_meta</text>
+</a>
+</g>
+</g>
+<!-- proc~clock_advance~2&#45;&gt;proc~get_coupler_meta -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge3" class="edge">
+<title>proc~clock_advance~2&#45;&gt;proc~get_coupler_meta</title>
+<path fill="none" stroke="#ff0000" d="M91.35,-179C117.05,-179 149.74,-179 178.09,-179"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="178.32,-182.5 188.32,-179 178.32,-175.5 178.32,-182.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~clock_advance~2~~CallsGraph_node5" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node5"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="531,-234 449,-234 449,-210 531,-210 531,-234"/>
+<text text-anchor="middle" x="490" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~clock_advance~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge4" class="edge">
+<title>proc~clock_advance~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M86.3,-191.02C99.18,-194.47 113.59,-197.86 127,-200 237.15,-217.54 368.21,-221.34 438.48,-222.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="438.79,-225.52 448.82,-222.1 438.84,-218.52 438.79,-225.52"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~clock_advance~2~~CallsGraph_node6" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node6"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="528,-108 452,-108 452,-84 528,-84 528,-108"/>
+<text text-anchor="middle" x="490" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~clock_advance~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge5" class="edge">
+<title>proc~clock_advance~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M89.79,-166.98C101.79,-163.85 114.86,-160.62 127,-158 186.39,-145.19 357.93,-117.1 441.76,-103.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="442.46,-107.01 451.78,-101.96 441.35,-100.1 442.46,-107.01"/>
+</g>
+<!-- proc~clock_advance~3&#45;&gt;proc~mapl_return -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge8" class="edge">
+<title>proc~clock_advance~3&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#cbff00" d="M273.26,-108.03C297.68,-118.91 332.63,-136.5 359,-158 378.32,-173.75 373.71,-188.04 395,-201 408.11,-208.98 423.91,-213.94 438.78,-217.02"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="438.42,-220.51 448.89,-218.86 439.68,-213.62 438.42,-220.51"/>
+</g>
+<!-- proc~clock_advance~3&#45;&gt;proc~mapl_verify -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge9" class="edge">
+<title>proc~clock_advance~3&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#cbff00" d="M359.33,-96C388.52,-96 418.25,-96 441.87,-96"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="441.94,-99.5 451.94,-96 441.94,-92.5 441.94,-99.5"/>
+</g>
+<!-- ESMF_AlarmIsRinging -->
+<g id="proc~~clock_advance~2~~CallsGraph_node7" class="node">
+<title>ESMF_AlarmIsRinging</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node7"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_alarmisringing.html" xlink:title="ESMF_AlarmIsRinging">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="553.5,-66 426.5,-66 426.5,-42 553.5,-42 553.5,-66"/>
+<text text-anchor="middle" x="490" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AlarmIsRinging</text>
+</a>
+</g>
+</g>
+<!-- proc~clock_advance~3&#45;&gt;ESMF_AlarmIsRinging -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge6" class="edge">
+<title>proc~clock_advance~3&#45;&gt;ESMF_AlarmIsRinging</title>
+<path fill="none" stroke="#cbff00" d="M314.21,-83.96C346.11,-78.5 383.83,-72.03 416.05,-66.51"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="417.04,-69.89 426.3,-64.75 415.85,-62.99 417.04,-69.89"/>
+</g>
+<!-- ESMF_ClockGetAlarm -->
+<g id="proc~~clock_advance~2~~CallsGraph_node8" class="node">
+<title>ESMF_ClockGetAlarm</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node8"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockgetalarm.html" xlink:title="ESMF_ClockGetAlarm">
+<polygon fill="#d9534f" stroke="#d9534f" points="553.5,-24 426.5,-24 426.5,0 553.5,0 553.5,-24"/>
+<text text-anchor="middle" x="490" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockGetAlarm</text>
+</a>
+</g>
+</g>
+<!-- proc~clock_advance~3&#45;&gt;ESMF_ClockGetAlarm -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge7" class="edge">
+<title>proc~clock_advance~3&#45;&gt;ESMF_ClockGetAlarm</title>
+<path fill="none" stroke="#cbff00" d="M269.14,-83.91C298.7,-70.06 349.52,-47.45 395,-33 402.4,-30.65 410.2,-28.46 418.02,-26.46"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="419.04,-29.81 427.9,-24.01 417.36,-23.01 419.04,-29.81"/>
+</g>
+<!-- proc~get_coupler_meta&#45;&gt;proc~mapl_return -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge12" class="edge">
+<title>proc~get_coupler_meta&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff66" d="M297.77,-188.44C339.71,-195.8 397.55,-205.95 438.61,-213.16"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="438.21,-216.64 448.66,-214.92 439.42,-209.74 438.21,-216.64"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~clock_advance~2~~CallsGraph_node9" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node9"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="529.5,-192 450.5,-192 450.5,-168 529.5,-168 529.5,-192"/>
+<text text-anchor="middle" x="490" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~get_coupler_meta&#45;&gt;interface~mapl_assert -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge10" class="edge">
+<title>proc~get_coupler_meta&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff66" d="M297.77,-179.22C340.23,-179.39 398.98,-179.63 440.12,-179.8"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="440.17,-183.3 450.18,-179.84 440.2,-176.3 440.17,-183.3"/>
+</g>
+<!-- interface~mapl_usercompgetinternalstate -->
+<g id="proc~~clock_advance~2~~CallsGraph_node10" class="node">
+<title>interface~mapl_usercompgetinternalstate</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node10"><a xlink:href="../interface/mapl_usercompgetinternalstate.html" xlink:title="MAPL_UserCompGetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="585,-150 395,-150 395,-126 585,-126 585,-150"/>
+<text text-anchor="middle" x="490" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_UserCompGetInternalState</text>
+</a>
+</g>
+</g>
+<!-- proc~get_coupler_meta&#45;&gt;interface~mapl_usercompgetinternalstate -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge11" class="edge">
+<title>proc~get_coupler_meta&#45;&gt;interface~mapl_usercompgetinternalstate</title>
+<path fill="none" stroke="#00ff66" d="M297.77,-170C329.83,-164.64 371.17,-157.72 407.21,-151.69"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="407.94,-155.11 417.23,-150.01 406.79,-148.21 407.94,-155.11"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~clock_advance~2~~CallsGraph_node11" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node11"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="929,-260 814,-260 814,-236 929,-236 929,-260"/>
+<text text-anchor="middle" x="871.5" y="-245.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0066ff" d="M531.08,-226.08C556.77,-228.59 590.82,-231.76 621,-234 682.93,-238.59 753.61,-242.43 803.89,-244.91"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="803.82,-248.42 813.98,-245.41 804.16,-241.42 803.82,-248.42"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~clock_advance~2~~CallsGraph_node12" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node12"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="938,-160 805,-160 805,-136 938,-136 938,-160"/>
+<text text-anchor="middle" x="871.5" y="-145.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M531.01,-223.97C585.84,-225.56 686.86,-224.47 769,-201 796.18,-193.23 824.49,-177.74 844.28,-165.5"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="846.16,-168.45 852.74,-160.14 842.42,-162.54 846.16,-168.45"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M528.21,-96.21C581.86,-97.1 683.85,-100.99 769,-117 788.71,-120.71 810.01,-126.87 827.98,-132.72"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="827,-136.08 837.59,-135.93 829.21,-129.44 827,-136.08"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~clock_advance~2~~CallsGraph_node16" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node16"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="762,-150 628,-150 628,-126 762,-126 762,-150"/>
+<text text-anchor="middle" x="695" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M529.66,-172C556.75,-166.4 593.69,-158.75 625.69,-152.13"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="626.8,-155.48 635.88,-150.02 625.38,-148.62 626.8,-155.48"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~clock_advance~2~~CallsGraph_node17" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node17"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="769,-192 621,-192 621,-168 769,-168 769,-192"/>
+<text text-anchor="middle" x="695" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge17" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M529.66,-180C552.61,-180 582.63,-180 610.72,-180"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="610.96,-183.5 620.96,-180 610.96,-176.5 610.96,-183.5"/>
+</g>
+<!-- at -->
+<g id="proc~~clock_advance~2~~CallsGraph_node13" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1029.5,-241 975.5,-241 975.5,-217 1029.5,-217 1029.5,-241"/>
+<text text-anchor="middle" x="1002.5" y="-226.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge18" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#0000ff" d="M929.08,-239.67C941.42,-237.85 954.14,-235.97 965.42,-234.31"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="965.94,-237.78 975.32,-232.86 964.92,-230.85 965.94,-237.78"/>
+</g>
+<!-- insert -->
+<g id="proc~~clock_advance~2~~CallsGraph_node14" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1029.5,-283 975.5,-283 975.5,-259 1029.5,-259 1029.5,-283"/>
+<text text-anchor="middle" x="1002.5" y="-268.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge19" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#0000ff" d="M929.08,-258.09C941.42,-260.29 954.14,-262.56 965.42,-264.57"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="964.86,-268.02 975.32,-266.33 966.09,-261.13 964.86,-268.02"/>
+</g>
+<!-- proc~initialize~21 -->
+<g id="proc~~clock_advance~2~~CallsGraph_node15" class="node">
+<title>proc~initialize~21</title>
+<g id="a_proc~~clock_advance~2~~CallsGraph_node15"><a xlink:href="../proc/initialize~21.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1031,-160 974,-160 974,-136 1031,-136 1031,-160"/>
+<text text-anchor="middle" x="1002.5" y="-145.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~21 -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~21</title>
+<path fill="none" stroke="#ff00ff" d="M938.13,-148C946.88,-148 955.59,-148 963.63,-148"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="963.77,-151.5 973.77,-148 963.77,-144.5 963.77,-151.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M762.47,-141.81C772.98,-142.41 783.92,-143.04 794.62,-143.65"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="794.61,-147.16 804.79,-144.23 795.01,-140.17 794.61,-147.16"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#cc00ff" d="M726.8,-192C755.52,-203.2 798.56,-219.97 830.05,-232.24"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="828.84,-235.52 839.43,-235.89 831.38,-229 828.84,-235.52"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~clock_advance~2~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M761.47,-167.99C772.36,-166 783.73,-163.91 794.84,-161.88"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="795.74,-165.27 804.95,-160.02 794.48,-158.38 795.74,-165.27"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocclock_advance2CallsGraph = svgPanZoom('#procclock_advance2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">clock_advance</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">exportState</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">coupler_meta</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="n">coupler_meta</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_coupler_meta</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">coupler_meta</span><span class="p">%</span><span class="n">clock_advance</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! TBD: is this where it belongs?</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ClockAdvance</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">     </span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">clock_advance</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

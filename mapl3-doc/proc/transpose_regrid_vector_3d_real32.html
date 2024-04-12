@@ -1,0 +1,1033 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>transpose_regrid_vector_3d_real32 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>transpose_regrid_vector_3d_real32
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">99 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_EsmfRegridder.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_esmfregridder.f90.html'>MAPL_EsmfRegridder.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_esmfregriddermod.html'>MAPL_EsmfRegridderMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">transpose_regrid_vector_3d_real32</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/transpose_regrid_vector_3d_real32.html#src">transpose_regrid_vector_3d_real32</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine transpose_regrid_vector_3d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/esmfregridder.html'>EsmfRegridder</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1271"></span>
+              class(<a href='../type/esmfregridder.html'>EsmfRegridder</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u_in~6"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>u_in</strong>(:,:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v_in~6"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>v_in</strong>(:,:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u_out~6"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>u_out</strong>(:,:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v_out~6"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>v_out</strong>(:,:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rotate~5"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rotate</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~315"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~transpose_regrid_vector_3d_real32~~CallsGraph Pages: 1 -->
+<svg id="proctranspose_regrid_vector_3d_real32CallsGraph" width="641pt" height="425pt"
+ viewBox="0.00 0.00 641.00 425.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph" class="graph" transform="scale(1.72 1.72) rotate(0) translate(4 728)">
+<title>proc~~transpose_regrid_vector_3d_real32~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-728 1099,-728 1099,4 -4,4"/>
+<!-- proc~transpose_regrid_vector_3d_real32 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node1" class="node">
+<title>proc~transpose_regrid_vector_3d_real32</title>
+<polygon fill="none" stroke="black" points="287,-460 0,-460 0,-436 287,-436 287,-460"/>
+<text text-anchor="middle" x="143.5" y="-445.6" font-family="Helvetica,sans-Serif" font-size="10.50">EsmfRegridder%transpose_regrid_vector_3d_real32</text>
+</g>
+<!-- ESMF_VMAllReduce -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node2" class="node">
+<title>ESMF_VMAllReduce</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_vmallreduce.html" xlink:title="ESMF_VMAllReduce">
+<polygon fill="#a7506f" stroke="#a7506f" points="504.5,-724 388.5,-724 388.5,-700 504.5,-700 504.5,-724"/>
+<text text-anchor="middle" x="446.5" y="-709.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMAllReduce</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;ESMF_VMAllReduce -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge1" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;ESMF_VMAllReduce</title>
+<path fill="none" stroke="#ff0000" d="M149.4,-460.15C166.43,-500.65 227.26,-631.84 323,-691 339.42,-701.14 359.31,-706.76 378.25,-709.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="377.96,-713.27 388.35,-711.17 378.91,-706.34 377.96,-713.27"/>
+</g>
+<!-- ESMF_VMGetCurrent -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node3" class="node">
+<title>ESMF_VMGetCurrent</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_vmgetcurrent.html" xlink:title="ESMF_VMGetCurrent">
+<polygon fill="#d9534f" stroke="#d9534f" points="507,-682 386,-682 386,-658 507,-658 507,-682"/>
+<text text-anchor="middle" x="446.5" y="-667.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGetCurrent</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge2" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#ff0000" d="M151.13,-460.01C171.48,-495.64 236.92,-601.17 323,-649 338.99,-657.89 357.83,-663.19 375.88,-666.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="375.38,-669.78 385.8,-667.83 376.44,-662.86 375.38,-669.78"/>
+</g>
+<!-- esmf_fieldcreate -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node4" class="node">
+<title>esmf_fieldcreate</title>
+<polygon fill="#777777" stroke="#777777" points="497,-640 396,-640 396,-616 497,-616 497,-640"/>
+<text text-anchor="middle" x="446.5" y="-625.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldcreate</text>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;esmf_fieldcreate -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge3" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;esmf_fieldcreate</title>
+<path fill="none" stroke="#ff0000" d="M153.8,-460.02C177.99,-490.34 246.35,-570.09 323,-607 342.38,-616.33 365.24,-621.58 385.94,-624.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="385.54,-627.99 395.9,-625.77 386.41,-621.04 385.54,-627.99"/>
+</g>
+<!-- esmf_fielddestroy -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node5" class="node">
+<title>esmf_fielddestroy</title>
+<polygon fill="#777777" stroke="#777777" points="499.5,-598 393.5,-598 393.5,-574 499.5,-574 499.5,-598"/>
+<text text-anchor="middle" x="446.5" y="-583.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fielddestroy</text>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;esmf_fielddestroy -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge4" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;esmf_fielddestroy</title>
+<path fill="none" stroke="#ff0000" d="M159.72,-460.2C189.33,-483.3 257.55,-533.5 323,-560 342.05,-567.71 363.73,-573.28 383.51,-577.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="382.87,-580.66 393.35,-579.09 384.17,-573.79 382.87,-580.66"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node6" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="801,-612 716,-612 716,-588 801,-588 801,-612"/>
+<text text-anchor="middle" x="758.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;esmf_fieldget -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge5" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M168.4,-460.13C202.05,-476.72 265.71,-506.33 323,-523 429.92,-554.1 462.67,-535.33 570,-565 586.55,-569.57 589.38,-574.68 606,-579 638.64,-587.49 676.19,-592.72 705.74,-595.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="705.54,-599.34 715.84,-596.86 706.24,-592.37 705.54,-599.34"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node7" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node7"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="798,-570 719,-570 719,-546 798,-546 798,-570"/>
+<text text-anchor="middle" x="758.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;interface~mapl_assert -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge6" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M193.58,-460.08C229.35,-468.68 279.03,-480.23 323,-489 448.11,-513.96 479.91,-517.57 606,-537 640.27,-542.28 679.01,-547.64 708.73,-551.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="708.47,-555.12 718.85,-552.97 709.4,-548.18 708.47,-555.12"/>
+</g>
+<!-- none~cartesian_to_spherical~4 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node8" class="node">
+<title>none~cartesian_to_spherical~4</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node8"><a xlink:href="../type/abstractgridfactory.html#boundprocedure-cartesian_to_spherical~4" xlink:title="AbstractGridFactory%cartesian_to_spherical">
+<polygon fill="#a7506f" stroke="#a7506f" points="570,-113 323,-113 323,-89 570,-89 570,-113"/>
+<text text-anchor="middle" x="446.5" y="-98.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractGridFactory%cartesian_to_spherical</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;none~cartesian_to_spherical~4 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge7" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;none~cartesian_to_spherical~4</title>
+<path fill="none" stroke="#ff0000" d="M150.61,-435.84C170.93,-396.25 239.7,-268.7 323,-185 350.34,-157.53 387.79,-133.37 414.07,-118.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="415.91,-121.07 422.86,-113.07 412.44,-114.99 415.91,-121.07"/>
+</g>
+<!-- none~spherical_to_cartesian~4 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node9" class="node">
+<title>none~spherical_to_cartesian~4</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node9"><a xlink:href="../type/abstractgridfactory.html#boundprocedure-spherical_to_cartesian~4" xlink:title="AbstractGridFactory%spherical_to_cartesian">
+<polygon fill="#a7506f" stroke="#a7506f" points="570,-40 323,-40 323,-16 570,-16 570,-40"/>
+<text text-anchor="middle" x="446.5" y="-25.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractGridFactory%spherical_to_cartesian</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;none~spherical_to_cartesian~4 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge8" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;none~spherical_to_cartesian~4</title>
+<path fill="none" stroke="#ff0000" d="M147.06,-436C158.42,-385.6 208.77,-188.64 323,-80 340.65,-63.22 364.53,-51.44 386.52,-43.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="387.83,-46.64 396.13,-40.06 385.54,-40.03 387.83,-46.64"/>
+</g>
+<!-- proc~do_regrid -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node10" class="node">
+<title>proc~do_regrid</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node10"><a xlink:href="../proc/do_regrid.html" xlink:title="EsmfRegridder%do_regrid">
+<polygon fill="#d9534f" stroke="#d9534f" points="522,-480 371,-480 371,-456 522,-456 522,-480"/>
+<text text-anchor="middle" x="446.5" y="-465.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%do_regrid</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;proc~do_regrid -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge9" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;proc~do_regrid</title>
+<path fill="none" stroke="#ff0000" d="M287.07,-457.47C312.35,-459.15 337.93,-460.85 360.95,-462.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="360.78,-465.88 370.99,-463.05 361.24,-458.89 360.78,-465.88"/>
+</g>
+<!-- proc~get_factory -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node11" class="node">
+<title>proc~get_factory</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node11"><a xlink:href="../proc/get_factory.html" xlink:title="GridManager%get_factory">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="522.5,-349 370.5,-349 370.5,-325 522.5,-325 522.5,-349"/>
+<text text-anchor="middle" x="446.5" y="-334.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GridManager%get_factory</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;proc~get_factory -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge10" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;proc~get_factory</title>
+<path fill="none" stroke="#ff0000" d="M172.38,-435.99C207.3,-421.14 269.08,-395.43 323,-376 346.6,-367.5 373.08,-358.95 395.37,-352.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="396.44,-355.36 404.97,-349.07 394.38,-348.67 396.44,-355.36"/>
+</g>
+<!-- proc~get_spec~3 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node12" class="node">
+<title>proc~get_spec~3</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node12"><a xlink:href="../proc/get_spec~3.html" xlink:title="AbstractRegridder%get_spec">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="841.5,-444 675.5,-444 675.5,-420 841.5,-420 841.5,-444"/>
+<text text-anchor="middle" x="758.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractRegridder%get_spec</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;proc~get_spec~3 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge11" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;proc~get_spec~3</title>
+<path fill="none" stroke="#ff0000" d="M287.06,-444.28C403.68,-441.24 565.16,-437.02 665.39,-434.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="665.59,-437.9 675.49,-434.14 665.4,-430.9 665.59,-437.9"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node13" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node13"><a xlink:href="../proc/mapl_gridhasde.html" xlink:title="MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="498.5,-218 394.5,-218 394.5,-194 498.5,-194 498.5,-218"/>
+<text text-anchor="middle" x="446.5" y="-203.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge12" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#ff0000" d="M153.24,-435.87C177.13,-403.44 246.81,-313.62 323,-260 346.05,-243.78 374.76,-230.8 398.59,-221.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="399.99,-224.86 408.13,-218.08 397.54,-218.3 399.99,-224.86"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node14" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node14"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="799.5,-234 717.5,-234 717.5,-210 799.5,-210 799.5,-234"/>
+<text text-anchor="middle" x="758.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;proc~mapl_return -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge13" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M157.23,-435.8C185,-409.84 254.1,-348.82 323,-316 452.93,-254.1 624.11,-232.5 707.51,-225.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="707.8,-228.83 717.48,-224.51 707.22,-221.85 707.8,-228.83"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node15" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node15"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="796.5,-402 720.5,-402 720.5,-378 796.5,-378 796.5,-402"/>
+<text text-anchor="middle" x="758.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32&#45;&gt;proc~mapl_verify -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge14" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M271.51,-435.98C407.76,-423.09 617.08,-403.29 710.11,-394.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="710.71,-397.94 720.34,-393.52 710.05,-390.97 710.71,-397.94"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node25" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node25"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1088,-591 954,-591 954,-567 1088,-567 1088,-591"/>
+<text text-anchor="middle" x="1021" y="-576.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ff24" stroke-dasharray="5,2" d="M798.22,-561.12C836.53,-564.21 896.19,-569.02 943.99,-572.87"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="943.75,-576.36 954,-573.68 944.31,-569.39 943.75,-576.36"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node26" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node26"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1095,-549 947,-549 947,-525 1095,-525 1095,-549"/>
+<text text-anchor="middle" x="1021" y="-534.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ff24" stroke-dasharray="5,2" d="M798.22,-554.88C834.6,-551.95 890.24,-547.46 936.68,-543.72"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="937.06,-547.2 946.75,-542.91 936.5,-540.22 937.06,-547.2"/>
+</g>
+<!-- proc~cartesian_to_spherical_3d_real64 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node22" class="node">
+<title>proc~cartesian_to_spherical_3d_real64</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node22"><a xlink:href="../proc/cartesian_to_spherical_3d_real64.html" xlink:title="AbstractGridFactory%cartesian_to_spherical_3d_real64">
+<polygon fill="#d9534f" stroke="#d9534f" points="911,-66 606,-66 606,-42 911,-42 911,-66"/>
+<text text-anchor="middle" x="758.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractGridFactory%cartesian_to_spherical_3d_real64</text>
+</a>
+</g>
+</g>
+<!-- none~cartesian_to_spherical~4&#45;&gt;proc~cartesian_to_spherical_3d_real64 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge17" class="edge">
+<title>none~cartesian_to_spherical~4&#45;&gt;proc~cartesian_to_spherical_3d_real64</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M518.45,-88.98C545.79,-84.44 577.33,-79.34 606,-75 622.79,-72.46 640.64,-69.88 657.99,-67.43"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="658.71,-70.87 668.12,-66.01 657.74,-63.94 658.71,-70.87"/>
+</g>
+<!-- proc~spherical_to_cartesian_3d_real64 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node29" class="node">
+<title>proc~spherical_to_cartesian_3d_real64</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node29"><a xlink:href="../proc/spherical_to_cartesian_3d_real64.html" xlink:title="AbstractGridFactory%spherical_to_cartesian_3d_real64">
+<polygon fill="#d9534f" stroke="#d9534f" points="911,-24 606,-24 606,0 911,0 911,-24"/>
+<text text-anchor="middle" x="758.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractGridFactory%spherical_to_cartesian_3d_real64</text>
+</a>
+</g>
+</g>
+<!-- none~spherical_to_cartesian~4&#45;&gt;proc~spherical_to_cartesian_3d_real64 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge18" class="edge">
+<title>none~spherical_to_cartesian~4&#45;&gt;proc~spherical_to_cartesian_3d_real64</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M570.02,-21.68C578.47,-21.24 587.06,-20.8 595.68,-20.35"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="596,-23.84 605.8,-19.83 595.64,-16.85 596,-23.84"/>
+</g>
+<!-- proc~do_regrid&#45;&gt;esmf_fieldget -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge20" class="edge">
+<title>proc~do_regrid&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#0091ff" d="M479.21,-480.02C505.38,-490.96 542.55,-508.91 570,-532 590.14,-548.94 583.26,-565.76 606,-579 635.99,-596.47 674.86,-601.58 705.72,-602.39"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="705.81,-605.89 715.85,-602.51 705.89,-598.89 705.81,-605.89"/>
+</g>
+<!-- proc~do_regrid&#45;&gt;interface~mapl_assert -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge21" class="edge">
+<title>proc~do_regrid&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0091ff" d="M522.06,-475.63C538.64,-479.51 555.56,-485.32 570,-494 591.36,-506.85 584.2,-524.92 606,-537 637.2,-554.28 677.37,-559.21 708.5,-559.99"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="708.65,-563.49 718.69,-560.11 708.73,-556.49 708.65,-563.49"/>
+</g>
+<!-- proc~do_regrid&#45;&gt;proc~get_spec~3 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge22" class="edge">
+<title>proc~do_regrid&#45;&gt;proc~get_spec~3</title>
+<path fill="none" stroke="#0091ff" d="M522.15,-459.33C565.12,-454.34 619.48,-448.03 665.13,-442.73"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="665.8,-446.17 675.33,-441.54 664.99,-439.22 665.8,-446.17"/>
+</g>
+<!-- proc~do_regrid&#45;&gt;proc~mapl_verify -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge23" class="edge">
+<title>proc~do_regrid&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0091ff" d="M475.58,-455.89C506.85,-442.88 559.15,-422.54 606,-411 640.37,-402.54 680.01,-397.19 710.13,-394.02"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="710.76,-397.47 720.36,-392.98 710.06,-390.51 710.76,-397.47"/>
+</g>
+<!-- ESMF_FieldRegrid -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node18" class="node">
+<title>ESMF_FieldRegrid</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node18"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_fieldregrid.html" xlink:title="ESMF_FieldRegrid">
+<polygon fill="#d9534f" stroke="#d9534f" points="811.5,-486 705.5,-486 705.5,-462 811.5,-462 811.5,-486"/>
+<text text-anchor="middle" x="758.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_FieldRegrid</text>
+</a>
+</g>
+</g>
+<!-- proc~do_regrid&#45;&gt;ESMF_FieldRegrid -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge19" class="edge">
+<title>proc~do_regrid&#45;&gt;ESMF_FieldRegrid</title>
+<path fill="none" stroke="#0091ff" d="M522.15,-469.44C575.11,-470.47 645.38,-471.83 695.31,-472.8"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="695.26,-476.3 705.33,-472.99 695.4,-469.3 695.26,-476.3"/>
+</g>
+<!-- proc~select_route_handle -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node28" class="node">
+<title>proc~select_route_handle</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node28"><a xlink:href="../proc/select_route_handle.html" xlink:title="EsmfRegridder%select_route_handle">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="862.5,-528 654.5,-528 654.5,-504 862.5,-504 862.5,-528"/>
+<text text-anchor="middle" x="758.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%select_route_handle</text>
+</a>
+</g>
+</g>
+<!-- proc~do_regrid&#45;&gt;proc~select_route_handle -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge24" class="edge">
+<title>proc~do_regrid&#45;&gt;proc~select_route_handle</title>
+<path fill="none" stroke="#0091ff" d="M515.3,-480.02C543.34,-484.87 576.21,-490.4 606,-495 622.56,-497.56 640.17,-500.13 657.29,-502.56"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="656.92,-506.04 667.31,-503.97 657.89,-499.11 656.92,-506.04"/>
+</g>
+<!-- proc~get_factory&#45;&gt;proc~mapl_return -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge28" class="edge">
+<title>proc~get_factory&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0024ff" d="M493.13,-324.95C517.5,-317.05 547.1,-304.99 570,-288 590.57,-272.74 583.73,-255.66 606,-243 636.59,-225.61 676.11,-220.6 707.11,-219.81"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="707.32,-223.3 717.28,-219.69 707.24,-216.31 707.32,-223.3"/>
+</g>
+<!-- proc~get_factory&#45;&gt;proc~mapl_verify -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge29" class="edge">
+<title>proc~get_factory&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0024ff" d="M502.73,-349.02C533.11,-355.41 571.54,-363.14 606,-369 640.77,-374.91 680.25,-380.35 710.19,-384.2"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="709.99,-387.71 720.36,-385.5 710.88,-380.76 709.99,-387.71"/>
+</g>
+<!-- ESMF_InfoGet -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node20" class="node">
+<title>ESMF_InfoGet</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node20"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infoget.html" xlink:title="ESMF_InfoGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="801,-360 716,-360 716,-336 801,-336 801,-360"/>
+<text text-anchor="middle" x="758.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGet</text>
+</a>
+</g>
+</g>
+<!-- proc~get_factory&#45;&gt;ESMF_InfoGet -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge25" class="edge">
+<title>proc~get_factory&#45;&gt;ESMF_InfoGet</title>
+<path fill="none" stroke="#0024ff" d="M522.54,-339.66C579.25,-341.68 655.63,-344.39 705.69,-346.16"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="705.84,-349.67 715.96,-346.53 706.09,-342.67 705.84,-349.67"/>
+</g>
+<!-- ESMF_InfoGetFromHost -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node21" class="node">
+<title>ESMF_InfoGetFromHost</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node21"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infogetfromhost.html" xlink:title="ESMF_InfoGetFromHost">
+<polygon fill="#a7506f" stroke="#a7506f" points="826.5,-318 690.5,-318 690.5,-294 826.5,-294 826.5,-318"/>
+<text text-anchor="middle" x="758.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGetFromHost</text>
+</a>
+</g>
+</g>
+<!-- proc~get_factory&#45;&gt;ESMF_InfoGetFromHost -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge26" class="edge">
+<title>proc~get_factory&#45;&gt;ESMF_InfoGetFromHost</title>
+<path fill="none" stroke="#0024ff" d="M522.54,-329.5C570.3,-324.72 632.01,-318.55 680.2,-313.73"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="680.67,-317.2 690.27,-312.72 679.97,-310.24 680.67,-317.2"/>
+</g>
+<!-- proc~m_at~16 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node24" class="node">
+<title>proc~m_at~16</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node24"><a xlink:href="../proc/m_at~16.html" xlink:title="Integer64GridFactoryMap%m_at">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="850.5,-276 666.5,-276 666.5,-252 850.5,-252 850.5,-276"/>
+<text text-anchor="middle" x="758.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Integer64GridFactoryMap%m_at</text>
+</a>
+</g>
+</g>
+<!-- proc~get_factory&#45;&gt;proc~m_at~16 -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge27" class="edge">
+<title>proc~get_factory&#45;&gt;proc~m_at~16</title>
+<path fill="none" stroke="#0024ff" d="M478.61,-324.95C510.23,-313.15 560.86,-295.45 606,-285 622.22,-281.25 639.58,-278.07 656.55,-275.42"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="657.12,-278.87 666.49,-273.92 656.08,-271.95 657.12,-278.87"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#b600ff" d="M498.69,-208.64C556.32,-211.62 649.4,-216.42 706.82,-219.38"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="706.94,-222.9 717.11,-219.92 707.31,-215.9 706.94,-222.9"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#b600ff" d="M463.31,-218.12C487.78,-237.32 535.59,-276.6 570,-316 588.73,-337.45 581.81,-353.97 606,-369 637,-388.26 678.39,-392.89 710.08,-393.05"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="710.45,-396.55 720.42,-392.95 710.38,-389.55 710.45,-396.55"/>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node16" class="node">
+<title>ESMF_DELayoutGet</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node16"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_delayoutget.html" xlink:title="ESMF_DELayoutGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="816.5,-192 700.5,-192 700.5,-168 816.5,-168 816.5,-192"/>
+<text text-anchor="middle" x="758.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DELayoutGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#b600ff" d="M498.69,-201.71C551.09,-197.31 632.79,-190.46 690.35,-185.63"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="690.77,-189.11 700.44,-184.79 690.19,-182.13 690.77,-189.11"/>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node17" class="node">
+<title>ESMF_DistGridGet</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node17"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="812.5,-150 704.5,-150 704.5,-126 812.5,-126 812.5,-150"/>
+<text text-anchor="middle" x="758.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#b600ff" d="M482.67,-193.91C514.53,-183.36 562.94,-168.31 606,-159 634.65,-152.8 666.77,-148.05 694.03,-144.64"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="694.72,-148.08 704.22,-143.4 693.87,-141.13 694.72,-148.08"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node19" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node19"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="802.5,-108 714.5,-108 714.5,-84 802.5,-84 802.5,-108"/>
+<text text-anchor="middle" x="758.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_GridGet -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#b600ff" d="M464.09,-193.88C491.91,-174.22 550.37,-135.73 606,-117 637.63,-106.35 674.72,-101.1 704.28,-98.51"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="704.71,-101.99 714.4,-97.7 704.16,-95.01 704.71,-101.99"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node23" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node23"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1078.5,-234 963.5,-234 963.5,-210 1078.5,-210 1078.5,-234"/>
+<text text-anchor="middle" x="1021" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge35" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00da" d="M799.63,-222C840.54,-222 904.7,-222 953.27,-222"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="953.38,-225.5 963.38,-222 953.38,-218.5 953.38,-225.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node27" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~transpose_regrid_vector_3d_real32~~CallsGraph_node27"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1087.5,-339 954.5,-339 954.5,-315 1087.5,-315 1087.5,-339"/>
+<text text-anchor="middle" x="1021" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M799.57,-221.99C831,-223.28 875.25,-228 911,-243 946.79,-258.01 981.04,-287.79 1001.3,-307.56"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="999.05,-310.25 1008.6,-314.84 1004,-305.3 999.05,-310.25"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~transpose_regrid_vector_3d_real32~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff006d" d="M796.7,-387.25C827.66,-384.39 872.69,-378.89 911,-369 936.09,-362.52 963.28,-352.05 984.23,-343.18"/>
+<polygon fill="#ff006d" stroke="#ff006d" points="985.89,-346.28 993.69,-339.11 983.12,-339.85 985.89,-346.28"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproctranspose_regrid_vector_3d_real32CallsGraph = svgPanZoom('#proctranspose_regrid_vector_3d_real32CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">transpose_regrid_vector_3d_real32</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">u_in</span><span class="p">,</span><span class="w"> </span><span class="n">v_in</span><span class="p">,</span><span class="w"> </span><span class="n">u_out</span><span class="p">,</span><span class="w"> </span><span class="n">v_out</span><span class="p">,</span><span class="w"> </span><span class="n">rotate</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">EsmfRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">u_in</span><span class="p">(:,:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v_in</span><span class="p">(:,:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">u_out</span><span class="p">(:,:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v_out</span><span class="p">(:,:,:)</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rotate</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;MAPL_EsmfRegridder::transpose_regrid_vector_3d_real32()&#39;</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">factory</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p_src</span><span class="p">(:,:,:,:),</span><span class="w"> </span><span class="n">p_dst</span><span class="p">(:,:,:,:)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_field</span><span class="p">,</span><span class="w"> </span><span class="n">dst_field</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">km</span><span class="p">,</span><span class="n">kin</span><span class="p">,</span><span class="n">kout</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">im_src</span><span class="p">,</span><span class="w"> </span><span class="n">jm_src</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">im_dst</span><span class="p">,</span><span class="w"> </span><span class="n">jm_dst</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_axis_in</span><span class="p">,</span><span class="w"> </span><span class="n">grid_axis_out</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hasDE</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span>
+
+<span class="w">      </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_spec</span><span class="p">()</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMGetCurrent</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">u_in</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">km</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">v_in</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="s1">&#39;inconsistent array shape&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">u_out</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">km</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">u_out</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="s1">&#39;inconsistent array shape&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">km</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">v_out</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="s1">&#39;inconsistent array shape&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">im_src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">u_in</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">jm_src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">u_in</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">im_src</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">v_in</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="s1">&#39;inconsistent array shape&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">jm_src</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">v_in</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="s1">&#39;inconsistent array shape&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">im_dst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">u_out</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">jm_dst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">u_out</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">im_dst</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">v_out</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="s1">&#39;inconsistent array shape&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">jm_dst</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">v_out</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="s1">&#39;inconsistent array shape&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">p_src</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">km</span><span class="p">,</span><span class="n">im_src</span><span class="p">,</span><span class="n">jm_src</span><span class="p">))</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">p_dst</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">km</span><span class="p">,</span><span class="n">im_dst</span><span class="p">,</span><span class="n">jm_dst</span><span class="p">))</span>
+
+<span class="w">      </span><span class="n">grid_axis_in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;north-south&#39;</span>
+<span class="w">      </span><span class="n">grid_axis_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;north-south&#39;</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rotate</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">rotate</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">grid_axis_in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;grid&#39;</span>
+<span class="w">            </span><span class="n">grid_axis_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;xyz&#39;</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end if</span>
+
+<span class="k">      </span><span class="n">factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">grid_manager</span><span class="p">%</span><span class="n">get_factory</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_out</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="n">hasDE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_GridHasDE</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_out</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hasDE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">u_in</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      call </span><span class="n">ESMF_VMAllReduce</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="n">sendData</span><span class="o">=</span><span class="n">km</span><span class="p">,</span><span class="n">recvData</span><span class="o">=</span><span class="n">kin</span><span class="p">,</span><span class="n">reduceFlag</span><span class="o">=</span><span class="n">ESMF_REDUCE_MAX</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="n">src_field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_out</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">gridToFieldMap</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="n">ungriddedLBound</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">ungriddedUBound</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="n">kin</span><span class="p">],</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hasDE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">p_src</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">factory</span><span class="p">%</span><span class="n">spherical_to_cartesian</span><span class="p">(</span><span class="n">u_in</span><span class="p">,</span><span class="w"> </span><span class="n">v_in</span><span class="p">,</span><span class="w"> </span><span class="n">p_src</span><span class="p">,</span><span class="w"> </span><span class="n">grid_axis_in</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">hasDE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_GridHasDE</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_in</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hasDE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">u_out</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      call </span><span class="n">ESMF_VMAllReduce</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="n">sendData</span><span class="o">=</span><span class="n">km</span><span class="p">,</span><span class="n">recvData</span><span class="o">=</span><span class="n">kout</span><span class="p">,</span><span class="n">reduceFlag</span><span class="o">=</span><span class="n">ESMF_REDUCE_MAX</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="n">dst_field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_in</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">gridToFieldMap</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="n">ungriddedLBound</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">ungriddedUBound</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="n">kout</span><span class="p">],</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hasDE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">dst_field</span><span class="p">,</span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">p_dst</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="n">p_dst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_UNDEF</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">this</span><span class="p">%</span><span class="n">do_regrid</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="w"> </span><span class="n">dst_field</span><span class="p">,</span><span class="w"> </span><span class="n">doTranspose</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">grid_manager</span><span class="p">%</span><span class="n">get_factory</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_in</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hasDE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">factory</span><span class="p">%</span><span class="n">cartesian_to_spherical</span><span class="p">(</span><span class="n">p_dst</span><span class="p">,</span><span class="w"> </span><span class="n">u_out</span><span class="p">,</span><span class="w"> </span><span class="n">v_out</span><span class="p">,</span><span class="w"> </span><span class="n">grid_axis_out</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="w"> </span><span class="n">noGarbage</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">dst_field</span><span class="p">,</span><span class="w"> </span><span class="n">noGarbage</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">p_src</span><span class="p">)</span>
+<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">p_dst</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">transpose_regrid_vector_3d_real32</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

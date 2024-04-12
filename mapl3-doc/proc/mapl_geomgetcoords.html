@@ -1,0 +1,981 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_GeomGetCoords &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_GeomGetCoords
+      <small>Module Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">43 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/VectorBasis_smod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/vectorbasis_smod.f90.html'>VectorBasis_smod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/vectorbasis_smod.html'>VectorBasis_smod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_GeomGetCoords</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_geomgetcoords.html#src">MAPL_GeomGetCoords</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>module subroutine MAPL_GeomGetCoords(geom, longitudes, latitudes, rc)  
+    <a href="../interface/mapl_geomgetcoords.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-geom~19"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_geom.html'>ESMF_Geom</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>geom</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-longitudes~6"></span>
+              real(kind=ESMF_KIND_R8),
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>longitudes</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-latitudes~6"></span>
+              real(kind=ESMF_KIND_R8),
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>latitudes</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~570"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_geomgetcoords~~CallsGraph Pages: 1 -->
+<svg id="procmapl_geomgetcoordsCallsGraph" width="641pt" height="243pt"
+ viewBox="0.00 0.00 641.00 243.08" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_geomgetcoords~~CallsGraph" class="graph" transform="scale(1.67 1.67) rotate(0) translate(4 401.77)">
+<title>proc~~mapl_geomgetcoords~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-401.77 1066,-401.77 1066,4 -4,4"/>
+<!-- proc~mapl_geomgetcoords -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node1" class="node">
+<title>proc~mapl_geomgetcoords</title>
+<polygon fill="none" stroke="black" points="135,-255.77 0,-255.77 0,-231.77 135,-231.77 135,-255.77"/>
+<text text-anchor="middle" x="67.5" y="-241.37" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GeomGetCoords</text>
+</g>
+<!-- ESMF_GeomGet -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node2" class="node">
+<title>ESMF_GeomGet</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_geomget.html" xlink:title="ESMF_GeomGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="290,-397.77 193,-397.77 193,-373.77 290,-373.77 290,-397.77"/>
+<text text-anchor="middle" x="241.5" y="-383.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GeomGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_geomgetcoords&#45;&gt;ESMF_GeomGet -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_geomgetcoords&#45;&gt;ESMF_GeomGet</title>
+<path fill="none" stroke="#ff0000" d="M75.54,-256.09C90.14,-280.53 126.11,-335.32 171,-364.77 174.84,-367.29 178.99,-369.51 183.29,-371.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="182.29,-374.86 192.88,-375.39 184.94,-368.37 182.29,-374.86"/>
+</g>
+<!-- ESMF_LocStreamGetKey -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node3" class="node">
+<title>ESMF_LocStreamGetKey</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_locstreamgetkey.html" xlink:title="ESMF_LocStreamGetKey">
+<polygon fill="#a7506f" stroke="#a7506f" points="312,-355.77 171,-355.77 171,-331.77 312,-331.77 312,-355.77"/>
+<text text-anchor="middle" x="241.5" y="-341.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_LocStreamGetKey</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_geomgetcoords&#45;&gt;ESMF_LocStreamGetKey -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_geomgetcoords&#45;&gt;ESMF_LocStreamGetKey</title>
+<path fill="none" stroke="#ff0000" d="M82.62,-255.86C101.67,-271.71 137.14,-299.64 171,-317.77 177.95,-321.49 185.54,-324.92 193.08,-327.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="191.95,-331.29 202.54,-331.65 194.49,-324.77 191.95,-331.29"/>
+</g>
+<!-- interface~gridgetcoords -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node4" class="node">
+<title>interface~gridgetcoords</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node4"><a xlink:href="../interface/gridgetcoords.html" xlink:title="GridGetCoords">
+<polygon fill="#a7506f" stroke="#a7506f" points="287,-215.77 196,-215.77 196,-191.77 287,-191.77 287,-215.77"/>
+<text text-anchor="middle" x="241.5" y="-201.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GridGetCoords</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_geomgetcoords&#45;&gt;interface~gridgetcoords -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_geomgetcoords&#45;&gt;interface~gridgetcoords</title>
+<path fill="none" stroke="#ff0000" d="M120.11,-231.77C140.95,-226.92 165.02,-221.32 186.13,-216.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.97,-219.81 195.92,-214.14 185.39,-212.99 186.97,-219.81"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node5" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node5"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="597.5,-35.77 518.5,-35.77 518.5,-11.77 597.5,-11.77 597.5,-35.77"/>
+<text text-anchor="middle" x="558" y="-21.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_geomgetcoords&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_geomgetcoords&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M70.69,-231.7C77.79,-196.46 103.75,-93.44 171,-49.77 275.18,17.89 430.29,1.36 508.38,-13.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="507.94,-16.51 518.41,-14.95 509.25,-9.63 507.94,-16.51"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node6" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node6"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="767,-161.77 685,-161.77 685,-137.77 767,-137.77 767,-161.77"/>
+<text text-anchor="middle" x="726" y="-147.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_geomgetcoords&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_geomgetcoords&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M82.98,-231.57C122.34,-199.32 235.89,-112.25 348,-82.77 463.25,-52.46 507.81,-40.82 616,-90.77 637.12,-100.52 632.12,-116.68 652,-128.77 659.05,-133.06 667.01,-136.5 675.02,-139.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="674.17,-142.66 684.76,-142.3 676.25,-135.98 674.17,-142.66"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node7" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node7"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="764,-203.77 688,-203.77 688,-179.77 764,-179.77 764,-203.77"/>
+<text text-anchor="middle" x="726" y="-189.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_geomgetcoords&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_geomgetcoords&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M113.17,-255.82C186.63,-273.99 337.44,-304.28 464,-284.77 549.35,-271.61 643.35,-231.17 691.9,-208.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="693.47,-211.31 700.98,-203.83 690.45,-205 693.47,-211.31"/>
+</g>
+<!-- interface~grid_get_centers -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node8" class="node">
+<title>interface~grid_get_centers</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node8"><a xlink:href="../interface/grid_get_centers.html" xlink:title="grid_get_centers">
+<polygon fill="#a7506f" stroke="#a7506f" points="456.5,-195.77 355.5,-195.77 355.5,-171.77 456.5,-171.77 456.5,-195.77"/>
+<text text-anchor="middle" x="406" y="-181.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">grid_get_centers</text>
+</a>
+</g>
+</g>
+<!-- interface~gridgetcoords&#45;&gt;interface~grid_get_centers -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge7" class="edge">
+<title>interface~gridgetcoords&#45;&gt;interface~grid_get_centers</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M287.33,-198.25C305.25,-196.05 326.15,-193.47 345.32,-191.11"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="345.96,-194.56 355.46,-189.87 345.1,-187.61 345.96,-194.56"/>
+</g>
+<!-- interface~grid_get_coords_1d -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node9" class="node">
+<title>interface~grid_get_coords_1d</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node9"><a xlink:href="../interface/grid_get_coords_1d.html" xlink:title="grid_get_coords_1d">
+<polygon fill="#a7506f" stroke="#a7506f" points="464,-275.77 348,-275.77 348,-251.77 464,-251.77 464,-275.77"/>
+<text text-anchor="middle" x="406" y="-261.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">grid_get_coords_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~gridgetcoords&#45;&gt;interface~grid_get_coords_1d -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge8" class="edge">
+<title>interface~gridgetcoords&#45;&gt;interface~grid_get_coords_1d</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M275.38,-215.91C300.58,-225.21 335.52,-238.12 362.78,-248.18"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="361.85,-251.57 372.44,-251.75 364.27,-245 361.85,-251.57"/>
+</g>
+<!-- interface~grid_get_coords_2d -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node10" class="node">
+<title>interface~grid_get_coords_2d</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node10"><a xlink:href="../interface/grid_get_coords_2d.html" xlink:title="grid_get_coords_2d">
+<polygon fill="#a7506f" stroke="#a7506f" points="464,-115.77 348,-115.77 348,-91.77 464,-91.77 464,-115.77"/>
+<text text-anchor="middle" x="406" y="-101.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">grid_get_coords_2d</text>
+</a>
+</g>
+</g>
+<!-- interface~gridgetcoords&#45;&gt;interface~grid_get_coords_2d -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge9" class="edge">
+<title>interface~gridgetcoords&#45;&gt;interface~grid_get_coords_2d</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M257.99,-191.54C278.04,-176.03 314.41,-148.99 348,-129.77 353.9,-126.39 360.31,-123.12 366.64,-120.09"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="368.18,-123.24 375.78,-115.86 365.23,-116.89 368.18,-123.24"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node12" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node12"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="793,-77.77 659,-77.77 659,-53.77 793,-53.77 793,-77.77"/>
+<text text-anchor="middle" x="726" y="-63.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M597.5,-33.51C618.37,-38.79 644.56,-45.42 667.77,-51.29"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="666.96,-54.69 677.51,-53.75 668.68,-47.91 666.96,-54.69"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node13" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node13"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="800,-35.77 652,-35.77 652,-11.77 800,-11.77 800,-35.77"/>
+<text text-anchor="middle" x="726" y="-21.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge11" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M597.5,-23.77C610.78,-23.77 626.21,-23.77 641.66,-23.77"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="641.8,-27.27 651.8,-23.77 641.8,-20.27 641.8,-27.27"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node11" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node11"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="960,-77.77 845,-77.77 845,-53.77 960,-53.77 960,-77.77"/>
+<text text-anchor="middle" x="902.5" y="-63.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0000ff" d="M767.11,-140.37C777.99,-137.25 789.63,-133.37 800,-128.77 827.74,-116.45 856.93,-97.63 876.85,-83.77"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="878.91,-86.6 885.05,-77.97 874.87,-80.88 878.91,-86.6"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node14" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node14"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="969,-150.77 836,-150.77 836,-126.77 969,-126.77 969,-150.77"/>
+<text text-anchor="middle" x="902.5" y="-136.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M767.03,-147.25C784.42,-146.15 805.39,-144.83 825.54,-143.56"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="825.9,-147.04 835.66,-142.92 825.46,-140.06 825.9,-147.04"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00ff" d="M764.19,-181.27C775.69,-177.97 788.38,-174.27 800,-170.77 817.75,-165.42 837.17,-159.35 854.23,-153.94"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="855.5,-157.21 863.97,-150.85 853.38,-150.54 855.5,-157.21"/>
+</g>
+<!-- proc~grid_get_centers -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node17" class="node">
+<title>proc~grid_get_centers</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node17"><a xlink:href="../proc/grid_get_centers.html" xlink:title="grid_get_centers">
+<polygon fill="#d9534f" stroke="#d9534f" points="608.5,-181.77 507.5,-181.77 507.5,-157.77 608.5,-157.77 608.5,-181.77"/>
+<text text-anchor="middle" x="558" y="-167.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">grid_get_centers</text>
+</a>
+</g>
+</g>
+<!-- interface~grid_get_centers&#45;&gt;proc~grid_get_centers -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge15" class="edge">
+<title>interface~grid_get_centers&#45;&gt;proc~grid_get_centers</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M456.53,-179.15C469.52,-177.93 483.66,-176.61 497.13,-175.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="497.63,-178.83 507.26,-174.41 496.98,-171.86 497.63,-178.83"/>
+</g>
+<!-- proc~grid_get_coords_1d -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node18" class="node">
+<title>proc~grid_get_coords_1d</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node18"><a xlink:href="../proc/grid_get_coords_1d.html" xlink:title="grid_get_coords_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="616,-227.77 500,-227.77 500,-203.77 616,-203.77 616,-227.77"/>
+<text text-anchor="middle" x="558" y="-213.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">grid_get_coords_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~grid_get_coords_1d&#45;&gt;proc~grid_get_coords_1d -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge16" class="edge">
+<title>interface~grid_get_coords_1d&#45;&gt;proc~grid_get_coords_1d</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M444.85,-251.66C464.56,-245.35 488.84,-237.58 509.76,-230.88"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="510.96,-234.18 519.42,-227.79 508.83,-227.51 510.96,-234.18"/>
+</g>
+<!-- proc~grid_get_coords_2d -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node19" class="node">
+<title>proc~grid_get_coords_2d</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node19"><a xlink:href="../proc/grid_get_coords_2d.html" xlink:title="grid_get_coords_2d">
+<polygon fill="#d9534f" stroke="#d9534f" points="616,-123.77 500,-123.77 500,-99.77 616,-99.77 616,-123.77"/>
+<text text-anchor="middle" x="558" y="-109.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">grid_get_coords_2d</text>
+</a>
+</g>
+</g>
+<!-- interface~grid_get_coords_2d&#45;&gt;proc~grid_get_coords_2d -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge17" class="edge">
+<title>interface~grid_get_coords_2d&#45;&gt;proc~grid_get_coords_2d</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M464.14,-106.82C472.38,-107.26 480.92,-107.71 489.34,-108.16"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="489.35,-111.67 499.53,-108.7 489.73,-104.68 489.35,-111.67"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node15" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1060.5,-56.77 1006.5,-56.77 1006.5,-32.77 1060.5,-32.77 1060.5,-56.77"/>
+<text text-anchor="middle" x="1033.5" y="-42.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge18" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ff91" d="M960.08,-56.56C972.42,-54.55 985.14,-52.48 996.42,-50.64"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="997.01,-54.09 1006.32,-49.03 995.89,-47.18 997.01,-54.09"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node16" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1060.5,-98.77 1006.5,-98.77 1006.5,-74.77 1060.5,-74.77 1060.5,-98.77"/>
+<text text-anchor="middle" x="1033.5" y="-84.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge19" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ff91" d="M960.08,-74.98C972.42,-76.99 985.14,-79.06 996.42,-80.9"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="995.89,-84.35 1006.32,-82.51 997.01,-77.45 995.89,-84.35"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0091ff" d="M773.79,-77.77C782.6,-80.44 791.66,-83.47 800,-86.77 824.95,-96.64 851.93,-110.64 871.8,-121.62"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="870.23,-124.75 880.67,-126.59 873.65,-118.65 870.23,-124.75"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#4800ff" d="M777,-35.8C797.18,-40.66 820.62,-46.3 841.68,-51.37"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="840.95,-54.79 851.49,-53.73 842.58,-47.99 840.95,-54.79"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#4800ff" d="M782.34,-35.9C788.53,-38.35 794.56,-41.28 800,-44.77 820.68,-58.06 818.29,-69.71 836,-86.77 848.49,-98.8 863.58,-110.92 876.13,-120.43"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="874.24,-123.39 884.35,-126.57 878.43,-117.78 874.24,-123.39"/>
+</g>
+<!-- proc~initialize~21 -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node20" class="node">
+<title>proc~initialize~21</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node20"><a xlink:href="../proc/initialize~21.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1062,-150.77 1005,-150.77 1005,-126.77 1062,-126.77 1062,-150.77"/>
+<text text-anchor="middle" x="1033.5" y="-136.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~21 -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~21</title>
+<path fill="none" stroke="#ff00da" d="M969.13,-138.77C977.88,-138.77 986.59,-138.77 994.63,-138.77"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="994.77,-142.27 1004.77,-138.77 994.77,-135.27 994.77,-142.27"/>
+</g>
+<!-- proc~grid_get_centers&#45;&gt;interface~gridgetcoords -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge24" class="edge">
+<title>proc~grid_get_centers&#45;&gt;interface~gridgetcoords</title>
+<path fill="none" stroke="#00ff00" d="M507.13,-162.05C464.5,-156.89 401.7,-152.7 348,-162.77 322.66,-167.52 295.58,-178.17 275.2,-187.43"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="273.64,-184.29 266.05,-191.69 276.59,-190.64 273.64,-184.29"/>
+</g>
+<!-- proc~grid_get_centers&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge25" class="edge">
+<title>proc~grid_get_centers&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff00" d="M608.81,-163.77C629.73,-161.25 654.03,-158.32 674.98,-155.8"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="675.46,-159.26 684.97,-154.59 674.62,-152.31 675.46,-159.26"/>
+</g>
+<!-- proc~grid_get_centers&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge26" class="edge">
+<title>proc~grid_get_centers&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff00" d="M608.81,-176.37C630.74,-179.28 656.37,-182.67 677.97,-185.54"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="677.52,-189.01 687.9,-186.85 678.44,-182.07 677.52,-189.01"/>
+</g>
+<!-- proc~grid_get_coords_1d&#45;&gt;interface~gridgetcoords -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge27" class="edge">
+<title>proc~grid_get_coords_1d&#45;&gt;interface~gridgetcoords</title>
+<path fill="none" stroke="#00ffff" d="M499.91,-213.59C442.37,-211.4 354.2,-208.03 297.44,-205.87"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="297.35,-202.36 287.23,-205.48 297.09,-209.35 297.35,-202.36"/>
+</g>
+<!-- proc~grid_get_coords_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge28" class="edge">
+<title>proc~grid_get_coords_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffff" d="M587.95,-203.7C597.01,-199.75 607,-195.23 616,-190.77 632.4,-182.64 635.1,-177.79 652,-170.77 659.28,-167.75 667.14,-164.99 674.91,-162.54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="676.09,-165.84 684.66,-159.61 674.07,-159.14 676.09,-165.84"/>
+</g>
+<!-- proc~grid_get_coords_1d&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge29" class="edge">
+<title>proc~grid_get_coords_1d&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffff" d="M616.13,-207.51C636.24,-204.6 658.61,-201.37 677.81,-198.59"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="678.43,-202.04 687.82,-197.14 677.42,-195.11 678.43,-202.04"/>
+</g>
+<!-- proc~grid_get_coords_2d&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge31" class="edge">
+<title>proc~grid_get_coords_2d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M611.52,-123.79C631.84,-128.44 654.98,-133.74 675.04,-138.33"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="674.39,-141.77 684.92,-140.59 675.96,-134.95 674.39,-141.77"/>
+</g>
+<!-- proc~grid_get_coords_2d&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge32" class="edge">
+<title>proc~grid_get_coords_2d&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0000ff" d="M577.69,-123.81C603.69,-140.55 648.08,-169 652,-170.77 660.21,-174.46 669.24,-177.68 678.06,-180.41"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="677.3,-183.84 687.88,-183.29 679.27,-177.12 677.3,-183.84"/>
+</g>
+<!-- ESMF_GridGetCoord -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_node21" class="node">
+<title>ESMF_GridGetCoord</title>
+<g id="a_proc~~mapl_geomgetcoords~~CallsGraph_node21"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridgetcoord.html" xlink:title="ESMF_GridGetCoord">
+<polygon fill="#a7506f" stroke="#a7506f" points="786,-119.77 666,-119.77 666,-95.77 786,-95.77 786,-119.77"/>
+<text text-anchor="middle" x="726" y="-105.37" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGetCoord</text>
+</a>
+</g>
+</g>
+<!-- proc~grid_get_coords_2d&#45;&gt;ESMF_GridGetCoord -->
+<g id="proc~~mapl_geomgetcoords~~CallsGraph_edge30" class="edge">
+<title>proc~grid_get_coords_2d&#45;&gt;ESMF_GridGetCoord</title>
+<path fill="none" stroke="#0000ff" d="M616.13,-110.39C628.78,-110.09 642.33,-109.76 655.42,-109.45"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="655.88,-112.94 665.79,-109.2 655.71,-105.94 655.88,-112.94"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_geomgetcoordsCallsGraph = svgPanZoom('#procmapl_geomgetcoordsCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_geomgetcoords~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_geomgetcoordsCalledByGraph" width="641pt" height="30pt"
+ viewBox="0.00 0.00 641.00 29.73" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_geomgetcoords~~CalledByGraph" class="graph" transform="scale(1.08 1.08) rotate(0) translate(4 28)">
+<title>proc~~mapl_geomgetcoords~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 686,-28 686,4 -4,4"/>
+<!-- proc~mapl_geomgetcoords -->
+<g id="proc~~mapl_geomgetcoords~~CalledByGraph_node1" class="node">
+<title>proc~mapl_geomgetcoords</title>
+<polygon fill="none" stroke="black" points="682,-24 547,-24 547,0 682,0 682,-24"/>
+<text text-anchor="middle" x="614.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GeomGetCoords</text>
+</g>
+<!-- interface~mapl_geomgetcoords -->
+<g id="proc~~mapl_geomgetcoords~~CalledByGraph_node2" class="node">
+<title>interface~mapl_geomgetcoords</title>
+<g id="a_proc~~mapl_geomgetcoords~~CalledByGraph_node2"><a xlink:href="../interface/mapl_geomgetcoords.html" xlink:title="MAPL_GeomGetCoords">
+<polygon fill="#a7506f" stroke="#a7506f" points="511,-24 376,-24 376,0 511,0 511,-24"/>
+<text text-anchor="middle" x="443.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GeomGetCoords</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_geomgetcoords&#45;&gt;proc~mapl_geomgetcoords -->
+<g id="proc~~mapl_geomgetcoords~~CalledByGraph_edge1" class="edge">
+<title>interface~mapl_geomgetcoords&#45;&gt;proc~mapl_geomgetcoords</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M511.29,-12C519.62,-12 528.19,-12 536.66,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="536.92,-15.5 546.92,-12 536.92,-8.5 536.92,-15.5"/>
+</g>
+<!-- proc~new_ns_basis -->
+<g id="proc~~mapl_geomgetcoords~~CalledByGraph_node3" class="node">
+<title>proc~new_ns_basis</title>
+<g id="a_proc~~mapl_geomgetcoords~~CalledByGraph_node3"><a xlink:href="../proc/new_ns_basis.html" xlink:title="new_NS_Basis">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="340,-24 253,-24 253,0 340,0 340,-24"/>
+<text text-anchor="middle" x="296.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">new_NS_Basis</text>
+</a>
+</g>
+</g>
+<!-- proc~new_ns_basis&#45;&gt;interface~mapl_geomgetcoords -->
+<g id="proc~~mapl_geomgetcoords~~CalledByGraph_edge2" class="edge">
+<title>proc~new_ns_basis&#45;&gt;interface~mapl_geomgetcoords</title>
+<path fill="none" stroke="#ff0000" d="M340.22,-12C348.27,-12 356.9,-12 365.63,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="365.88,-15.5 375.88,-12 365.88,-8.5 365.88,-15.5"/>
+</g>
+<!-- interface~new_ns_basis -->
+<g id="proc~~mapl_geomgetcoords~~CalledByGraph_node4" class="node">
+<title>interface~new_ns_basis</title>
+<g id="a_proc~~mapl_geomgetcoords~~CalledByGraph_node4"><a xlink:href="../interface/new_ns_basis.html" xlink:title="new_NS_Basis">
+<polygon fill="#a7506f" stroke="#a7506f" points="217,-24 130,-24 130,0 217,0 217,-24"/>
+<text text-anchor="middle" x="173.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">new_NS_Basis</text>
+</a>
+</g>
+</g>
+<!-- interface~new_ns_basis&#45;&gt;proc~new_ns_basis -->
+<g id="proc~~mapl_geomgetcoords~~CalledByGraph_edge3" class="edge">
+<title>interface~new_ns_basis&#45;&gt;proc~new_ns_basis</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M217.16,-12C225.38,-12 234.09,-12 242.59,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="242.82,-15.5 252.82,-12 242.82,-8.5 242.82,-15.5"/>
+</g>
+<!-- interface~ns_vectorbasis -->
+<g id="proc~~mapl_geomgetcoords~~CalledByGraph_node5" class="node">
+<title>interface~ns_vectorbasis</title>
+<g id="a_proc~~mapl_geomgetcoords~~CalledByGraph_node5"><a xlink:href="../interface/ns_vectorbasis.html" xlink:title="NS_VectorBasis">
+<polygon fill="#a7506f" stroke="#a7506f" points="94,-24 0,-24 0,0 94,0 94,-24"/>
+<text text-anchor="middle" x="47" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NS_VectorBasis</text>
+</a>
+</g>
+</g>
+<!-- interface~ns_vectorbasis&#45;&gt;interface~new_ns_basis -->
+<g id="proc~~mapl_geomgetcoords~~CalledByGraph_edge4" class="edge">
+<title>interface~ns_vectorbasis&#45;&gt;interface~new_ns_basis</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M94.01,-12C102.38,-12 111.17,-12 119.72,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="119.98,-15.5 129.98,-12 119.98,-8.5 119.98,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_geomgetcoordsCalledByGraph = svgPanZoom('#procmapl_geomgetcoordsCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">module subroutine </span><span class="n">MAPL_GeomGetCoords</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">longitudes</span><span class="p">,</span><span class="w"> </span><span class="n">latitudes</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">longitudes</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">latitudes</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GeomType_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geomtype</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_LocStream</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">locstream</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GeomGet</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">geomtype</span><span class="o">=</span><span class="n">geomtype</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">geomtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_GEOMTYPE_GRID</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">ESMF_GeomGet</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">GridGetCoords</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">longitudes</span><span class="p">,</span><span class="w"> </span><span class="n">latitudes</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">geomtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_GEOMTYPE_LOCSTREAM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">ESMF_GeomGet</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">locstream</span><span class="o">=</span><span class="n">locstream</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">get_locstream_coords</span><span class="p">(</span><span class="n">locstream</span><span class="p">,</span><span class="w"> </span><span class="n">longitudes</span><span class="p">,</span><span class="w"> </span><span class="n">latitudes</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">any</span><span class="p">([</span><span class="n">geomtype</span><span class="o">==</span><span class="n">ESMF_GEOMTYPE_MESH</span><span class="p">,</span><span class="w"> </span><span class="n">geomtype</span><span class="o">==</span><span class="n">ESMF_GEOMTYPE_XGRID</span><span class="p">]))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;Unsupported geom type.&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;Illeggal geom type.&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">contains</span>
+
+<span class="k">      subroutine </span><span class="n">get_locstream_coords</span><span class="p">(</span><span class="n">locstream</span><span class="p">,</span><span class="w"> </span><span class="n">longitudes</span><span class="p">,</span><span class="w"> </span><span class="n">latitudes</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_LocStream</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">locstream</span>
+<span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">longitudes</span><span class="p">(:)</span>
+<span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">latitudes</span><span class="p">(:)</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_LocStreamGetKey</span><span class="p">(</span><span class="n">locstream</span><span class="p">,</span><span class="w"> </span><span class="n">keyName</span><span class="o">=</span><span class="s1">&#39;ESMF:Lon&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">farray</span><span class="o">=</span><span class="n">longitudes</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_LocStreamGetKey</span><span class="p">(</span><span class="n">locstream</span><span class="p">,</span><span class="w"> </span><span class="n">keyName</span><span class="o">=</span><span class="s1">&#39;ESMF:Lat&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">farray</span><span class="o">=</span><span class="n">latitudes</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">get_locstream_coords</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_GeomGetCoords</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

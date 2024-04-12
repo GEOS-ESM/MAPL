@@ -1,0 +1,658 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_value_string &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_value_string
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">52 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/hconfig_get_private.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/hconfig_get_private.f90.html'>hconfig_get_private.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_hconfig_get_private.html'>mapl3g_hconfig_get_private</a></li>
+            <li class="breadcrumb-item active" aria-current="page">get_value_string</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_value_string.html#src">get_value_string</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine get_value_string(params, value, default, valuestring, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-params~17"></span>
+              type(<a href='../type/hconfigparams.html'>HConfigParams</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>params</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value~710"></span>
+              character(len=:),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-default~16"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>default</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-valuestring~5"></span>
+              character(len=:),
+            </td>
+<td>intent(out),</td>
+              <td>optional,</td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>valuestring</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1401"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_value_string~~CallsGraph Pages: 1 -->
+<svg id="procget_value_stringCallsGraph" width="319pt" height="326pt"
+ viewBox="0.00 0.00 319.00 326.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_value_string~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 322)">
+<title>proc~~get_value_string~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-322 315,-322 315,4 -4,4"/>
+<!-- proc~get_value_string -->
+<g id="proc~~get_value_string~~CallsGraph_node1" class="node">
+<title>proc~get_value_string</title>
+<polygon fill="none" stroke="black" points="100,-171 0,-171 0,-147 100,-147 100,-171"/>
+<text text-anchor="middle" x="50" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_value_string</text>
+</g>
+<!-- esmf_hconfigisdefined -->
+<g id="proc~~get_value_string~~CallsGraph_node2" class="node">
+<title>esmf_hconfigisdefined</title>
+<polygon fill="#777777" stroke="#777777" points="290,-318 157,-318 157,-294 290,-294 290,-318"/>
+<text text-anchor="middle" x="223.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigisdefined</text>
+</g>
+<!-- proc~get_value_string&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~get_value_string~~CallsGraph_edge1" class="edge">
+<title>proc~get_value_string&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#ff0000" d="M55.66,-171.26C65.99,-196.7 93.33,-255.32 136,-285 139.67,-287.55 143.61,-289.79 147.72,-291.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="146.36,-294.99 156.93,-295.66 149.08,-288.54 146.36,-294.99"/>
+</g>
+<!-- interface~are_equal -->
+<g id="proc~~get_value_string~~CallsGraph_node3" class="node">
+<title>interface~are_equal</title>
+<g id="a_proc~~get_value_string~~CallsGraph_node3"><a xlink:href="../interface/are_equal.html" xlink:title="are_equal">
+<polygon fill="#a7506f" stroke="#a7506f" points="256,-276 191,-276 191,-252 256,-252 256,-276"/>
+<text text-anchor="middle" x="223.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">are_equal</text>
+</a>
+</g>
+</g>
+<!-- proc~get_value_string&#45;&gt;interface~are_equal -->
+<g id="proc~~get_value_string~~CallsGraph_edge2" class="edge">
+<title>proc~get_value_string&#45;&gt;interface~are_equal</title>
+<path fill="none" stroke="#ff0000" d="M59.7,-171.08C73.65,-189.53 102.84,-224.5 136,-243 149.71,-250.65 166.15,-255.53 181.01,-258.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="180.51,-262.11 190.98,-260.52 181.8,-255.23 180.51,-262.11"/>
+</g>
+<!-- interface~get_hconfig -->
+<g id="proc~~get_value_string~~CallsGraph_node4" class="node">
+<title>interface~get_hconfig</title>
+<g id="a_proc~~get_value_string~~CallsGraph_node4"><a xlink:href="../interface/get_hconfig.html" xlink:title="get_hconfig">
+<polygon fill="#a7506f" stroke="#a7506f" points="261,-234 186,-234 186,-210 261,-210 261,-234"/>
+<text text-anchor="middle" x="223.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_hconfig</text>
+</a>
+</g>
+</g>
+<!-- proc~get_value_string&#45;&gt;interface~get_hconfig -->
+<g id="proc~~get_value_string~~CallsGraph_edge3" class="edge">
+<title>proc~get_value_string&#45;&gt;interface~get_hconfig</title>
+<path fill="none" stroke="#ff0000" d="M72.08,-171.05C88.94,-180.29 113.41,-192.79 136,-201 148.73,-205.63 162.89,-209.55 176,-212.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.25,-216.12 185.78,-214.96 176.82,-209.3 175.25,-216.12"/>
+</g>
+<!-- proc~has_logger -->
+<g id="proc~~get_value_string~~CallsGraph_node5" class="node">
+<title>proc~has_logger</title>
+<g id="a_proc~~get_value_string~~CallsGraph_node5"><a xlink:href="../proc/has_logger.html" xlink:title="HConfigParams%has_logger">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="305,-192 142,-192 142,-168 305,-168 305,-192"/>
+<text text-anchor="middle" x="223.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HConfigParams%has_logger</text>
+</a>
+</g>
+</g>
+<!-- proc~get_value_string&#45;&gt;proc~has_logger -->
+<g id="proc~~get_value_string~~CallsGraph_edge4" class="edge">
+<title>proc~get_value_string&#45;&gt;proc~has_logger</title>
+<path fill="none" stroke="#ff0000" d="M100.15,-165.02C110.15,-166.24 120.97,-167.57 131.9,-168.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="131.59,-172.39 141.94,-170.14 132.44,-165.45 131.59,-172.39"/>
+</g>
+<!-- proc~log_message -->
+<g id="proc~~get_value_string~~CallsGraph_node6" class="node">
+<title>proc~log_message</title>
+<g id="a_proc~~get_value_string~~CallsGraph_node6"><a xlink:href="../proc/log_message.html" xlink:title="HConfigParams%log_message">
+<polygon fill="#d9534f" stroke="#d9534f" points="311,-150 136,-150 136,-126 311,-126 311,-150"/>
+<text text-anchor="middle" x="223.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HConfigParams%log_message</text>
+</a>
+</g>
+</g>
+<!-- proc~get_value_string&#45;&gt;proc~log_message -->
+<g id="proc~~get_value_string~~CallsGraph_edge5" class="edge">
+<title>proc~get_value_string&#45;&gt;proc~log_message</title>
+<path fill="none" stroke="#ff0000" d="M100.15,-152.98C108.27,-151.99 116.94,-150.93 125.76,-149.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="126.27,-153.31 135.77,-148.62 125.42,-146.36 126.27,-153.31"/>
+</g>
+<!-- proc~make_fmt -->
+<g id="proc~~get_value_string~~CallsGraph_node7" class="node">
+<title>proc~make_fmt</title>
+<g id="a_proc~~get_value_string~~CallsGraph_node7"><a xlink:href="../proc/make_fmt.html" xlink:title="make_fmt">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="256.5,-108 190.5,-108 190.5,-84 256.5,-84 256.5,-108"/>
+<text text-anchor="middle" x="223.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_fmt</text>
+</a>
+</g>
+</g>
+<!-- proc~get_value_string&#45;&gt;proc~make_fmt -->
+<g id="proc~~get_value_string~~CallsGraph_edge6" class="edge">
+<title>proc~get_value_string&#45;&gt;proc~make_fmt</title>
+<path fill="none" stroke="#ff0000" d="M72.08,-146.95C88.94,-137.71 113.41,-125.21 136,-117 150.14,-111.86 166.04,-107.59 180.31,-104.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="181.37,-107.63 190.37,-102.03 179.85,-100.8 181.37,-107.63"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~get_value_string~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~get_value_string~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="264.5,-66 182.5,-66 182.5,-42 264.5,-42 264.5,-66"/>
+<text text-anchor="middle" x="223.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~get_value_string&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_value_string~~CallsGraph_edge7" class="edge">
+<title>proc~get_value_string&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M59.7,-146.92C73.65,-128.47 102.84,-93.5 136,-75 147.08,-68.82 159.94,-64.45 172.31,-61.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="173.1,-64.76 182.07,-59.14 171.55,-57.94 173.1,-64.76"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~get_value_string~~CallsGraph_node9" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~get_value_string~~CallsGraph_node9"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="261.5,-24 185.5,-24 185.5,0 261.5,0 261.5,-24"/>
+<text text-anchor="middle" x="223.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~get_value_string&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_value_string~~CallsGraph_edge8" class="edge">
+<title>proc~get_value_string&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M55.66,-146.74C65.99,-121.3 93.33,-62.68 136,-33 147.42,-25.05 161.51,-20.1 174.98,-17.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.98,-20.39 185.1,-15 174.61,-13.52 175.98,-20.39"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_value_string~~CalledByGraph Pages: 1 -->
+<svg id="procget_value_stringCalledByGraph" width="208pt" height="32pt"
+ viewBox="0.00 0.00 208.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_value_string~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~get_value_string~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 204,-28 204,4 -4,4"/>
+<!-- proc~get_value_string -->
+<g id="proc~~get_value_string~~CalledByGraph_node1" class="node">
+<title>proc~get_value_string</title>
+<polygon fill="none" stroke="black" points="200,-24 100,-24 100,0 200,0 200,-24"/>
+<text text-anchor="middle" x="150" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_value_string</text>
+</g>
+<!-- interface~get_value -->
+<g id="proc~~get_value_string~~CalledByGraph_node2" class="node">
+<title>interface~get_value</title>
+<g id="a_proc~~get_value_string~~CalledByGraph_node2"><a xlink:href="../interface/get_value.html" xlink:title="get_value">
+<polygon fill="#a7506f" stroke="#a7506f" points="64,-24 0,-24 0,0 64,0 64,-24"/>
+<text text-anchor="middle" x="32" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value</text>
+</a>
+</g>
+</g>
+<!-- interface~get_value&#45;&gt;proc~get_value_string -->
+<g id="proc~~get_value_string~~CalledByGraph_edge1" class="edge">
+<title>interface~get_value&#45;&gt;proc~get_value_string</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M64.09,-12C72.08,-12 80.96,-12 89.87,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="89.89,-15.5 99.89,-12 89.89,-8.5 89.89,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">get_value_string</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="p">,</span><span class="w"> </span><span class="n">valuestring</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">value</span>
+<span class="k">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">default</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">typestring</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;CH&#39;</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">edit_descriptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EDIT_DESC_CH</span>
+<span class="cp">#include &quot;hconfig_get_value_template.h&quot;</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">get_value_string</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

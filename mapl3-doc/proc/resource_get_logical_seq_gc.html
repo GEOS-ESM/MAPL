@@ -1,0 +1,1571 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>resource_get_logical_seq_gc &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>resource_get_logical_seq_gc
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">25 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90~2.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_generic.html'>mapl3g_Generic</a></li>
+            <li class="breadcrumb-item active" aria-current="page">resource_get_logical_seq_gc</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/resource_get_logical_seq_gc.html#src">resource_get_logical_seq_gc</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine resource_get_logical_seq_gc(gc, keystring, value, unusable, default, value_set, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc~58"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-keystring~12"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>keystring</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value~1014"></span>
+              logical,
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              dimension(:), allocatable
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~382"></span>
+              class(<a href='../type/keywordenforcer~84.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-default~41"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              dimension(:)
+            </td>
+            <td>::</td>
+            <td><strong>default</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value_set~16"></span>
+              logical,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value_set</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2128"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~resource_get_logical_seq_gc~~CallsGraph Pages: 1 -->
+<svg id="procresource_get_logical_seq_gcCallsGraph" width="641pt" height="409pt"
+ viewBox="0.00 0.00 641.00 409.03" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph" class="graph" transform="scale(1.55 1.55) rotate(0) translate(4 629)">
+<title>proc~~resource_get_logical_seq_gc~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-629 988,-629 988,4 -4,4"/>
+<!-- proc~resource_get_logical_seq_gc -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node1" class="node">
+<title>proc~resource_get_logical_seq_gc</title>
+<polygon fill="none" stroke="black" points="163,-146 0,-146 0,-122 163,-122 163,-146"/>
+<text text-anchor="middle" x="81.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50">resource_get_logical_seq_gc</text>
+</g>
+<!-- interface~get_value -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node2" class="node">
+<title>interface~get_value</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node2"><a xlink:href="../interface/get_value.html" xlink:title="get_value">
+<polygon fill="#a7506f" stroke="#a7506f" points="290.5,-394 226.5,-394 226.5,-370 290.5,-370 290.5,-394"/>
+<text text-anchor="middle" x="258.5" y="-379.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value</text>
+</a>
+</g>
+</g>
+<!-- proc~resource_get_logical_seq_gc&#45;&gt;interface~get_value -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge1" class="edge">
+<title>proc~resource_get_logical_seq_gc&#45;&gt;interface~get_value</title>
+<path fill="none" stroke="#ff0000" d="M91.18,-146.3C119.29,-186.14 208.06,-311.94 243.09,-361.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="240.35,-363.77 248.98,-369.92 246.07,-359.73 240.35,-363.77"/>
+</g>
+<!-- interface~mapl_gridcompget -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node3" class="node">
+<title>interface~mapl_gridcompget</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node3"><a xlink:href="../interface/mapl_gridcompget.html" xlink:title="MAPL_GridCompGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="318,-87 199,-87 199,-63 318,-63 318,-87"/>
+<text text-anchor="middle" x="258.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompGet</text>
+</a>
+</g>
+</g>
+<!-- proc~resource_get_logical_seq_gc&#45;&gt;interface~mapl_gridcompget -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge2" class="edge">
+<title>proc~resource_get_logical_seq_gc&#45;&gt;interface~mapl_gridcompget</title>
+<path fill="none" stroke="#ff0000" d="M118.34,-121.92C145.47,-112.77 182.93,-100.14 212.15,-90.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="213.35,-93.58 221.71,-87.07 211.12,-86.94 213.35,-93.58"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="661.5,-289 579.5,-289 579.5,-265 661.5,-265 661.5,-289"/>
+<text text-anchor="middle" x="620.5" y="-274.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~resource_get_logical_seq_gc&#45;&gt;proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge3" class="edge">
+<title>proc~resource_get_logical_seq_gc&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M163.02,-132.19C265.09,-131.46 433.7,-136.03 483,-172 515.81,-195.94 487.57,-230.27 519,-256 532.95,-267.42 551.57,-273.09 568.98,-275.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="568.7,-279.27 579.06,-277.04 569.57,-272.33 568.7,-279.27"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="658.5,-247 582.5,-247 582.5,-223 658.5,-223 658.5,-247"/>
+<text text-anchor="middle" x="620.5" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~resource_get_logical_seq_gc&#45;&gt;proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge4" class="edge">
+<title>proc~resource_get_logical_seq_gc&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M157.7,-121.97C239.83,-111.78 374.16,-103.81 483,-139 495.55,-143.06 559.29,-189.9 595.06,-216.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="593.4,-219.75 603.51,-222.94 597.6,-214.15 593.4,-219.75"/>
+</g>
+<!-- proc~get_value_i4 -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node7" class="node">
+<title>proc~get_value_i4</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node7"><a xlink:href="../proc/get_value_i4.html" xlink:title="get_value_i4">
+<polygon fill="#d9534f" stroke="#d9534f" points="458,-541 379,-541 379,-517 458,-517 458,-541"/>
+<text text-anchor="middle" x="418.5" y="-526.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value_i4</text>
+</a>
+</g>
+</g>
+<!-- interface~get_value&#45;&gt;proc~get_value_i4 -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge5" class="edge">
+<title>interface~get_value&#45;&gt;proc~get_value_i4</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M265.47,-394.36C278.21,-419.48 310.49,-476.71 354,-508 358.6,-511.3 363.74,-514.11 369.07,-516.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="368.17,-519.9 378.76,-520.33 370.75,-513.39 368.17,-519.9"/>
+</g>
+<!-- proc~get_value_i4seq -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node8" class="node">
+<title>proc~get_value_i4seq</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node8"><a xlink:href="../proc/get_value_i4seq.html" xlink:title="get_value_i4seq">
+<polygon fill="#d9534f" stroke="#d9534f" points="467.5,-499 369.5,-499 369.5,-475 467.5,-475 467.5,-499"/>
+<text text-anchor="middle" x="418.5" y="-484.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value_i4seq</text>
+</a>
+</g>
+</g>
+<!-- interface~get_value&#45;&gt;proc~get_value_i4seq -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge6" class="edge">
+<title>interface~get_value&#45;&gt;proc~get_value_i4seq</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M270.22,-394.29C286.59,-412.38 319.58,-446.15 354,-466 357.06,-467.76 360.29,-469.41 363.61,-470.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="362.53,-474.27 373.11,-474.91 365.24,-467.82 362.53,-474.27"/>
+</g>
+<!-- proc~get_value_i8 -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node9" class="node">
+<title>proc~get_value_i8</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node9"><a xlink:href="../proc/get_value_i8.html" xlink:title="get_value_i8">
+<polygon fill="#d9534f" stroke="#d9534f" points="458,-457 379,-457 379,-433 458,-433 458,-457"/>
+<text text-anchor="middle" x="418.5" y="-442.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value_i8</text>
+</a>
+</g>
+</g>
+<!-- interface~get_value&#45;&gt;proc~get_value_i8 -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge7" class="edge">
+<title>interface~get_value&#45;&gt;proc~get_value_i8</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M284.88,-394.1C303.75,-402.89 330.22,-414.81 354,-424 358.88,-425.89 364.02,-427.76 369.16,-429.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="368.41,-433.01 379,-432.95 370.68,-426.39 368.41,-433.01"/>
+</g>
+<!-- proc~get_value_i8seq -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node10" class="node">
+<title>proc~get_value_i8seq</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node10"><a xlink:href="../proc/get_value_i8seq.html" xlink:title="get_value_i8seq">
+<polygon fill="#d9534f" stroke="#d9534f" points="467.5,-415 369.5,-415 369.5,-391 467.5,-391 467.5,-415"/>
+<text text-anchor="middle" x="418.5" y="-400.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value_i8seq</text>
+</a>
+</g>
+</g>
+<!-- interface~get_value&#45;&gt;proc~get_value_i8seq -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge8" class="edge">
+<title>interface~get_value&#45;&gt;proc~get_value_i8seq</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M290.72,-386.15C310.22,-388.74 335.96,-392.16 359.14,-395.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="358.86,-398.74 369.23,-396.58 359.78,-391.8 358.86,-398.74"/>
+</g>
+<!-- proc~get_value_logical -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node11" class="node">
+<title>proc~get_value_logical</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node11"><a xlink:href="../proc/get_value_logical.html" xlink:title="get_value_logical">
+<polygon fill="#d9534f" stroke="#d9534f" points="471,-373 366,-373 366,-349 471,-349 471,-373"/>
+<text text-anchor="middle" x="418.5" y="-358.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value_logical</text>
+</a>
+</g>
+</g>
+<!-- interface~get_value&#45;&gt;proc~get_value_logical -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge9" class="edge">
+<title>interface~get_value&#45;&gt;proc~get_value_logical</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M290.72,-377.85C309.28,-375.38 333.48,-372.17 355.75,-369.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="356.37,-372.66 365.82,-367.87 355.45,-365.72 356.37,-372.66"/>
+</g>
+<!-- proc~get_value_logical_seq -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node12" class="node">
+<title>proc~get_value_logical_seq</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node12"><a xlink:href="../proc/get_value_logical_seq.html" xlink:title="get_value_logical_seq">
+<polygon fill="#d9534f" stroke="#d9534f" points="483,-331 354,-331 354,-307 483,-307 483,-331"/>
+<text text-anchor="middle" x="418.5" y="-316.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value_logical_seq</text>
+</a>
+</g>
+</g>
+<!-- interface~get_value&#45;&gt;proc~get_value_logical_seq -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge10" class="edge">
+<title>interface~get_value&#45;&gt;proc~get_value_logical_seq</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M284.88,-369.9C303.75,-361.11 330.22,-349.19 354,-340 358.88,-338.11 364.02,-336.24 369.16,-334.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="370.68,-337.61 379,-331.05 368.41,-330.99 370.68,-337.61"/>
+</g>
+<!-- proc~get_value_r4 -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node13" class="node">
+<title>proc~get_value_r4</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node13"><a xlink:href="../proc/get_value_r4.html" xlink:title="get_value_r4">
+<polygon fill="#d9534f" stroke="#d9534f" points="459,-289 378,-289 378,-265 459,-265 459,-289"/>
+<text text-anchor="middle" x="418.5" y="-274.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value_r4</text>
+</a>
+</g>
+</g>
+<!-- interface~get_value&#45;&gt;proc~get_value_r4 -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge11" class="edge">
+<title>interface~get_value&#45;&gt;proc~get_value_r4</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M270.22,-369.71C286.59,-351.62 319.58,-317.85 354,-298 358.47,-295.42 363.31,-293.1 368.25,-291.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="369.73,-294.22 377.8,-287.36 367.21,-287.68 369.73,-294.22"/>
+</g>
+<!-- proc~get_value_r4seq -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node14" class="node">
+<title>proc~get_value_r4seq</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node14"><a xlink:href="../proc/get_value_r4seq.html" xlink:title="get_value_r4seq">
+<polygon fill="#d9534f" stroke="#d9534f" points="468.5,-247 368.5,-247 368.5,-223 468.5,-223 468.5,-247"/>
+<text text-anchor="middle" x="418.5" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value_r4seq</text>
+</a>
+</g>
+</g>
+<!-- interface~get_value&#45;&gt;proc~get_value_r4seq -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge12" class="edge">
+<title>interface~get_value&#45;&gt;proc~get_value_r4seq</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M265.47,-369.64C278.21,-344.52 310.49,-287.29 354,-256 356.22,-254.4 358.57,-252.92 361.01,-251.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="362.72,-254.61 370.13,-247.04 359.62,-248.33 362.72,-254.61"/>
+</g>
+<!-- proc~get_value_r8 -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node15" class="node">
+<title>proc~get_value_r8</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node15"><a xlink:href="../proc/get_value_r8.html" xlink:title="get_value_r8">
+<polygon fill="#d9534f" stroke="#d9534f" points="459,-205 378,-205 378,-181 459,-181 459,-205"/>
+<text text-anchor="middle" x="418.5" y="-190.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value_r8</text>
+</a>
+</g>
+</g>
+<!-- interface~get_value&#45;&gt;proc~get_value_r8 -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge13" class="edge">
+<title>interface~get_value&#45;&gt;proc~get_value_r8</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M262.95,-369.85C272.3,-339.11 301.04,-257.61 354,-214 358.31,-210.45 363.25,-207.49 368.42,-205.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="370,-208.16 377.9,-201.11 367.32,-201.69 370,-208.16"/>
+</g>
+<!-- proc~get_value_r8seq -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node16" class="node">
+<title>proc~get_value_r8seq</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node16"><a xlink:href="../proc/get_value_r8seq.html" xlink:title="get_value_r8seq">
+<polygon fill="#d9534f" stroke="#d9534f" points="468.5,-625 368.5,-625 368.5,-601 468.5,-601 468.5,-625"/>
+<text text-anchor="middle" x="418.5" y="-610.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value_r8seq</text>
+</a>
+</g>
+</g>
+<!-- interface~get_value&#45;&gt;proc~get_value_r8seq -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge14" class="edge">
+<title>interface~get_value&#45;&gt;proc~get_value_r8seq</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M261.47,-394.2C267.89,-429.98 291.49,-535.65 354,-592 355.72,-593.55 357.55,-594.98 359.47,-596.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="357.97,-599.49 368.38,-601.49 361.49,-593.44 357.97,-599.49"/>
+</g>
+<!-- proc~get_value_string -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node17" class="node">
+<title>proc~get_value_string</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node17"><a xlink:href="../proc/get_value_string.html" xlink:title="get_value_string">
+<polygon fill="#d9534f" stroke="#d9534f" points="468.5,-583 368.5,-583 368.5,-559 468.5,-559 468.5,-583"/>
+<text text-anchor="middle" x="418.5" y="-568.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value_string</text>
+</a>
+</g>
+</g>
+<!-- interface~get_value&#45;&gt;proc~get_value_string -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge15" class="edge">
+<title>interface~get_value&#45;&gt;proc~get_value_string</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M262.95,-394.15C272.3,-424.89 301.04,-506.39 354,-550 355.75,-551.44 357.6,-552.78 359.52,-554.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="357.94,-557.16 368.38,-558.95 361.34,-551.04 357.94,-557.16"/>
+</g>
+<!-- proc~gridcomp_get -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node18" class="node">
+<title>proc~gridcomp_get</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node18"><a xlink:href="../proc/gridcomp_get.html" xlink:title="gridcomp_get">
+<polygon fill="#d9534f" stroke="#d9534f" points="461.5,-87 375.5,-87 375.5,-63 461.5,-63 461.5,-87"/>
+<text text-anchor="middle" x="418.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gridcomp_get</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_gridcompget&#45;&gt;proc~gridcomp_get -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_gridcompget&#45;&gt;proc~gridcomp_get</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M318.33,-75C333.73,-75 350.22,-75 365.25,-75"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="365.39,-78.5 375.39,-75 365.39,-71.5 365.39,-78.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node6" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node6"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="882,-289 767,-289 767,-265 882,-265 882,-289"/>
+<text text-anchor="middle" x="824.5" y="-274.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M661.89,-277C688.89,-277 725.06,-277 756.33,-277"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="756.73,-280.5 766.73,-277 756.73,-273.5 756.73,-280.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node19" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node19"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="891,-247 758,-247 758,-223 891,-223 891,-247"/>
+<text text-anchor="middle" x="824.5" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M661.89,-268.6C688.7,-263.03 724.54,-255.58 755.65,-249.11"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="756.5,-252.51 765.57,-247.04 755.07,-245.65 756.5,-252.51"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M658.55,-235C683.42,-235 717.07,-235 747.49,-235"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="747.67,-238.5 757.67,-235 747.67,-231.5 747.67,-238.5"/>
+</g>
+<!-- at -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node20" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="982.5,-289 928.5,-289 928.5,-265 982.5,-265 982.5,-289"/>
+<text text-anchor="middle" x="955.5" y="-274.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge20" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M882.08,-277C894.29,-277 906.89,-277 918.08,-277"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="918.32,-280.5 928.32,-277 918.32,-273.5 918.32,-280.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node22" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="982.5,-331 928.5,-331 928.5,-307 982.5,-307 982.5,-331"/>
+<text text-anchor="middle" x="955.5" y="-316.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge21" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M862.47,-289.04C880.02,-294.75 900.92,-301.55 918.36,-307.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="917.59,-310.66 928.18,-310.43 919.75,-304.01 917.59,-310.66"/>
+</g>
+<!-- proc~get_value_i4&#45;&gt;proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge28" class="edge">
+<title>proc~get_value_i4&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff6d00" d="M458.03,-523.42C467.4,-520.31 476.56,-515.48 483,-508 544.77,-436.22 453.26,-366.16 519,-298 531.89,-284.64 550.92,-278.67 568.97,-276.3"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="569.52,-279.76 579.13,-275.3 568.84,-272.79 569.52,-279.76"/>
+</g>
+<!-- proc~get_value_i4&#45;&gt;proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge29" class="edge">
+<title>proc~get_value_i4&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff6d00" d="M458.17,-523.54C467.54,-520.43 476.67,-515.57 483,-508 555.59,-421.22 441.6,-338.52 519,-256 532.54,-241.56 553.24,-235.7 572.35,-233.69"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="572.72,-237.17 582.44,-232.95 572.21,-230.19 572.72,-237.17"/>
+</g>
+<!-- esmf_hconfigisdefined -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node21" class="node">
+<title>esmf_hconfigisdefined</title>
+<polygon fill="#777777" stroke="#777777" points="687,-373 554,-373 554,-349 687,-349 687,-373"/>
+<text text-anchor="middle" x="620.5" y="-358.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigisdefined</text>
+</g>
+<!-- proc~get_value_i4&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge22" class="edge">
+<title>proc~get_value_i4&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#ff6d00" d="M458.16,-522.72C467.31,-519.61 476.33,-514.95 483,-508 523.33,-465.98 476.36,-421.67 519,-382 526.17,-375.33 534.89,-370.56 544.16,-367.17"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="545.47,-370.43 553.98,-364.13 543.39,-363.75 545.47,-370.43"/>
+</g>
+<!-- interface~are_equal -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node23" class="node">
+<title>interface~are_equal</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node23"><a xlink:href="../interface/are_equal.html" xlink:title="are_equal">
+<polygon fill="#a7506f" stroke="#a7506f" points="653,-331 588,-331 588,-307 653,-307 653,-331"/>
+<text text-anchor="middle" x="620.5" y="-316.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">are_equal</text>
+</a>
+</g>
+</g>
+<!-- proc~get_value_i4&#45;&gt;interface~are_equal -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge23" class="edge">
+<title>proc~get_value_i4&#45;&gt;interface~are_equal</title>
+<path fill="none" stroke="#ff6d00" d="M458.16,-523.13C467.41,-520.02 476.49,-515.26 483,-508 533.99,-451.16 464.87,-393.86 519,-340 534.17,-324.9 557.22,-319.35 577.42,-317.71"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="577.86,-321.19 587.67,-317.17 577.5,-314.2 577.86,-321.19"/>
+</g>
+<!-- interface~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node24" class="node">
+<title>interface~get_hconfig</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node24"><a xlink:href="../interface/get_hconfig.html" xlink:title="get_hconfig">
+<polygon fill="#a7506f" stroke="#a7506f" points="658,-541 583,-541 583,-517 658,-517 658,-541"/>
+<text text-anchor="middle" x="620.5" y="-526.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_hconfig</text>
+</a>
+</g>
+</g>
+<!-- proc~get_value_i4&#45;&gt;interface~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge24" class="edge">
+<title>proc~get_value_i4&#45;&gt;interface~get_hconfig</title>
+<path fill="none" stroke="#ff6d00" d="M458.06,-529C490.67,-529 537.51,-529 572.35,-529"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="572.74,-532.5 582.74,-529 572.74,-525.5 572.74,-532.5"/>
+</g>
+<!-- proc~has_logger -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node29" class="node">
+<title>proc~has_logger</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node29"><a xlink:href="../proc/has_logger.html" xlink:title="HConfigParams%has_logger">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="702,-499 539,-499 539,-475 702,-475 702,-499"/>
+<text text-anchor="middle" x="620.5" y="-484.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HConfigParams%has_logger</text>
+</a>
+</g>
+</g>
+<!-- proc~get_value_i4&#45;&gt;proc~has_logger -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge25" class="edge">
+<title>proc~get_value_i4&#45;&gt;proc~has_logger</title>
+<path fill="none" stroke="#ff6d00" d="M458.24,-520.8C476.65,-516.92 498.96,-512.21 519,-508 529.62,-505.77 540.87,-503.41 551.85,-501.12"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="552.76,-504.5 561.83,-499.03 551.33,-497.65 552.76,-504.5"/>
+</g>
+<!-- proc~log_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node31" class="node">
+<title>proc~log_message</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node31"><a xlink:href="../proc/log_message.html" xlink:title="HConfigParams%log_message">
+<polygon fill="#d9534f" stroke="#d9534f" points="708,-457 533,-457 533,-433 708,-433 708,-457"/>
+<text text-anchor="middle" x="620.5" y="-442.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HConfigParams%log_message</text>
+</a>
+</g>
+</g>
+<!-- proc~get_value_i4&#45;&gt;proc~log_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge26" class="edge">
+<title>proc~get_value_i4&#45;&gt;proc~log_message</title>
+<path fill="none" stroke="#ff6d00" d="M458.33,-519.86C466.87,-516.86 475.57,-512.98 483,-508 503.42,-494.31 497.84,-478.52 519,-466 522.18,-464.12 525.5,-462.41 528.92,-460.85"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="530.25,-464.08 538.18,-457.06 527.6,-457.6 530.25,-464.08"/>
+</g>
+<!-- proc~make_fmt -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node32" class="node">
+<title>proc~make_fmt</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node32"><a xlink:href="../proc/make_fmt.html" xlink:title="make_fmt">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="653.5,-415 587.5,-415 587.5,-391 653.5,-391 653.5,-415"/>
+<text text-anchor="middle" x="620.5" y="-400.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_fmt</text>
+</a>
+</g>
+</g>
+<!-- proc~get_value_i4&#45;&gt;proc~make_fmt -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge27" class="edge">
+<title>proc~get_value_i4&#45;&gt;proc~make_fmt</title>
+<path fill="none" stroke="#ff6d00" d="M458.24,-521.89C467.17,-518.8 476.07,-514.36 483,-508 512.92,-480.53 487.57,-449.73 519,-424 535.13,-410.79 557.51,-405.27 577.05,-403.17"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="577.57,-406.64 587.26,-402.34 577.01,-399.66 577.57,-406.64"/>
+</g>
+<!-- proc~get_value_i4seq&#45;&gt;proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge36" class="edge">
+<title>proc~get_value_i4seq&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ffda00" d="M467.58,-477.28C473.37,-474.43 478.74,-470.75 483,-466 533.99,-409.16 464.87,-351.86 519,-298 532.16,-284.91 551.24,-278.99 569.25,-276.58"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="569.79,-280.04 579.39,-275.56 569.09,-273.08 569.79,-280.04"/>
+</g>
+<!-- proc~get_value_i4seq&#45;&gt;proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge37" class="edge">
+<title>proc~get_value_i4seq&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ffda00" d="M467.76,-477.44C473.53,-474.57 478.83,-470.84 483,-466 544.77,-394.22 453.26,-324.16 519,-256 532.64,-241.86 553.15,-236 572.1,-233.92"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="572.42,-237.4 582.12,-233.13 571.87,-230.43 572.42,-237.4"/>
+</g>
+<!-- proc~get_value_i4seq&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge30" class="edge">
+<title>proc~get_value_i4seq&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#ffda00" d="M467.73,-476.03C473.29,-473.37 478.55,-470.08 483,-466 512.92,-438.53 487.57,-407.73 519,-382 526.37,-375.97 535.04,-371.54 544.15,-368.3"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="545.24,-371.63 553.77,-365.35 543.18,-364.94 545.24,-371.63"/>
+</g>
+<!-- proc~get_value_i4seq&#45;&gt;interface~are_equal -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge31" class="edge">
+<title>proc~get_value_i4seq&#45;&gt;interface~are_equal</title>
+<path fill="none" stroke="#ffda00" d="M467.61,-476.86C473.32,-474.07 478.66,-470.52 483,-466 523.33,-423.98 476.36,-379.67 519,-340 534.56,-325.53 557.42,-319.98 577.41,-318.18"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="577.78,-321.67 587.55,-317.56 577.35,-314.68 577.78,-321.67"/>
+</g>
+<!-- proc~get_value_i4seq&#45;&gt;interface~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge32" class="edge">
+<title>proc~get_value_i4seq&#45;&gt;interface~get_hconfig</title>
+<path fill="none" stroke="#ffda00" d="M467.57,-497.17C483.9,-500.61 502.24,-504.48 519,-508 536.48,-511.67 555.67,-515.69 572.56,-519.21"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="572.24,-522.72 582.74,-521.34 573.67,-515.87 572.24,-522.72"/>
+</g>
+<!-- proc~get_value_i4seq&#45;&gt;proc~has_logger -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge33" class="edge">
+<title>proc~get_value_i4seq&#45;&gt;proc~has_logger</title>
+<path fill="none" stroke="#ffda00" d="M467.66,-487C486.04,-487 507.64,-487 528.7,-487"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="528.97,-490.5 538.97,-487 528.97,-483.5 528.97,-490.5"/>
+</g>
+<!-- proc~get_value_i4seq&#45;&gt;proc~log_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge34" class="edge">
+<title>proc~get_value_i4seq&#45;&gt;proc~log_message</title>
+<path fill="none" stroke="#ffda00" d="M467.57,-476.83C483.9,-473.39 502.24,-469.52 519,-466 529.62,-463.77 540.87,-461.41 551.85,-459.12"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="552.76,-462.5 561.83,-457.03 551.33,-455.65 552.76,-462.5"/>
+</g>
+<!-- proc~get_value_i4seq&#45;&gt;proc~make_fmt -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge35" class="edge">
+<title>proc~get_value_i4seq&#45;&gt;proc~make_fmt</title>
+<path fill="none" stroke="#ffda00" d="M465.99,-474.93C471.96,-472.45 477.79,-469.49 483,-466 503.42,-452.31 497.84,-436.52 519,-424 536.48,-413.66 558.3,-408.37 577.14,-405.67"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="577.75,-409.13 587.25,-404.43 576.9,-402.18 577.75,-409.13"/>
+</g>
+<!-- proc~get_value_i8&#45;&gt;proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge44" class="edge">
+<title>proc~get_value_i8&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#b6ff00" d="M458.16,-438.72C467.31,-435.61 476.33,-430.95 483,-424 523.33,-381.98 476.36,-337.67 519,-298 532.42,-285.52 551.27,-279.67 569.03,-277.15"/>
+<polygon fill="#b6ff00" stroke="#b6ff00" points="569.75,-280.59 579.31,-276.02 568.98,-273.63 569.75,-280.59"/>
+</g>
+<!-- proc~get_value_i8&#45;&gt;proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge45" class="edge">
+<title>proc~get_value_i8&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#b6ff00" d="M458.16,-439.13C467.41,-436.02 476.49,-431.26 483,-424 533.99,-367.16 464.87,-309.86 519,-256 532.92,-242.15 553.48,-236.33 572.38,-234.19"/>
+<polygon fill="#b6ff00" stroke="#b6ff00" points="572.69,-237.68 582.37,-233.38 572.11,-230.71 572.69,-237.68"/>
+</g>
+<!-- proc~get_value_i8&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge38" class="edge">
+<title>proc~get_value_i8&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#b6ff00" d="M458.33,-435.86C466.87,-432.86 475.57,-428.98 483,-424 503.42,-410.31 497.84,-394.52 519,-382 526.77,-377.4 535.41,-373.8 544.26,-370.98"/>
+<polygon fill="#b6ff00" stroke="#b6ff00" points="545.26,-374.34 553.91,-368.22 543.34,-367.61 545.26,-374.34"/>
+</g>
+<!-- proc~get_value_i8&#45;&gt;interface~are_equal -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge39" class="edge">
+<title>proc~get_value_i8&#45;&gt;interface~are_equal</title>
+<path fill="none" stroke="#b6ff00" d="M458.24,-437.89C467.17,-434.8 476.07,-430.36 483,-424 512.92,-396.53 487.57,-365.73 519,-340 535.33,-326.64 558.04,-321.14 577.75,-319.09"/>
+<polygon fill="#b6ff00" stroke="#b6ff00" points="578.03,-322.58 587.73,-318.32 577.48,-315.6 578.03,-322.58"/>
+</g>
+<!-- proc~get_value_i8&#45;&gt;interface~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge40" class="edge">
+<title>proc~get_value_i8&#45;&gt;interface~get_hconfig</title>
+<path fill="none" stroke="#b6ff00" d="M458.33,-454.14C466.87,-457.14 475.57,-461.02 483,-466 503.42,-479.69 497.84,-495.48 519,-508 535.03,-517.48 554.72,-522.72 572.41,-525.6"/>
+<polygon fill="#b6ff00" stroke="#b6ff00" points="572.16,-529.1 582.55,-527.04 573.14,-522.17 572.16,-529.1"/>
+</g>
+<!-- proc~get_value_i8&#45;&gt;proc~has_logger -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge41" class="edge">
+<title>proc~get_value_i8&#45;&gt;proc~has_logger</title>
+<path fill="none" stroke="#b6ff00" d="M458.24,-453.2C476.65,-457.08 498.96,-461.79 519,-466 529.62,-468.23 540.87,-470.59 551.85,-472.88"/>
+<polygon fill="#b6ff00" stroke="#b6ff00" points="551.33,-476.35 561.83,-474.97 552.76,-469.5 551.33,-476.35"/>
+</g>
+<!-- proc~get_value_i8&#45;&gt;proc~log_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge42" class="edge">
+<title>proc~get_value_i8&#45;&gt;proc~log_message</title>
+<path fill="none" stroke="#b6ff00" d="M458.06,-445C476.55,-445 499.62,-445 522.48,-445"/>
+<polygon fill="#b6ff00" stroke="#b6ff00" points="522.6,-448.5 532.6,-445 522.6,-441.5 522.6,-448.5"/>
+</g>
+<!-- proc~get_value_i8&#45;&gt;proc~make_fmt -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge43" class="edge">
+<title>proc~get_value_i8&#45;&gt;proc~make_fmt</title>
+<path fill="none" stroke="#b6ff00" d="M458.24,-436.8C476.65,-432.92 498.96,-428.21 519,-424 538.19,-419.97 559.45,-415.52 577.45,-411.77"/>
+<polygon fill="#b6ff00" stroke="#b6ff00" points="578.29,-415.17 587.36,-409.7 576.86,-408.32 578.29,-415.17"/>
+</g>
+<!-- proc~get_value_i8seq&#45;&gt;proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge52" class="edge">
+<title>proc~get_value_i8seq&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#48ff00" d="M467.73,-392.03C473.29,-389.37 478.55,-386.08 483,-382 512.92,-354.53 487.57,-323.73 519,-298 532.95,-286.58 551.57,-280.91 568.98,-278.22"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="569.57,-281.67 579.06,-276.96 568.7,-274.73 569.57,-281.67"/>
+</g>
+<!-- proc~get_value_i8seq&#45;&gt;proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge53" class="edge">
+<title>proc~get_value_i8seq&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#48ff00" d="M467.61,-392.86C473.32,-390.07 478.66,-386.52 483,-382 523.33,-339.98 476.36,-295.67 519,-256 533.21,-242.79 553.5,-237.01 572.14,-234.74"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="572.63,-238.21 582.27,-233.81 571.99,-231.24 572.63,-238.21"/>
+</g>
+<!-- proc~get_value_i8seq&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge46" class="edge">
+<title>proc~get_value_i8seq&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#48ff00" d="M467.57,-392.83C483.9,-389.39 502.24,-385.52 519,-382 529.62,-379.77 540.87,-377.41 551.85,-375.12"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="552.76,-378.5 561.83,-373.03 551.33,-371.65 552.76,-378.5"/>
+</g>
+<!-- proc~get_value_i8seq&#45;&gt;interface~are_equal -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge47" class="edge">
+<title>proc~get_value_i8seq&#45;&gt;interface~are_equal</title>
+<path fill="none" stroke="#48ff00" d="M465.99,-390.93C471.96,-388.45 477.79,-385.49 483,-382 503.42,-368.31 497.84,-352.52 519,-340 536.61,-329.59 558.62,-324.29 577.55,-321.62"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="578.2,-325.06 587.71,-320.38 577.36,-318.11 578.2,-325.06"/>
+</g>
+<!-- proc~get_value_i8seq&#45;&gt;interface~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge48" class="edge">
+<title>proc~get_value_i8seq&#45;&gt;interface~get_hconfig</title>
+<path fill="none" stroke="#48ff00" d="M467.73,-413.97C473.29,-416.63 478.55,-419.92 483,-424 512.92,-451.47 487.57,-482.27 519,-508 534.01,-520.29 554.43,-525.92 572.94,-528.34"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="572.67,-531.83 582.98,-529.38 573.39,-524.87 572.67,-531.83"/>
+</g>
+<!-- proc~get_value_i8seq&#45;&gt;proc~has_logger -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge49" class="edge">
+<title>proc~get_value_i8seq&#45;&gt;proc~has_logger</title>
+<path fill="none" stroke="#48ff00" d="M465.99,-415.07C471.96,-417.55 477.79,-420.51 483,-424 503.42,-437.69 497.84,-453.48 519,-466 522.4,-468.01 525.96,-469.83 529.63,-471.48"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="528.38,-474.74 538.96,-475.22 530.99,-468.25 528.38,-474.74"/>
+</g>
+<!-- proc~get_value_i8seq&#45;&gt;proc~log_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge50" class="edge">
+<title>proc~get_value_i8seq&#45;&gt;proc~log_message</title>
+<path fill="none" stroke="#48ff00" d="M467.57,-413.17C483.9,-416.61 502.24,-420.48 519,-424 529.62,-426.23 540.87,-428.59 551.85,-430.88"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="551.33,-434.35 561.83,-432.97 552.76,-427.5 551.33,-434.35"/>
+</g>
+<!-- proc~get_value_i8seq&#45;&gt;proc~make_fmt -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge51" class="edge">
+<title>proc~get_value_i8seq&#45;&gt;proc~make_fmt</title>
+<path fill="none" stroke="#48ff00" d="M467.66,-403C500.99,-403 544.95,-403 576.99,-403"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="577.36,-406.5 587.36,-403 577.36,-399.5 577.36,-406.5"/>
+</g>
+<!-- proc~get_value_logical&#45;&gt;proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge60" class="edge">
+<title>proc~get_value_logical&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff24" d="M465.99,-348.93C471.96,-346.45 477.79,-343.49 483,-340 503.42,-326.31 497.84,-310.52 519,-298 533.99,-289.13 552.18,-283.98 568.94,-280.99"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="569.82,-284.39 579.16,-279.39 568.74,-277.48 569.82,-284.39"/>
+</g>
+<!-- proc~get_value_logical&#45;&gt;proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge61" class="edge">
+<title>proc~get_value_logical&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff24" d="M469.96,-348.92C474.69,-346.47 479.15,-343.53 483,-340 512.92,-312.53 487.57,-281.73 519,-256 533.9,-243.81 554.11,-238.16 572.51,-235.71"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="572.91,-239.19 582.49,-234.66 572.18,-232.23 572.91,-239.19"/>
+</g>
+<!-- proc~get_value_logical&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge54" class="edge">
+<title>proc~get_value_logical&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#00ff24" d="M471,-361C493.08,-361 519.32,-361 543.55,-361"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="543.8,-364.5 553.8,-361 543.8,-357.5 543.8,-364.5"/>
+</g>
+<!-- proc~get_value_logical&#45;&gt;interface~are_equal -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge55" class="edge">
+<title>proc~get_value_logical&#45;&gt;interface~are_equal</title>
+<path fill="none" stroke="#00ff24" d="M471.14,-350.08C486.54,-346.83 503.45,-343.27 519,-340 538.34,-335.94 559.77,-331.46 577.87,-327.68"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="578.74,-331.07 587.81,-325.6 577.31,-324.22 578.74,-331.07"/>
+</g>
+<!-- proc~get_value_logical&#45;&gt;interface~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge56" class="edge">
+<title>proc~get_value_logical&#45;&gt;interface~get_hconfig</title>
+<path fill="none" stroke="#00ff24" d="M471.05,-372.94C475.46,-375.41 479.54,-378.4 483,-382 523.33,-424.02 476.36,-468.33 519,-508 533.32,-521.32 553.81,-527.08 572.57,-529.31"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="572.49,-532.82 582.76,-530.22 573.11,-525.85 572.49,-532.82"/>
+</g>
+<!-- proc~get_value_logical&#45;&gt;proc~has_logger -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge57" class="edge">
+<title>proc~get_value_logical&#45;&gt;proc~has_logger</title>
+<path fill="none" stroke="#00ff24" d="M469.96,-373.08C474.69,-375.53 479.15,-378.47 483,-382 512.92,-409.47 487.57,-440.27 519,-466 522.34,-468.73 525.94,-471.13 529.73,-473.24"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="528.34,-476.46 538.87,-477.66 531.39,-470.16 528.34,-476.46"/>
+</g>
+<!-- proc~get_value_logical&#45;&gt;proc~log_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge58" class="edge">
+<title>proc~get_value_logical&#45;&gt;proc~log_message</title>
+<path fill="none" stroke="#00ff24" d="M465.99,-373.07C471.96,-375.55 477.79,-378.51 483,-382 503.42,-395.69 497.84,-411.48 519,-424 522.18,-425.88 525.5,-427.59 528.92,-429.15"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="527.6,-432.4 538.18,-432.94 530.25,-425.92 527.6,-432.4"/>
+</g>
+<!-- proc~get_value_logical&#45;&gt;proc~make_fmt -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge59" class="edge">
+<title>proc~get_value_logical&#45;&gt;proc~make_fmt</title>
+<path fill="none" stroke="#00ff24" d="M471.14,-371.92C486.54,-375.17 503.45,-378.73 519,-382 538.19,-386.03 559.45,-390.48 577.45,-394.23"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="576.86,-397.68 587.36,-396.3 578.29,-390.83 576.86,-397.68"/>
+</g>
+<!-- proc~get_value_logical_seq&#45;&gt;proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge68" class="edge">
+<title>proc~get_value_logical_seq&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff91" d="M476.32,-306.99C490.28,-304.04 505.18,-300.9 519,-298 535.31,-294.57 553.12,-290.85 569.15,-287.5"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="570.32,-290.83 579.39,-285.36 568.89,-283.98 570.32,-290.83"/>
+</g>
+<!-- proc~get_value_logical_seq&#45;&gt;proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge69" class="edge">
+<title>proc~get_value_logical_seq&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff91" d="M465.99,-306.93C471.96,-304.45 477.79,-301.49 483,-298 503.42,-284.31 497.84,-268.52 519,-256 534.9,-246.59 554.4,-241.36 571.98,-238.47"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="572.67,-241.9 582.07,-237.02 571.67,-234.98 572.67,-241.9"/>
+</g>
+<!-- proc~get_value_logical_seq&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge62" class="edge">
+<title>proc~get_value_logical_seq&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#00ff91" d="M476.32,-331.01C490.28,-333.96 505.18,-337.1 519,-340 529.62,-342.23 540.87,-344.59 551.85,-346.88"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="551.33,-350.35 561.83,-348.97 552.76,-343.5 551.33,-350.35"/>
+</g>
+<!-- proc~get_value_logical_seq&#45;&gt;interface~are_equal -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge63" class="edge">
+<title>proc~get_value_logical_seq&#45;&gt;interface~are_equal</title>
+<path fill="none" stroke="#00ff91" d="M483.06,-319C513.99,-319 550.31,-319 577.7,-319"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="577.73,-322.5 587.73,-319 577.73,-315.5 577.73,-322.5"/>
+</g>
+<!-- proc~get_value_logical_seq&#45;&gt;interface~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge64" class="edge">
+<title>proc~get_value_logical_seq&#45;&gt;interface~get_hconfig</title>
+<path fill="none" stroke="#00ff91" d="M471.91,-331.06C476.03,-333.51 479.82,-336.46 483,-340 533.99,-396.84 464.87,-454.14 519,-508 533.03,-521.96 553.8,-527.76 572.82,-529.85"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="572.61,-533.35 582.86,-530.65 573.16,-526.37 572.61,-533.35"/>
+</g>
+<!-- proc~get_value_logical_seq&#45;&gt;proc~has_logger -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge65" class="edge">
+<title>proc~get_value_logical_seq&#45;&gt;proc~has_logger</title>
+<path fill="none" stroke="#00ff91" d="M471.35,-331.11C475.65,-333.55 479.62,-336.48 483,-340 523.33,-382.02 476.36,-426.33 519,-466 522.23,-469 525.78,-471.62 529.54,-473.91"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="528.21,-477.16 538.7,-478.64 531.42,-470.94 528.21,-477.16"/>
+</g>
+<!-- proc~get_value_logical_seq&#45;&gt;proc~log_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge66" class="edge">
+<title>proc~get_value_logical_seq&#45;&gt;proc~log_message</title>
+<path fill="none" stroke="#00ff91" d="M469.96,-331.08C474.69,-333.53 479.15,-336.47 483,-340 512.92,-367.47 487.57,-398.27 519,-424 520.6,-425.31 522.27,-426.55 523.99,-427.71"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="522.57,-430.94 532.97,-432.96 526.1,-424.9 522.57,-430.94"/>
+</g>
+<!-- proc~get_value_logical_seq&#45;&gt;proc~make_fmt -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge67" class="edge">
+<title>proc~get_value_logical_seq&#45;&gt;proc~make_fmt</title>
+<path fill="none" stroke="#00ff91" d="M465.99,-331.07C471.96,-333.55 477.79,-336.51 483,-340 503.42,-353.69 497.84,-369.48 519,-382 536.48,-392.34 558.3,-397.63 577.14,-400.33"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="576.9,-403.82 587.25,-401.57 577.75,-396.87 576.9,-403.82"/>
+</g>
+<!-- proc~get_value_r4&#45;&gt;proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge76" class="edge">
+<title>proc~get_value_r4&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffff" d="M459.01,-277C490.58,-277 535.03,-277 569.15,-277"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="569.38,-280.5 579.38,-277 569.38,-273.5 569.38,-280.5"/>
+</g>
+<!-- proc~get_value_r4&#45;&gt;proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge77" class="edge">
+<title>proc~get_value_r4&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffff" d="M459.2,-268.6C477.42,-264.75 499.3,-260.14 519,-256 536.34,-252.36 555.36,-248.38 572.14,-244.88"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="573.2,-248.23 582.27,-242.76 571.76,-241.38 573.2,-248.23"/>
+</g>
+<!-- proc~get_value_r4&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge70" class="edge">
+<title>proc~get_value_r4&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#00ffff" d="M459.33,-286.49C467.55,-289.44 475.86,-293.21 483,-298 503.42,-311.69 497.84,-327.48 519,-340 526.77,-344.6 535.41,-348.2 544.26,-351.02"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="543.34,-354.39 553.91,-353.78 545.26,-347.66 543.34,-354.39"/>
+</g>
+<!-- proc~get_value_r4&#45;&gt;interface~are_equal -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge71" class="edge">
+<title>proc~get_value_r4&#45;&gt;interface~are_equal</title>
+<path fill="none" stroke="#00ffff" d="M459.2,-285.4C477.42,-289.25 499.3,-293.86 519,-298 538.34,-302.06 559.77,-306.54 577.87,-310.32"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="577.31,-313.78 587.81,-312.4 578.74,-306.93 577.31,-313.78"/>
+</g>
+<!-- proc~get_value_r4&#45;&gt;interface~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge72" class="edge">
+<title>proc~get_value_r4&#45;&gt;interface~get_hconfig</title>
+<path fill="none" stroke="#00ffff" d="M459.02,-282.91C468.04,-286.03 476.79,-290.78 483,-298 544.77,-369.78 453.26,-439.84 519,-508 532.74,-522.25 553.47,-528.09 572.54,-530.13"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="572.37,-533.63 582.61,-530.89 572.9,-526.65 572.37,-533.63"/>
+</g>
+<!-- proc~get_value_r4&#45;&gt;proc~has_logger -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge73" class="edge">
+<title>proc~get_value_r4&#45;&gt;proc~has_logger</title>
+<path fill="none" stroke="#00ffff" d="M459.15,-283.21C468.06,-286.33 476.72,-291 483,-298 533.99,-354.84 464.87,-412.14 519,-466 522.29,-469.27 525.94,-472.09 529.86,-474.53"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="528.34,-477.68 538.81,-479.25 531.6,-471.49 528.34,-477.68"/>
+</g>
+<!-- proc~get_value_r4&#45;&gt;proc~log_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge74" class="edge">
+<title>proc~get_value_r4&#45;&gt;proc~log_message</title>
+<path fill="none" stroke="#00ffff" d="M459.15,-283.63C467.95,-286.73 476.57,-291.3 483,-298 523.33,-340.02 476.36,-384.33 519,-424 520.7,-425.58 522.48,-427.05 524.34,-428.42"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="522.58,-431.46 532.91,-433.83 526.32,-425.53 522.58,-431.46"/>
+</g>
+<!-- proc~get_value_r4&#45;&gt;proc~make_fmt -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge75" class="edge">
+<title>proc~get_value_r4&#45;&gt;proc~make_fmt</title>
+<path fill="none" stroke="#00ffff" d="M459.23,-284.46C467.83,-287.53 476.33,-291.88 483,-298 512.92,-325.47 487.57,-356.27 519,-382 535.13,-395.21 557.51,-400.73 577.05,-402.83"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="577.01,-406.34 587.26,-403.66 577.57,-399.36 577.01,-406.34"/>
+</g>
+<!-- proc~get_value_r4seq&#45;&gt;proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge84" class="edge">
+<title>proc~get_value_r4seq&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0091ff" d="M468.59,-245.38C484.65,-248.77 502.59,-252.55 519,-256 535.31,-259.43 553.12,-263.15 569.15,-266.5"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="568.89,-270.02 579.39,-268.64 570.32,-263.17 568.89,-270.02"/>
+</g>
+<!-- proc~get_value_r4seq&#45;&gt;proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge85" class="edge">
+<title>proc~get_value_r4seq&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0091ff" d="M468.68,-235C500.27,-235 541.08,-235 572.27,-235"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="572.46,-238.5 582.46,-235 572.46,-231.5 572.46,-238.5"/>
+</g>
+<!-- proc~get_value_r4seq&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge78" class="edge">
+<title>proc~get_value_r4seq&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#0091ff" d="M468.69,-246.44C473.9,-249.01 478.81,-252.15 483,-256 512.92,-283.47 487.57,-314.27 519,-340 526.37,-346.03 535.04,-350.46 544.15,-353.7"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="543.18,-357.06 553.77,-356.65 545.24,-350.37 543.18,-357.06"/>
+</g>
+<!-- proc~get_value_r4seq&#45;&gt;interface~are_equal -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge79" class="edge">
+<title>proc~get_value_r4seq&#45;&gt;interface~are_equal</title>
+<path fill="none" stroke="#0091ff" d="M465.99,-247.07C471.96,-249.55 477.79,-252.51 483,-256 503.42,-269.69 497.84,-285.48 519,-298 536.61,-308.41 558.62,-313.71 577.55,-316.38"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="577.36,-319.89 587.71,-317.62 578.2,-312.94 577.36,-319.89"/>
+</g>
+<!-- proc~get_value_r4seq&#45;&gt;interface~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge80" class="edge">
+<title>proc~get_value_r4seq&#45;&gt;interface~get_hconfig</title>
+<path fill="none" stroke="#0091ff" d="M468.51,-244.77C474.02,-247.61 479.05,-251.28 483,-256 555.59,-342.78 441.6,-425.48 519,-508 532.64,-522.55 553.56,-528.39 572.78,-530.36"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="572.71,-533.86 582.93,-531.07 573.2,-526.88 572.71,-533.86"/>
+</g>
+<!-- proc~get_value_r4seq&#45;&gt;proc~has_logger -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge81" class="edge">
+<title>proc~get_value_r4seq&#45;&gt;proc~has_logger</title>
+<path fill="none" stroke="#0091ff" d="M468.7,-245.03C474.1,-247.84 479.06,-251.42 483,-256 544.77,-327.78 453.26,-397.84 519,-466 522.22,-469.34 525.82,-472.21 529.7,-474.69"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="528.11,-477.81 538.57,-479.49 531.44,-471.65 528.11,-477.81"/>
+</g>
+<!-- proc~get_value_r4seq&#45;&gt;proc~log_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge82" class="edge">
+<title>proc~get_value_r4seq&#45;&gt;proc~log_message</title>
+<path fill="none" stroke="#0091ff" d="M468.52,-245.19C473.95,-247.97 478.97,-251.51 483,-256 533.99,-312.84 464.87,-370.14 519,-424 520.64,-425.63 522.38,-427.16 524.19,-428.57"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="522.33,-431.54 532.61,-434.14 526.2,-425.71 522.33,-431.54"/>
+</g>
+<!-- proc~get_value_r4seq&#45;&gt;proc~make_fmt -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge83" class="edge">
+<title>proc~get_value_r4seq&#45;&gt;proc~make_fmt</title>
+<path fill="none" stroke="#0091ff" d="M468.56,-245.61C473.91,-248.32 478.9,-251.73 483,-256 523.33,-298.02 476.36,-342.33 519,-382 534.45,-396.37 557.1,-401.94 576.98,-403.78"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="576.88,-407.28 587.08,-404.42 577.32,-400.29 576.88,-407.28"/>
+</g>
+<!-- proc~get_value_r8&#45;&gt;proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge92" class="edge">
+<title>proc~get_value_r8&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0024ff" d="M459.33,-202.49C467.55,-205.44 475.86,-209.21 483,-214 503.42,-227.69 497.84,-243.48 519,-256 533.99,-264.87 552.18,-270.02 568.94,-273.01"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="568.74,-276.52 579.16,-274.61 569.82,-269.61 568.74,-276.52"/>
+</g>
+<!-- proc~get_value_r8&#45;&gt;proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge93" class="edge">
+<title>proc~get_value_r8&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0024ff" d="M459.01,-201.3C491.65,-208.15 538.06,-217.9 572.58,-225.15"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="571.93,-228.59 582.43,-227.22 573.37,-221.74 571.93,-228.59"/>
+</g>
+<!-- proc~get_value_r8&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge86" class="edge">
+<title>proc~get_value_r8&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#0024ff" d="M459.15,-199.63C467.95,-202.73 476.57,-207.3 483,-214 523.33,-256.02 476.36,-300.33 519,-340 526.17,-346.67 534.89,-351.44 544.16,-354.83"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="543.39,-358.25 553.98,-357.87 545.47,-351.57 543.39,-358.25"/>
+</g>
+<!-- proc~get_value_r8&#45;&gt;interface~are_equal -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge87" class="edge">
+<title>proc~get_value_r8&#45;&gt;interface~are_equal</title>
+<path fill="none" stroke="#0024ff" d="M459.23,-200.46C467.83,-203.53 476.33,-207.88 483,-214 512.92,-241.47 487.57,-272.27 519,-298 535.33,-311.36 558.04,-316.86 577.75,-318.91"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="577.48,-322.4 587.73,-319.68 578.03,-315.42 577.48,-322.4"/>
+</g>
+<!-- proc~get_value_r8&#45;&gt;interface~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge88" class="edge">
+<title>proc~get_value_r8&#45;&gt;interface~get_hconfig</title>
+<path fill="none" stroke="#0024ff" d="M459.26,-198.71C468.28,-201.84 476.96,-206.64 483,-214 566.45,-315.81 429.91,-411.08 519,-508 532.5,-522.68 553.39,-528.54 572.64,-530.49"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="572.6,-533.99 582.81,-531.18 573.08,-527.01 572.6,-533.99"/>
+</g>
+<!-- proc~get_value_r8&#45;&gt;proc~has_logger -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge89" class="edge">
+<title>proc~get_value_r8&#45;&gt;proc~has_logger</title>
+<path fill="none" stroke="#0024ff" d="M459.16,-198.8C468.18,-201.92 476.89,-206.7 483,-214 555.59,-300.78 441.6,-383.48 519,-466 522.24,-469.46 525.9,-472.42 529.84,-474.96"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="528.43,-478.18 538.89,-479.86 531.76,-472.02 528.43,-478.18"/>
+</g>
+<!-- proc~get_value_r8&#45;&gt;proc~log_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge90" class="edge">
+<title>proc~get_value_r8&#45;&gt;proc~log_message</title>
+<path fill="none" stroke="#0024ff" d="M459.02,-198.91C468.04,-202.03 476.79,-206.78 483,-214 544.77,-285.78 453.26,-355.84 519,-424 520.66,-425.72 522.42,-427.32 524.27,-428.8"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="522.62,-431.91 532.87,-434.6 526.53,-426.11 522.62,-431.91"/>
+</g>
+<!-- proc~get_value_r8&#45;&gt;proc~make_fmt -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge91" class="edge">
+<title>proc~get_value_r8&#45;&gt;proc~make_fmt</title>
+<path fill="none" stroke="#0024ff" d="M459.15,-199.21C468.06,-202.33 476.72,-207 483,-214 533.99,-270.84 464.87,-328.14 519,-382 534.06,-396.99 556.89,-402.57 576.99,-404.26"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="577.02,-407.76 587.19,-404.81 577.4,-400.77 577.02,-407.76"/>
+</g>
+<!-- proc~get_value_r8seq&#45;&gt;proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge100" class="edge">
+<title>proc~get_value_r8seq&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#4800ff" d="M468.6,-603.31C474.09,-600.45 479.1,-596.76 483,-592 566.45,-490.19 429.91,-394.92 519,-298 531.72,-284.16 551.02,-278.16 569.32,-275.89"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="569.68,-279.37 579.33,-274.98 569.05,-272.4 569.68,-279.37"/>
+</g>
+<!-- proc~get_value_r8seq&#45;&gt;proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge101" class="edge">
+<title>proc~get_value_r8seq&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#4800ff" d="M468.67,-603.36C474.15,-600.49 479.13,-596.79 483,-592 577.33,-475.13 418.2,-367.34 519,-256 532.28,-241.33 552.95,-235.43 572.1,-233.46"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="572.5,-236.94 582.23,-232.75 572.01,-229.96 572.5,-236.94"/>
+</g>
+<!-- proc~get_value_r8seq&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge94" class="edge">
+<title>proc~get_value_r8seq&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#4800ff" d="M468.7,-602.97C474.1,-600.16 479.06,-596.58 483,-592 544.77,-520.22 453.26,-450.16 519,-382 525.96,-374.78 534.71,-369.72 544.14,-366.22"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="545.24,-369.54 553.74,-363.22 543.15,-362.86 545.24,-369.54"/>
+</g>
+<!-- proc~get_value_r8seq&#45;&gt;interface~are_equal -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge95" class="edge">
+<title>proc~get_value_r8seq&#45;&gt;interface~are_equal</title>
+<path fill="none" stroke="#4800ff" d="M468.51,-603.23C474.02,-600.39 479.05,-596.72 483,-592 555.59,-505.22 441.6,-422.52 519,-340 533.81,-324.21 557.2,-318.67 577.68,-317.22"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="577.92,-320.71 587.76,-316.8 577.63,-313.72 577.92,-320.71"/>
+</g>
+<!-- proc~get_value_r8seq&#45;&gt;interface~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge96" class="edge">
+<title>proc~get_value_r8seq&#45;&gt;interface~get_hconfig</title>
+<path fill="none" stroke="#4800ff" d="M458.37,-600.92C466.56,-598.16 475.12,-595.11 483,-592 518.83,-577.86 558.72,-559.08 586.08,-545.71"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="587.77,-548.78 595.2,-541.23 584.69,-542.5 587.77,-548.78"/>
+</g>
+<!-- proc~get_value_r8seq&#45;&gt;proc~has_logger -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge97" class="edge">
+<title>proc~get_value_r8seq&#45;&gt;proc~has_logger</title>
+<path fill="none" stroke="#4800ff" d="M468.69,-601.56C473.9,-598.99 478.81,-595.85 483,-592 512.92,-564.53 487.57,-533.73 519,-508 522.34,-505.27 525.94,-502.87 529.73,-500.76"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="531.39,-503.84 538.87,-496.34 528.34,-497.54 531.39,-503.84"/>
+</g>
+<!-- proc~get_value_r8seq&#45;&gt;proc~log_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge98" class="edge">
+<title>proc~get_value_r8seq&#45;&gt;proc~log_message</title>
+<path fill="none" stroke="#4800ff" d="M468.56,-602.39C473.91,-599.68 478.9,-596.27 483,-592 523.33,-549.98 476.36,-505.67 519,-466 520.7,-464.42 522.48,-462.95 524.34,-461.58"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="526.32,-464.47 532.91,-456.17 522.58,-458.54 526.32,-464.47"/>
+</g>
+<!-- proc~get_value_r8seq&#45;&gt;proc~make_fmt -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge99" class="edge">
+<title>proc~get_value_r8seq&#45;&gt;proc~make_fmt</title>
+<path fill="none" stroke="#4800ff" d="M468.52,-602.81C473.95,-600.03 478.97,-596.49 483,-592 533.99,-535.16 464.87,-477.86 519,-424 534.06,-409.01 556.89,-403.43 576.99,-401.74"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="577.4,-405.23 587.19,-401.19 577.02,-398.24 577.4,-405.23"/>
+</g>
+<!-- proc~get_value_string&#45;&gt;proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge108" class="edge">
+<title>proc~get_value_string&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#b600ff" d="M468.51,-561.23C474.02,-558.39 479.05,-554.72 483,-550 555.59,-463.22 441.6,-380.52 519,-298 531.86,-284.29 551.18,-278.31 569.46,-276.02"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="569.82,-279.5 579.46,-275.1 569.18,-272.53 569.82,-279.5"/>
+</g>
+<!-- proc~get_value_string&#45;&gt;proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge109" class="edge">
+<title>proc~get_value_string&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#b600ff" d="M468.6,-561.31C474.09,-558.45 479.1,-554.76 483,-550 566.45,-448.19 429.91,-352.92 519,-256 532.39,-241.43 553.08,-235.55 572.21,-233.56"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="572.59,-237.04 582.32,-232.83 572.09,-230.06 572.59,-237.04"/>
+</g>
+<!-- proc~get_value_string&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge102" class="edge">
+<title>proc~get_value_string&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#b600ff" d="M468.52,-560.81C473.95,-558.03 478.97,-554.49 483,-550 533.99,-493.16 464.87,-435.86 519,-382 526.06,-374.98 534.83,-370.02 544.22,-366.56"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="545.27,-369.89 553.78,-363.58 543.19,-363.21 545.27,-369.89"/>
+</g>
+<!-- proc~get_value_string&#45;&gt;interface~are_equal -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge103" class="edge">
+<title>proc~get_value_string&#45;&gt;interface~are_equal</title>
+<path fill="none" stroke="#b600ff" d="M468.7,-560.97C474.1,-558.16 479.06,-554.58 483,-550 544.77,-478.22 453.26,-408.16 519,-340 534.03,-324.41 557.43,-318.89 577.86,-317.39"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="578.08,-320.88 587.91,-316.95 577.77,-313.89 578.08,-320.88"/>
+</g>
+<!-- proc~get_value_string&#45;&gt;interface~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge104" class="edge">
+<title>proc~get_value_string&#45;&gt;interface~get_hconfig</title>
+<path fill="none" stroke="#b600ff" d="M468.68,-560.67C500.38,-554.02 541.34,-545.41 572.58,-538.85"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="573.71,-542.19 582.78,-536.71 572.27,-535.34 573.71,-542.19"/>
+</g>
+<!-- proc~get_value_string&#45;&gt;proc~has_logger -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge105" class="edge">
+<title>proc~get_value_string&#45;&gt;proc~has_logger</title>
+<path fill="none" stroke="#b600ff" d="M465.99,-558.93C471.96,-556.45 477.79,-553.49 483,-550 503.42,-536.31 497.84,-520.52 519,-508 522.4,-505.99 525.96,-504.17 529.63,-502.52"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="530.99,-505.75 538.96,-498.78 528.38,-499.26 530.99,-505.75"/>
+</g>
+<!-- proc~get_value_string&#45;&gt;proc~log_message -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge106" class="edge">
+<title>proc~get_value_string&#45;&gt;proc~log_message</title>
+<path fill="none" stroke="#b600ff" d="M468.69,-559.56C473.9,-556.99 478.81,-553.85 483,-550 512.92,-522.53 487.57,-491.73 519,-466 520.6,-464.69 522.27,-463.45 523.99,-462.29"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="526.1,-465.1 532.97,-457.04 522.57,-459.06 526.1,-465.1"/>
+</g>
+<!-- proc~get_value_string&#45;&gt;proc~make_fmt -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge107" class="edge">
+<title>proc~get_value_string&#45;&gt;proc~make_fmt</title>
+<path fill="none" stroke="#b600ff" d="M468.56,-560.39C473.91,-557.68 478.9,-554.27 483,-550 523.33,-507.98 476.36,-463.67 519,-424 534.45,-409.63 557.1,-404.06 576.98,-402.22"/>
+<polygon fill="#b600ff" stroke="#b600ff" points="577.32,-405.71 587.08,-401.58 576.88,-398.72 577.32,-405.71"/>
+</g>
+<!-- proc~gridcomp_get&#45;&gt;proc~mapl_return -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge114" class="edge">
+<title>proc~gridcomp_get&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff00da" d="M435.25,-87.08C449.61,-98.87 470.45,-118.06 483,-139 510.97,-185.66 478.79,-219.35 519,-256 532.54,-268.35 551.42,-274.16 569.16,-276.7"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="569.1,-280.22 579.43,-277.84 569.88,-273.26 569.1,-280.22"/>
+</g>
+<!-- proc~gridcomp_get&#45;&gt;proc~mapl_verify -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge115" class="edge">
+<title>proc~gridcomp_get&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff00da" d="M459.94,-87.11C468.12,-90.73 476.27,-95.31 483,-101 506.17,-120.59 498.56,-136.58 519,-159 540.15,-182.19 569.17,-203.27 590.59,-217.31"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="588.95,-220.42 599.26,-222.88 592.74,-214.53 588.95,-220.42"/>
+</g>
+<!-- interface~mapl_gridcompgetoutermeta -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node25" class="node">
+<title>interface~mapl_gridcompgetoutermeta</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node25"><a xlink:href="../interface/mapl_gridcompgetoutermeta.html" xlink:title="MAPL_GridCompGetOuterMeta">
+<polygon fill="#a7506f" stroke="#a7506f" points="708,-150 533,-150 533,-126 708,-126 708,-150"/>
+<text text-anchor="middle" x="620.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompGetOuterMeta</text>
+</a>
+</g>
+</g>
+<!-- proc~gridcomp_get&#45;&gt;interface~mapl_gridcompgetoutermeta -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge110" class="edge">
+<title>proc~gridcomp_get&#45;&gt;interface~mapl_gridcompgetoutermeta</title>
+<path fill="none" stroke="#ff00da" d="M449.62,-87.12C460.2,-91.43 472.15,-96.37 483,-101 499.1,-107.87 502.34,-111.62 519,-117 526.4,-119.39 534.19,-121.57 542.02,-123.55"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="541.41,-127 551.95,-125.95 543.05,-120.19 541.41,-127"/>
+</g>
+<!-- proc~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node26" class="node">
+<title>proc~get_hconfig</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node26"><a xlink:href="../proc/get_hconfig.html" xlink:title="OuterMetaComponent%get_hconfig">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="722,-108 519,-108 519,-84 722,-84 722,-108"/>
+<text text-anchor="middle" x="620.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%get_hconfig</text>
+</a>
+</g>
+</g>
+<!-- proc~gridcomp_get&#45;&gt;proc~get_hconfig -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge111" class="edge">
+<title>proc~gridcomp_get&#45;&gt;proc~get_hconfig</title>
+<path fill="none" stroke="#ff00da" d="M461.91,-79.45C475.78,-80.91 491.88,-82.6 508.39,-84.33"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="508.4,-87.85 518.71,-85.42 509.13,-80.89 508.4,-87.85"/>
+</g>
+<!-- proc~get_lgr -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node27" class="node">
+<title>proc~get_lgr</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node27"><a xlink:href="../proc/get_lgr.html" xlink:title="OuterMetaComponent%get_lgr">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="709.5,-66 531.5,-66 531.5,-42 709.5,-42 709.5,-66"/>
+<text text-anchor="middle" x="620.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%get_lgr</text>
+</a>
+</g>
+</g>
+<!-- proc~gridcomp_get&#45;&gt;proc~get_lgr -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge112" class="edge">
+<title>proc~gridcomp_get&#45;&gt;proc~get_lgr</title>
+<path fill="none" stroke="#ff00da" d="M461.91,-70.55C479.36,-68.72 500.34,-66.51 521.23,-64.32"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="521.88,-67.77 531.46,-63.24 521.15,-60.81 521.88,-67.77"/>
+</g>
+<!-- proc~get_registry -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node28" class="node">
+<title>proc~get_registry</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node28"><a xlink:href="../proc/get_registry.html" xlink:title="OuterMetaComponent%get_registry">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="722,-24 519,-24 519,0 722,0 722,-24"/>
+<text text-anchor="middle" x="620.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%get_registry</text>
+</a>
+</g>
+</g>
+<!-- proc~gridcomp_get&#45;&gt;proc~get_registry -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge113" class="edge">
+<title>proc~gridcomp_get&#45;&gt;proc~get_registry</title>
+<path fill="none" stroke="#ff00da" d="M444.35,-62.92C464.18,-53.67 492.87,-41.16 519,-33 526.68,-30.6 534.78,-28.4 542.91,-26.39"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="543.89,-29.75 552.81,-24.04 542.27,-22.94 543.89,-29.75"/>
+</g>
+<!-- proc~initialize~21 -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_node30" class="node">
+<title>proc~initialize~21</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CallsGraph_node30"><a xlink:href="../proc/initialize~21.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="984,-247 927,-247 927,-223 984,-223 984,-247"/>
+<text text-anchor="middle" x="955.5" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~21 -->
+<g id="proc~~resource_get_logical_seq_gc~~CallsGraph_edge116" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~21</title>
+<path fill="none" stroke="#ff006d" d="M891.13,-235C899.88,-235 908.59,-235 916.63,-235"/>
+<polygon fill="#ff006d" stroke="#ff006d" points="916.77,-238.5 926.77,-235 916.77,-231.5 916.77,-238.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocresource_get_logical_seq_gcCallsGraph = svgPanZoom('#procresource_get_logical_seq_gcCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~resource_get_logical_seq_gc~~CalledByGraph Pages: 1 -->
+<svg id="procresource_get_logical_seq_gcCalledByGraph" width="430pt" height="32pt"
+ viewBox="0.00 0.00 430.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~resource_get_logical_seq_gc~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~resource_get_logical_seq_gc~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 426,-28 426,4 -4,4"/>
+<!-- proc~resource_get_logical_seq_gc -->
+<g id="proc~~resource_get_logical_seq_gc~~CalledByGraph_node1" class="node">
+<title>proc~resource_get_logical_seq_gc</title>
+<polygon fill="none" stroke="black" points="422,-24 259,-24 259,0 422,0 422,-24"/>
+<text text-anchor="middle" x="340.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">resource_get_logical_seq_gc</text>
+</g>
+<!-- interface~mapl_resourceget -->
+<g id="proc~~resource_get_logical_seq_gc~~CalledByGraph_node2" class="node">
+<title>interface~mapl_resourceget</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CalledByGraph_node2"><a xlink:href="../interface/mapl_resourceget.html" xlink:title="MAPL_ResourceGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="223,-24 109,-24 109,0 223,0 223,-24"/>
+<text text-anchor="middle" x="166" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ResourceGet</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_resourceget&#45;&gt;proc~resource_get_logical_seq_gc -->
+<g id="proc~~resource_get_logical_seq_gc~~CalledByGraph_edge1" class="edge">
+<title>interface~mapl_resourceget&#45;&gt;proc~resource_get_logical_seq_gc</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M223.01,-12C231.21,-12 239.83,-12 248.51,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="248.72,-15.5 258.72,-12 248.71,-8.5 248.72,-15.5"/>
+</g>
+<!-- proc~setservices~7 -->
+<g id="proc~~resource_get_logical_seq_gc~~CalledByGraph_node3" class="node">
+<title>proc~setservices~7</title>
+<g id="a_proc~~resource_get_logical_seq_gc~~CalledByGraph_node3"><a xlink:href="../proc/setservices~7.html" xlink:title="setServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="73,-24 0,-24 0,0 73,0 73,-24"/>
+<text text-anchor="middle" x="36.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~7&#45;&gt;interface~mapl_resourceget -->
+<g id="proc~~resource_get_logical_seq_gc~~CalledByGraph_edge2" class="edge">
+<title>proc~setservices~7&#45;&gt;interface~mapl_resourceget</title>
+<path fill="none" stroke="#ff0000" d="M73.02,-12C80.96,-12 89.64,-12 98.39,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="98.65,-15.5 108.65,-12 98.65,-8.5 98.65,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">resource_get_logical_seq_gc</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">keystring</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="p">,</span><span class="w"> </span><span class="n">value_set</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">value</span>
+<span class="k">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">default</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">keystring</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">value_set</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Logger_t</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">logger</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">HConfigParams</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">params</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_GridCompGet</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="o">=</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HConfigParams</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">keystring</span><span class="p">,</span><span class="w"> </span><span class="n">value_set</span><span class="p">,</span><span class="w"> </span><span class="n">logger</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_HConfigGet</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">value_set</span><span class="p">))</span><span class="w"> </span><span class="n">value_set</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">%</span><span class="n">value_set</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">resource_get_logical_seq_gc</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

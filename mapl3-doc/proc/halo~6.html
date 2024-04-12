@@ -1,0 +1,852 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>halo &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>halo
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">29 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_XYGridFactory.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_xygridfactory.f90.html'>MAPL_XYGridFactory.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_xygridfactorymod.html'>MAPL_XYGridFactoryMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">halo</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/halo~6.html#src">halo</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine halo(this, array, unusable, halo_width, rc)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/mapl_commsmod.html'>MAPL_CommsMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~halo~6~~UsesGraph Pages: 1 -->
+<svg id="prochalo6UsesGraph" width="641pt" height="239pt"
+ viewBox="0.00 0.00 641.00 239.19" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~halo~6~~UsesGraph" class="graph" transform="scale(2 2) rotate(0) translate(4 474)">
+<title>proc~~halo~6~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-474 1277,-474 1277,4 -4,4"/>
+<!-- proc~halo~6 -->
+<g id="proc~~halo~6~~UsesGraph_node1" class="node">
+<title>proc~halo~6</title>
+<polygon fill="none" stroke="black" points="1273,-188 1152,-188 1152,-164 1273,-164 1273,-188"/>
+<text text-anchor="middle" x="1212.5" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50">XYGridFactory%halo</text>
+</g>
+<!-- module~mapl_commsmod -->
+<g id="proc~~halo~6~~UsesGraph_node2" class="node">
+<title>module~mapl_commsmod</title>
+<g id="a_proc~~halo~6~~UsesGraph_node2"><a xlink:href="../module/mapl_commsmod.html" xlink:title="MAPL_CommsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="1116,-188 1007,-188 1007,-164 1116,-164 1116,-188"/>
+<text text-anchor="middle" x="1061.5" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod</text>
+</a>
+</g>
+</g>
+<!-- proc~halo~6&#45;&gt;module~mapl_commsmod -->
+<g id="proc~~halo~6~~UsesGraph_edge1" class="edge">
+<title>proc~halo~6&#45;&gt;module~mapl_commsmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1151.75,-176C1143.47,-176 1134.92,-176 1126.56,-176"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1126.48,-172.5 1116.48,-176 1126.48,-179.5 1126.48,-172.5"/>
+</g>
+<!-- ESMF -->
+<g id="proc~~halo~6~~UsesGraph_node3" class="node">
+<title>ESMF</title>
+<g id="a_proc~~halo~6~~UsesGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="634.5,-188 580.5,-188 580.5,-164 634.5,-164 634.5,-188"/>
+<text text-anchor="middle" x="607.5" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_commsmod&#45;&gt;ESMF -->
+<g id="proc~~halo~6~~UsesGraph_edge2" class="edge">
+<title>module~mapl_commsmod&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M772.5,-176C728.65,-173.24 678.08,-173.81 644.82,-174.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="644.56,-171.2 634.66,-174.99 644.76,-178.2 644.56,-171.2"/>
+</g>
+<!-- module~mapl_basemod -->
+<g id="proc~~halo~6~~UsesGraph_node4" class="node">
+<title>module~mapl_basemod</title>
+<g id="a_proc~~halo~6~~UsesGraph_node4"><a xlink:href="../module/mapl_basemod.html" xlink:title="MAPL_BaseMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="963.5,-266 868.5,-266 868.5,-242 963.5,-242 963.5,-266"/>
+<text text-anchor="middle" x="916" y="-251.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_BaseMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_commsmod&#45;&gt;module~mapl_basemod -->
+<g id="proc~~halo~6~~UsesGraph_edge3" class="edge">
+<title>module~mapl_commsmod&#45;&gt;module~mapl_basemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1038.39,-188.02C1014.34,-201.09 975.69,-222.1 948.48,-236.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="946.48,-233.99 939.37,-241.84 949.83,-240.14 946.48,-233.99"/>
+</g>
+<!-- module~mapl_constants -->
+<g id="proc~~halo~6~~UsesGraph_node5" class="node">
+<title>module~mapl_constants</title>
+<g id="a_proc~~halo~6~~UsesGraph_node5"><a xlink:href="../module/mapl_constants.html" xlink:title="MAPL_Constants">
+<polygon fill="#337ab7" stroke="#337ab7" points="657,-146 558,-146 558,-122 657,-122 657,-146"/>
+<text text-anchor="middle" x="607.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Constants</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_commsmod&#45;&gt;module~mapl_constants -->
+<g id="proc~~halo~6~~UsesGraph_edge4" class="edge">
+<title>module~mapl_commsmod&#45;&gt;module~mapl_constants</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1006.94,-178.01C949.42,-179.69 855.4,-181.1 774.5,-176"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M772.5,-176C766.88,-175.59 709.22,-160.62 663.83,-148.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="664.63,-145.26 654.07,-146.09 662.84,-152.02 664.63,-145.26"/>
+</g>
+<!-- module~mapl_exceptionhandling -->
+<g id="proc~~halo~6~~UsesGraph_node6" class="node">
+<title>module~mapl_exceptionhandling</title>
+<g id="a_proc~~halo~6~~UsesGraph_node6"><a xlink:href="../module/mapl_exceptionhandling.html" xlink:title="MAPL_ExceptionHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="681,-470 534,-470 534,-446 681,-446 681,-470"/>
+<text text-anchor="middle" x="607.5" y="-455.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_commsmod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="proc~~halo~6~~UsesGraph_edge5" class="edge">
+<title>module~mapl_commsmod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1054.21,-188.01C1030.85,-231.21 944.21,-379.34 825,-439 784.09,-459.48 733.36,-464.82 691.3,-464.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="691.12,-461.27 681.08,-464.65 691.04,-468.27 691.12,-461.27"/>
+</g>
+<!-- module~mapl_shmemmod -->
+<g id="proc~~halo~6~~UsesGraph_node7" class="node">
+<title>module~mapl_shmemmod</title>
+<g id="a_proc~~halo~6~~UsesGraph_node7"><a xlink:href="../module/mapl_shmemmod.html" xlink:title="MAPL_ShmemMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="971,-127 861,-127 861,-103 971,-103 971,-127"/>
+<text text-anchor="middle" x="916" y="-112.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ShmemMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_commsmod&#45;&gt;module~mapl_shmemmod -->
+<g id="proc~~halo~6~~UsesGraph_edge6" class="edge">
+<title>module~mapl_commsmod&#45;&gt;module~mapl_shmemmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1032.15,-163.95C1009.94,-154.51 978.84,-141.29 954.56,-130.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="955.86,-127.72 945.29,-127.03 953.13,-134.16 955.86,-127.72"/>
+</g>
+<!-- mpi -->
+<g id="proc~~halo~6~~UsesGraph_node8" class="node">
+<title>mpi</title>
+<g id="a_proc~~halo~6~~UsesGraph_node8"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="634.5,-24 580.5,-24 580.5,0 634.5,0 634.5,-24"/>
+<text text-anchor="middle" x="607.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_commsmod&#45;&gt;mpi -->
+<g id="proc~~halo~6~~UsesGraph_edge7" class="edge">
+<title>module~mapl_commsmod&#45;&gt;mpi</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1050.91,-163.86C1035.88,-145.73 1004.98,-111.78 971,-94 861.38,-36.64 712.61,-19.2 644.83,-14.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="644.89,-10.56 634.67,-13.34 644.39,-17.54 644.89,-10.56"/>
+</g>
+<!-- module~mapl_basemod&#45;&gt;module~mapl_constants -->
+<g id="proc~~halo~6~~UsesGraph_edge9" class="edge">
+<title>module~mapl_basemod&#45;&gt;module~mapl_constants</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M871.25,-241.97C822.54,-228.14 747.35,-205.39 722,-190 702.93,-178.42 705.39,-166.05 686,-155 680.06,-151.61 673.55,-148.76 666.91,-146.35"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="667.73,-142.93 657.13,-143.13 665.54,-149.58 667.73,-142.93"/>
+</g>
+<!-- module~mapl_base -->
+<g id="proc~~halo~6~~UsesGraph_node10" class="node">
+<title>module~mapl_base</title>
+<g id="a_proc~~halo~6~~UsesGraph_node10"><a xlink:href="../module/mapl_base.html" xlink:title="MAPL_Base">
+<polygon fill="#337ab7" stroke="#337ab7" points="810,-266 737,-266 737,-242 810,-242 810,-266"/>
+<text text-anchor="middle" x="773.5" y="-251.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_basemod&#45;&gt;module~mapl_base -->
+<g id="proc~~halo~6~~UsesGraph_edge8" class="edge">
+<title>module~mapl_basemod&#45;&gt;module~mapl_base</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M868.22,-254C852.91,-254 835.92,-254 820.66,-254"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="820.41,-250.5 810.41,-254 820.41,-257.5 820.41,-250.5"/>
+</g>
+<!-- module~mapl_maplgrid -->
+<g id="proc~~halo~6~~UsesGraph_node13" class="node">
+<title>module~mapl_maplgrid</title>
+<g id="a_proc~~halo~6~~UsesGraph_node13"><a xlink:href="../module/mapl_maplgrid.html" xlink:title="mapl_MaplGrid">
+<polygon fill="#337ab7" stroke="#337ab7" points="820,-308 727,-308 727,-284 820,-284 820,-308"/>
+<text text-anchor="middle" x="773.5" y="-293.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_basemod&#45;&gt;module~mapl_maplgrid -->
+<g id="proc~~halo~6~~UsesGraph_edge10" class="edge">
+<title>module~mapl_basemod&#45;&gt;module~mapl_maplgrid</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M874.74,-266.04C859.16,-270.69 841.16,-276.07 824.75,-280.98"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="823.35,-277.75 814.77,-283.96 825.35,-284.45 823.35,-277.75"/>
+</g>
+<!-- module~mapl_rangemod -->
+<g id="proc~~halo~6~~UsesGraph_node16" class="node">
+<title>module~mapl_rangemod</title>
+<g id="a_proc~~halo~6~~UsesGraph_node16"><a xlink:href="../module/mapl_rangemod.html" xlink:title="MAPL_RangeMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="825,-430 722,-430 722,-406 825,-406 825,-430"/>
+<text text-anchor="middle" x="773.5" y="-415.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_RangeMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_basemod&#45;&gt;module~mapl_rangemod -->
+<g id="proc~~halo~6~~UsesGraph_edge11" class="edge">
+<title>module~mapl_basemod&#45;&gt;module~mapl_rangemod</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M904.67,-266.06C880.72,-294.02 821.19,-363.5 791.67,-397.96"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="788.69,-396.05 784.85,-405.92 794.01,-400.61 788.69,-396.05"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="proc~~halo~6~~UsesGraph_node9" class="node">
+<title>iso_fortran_env</title>
+<g id="a_proc~~halo~6~~UsesGraph_node9"><a xlink:href="http://fortranwiki.org/fortran/show/iso_fortran_env" xlink:title="iso_fortran_env">
+<polygon fill="#337ab7" stroke="#337ab7" points="94,-188 0,-188 0,-164 94,-164 94,-188"/>
+<text text-anchor="middle" x="47" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_constants&#45;&gt;iso_fortran_env -->
+<g id="proc~~halo~6~~UsesGraph_edge12" class="edge">
+<title>module~mapl_constants&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M565.99,-121.91C526.96,-111.17 466.05,-96.74 412,-94"/>
+</g>
+<!-- module~mapl_internalconstantsmod -->
+<g id="proc~~halo~6~~UsesGraph_node12" class="node">
+<title>module~mapl_internalconstantsmod</title>
+<g id="a_proc~~halo~6~~UsesGraph_node12"><a xlink:href="../module/mapl_internalconstantsmod.html" xlink:title="MAPL_InternalConstantsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="293,-188 130,-188 130,-164 293,-164 293,-188"/>
+<text text-anchor="middle" x="211.5" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_InternalConstantsMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_constants&#45;&gt;module~mapl_internalconstantsmod -->
+<g id="proc~~halo~6~~UsesGraph_edge13" class="edge">
+<title>module~mapl_constants&#45;&gt;module~mapl_internalconstantsmod</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M410,-175C375.25,-176.84 337,-177.38 303.5,-177.36"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="303.28,-173.86 293.27,-177.33 303.26,-180.86 303.28,-173.86"/>
+</g>
+<!-- module~mapl_mathconstantsmod -->
+<g id="proc~~halo~6~~UsesGraph_node14" class="node">
+<title>module~mapl_mathconstantsmod</title>
+<g id="a_proc~~halo~6~~UsesGraph_node14"><a xlink:href="../module/mapl_mathconstantsmod.html" xlink:title="MAPL_MathConstantsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="285.5,-146 137.5,-146 137.5,-122 285.5,-122 285.5,-146"/>
+<text text-anchor="middle" x="211.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MathConstantsMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_constants&#45;&gt;module~mapl_mathconstantsmod -->
+<g id="proc~~halo~6~~UsesGraph_edge14" class="edge">
+<title>module~mapl_constants&#45;&gt;module~mapl_mathconstantsmod</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M557.93,-146.03C509.95,-157.6 439.83,-173.53 412,-175"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M410,-175C396.41,-175.72 326.47,-160.44 273.65,-148.33"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="274.2,-144.87 263.67,-146.04 272.63,-151.69 274.2,-144.87"/>
+</g>
+<!-- module~mapl_physicalconstantsmod -->
+<g id="proc~~halo~6~~UsesGraph_node15" class="node">
+<title>module~mapl_physicalconstantsmod</title>
+<g id="a_proc~~halo~6~~UsesGraph_node15"><a xlink:href="../module/mapl_physicalconstantsmod.html" xlink:title="MAPL_PhysicalConstantsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="493,-146 329,-146 329,-122 493,-122 493,-146"/>
+<text text-anchor="middle" x="411" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_PhysicalConstantsMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_constants&#45;&gt;module~mapl_physicalconstantsmod -->
+<g id="proc~~halo~6~~UsesGraph_edge15" class="edge">
+<title>module~mapl_constants&#45;&gt;module~mapl_physicalconstantsmod</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M557.92,-134C541.33,-134 522.18,-134 503.34,-134"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="503.22,-130.5 493.22,-134 503.22,-137.5 503.22,-130.5"/>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="proc~~halo~6~~UsesGraph_node11" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_proc~~halo~6~~UsesGraph_node11"><a xlink:href="../module/mapl_errorhandlingmod.html" xlink:title="mapl_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="482,-329 340,-329 340,-305 482,-305 482,-329"/>
+<text text-anchor="middle" x="411" y="-314.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="proc~~halo~6~~UsesGraph_edge16" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M589.92,-445.98C555.77,-421.22 477.42,-364.43 437.06,-335.16"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="438.97,-332.23 428.82,-329.19 434.86,-337.89 438.97,-332.23"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="proc~~halo~6~~UsesGraph_node18" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_proc~~halo~6~~UsesGraph_node18"><a xlink:href="../module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="461.5,-470 360.5,-470 360.5,-446 461.5,-446 461.5,-470"/>
+<text text-anchor="middle" x="411" y="-455.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod -->
+<g id="proc~~halo~6~~UsesGraph_edge17" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M533.8,-458C513.31,-458 491.26,-458 471.63,-458"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="471.61,-454.5 461.61,-458 471.61,-461.5 471.61,-454.5"/>
+</g>
+<!-- module~mapl_shmem -->
+<g id="proc~~halo~6~~UsesGraph_node17" class="node">
+<title>module~mapl_shmem</title>
+<g id="a_proc~~halo~6~~UsesGraph_node17"><a xlink:href="../module/mapl_shmem.html" xlink:title="MAPL_Shmem">
+<polygon fill="#337ab7" stroke="#337ab7" points="817.5,-106 729.5,-106 729.5,-82 817.5,-82 817.5,-106"/>
+<text text-anchor="middle" x="773.5" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Shmem</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_shmemmod&#45;&gt;module~mapl_shmem -->
+<g id="proc~~halo~6~~UsesGraph_edge18" class="edge">
+<title>module~mapl_shmemmod&#45;&gt;module~mapl_shmem</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M860.68,-106.88C849.91,-105.27 838.62,-103.58 827.88,-101.98"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="828.2,-98.49 817.8,-100.47 827.17,-105.41 828.2,-98.49"/>
+</g>
+<!-- module~mapl_base&#45;&gt;ESMF -->
+<g id="proc~~halo~6~~UsesGraph_edge19" class="edge">
+<title>module~mapl_base&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M747.18,-241.9C739,-237.74 729.98,-232.9 722,-228 705.18,-217.68 703.56,-211.02 686,-202 673.02,-195.33 657.97,-189.83 644.6,-185.63"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="645.36,-182.2 634.77,-182.67 643.34,-188.9 645.36,-182.2"/>
+</g>
+<!-- module~mapl_base&#45;&gt;iso_fortran_env -->
+<g id="proc~~halo~6~~UsesGraph_edge20" class="edge">
+<title>module~mapl_base&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M736.72,-252.86C638.9,-249.31 359.03,-236.22 130,-197 120.01,-195.29 109.44,-192.97 99.34,-190.51"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="99.99,-187.06 89.43,-188 98.27,-193.85 99.99,-187.06"/>
+</g>
+<!-- module~mapl_errorhandling -->
+<g id="proc~~halo~6~~UsesGraph_node21" class="node">
+<title>module~mapl_errorhandling</title>
+<g id="a_proc~~halo~6~~UsesGraph_node21"><a xlink:href="../module/mapl_errorhandling.html" xlink:title="mapl_ErrorHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="271,-329 152,-329 152,-305 271,-305 271,-329"/>
+<text text-anchor="middle" x="211.5" y="-314.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling -->
+<g id="proc~~halo~6~~UsesGraph_edge21" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M339.81,-317C320.73,-317 300.1,-317 281.11,-317"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="281.05,-313.5 271.05,-317 281.05,-320.5 281.05,-313.5"/>
+</g>
+<!-- module~mapl_internalconstantsmod&#45;&gt;iso_fortran_env -->
+<g id="proc~~halo~6~~UsesGraph_edge22" class="edge">
+<title>module~mapl_internalconstantsmod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M129.73,-176C121.1,-176 112.47,-176 104.22,-176"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="104,-172.5 94,-176 104,-179.5 104,-172.5"/>
+</g>
+<!-- module~mapl_maplgrid&#45;&gt;ESMF -->
+<g id="proc~~halo~6~~UsesGraph_edge23" class="edge">
+<title>module~mapl_maplgrid&#45;&gt;ESMF</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M738.45,-283.92C732.77,-281.33 727.07,-278.34 722,-275 703.37,-262.72 702.62,-254.89 686,-240 668.35,-224.18 647.61,-207.13 632.03,-194.61"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="633.95,-191.66 623.95,-188.15 629.58,-197.13 633.95,-191.66"/>
+</g>
+<!-- module~mapl_maplgrid&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="proc~~halo~6~~UsesGraph_edge25" class="edge">
+<title>module~mapl_maplgrid&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M735.46,-283.88C720.3,-279.53 702.49,-275.15 686,-273 616.81,-263.96 597.65,-260.52 529,-273 499.86,-278.3 468.53,-290.46 445.63,-300.65"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="444.01,-297.54 436.36,-304.88 446.91,-303.91 444.01,-297.54"/>
+</g>
+<!-- module~mapl_constantsmod -->
+<g id="proc~~halo~6~~UsesGraph_node20" class="node">
+<title>module~mapl_constantsmod</title>
+<g id="a_proc~~halo~6~~UsesGraph_node20"><a xlink:href="../module/mapl_constantsmod.html" xlink:title="MAPL_ConstantsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="668,-390 547,-390 547,-366 668,-366 668,-390"/>
+<text text-anchor="middle" x="607.5" y="-375.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ConstantsMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_maplgrid&#45;&gt;module~mapl_constantsmod -->
+<g id="proc~~halo~6~~UsesGraph_edge24" class="edge">
+<title>module~mapl_maplgrid&#45;&gt;module~mapl_constantsmod</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M758.77,-308.01C742.46,-321.7 713.94,-343.87 686,-357 681.66,-359.04 677.08,-360.91 672.41,-362.63"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="671.08,-359.38 662.74,-365.92 673.33,-366.01 671.08,-359.38"/>
+</g>
+<!-- module~mapl_keywordenforcermod -->
+<g id="proc~~halo~6~~UsesGraph_node22" class="node">
+<title>module~mapl_keywordenforcermod</title>
+<g id="a_proc~~halo~6~~UsesGraph_node22"><a xlink:href="../module/mapl_keywordenforcermod.html" xlink:title="mapl_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="686,-348 529,-348 529,-324 686,-324 686,-348"/>
+<text text-anchor="middle" x="607.5" y="-333.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_maplgrid&#45;&gt;module~mapl_keywordenforcermod -->
+<g id="proc~~halo~6~~UsesGraph_edge26" class="edge">
+<title>module~mapl_maplgrid&#45;&gt;module~mapl_keywordenforcermod</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M726.82,-307.14C708.58,-311.59 687.33,-316.77 667.92,-321.51"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="666.84,-318.17 657.96,-323.94 668.5,-324.97 666.84,-318.17"/>
+</g>
+<!-- module~pflogger -->
+<g id="proc~~halo~6~~UsesGraph_node23" class="node">
+<title>module~pflogger</title>
+<g id="a_proc~~halo~6~~UsesGraph_node23"><a xlink:href="../module/pflogger.html" xlink:title="pflogger">
+<polygon fill="#337ab7" stroke="#337ab7" points="636.5,-306 578.5,-306 578.5,-282 636.5,-282 636.5,-306"/>
+<text text-anchor="middle" x="607.5" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pflogger</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_maplgrid&#45;&gt;module~pflogger -->
+<g id="proc~~halo~6~~UsesGraph_edge27" class="edge">
+<title>module~mapl_maplgrid&#45;&gt;module~pflogger</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M726.82,-295.44C701.72,-295.14 670.93,-294.76 647.05,-294.47"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="646.99,-290.97 636.95,-294.35 646.91,-297.97 646.99,-290.97"/>
+</g>
+<!-- module~mapl_mathconstantsmod&#45;&gt;iso_fortran_env -->
+<g id="proc~~halo~6~~UsesGraph_edge28" class="edge">
+<title>module~mapl_mathconstantsmod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M163.93,-146.04C145.16,-150.89 123.34,-156.53 103.74,-161.59"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="102.82,-158.22 94.01,-164.11 104.57,-164.99 102.82,-158.22"/>
+</g>
+<!-- module~mapl_physicalconstantsmod&#45;&gt;iso_fortran_env -->
+<g id="proc~~halo~6~~UsesGraph_edge29" class="edge">
+<title>module~mapl_physicalconstantsmod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M368.87,-121.92C320.16,-108.27 241.92,-88.61 212.5,-94"/>
+</g>
+<!-- module~mapl_physicalconstantsmod&#45;&gt;module~mapl_mathconstantsmod -->
+<g id="proc~~halo~6~~UsesGraph_edge30" class="edge">
+<title>module~mapl_physicalconstantsmod&#45;&gt;module~mapl_mathconstantsmod</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M328.81,-134C318.01,-134 306.92,-134 296.07,-134"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="295.77,-130.5 285.77,-134 295.77,-137.5 295.77,-130.5"/>
+</g>
+<!-- module~mapl_rangemod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="proc~~halo~6~~UsesGraph_edge32" class="edge">
+<title>module~mapl_rangemod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M723.29,-430C705.86,-434.25 686.06,-439.08 667.87,-443.52"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="666.84,-440.17 657.95,-445.94 668.5,-446.97 666.84,-440.17"/>
+</g>
+<!-- module~mapl_rangemod&#45;&gt;iso_fortran_env -->
+<g id="proc~~halo~6~~UsesGraph_edge31" class="edge">
+<title>module~mapl_rangemod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M721.74,-417.84C587.02,-416.46 224.33,-406.34 130,-338 82.57,-303.64 60.8,-233.83 52.42,-198.12"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="55.81,-197.23 50.24,-188.21 48.97,-198.73 55.81,-197.23"/>
+</g>
+<!-- module~mapl_shmem&#45;&gt;module~mapl_constants -->
+<g id="proc~~halo~6~~UsesGraph_edge35" class="edge">
+<title>module~mapl_shmem&#45;&gt;module~mapl_constants</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M729.41,-104.51C710.33,-109.16 687.58,-114.71 667,-119.73"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="665.97,-116.38 657.09,-122.15 667.63,-123.18 665.97,-116.38"/>
+</g>
+<!-- module~mapl_shmem&#45;&gt;mpi -->
+<g id="proc~~halo~6~~UsesGraph_edge36" class="edge">
+<title>module~mapl_shmem&#45;&gt;mpi</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M758.77,-81.99C742.46,-68.3 713.94,-46.13 686,-33 673.03,-26.9 657.98,-22.32 644.61,-19.01"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="645.31,-15.58 634.78,-16.73 643.73,-22.4 645.31,-15.58"/>
+</g>
+<!-- module~mapl_shmem&#45;&gt;iso_fortran_env -->
+<g id="proc~~halo~6~~UsesGraph_edge34" class="edge">
+<title>module~mapl_shmem&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M729.46,-95.41C661.82,-97.3 526.54,-99.81 412,-94"/>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M410,-94C322.35,-89.22 298.84,-78.18 212.5,-94"/>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M210.5,-94C174.34,-100.63 163.21,-97.23 130,-113 106.52,-124.15 83.38,-142.84 67.69,-156.97"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="65.18,-154.52 60.21,-163.88 69.93,-159.67 65.18,-154.52"/>
+</g>
+<!-- iso_c_binding -->
+<g id="proc~~halo~6~~UsesGraph_node19" class="node">
+<title>iso_c_binding</title>
+<g id="a_proc~~halo~6~~UsesGraph_node19"><a xlink:href="http://fortranwiki.org/fortran/show/iso_c_binding" xlink:title="iso_c_binding">
+<polygon fill="#337ab7" stroke="#337ab7" points="649.5,-66 565.5,-66 565.5,-42 649.5,-42 649.5,-66"/>
+<text text-anchor="middle" x="607.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_c_binding</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_shmem&#45;&gt;iso_c_binding -->
+<g id="proc~~halo~6~~UsesGraph_edge33" class="edge">
+<title>module~mapl_shmem&#45;&gt;iso_c_binding</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M729.41,-83.49C708.01,-78.27 682.01,-71.93 659.61,-66.47"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="660.15,-63 649.61,-64.03 658.49,-69.8 660.15,-63"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprochalo6UsesGraph = svgPanZoom('#prochalo6UsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/xygridfactory.html'>XYGridFactory</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~6060"></span>
+              class(<a href='../type/xygridfactory.html'>XYGridFactory</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-array~88"></span>
+              real(kind=REAL32),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>array</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~346"></span>
+              class(<a href='../type/keywordenforcer~84.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-halo_width~10"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>halo_width</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1973"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">halo</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="k">array</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">halo_width</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">use </span><span class="n">MAPL_CommsMod</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">XYGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">array</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">halo_width</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MOD_NAME</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;halo&#39;</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="k">array</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">halo_width</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">halo</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

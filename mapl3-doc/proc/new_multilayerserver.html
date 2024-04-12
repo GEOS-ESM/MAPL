@@ -1,0 +1,894 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>new_MultiLayerServer &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>new_MultiLayerServer
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">19 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MultiLayerServer.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/multilayerserver.f90.html'>MultiLayerServer.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_multilayerservermod.html'>pFIO_MultiLayerServerMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">new_MultiLayerServer</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/new_multilayerserver.html#src">new_MultiLayerServer</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function new_MultiLayerServer(comm, port_name, nwriters, pfio_writer, rc) result(s)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-comm~48"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>comm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-port_name~15"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>port_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nwriters~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nwriters</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pfio_writer"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>pfio_writer</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1754"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-s~74"></span>
+          type(<a href='../type/multilayerserver.html'>MultiLayerServer</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~new_multilayerserver~~CallsGraph Pages: 1 -->
+<svg id="procnew_multilayerserverCallsGraph" width="641pt" height="292pt"
+ viewBox="0.00 0.00 641.00 292.45" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~new_multilayerserver~~CallsGraph" class="graph" transform="scale(1.69 1.69) rotate(0) translate(4 490.57)">
+<title>proc~~new_multilayerserver~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-490.57 1080,-490.57 1080,4 -4,4"/>
+<!-- proc~new_multilayerserver -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node1" class="node">
+<title>proc~new_multilayerserver</title>
+<polygon fill="none" stroke="black" points="130,-428.9 0,-428.9 0,-404.9 130,-404.9 130,-428.9"/>
+<text text-anchor="middle" x="65" y="-414.5" font-family="Helvetica,sans-Serif" font-size="10.50">new_MultiLayerServer</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~new_multilayerserver~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="603.5,-406.9 524.5,-406.9 524.5,-382.9 603.5,-382.9 603.5,-406.9"/>
+<text text-anchor="middle" x="564" y="-392.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~new_multilayerserver&#45;&gt;interface~mapl_assert -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge1" class="edge">
+<title>proc~new_multilayerserver&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M130.21,-414.06C230.92,-409.6 423.84,-401.06 514.13,-397.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="514.53,-400.55 524.36,-396.61 514.22,-393.56 514.53,-400.55"/>
+</g>
+<!-- mpi_comm_spawn -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node3" class="node">
+<title>mpi_comm_spawn</title>
+<polygon fill="#777777" stroke="#777777" points="280.5,-468.9 169.5,-468.9 169.5,-444.9 280.5,-444.9 280.5,-468.9"/>
+<text text-anchor="middle" x="225" y="-454.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_spawn</text>
+</g>
+<!-- proc~new_multilayerserver&#45;&gt;mpi_comm_spawn -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge2" class="edge">
+<title>proc~new_multilayerserver&#45;&gt;mpi_comm_spawn</title>
+<path fill="none" stroke="#ff0000" d="M113.41,-428.91C130.05,-433.12 148.93,-437.9 166.32,-442.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="165.8,-445.78 176.36,-444.84 167.52,-439 165.8,-445.78"/>
+</g>
+<!-- proc~init~4 -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node4" class="node">
+<title>proc~init~4</title>
+<g id="a_proc~~new_multilayerserver~~CallsGraph_node4"><a xlink:href="../proc/init~4.html" xlink:title="AbstractServer%init">
+<polygon fill="#d9534f" stroke="#d9534f" points="284,-262.9 166,-262.9 166,-238.9 284,-238.9 284,-262.9"/>
+<text text-anchor="middle" x="225" y="-248.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer%init</text>
+</a>
+</g>
+</g>
+<!-- proc~new_multilayerserver&#45;&gt;proc~init~4 -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge3" class="edge">
+<title>proc~new_multilayerserver&#45;&gt;proc~init~4</title>
+<path fill="none" stroke="#ff0000" d="M77.62,-404.7C104.67,-376.28 172.06,-305.47 205.12,-270.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="208.01,-272.79 212.36,-263.13 202.94,-267.96 208.01,-272.79"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node5" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~new_multilayerserver~~CallsGraph_node5"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="781,-304.9 699,-304.9 699,-280.9 781,-280.9 781,-304.9"/>
+<text text-anchor="middle" x="740" y="-290.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~new_multilayerserver&#45;&gt;proc~mapl_return -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge4" class="edge">
+<title>proc~new_multilayerserver&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M69.31,-404.6C85.21,-348.31 159.68,-114.83 320,-37.9 445.1,22.12 520.55,10.38 630,-74.9 695.37,-125.84 724.51,-226.44 734.6,-270.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="731.18,-271.65 736.72,-280.69 738.03,-270.17 731.18,-271.65"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node6" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~new_multilayerserver~~CallsGraph_node6"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="429,-468.9 353,-468.9 353,-444.9 429,-444.9 429,-468.9"/>
+<text text-anchor="middle" x="391" y="-454.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~new_multilayerserver&#45;&gt;proc~mapl_verify -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge5" class="edge">
+<title>proc~new_multilayerserver&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M80.04,-428.98C98.37,-443.88 132.13,-468.39 166,-477.9 225.56,-494.64 297.16,-482.63 343.1,-471.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="344,-474.42 352.79,-468.5 342.23,-467.65 344,-474.42"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node16" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~new_multilayerserver~~CallsGraph_node16"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="807,-406.9 673,-406.9 673,-382.9 807,-382.9 807,-406.9"/>
+<text text-anchor="middle" x="740" y="-392.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge6" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M603.62,-394.9C621,-394.9 642.17,-394.9 662.55,-394.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="662.8,-398.4 672.8,-394.9 662.8,-391.4 662.8,-398.4"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node17" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~new_multilayerserver~~CallsGraph_node17"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="814,-364.9 666,-364.9 666,-340.9 814,-340.9 814,-364.9"/>
+<text text-anchor="middle" x="740" y="-350.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge7" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M603.62,-385.58C625.89,-380.21 654.37,-373.33 679.45,-367.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="680.34,-370.66 689.24,-364.92 678.7,-363.86 680.34,-370.66"/>
+</g>
+<!-- proc~init~4&#45;&gt;proc~mapl_return -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge16" class="edge">
+<title>proc~init~4&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff66" d="M227.68,-238.72C233.24,-203.65 254.58,-102.43 320,-61.9 373.65,-28.67 402.66,-40.41 462,-61.9 581.44,-105.17 685.53,-224.93 723.59,-272.78"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="720.99,-275.13 729.92,-280.84 726.5,-270.81 720.99,-275.13"/>
+</g>
+<!-- proc~init~4&#45;&gt;proc~mapl_verify -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge17" class="edge">
+<title>proc~init~4&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff66" d="M232.2,-263.18C245.85,-289.53 280.46,-352.8 320,-397.9 333.27,-413.05 350.56,-427.65 364.63,-438.55"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="362.82,-441.57 372.91,-444.82 367.05,-435.99 362.82,-441.57"/>
+</g>
+<!-- mpi_allgather -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node7" class="node">
+<title>mpi_allgather</title>
+<polygon fill="#777777" stroke="#777777" points="434,-388.9 348,-388.9 348,-364.9 434,-364.9 434,-388.9"/>
+<text text-anchor="middle" x="391" y="-374.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_allgather</text>
+</g>
+<!-- proc~init~4&#45;&gt;mpi_allgather -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge8" class="edge">
+<title>proc~init~4&#45;&gt;mpi_allgather</title>
+<path fill="none" stroke="#00ff66" d="M233.47,-262.93C247.64,-284.73 280.56,-330.84 320,-355.9 325.48,-359.39 331.57,-362.32 337.8,-364.78"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="337.06,-368.22 347.65,-368.26 339.39,-361.63 337.06,-368.22"/>
+</g>
+<!-- mpi_barrier -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node8" class="node">
+<title>mpi_barrier</title>
+<polygon fill="#777777" stroke="#777777" points="428.5,-346.9 353.5,-346.9 353.5,-322.9 428.5,-322.9 428.5,-346.9"/>
+<text text-anchor="middle" x="391" y="-332.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_barrier</text>
+</g>
+<!-- proc~init~4&#45;&gt;mpi_barrier -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge9" class="edge">
+<title>proc~init~4&#45;&gt;mpi_barrier</title>
+<path fill="none" stroke="#00ff66" d="M241.11,-263.13C259,-277.09 290.15,-299.82 320,-313.9 327.42,-317.41 335.57,-320.48 343.59,-323.12"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="342.67,-326.5 353.26,-326.12 344.75,-319.81 342.67,-326.5"/>
+</g>
+<!-- mpi_bcast -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node9" class="node">
+<title>mpi_bcast</title>
+<polygon fill="#777777" stroke="#777777" points="424.5,-262.9 357.5,-262.9 357.5,-238.9 424.5,-238.9 424.5,-262.9"/>
+<text text-anchor="middle" x="391" y="-248.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_bcast</text>
+</g>
+<!-- proc~init~4&#45;&gt;mpi_bcast -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge10" class="edge">
+<title>proc~init~4&#45;&gt;mpi_bcast</title>
+<path fill="none" stroke="#00ff66" d="M284.28,-250.9C304.95,-250.9 327.81,-250.9 346.97,-250.9"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="347.2,-254.4 357.2,-250.9 347.2,-247.4 347.2,-254.4"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node10" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="441.5,-220.9 340.5,-220.9 340.5,-196.9 441.5,-196.9 441.5,-220.9"/>
+<text text-anchor="middle" x="391" y="-206.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~init~4&#45;&gt;mpi_comm_rank -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge11" class="edge">
+<title>proc~init~4&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#00ff66" d="M273,-238.87C291.78,-234.06 313.58,-228.47 333.24,-223.44"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="334.18,-226.81 343,-220.94 332.44,-220.03 334.18,-226.81"/>
+</g>
+<!-- mpi_comm_size -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node11" class="node">
+<title>mpi_comm_size</title>
+<polygon fill="#777777" stroke="#777777" points="439.5,-178.9 342.5,-178.9 342.5,-154.9 439.5,-154.9 439.5,-178.9"/>
+<text text-anchor="middle" x="391" y="-164.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
+</g>
+<!-- proc~init~4&#45;&gt;mpi_comm_size -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge12" class="edge">
+<title>proc~init~4&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#00ff66" d="M241.11,-238.68C259,-224.72 290.15,-201.99 320,-187.9 324.11,-185.96 328.45,-184.15 332.86,-182.48"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="334.33,-185.67 342.59,-179.02 331.99,-179.07 334.33,-185.67"/>
+</g>
+<!-- mpi_comm_split -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node12" class="node">
+<title>mpi_comm_split</title>
+<polygon fill="#777777" stroke="#777777" points="440.5,-136.9 341.5,-136.9 341.5,-112.9 440.5,-112.9 440.5,-136.9"/>
+<text text-anchor="middle" x="391" y="-122.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_split</text>
+</g>
+<!-- proc~init~4&#45;&gt;mpi_comm_split -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge13" class="edge">
+<title>proc~init~4&#45;&gt;mpi_comm_split</title>
+<path fill="none" stroke="#00ff66" d="M233.47,-238.88C247.64,-217.08 280.56,-170.97 320,-145.9 323.78,-143.51 327.84,-141.37 332.04,-139.47"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="333.45,-142.67 341.4,-135.67 330.82,-136.19 333.45,-142.67"/>
+</g>
+<!-- mpi_comm_split_type -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node13" class="node">
+<title>mpi_comm_split_type</title>
+<polygon fill="#777777" stroke="#777777" points="454.5,-94.9 327.5,-94.9 327.5,-70.9 454.5,-70.9 454.5,-94.9"/>
+<text text-anchor="middle" x="391" y="-80.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_split_type</text>
+</g>
+<!-- proc~init~4&#45;&gt;mpi_comm_split_type -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge14" class="edge">
+<title>proc~init~4&#45;&gt;mpi_comm_split_type</title>
+<path fill="none" stroke="#00ff66" d="M230.42,-238.54C241.17,-210.29 271.41,-140.59 320,-103.9 322.04,-102.37 324.19,-100.94 326.42,-99.62"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="328.08,-102.7 335.37,-95.02 324.88,-96.47 328.08,-102.7"/>
+</g>
+<!-- none~start~81 -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node14" class="node">
+<title>none~start~81</title>
+<g id="a_proc~~new_multilayerserver~~CallsGraph_node14"><a xlink:href="../type/distributedprofiler.html#boundprocedure-start~81" xlink:title="DistributedProfiler%start">
+<polygon fill="#a7506f" stroke="#a7506f" points="462,-304.9 320,-304.9 320,-280.9 462,-280.9 462,-304.9"/>
+<text text-anchor="middle" x="391" y="-290.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DistributedProfiler%start</text>
+</a>
+</g>
+</g>
+<!-- proc~init~4&#45;&gt;none~start~81 -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge15" class="edge">
+<title>proc~init~4&#45;&gt;none~start~81</title>
+<path fill="none" stroke="#00ff66" d="M273,-262.94C291.78,-267.75 313.58,-273.33 333.24,-278.37"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="332.44,-281.78 343,-280.87 334.18,-275 332.44,-281.78"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node15" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~new_multilayerserver~~CallsGraph_node15"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="974,-325.9 859,-325.9 859,-301.9 974,-301.9 974,-325.9"/>
+<text text-anchor="middle" x="916.5" y="-311.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0066ff" d="M781.03,-297.72C801.11,-300.14 825.95,-303.13 848.8,-305.88"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="848.44,-309.36 858.79,-307.08 849.28,-302.41 848.44,-309.36"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node18" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~new_multilayerserver~~CallsGraph_node18"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="983,-382.9 850,-382.9 850,-358.9 983,-358.9 983,-382.9"/>
+<text text-anchor="middle" x="916.5" y="-368.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M767.88,-304.92C797.73,-318.26 846.06,-339.87 879.24,-354.7"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="878.03,-357.99 888.59,-358.87 880.89,-351.6 878.03,-357.99"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M429.1,-457.25C503.43,-457.07 675.36,-452.35 814,-415.9 838.67,-409.42 864.96,-397.61 884.6,-387.72"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="886.38,-390.74 893.67,-383.05 883.18,-384.51 886.38,-390.74"/>
+</g>
+<!-- proc~start_self -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node22" class="node">
+<title>proc~start_self</title>
+<g id="a_proc~~new_multilayerserver~~CallsGraph_node22"><a xlink:href="../proc/start_self.html" xlink:title="StubProfiler%start_self">
+<polygon fill="#d9534f" stroke="#d9534f" points="630,-304.9 498,-304.9 498,-280.9 630,-280.9 630,-304.9"/>
+<text text-anchor="middle" x="564" y="-290.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StubProfiler%start_self</text>
+</a>
+</g>
+</g>
+<!-- none~start~81&#45;&gt;proc~start_self -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge21" class="edge">
+<title>none~start~81&#45;&gt;proc~start_self</title>
+<path fill="none" stroke="#007fff" stroke-dasharray="5,2" d="M462.05,-292.9C470.44,-292.9 479.04,-292.9 487.5,-292.9"/>
+<polygon fill="#007fff" stroke="#007fff" points="487.74,-296.4 497.74,-292.9 487.74,-289.4 487.74,-296.4"/>
+</g>
+<!-- at -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node19" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1074.5,-293.9 1020.5,-293.9 1020.5,-269.9 1074.5,-269.9 1074.5,-293.9"/>
+<text text-anchor="middle" x="1047.5" y="-279.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge22" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#0000ff" d="M965.9,-301.9C980.6,-298.25 996.49,-294.31 1010.24,-290.9"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1011.43,-294.21 1020.29,-288.41 1009.74,-287.42 1011.43,-294.21"/>
+</g>
+<!-- insert -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node20" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1074.5,-335.9 1020.5,-335.9 1020.5,-311.9 1074.5,-311.9 1074.5,-335.9"/>
+<text text-anchor="middle" x="1047.5" y="-321.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge23" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#0000ff" d="M974.08,-318.29C986.29,-319.24 998.89,-320.21 1010.08,-321.08"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1010.08,-324.59 1020.32,-321.88 1010.62,-317.61 1010.08,-324.59"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M807.47,-385.76C817.98,-384.32 828.92,-382.81 839.62,-381.34"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="840.36,-384.77 849.79,-379.94 839.41,-377.84 840.36,-384.77"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00ff" d="M794.78,-340.89C812.78,-336.86 833.01,-332.34 851.7,-328.16"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="852.6,-331.55 861.6,-325.95 851.07,-324.72 852.6,-331.55"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00ff" d="M814.25,-360.46C822.67,-361.33 831.27,-362.22 839.72,-363.09"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="839.63,-366.6 849.94,-364.14 840.35,-359.63 839.63,-366.6"/>
+</g>
+<!-- proc~initialize~21 -->
+<g id="proc~~new_multilayerserver~~CallsGraph_node21" class="node">
+<title>proc~initialize~21</title>
+<g id="a_proc~~new_multilayerserver~~CallsGraph_node21"><a xlink:href="../proc/initialize~21.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1076,-382.9 1019,-382.9 1019,-358.9 1076,-358.9 1076,-382.9"/>
+<text text-anchor="middle" x="1047.5" y="-368.5" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~21 -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~21</title>
+<path fill="none" stroke="#ff007f" d="M983.13,-370.9C991.88,-370.9 1000.59,-370.9 1008.63,-370.9"/>
+<polygon fill="#ff007f" stroke="#ff007f" points="1008.77,-374.4 1018.77,-370.9 1008.77,-367.4 1008.77,-374.4"/>
+</g>
+<!-- proc~start_self&#45;&gt;proc~mapl_return -->
+<g id="proc~~new_multilayerserver~~CallsGraph_edge28" class="edge">
+<title>proc~start_self&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7f00ff" d="M630.29,-292.9C649.64,-292.9 670.53,-292.9 688.77,-292.9"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="688.89,-296.4 698.89,-292.9 688.89,-289.4 688.89,-296.4"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocnew_multilayerserverCallsGraph = svgPanZoom('#procnew_multilayerserverCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~new_multilayerserver~~CalledByGraph Pages: 1 -->
+<svg id="procnew_multilayerserverCalledByGraph" width="277pt" height="32pt"
+ viewBox="0.00 0.00 277.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~new_multilayerserver~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~new_multilayerserver~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 273,-28 273,4 -4,4"/>
+<!-- proc~new_multilayerserver -->
+<g id="proc~~new_multilayerserver~~CalledByGraph_node1" class="node">
+<title>proc~new_multilayerserver</title>
+<polygon fill="none" stroke="black" points="269,-24 139,-24 139,0 269,0 269,-24"/>
+<text text-anchor="middle" x="204" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">new_MultiLayerServer</text>
+</g>
+<!-- interface~multilayerserver -->
+<g id="proc~~new_multilayerserver~~CalledByGraph_node2" class="node">
+<title>interface~multilayerserver</title>
+<g id="a_proc~~new_multilayerserver~~CalledByGraph_node2"><a xlink:href="../interface/multilayerserver.html" xlink:title="MultiLayerServer">
+<polygon fill="#a7506f" stroke="#a7506f" points="103,-24 0,-24 0,0 103,0 103,-24"/>
+<text text-anchor="middle" x="51.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiLayerServer</text>
+</a>
+</g>
+</g>
+<!-- interface~multilayerserver&#45;&gt;proc~new_multilayerserver -->
+<g id="proc~~new_multilayerserver~~CalledByGraph_edge1" class="edge">
+<title>interface~multilayerserver&#45;&gt;proc~new_multilayerserver</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M103.03,-12C111.32,-12 120.05,-12 128.77,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="128.97,-15.5 138.97,-12 128.97,-8.5 128.97,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">new_MultiLayerServer</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">port_name</span><span class="p">,</span><span class="w"> </span><span class="n">nwriters</span><span class="p">,</span><span class="w"> </span><span class="n">pfio_writer</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MultiLayerServer</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">s</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">port_name</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nwriters</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pfio_writer</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierror</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">s</span><span class="p">%</span><span class="n">init</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">port_name</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">s</span><span class="p">%</span><span class="n">Inter_Comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_COMM_NULL</span>
+<span class="w">      </span><span class="n">s</span><span class="p">%</span><span class="n">nwriters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nwriters</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">s</span><span class="p">%</span><span class="n">nwriters</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">,</span><span class="s1">&#39; nwriters should be &gt;=2. pfio_writer.x has captain-soldier structure&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_spawn</span><span class="p">(</span><span class="w"> </span><span class="n">pfio_writer</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">MPI_ARGV_NULL</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">%</span><span class="n">nwriters</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INFO_NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">s</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">%</span><span class="n">Inter_Comm</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_ERRCODES_IGNORE</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="n">s</span><span class="p">%</span><span class="n">port_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">port_name</span><span class="p">)</span>
+<span class="w">      </span><span class="n">s</span><span class="p">%</span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ServerThreadVector</span><span class="p">()</span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">new_MultiLayerServer</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

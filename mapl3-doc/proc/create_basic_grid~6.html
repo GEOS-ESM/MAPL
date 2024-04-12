@@ -1,0 +1,941 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>create_basic_grid &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>create_basic_grid
+      <small>Module Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">27 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/LatLonGeomFactory_smod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/latlongeomfactory_smod.f90.html'>LatLonGeomFactory_smod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/latlongeomfactory_smod.html'>LatLonGeomFactory_smod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">create_basic_grid</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/create_basic_grid~6.html#src">create_basic_grid</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>module function create_basic_grid(spec, unusable, rc) result(grid)  
+    <a href="../interface/create_basic_grid.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec~146"></span>
+              type(<a href='../type/latlongeomspec.html'>LatLonGeomSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>spec</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~471"></span>
+              class(<a href='../type/keywordenforcer~84.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2874"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-grid~246"></span>
+          type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~create_basic_grid~6~~CallsGraph Pages: 1 -->
+<svg id="proccreate_basic_grid6CallsGraph" width="641pt" height="442pt"
+ viewBox="0.00 0.00 641.00 442.34" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~create_basic_grid~6~~CallsGraph" class="graph" transform="scale(1.02 1.02) rotate(0) translate(4 448)">
+<title>proc~~create_basic_grid~6~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-448 651,-448 651,4 -4,4"/>
+<!-- proc~create_basic_grid~6 -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node1" class="node">
+<title>proc~create_basic_grid~6</title>
+<polygon fill="none" stroke="black" points="106,-234 0,-234 0,-210 106,-210 106,-234"/>
+<text text-anchor="middle" x="53" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50">create_basic_grid</text>
+</g>
+<!-- ESMF_GridAddCoord -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node2" class="node">
+<title>ESMF_GridAddCoord</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridaddcoord.html" xlink:title="ESMF_GridAddCoord">
+<polygon fill="#a7506f" stroke="#a7506f" points="324,-444 203,-444 203,-420 324,-420 324,-444"/>
+<text text-anchor="middle" x="263.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridAddCoord</text>
+</a>
+</g>
+</g>
+<!-- proc~create_basic_grid~6&#45;&gt;ESMF_GridAddCoord -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge1" class="edge">
+<title>proc~create_basic_grid~6&#45;&gt;ESMF_GridAddCoord</title>
+<path fill="none" stroke="#ff0000" d="M55.74,-234.12C61.3,-268.13 81.95,-364.99 142,-411 156.51,-422.12 174.88,-428.13 192.88,-431.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.41,-434.69 202.81,-432.65 193.41,-427.76 192.41,-434.69"/>
+</g>
+<!-- ESMF_GridCreate1PeriDim -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node3" class="node">
+<title>ESMF_GridCreate1PeriDim</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridcreate1peridim.html" xlink:title="ESMF_GridCreate1PeriDim">
+<polygon fill="#a7506f" stroke="#a7506f" points="340,-402 187,-402 187,-378 340,-378 340,-402"/>
+<text text-anchor="middle" x="263.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCreate1PeriDim</text>
+</a>
+</g>
+</g>
+<!-- proc~create_basic_grid~6&#45;&gt;ESMF_GridCreate1PeriDim -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge2" class="edge">
+<title>proc~create_basic_grid~6&#45;&gt;ESMF_GridCreate1PeriDim</title>
+<path fill="none" stroke="#ff0000" d="M57.48,-234.32C66.32,-263.12 92.48,-334.98 142,-369 152.43,-376.16 164.53,-381.13 176.96,-384.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="176.43,-388.01 186.97,-386.94 178.06,-381.2 176.43,-388.01"/>
+</g>
+<!-- ESMF_GridCreateNoPeriDim -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node4" class="node">
+<title>ESMF_GridCreateNoPeriDim</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridcreatenoperidim.html" xlink:title="ESMF_GridCreateNoPeriDim">
+<polygon fill="#a7506f" stroke="#a7506f" points="343.5,-360 183.5,-360 183.5,-336 343.5,-336 343.5,-360"/>
+<text text-anchor="middle" x="263.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCreateNoPeriDim</text>
+</a>
+</g>
+</g>
+<!-- proc~create_basic_grid~6&#45;&gt;ESMF_GridCreateNoPeriDim -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge3" class="edge">
+<title>proc~create_basic_grid~6&#45;&gt;ESMF_GridCreateNoPeriDim</title>
+<path fill="none" stroke="#ff0000" d="M60.33,-234.13C72.72,-256.53 102.44,-304.19 142,-327 151.68,-332.58 162.46,-336.75 173.49,-339.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="172.68,-343.26 183.23,-342.33 174.4,-336.48 172.68,-343.26"/>
+</g>
+<!-- interface~get_decomposition -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node5" class="node">
+<title>interface~get_decomposition</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node5"><a xlink:href="../interface/get_decomposition.html" xlink:title="LatLonGeomSpec%get_decomposition">
+<polygon fill="#a7506f" stroke="#a7506f" points="372.5,-318 154.5,-318 154.5,-294 372.5,-294 372.5,-318"/>
+<text text-anchor="middle" x="263.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomSpec%get_decomposition</text>
+</a>
+</g>
+</g>
+<!-- proc~create_basic_grid~6&#45;&gt;interface~get_decomposition -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge4" class="edge">
+<title>proc~create_basic_grid~6&#45;&gt;interface~get_decomposition</title>
+<path fill="none" stroke="#ff0000" d="M66.86,-234.12C83.06,-248.64 112.37,-272.58 142,-285 147.46,-287.29 153.15,-289.33 158.98,-291.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.29,-294.59 168.87,-293.99 160.23,-287.86 158.29,-294.59"/>
+</g>
+<!-- interface~get_lat_axis -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node6" class="node">
+<title>interface~get_lat_axis</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node6"><a xlink:href="../interface/get_lat_axis.html" xlink:title="LatLonGeomSpec%get_lat_axis">
+<polygon fill="#a7506f" stroke="#a7506f" points="353,-276 174,-276 174,-252 353,-252 353,-276"/>
+<text text-anchor="middle" x="263.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomSpec%get_lat_axis</text>
+</a>
+</g>
+</g>
+<!-- proc~create_basic_grid~6&#45;&gt;interface~get_lat_axis -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge5" class="edge">
+<title>proc~create_basic_grid~6&#45;&gt;interface~get_lat_axis</title>
+<path fill="none" stroke="#ff0000" d="M102.29,-234.09C115.16,-237.16 129.08,-240.33 142,-243 153.98,-245.47 166.67,-247.89 179.14,-250.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="178.62,-253.63 189.08,-251.95 179.86,-246.74 178.62,-253.63"/>
+</g>
+<!-- interface~get_lat_distribution -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node7" class="node">
+<title>interface~get_lat_distribution</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node7"><a xlink:href="../interface/get_lat_distribution.html" xlink:title="LatLonDecomposition%get_lat_distribution">
+<polygon fill="#a7506f" stroke="#a7506f" points="383.5,-234 143.5,-234 143.5,-210 383.5,-210 383.5,-234"/>
+<text text-anchor="middle" x="263.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonDecomposition%get_lat_distribution</text>
+</a>
+</g>
+</g>
+<!-- proc~create_basic_grid~6&#45;&gt;interface~get_lat_distribution -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge6" class="edge">
+<title>proc~create_basic_grid~6&#45;&gt;interface~get_lat_distribution</title>
+<path fill="none" stroke="#ff0000" d="M106.08,-222C114.67,-222 123.9,-222 133.43,-222"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="133.44,-225.5 143.44,-222 133.44,-218.5 133.44,-225.5"/>
+</g>
+<!-- interface~get_lon_axis -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node8" class="node">
+<title>interface~get_lon_axis</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node8"><a xlink:href="../interface/get_lon_axis.html" xlink:title="LatLonGeomSpec%get_lon_axis">
+<polygon fill="#a7506f" stroke="#a7506f" points="354.5,-192 172.5,-192 172.5,-168 354.5,-168 354.5,-192"/>
+<text text-anchor="middle" x="263.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomSpec%get_lon_axis</text>
+</a>
+</g>
+</g>
+<!-- proc~create_basic_grid~6&#45;&gt;interface~get_lon_axis -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge7" class="edge">
+<title>proc~create_basic_grid~6&#45;&gt;interface~get_lon_axis</title>
+<path fill="none" stroke="#ff0000" d="M102.29,-209.91C115.16,-206.84 129.08,-203.67 142,-201 153.98,-198.53 166.67,-196.11 179.14,-193.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="179.86,-197.26 189.08,-192.05 178.62,-190.37 179.86,-197.26"/>
+</g>
+<!-- interface~get_lon_distribution -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node9" class="node">
+<title>interface~get_lon_distribution</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node9"><a xlink:href="../interface/get_lon_distribution.html" xlink:title="LatLonDecomposition%get_lon_distribution">
+<polygon fill="#a7506f" stroke="#a7506f" points="385,-150 142,-150 142,-126 385,-126 385,-150"/>
+<text text-anchor="middle" x="263.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonDecomposition%get_lon_distribution</text>
+</a>
+</g>
+</g>
+<!-- proc~create_basic_grid~6&#45;&gt;interface~get_lon_distribution -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge8" class="edge">
+<title>proc~create_basic_grid~6&#45;&gt;interface~get_lon_distribution</title>
+<path fill="none" stroke="#ff0000" d="M66.86,-209.88C83.06,-195.36 112.37,-171.42 142,-159 147.46,-156.71 153.15,-154.67 158.98,-152.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="160.23,-156.14 168.87,-150.01 158.29,-149.41 160.23,-156.14"/>
+</g>
+<!-- interface~is_periodic -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node10" class="node">
+<title>interface~is_periodic</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node10"><a xlink:href="../interface/is_periodic.html" xlink:title="CoordinateAxis%is_periodic">
+<polygon fill="#a7506f" stroke="#a7506f" points="343.5,-108 183.5,-108 183.5,-84 343.5,-84 343.5,-108"/>
+<text text-anchor="middle" x="263.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CoordinateAxis%is_periodic</text>
+</a>
+</g>
+</g>
+<!-- proc~create_basic_grid~6&#45;&gt;interface~is_periodic -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge9" class="edge">
+<title>proc~create_basic_grid~6&#45;&gt;interface~is_periodic</title>
+<path fill="none" stroke="#ff0000" d="M60.33,-209.87C72.72,-187.47 102.44,-139.81 142,-117 151.68,-111.42 162.46,-107.25 173.49,-104.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="174.4,-107.52 183.23,-101.67 172.68,-100.74 174.4,-107.52"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node11" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node11"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="304.5,-66 222.5,-66 222.5,-42 304.5,-42 304.5,-66"/>
+<text text-anchor="middle" x="263.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~create_basic_grid~6&#45;&gt;proc~mapl_return -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge10" class="edge">
+<title>proc~create_basic_grid~6&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M57.48,-209.68C66.32,-180.88 92.48,-109.02 142,-75 162.43,-60.96 189.28,-55.36 212.45,-53.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="212.71,-56.91 222.46,-52.78 212.26,-49.93 212.71,-56.91"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node12" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node12"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="301.5,-24 225.5,-24 225.5,0 301.5,0 301.5,-24"/>
+<text text-anchor="middle" x="263.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~create_basic_grid~6&#45;&gt;proc~mapl_verify -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge11" class="edge">
+<title>proc~create_basic_grid~6&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M55.74,-209.88C61.3,-175.87 81.95,-79.01 142,-33 162.65,-17.18 191.13,-11.69 215.22,-10.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="215.37,-13.77 225.23,-9.89 215.11,-6.77 215.37,-13.77"/>
+</g>
+<!-- proc~get_decomposition -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node13" class="node">
+<title>proc~get_decomposition</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node13"><a xlink:href="../proc/get_decomposition.html" xlink:title="get_decomposition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="544.5,-318 430.5,-318 430.5,-294 544.5,-294 544.5,-318"/>
+<text text-anchor="middle" x="487.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_decomposition</text>
+</a>
+</g>
+</g>
+<!-- interface~get_decomposition&#45;&gt;proc~get_decomposition -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge12" class="edge">
+<title>interface~get_decomposition&#45;&gt;proc~get_decomposition</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M372.57,-306C388.79,-306 405.09,-306 420.09,-306"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="420.25,-309.5 430.25,-306 420.25,-302.5 420.25,-309.5"/>
+</g>
+<!-- proc~get_lat_axis -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node15" class="node">
+<title>proc~get_lat_axis</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node15"><a xlink:href="../proc/get_lat_axis.html" xlink:title="get_lat_axis">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="525,-276 450,-276 450,-252 525,-252 525,-276"/>
+<text text-anchor="middle" x="487.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_lat_axis</text>
+</a>
+</g>
+</g>
+<!-- interface~get_lat_axis&#45;&gt;proc~get_lat_axis -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge13" class="edge">
+<title>interface~get_lat_axis&#45;&gt;proc~get_lat_axis</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M353.2,-264C382.68,-264 414.35,-264 439.43,-264"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="439.74,-267.5 449.74,-264 439.74,-260.5 439.74,-267.5"/>
+</g>
+<!-- proc~get_lat_distribution -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node16" class="node">
+<title>proc~get_lat_distribution</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node16"><a xlink:href="../proc/get_lat_distribution.html" xlink:title="get_lat_distribution">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="544.5,-234 430.5,-234 430.5,-210 544.5,-210 544.5,-234"/>
+<text text-anchor="middle" x="487.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_lat_distribution</text>
+</a>
+</g>
+</g>
+<!-- interface~get_lat_distribution&#45;&gt;proc~get_lat_distribution -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge14" class="edge">
+<title>interface~get_lat_distribution&#45;&gt;proc~get_lat_distribution</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M383.62,-222C396.19,-222 408.62,-222 420.26,-222"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="420.27,-225.5 430.27,-222 420.27,-218.5 420.27,-225.5"/>
+</g>
+<!-- proc~get_lon_axis -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node17" class="node">
+<title>proc~get_lon_axis</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node17"><a xlink:href="../proc/get_lon_axis.html" xlink:title="get_lon_axis">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="526.5,-192 448.5,-192 448.5,-168 526.5,-168 526.5,-192"/>
+<text text-anchor="middle" x="487.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_lon_axis</text>
+</a>
+</g>
+</g>
+<!-- interface~get_lon_axis&#45;&gt;proc~get_lon_axis -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge15" class="edge">
+<title>interface~get_lon_axis&#45;&gt;proc~get_lon_axis</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M354.8,-180C383.37,-180 413.83,-180 438.26,-180"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="438.34,-183.5 448.34,-180 438.34,-176.5 438.34,-183.5"/>
+</g>
+<!-- proc~get_lon_distribution -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node18" class="node">
+<title>proc~get_lon_distribution</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node18"><a xlink:href="../proc/get_lon_distribution.html" xlink:title="get_lon_distribution">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="546,-150 429,-150 429,-126 546,-126 546,-150"/>
+<text text-anchor="middle" x="487.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_lon_distribution</text>
+</a>
+</g>
+</g>
+<!-- interface~get_lon_distribution&#45;&gt;proc~get_lon_distribution -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge16" class="edge">
+<title>interface~get_lon_distribution&#45;&gt;proc~get_lon_distribution</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M385.24,-138C396.73,-138 408.07,-138 418.78,-138"/>
+<polygon fill="#002eff" stroke="#002eff" points="418.83,-141.5 428.83,-138 418.83,-134.5 418.83,-141.5"/>
+</g>
+<!-- proc~is_periodic -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node19" class="node">
+<title>proc~is_periodic</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node19"><a xlink:href="../proc/is_periodic.html" xlink:title="is_periodic">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="522.5,-108 452.5,-108 452.5,-84 522.5,-84 522.5,-108"/>
+<text text-anchor="middle" x="487.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_periodic</text>
+</a>
+</g>
+</g>
+<!-- interface~is_periodic&#45;&gt;proc~is_periodic -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge17" class="edge">
+<title>interface~is_periodic&#45;&gt;proc~is_periodic</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M343.71,-96C376.72,-96 413.83,-96 441.95,-96"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="442.25,-99.5 452.25,-96 442.25,-92.5 442.25,-99.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node14" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node14"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="545,-66 430,-66 430,-42 545,-42 545,-66"/>
+<text text-anchor="middle" x="487.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#e700ff" d="M304.7,-54C336.68,-54 382.12,-54 419.56,-54"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="419.9,-57.5 429.9,-54 419.9,-50.5 419.9,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node20" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node20"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="554,-24 421,-24 421,0 554,0 554,-24"/>
+<text text-anchor="middle" x="487.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#e700ff" d="M304.72,-47.32C328.17,-43.34 358.3,-38.09 385,-33 396.28,-30.85 408.24,-28.47 419.85,-26.1"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="420.83,-29.47 429.93,-24.03 419.43,-22.62 420.83,-29.47"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff008b" d="M301.66,-12C331.33,-12 373.89,-12 410.69,-12"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="410.9,-15.5 420.9,-12 410.9,-8.5 410.9,-15.5"/>
+</g>
+<!-- at -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node21" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="645.5,-108 591.5,-108 591.5,-84 645.5,-84 645.5,-108"/>
+<text text-anchor="middle" x="618.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge21" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ffbf00" d="M526.27,-66.05C535.36,-68.96 545.03,-72.08 554,-75 563,-77.93 572.71,-81.12 581.76,-84.12"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="580.66,-87.44 591.26,-87.26 582.86,-80.8 580.66,-87.44"/>
+</g>
+<!-- insert -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node22" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="645.5,-66 591.5,-66 591.5,-42 645.5,-42 645.5,-66"/>
+<text text-anchor="middle" x="618.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge22" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ffbf00" d="M545.08,-54C557.29,-54 569.89,-54 581.08,-54"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="581.32,-57.5 591.32,-54 581.32,-50.5 581.32,-57.5"/>
+</g>
+<!-- proc~initialize~21 -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_node23" class="node">
+<title>proc~initialize~21</title>
+<g id="a_proc~~create_basic_grid~6~~CallsGraph_node23"><a xlink:href="../proc/initialize~21.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="647,-24 590,-24 590,0 647,0 647,-24"/>
+<text text-anchor="middle" x="618.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~21 -->
+<g id="proc~~create_basic_grid~6~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~21</title>
+<path fill="none" stroke="#ff00bf" d="M554.13,-12C562.88,-12 571.59,-12 579.63,-12"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="579.77,-15.5 589.77,-12 579.77,-8.5 579.77,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreate_basic_grid6CallsGraph = svgPanZoom('#proccreate_basic_grid6CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~create_basic_grid~6~~CalledByGraph Pages: 1 -->
+<svg id="proccreate_basic_grid6CalledByGraph" width="641pt" height="27pt"
+ viewBox="0.00 0.00 641.00 26.67" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~create_basic_grid~6~~CalledByGraph" class="graph" transform="scale(1.2 1.2) rotate(0) translate(4 28)">
+<title>proc~~create_basic_grid~6~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 765,-28 765,4 -4,4"/>
+<!-- proc~create_basic_grid~6 -->
+<g id="proc~~create_basic_grid~6~~CalledByGraph_node1" class="node">
+<title>proc~create_basic_grid~6</title>
+<polygon fill="none" stroke="black" points="761,-24 655,-24 655,0 761,0 761,-24"/>
+<text text-anchor="middle" x="708" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">create_basic_grid</text>
+</g>
+<!-- interface~create_basic_grid -->
+<g id="proc~~create_basic_grid~6~~CalledByGraph_node2" class="node">
+<title>interface~create_basic_grid</title>
+<g id="a_proc~~create_basic_grid~6~~CalledByGraph_node2"><a xlink:href="../interface/create_basic_grid.html" xlink:title="create_basic_grid">
+<polygon fill="#a7506f" stroke="#a7506f" points="619,-24 513,-24 513,0 619,0 619,-24"/>
+<text text-anchor="middle" x="566" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">create_basic_grid</text>
+</a>
+</g>
+</g>
+<!-- interface~create_basic_grid&#45;&gt;proc~create_basic_grid~6 -->
+<g id="proc~~create_basic_grid~6~~CalledByGraph_edge1" class="edge">
+<title>interface~create_basic_grid&#45;&gt;proc~create_basic_grid~6</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M619.13,-12C627.42,-12 636.07,-12 644.57,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="644.83,-15.5 654.83,-12 644.83,-8.5 644.83,-15.5"/>
+</g>
+<!-- proc~typesafe_make_geom -->
+<g id="proc~~create_basic_grid~6~~CalledByGraph_node3" class="node">
+<title>proc~typesafe_make_geom</title>
+<g id="a_proc~~create_basic_grid~6~~CalledByGraph_node3"><a xlink:href="../proc/typesafe_make_geom.html" xlink:title="typesafe_make_geom">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="477,-24 347,-24 347,0 477,0 477,-24"/>
+<text text-anchor="middle" x="412" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">typesafe_make_geom</text>
+</a>
+</g>
+</g>
+<!-- proc~typesafe_make_geom&#45;&gt;interface~create_basic_grid -->
+<g id="proc~~create_basic_grid~6~~CalledByGraph_edge2" class="edge">
+<title>proc~typesafe_make_geom&#45;&gt;interface~create_basic_grid</title>
+<path fill="none" stroke="#ff0000" d="M477.02,-12C485.44,-12 494.07,-12 502.46,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="502.56,-15.5 512.56,-12 502.56,-8.5 502.56,-15.5"/>
+</g>
+<!-- proc~make_geom~4 -->
+<g id="proc~~create_basic_grid~6~~CalledByGraph_node4" class="node">
+<title>proc~make_geom~4</title>
+<g id="a_proc~~create_basic_grid~6~~CalledByGraph_node4"><a xlink:href="../proc/make_geom~4.html" xlink:title="make_geom">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="311,-24 232,-24 232,0 311,0 311,-24"/>
+<text text-anchor="middle" x="271.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_geom</text>
+</a>
+</g>
+</g>
+<!-- proc~make_geom~4&#45;&gt;proc~typesafe_make_geom -->
+<g id="proc~~create_basic_grid~6~~CalledByGraph_edge3" class="edge">
+<title>proc~make_geom~4&#45;&gt;proc~typesafe_make_geom</title>
+<path fill="none" stroke="#ff0000" d="M311.08,-12C319.16,-12 327.95,-12 336.84,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="336.89,-15.5 346.89,-12 336.89,-8.5 336.89,-15.5"/>
+</g>
+<!-- interface~make_geom -->
+<g id="proc~~create_basic_grid~6~~CalledByGraph_node5" class="node">
+<title>interface~make_geom</title>
+<g id="a_proc~~create_basic_grid~6~~CalledByGraph_node5"><a xlink:href="../interface/make_geom.html" xlink:title="LatLonGeomFactory%make_geom">
+<polygon fill="#a7506f" stroke="#a7506f" points="196,-24 0,-24 0,0 196,0 196,-24"/>
+<text text-anchor="middle" x="98" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomFactory%make_geom</text>
+</a>
+</g>
+</g>
+<!-- interface~make_geom&#45;&gt;proc~make_geom~4 -->
+<g id="proc~~create_basic_grid~6~~CalledByGraph_edge4" class="edge">
+<title>interface~make_geom&#45;&gt;proc~make_geom~4</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M196.28,-12C205,-12 213.57,-12 221.6,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="221.82,-15.5 231.82,-12 221.82,-8.5 221.82,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreate_basic_grid6CalledByGraph = svgPanZoom('#proccreate_basic_grid6CalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">module function </span><span class="n">create_basic_grid</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">LatLonGeomSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KE</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">LonAxis</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lon_axis</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">LatAxis</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lat_axis</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">LatLonDecomposition</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">decomp</span>
+
+<span class="w">      </span><span class="n">lon_axis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spec</span><span class="p">%</span><span class="n">get_lon_axis</span><span class="p">()</span>
+<span class="w">      </span><span class="n">lat_axis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spec</span><span class="p">%</span><span class="n">get_lat_axis</span><span class="p">()</span>
+<span class="w">      </span><span class="n">decomp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spec</span><span class="p">%</span><span class="n">get_decomposition</span><span class="p">()</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lon_axis</span><span class="p">%</span><span class="n">is_periodic</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridCreate1PeriDim</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">countsPerDEDim1</span><span class="o">=</span><span class="n">decomp</span><span class="p">%</span><span class="n">get_lon_distribution</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">countsPerDEDim2</span><span class="o">=</span><span class="n">decomp</span><span class="p">%</span><span class="n">get_lat_distribution</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">indexFlag</span><span class="o">=</span><span class="n">ESMF_INDEX_DELOCAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">gridEdgeLWidth</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">gridEdgeUWidth</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">coordDep1</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">coordDep2</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">coordSys</span><span class="o">=</span><span class="n">ESMF_COORDSYS_SPH_RAD</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">         </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridCreateNoPeriDim</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">countsPerDEDim1</span><span class="o">=</span><span class="n">decomp</span><span class="p">%</span><span class="n">get_lon_distribution</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">countsPerDEDim2</span><span class="o">=</span><span class="n">decomp</span><span class="p">%</span><span class="n">get_lat_distribution</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">indexFlag</span><span class="o">=</span><span class="n">ESMF_INDEX_DELOCAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">gridEdgeLWidth</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">gridEdgeUWidth</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">coordDep1</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">coordDep2</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="n">coordSys</span><span class="o">=</span><span class="n">ESMF_COORDSYS_SPH_RAD</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! Allocate coords at default stagger location</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridAddCoord</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridAddCoord</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CORNER</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">create_basic_grid</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

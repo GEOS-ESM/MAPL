@@ -1,0 +1,1418 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>field_binary &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>field_binary
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">26 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_NewArthParser.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_newarthparser.f90.html'>MAPL_NewArthParser.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_newarthparsermod.html'>MAPL_NewArthParserMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">field_binary</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/field_binary.html#src">field_binary</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine field_binary(field1, field2, arthcode, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field1"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>field1</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field2~3"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>field2</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-arthcode"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>arthcode</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~984"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~field_binary~~CallsGraph Pages: 1 -->
+<svg id="procfield_binaryCallsGraph" width="641pt" height="541pt"
+ viewBox="0.00 0.00 641.00 540.85" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~field_binary~~CallsGraph" class="graph" transform="scale(1.27 1.27) rotate(0) translate(4 681.13)">
+<title>proc~~field_binary~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-681.13 808,-681.13 808,4 -4,4"/>
+<!-- proc~field_binary -->
+<g id="proc~~field_binary~~CallsGraph_node1" class="node">
+<title>proc~field_binary</title>
+<polygon fill="none" stroke="black" points="75,-338.13 0,-338.13 0,-314.13 75,-314.13 75,-338.13"/>
+<text text-anchor="middle" x="37.5" y="-323.73" font-family="Helvetica,sans-Serif" font-size="10.50">field_binary</text>
+</g>
+<!-- proc~fieldadd -->
+<g id="proc~~field_binary~~CallsGraph_node2" class="node">
+<title>proc~fieldadd</title>
+<g id="a_proc~~field_binary~~CallsGraph_node2"><a xlink:href="../proc/fieldadd.html" xlink:title="fieldAdd">
+<polygon fill="#d9534f" stroke="#d9534f" points="179.5,-464.13 123.5,-464.13 123.5,-440.13 179.5,-440.13 179.5,-464.13"/>
+<text text-anchor="middle" x="151.5" y="-449.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fieldAdd</text>
+</a>
+</g>
+</g>
+<!-- proc~field_binary&#45;&gt;proc~fieldadd -->
+<g id="proc~~field_binary~~CallsGraph_edge1" class="edge">
+<title>proc~field_binary&#45;&gt;proc~fieldadd</title>
+<path fill="none" stroke="#ff0000" d="M44.37,-338.22C55.12,-359.33 79.73,-403.29 111,-431.13 112.28,-432.27 113.62,-433.36 115.02,-434.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="113.17,-437.39 123.44,-439.99 117.03,-431.55 113.17,-437.39"/>
+</g>
+<!-- proc~fielddivide -->
+<g id="proc~~field_binary~~CallsGraph_node3" class="node">
+<title>proc~fielddivide</title>
+<g id="a_proc~~field_binary~~CallsGraph_node3"><a xlink:href="../proc/fielddivide.html" xlink:title="fieldDivide">
+<polygon fill="#d9534f" stroke="#d9534f" points="186.5,-380.13 116.5,-380.13 116.5,-356.13 186.5,-356.13 186.5,-380.13"/>
+<text text-anchor="middle" x="151.5" y="-365.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fieldDivide</text>
+</a>
+</g>
+</g>
+<!-- proc~field_binary&#45;&gt;proc~fielddivide -->
+<g id="proc~~field_binary~~CallsGraph_edge2" class="edge">
+<title>proc~field_binary&#45;&gt;proc~fielddivide</title>
+<path fill="none" stroke="#ff0000" d="M70.59,-338.17C82.55,-342.65 96.28,-347.8 108.96,-352.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="107.81,-355.86 118.4,-356.09 110.27,-349.31 107.81,-355.86"/>
+</g>
+<!-- proc~fieldmultiply -->
+<g id="proc~~field_binary~~CallsGraph_node4" class="node">
+<title>proc~fieldmultiply</title>
+<g id="a_proc~~field_binary~~CallsGraph_node4"><a xlink:href="../proc/fieldmultiply.html" xlink:title="fieldMultiply">
+<polygon fill="#d9534f" stroke="#d9534f" points="190,-338.13 113,-338.13 113,-314.13 190,-314.13 190,-338.13"/>
+<text text-anchor="middle" x="151.5" y="-323.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fieldMultiply</text>
+</a>
+</g>
+</g>
+<!-- proc~field_binary&#45;&gt;proc~fieldmultiply -->
+<g id="proc~~field_binary~~CallsGraph_edge3" class="edge">
+<title>proc~field_binary&#45;&gt;proc~fieldmultiply</title>
+<path fill="none" stroke="#ff0000" d="M75.17,-326.13C83.98,-326.13 93.51,-326.13 102.74,-326.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="102.98,-329.63 112.98,-326.13 102.98,-322.63 102.98,-329.63"/>
+</g>
+<!-- proc~fieldpower -->
+<g id="proc~~field_binary~~CallsGraph_node5" class="node">
+<title>proc~fieldpower</title>
+<g id="a_proc~~field_binary~~CallsGraph_node5"><a xlink:href="../proc/fieldpower.html" xlink:title="fieldPower">
+<polygon fill="#d9534f" stroke="#d9534f" points="185.5,-296.13 117.5,-296.13 117.5,-272.13 185.5,-272.13 185.5,-296.13"/>
+<text text-anchor="middle" x="151.5" y="-281.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fieldPower</text>
+</a>
+</g>
+</g>
+<!-- proc~field_binary&#45;&gt;proc~fieldpower -->
+<g id="proc~~field_binary~~CallsGraph_edge4" class="edge">
+<title>proc~field_binary&#45;&gt;proc~fieldpower</title>
+<path fill="none" stroke="#ff0000" d="M70.59,-314.1C82.55,-309.61 96.28,-304.46 108.96,-299.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.27,-302.96 118.4,-296.17 107.81,-296.4 110.27,-302.96"/>
+</g>
+<!-- proc~fieldsubtract -->
+<g id="proc~~field_binary~~CallsGraph_node6" class="node">
+<title>proc~fieldsubtract</title>
+<g id="a_proc~~field_binary~~CallsGraph_node6"><a xlink:href="../proc/fieldsubtract.html" xlink:title="fieldSubtract">
+<polygon fill="#d9534f" stroke="#d9534f" points="192,-422.13 111,-422.13 111,-398.13 192,-398.13 192,-422.13"/>
+<text text-anchor="middle" x="151.5" y="-407.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fieldSubtract</text>
+</a>
+</g>
+</g>
+<!-- proc~field_binary&#45;&gt;proc~fieldsubtract -->
+<g id="proc~~field_binary~~CallsGraph_edge5" class="edge">
+<title>proc~field_binary&#45;&gt;proc~fieldsubtract</title>
+<path fill="none" stroke="#ff0000" d="M50.62,-338.2C64.47,-351.62 88.19,-373.46 111,-389.13 112.87,-390.42 114.83,-391.68 116.84,-392.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="115.35,-396.1 125.76,-398.09 118.86,-390.05 115.35,-396.1"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~field_binary~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~field_binary~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="509,-131.13 427,-131.13 427,-107.13 509,-107.13 509,-131.13"/>
+<text text-anchor="middle" x="468" y="-116.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~field_binary&#45;&gt;proc~mapl_return -->
+<g id="proc~~field_binary~~CallsGraph_edge6" class="edge">
+<title>proc~field_binary&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M41.24,-313.99C53.02,-264.99 104.56,-81.48 228,-18.13 279.4,8.25 304.21,2.96 358,-18.13 399.29,-34.32 434.27,-74.3 452.8,-98.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="450.13,-101.1 458.87,-107.09 455.77,-96.96 450.13,-101.1"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~field_binary~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~field_binary~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="506,-257.13 430,-257.13 430,-233.13 506,-233.13 506,-257.13"/>
+<text text-anchor="middle" x="468" y="-242.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~field_binary&#45;&gt;proc~mapl_verify -->
+<g id="proc~~field_binary~~CallsGraph_edge7" class="edge">
+<title>proc~field_binary&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M47.83,-313.71C72.76,-281.73 144.7,-196.93 228,-167.13 282.4,-147.67 307.4,-139.24 358,-167.13 384.24,-181.59 370.03,-206.15 394,-224.13 401.59,-229.83 410.68,-233.98 419.83,-237.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="419.14,-240.45 429.72,-239.87 421.08,-233.73 419.14,-240.45"/>
+</g>
+<!-- proc~fieldadd&#45;&gt;proc~mapl_return -->
+<g id="proc~~field_binary~~CallsGraph_edge14" class="edge">
+<title>proc~fieldadd&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M157.03,-464.26C166.3,-487.07 189.83,-535.79 228,-555.13 279.54,-581.25 315.42,-594.18 358,-555.13 426.23,-492.57 335.18,-211.61 394,-140.13 399.97,-132.88 408.27,-128.04 417.14,-124.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="418.31,-128.13 426.91,-121.94 416.33,-121.41 418.31,-128.13"/>
+</g>
+<!-- proc~fieldadd&#45;&gt;proc~mapl_verify -->
+<g id="proc~~field_binary~~CallsGraph_edge15" class="edge">
+<title>proc~fieldadd&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M154.98,-464.45C161.36,-492.46 181.22,-560.6 228,-588.13 277.79,-617.44 314.94,-626.65 358,-588.13 411.67,-540.13 347.56,-321.15 394,-266.13 400.63,-258.27 410,-253.25 419.82,-250.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="420.93,-253.4 429.71,-247.47 419.15,-246.63 420.93,-253.4"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~field_binary~~CallsGraph_node9" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="335.5,-340.13 250.5,-340.13 250.5,-316.13 335.5,-316.13 335.5,-340.13"/>
+<text text-anchor="middle" x="293" y="-325.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~fieldadd&#45;&gt;esmf_fieldget -->
+<g id="proc~~field_binary~~CallsGraph_edge8" class="edge">
+<title>proc~fieldadd&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M178.93,-439.97C183.49,-437.35 188.04,-434.38 192,-431.13 211.54,-415.11 210.67,-405.52 228,-387.13 241.27,-373.06 257.26,-358.31 269.94,-347.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="272.52,-349.48 277.73,-340.25 267.91,-344.21 272.52,-349.48"/>
+</g>
+<!-- interface~assign_fptr -->
+<g id="proc~~field_binary~~CallsGraph_node10" class="node">
+<title>interface~assign_fptr</title>
+<g id="a_proc~~field_binary~~CallsGraph_node10"><a xlink:href="../interface/assign_fptr.html" xlink:title="assign_fptr">
+<polygon fill="#a7506f" stroke="#a7506f" points="328,-420.13 258,-420.13 258,-396.13 328,-396.13 328,-420.13"/>
+<text text-anchor="middle" x="293" y="-405.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assign_fptr</text>
+</a>
+</g>
+</g>
+<!-- proc~fieldadd&#45;&gt;interface~assign_fptr -->
+<g id="proc~~field_binary~~CallsGraph_edge9" class="edge">
+<title>proc~fieldadd&#45;&gt;interface~assign_fptr</title>
+<path fill="none" stroke="#ff0000" d="M179.73,-443.54C199.21,-437.4 225.84,-429 248.27,-421.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="249.44,-425.23 257.92,-418.88 247.33,-418.55 249.44,-425.23"/>
+</g>
+<!-- interface~fieldsareconformable -->
+<g id="proc~~field_binary~~CallsGraph_node11" class="node">
+<title>interface~fieldsareconformable</title>
+<g id="a_proc~~field_binary~~CallsGraph_node11"><a xlink:href="../interface/fieldsareconformable.html" xlink:title="FieldsAreConformable">
+<polygon fill="#a7506f" stroke="#a7506f" points="358,-546.13 228,-546.13 228,-522.13 358,-522.13 358,-546.13"/>
+<text text-anchor="middle" x="293" y="-531.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldsAreConformable</text>
+</a>
+</g>
+</g>
+<!-- proc~fieldadd&#45;&gt;interface~fieldsareconformable -->
+<g id="proc~~field_binary~~CallsGraph_edge10" class="edge">
+<title>proc~fieldadd&#45;&gt;interface~fieldsareconformable</title>
+<path fill="none" stroke="#ff0000" d="M164.57,-464.25C178.68,-477.82 203.28,-499.68 228,-513.13 231.43,-515 235.05,-516.73 238.75,-518.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="237.49,-521.6 248.08,-522.07 240.1,-515.11 237.49,-521.6"/>
+</g>
+<!-- interface~getfieldsundef -->
+<g id="proc~~field_binary~~CallsGraph_node12" class="node">
+<title>interface~getfieldsundef</title>
+<g id="a_proc~~field_binary~~CallsGraph_node12"><a xlink:href="../interface/getfieldsundef.html" xlink:title="GetFieldsUndef">
+<polygon fill="#a7506f" stroke="#a7506f" points="339.5,-462.13 246.5,-462.13 246.5,-438.13 339.5,-438.13 339.5,-462.13"/>
+<text text-anchor="middle" x="293" y="-447.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GetFieldsUndef</text>
+</a>
+</g>
+</g>
+<!-- proc~fieldadd&#45;&gt;interface~getfieldsundef -->
+<g id="proc~~field_binary~~CallsGraph_edge11" class="edge">
+<title>proc~fieldadd&#45;&gt;interface~getfieldsundef</title>
+<path fill="none" stroke="#ff0000" d="M179.73,-451.74C195.87,-451.51 216.91,-451.21 236.42,-450.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="236.5,-454.43 246.44,-450.78 236.39,-447.43 236.5,-454.43"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~field_binary~~CallsGraph_node13" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~field_binary~~CallsGraph_node13"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="332.5,-504.13 253.5,-504.13 253.5,-480.13 332.5,-480.13 332.5,-504.13"/>
+<text text-anchor="middle" x="293" y="-489.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~fieldadd&#45;&gt;interface~mapl_assert -->
+<g id="proc~~field_binary~~CallsGraph_edge12" class="edge">
+<title>proc~fieldadd&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M179.73,-459.94C197.87,-465.14 222.21,-472.12 243.59,-478.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="242.92,-481.7 253.49,-481.09 244.85,-474.97 242.92,-481.7"/>
+</g>
+<!-- proc~fieldshaveundef -->
+<g id="proc~~field_binary~~CallsGraph_node14" class="node">
+<title>proc~fieldshaveundef</title>
+<g id="a_proc~~field_binary~~CallsGraph_node14"><a xlink:href="../proc/fieldshaveundef.html" xlink:title="FieldsHaveUndef">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="344,-222.13 242,-222.13 242,-198.13 344,-198.13 344,-222.13"/>
+<text text-anchor="middle" x="293" y="-207.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldsHaveUndef</text>
+</a>
+</g>
+</g>
+<!-- proc~fieldadd&#45;&gt;proc~fieldshaveundef -->
+<g id="proc~~field_binary~~CallsGraph_edge13" class="edge">
+<title>proc~fieldadd&#45;&gt;proc~fieldshaveundef</title>
+<path fill="none" stroke="#ff0000" d="M179.73,-441.42C184.32,-438.63 188.67,-435.23 192,-431.13 228.19,-386.59 203.93,-359.22 228,-307.13 241.08,-278.83 261.69,-249.35 275.97,-230.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="278.91,-232.35 282.22,-222.28 273.36,-228.08 278.91,-232.35"/>
+</g>
+<!-- proc~fielddivide&#45;&gt;proc~mapl_return -->
+<g id="proc~~field_binary~~CallsGraph_edge22" class="edge">
+<title>proc~fielddivide&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ffda00" d="M182.44,-356.12C186.08,-353.61 189.42,-350.63 192,-347.13 243.19,-277.55 165.93,-216.21 228,-156.13 254.1,-130.87 354.06,-122.86 416.14,-120.31"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="416.65,-123.8 426.52,-119.92 416.39,-116.8 416.65,-123.8"/>
+</g>
+<!-- proc~fielddivide&#45;&gt;proc~mapl_verify -->
+<g id="proc~~field_binary~~CallsGraph_edge23" class="edge">
+<title>proc~fielddivide&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ffda00" d="M178.39,-356.05C183.1,-353.39 187.84,-350.38 192,-347.13 210.85,-332.4 207.56,-319.55 228,-307.13 229.05,-306.49 350.73,-275.09 420.04,-257.23"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="421.05,-260.58 429.86,-254.69 419.31,-253.8 421.05,-260.58"/>
+</g>
+<!-- proc~fielddivide&#45;&gt;esmf_fieldget -->
+<g id="proc~~field_binary~~CallsGraph_edge16" class="edge">
+<title>proc~fielddivide&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ffda00" d="M186.63,-358.35C202.82,-353.7 222.53,-348.05 240.49,-342.9"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="241.61,-346.22 250.26,-340.1 239.68,-339.49 241.61,-346.22"/>
+</g>
+<!-- proc~fielddivide&#45;&gt;interface~assign_fptr -->
+<g id="proc~~field_binary~~CallsGraph_edge17" class="edge">
+<title>proc~fielddivide&#45;&gt;interface~assign_fptr</title>
+<path fill="none" stroke="#ffda00" d="M186.63,-377.92C205.12,-383.22 228.18,-389.83 248.01,-395.52"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="247.17,-398.92 257.74,-398.31 249.1,-392.19 247.17,-398.92"/>
+</g>
+<!-- proc~fielddivide&#45;&gt;interface~fieldsareconformable -->
+<g id="proc~~field_binary~~CallsGraph_edge18" class="edge">
+<title>proc~fielddivide&#45;&gt;interface~fieldsareconformable</title>
+<path fill="none" stroke="#ffda00" d="M182.13,-380.38C185.82,-382.85 189.26,-385.76 192,-389.13 228.19,-433.67 188.13,-471.86 228,-513.13 229.07,-514.24 230.19,-515.28 231.37,-516.27"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="229.53,-519.26 239.76,-522.05 233.5,-513.49 229.53,-519.26"/>
+</g>
+<!-- proc~fielddivide&#45;&gt;interface~getfieldsundef -->
+<g id="proc~~field_binary~~CallsGraph_edge19" class="edge">
+<title>proc~fielddivide&#45;&gt;interface~getfieldsundef</title>
+<path fill="none" stroke="#ffda00" d="M178.39,-380.21C183.1,-382.87 187.84,-385.88 192,-389.13 210.85,-403.86 207.96,-416.07 228,-429.13 230.79,-430.95 233.76,-432.63 236.82,-434.17"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="235.67,-437.49 246.23,-438.39 238.54,-431.1 235.67,-437.49"/>
+</g>
+<!-- proc~fielddivide&#45;&gt;interface~mapl_assert -->
+<g id="proc~~field_binary~~CallsGraph_edge20" class="edge">
+<title>proc~fielddivide&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ffda00" d="M180.93,-380.2C184.98,-382.75 188.83,-385.72 192,-389.13 219.07,-418.31 198.53,-444.38 228,-471.13 232.66,-475.36 238.19,-478.74 244.01,-481.44"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="242.75,-484.7 253.33,-485.15 245.33,-478.2 242.75,-484.7"/>
+</g>
+<!-- proc~fielddivide&#45;&gt;proc~fieldshaveundef -->
+<g id="proc~~field_binary~~CallsGraph_edge21" class="edge">
+<title>proc~fielddivide&#45;&gt;proc~fieldshaveundef</title>
+<path fill="none" stroke="#ffda00" d="M180.8,-355.93C184.86,-353.41 188.76,-350.48 192,-347.13 217.19,-321.16 206.93,-303.54 228,-274.13 239.98,-257.42 256.43,-241.07 269.65,-229.08"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="272.24,-231.47 277.4,-222.22 267.6,-226.23 272.24,-231.47"/>
+</g>
+<!-- proc~fieldmultiply&#45;&gt;proc~mapl_return -->
+<g id="proc~~field_binary~~CallsGraph_edge30" class="edge">
+<title>proc~fieldmultiply&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#48ff00" d="M182.43,-314.11C186.07,-311.6 189.42,-308.63 192,-305.13 242.28,-237.05 162.74,-172.03 228,-118.13 282.85,-72.83 371.43,-88.66 423.96,-104.05"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="423.06,-107.44 433.65,-107.01 425.1,-100.74 423.06,-107.44"/>
+</g>
+<!-- proc~fieldmultiply&#45;&gt;proc~mapl_verify -->
+<g id="proc~~field_binary~~CallsGraph_edge31" class="edge">
+<title>proc~fieldmultiply&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#48ff00" d="M177.23,-314.07C182.24,-311.33 187.38,-308.29 192,-305.13 209.43,-293.21 208.68,-282.66 228,-274.13 290.11,-246.7 369.63,-242.41 419.46,-242.93"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="419.56,-246.43 429.62,-243.11 419.69,-239.43 419.56,-246.43"/>
+</g>
+<!-- proc~fieldmultiply&#45;&gt;esmf_fieldget -->
+<g id="proc~~field_binary~~CallsGraph_edge24" class="edge">
+<title>proc~fieldmultiply&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#48ff00" d="M190.25,-326.67C205.62,-326.89 223.64,-327.15 240.2,-327.39"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="240.24,-330.89 250.29,-327.53 240.34,-323.89 240.24,-330.89"/>
+</g>
+<!-- proc~fieldmultiply&#45;&gt;interface~assign_fptr -->
+<g id="proc~~field_binary~~CallsGraph_edge25" class="edge">
+<title>proc~fieldmultiply&#45;&gt;interface~assign_fptr</title>
+<path fill="none" stroke="#48ff00" d="M176.02,-338.34C181.31,-341.17 186.87,-344.21 192,-347.13 216.82,-361.28 244.51,-378.27 264.45,-390.72"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="262.7,-393.75 273.03,-396.1 266.41,-387.82 262.7,-393.75"/>
+</g>
+<!-- proc~fieldmultiply&#45;&gt;interface~fieldsareconformable -->
+<g id="proc~~field_binary~~CallsGraph_edge26" class="edge">
+<title>proc~fieldmultiply&#45;&gt;interface~fieldsareconformable</title>
+<path fill="none" stroke="#48ff00" d="M182.35,-338.21C186.01,-340.71 189.38,-343.66 192,-347.13 237.56,-407.33 177.45,-457.06 228,-513.13 228.9,-514.13 229.85,-515.09 230.85,-516"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="229.06,-519.02 239.19,-522.11 233.19,-513.38 229.06,-519.02"/>
+</g>
+<!-- proc~fieldmultiply&#45;&gt;interface~getfieldsundef -->
+<g id="proc~~field_binary~~CallsGraph_edge27" class="edge">
+<title>proc~fieldmultiply&#45;&gt;interface~getfieldsundef</title>
+<path fill="none" stroke="#48ff00" d="M180.93,-338.2C184.98,-340.75 188.83,-343.72 192,-347.13 219.07,-376.31 198.53,-402.38 228,-429.13 230.81,-431.68 233.93,-433.92 237.24,-435.88"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="235.86,-439.11 246.36,-440.49 239.01,-432.86 235.86,-439.11"/>
+</g>
+<!-- proc~fieldmultiply&#45;&gt;interface~mapl_assert -->
+<g id="proc~~field_binary~~CallsGraph_edge28" class="edge">
+<title>proc~fieldmultiply&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#48ff00" d="M182.13,-338.38C185.82,-340.85 189.26,-343.76 192,-347.13 228.19,-391.67 188.13,-429.86 228,-471.13 232.48,-475.77 238,-479.38 243.9,-482.2"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="242.81,-485.53 253.39,-486 245.41,-479.03 242.81,-485.53"/>
+</g>
+<!-- proc~fieldmultiply&#45;&gt;proc~fieldshaveundef -->
+<g id="proc~~field_binary~~CallsGraph_edge29" class="edge">
+<title>proc~fieldmultiply&#45;&gt;proc~fieldshaveundef</title>
+<path fill="none" stroke="#48ff00" d="M180.33,-314.12C184.54,-311.54 188.61,-308.55 192,-305.13 216.36,-280.58 202.41,-259.4 228,-236.13 231.84,-232.64 236.21,-229.59 240.82,-226.92"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="242.6,-229.94 249.91,-222.27 239.41,-223.71 242.6,-229.94"/>
+</g>
+<!-- proc~fieldpower&#45;&gt;proc~mapl_return -->
+<g id="proc~~field_binary~~CallsGraph_edge38" class="edge">
+<title>proc~fieldpower&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff91" d="M151.83,-272.1C150.33,-231.4 151.6,-98.33 228,-42.13 274.54,-7.9 302.93,-24.64 358,-42.13 393.67,-53.46 427.73,-81.16 448.01,-100.05"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="445.68,-102.67 455.32,-107.05 450.52,-97.61 445.68,-102.67"/>
+</g>
+<!-- proc~fieldpower&#45;&gt;proc~mapl_verify -->
+<g id="proc~~field_binary~~CallsGraph_edge39" class="edge">
+<title>proc~fieldpower&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff91" d="M157.78,-271.91C167.82,-250.43 191.95,-206.53 228,-189.13 280.03,-164.02 304.47,-167.4 358,-189.13 378.68,-197.53 374.7,-212.93 394,-224.13 402.04,-228.8 411.19,-232.49 420.23,-235.38"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="419.35,-238.77 429.93,-238.22 421.32,-232.05 419.35,-238.77"/>
+</g>
+<!-- proc~fieldpower&#45;&gt;esmf_fieldget -->
+<g id="proc~~field_binary~~CallsGraph_edge32" class="edge">
+<title>proc~fieldpower&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#00ff91" d="M185.56,-294.56C203.07,-300.08 224.88,-306.96 244.2,-313.06"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="243.16,-316.4 253.75,-316.07 245.26,-309.72 243.16,-316.4"/>
+</g>
+<!-- proc~fieldpower&#45;&gt;interface~assign_fptr -->
+<g id="proc~~field_binary~~CallsGraph_edge33" class="edge">
+<title>proc~fieldpower&#45;&gt;interface~assign_fptr</title>
+<path fill="none" stroke="#00ff91" d="M178.93,-296.29C183.49,-298.91 188.04,-301.88 192,-305.13 211.54,-321.15 210.67,-330.75 228,-349.13 241.27,-363.2 257.26,-377.95 269.94,-389.18"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="267.91,-392.05 277.73,-396.01 272.52,-386.79 267.91,-392.05"/>
+</g>
+<!-- proc~fieldpower&#45;&gt;interface~fieldsareconformable -->
+<g id="proc~~field_binary~~CallsGraph_edge34" class="edge">
+<title>proc~fieldpower&#45;&gt;interface~fieldsareconformable</title>
+<path fill="none" stroke="#00ff91" d="M182.87,-296.38C186.36,-298.84 189.54,-301.73 192,-305.13 247.03,-381.12 166.66,-442.14 228,-513.13 228.86,-514.13 229.77,-515.08 230.72,-515.98"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="228.65,-518.8 238.73,-522.07 232.89,-513.23 228.65,-518.8"/>
+</g>
+<!-- proc~fieldpower&#45;&gt;interface~getfieldsundef -->
+<g id="proc~~field_binary~~CallsGraph_edge35" class="edge">
+<title>proc~fieldpower&#45;&gt;interface~getfieldsundef</title>
+<path fill="none" stroke="#00ff91" d="M182.13,-296.38C185.82,-298.85 189.26,-301.76 192,-305.13 228.19,-349.67 188.13,-387.86 228,-429.13 230.8,-432.03 234,-434.53 237.46,-436.68"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="235.96,-439.85 246.45,-441.36 239.19,-433.64 235.96,-439.85"/>
+</g>
+<!-- proc~fieldpower&#45;&gt;interface~mapl_assert -->
+<g id="proc~~field_binary~~CallsGraph_edge36" class="edge">
+<title>proc~fieldpower&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff91" d="M182.35,-296.21C186.01,-298.71 189.38,-301.66 192,-305.13 237.56,-365.33 177.45,-415.06 228,-471.13 232.37,-475.98 237.87,-479.71 243.81,-482.58"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="242.81,-485.95 253.39,-486.42 245.41,-479.45 242.81,-485.95"/>
+</g>
+<!-- proc~fieldpower&#45;&gt;proc~fieldshaveundef -->
+<g id="proc~~field_binary~~CallsGraph_edge37" class="edge">
+<title>proc~fieldpower&#45;&gt;proc~fieldshaveundef</title>
+<path fill="none" stroke="#00ff91" d="M169.66,-271.96C184.63,-261.65 207.15,-246.88 228,-236.13 234.74,-232.65 242.06,-229.31 249.26,-226.24"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="251.02,-229.3 258.93,-222.25 248.35,-222.83 251.02,-229.3"/>
+</g>
+<!-- proc~fieldsubtract&#45;&gt;proc~mapl_return -->
+<g id="proc~~field_binary~~CallsGraph_edge46" class="edge">
+<title>proc~fieldsubtract&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0091ff" d="M182.85,-397.87C186.34,-395.41 189.53,-392.52 192,-389.13 245.22,-316.16 166.9,-255.65 228,-189.13 268.48,-145.06 301.15,-172.78 358,-154.13 374.31,-148.78 377.73,-145.62 394,-140.13 401.38,-137.64 409.24,-135.18 416.97,-132.87"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="418.02,-136.21 426.64,-130.03 416.05,-129.49 418.02,-136.21"/>
+</g>
+<!-- proc~fieldsubtract&#45;&gt;proc~mapl_verify -->
+<g id="proc~~field_binary~~CallsGraph_edge47" class="edge">
+<title>proc~fieldsubtract&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0091ff" d="M191.66,-398.11C203.34,-394.55 216.18,-390.66 228,-387.13 285.68,-369.92 312.86,-388.96 358,-349.13 388.15,-322.53 363.79,-292.67 394,-266.13 401.35,-259.67 410.58,-255.19 419.97,-252.09"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="421.08,-255.41 429.75,-249.33 419.18,-248.68 421.08,-255.41"/>
+</g>
+<!-- proc~fieldsubtract&#45;&gt;esmf_fieldget -->
+<g id="proc~~field_binary~~CallsGraph_edge40" class="edge">
+<title>proc~fieldsubtract&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#0091ff" d="M177.8,-398.06C182.66,-395.36 187.61,-392.33 192,-389.13 210.03,-375.98 209.32,-366.33 228,-354.13 233.6,-350.47 239.8,-347.18 246.06,-344.26"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="247.48,-347.46 255.24,-340.25 244.67,-341.04 247.48,-347.46"/>
+</g>
+<!-- proc~fieldsubtract&#45;&gt;interface~assign_fptr -->
+<g id="proc~~field_binary~~CallsGraph_edge41" class="edge">
+<title>proc~fieldsubtract&#45;&gt;interface~assign_fptr</title>
+<path fill="none" stroke="#0091ff" d="M192.1,-409.56C209.47,-409.31 229.94,-409.02 247.8,-408.76"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="248.03,-412.26 257.98,-408.62 247.93,-405.26 248.03,-412.26"/>
+</g>
+<!-- proc~fieldsubtract&#45;&gt;interface~fieldsareconformable -->
+<g id="proc~~field_binary~~CallsGraph_edge42" class="edge">
+<title>proc~fieldsubtract&#45;&gt;interface~fieldsareconformable</title>
+<path fill="none" stroke="#0091ff" d="M180.93,-422.2C184.98,-424.75 188.83,-427.72 192,-431.13 219.07,-460.31 198.53,-486.38 228,-513.13 229.46,-514.46 231.01,-515.7 232.62,-516.86"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="230.81,-519.86 241.18,-522.06 234.45,-513.88 230.81,-519.86"/>
+</g>
+<!-- proc~fieldsubtract&#45;&gt;interface~getfieldsundef -->
+<g id="proc~~field_binary~~CallsGraph_edge43" class="edge">
+<title>proc~fieldsubtract&#45;&gt;interface~getfieldsundef</title>
+<path fill="none" stroke="#0091ff" d="M192.1,-421.49C207.04,-425.77 224.27,-430.71 240.17,-435.27"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="239.28,-438.66 249.86,-438.05 241.21,-431.93 239.28,-438.66"/>
+</g>
+<!-- proc~fieldsubtract&#45;&gt;interface~mapl_assert -->
+<g id="proc~~field_binary~~CallsGraph_edge44" class="edge">
+<title>proc~fieldsubtract&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0091ff" d="M178.39,-422.21C183.1,-424.87 187.84,-427.88 192,-431.13 210.85,-445.86 207.96,-458.07 228,-471.13 232.9,-474.32 238.32,-477.07 243.88,-479.42"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="242.7,-482.71 253.29,-483.01 245.2,-476.18 242.7,-482.71"/>
+</g>
+<!-- proc~fieldsubtract&#45;&gt;proc~fieldshaveundef -->
+<g id="proc~~field_binary~~CallsGraph_edge45" class="edge">
+<title>proc~fieldsubtract&#45;&gt;proc~fieldshaveundef</title>
+<path fill="none" stroke="#0091ff" d="M180.93,-398.06C184.98,-395.52 188.83,-392.55 192,-389.13 219.07,-359.95 208.97,-342.09 228,-307.13 242.99,-279.6 263.36,-249.75 277.06,-230.54"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="280.01,-232.43 283.02,-222.27 274.33,-228.34 280.01,-232.43"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~field_binary~~CallsGraph_node15" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~field_binary~~CallsGraph_node15"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="702,-131.13 587,-131.13 587,-107.13 702,-107.13 702,-131.13"/>
+<text text-anchor="middle" x="644.5" y="-116.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~field_binary~~CallsGraph_edge48" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#4800ff" d="M509.03,-119.13C529.02,-119.13 553.73,-119.13 576.49,-119.13"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="576.79,-122.63 586.79,-119.13 576.79,-115.63 576.79,-122.63"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~field_binary~~CallsGraph_node16" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~field_binary~~CallsGraph_node16"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="711,-225.13 578,-225.13 578,-201.13 711,-201.13 711,-225.13"/>
+<text text-anchor="middle" x="644.5" y="-210.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~field_binary~~CallsGraph_edge49" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#4800ff" d="M509.32,-128.06C520.21,-131.19 531.8,-135.18 542,-140.13 572.07,-154.73 602.69,-178.18 622.32,-194.55"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="620.14,-197.29 630.03,-201.09 624.67,-191.95 620.14,-197.29"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~field_binary~~CallsGraph_edge50" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M506.01,-238.34C524.06,-235.03 546.46,-230.93 567.91,-226.99"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="568.8,-230.39 578,-225.14 567.54,-223.5 568.8,-230.39"/>
+</g>
+<!-- proc~assign_fptr_r4_rank1 -->
+<g id="proc~~field_binary~~CallsGraph_node23" class="node">
+<title>proc~assign_fptr_r4_rank1</title>
+<g id="a_proc~~field_binary~~CallsGraph_node23"><a xlink:href="../proc/assign_fptr_r4_rank1.html" xlink:title="assign_fptr_r4_rank1">
+<polygon fill="#d9534f" stroke="#d9534f" points="529.5,-341.13 406.5,-341.13 406.5,-317.13 529.5,-317.13 529.5,-341.13"/>
+<text text-anchor="middle" x="468" y="-326.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assign_fptr_r4_rank1</text>
+</a>
+</g>
+</g>
+<!-- interface~assign_fptr&#45;&gt;proc~assign_fptr_r4_rank1 -->
+<g id="proc~~field_binary~~CallsGraph_edge51" class="edge">
+<title>interface~assign_fptr&#45;&gt;proc~assign_fptr_r4_rank1</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M328.27,-396.7C338.2,-392.74 348.83,-387.83 358,-382.13 376.18,-370.83 375.25,-360.46 394,-350.13 397.47,-348.22 401.14,-346.46 404.9,-344.86"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="406.36,-348.05 414.41,-341.17 403.82,-341.52 406.36,-348.05"/>
+</g>
+<!-- proc~assign_fptr_r4_rank2 -->
+<g id="proc~~field_binary~~CallsGraph_node24" class="node">
+<title>proc~assign_fptr_r4_rank2</title>
+<g id="a_proc~~field_binary~~CallsGraph_node24"><a xlink:href="../proc/assign_fptr_r4_rank2.html" xlink:title="assign_fptr_r4_rank2">
+<polygon fill="#d9534f" stroke="#d9534f" points="529.5,-299.13 406.5,-299.13 406.5,-275.13 529.5,-275.13 529.5,-299.13"/>
+<text text-anchor="middle" x="468" y="-284.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assign_fptr_r4_rank2</text>
+</a>
+</g>
+</g>
+<!-- interface~assign_fptr&#45;&gt;proc~assign_fptr_r4_rank2 -->
+<g id="proc~~field_binary~~CallsGraph_edge52" class="edge">
+<title>interface~assign_fptr&#45;&gt;proc~assign_fptr_r4_rank2</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M328.23,-399.45C338.72,-395.5 349.68,-389.91 358,-382.13 384.71,-357.15 366,-331.67 394,-308.13 395.72,-306.68 397.54,-305.34 399.43,-304.08"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="401.16,-307.12 408.14,-299.15 397.71,-301.03 401.16,-307.12"/>
+</g>
+<!-- proc~assign_fptr_r8_rank1 -->
+<g id="proc~~field_binary~~CallsGraph_node25" class="node">
+<title>proc~assign_fptr_r8_rank1</title>
+<g id="a_proc~~field_binary~~CallsGraph_node25"><a xlink:href="../proc/assign_fptr_r8_rank1.html" xlink:title="assign_fptr_r8_rank1">
+<polygon fill="#d9534f" stroke="#d9534f" points="529.5,-425.13 406.5,-425.13 406.5,-401.13 529.5,-401.13 529.5,-425.13"/>
+<text text-anchor="middle" x="468" y="-410.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assign_fptr_r8_rank1</text>
+</a>
+</g>
+</g>
+<!-- interface~assign_fptr&#45;&gt;proc~assign_fptr_r8_rank1 -->
+<g id="proc~~field_binary~~CallsGraph_edge53" class="edge">
+<title>interface~assign_fptr&#45;&gt;proc~assign_fptr_r8_rank1</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M328.18,-409.12C347.57,-409.68 372.57,-410.4 396,-411.08"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="396.18,-414.59 406.28,-411.38 396.38,-407.59 396.18,-414.59"/>
+</g>
+<!-- proc~assign_fptr_r8_rank2 -->
+<g id="proc~~field_binary~~CallsGraph_node26" class="node">
+<title>proc~assign_fptr_r8_rank2</title>
+<g id="a_proc~~field_binary~~CallsGraph_node26"><a xlink:href="../proc/assign_fptr_r8_rank2.html" xlink:title="assign_fptr_r8_rank2">
+<polygon fill="#d9534f" stroke="#d9534f" points="529.5,-383.13 406.5,-383.13 406.5,-359.13 529.5,-359.13 529.5,-383.13"/>
+<text text-anchor="middle" x="468" y="-368.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assign_fptr_r8_rank2</text>
+</a>
+</g>
+</g>
+<!-- interface~assign_fptr&#45;&gt;proc~assign_fptr_r8_rank2 -->
+<g id="proc~~field_binary~~CallsGraph_edge54" class="edge">
+<title>interface~assign_fptr&#45;&gt;proc~assign_fptr_r8_rank2</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M328.18,-400.82C348.86,-396.4 375.94,-390.61 400.69,-385.31"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="401.71,-388.67 410.76,-383.16 400.25,-381.83 401.71,-388.67"/>
+</g>
+<!-- proc~are_conformable_array -->
+<g id="proc~~field_binary~~CallsGraph_node21" class="node">
+<title>proc~are_conformable_array</title>
+<g id="a_proc~~field_binary~~CallsGraph_node21"><a xlink:href="../proc/are_conformable_array.html" xlink:title="are_conformable_array">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="536.5,-677.13 399.5,-677.13 399.5,-653.13 536.5,-653.13 536.5,-677.13"/>
+<text text-anchor="middle" x="468" y="-662.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">are_conformable_array</text>
+</a>
+</g>
+</g>
+<!-- interface~fieldsareconformable&#45;&gt;proc~are_conformable_array -->
+<g id="proc~~field_binary~~CallsGraph_edge55" class="edge">
+<title>interface~fieldsareconformable&#45;&gt;proc~are_conformable_array</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M301.74,-546.41C316.71,-569.17 351.92,-617.95 394,-644.13 396.8,-645.87 399.75,-647.47 402.79,-648.95"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="401.57,-652.23 412.14,-652.99 404.35,-645.81 401.57,-652.23"/>
+</g>
+<!-- proc~are_conformable_scalar -->
+<g id="proc~~field_binary~~CallsGraph_node22" class="node">
+<title>proc~are_conformable_scalar</title>
+<g id="a_proc~~field_binary~~CallsGraph_node22"><a xlink:href="../proc/are_conformable_scalar.html" xlink:title="are_conformable_scalar">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="538.5,-635.13 397.5,-635.13 397.5,-611.13 538.5,-611.13 538.5,-635.13"/>
+<text text-anchor="middle" x="468" y="-620.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">are_conformable_scalar</text>
+</a>
+</g>
+</g>
+<!-- interface~fieldsareconformable&#45;&gt;proc~are_conformable_scalar -->
+<g id="proc~~field_binary~~CallsGraph_edge56" class="edge">
+<title>interface~fieldsareconformable&#45;&gt;proc~are_conformable_scalar</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M308.67,-546.34C327.4,-561.37 361.31,-586.79 394,-602.13 398.32,-604.16 402.89,-606.03 407.53,-607.76"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="406.54,-611.12 417.14,-611.09 408.83,-604.51 406.54,-611.12"/>
+</g>
+<!-- proc~getfieldsundef_r4 -->
+<g id="proc~~field_binary~~CallsGraph_node27" class="node">
+<title>proc~getfieldsundef_r4</title>
+<g id="a_proc~~field_binary~~CallsGraph_node27"><a xlink:href="../proc/getfieldsundef_r4.html" xlink:title="GetFieldsUndef_r4">
+<polygon fill="#d9534f" stroke="#d9534f" points="522.5,-509.13 413.5,-509.13 413.5,-485.13 522.5,-485.13 522.5,-509.13"/>
+<text text-anchor="middle" x="468" y="-494.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GetFieldsUndef_r4</text>
+</a>
+</g>
+</g>
+<!-- interface~getfieldsundef&#45;&gt;proc~getfieldsundef_r4 -->
+<g id="proc~~field_binary~~CallsGraph_edge57" class="edge">
+<title>interface~getfieldsundef&#45;&gt;proc~getfieldsundef_r4</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M338.55,-462.24C361.15,-468.38 388.79,-475.88 412.64,-482.36"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="412.03,-485.82 422.6,-485.07 413.87,-479.07 412.03,-485.82"/>
+</g>
+<!-- proc~getfieldsundef_r8 -->
+<g id="proc~~field_binary~~CallsGraph_node28" class="node">
+<title>proc~getfieldsundef_r8</title>
+<g id="a_proc~~field_binary~~CallsGraph_node28"><a xlink:href="../proc/getfieldsundef_r8.html" xlink:title="GetFieldsUndef_r8">
+<polygon fill="#d9534f" stroke="#d9534f" points="522.5,-467.13 413.5,-467.13 413.5,-443.13 522.5,-443.13 522.5,-467.13"/>
+<text text-anchor="middle" x="468" y="-452.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GetFieldsUndef_r8</text>
+</a>
+</g>
+</g>
+<!-- interface~getfieldsundef&#45;&gt;proc~getfieldsundef_r8 -->
+<g id="proc~~field_binary~~CallsGraph_edge58" class="edge">
+<title>interface~getfieldsundef&#45;&gt;proc~getfieldsundef_r8</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M339.91,-451.46C359.26,-452.02 382.12,-452.68 403.09,-453.28"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="403.1,-456.79 413.2,-453.58 403.3,-449.79 403.1,-456.79"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~field_binary~~CallsGraph_node30" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~field_binary~~CallsGraph_node30"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="535,-593.13 401,-593.13 401,-569.13 535,-569.13 535,-593.13"/>
+<text text-anchor="middle" x="468" y="-578.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~field_binary~~CallsGraph_edge59" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M332.67,-500.7C341.49,-503.74 350.47,-507.79 358,-513.13 379.46,-528.36 372.26,-545.3 394,-560.13 396.4,-561.77 398.93,-563.28 401.54,-564.67"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="400.18,-567.9 410.72,-568.98 403.15,-561.56 400.18,-567.9"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~field_binary~~CallsGraph_node31" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~field_binary~~CallsGraph_node31"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="542,-551.13 394,-551.13 394,-527.13 542,-527.13 542,-551.13"/>
+<text text-anchor="middle" x="468" y="-536.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~field_binary~~CallsGraph_edge60" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M332.82,-502.68C356.5,-509.11 387.1,-517.42 413.1,-524.49"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="412.25,-527.88 422.82,-527.13 414.08,-521.13 412.25,-527.88"/>
+</g>
+<!-- proc~fieldshaveundef&#45;&gt;proc~mapl_return -->
+<g id="proc~~field_binary~~CallsGraph_edge63" class="edge">
+<title>proc~fieldshaveundef&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#003fff" d="M332.54,-198.1C341.36,-194.38 350.38,-189.76 358,-184.13 378.33,-169.13 372.9,-154.03 394,-140.13 401.04,-135.49 409.13,-131.86 417.29,-129.02"/>
+<polygon fill="#003fff" stroke="#003fff" points="418.34,-132.36 426.85,-126.04 416.26,-125.67 418.34,-132.36"/>
+</g>
+<!-- proc~fieldshaveundef&#45;&gt;proc~mapl_verify -->
+<g id="proc~~field_binary~~CallsGraph_edge64" class="edge">
+<title>proc~fieldshaveundef&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#003fff" d="M344.04,-220.25C367.94,-225.09 396.4,-230.85 419.91,-235.6"/>
+<polygon fill="#003fff" stroke="#003fff" points="419.5,-239.09 429.99,-237.64 420.88,-232.23 419.5,-239.09"/>
+</g>
+<!-- ESMF_InfoGetFromHost -->
+<g id="proc~~field_binary~~CallsGraph_node17" class="node">
+<title>ESMF_InfoGetFromHost</title>
+<g id="a_proc~~field_binary~~CallsGraph_node17"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infogetfromhost.html" xlink:title="ESMF_InfoGetFromHost">
+<polygon fill="#a7506f" stroke="#a7506f" points="536,-173.13 400,-173.13 400,-149.13 536,-149.13 536,-173.13"/>
+<text text-anchor="middle" x="468" y="-158.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGetFromHost</text>
+</a>
+</g>
+</g>
+<!-- proc~fieldshaveundef&#45;&gt;ESMF_InfoGetFromHost -->
+<g id="proc~~field_binary~~CallsGraph_edge61" class="edge">
+<title>proc~fieldshaveundef&#45;&gt;ESMF_InfoGetFromHost</title>
+<path fill="none" stroke="#003fff" d="M336.76,-198.02C360.35,-191.34 389.82,-182.99 414.76,-175.93"/>
+<polygon fill="#003fff" stroke="#003fff" points="415.76,-179.28 424.43,-173.19 413.85,-172.55 415.76,-179.28"/>
+</g>
+<!-- ESMF_InfoIsPresent -->
+<g id="proc~~field_binary~~CallsGraph_node18" class="node">
+<title>ESMF_InfoIsPresent</title>
+<g id="a_proc~~field_binary~~CallsGraph_node18"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_infoispresent.html" xlink:title="ESMF_InfoIsPresent">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="525,-215.13 411,-215.13 411,-191.13 525,-191.13 525,-215.13"/>
+<text text-anchor="middle" x="468" y="-200.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoIsPresent</text>
+</a>
+</g>
+</g>
+<!-- proc~fieldshaveundef&#45;&gt;ESMF_InfoIsPresent -->
+<g id="proc~~field_binary~~CallsGraph_edge62" class="edge">
+<title>proc~fieldshaveundef&#45;&gt;ESMF_InfoIsPresent</title>
+<path fill="none" stroke="#003fff" d="M344.04,-208.11C361.8,-207.39 382.08,-206.57 400.97,-205.8"/>
+<polygon fill="#003fff" stroke="#003fff" points="401.15,-209.3 411,-205.4 400.87,-202.3 401.15,-209.3"/>
+</g>
+<!-- at -->
+<g id="proc~~field_binary~~CallsGraph_node19" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="802.5,-152.13 748.5,-152.13 748.5,-128.13 802.5,-128.13 802.5,-152.13"/>
+<text text-anchor="middle" x="775.5" y="-137.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~field_binary~~CallsGraph_edge65" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#7f00ff" d="M702.08,-128.34C714.42,-130.35 727.14,-132.42 738.42,-134.26"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="737.89,-137.72 748.32,-135.87 739.01,-130.81 737.89,-137.72"/>
+</g>
+<!-- insert -->
+<g id="proc~~field_binary~~CallsGraph_node20" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="802.5,-110.13 748.5,-110.13 748.5,-86.13 802.5,-86.13 802.5,-110.13"/>
+<text text-anchor="middle" x="775.5" y="-95.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~field_binary~~CallsGraph_edge66" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#7f00ff" d="M702.08,-109.92C714.42,-107.91 727.14,-105.84 738.42,-104"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="739.01,-107.45 748.32,-102.39 737.89,-100.55 739.01,-107.45"/>
+</g>
+<!-- proc~initialize~21 -->
+<g id="proc~~field_binary~~CallsGraph_node29" class="node">
+<title>proc~initialize~21</title>
+<g id="a_proc~~field_binary~~CallsGraph_node29"><a xlink:href="../proc/initialize~21.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="804,-225.13 747,-225.13 747,-201.13 804,-201.13 804,-225.13"/>
+<text text-anchor="middle" x="775.5" y="-210.73" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~21 -->
+<g id="proc~~field_binary~~CallsGraph_edge67" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~21</title>
+<path fill="none" stroke="#ff00bf" d="M711.13,-213.13C719.88,-213.13 728.59,-213.13 736.63,-213.13"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="736.77,-216.63 746.77,-213.13 736.77,-209.63 736.77,-216.63"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocfield_binaryCallsGraph = svgPanZoom('#procfield_binaryCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~field_binary~~CalledByGraph Pages: 1 -->
+<svg id="procfield_binaryCalledByGraph" width="641pt" height="236pt"
+ viewBox="0.00 0.00 641.00 236.42" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~field_binary~~CalledByGraph" class="graph" transform="scale(1.2 1.2) rotate(0) translate(4 280)">
+<title>proc~~field_binary~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-280 766,-280 766,4 -4,4"/>
+<!-- proc~field_binary -->
+<g id="proc~~field_binary~~CalledByGraph_node1" class="node">
+<title>proc~field_binary</title>
+<polygon fill="none" stroke="black" points="762,-150 687,-150 687,-126 762,-126 762,-150"/>
+<text text-anchor="middle" x="724.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50">field_binary</text>
+</g>
+<!-- proc~evalf -->
+<g id="proc~~field_binary~~CalledByGraph_node2" class="node">
+<title>proc~evalf</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node2"><a xlink:href="../proc/evalf.html" xlink:title="evalf">
+<polygon fill="#d9534f" stroke="#d9534f" points="651,-150 597,-150 597,-126 651,-126 651,-150"/>
+<text text-anchor="middle" x="624" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">evalf</text>
+</a>
+</g>
+</g>
+<!-- proc~evalf&#45;&gt;proc~field_binary -->
+<g id="proc~~field_binary~~CalledByGraph_edge1" class="edge">
+<title>proc~evalf&#45;&gt;proc~field_binary</title>
+<path fill="none" stroke="#ff0000" d="M651.14,-138C659,-138 667.89,-138 676.66,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="676.86,-141.5 686.86,-138 676.86,-134.5 676.86,-141.5"/>
+</g>
+<!-- proc~mapl_stateeval -->
+<g id="proc~~field_binary~~CalledByGraph_node3" class="node">
+<title>proc~mapl_stateeval</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node3"><a xlink:href="../proc/mapl_stateeval.html" xlink:title="MAPL_StateEval">
+<polygon fill="#d9534f" stroke="#d9534f" points="561,-150 464,-150 464,-126 561,-126 561,-150"/>
+<text text-anchor="middle" x="512.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateEval</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateeval&#45;&gt;proc~evalf -->
+<g id="proc~~field_binary~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_stateeval&#45;&gt;proc~evalf</title>
+<path fill="none" stroke="#ff0000" d="M561.21,-138C569.71,-138 578.43,-138 586.55,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="586.8,-141.5 596.8,-138 586.8,-134.5 586.8,-141.5"/>
+</g>
+<!-- proc~calcderivedfield -->
+<g id="proc~~field_binary~~CalledByGraph_node4" class="node">
+<title>proc~calcderivedfield</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node4"><a xlink:href="../proc/calcderivedfield.html" xlink:title="CalcDerivedField">
+<polygon fill="#d9534f" stroke="#d9534f" points="369.5,-276 266.5,-276 266.5,-252 369.5,-252 369.5,-276"/>
+<text text-anchor="middle" x="318" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CalcDerivedField</text>
+</a>
+</g>
+</g>
+<!-- proc~calcderivedfield&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~field_binary~~CalledByGraph_edge3" class="edge">
+<title>proc~calcderivedfield&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M369.69,-261.68C389.04,-258.95 410.61,-253.53 428,-243 461.62,-222.64 487.2,-183.5 500.73,-159.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="503.98,-160.53 505.62,-150.06 497.81,-157.22 503.98,-160.53"/>
+</g>
+<!-- proc~evaluate_box_mask -->
+<g id="proc~~field_binary~~CalledByGraph_node5" class="node">
+<title>proc~evaluate_box_mask</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node5"><a xlink:href="../proc/evaluate_box_mask.html" xlink:title="ExtDataMask%evaluate_box_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="416,-234 220,-234 220,-210 416,-210 416,-234"/>
+<text text-anchor="middle" x="318" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_box_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~field_binary~~CalledByGraph_edge4" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M402.64,-209.98C411.38,-207.52 419.99,-204.56 428,-201 452.16,-190.26 475.85,-171.35 491.79,-157.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="494.4,-159.4 499.38,-150.05 489.66,-154.25 494.4,-159.4"/>
+</g>
+<!-- proc~evaluate_derived_field -->
+<g id="proc~~field_binary~~CalledByGraph_node6" class="node">
+<title>proc~evaluate_derived_field</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node6"><a xlink:href="../proc/evaluate_derived_field.html" xlink:title="DerivedExport%evaluate_derived_field">
+<polygon fill="#d9534f" stroke="#d9534f" points="428,-108 208,-108 208,-84 428,-84 428,-108"/>
+<text text-anchor="middle" x="318" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DerivedExport%evaluate_derived_field</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_derived_field&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~field_binary~~CalledByGraph_edge5" class="edge">
+<title>proc~evaluate_derived_field&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M384.54,-108.01C398.89,-110.81 413.98,-113.89 428,-117 437,-119 446.51,-121.25 455.77,-123.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="455.12,-126.97 465.67,-125.98 456.81,-120.18 455.12,-126.97"/>
+</g>
+<!-- proc~evaluate_region_mask -->
+<g id="proc~~field_binary~~CalledByGraph_node7" class="node">
+<title>proc~evaluate_region_mask</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node7"><a xlink:href="../proc/evaluate_region_mask.html" xlink:title="ExtDataMask%evaluate_region_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="423.5,-192 212.5,-192 212.5,-168 423.5,-168 423.5,-192"/>
+<text text-anchor="middle" x="318" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_region_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~field_binary~~CalledByGraph_edge6" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M384.54,-167.99C398.89,-165.19 413.98,-162.11 428,-159 437,-157 446.51,-154.75 455.77,-152.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="456.81,-155.82 465.67,-150.02 455.12,-149.03 456.81,-155.82"/>
+</g>
+<!-- proc~evaluate_zone_mask -->
+<g id="proc~~field_binary~~CalledByGraph_node8" class="node">
+<title>proc~evaluate_zone_mask</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node8"><a xlink:href="../proc/evaluate_zone_mask.html" xlink:title="ExtDataMask%evaluate_zone_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="419,-150 217,-150 217,-126 419,-126 419,-150"/>
+<text text-anchor="middle" x="318" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_zone_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~field_binary~~CalledByGraph_edge7" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M419.2,-138C430.97,-138 442.66,-138 453.56,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="453.76,-141.5 463.76,-138 453.76,-134.5 453.76,-141.5"/>
+</g>
+<!-- proc~fillstate -->
+<g id="proc~~field_binary~~CalledByGraph_node9" class="node">
+<title>proc~fillstate</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node9"><a xlink:href="../proc/fillstate.html" xlink:title="FillState">
+<polygon fill="#d9534f" stroke="#d9534f" points="345.5,-66 290.5,-66 290.5,-42 345.5,-42 345.5,-66"/>
+<text text-anchor="middle" x="318" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FillState</text>
+</a>
+</g>
+</g>
+<!-- proc~fillstate&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~field_binary~~CalledByGraph_edge8" class="edge">
+<title>proc~fillstate&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M345.55,-55.73C368.26,-58 401.41,-63.18 428,-75 452.16,-85.74 475.85,-104.65 491.79,-118.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="489.66,-121.75 499.38,-125.95 494.4,-116.6 489.66,-121.75"/>
+</g>
+<!-- proc~mapl_runexpression -->
+<g id="proc~~field_binary~~CalledByGraph_node10" class="node">
+<title>proc~mapl_runexpression</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node10"><a xlink:href="../proc/mapl_runexpression.html" xlink:title="MAPL_RunExpression">
+<polygon fill="#d9534f" stroke="#d9534f" points="380,-24 256,-24 256,0 380,0 380,-24"/>
+<text text-anchor="middle" x="318" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_RunExpression</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_runexpression&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~field_binary~~CalledByGraph_edge9" class="edge">
+<title>proc~mapl_runexpression&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M380.04,-16.01C396.48,-19.11 413.66,-24.31 428,-33 461.62,-53.36 487.2,-92.5 500.73,-116.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="497.81,-118.78 505.62,-125.94 503.98,-115.47 497.81,-118.78"/>
+</g>
+<!-- proc~evaluate_mask -->
+<g id="proc~~field_binary~~CalledByGraph_node11" class="node">
+<title>proc~evaluate_mask</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node11"><a xlink:href="../proc/evaluate_mask.html" xlink:title="ExtDataMask%evaluate_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="172,-192 0,-192 0,-168 172,-168 172,-192"/>
+<text text-anchor="middle" x="86" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_mask&#45;&gt;proc~evaluate_box_mask -->
+<g id="proc~~field_binary~~CalledByGraph_edge11" class="edge">
+<title>proc~evaluate_mask&#45;&gt;proc~evaluate_box_mask</title>
+<path fill="none" stroke="#ffda00" d="M152.91,-192.04C180.46,-197.07 212.63,-202.94 241.16,-208.15"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="240.62,-211.61 251.08,-209.96 241.87,-204.72 240.62,-211.61"/>
+</g>
+<!-- proc~evaluate_mask&#45;&gt;proc~evaluate_region_mask -->
+<g id="proc~~field_binary~~CalledByGraph_edge13" class="edge">
+<title>proc~evaluate_mask&#45;&gt;proc~evaluate_region_mask</title>
+<path fill="none" stroke="#00ff91" d="M172.32,-180C182.1,-180 192.18,-180 202.27,-180"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="202.34,-183.5 212.34,-180 202.34,-176.5 202.34,-183.5"/>
+</g>
+<!-- proc~evaluate_mask&#45;&gt;proc~evaluate_zone_mask -->
+<g id="proc~~field_binary~~CalledByGraph_edge14" class="edge">
+<title>proc~evaluate_mask&#45;&gt;proc~evaluate_zone_mask</title>
+<path fill="none" stroke="#0091ff" d="M152.91,-167.96C180.46,-162.93 212.63,-157.06 241.16,-151.85"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="241.87,-155.28 251.08,-150.04 240.62,-148.39 241.87,-155.28"/>
+</g>
+<!-- proc~run -->
+<g id="proc~~field_binary~~CalledByGraph_node12" class="node">
+<title>proc~run</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node12"><a xlink:href="../proc/run.html" xlink:title="Run">
+<polygon fill="#d9534f" stroke="#d9534f" points="113,-24 59,-24 59,0 113,0 113,-24"/>
+<text text-anchor="middle" x="86" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run</text>
+</a>
+</g>
+</g>
+<!-- proc~run&#45;&gt;proc~mapl_runexpression -->
+<g id="proc~~field_binary~~CalledByGraph_edge16" class="edge">
+<title>proc~run&#45;&gt;proc~mapl_runexpression</title>
+<path fill="none" stroke="#ff00da" d="M113.38,-12C145.35,-12 200.49,-12 245.33,-12"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="245.61,-15.5 255.61,-12 245.61,-8.5 245.61,-15.5"/>
+</g>
+<!-- proc~run_~2 -->
+<g id="proc~~field_binary~~CalledByGraph_node13" class="node">
+<title>proc~run_~2</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node13"><a xlink:href="../proc/run_~2.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="113,-108 59,-108 59,-84 113,-84 113,-108"/>
+<text text-anchor="middle" x="86" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~2&#45;&gt;proc~evaluate_derived_field -->
+<g id="proc~~field_binary~~CalledByGraph_edge12" class="edge">
+<title>proc~run_~2&#45;&gt;proc~evaluate_derived_field</title>
+<path fill="none" stroke="#48ff00" d="M113.38,-96C134.52,-96 165.79,-96 197.51,-96"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="197.81,-99.5 207.81,-96 197.81,-92.5 197.81,-99.5"/>
+</g>
+<!-- proc~run_~3 -->
+<g id="proc~~field_binary~~CalledByGraph_node14" class="node">
+<title>proc~run_~3</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node14"><a xlink:href="../proc/run_~3.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="113,-276 59,-276 59,-252 113,-252 113,-276"/>
+<text text-anchor="middle" x="86" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~3&#45;&gt;proc~calcderivedfield -->
+<g id="proc~~field_binary~~CalledByGraph_edge10" class="edge">
+<title>proc~run_~3&#45;&gt;proc~calcderivedfield</title>
+<path fill="none" stroke="#ff0000" d="M113.38,-264C147.94,-264 209.58,-264 256.02,-264"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.27,-267.5 266.27,-264 256.27,-260.5 256.27,-267.5"/>
+</g>
+<!-- proc~run_~5 -->
+<g id="proc~~field_binary~~CalledByGraph_node15" class="node">
+<title>proc~run_~5</title>
+<g id="a_proc~~field_binary~~CalledByGraph_node15"><a xlink:href="../proc/run_~5.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="113,-66 59,-66 59,-42 113,-42 113,-66"/>
+<text text-anchor="middle" x="86" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~5&#45;&gt;proc~fillstate -->
+<g id="proc~~field_binary~~CalledByGraph_edge15" class="edge">
+<title>proc~run_~5&#45;&gt;proc~fillstate</title>
+<path fill="none" stroke="#4800ff" d="M113.38,-54C154.33,-54 233.29,-54 279.94,-54"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="280.22,-57.5 290.22,-54 280.22,-50.5 280.22,-57.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocfield_binaryCalledByGraph = svgPanZoom('#procfield_binaryCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">field_binary</span><span class="p">(</span><span class="n">field1</span><span class="p">,</span><span class="n">field2</span><span class="p">,</span><span class="n">arthcode</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field1</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field2</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">arthcode</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">     </span><span class="k">select  case</span><span class="p">(</span><span class="n">arthcode</span><span class="p">)</span>
+<span class="w">        </span><span class="k">case</span><span class="p">(</span><span class="n">cAdd</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">FieldAdd</span><span class="p">(</span><span class="n">field2</span><span class="p">,</span><span class="n">field2</span><span class="p">,</span><span class="n">field1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">case</span><span class="p">(</span><span class="n">cSub</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">FieldSubtract</span><span class="p">(</span><span class="n">field2</span><span class="p">,</span><span class="n">field2</span><span class="p">,</span><span class="n">field1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">case</span><span class="p">(</span><span class="n">cMul</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">FieldMultiply</span><span class="p">(</span><span class="n">field2</span><span class="p">,</span><span class="n">field2</span><span class="p">,</span><span class="n">field1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">case</span><span class="p">(</span><span class="n">cDiv</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">FieldDivide</span><span class="p">(</span><span class="n">field2</span><span class="p">,</span><span class="n">field2</span><span class="p">,</span><span class="n">field1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">case</span><span class="p">(</span><span class="n">cPow</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">FieldPower</span><span class="p">(</span><span class="n">field2</span><span class="p">,</span><span class="n">field2</span><span class="p">,</span><span class="n">field1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">     </span><span class="k">end select</span>
+<span class="k">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">field_binary</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

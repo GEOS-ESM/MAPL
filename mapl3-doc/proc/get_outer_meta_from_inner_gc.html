@@ -1,0 +1,930 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_outer_meta_from_inner_gc &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_outer_meta_from_inner_gc
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">13 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90~2.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_generic.html'>mapl3g_Generic</a></li>
+            <li class="breadcrumb-item active" aria-current="page">get_outer_meta_from_inner_gc</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_outer_meta_from_inner_gc.html#src">get_outer_meta_from_inner_gc</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function get_outer_meta_from_inner_gc(gridcomp, rc) result(outer_meta)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gridcomp~81"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gridcomp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2103"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-outer_meta~28"></span>
+          type(<a href='../type/outermetacomponent.html'>OuterMetaComponent</a>), pointer
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_outer_meta_from_inner_gc~~CallsGraph Pages: 1 -->
+<svg id="procget_outer_meta_from_inner_gcCallsGraph" width="641pt" height="165pt"
+ viewBox="0.00 0.00 641.00 165.41" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph" class="graph" transform="scale(2.03 2.03) rotate(0) translate(4 331.21)">
+<title>proc~~get_outer_meta_from_inner_gc~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-331.21 1295,-331.21 1295,4 -4,4"/>
+<!-- proc~get_outer_meta_from_inner_gc -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node1" class="node">
+<title>proc~get_outer_meta_from_inner_gc</title>
+<polygon fill="none" stroke="black" points="178,-153.79 0,-153.79 0,-129.79 178,-129.79 178,-153.79"/>
+<text text-anchor="middle" x="89" y="-139.39" font-family="Helvetica,sans-Serif" font-size="10.50">get_outer_meta_from_inner_gc</text>
+</g>
+<!-- interface~get_outer_meta -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node2" class="node">
+<title>interface~get_outer_meta</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node2"><a xlink:href="../interface/get_outer_meta.html" xlink:title="get_outer_meta">
+<polygon fill="#a7506f" stroke="#a7506f" points="322.5,-111.79 225.5,-111.79 225.5,-87.79 322.5,-87.79 322.5,-111.79"/>
+<text text-anchor="middle" x="274" y="-97.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_outer_meta</text>
+</a>
+</g>
+</g>
+<!-- proc~get_outer_meta_from_inner_gc&#45;&gt;interface~get_outer_meta -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge1" class="edge">
+<title>proc~get_outer_meta_from_inner_gc&#45;&gt;interface~get_outer_meta</title>
+<path fill="none" stroke="#ff0000" d="M142.44,-129.76C165.27,-124.52 192.09,-118.36 215.46,-113"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="216.28,-116.4 225.24,-110.75 214.72,-109.58 216.28,-116.4"/>
+</g>
+<!-- proc~get_outer_gridcomp~2 -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node3" class="node">
+<title>proc~get_outer_gridcomp~2</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node3"><a xlink:href="../proc/get_outer_gridcomp~2.html" xlink:title="get_outer_gridcomp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="334,-174.79 214,-174.79 214,-150.79 334,-150.79 334,-174.79"/>
+<text text-anchor="middle" x="274" y="-160.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_outer_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- proc~get_outer_meta_from_inner_gc&#45;&gt;proc~get_outer_gridcomp~2 -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge2" class="edge">
+<title>proc~get_outer_meta_from_inner_gc&#45;&gt;proc~get_outer_gridcomp~2</title>
+<path fill="none" stroke="#ff0000" d="M178.02,-151.89C186.67,-152.88 195.37,-153.88 203.8,-154.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="203.6,-158.35 213.93,-156.01 204.4,-151.4 203.6,-158.35"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="994.5,-125.79 912.5,-125.79 912.5,-101.79 994.5,-101.79 994.5,-125.79"/>
+<text text-anchor="middle" x="953.5" y="-111.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~get_outer_meta_from_inner_gc&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge3" class="edge">
+<title>proc~get_outer_meta_from_inner_gc&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M110.84,-129.65C156.11,-104.17 267.61,-46.19 370,-30.79 577.5,0.41 642.36,22.83 842,-41.79 876.42,-52.93 910.45,-77.76 931.46,-95.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="929.21,-97.81 939.11,-101.59 933.73,-92.46 929.21,-97.81"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="991.5,-294.79 915.5,-294.79 915.5,-270.79 991.5,-270.79 991.5,-294.79"/>
+<text text-anchor="middle" x="953.5" y="-280.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~get_outer_meta_from_inner_gc&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge4" class="edge">
+<title>proc~get_outer_meta_from_inner_gc&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M106.24,-153.92C147.58,-184.02 261.28,-261.83 370,-291.79 572.31,-347.55 633.15,-325.38 842,-304.79 863.05,-302.72 886.04,-298.47 905.57,-294.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="906.43,-297.65 915.43,-292.06 904.91,-290.81 906.43,-297.65"/>
+</g>
+<!-- proc~get_outer_meta_from_outer_gc -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node11" class="node">
+<title>proc~get_outer_meta_from_outer_gc</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node11"><a xlink:href="../proc/get_outer_meta_from_outer_gc.html" xlink:title="get_outer_meta_from_outer_gc">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="582,-90.79 404,-90.79 404,-66.79 582,-66.79 582,-90.79"/>
+<text text-anchor="middle" x="493" y="-76.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_outer_meta_from_outer_gc</text>
+</a>
+</g>
+</g>
+<!-- interface~get_outer_meta&#45;&gt;proc~get_outer_meta_from_outer_gc -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge5" class="edge">
+<title>interface~get_outer_meta&#45;&gt;proc~get_outer_meta_from_outer_gc</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M322.62,-95.18C343.57,-93.16 368.98,-90.7 393.69,-88.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="394.23,-91.77 403.85,-87.32 393.56,-84.8 394.23,-91.77"/>
+</g>
+<!-- proc~get_outer_gridcomp~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge10" class="edge">
+<title>proc~get_outer_gridcomp~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7fff00" d="M296.4,-150.74C308.45,-143.22 323.2,-132.72 334,-120.79 355.64,-96.88 342.11,-73.98 370,-57.79 460.8,-5.1 739.14,-56.77 842,-77.79 865.72,-82.64 891.48,-90.85 912.16,-98.21"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="910.98,-101.5 921.57,-101.62 913.37,-94.92 910.98,-101.5"/>
+</g>
+<!-- proc~get_outer_gridcomp~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge11" class="edge">
+<title>proc~get_outer_gridcomp~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#7fff00" d="M281.95,-175C295.5,-197.46 327.88,-244.76 370,-263.79 464.97,-306.7 784.27,-292.85 905.38,-285.81"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="905.68,-289.3 915.45,-285.21 905.26,-282.31 905.68,-289.3"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node6" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node6"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="786.5,-208.79 707.5,-208.79 707.5,-184.79 786.5,-184.79 786.5,-208.79"/>
+<text text-anchor="middle" x="747" y="-194.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~get_outer_gridcomp~2&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge6" class="edge">
+<title>proc~get_outer_gridcomp~2&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#7fff00" d="M321.57,-174.87C336.89,-178.36 354.08,-181.77 370,-183.79 486.73,-198.58 625.36,-199 697.27,-197.94"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="697.44,-201.44 707.38,-197.78 697.33,-194.44 697.44,-201.44"/>
+</g>
+<!-- interface~mapl_gridcompisuser -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node7" class="node">
+<title>interface~mapl_gridcompisuser</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node7"><a xlink:href="../interface/mapl_gridcompisuser.html" xlink:title="MAPL_GridCompIsUser">
+<polygon fill="#a7506f" stroke="#a7506f" points="559.5,-254.79 426.5,-254.79 426.5,-230.79 559.5,-230.79 559.5,-254.79"/>
+<text text-anchor="middle" x="493" y="-240.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompIsUser</text>
+</a>
+</g>
+</g>
+<!-- proc~get_outer_gridcomp~2&#45;&gt;interface~mapl_gridcompisuser -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge7" class="edge">
+<title>proc~get_outer_gridcomp~2&#45;&gt;interface~mapl_gridcompisuser</title>
+<path fill="none" stroke="#7fff00" d="M292.4,-174.87C310.86,-187.14 341.27,-205.87 370,-216.79 384.61,-222.35 400.68,-226.84 416.23,-230.42"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="415.83,-233.92 426.35,-232.65 417.34,-227.08 415.83,-233.92"/>
+</g>
+<!-- proc~get_inner_meta -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node9" class="node">
+<title>proc~get_inner_meta</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node9"><a xlink:href="../proc/get_inner_meta.html" xlink:title="get_inner_meta">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="541,-132.79 445,-132.79 445,-108.79 541,-108.79 541,-132.79"/>
+<text text-anchor="middle" x="493" y="-118.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_inner_meta</text>
+</a>
+</g>
+</g>
+<!-- proc~get_outer_gridcomp~2&#45;&gt;proc~get_inner_meta -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge8" class="edge">
+<title>proc~get_outer_gridcomp~2&#45;&gt;proc~get_inner_meta</title>
+<path fill="none" stroke="#7fff00" d="M327.67,-150.69C341.42,-147.65 356.24,-144.49 370,-141.79 391.11,-137.64 414.36,-133.53 434.85,-130.06"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="435.7,-133.46 444.98,-128.35 434.54,-126.56 435.7,-133.46"/>
+</g>
+<!-- proc~get_outer_gridcomp -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node10" class="node">
+<title>proc~get_outer_gridcomp</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node10"><a xlink:href="../proc/get_outer_gridcomp.html" xlink:title="InnerMetaComponent%get_outer_gridcomp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="616,-174.79 370,-174.79 370,-150.79 616,-150.79 616,-174.79"/>
+<text text-anchor="middle" x="493" y="-160.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InnerMetaComponent%get_outer_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- proc~get_outer_gridcomp~2&#45;&gt;proc~get_outer_gridcomp -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge9" class="edge">
+<title>proc~get_outer_gridcomp~2&#45;&gt;proc~get_outer_gridcomp</title>
+<path fill="none" stroke="#7fff00" d="M334.01,-162.79C342.22,-162.79 350.9,-162.79 359.82,-162.79"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="359.96,-166.29 369.96,-162.79 359.96,-159.29 359.96,-166.29"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node8" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node8"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1189,-146.79 1074,-146.79 1074,-122.79 1189,-122.79 1189,-146.79"/>
+<text text-anchor="middle" x="1131.5" y="-132.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M994.88,-118.61C1015.3,-121.05 1040.62,-124.07 1063.83,-126.84"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1063.63,-130.34 1073.97,-128.05 1064.46,-123.39 1063.63,-130.34"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node12" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node12"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1198,-203.79 1065,-203.79 1065,-179.79 1198,-179.79 1198,-203.79"/>
+<text text-anchor="middle" x="1131.5" y="-189.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M994.58,-123.08C1005.91,-126.25 1018.11,-130.17 1029,-134.79 1046.05,-142.03 1048.88,-146.66 1065,-155.79 1076.2,-162.14 1088.56,-168.97 1099.5,-174.96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1097.84,-178.04 1108.29,-179.77 1101.19,-171.9 1097.84,-178.04"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M991.75,-274.86C1003.93,-271.6 1017.32,-267.28 1029,-261.79 1058.36,-247.99 1088.54,-226 1108.27,-210.35"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1110.72,-212.86 1116.31,-203.86 1106.33,-207.42 1110.72,-212.86"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node18" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node18"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1020.5,-209.79 886.5,-209.79 886.5,-185.79 1020.5,-185.79 1020.5,-209.79"/>
+<text text-anchor="middle" x="953.5" y="-195.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M786.95,-196.98C812.14,-197.1 845.79,-197.27 876.18,-197.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="876.32,-200.92 886.34,-197.47 876.35,-193.92 876.32,-200.92"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node19" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node19"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1027.5,-167.79 879.5,-167.79 879.5,-143.79 1027.5,-143.79 1027.5,-167.79"/>
+<text text-anchor="middle" x="953.5" y="-153.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M786.95,-188.98C813.82,-183.59 850.31,-176.28 882.2,-169.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="883.25,-173.24 892.37,-167.85 881.88,-166.38 883.25,-173.24"/>
+</g>
+<!-- proc~gridcomp_is_user -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node16" class="node">
+<title>proc~gridcomp_is_user</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node16"><a xlink:href="../proc/gridcomp_is_user.html" xlink:title="gridcomp_is_user">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="800,-253.79 694,-253.79 694,-229.79 800,-229.79 800,-253.79"/>
+<text text-anchor="middle" x="747" y="-239.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gridcomp_is_user</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_gridcompisuser&#45;&gt;proc~gridcomp_is_user -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge17" class="edge">
+<title>interface~mapl_gridcompisuser&#45;&gt;proc~gridcomp_is_user</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M559.55,-242.53C597.81,-242.38 645.81,-242.19 683.53,-242.04"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="683.89,-245.54 693.88,-242 683.86,-238.54 683.89,-245.54"/>
+</g>
+<!-- at -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node13" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1289.5,-156.79 1235.5,-156.79 1235.5,-132.79 1289.5,-132.79 1289.5,-156.79"/>
+<text text-anchor="middle" x="1262.5" y="-142.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge18" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#48ff00" d="M1189.08,-139.18C1201.29,-140.12 1213.89,-141.1 1225.08,-141.97"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="1225.08,-145.48 1235.32,-142.76 1225.62,-138.5 1225.08,-145.48"/>
+</g>
+<!-- insert -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node14" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1289.5,-114.79 1235.5,-114.79 1235.5,-90.79 1289.5,-90.79 1289.5,-114.79"/>
+<text text-anchor="middle" x="1262.5" y="-100.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge19" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#48ff00" d="M1180.9,-122.78C1195.6,-119.14 1211.49,-115.2 1225.24,-111.78"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="1226.43,-115.1 1235.29,-109.29 1224.74,-108.3 1226.43,-115.1"/>
+</g>
+<!-- proc~get_inner_meta&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge22" class="edge">
+<title>proc~get_inner_meta&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff91" d="M541.13,-127.73C608.16,-136.54 734.79,-149.3 842,-137.79 862.02,-135.64 883.74,-131.36 902.57,-127"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="903.51,-130.38 912.43,-124.66 901.89,-123.57 903.51,-130.38"/>
+</g>
+<!-- proc~get_inner_meta&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge20" class="edge">
+<title>proc~get_inner_meta&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff91" d="M541.1,-123.32C564.46,-125.94 592.59,-131.22 616,-141.79 634.72,-150.25 633.72,-161.41 652,-170.79 665.95,-177.95 682.12,-183.33 697.06,-187.29"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="696.62,-190.78 707.17,-189.8 698.31,-183.99 696.62,-190.78"/>
+</g>
+<!-- interface~mapl_usercompgetinternalstate -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node15" class="node">
+<title>interface~mapl_usercompgetinternalstate</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node15"><a xlink:href="../interface/mapl_usercompgetinternalstate.html" xlink:title="MAPL_UserCompGetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="842,-128.79 652,-128.79 652,-104.79 842,-104.79 842,-128.79"/>
+<text text-anchor="middle" x="747" y="-114.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_UserCompGetInternalState</text>
+</a>
+</g>
+</g>
+<!-- proc~get_inner_meta&#45;&gt;interface~mapl_usercompgetinternalstate -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge21" class="edge">
+<title>proc~get_inner_meta&#45;&gt;interface~mapl_usercompgetinternalstate</title>
+<path fill="none" stroke="#00ff91" d="M541.1,-120.04C569.43,-119.59 606.67,-119 641.62,-118.45"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="641.94,-121.94 651.89,-118.29 641.83,-114.94 641.94,-121.94"/>
+</g>
+<!-- proc~get_outer_meta_from_outer_gc&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge25" class="edge">
+<title>proc~get_outer_meta_from_outer_gc&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#4800ff" d="M582.17,-80.36C652.64,-82.27 753.87,-86.49 842,-95.79 861.91,-97.89 883.68,-101.22 902.6,-104.44"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="902.04,-107.89 912.49,-106.16 903.24,-101 902.04,-107.89"/>
+</g>
+<!-- proc~get_outer_meta_from_outer_gc&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge23" class="edge">
+<title>proc~get_outer_meta_from_outer_gc&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#4800ff" d="M582.25,-86.98C594,-90.06 605.58,-94.21 616,-99.79 636.51,-110.77 634.01,-123.05 652,-137.79 671.47,-153.74 695.54,-168.78 714.45,-179.68"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="712.85,-182.79 723.28,-184.68 716.31,-176.7 712.85,-182.79"/>
+</g>
+<!-- proc~get_outer_meta_from_outer_gc&#45;&gt;interface~mapl_usercompgetinternalstate -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge24" class="edge">
+<title>proc~get_outer_meta_from_outer_gc&#45;&gt;interface~mapl_usercompgetinternalstate</title>
+<path fill="none" stroke="#4800ff" d="M573.73,-90.81C599.95,-94.77 629.26,-99.19 656.17,-103.25"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="655.94,-106.75 666.35,-104.78 656.99,-99.83 655.94,-106.75"/>
+</g>
+<!-- proc~initialize~21 -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node17" class="node">
+<title>proc~initialize~21</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node17"><a xlink:href="../proc/initialize~21.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1291,-203.79 1234,-203.79 1234,-179.79 1291,-179.79 1291,-203.79"/>
+<text text-anchor="middle" x="1262.5" y="-189.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~21 -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~21</title>
+<path fill="none" stroke="#ff00da" d="M1198.13,-191.79C1206.88,-191.79 1215.59,-191.79 1223.63,-191.79"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="1223.77,-195.29 1233.77,-191.79 1223.77,-188.29 1223.77,-195.29"/>
+</g>
+<!-- proc~gridcomp_is_user&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge28" class="edge">
+<title>proc~gridcomp_is_user&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff91" d="M800.27,-237.12C815.08,-233.64 830.33,-227.73 842,-217.79 872.6,-191.71 847.72,-161.25 878,-134.79 884.99,-128.69 893.62,-124.35 902.51,-121.27"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="903.6,-124.59 912.18,-118.39 901.6,-117.88 903.6,-124.59"/>
+</g>
+<!-- proc~gridcomp_is_user&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge29" class="edge">
+<title>proc~gridcomp_is_user&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff91" d="M800.13,-252.24C832.59,-258.75 874.01,-267.05 905.46,-273.36"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="904.81,-276.8 915.3,-275.33 906.19,-269.94 904.81,-276.8"/>
+</g>
+<!-- interface~mapl_gridcompisgeneric -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_node20" class="node">
+<title>interface~mapl_gridcompisgeneric</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CallsGraph_node20"><a xlink:href="../interface/mapl_gridcompisgeneric.html" xlink:title="MAPL_GridCompIsGeneric">
+<polygon fill="#a7506f" stroke="#a7506f" points="1029,-252.79 878,-252.79 878,-228.79 1029,-228.79 1029,-252.79"/>
+<text text-anchor="middle" x="953.5" y="-238.39" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompIsGeneric</text>
+</a>
+</g>
+</g>
+<!-- proc~gridcomp_is_user&#45;&gt;interface~mapl_gridcompisgeneric -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge27" class="edge">
+<title>proc~gridcomp_is_user&#45;&gt;interface~mapl_gridcompisgeneric</title>
+<path fill="none" stroke="#00ff91" d="M800.13,-241.54C820.65,-241.44 844.74,-241.32 867.63,-241.21"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="867.71,-244.71 877.7,-241.16 867.68,-237.71 867.71,-244.71"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#4800ff" d="M1020.54,-195.54C1031.66,-195.16 1043.29,-194.76 1054.64,-194.38"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="1055.1,-197.86 1064.97,-194.03 1054.86,-190.87 1055.1,-197.86"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00da" d="M1027.61,-147.07C1039.59,-145.64 1051.95,-144.16 1063.76,-142.75"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="1064.47,-146.19 1073.98,-141.53 1063.64,-139.24 1064.47,-146.19"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M1013.6,-167.88C1028.91,-171.01 1045.55,-174.41 1061.33,-177.64"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="1061.06,-181.16 1071.56,-179.74 1062.47,-174.3 1061.06,-181.16"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_outer_meta_from_inner_gcCallsGraph = svgPanZoom('#procget_outer_meta_from_inner_gcCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_outer_meta_from_inner_gc~~CalledByGraph Pages: 1 -->
+<svg id="procget_outer_meta_from_inner_gcCalledByGraph" width="404pt" height="158pt"
+ viewBox="0.00 0.00 404.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_outer_meta_from_inner_gc~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154)">
+<title>proc~~get_outer_meta_from_inner_gc~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 400,-154 400,4 -4,4"/>
+<!-- proc~get_outer_meta_from_inner_gc -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CalledByGraph_node1" class="node">
+<title>proc~get_outer_meta_from_inner_gc</title>
+<polygon fill="none" stroke="black" points="396,-87 218,-87 218,-63 396,-63 396,-87"/>
+<text text-anchor="middle" x="307" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_outer_meta_from_inner_gc</text>
+</g>
+<!-- proc~run -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CalledByGraph_node2" class="node">
+<title>proc~run</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CalledByGraph_node2"><a xlink:href="../proc/run.html" xlink:title="run">
+<polygon fill="#d9534f" stroke="#d9534f" points="172.5,-150 118.5,-150 118.5,-126 172.5,-126 172.5,-150"/>
+<text text-anchor="middle" x="145.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">run</text>
+</a>
+</g>
+</g>
+<!-- proc~run&#45;&gt;proc~get_outer_meta_from_inner_gc -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CalledByGraph_edge1" class="edge">
+<title>proc~run&#45;&gt;proc~get_outer_meta_from_inner_gc</title>
+<path fill="none" stroke="#ff0000" d="M172.84,-127.6C198.2,-117.58 236.89,-102.3 266.04,-90.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="267.52,-93.96 275.53,-87.03 264.95,-87.45 267.52,-93.96"/>
+</g>
+<!-- proc~run~4 -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CalledByGraph_node3" class="node">
+<title>proc~run~4</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CalledByGraph_node3"><a xlink:href="../proc/run~4.html" xlink:title="run">
+<polygon fill="#d9534f" stroke="#d9534f" points="172.5,-108 118.5,-108 118.5,-84 172.5,-84 172.5,-108"/>
+<text text-anchor="middle" x="145.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~4&#45;&gt;proc~get_outer_meta_from_inner_gc -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CalledByGraph_edge2" class="edge">
+<title>proc~run~4&#45;&gt;proc~get_outer_meta_from_inner_gc</title>
+<path fill="none" stroke="#ff0000" d="M172.84,-92.53C182.92,-91.2 195.11,-89.6 207.97,-87.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="208.46,-91.37 217.91,-86.6 207.54,-84.43 208.46,-91.37"/>
+</g>
+<!-- proc~setservices~11 -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CalledByGraph_node4" class="node">
+<title>proc~setservices~11</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CalledByGraph_node4"><a xlink:href="../proc/setservices~11.html" xlink:title="setServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="182,-66 109,-66 109,-42 182,-42 182,-66"/>
+<text text-anchor="middle" x="145.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~11&#45;&gt;proc~get_outer_meta_from_inner_gc -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CalledByGraph_edge3" class="edge">
+<title>proc~setservices~11&#45;&gt;proc~get_outer_meta_from_inner_gc</title>
+<path fill="none" stroke="#ff0000" d="M182.29,-58.71C190.19,-59.75 198.91,-60.9 207.97,-62.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="207.54,-65.57 217.91,-63.4 208.45,-58.63 207.54,-65.57"/>
+</g>
+<!-- proc~setservices~9 -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CalledByGraph_node5" class="node">
+<title>proc~setservices~9</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CalledByGraph_node5"><a xlink:href="../proc/setservices~9.html" xlink:title="setServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="182,-24 109,-24 109,0 182,0 182,-24"/>
+<text text-anchor="middle" x="145.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~9&#45;&gt;proc~get_outer_meta_from_inner_gc -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CalledByGraph_edge4" class="edge">
+<title>proc~setservices~9&#45;&gt;proc~get_outer_meta_from_inner_gc</title>
+<path fill="none" stroke="#ff0000" d="M177.25,-24.15C202.6,-34.16 238.73,-48.43 266.26,-59.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="265.03,-62.58 275.61,-63 267.6,-56.07 265.03,-62.58"/>
+</g>
+<!-- proc~setservices~10 -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CalledByGraph_node6" class="node">
+<title>proc~setservices~10</title>
+<g id="a_proc~~get_outer_meta_from_inner_gc~~CalledByGraph_node6"><a xlink:href="../proc/setservices~10.html" xlink:title="setServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="73,-24 0,-24 0,0 73,0 73,-24"/>
+<text text-anchor="middle" x="36.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~10&#45;&gt;proc~setservices~9 -->
+<g id="proc~~get_outer_meta_from_inner_gc~~CalledByGraph_edge5" class="edge">
+<title>proc~setservices~10&#45;&gt;proc~setservices~9</title>
+<path fill="none" stroke="#7f00ff" d="M73.13,-12C81.25,-12 90,-12 98.49,-12"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="98.66,-15.5 108.66,-12 98.66,-8.5 98.66,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">get_outer_meta_from_inner_gc</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">outer_meta</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">OuterMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outer_meta</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outer_gc</span>
+
+<span class="w">      </span><span class="n">outer_gc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_outer_gridcomp</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">outer_meta</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_outer_meta</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">get_outer_meta_from_inner_gc</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

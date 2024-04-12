@@ -1,0 +1,913 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_phase_index_ &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_phase_index_
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">14 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MethodPhasesMap.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/methodphasesmap.f90.html'>MethodPhasesMap.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_methodphasesmaputils.html'>mapl3g_MethodPhasesMapUtils</a></li>
+            <li class="breadcrumb-item active" aria-current="page">get_phase_index_</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_phase_index_.html#src">get_phase_index_</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function get_phase_index_(phases, phase_name, unusable, found) result(phase_index)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-phases~3"></span>
+              type(StringVector),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>phases</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-phase_name~7"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>phase_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~239"></span>
+              class(<a href='../type/keywordenforcer~84.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-found~35"></span>
+              logical,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>found</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-phase_index"></span>
+          integer
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_phase_index_~~CallsGraph Pages: 1 -->
+<svg id="procget_phase_index_CallsGraph" width="208pt" height="116pt"
+ viewBox="0.00 0.00 208.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_phase_index_~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+<title>proc~~get_phase_index_~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 204,-112 204,4 -4,4"/>
+<!-- proc~get_phase_index_ -->
+<g id="proc~~get_phase_index_~~CallsGraph_node1" class="node">
+<title>proc~get_phase_index_</title>
+<polygon fill="none" stroke="black" points="106,-66 0,-66 0,-42 106,-42 106,-66"/>
+<text text-anchor="middle" x="53" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_phase_index_</text>
+</g>
+<!-- begin -->
+<g id="proc~~get_phase_index_~~CallsGraph_node2" class="node">
+<title>begin</title>
+<polygon fill="#777777" stroke="#777777" points="198,-108 144,-108 144,-84 198,-84 198,-108"/>
+<text text-anchor="middle" x="171" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
+</g>
+<!-- proc~get_phase_index_&#45;&gt;begin -->
+<g id="proc~~get_phase_index_~~CallsGraph_edge1" class="edge">
+<title>proc~get_phase_index_&#45;&gt;begin</title>
+<path fill="none" stroke="#ff0000" d="M87.24,-66.04C101.96,-71.36 119.3,-77.64 134.29,-83.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="133.16,-86.38 143.75,-86.5 135.54,-79.8 133.16,-86.38"/>
+</g>
+<!-- distance -->
+<g id="proc~~get_phase_index_~~CallsGraph_node3" class="node">
+<title>distance</title>
+<polygon fill="#777777" stroke="#777777" points="200,-66 142,-66 142,-42 200,-42 200,-66"/>
+<text text-anchor="middle" x="171" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">distance</text>
+</g>
+<!-- proc~get_phase_index_&#45;&gt;distance -->
+<g id="proc~~get_phase_index_~~CallsGraph_edge2" class="edge">
+<title>proc~get_phase_index_&#45;&gt;distance</title>
+<path fill="none" stroke="#ff0000" d="M106.23,-54C114.86,-54 123.65,-54 131.85,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="131.85,-57.5 141.85,-54 131.85,-50.5 131.85,-57.5"/>
+</g>
+<!-- find -->
+<g id="proc~~get_phase_index_~~CallsGraph_node4" class="node">
+<title>find</title>
+<polygon fill="#777777" stroke="#777777" points="198,-24 144,-24 144,0 198,0 198,-24"/>
+<text text-anchor="middle" x="171" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find</text>
+</g>
+<!-- proc~get_phase_index_&#45;&gt;find -->
+<g id="proc~~get_phase_index_~~CallsGraph_edge3" class="edge">
+<title>proc~get_phase_index_&#45;&gt;find</title>
+<path fill="none" stroke="#ff0000" d="M87.24,-41.96C101.96,-36.64 119.3,-30.36 134.29,-24.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="135.54,-28.2 143.75,-21.5 133.16,-21.62 135.54,-28.2"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_phase_index_~~CalledByGraph Pages: 1 -->
+<svg id="procget_phase_index_CalledByGraph" width="641pt" height="218pt"
+ viewBox="0.00 0.00 641.00 217.81" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_phase_index_~~CalledByGraph" class="graph" transform="scale(1.69 1.69) rotate(0) translate(4 364)">
+<title>proc~~get_phase_index_~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-364 1079,-364 1079,4 -4,4"/>
+<!-- proc~get_phase_index_ -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node1" class="node">
+<title>proc~get_phase_index_</title>
+<polygon fill="none" stroke="black" points="1075,-108 969,-108 969,-84 1075,-84 1075,-108"/>
+<text text-anchor="middle" x="1022" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_phase_index_</text>
+</g>
+<!-- interface~get_phase_index -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node2" class="node">
+<title>interface~get_phase_index</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node2"><a xlink:href="../interface/get_phase_index.html" xlink:title="get_phase_index">
+<polygon fill="#a7506f" stroke="#a7506f" points="933,-108 832,-108 832,-84 933,-84 933,-108"/>
+<text text-anchor="middle" x="882.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_phase_index</text>
+</a>
+</g>
+</g>
+<!-- interface~get_phase_index&#45;&gt;proc~get_phase_index_ -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge1" class="edge">
+<title>interface~get_phase_index&#45;&gt;proc~get_phase_index_</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M933.14,-96C941.34,-96 949.94,-96 958.41,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="958.65,-99.5 968.65,-96 958.65,-92.5 958.65,-99.5"/>
+</g>
+<!-- proc~finalize~5 -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node3" class="node">
+<title>proc~finalize~5</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node3"><a xlink:href="../proc/finalize~5.html" xlink:title="OuterMetaComponent%finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="471.5,-150 292.5,-150 292.5,-126 471.5,-126 471.5,-150"/>
+<text text-anchor="middle" x="382" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~5&#45;&gt;interface~get_phase_index -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge2" class="edge">
+<title>proc~finalize~5&#45;&gt;interface~get_phase_index</title>
+<path fill="none" stroke="#ff0000" d="M471.69,-138.34C555.65,-137.53 685.01,-133.3 796,-117 806.88,-115.4 818.41,-113.04 829.35,-110.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="830.31,-113.84 839.2,-108.08 828.65,-107.04 830.31,-113.84"/>
+</g>
+<!-- proc~run_custom -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node5" class="node">
+<title>proc~run_custom</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node5"><a xlink:href="../proc/run_custom.html" xlink:title="OuterMetaComponent%run_custom">
+<polygon fill="#d9534f" stroke="#d9534f" points="775.5,-234 572.5,-234 572.5,-210 775.5,-210 775.5,-234"/>
+<text text-anchor="middle" x="674" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%run_custom</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~5&#45;&gt;proc~run_custom -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge10" class="edge">
+<title>proc~finalize~5&#45;&gt;proc~run_custom</title>
+<path fill="none" stroke="#00ff66" d="M471.59,-149.13C486.54,-151.82 501.8,-155.08 516,-159 559.62,-171.03 607.6,-191.4 638.89,-205.71"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="637.5,-208.92 648.05,-209.94 640.44,-202.57 637.5,-208.92"/>
+</g>
+<!-- proc~run_child_by_name -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node4" class="node">
+<title>proc~run_child_by_name</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node4"><a xlink:href="../proc/run_child_by_name.html" xlink:title="OuterMetaComponent%run_child_by_name">
+<polygon fill="#d9534f" stroke="#d9534f" points="796,-108 552,-108 552,-84 796,-84 796,-108"/>
+<text text-anchor="middle" x="674" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%run_child_by_name</text>
+</a>
+</g>
+</g>
+<!-- proc~run_child_by_name&#45;&gt;interface~get_phase_index -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge3" class="edge">
+<title>proc~run_child_by_name&#45;&gt;interface~get_phase_index</title>
+<path fill="none" stroke="#ff0000" d="M796.02,-96C804.81,-96 813.42,-96 821.59,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="821.68,-99.5 831.68,-96 821.68,-92.5 821.68,-99.5"/>
+</g>
+<!-- proc~run_custom&#45;&gt;interface~get_phase_index -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge4" class="edge">
+<title>proc~run_custom&#45;&gt;interface~get_phase_index</title>
+<path fill="none" stroke="#ff0000" d="M696.14,-209.95C720.41,-196.02 761.35,-172.3 796,-151 815.79,-138.83 837.83,-124.64 854.58,-113.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="856.84,-116.42 863.29,-108.02 853.01,-110.56 856.84,-116.42"/>
+</g>
+<!-- proc~run~11 -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node6" class="node">
+<title>proc~run~11</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node6"><a xlink:href="../proc/run~11.html" xlink:title="OuterMetaComponent%run">
+<polygon fill="#d9534f" stroke="#d9534f" points="753.5,-66 594.5,-66 594.5,-42 753.5,-42 753.5,-66"/>
+<text text-anchor="middle" x="674" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~11&#45;&gt;interface~get_phase_index -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge5" class="edge">
+<title>proc~run~11&#45;&gt;interface~get_phase_index</title>
+<path fill="none" stroke="#ff0000" d="M749.06,-66.02C764.61,-68.78 780.87,-71.83 796,-75 805.44,-76.98 815.42,-79.25 825.1,-81.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="824.5,-85.02 835.04,-83.97 826.14,-78.22 824.5,-85.02"/>
+</g>
+<!-- proc~set_entry_point -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node7" class="node">
+<title>proc~set_entry_point</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node7"><a xlink:href="../proc/set_entry_point.html" xlink:title="OuterMetaComponent%set_entry_point">
+<polygon fill="#d9534f" stroke="#d9534f" points="785,-24 563,-24 563,0 785,0 785,-24"/>
+<text text-anchor="middle" x="674" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%set_entry_point</text>
+</a>
+</g>
+</g>
+<!-- proc~set_entry_point&#45;&gt;interface~get_phase_index -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge6" class="edge">
+<title>proc~set_entry_point&#45;&gt;interface~get_phase_index</title>
+<path fill="none" stroke="#ff0000" d="M769.71,-24.03C778.76,-26.49 787.67,-29.44 796,-33 820.69,-43.54 844.96,-62.47 861.29,-76.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="859.31,-79.76 869.07,-83.87 864,-74.57 859.31,-79.76"/>
+</g>
+<!-- none~run_child -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node8" class="node">
+<title>none~run_child</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node8"><a xlink:href="../type/outermetacomponent.html#boundprocedure-run_child" xlink:title="OuterMetaComponent%run_child">
+<polygon fill="#a7506f" stroke="#a7506f" points="477,-108 287,-108 287,-84 477,-84 477,-108"/>
+<text text-anchor="middle" x="382" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%run_child</text>
+</a>
+</g>
+</g>
+<!-- none~run_child&#45;&gt;proc~run_child_by_name -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge9" class="edge">
+<title>none~run_child&#45;&gt;proc~run_child_by_name</title>
+<path fill="none" stroke="#cbff00" d="M477.15,-96C497.71,-96 519.84,-96 541.55,-96"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="541.83,-99.5 551.83,-96 541.83,-92.5 541.83,-99.5"/>
+</g>
+<!-- proc~finalize~11 -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node9" class="node">
+<title>proc~finalize~11</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node9"><a xlink:href="../proc/finalize~11.html" xlink:title="finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="133,-192 79,-192 79,-168 133,-168 133,-192"/>
+<text text-anchor="middle" x="106" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~11&#45;&gt;proc~finalize~5 -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge7" class="edge">
+<title>proc~finalize~11&#45;&gt;proc~finalize~5</title>
+<path fill="none" stroke="#ff0000" d="M133.27,-175.97C169.65,-170.4 237.14,-160.05 292.5,-151.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="293.33,-154.98 302.69,-150 292.27,-148.06 293.33,-154.98"/>
+</g>
+<!-- proc~gridcomp_set_entry_point -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node10" class="node">
+<title>proc~gridcomp_set_entry_point</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node10"><a xlink:href="../proc/gridcomp_set_entry_point.html" xlink:title="gridcomp_set_entry_point">
+<polygon fill="#d9534f" stroke="#d9534f" points="457,-24 307,-24 307,0 457,0 457,-24"/>
+<text text-anchor="middle" x="382" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gridcomp_set_entry_point</text>
+</a>
+</g>
+</g>
+<!-- proc~gridcomp_set_entry_point&#45;&gt;proc~set_entry_point -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge17" class="edge">
+<title>proc~gridcomp_set_entry_point&#45;&gt;proc~set_entry_point</title>
+<path fill="none" stroke="#cc00ff" d="M457.31,-12C486.23,-12 520.12,-12 552.36,-12"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="552.76,-15.5 562.76,-12 552.76,-8.5 552.76,-15.5"/>
+</g>
+<!-- proc~initialize_advertise -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node11" class="node">
+<title>proc~initialize_advertise</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node11"><a xlink:href="../proc/initialize_advertise.html" xlink:title="OuterMetaComponent%initialize_advertise">
+<polygon fill="#d9534f" stroke="#d9534f" points="502,-360 262,-360 262,-336 502,-336 502,-360"/>
+<text text-anchor="middle" x="382" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%initialize_advertise</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_advertise&#45;&gt;proc~run_custom -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge11" class="edge">
+<title>proc~initialize_advertise&#45;&gt;proc~run_custom</title>
+<path fill="none" stroke="#00ff66" d="M487.62,-335.92C497.37,-333.48 506.97,-330.54 516,-327 569.36,-306.12 623.03,-264.82 651.72,-240.71"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="654.12,-243.26 659.46,-234.1 649.58,-237.93 654.12,-243.26"/>
+</g>
+<!-- proc~initialize_geom -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node12" class="node">
+<title>proc~initialize_geom</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node12"><a xlink:href="../proc/initialize_geom.html" xlink:title="OuterMetaComponent%initialize_geom">
+<polygon fill="#d9534f" stroke="#d9534f" points="492.5,-318 271.5,-318 271.5,-294 492.5,-294 492.5,-318"/>
+<text text-anchor="middle" x="382" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%initialize_geom</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_geom&#45;&gt;proc~run_custom -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge12" class="edge">
+<title>proc~initialize_geom&#45;&gt;proc~run_custom</title>
+<path fill="none" stroke="#00ff66" d="M476.58,-293.95C489.92,-291.44 503.38,-288.48 516,-285 559.62,-272.97 607.6,-252.6 638.89,-238.29"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="640.44,-241.43 648.05,-234.06 637.5,-235.08 640.44,-241.43"/>
+</g>
+<!-- proc~initialize_post_advertise -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node13" class="node">
+<title>proc~initialize_post_advertise</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node13"><a xlink:href="../proc/initialize_post_advertise.html" xlink:title="OuterMetaComponent%initialize_post_advertise">
+<polygon fill="#d9534f" stroke="#d9534f" points="516,-276 248,-276 248,-252 516,-252 516,-276"/>
+<text text-anchor="middle" x="382" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%initialize_post_advertise</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_post_advertise&#45;&gt;proc~run_custom -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge13" class="edge">
+<title>proc~initialize_post_advertise&#45;&gt;proc~run_custom</title>
+<path fill="none" stroke="#00ff66" d="M466.1,-251.96C501.67,-246.81 543.36,-240.78 579.96,-235.48"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="580.74,-238.9 590.14,-234 579.74,-231.97 580.74,-238.9"/>
+</g>
+<!-- proc~initialize_realize -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node14" class="node">
+<title>proc~initialize_realize</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node14"><a xlink:href="../proc/initialize_realize.html" xlink:title="OuterMetaComponent%initialize_realize">
+<polygon fill="#d9534f" stroke="#d9534f" points="495,-234 269,-234 269,-210 495,-210 495,-234"/>
+<text text-anchor="middle" x="382" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%initialize_realize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_realize&#45;&gt;proc~run_custom -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge14" class="edge">
+<title>proc~initialize_realize&#45;&gt;proc~run_custom</title>
+<path fill="none" stroke="#00ff66" d="M495.12,-222C517,-222 539.93,-222 561.78,-222"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="562.07,-225.5 572.07,-222 562.07,-218.5 562.07,-225.5"/>
+</g>
+<!-- proc~initialize_user -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node15" class="node">
+<title>proc~initialize_user</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node15"><a xlink:href="../proc/initialize_user.html" xlink:title="OuterMetaComponent%initialize_user">
+<polygon fill="#d9534f" stroke="#d9534f" points="489,-192 275,-192 275,-168 489,-168 489,-192"/>
+<text text-anchor="middle" x="382" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%initialize_user</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_user&#45;&gt;proc~run_custom -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge15" class="edge">
+<title>proc~initialize_user&#45;&gt;proc~run_custom</title>
+<path fill="none" stroke="#00ff66" d="M466.1,-192.04C501.67,-197.19 543.36,-203.22 579.96,-208.52"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="579.74,-212.03 590.14,-210 580.74,-205.1 579.74,-212.03"/>
+</g>
+<!-- proc~run~22 -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node16" class="node">
+<title>proc~run~22</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node16"><a xlink:href="../proc/run~22.html" xlink:title="run">
+<polygon fill="#d9534f" stroke="#d9534f" points="409,-66 355,-66 355,-42 409,-42 409,-66"/>
+<text text-anchor="middle" x="382" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~22&#45;&gt;proc~run~11 -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge16" class="edge">
+<title>proc~run~22&#45;&gt;proc~run~11</title>
+<path fill="none" stroke="#0066ff" d="M409.25,-54C448.39,-54 523.92,-54 584.15,-54"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="584.44,-57.5 594.44,-54 584.44,-50.5 584.44,-57.5"/>
+</g>
+<!-- proc~test_finalize_children -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node17" class="node">
+<title>proc~test_finalize_children</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node17"><a xlink:href="../proc/test_finalize_children.html" xlink:title="test_finalize_children">
+<polygon fill="#d9534f" stroke="#d9534f" points="168,-150 44,-150 44,-126 168,-126 168,-150"/>
+<text text-anchor="middle" x="106" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_finalize_children</text>
+</a>
+</g>
+</g>
+<!-- proc~test_finalize_children&#45;&gt;proc~finalize~5 -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge8" class="edge">
+<title>proc~test_finalize_children&#45;&gt;proc~finalize~5</title>
+<path fill="none" stroke="#ff0000" d="M168.15,-138C201.74,-138 244.21,-138 282.37,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="282.48,-141.5 292.48,-138 282.48,-134.5 282.48,-141.5"/>
+</g>
+<!-- interface~mapl_gridcompsetentrypoint -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node18" class="node">
+<title>interface~mapl_gridcompsetentrypoint</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node18"><a xlink:href="../interface/mapl_gridcompsetentrypoint.html" xlink:title="MAPL_GridCompSetEntryPoint">
+<polygon fill="#a7506f" stroke="#a7506f" points="192,-24 20,-24 20,0 192,0 192,-24"/>
+<text text-anchor="middle" x="106" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompSetEntryPoint</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_gridcompsetentrypoint&#45;&gt;proc~gridcomp_set_entry_point -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge20" class="edge">
+<title>interface~mapl_gridcompsetentrypoint&#45;&gt;proc~gridcomp_set_entry_point</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M192.19,-12C225.51,-12 263.61,-12 296.83,-12"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="296.97,-15.5 306.97,-12 296.97,-8.5 296.97,-15.5"/>
+</g>
+<!-- proc~initialize~10 -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node19" class="node">
+<title>proc~initialize~10</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node19"><a xlink:href="../proc/initialize~10.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="134.5,-276 77.5,-276 77.5,-252 134.5,-252 134.5,-276"/>
+<text text-anchor="middle" x="106" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize~10&#45;&gt;proc~initialize_advertise -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge21" class="edge">
+<title>proc~initialize~10&#45;&gt;proc~initialize_advertise</title>
+<path fill="none" stroke="#33ff00" d="M129.25,-276.16C156.46,-290.51 204.3,-314.04 248,-327 256.72,-329.59 265.87,-331.87 275.1,-333.89"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="274.65,-337.37 285.15,-335.97 276.07,-330.52 274.65,-337.37"/>
+</g>
+<!-- proc~initialize~10&#45;&gt;proc~initialize_geom -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge22" class="edge">
+<title>proc~initialize~10&#45;&gt;proc~initialize_geom</title>
+<path fill="none" stroke="#00ff66" d="M134.53,-268.22C171.19,-273.84 237.8,-284.05 292.53,-292.44"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="292.19,-295.93 302.6,-293.98 293.25,-289.01 292.19,-295.93"/>
+</g>
+<!-- proc~initialize~10&#45;&gt;proc~initialize_post_advertise -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge23" class="edge">
+<title>proc~initialize~10&#45;&gt;proc~initialize_post_advertise</title>
+<path fill="none" stroke="#00ffff" d="M134.53,-264C159.49,-264 198.32,-264 237.83,-264"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="237.89,-267.5 247.89,-264 237.89,-260.5 237.89,-267.5"/>
+</g>
+<!-- proc~initialize~10&#45;&gt;proc~initialize_realize -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge24" class="edge">
+<title>proc~initialize~10&#45;&gt;proc~initialize_realize</title>
+<path fill="none" stroke="#0066ff" d="M134.53,-259.78C171.19,-254.16 237.8,-243.95 292.53,-235.56"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="293.25,-238.99 302.6,-234.02 292.19,-232.07 293.25,-238.99"/>
+</g>
+<!-- proc~initialize~10&#45;&gt;proc~initialize_user -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge25" class="edge">
+<title>proc~initialize~10&#45;&gt;proc~initialize_user</title>
+<path fill="none" stroke="#3200ff" d="M134.62,-263.36C156.87,-261.75 188.26,-256.9 212,-243 233.22,-230.58 226.54,-212.99 248,-201 253.49,-197.93 259.3,-195.28 265.29,-192.98"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="266.55,-196.25 274.85,-189.67 264.25,-189.64 266.55,-196.25"/>
+</g>
+<!-- proc~run_child_by_name~2 -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node20" class="node">
+<title>proc~run_child_by_name~2</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node20"><a xlink:href="../proc/run_child_by_name~2.html" xlink:title="run_child_by_name">
+<polygon fill="#d9534f" stroke="#d9534f" points="163.5,-108 48.5,-108 48.5,-84 163.5,-84 163.5,-108"/>
+<text text-anchor="middle" x="106" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">run_child_by_name</text>
+</a>
+</g>
+</g>
+<!-- proc~run_child_by_name~2&#45;&gt;none~run_child -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge18" class="edge">
+<title>proc~run_child_by_name~2&#45;&gt;none~run_child</title>
+<path fill="none" stroke="#ff0000" d="M163.77,-96C196.36,-96 238.31,-96 276.64,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="276.81,-99.5 286.81,-96 276.81,-92.5 276.81,-99.5"/>
+</g>
+<!-- proc~run_children_ -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node21" class="node">
+<title>proc~run_children_</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node21"><a xlink:href="../proc/run_children_.html" xlink:title="OuterMetaComponent%run_children_">
+<polygon fill="#d9534f" stroke="#d9534f" points="212,-66 0,-66 0,-42 212,-42 212,-66"/>
+<text text-anchor="middle" x="106" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent%run_children_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_children_&#45;&gt;none~run_child -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge19" class="edge">
+<title>proc~run_children_&#45;&gt;none~run_child</title>
+<path fill="none" stroke="#ff0000" d="M185.52,-66.04C218.91,-71.15 258.01,-77.15 292.43,-82.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="292.06,-85.91 302.47,-83.96 293.12,-78.99 292.06,-85.91"/>
+</g>
+<!-- proc~test_init_children -->
+<g id="proc~~get_phase_index_~~CalledByGraph_node22" class="node">
+<title>proc~test_init_children</title>
+<g id="a_proc~~get_phase_index_~~CalledByGraph_node22"><a xlink:href="../proc/test_init_children.html" xlink:title="test_init_children">
+<polygon fill="#d9534f" stroke="#d9534f" points="157,-234 55,-234 55,-210 157,-210 157,-234"/>
+<text text-anchor="middle" x="106" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_init_children</text>
+</a>
+</g>
+</g>
+<!-- proc~test_init_children&#45;&gt;proc~initialize_user -->
+<g id="proc~~get_phase_index_~~CalledByGraph_edge26" class="edge">
+<title>proc~test_init_children&#45;&gt;proc~initialize_user</title>
+<path fill="none" stroke="#3200ff" d="M157.26,-214.3C195.03,-208.51 247.75,-200.42 292.53,-193.56"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="293.19,-197 302.55,-192.03 292.13,-190.08 293.19,-197"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_phase_index_CalledByGraph = svgPanZoom('#procget_phase_index_CalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="kt">integer </span><span class="k">function </span><span class="n">get_phase_index_</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span><span class="w"> </span><span class="n">phase_name</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">found</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">phase_index</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StringVector</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">phases</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">phase_name</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">found</span>
+
+<span class="w">      </span><span class="n">phase_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="c">! unless</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">phases</span><span class="p">%</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">phases</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">        </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">find</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">phase_name</span><span class="p">))</span>
+<span class="w">          </span><span class="n">phase_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">distance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">iter</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">found</span><span class="p">))</span><span class="w"> </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">e</span><span class="p">)</span>
+<span class="w">        </span><span class="k">end associate</span>
+<span class="k">      end associate</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">get_phase_index_</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

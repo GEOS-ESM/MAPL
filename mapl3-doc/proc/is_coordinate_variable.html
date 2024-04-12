@@ -1,0 +1,662 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>is_coordinate_variable &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>is_coordinate_variable
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">23 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/FileMetadata.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/filemetadata.f90.html'>FileMetadata.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_filemetadatamod.html'>pFIO_FileMetadataMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">is_coordinate_variable</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/is_coordinate_variable.html#src">is_coordinate_variable</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function is_coordinate_variable(this, var_name, unusable, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/filemetadata.html'>FileMetadata</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~7310"></span>
+              class(<a href='../type/filemetadata.html'>FileMetadata</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var_name~103"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~436"></span>
+              class(<a href='../type/keywordenforcer~58.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2604"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-is_coordinate_variable~2"></span>
+          logical
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~is_coordinate_variable~~CallsGraph Pages: 1 -->
+<svg id="procis_coordinate_variableCallsGraph" width="641pt" height="145pt"
+ viewBox="0.00 0.00 641.00 144.66" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~is_coordinate_variable~~CallsGraph" class="graph" transform="scale(1.51 1.51) rotate(0) translate(4 214)">
+<title>proc~~is_coordinate_variable~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-214 962,-214 962,4 -4,4"/>
+<!-- proc~is_coordinate_variable -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node1" class="node">
+<title>proc~is_coordinate_variable</title>
+<polygon fill="none" stroke="black" points="211,-87 0,-87 0,-63 211,-63 211,-87"/>
+<text text-anchor="middle" x="105.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">FileMetadata%is_coordinate_variable</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~is_coordinate_variable~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="351.5,-108 272.5,-108 272.5,-84 351.5,-84 351.5,-108"/>
+<text text-anchor="middle" x="312" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~is_coordinate_variable&#45;&gt;interface~mapl_assert -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge1" class="edge">
+<title>proc~is_coordinate_variable&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M211.15,-85.75C228.87,-87.57 246.5,-89.38 261.9,-90.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="261.88,-94.47 272.18,-92.01 262.59,-87.51 261.88,-94.47"/>
+</g>
+<!-- none~at~113 -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node3" class="node">
+<title>none~at~113</title>
+<g id="a_proc~~is_coordinate_variable~~CallsGraph_node3"><a xlink:href="../type/stringvariablemap.html#boundprocedure-at~113" xlink:title="StringVariableMap%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="377,-24 247,-24 247,0 377,0 377,-24"/>
+<text text-anchor="middle" x="312" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%at</text>
+</a>
+</g>
+</g>
+<!-- proc~is_coordinate_variable&#45;&gt;none~at~113 -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge2" class="edge">
+<title>proc~is_coordinate_variable&#45;&gt;none~at~113</title>
+<path fill="none" stroke="#ff0000" d="M145.93,-62.85C179.14,-52.62 226.77,-37.95 262.35,-26.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.51,-30.29 272.04,-24 261.45,-23.6 263.51,-30.29"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~is_coordinate_variable~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="541.5,-189 459.5,-189 459.5,-165 541.5,-165 541.5,-189"/>
+<text text-anchor="middle" x="500.5" y="-174.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~is_coordinate_variable&#45;&gt;proc~mapl_return -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge3" class="edge">
+<title>proc~is_coordinate_variable&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M144.5,-87C172.67,-95.74 212.08,-107.64 247,-117 316.77,-135.7 398.18,-154.51 449.28,-165.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="448.57,-169.38 459.09,-168.15 450.09,-162.55 448.57,-169.38"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~is_coordinate_variable~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="350,-66 274,-66 274,-42 350,-42 350,-66"/>
+<text text-anchor="middle" x="312" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~is_coordinate_variable&#45;&gt;proc~mapl_verify -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge4" class="edge">
+<title>proc~is_coordinate_variable&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M211.15,-64.25C229.53,-62.37 247.8,-60.49 263.6,-58.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="264.01,-62.34 273.6,-57.84 263.29,-55.38 264.01,-62.34"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node8" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~is_coordinate_variable~~CallsGraph_node8"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="567.5,-105 433.5,-105 433.5,-81 567.5,-81 567.5,-105"/>
+<text text-anchor="middle" x="500.5" y="-90.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge5" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M351.64,-95.38C372.37,-95.05 398.65,-94.62 423.28,-94.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="423.41,-97.72 433.36,-94.06 423.3,-90.73 423.41,-97.72"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node9" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~is_coordinate_variable~~CallsGraph_node9"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="574.5,-147 426.5,-147 426.5,-123 574.5,-123 574.5,-147"/>
+<text text-anchor="middle" x="500.5" y="-132.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge6" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M351.64,-104.08C374.83,-108.93 404.97,-115.23 431.98,-120.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="431.27,-124.31 441.78,-122.93 432.7,-117.46 431.27,-124.31"/>
+</g>
+<!-- proc~map_at_rc~2 -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node7" class="node">
+<title>proc~map_at_rc~2</title>
+<g id="a_proc~~is_coordinate_variable~~CallsGraph_node7"><a xlink:href="../proc/map_at_rc~2.html" xlink:title="StringVariableMap%map_at_rc">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="588,-24 413,-24 413,0 588,0 588,-24"/>
+<text text-anchor="middle" x="500.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%map_at_rc</text>
+</a>
+</g>
+</g>
+<!-- none~at~113&#45;&gt;proc~map_at_rc~2 -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge7" class="edge">
+<title>none~at~113&#45;&gt;proc~map_at_rc~2</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M377.18,-12C385.44,-12 394.03,-12 402.66,-12"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="402.8,-15.5 412.8,-12 402.8,-8.5 402.8,-15.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node6" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~is_coordinate_variable~~CallsGraph_node6"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="766,-168 651,-168 651,-144 766,-144 766,-168"/>
+<text text-anchor="middle" x="708.5" y="-153.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M541.71,-172.9C569.71,-170.05 607.72,-166.17 640.28,-162.85"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="641.04,-166.29 650.64,-161.8 640.33,-159.33 641.04,-166.29"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node10" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~is_coordinate_variable~~CallsGraph_node10"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="775,-105 642,-105 642,-81 775,-81 775,-105"/>
+<text text-anchor="middle" x="708.5" y="-90.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M541.87,-169.74C556.68,-166.42 573.38,-161.89 588,-156 605.18,-149.08 607.72,-143.83 624,-135 640.06,-126.29 658.16,-117.11 673.38,-109.57"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="675.02,-112.66 682.45,-105.1 671.93,-106.38 675.02,-112.66"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M350.04,-55.15C402.96,-57.08 503.21,-61.81 588,-72 603.7,-73.89 620.46,-76.47 636.32,-79.19"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="636.14,-82.71 646.59,-80.98 637.34,-75.81 636.14,-82.71"/>
+</g>
+<!-- at -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node11" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="920.5,-210 866.5,-210 866.5,-186 920.5,-186 920.5,-210"/>
+<text text-anchor="middle" x="893.5" y="-195.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge11" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M761.94,-168.04C792.28,-175 829.68,-183.58 856.67,-189.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="855.93,-193.2 866.46,-192.02 857.5,-186.38 855.93,-193.2"/>
+</g>
+<!-- insert -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node12" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="920.5,-168 866.5,-168 866.5,-144 920.5,-144 920.5,-168"/>
+<text text-anchor="middle" x="893.5" y="-153.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge12" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M766.4,-156C795.72,-156 830.61,-156 856.25,-156"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="856.28,-159.5 866.28,-156 856.28,-152.5 856.28,-159.5"/>
+</g>
+<!-- proc~map_find~2 -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node14" class="node">
+<title>proc~map_find~2</title>
+<g id="a_proc~~is_coordinate_variable~~CallsGraph_node14"><a xlink:href="../proc/map_find~2.html" xlink:title="StringVariableMap%map_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="793,-24 624,-24 624,0 793,0 793,-24"/>
+<text text-anchor="middle" x="708.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%map_find</text>
+</a>
+</g>
+</g>
+<!-- proc~map_at_rc~2&#45;&gt;proc~map_find~2 -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge13" class="edge">
+<title>proc~map_at_rc~2&#45;&gt;proc~map_find~2</title>
+<path fill="none" stroke="#cbff00" d="M588.27,-12C596.63,-12 605.14,-12 613.57,-12"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="613.8,-15.5 623.8,-12 613.8,-8.5 613.8,-15.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff66" d="M567.53,-93C587.96,-93 610.63,-93 631.66,-93"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="631.84,-96.5 641.84,-93 631.84,-89.5 631.84,-96.5"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0066ff" d="M574.71,-142.46C596.17,-144.65 619.53,-147.03 640.58,-149.18"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="640.41,-152.68 650.72,-150.21 641.12,-145.72 640.41,-152.68"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M560.53,-122.96C584.88,-118 613.27,-112.21 638.57,-107.05"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="639.36,-110.46 648.46,-105.04 637.96,-103.61 639.36,-110.46"/>
+</g>
+<!-- proc~initialize~21 -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node13" class="node">
+<title>proc~initialize~21</title>
+<g id="a_proc~~is_coordinate_variable~~CallsGraph_node13"><a xlink:href="../proc/initialize~21.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="922,-105 865,-105 865,-81 922,-81 922,-105"/>
+<text text-anchor="middle" x="893.5" y="-90.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~21 -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~21</title>
+<path fill="none" stroke="#cc00ff" d="M775.05,-93C801.73,-93 831.62,-93 854.57,-93"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="854.59,-96.5 864.59,-93 854.59,-89.5 854.59,-96.5"/>
+</g>
+<!-- proc~map_s_find~2 -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_node15" class="node">
+<title>proc~map_s_find~2</title>
+<g id="a_proc~~is_coordinate_variable~~CallsGraph_node15"><a xlink:href="../proc/map_s_find~2.html" xlink:title="map_Set%map_s_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="958,-24 829,-24 829,0 958,0 958,-24"/>
+<text text-anchor="middle" x="893.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_find</text>
+</a>
+</g>
+</g>
+<!-- proc~map_find~2&#45;&gt;proc~map_s_find~2 -->
+<g id="proc~~is_coordinate_variable~~CallsGraph_edge18" class="edge">
+<title>proc~map_find~2&#45;&gt;proc~map_s_find~2</title>
+<path fill="none" stroke="#7f00ff" d="M793.23,-12C801.73,-12 810.32,-12 818.7,-12"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="818.8,-15.5 828.8,-12 818.8,-8.5 818.8,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocis_coordinate_variableCallsGraph = svgPanZoom('#procis_coordinate_variableCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">is_coordinate_variable</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">),</span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">Variable</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmp</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="n">tmp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">variables</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">tmp</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;can not find the varaible &#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">var_name</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">CoordinateVariable</span><span class="p">)</span>
+<span class="w">         </span><span class="n">is_coordinate_variable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">      </span><span class="k">class </span><span class="n">default</span>
+<span class="w">         </span><span class="n">is_coordinate_variable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="k">end select</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">is_coordinate_variable</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

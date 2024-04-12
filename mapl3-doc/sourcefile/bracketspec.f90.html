@@ -1,0 +1,1825 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>BracketSpec.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>BracketSpec.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">267 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/BracketSpec.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">BracketSpec.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_bracketspec.html">mapl3g_BracketSpec</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/bracketspec.f90.html#src">BracketSpec.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~bracketspec.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilebracketspecf90EfferentGraph" width="641pt" height="520pt"
+ viewBox="0.00 0.00 641.00 520.22" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph" class="graph" transform="scale(1.69 1.69) rotate(0) translate(4 876.57)">
+<title>sourcefile~~bracketspec.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-876.57 1081,-876.57 1081,4 -4,4"/>
+<!-- sourcefile~bracketspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~bracketspec.f90</title>
+<polygon fill="none" stroke="black" points="1077,-411.76 974,-411.76 974,-387.76 1077,-387.76 1077,-411.76"/>
+<text text-anchor="middle" x="1025.5" y="-397.36" font-family="Helvetica,sans-Serif" font-size="10.50">BracketSpec.F90</text>
+</g>
+<!-- sourcefile~abstractactionspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~abstractactionspec.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/abstractactionspec.f90.html" xlink:title="AbstractActionSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="813.5,-807.76 674.5,-807.76 674.5,-783.76 813.5,-783.76 813.5,-807.76"/>
+<text text-anchor="middle" x="744" y="-793.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractActionSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~abstractactionspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~abstractactionspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894,-713.76C857.58,-738.47 855.12,-754.61 816,-774.76 812.27,-776.68 808.34,-778.45 804.32,-780.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="802.96,-776.85 794.82,-783.63 805.42,-783.41 802.96,-776.85"/>
+</g>
+<!-- sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~actualconnectionpt.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/actualconnectionpt.f90.html" xlink:title="ActualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="315,-655.76 176,-655.76 176,-631.76 315,-631.76 315,-655.76"/>
+<text text-anchor="middle" x="245.5" y="-641.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M565.5,-793.76C487.62,-783.79 485.24,-878.24 407,-871.76"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M405,-871.76C306.13,-863.57 263.8,-721.22 250.99,-665.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="254.38,-664.82 248.82,-655.81 247.55,-666.33 254.38,-664.82"/>
+</g>
+<!-- sourcefile~actualptspecptrmap.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~actualptspecptrmap.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/actualptspecptrmap.f90.html" xlink:title="ActualPtSpecPtrMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="814.5,-765.76 673.5,-765.76 673.5,-741.76 814.5,-741.76 814.5,-765.76"/>
+<text text-anchor="middle" x="744" y="-751.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualPtSpecPtrMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~actualptspecptrmap.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~actualptspecptrmap.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894,-713.76C873.45,-727.7 848.24,-736.79 824.44,-742.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="823.64,-739.31 814.7,-744.99 825.23,-746.13 823.64,-739.31"/>
+</g>
+<!-- sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~actualptvector.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/actualptvector.f90.html" xlink:title="ActualPtVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="461,-805.76 351,-805.76 351,-781.76 461,-781.76 461,-805.76"/>
+<text text-anchor="middle" x="406" y="-791.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualPtVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~actualptvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M565.5,-793.76C534.72,-789.04 500.18,-788.5 471.22,-789.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="471.1,-785.86 461.23,-789.71 471.35,-792.85 471.1,-785.86"/>
+</g>
+<!-- sourcefile~bundleaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~bundleaction.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/bundleaction.f90.html" xlink:title="BundleAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="459,-763.76 353,-763.76 353,-739.76 459,-739.76 459,-763.76"/>
+<text text-anchor="middle" x="406" y="-749.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BundleAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~bundleaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~bundleaction.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M565.5,-793.76C527.03,-787.87 484.45,-776.29 453.12,-766.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="453.95,-763.37 443.36,-763.78 451.89,-770.06 453.95,-763.37"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="300,-491.76 191,-491.76 191,-467.76 300,-467.76 300,-491.76"/>
+<text text-anchor="middle" x="245.5" y="-477.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894,-73.76C862.74,-55.23 600.79,-78.18 567.5,-92.76"/>
+</g>
+<!-- sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~esmf_utilities.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/esmf_utilities.f90.html" xlink:title="ESMF_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="620.5,-64.76 512.5,-64.76 512.5,-40.76 620.5,-40.76 620.5,-64.76"/>
+<text text-anchor="middle" x="566.5" y="-50.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~esmf_utilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1024.42,-387.73C1023.34,-337.47 1011.59,-143.6 896,-73.76"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894,-73.76C856.33,-51 857.61,-27.1 816,-12.76 755.49,8.09 734.93,-1.12 672,-12.76 647.38,-17.31 621.05,-27.42 600.99,-36.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="599.32,-33.25 591.67,-40.59 602.22,-39.62 599.32,-33.25"/>
+</g>
+<!-- sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~extensionaction.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/extensionaction.f90.html" xlink:title="ExtensionAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="305.5,-571.76 185.5,-571.76 185.5,-547.76 305.5,-547.76 305.5,-571.76"/>
+<text text-anchor="middle" x="245.5" y="-557.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~extensionaction.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894,-713.76C847.26,-747.12 867.42,-791.2 816,-816.76 716.68,-866.13 677.14,-810.55 567.5,-793.76"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M565.5,-793.76C511.69,-787 509.65,-754.72 461,-730.76 413.91,-707.57 387.21,-725.76 351,-687.76 316.38,-651.44 350.96,-615.75 315,-580.76 313.74,-579.53 312.42,-578.38 311.03,-577.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="312.85,-574.3 302.56,-571.79 309.03,-580.17 312.85,-574.3"/>
+</g>
+<!-- sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~fieldspec.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/fieldspec.f90.html" xlink:title="FieldSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="938,-411.76 852,-411.76 852,-387.76 938,-387.76 938,-411.76"/>
+<text text-anchor="middle" x="895" y="-397.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M973.71,-399.76C965.33,-399.76 956.64,-399.76 948.22,-399.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="948.14,-396.26 938.14,-399.76 948.14,-403.26 948.14,-396.26"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="132,-573.76 8,-573.76 8,-549.76 132,-549.76 132,-573.76"/>
+<text text-anchor="middle" x="70" y="-559.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M405,-871.76C376.25,-869.38 373.41,-853.92 351,-835.76 266.51,-767.3 250.35,-744.12 176,-664.76 159.19,-646.82 157.25,-640.27 140,-622.76 125.32,-607.85 107.62,-592.25 93.82,-580.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="95.71,-577.57 85.8,-573.82 91.21,-582.93 95.71,-577.57"/>
+</g>
+<!-- sourcefile~multistate.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~multistate.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/multistate.f90.html" xlink:title="MultiState.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="788,-45.76 700,-45.76 700,-21.76 788,-21.76 788,-45.76"/>
+<text text-anchor="middle" x="744" y="-31.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiState.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894,-73.76C864.98,-56.22 828.24,-46.25 798.49,-40.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="798.75,-37.14 788.29,-38.84 797.53,-44.03 798.75,-37.14"/>
+</g>
+<!-- sourcefile~nullaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~nullaction.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/nullaction.f90.html" xlink:title="NullAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="450,-645.76 362,-645.76 362,-621.76 450,-621.76 450,-645.76"/>
+<text text-anchor="middle" x="406" y="-631.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NullAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~nullaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~nullaction.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894,-713.76C887.93,-717.88 643.25,-657.92 636,-656.76 576.21,-647.18 506.96,-640.89 460.41,-637.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="460.48,-633.83 450.25,-636.58 459.96,-640.82 460.48,-633.83"/>
+</g>
+<!-- sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~stateitemspec.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/stateitemspec.f90.html" xlink:title="StateItemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="623,-689.76 510,-689.76 510,-665.76 623,-665.76 623,-689.76"/>
+<text text-anchor="middle" x="566.5" y="-675.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~stateitemspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894,-713.76C851.01,-742.93 703.82,-712.34 622.53,-692.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="623.03,-688.79 612.48,-689.77 621.33,-695.59 623.03,-688.79"/>
+</g>
+<!-- sourcefile~ungriddeddimsspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~ungriddeddimsspec.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/ungriddeddimsspec.f90.html" xlink:title="UngriddedDimsSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="816,-205.76 672,-205.76 672,-181.76 816,-181.76 816,-205.76"/>
+<text text-anchor="middle" x="744" y="-191.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimsSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~ungriddeddimsspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~ungriddeddimsspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894,-73.76C846.06,-44.79 862.37,-141.34 816,-172.76 813.47,-174.47 810.81,-176.04 808.05,-177.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="806.57,-174.32 798.96,-181.7 809.51,-180.67 806.57,-174.32"/>
+</g>
+<!-- sourcefile~verticaldimspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~verticaldimspec.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/verticaldimspec.f90.html" xlink:title="VerticalDimSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="805.5,-571.76 682.5,-571.76 682.5,-547.76 805.5,-547.76 805.5,-571.76"/>
+<text text-anchor="middle" x="744" y="-557.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalDimSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~verticaldimspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~verticaldimspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1023.97,-411.99C1021.14,-460.58 1003.47,-640.83 896,-713.76"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894,-713.76C838.87,-751.16 867.5,-628.02 816,-585.76 811.51,-582.08 806.46,-578.89 801.17,-576.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="802.64,-572.96 792.1,-571.91 799.68,-579.31 802.64,-572.96"/>
+</g>
+<!-- sourcefile~verticalgeom.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~verticalgeom.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/verticalgeom.f90.html" xlink:title="VerticalGeom.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="797.5,-163.76 690.5,-163.76 690.5,-139.76 797.5,-139.76 797.5,-163.76"/>
+<text text-anchor="middle" x="744" y="-149.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalGeom.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~verticalgeom.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~verticalgeom.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894,-73.76C870.98,-59.85 803.93,-106.35 768.14,-133.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="765.97,-130.78 760.17,-139.64 770.23,-136.33 765.97,-130.78"/>
+</g>
+<!-- sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff5f00" stroke-dasharray="5,2" d="M199.74,-631.66C191.72,-629.03 183.52,-626.04 176,-622.76 148.06,-610.55 118.19,-592.67 97.47,-579.42"/>
+<polygon fill="#ff5f00" stroke="#ff5f00" points="99.21,-576.38 88.92,-573.88 95.41,-582.25 99.21,-576.38"/>
+</g>
+<!-- sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node28" class="node">
+<title>sourcefile~virtualconnectionpt.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node28"><a xlink:href="../sourcefile/virtualconnectionpt.f90.html" xlink:title="VirtualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="140,-655.76 0,-655.76 0,-631.76 140,-631.76 140,-655.76"/>
+<text text-anchor="middle" x="70" y="-641.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90</title>
+<path fill="none" stroke="#ff5f00" stroke-dasharray="5,2" d="M175.93,-643.76C167.49,-643.76 158.8,-643.76 150.22,-643.76"/>
+<polygon fill="#ff5f00" stroke="#ff5f00" points="150.21,-640.26 140.21,-643.76 150.21,-647.26 150.21,-640.26"/>
+</g>
+<!-- sourcefile~actualptspecptrmap.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~actualptspecptrmap.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M673.49,-749.24C622.36,-748.67 552.41,-753.78 497,-779.76 476.79,-789.23 481.68,-806.36 461,-814.76 415.7,-833.15 393.64,-838.67 351,-814.76 293.31,-782.4 263.67,-703.79 252.24,-665.47"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="255.59,-664.47 249.49,-655.8 248.86,-666.38 255.59,-664.47"/>
+</g>
+<!-- sourcefile~actualptspecptrmap.f90&#45;&gt;sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~actualptspecptrmap.f90&#45;&gt;sourcefile~stateitemspec.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M708.07,-741.72C696.5,-737.53 683.61,-732.65 672,-727.76 647.68,-717.51 620.83,-704.63 600.44,-694.51"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="601.79,-691.27 591.28,-689.93 598.66,-697.53 601.79,-691.27"/>
+</g>
+<!-- sourcefile~actualptvector.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~actualptvector.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#dfff00" stroke-dasharray="5,2" d="M366.52,-781.67C361.06,-779.16 355.71,-776.2 351,-772.76 309.79,-742.69 275.61,-692.53 258.44,-664.44"/>
+<polygon fill="#dfff00" stroke="#dfff00" points="261.42,-662.61 253.28,-655.82 255.42,-666.2 261.42,-662.61"/>
+</g>
+<!-- sourcefile~bundleaction.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~bundleaction.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M391.41,-739.35C379.06,-727.33 361.25,-707.99 351,-687.76 320.21,-626.99 350.52,-596.89 315,-538.76 304.97,-522.34 288.84,-508.12 274.76,-497.76"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="276.51,-494.71 266.32,-491.82 272.48,-500.44 276.51,-494.71"/>
+</g>
+<!-- sourcefile~bundleaction.f90&#45;&gt;sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~bundleaction.f90&#45;&gt;sourcefile~extensionaction.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M368.46,-739.63C361.89,-736.04 355.66,-731.49 351,-725.76 309.11,-674.24 360.67,-628.96 315,-580.76 313.96,-579.66 312.86,-578.61 311.71,-577.62"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="313.71,-574.75 303.52,-571.85 309.68,-580.47 313.71,-574.75"/>
+</g>
+<!-- sourcefile~actionvector.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~actionvector.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/actionvector.f90.html" xlink:title="ActionVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="295.5,-613.76 195.5,-613.76 195.5,-589.76 295.5,-589.76 295.5,-613.76"/>
+<text text-anchor="middle" x="245.5" y="-599.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActionVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bundleaction.f90&#45;&gt;sourcefile~actionvector.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~bundleaction.f90&#45;&gt;sourcefile~actionvector.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M369.71,-739.73C362.81,-736.09 356.13,-731.5 351,-725.76 318.69,-689.59 349.95,-656.38 315,-622.76 311.92,-619.8 308.44,-617.26 304.72,-615.07"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="306.18,-611.89 295.67,-610.59 303.08,-618.16 306.18,-611.89"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node24" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node24"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="120,-491.76 20,-491.76 20,-467.76 120,-467.76 120,-491.76"/>
+<text text-anchor="middle" x="70" y="-477.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#1fff00" stroke-dasharray="5,2" d="M190.55,-479.76C171.41,-479.76 149.77,-479.76 130.21,-479.76"/>
+<polygon fill="#1fff00" stroke="#1fff00" points="130.19,-476.26 120.19,-479.76 130.19,-483.26 130.19,-476.26"/>
+</g>
+<!-- sourcefile~esmf_utilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~esmf_utilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M519.36,-64.89C511.3,-68.45 503.44,-72.99 497,-78.76 431.56,-137.37 483.52,-211.6 407,-254.76"/>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M405,-254.76C322.2,-301.46 272.37,-411.47 254.27,-458.18"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="250.96,-457.04 250.71,-467.63 257.51,-459.51 250.96,-457.04"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~abstractactionspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~abstractactionspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M893.1,-412.11C888.62,-470.65 866.78,-719.6 816,-774.76 815.09,-775.74 814.14,-776.68 813.16,-777.58"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="810.9,-774.89 804.91,-783.63 815.04,-780.53 810.9,-774.89"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M405,-593.76C362.98,-594.02 355.09,-610.15 315,-622.76 308.85,-624.69 302.38,-626.7 295.97,-628.68"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="294.54,-625.46 286.01,-631.75 296.6,-632.15 294.54,-625.46"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~actualptspecptrmap.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~actualptspecptrmap.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M893.17,-412.04C889.85,-453.95 874.72,-593.97 816,-689.76 804.83,-707.97 786.94,-724.05 771.92,-735.54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="769.45,-733 763.47,-741.75 773.6,-738.64 769.45,-733"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~actualptvector.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M892.8,-411.81C888.68,-447.21 872.1,-552.26 816,-613.76 712.59,-727.11 632.76,-674.25 497,-745.76 479.3,-755.08 478.48,-763.04 461,-772.76 457.96,-774.45 454.76,-776.06 451.5,-777.59"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="449.95,-774.45 442.21,-781.67 452.77,-780.85 449.95,-774.45"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M891.82,-387.35C885.86,-357.71 866.26,-282.99 816,-252.76 761.16,-219.77 733.43,-234.81 672,-252.76 653.78,-258.08 654.22,-270.43 636,-275.76 576.7,-293.08 558.37,-282.82 497,-275.76 456.2,-271.06 440.54,-231.05 407,-254.76"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~esmf_utilities.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M894.26,-387.61C894.48,-345.72 889.45,-205.83 816,-130.76 767.18,-80.86 686.86,-62.77 630.79,-56.28"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="630.94,-52.78 620.62,-55.2 630.19,-59.74 630.94,-52.78"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~extensionaction.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M892.41,-412.02C887.51,-444.69 869.59,-534.44 816,-580.76 791.28,-602.12 772.5,-582.12 745,-599.76"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M743,-599.76C677.34,-641.86 645.43,-596.37 567.5,-599.76"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M565.5,-599.76C495.07,-602.82 477.49,-593.32 407,-593.76"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M405,-593.76C385.17,-593.88 339.15,-583.57 301.78,-574.27"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="302.54,-570.85 291.99,-571.81 300.84,-577.64 302.54,-570.85"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M888.67,-412.1C878.33,-434.33 853.24,-480.67 816,-500.76 718.52,-553.35 678.27,-519.76 567.5,-519.76 567.5,-519.76 567.5,-519.76 405,-519.76 302.87,-519.76 276.99,-523.58 176,-538.76 160.71,-541.06 144.32,-544.28 129.14,-547.58"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="128.37,-544.17 119.37,-549.75 129.89,-551 128.37,-544.17"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M893.34,-387.57C890.54,-344.69 876.78,-198.01 816,-97.76 805,-79.61 787.27,-63.62 772.28,-52.16"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="773.97,-49.06 763.84,-45.96 769.82,-54.7 773.97,-49.06"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~nullaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~nullaction.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M565.5,-599.76C527.95,-601.39 486.44,-610.57 455.33,-618.98"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="454.31,-615.63 445.61,-621.68 456.18,-622.38 454.31,-615.63"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~stateitemspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M743,-599.76C701.26,-626.52 648.79,-648.51 612.14,-662.24"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="610.89,-658.98 602.72,-665.72 613.31,-665.54 610.89,-658.98"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~ungriddeddimsspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~ungriddeddimsspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M892.08,-387.35C886.44,-355.12 867.02,-267.91 816,-219.76 812.22,-216.19 807.91,-213.1 803.32,-210.43"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="804.73,-207.22 794.23,-205.8 801.55,-213.46 804.73,-207.22"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~verticaldimspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~verticaldimspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M890.09,-412.01C881.17,-438.09 856.86,-499.53 816,-533.76 811.55,-537.48 806.52,-540.7 801.25,-543.47"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="799.76,-540.3 792.19,-547.72 802.73,-546.64 799.76,-540.3"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~verticalgeom.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~verticalgeom.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M893.55,-387.63C891.48,-349.98 879.96,-234 816,-172.76 813.24,-170.11 810.16,-167.8 806.87,-165.78"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="808.26,-162.55 797.77,-161.07 805.05,-168.77 808.26,-162.55"/>
+</g>
+<!-- sourcefile~convertunitsaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~convertunitsaction.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/convertunitsaction.f90.html" xlink:title="ConvertUnitsAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="812,-411.76 676,-411.76 676,-387.76 812,-387.76 812,-411.76"/>
+<text text-anchor="middle" x="744" y="-397.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConvertUnitsAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~convertunitsaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~convertunitsaction.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M851.7,-399.76C842.47,-399.76 832.43,-399.76 822.32,-399.76"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="822.21,-396.26 812.21,-399.76 822.21,-403.26 822.21,-396.26"/>
+</g>
+<!-- sourcefile~copyaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~copyaction.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/copyaction.f90.html" xlink:title="CopyAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="791.5,-369.76 696.5,-369.76 696.5,-345.76 791.5,-345.76 791.5,-369.76"/>
+<text text-anchor="middle" x="744" y="-355.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CopyAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~copyaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~copyaction.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M851.7,-387.83C834.79,-383.07 815.13,-377.53 797.33,-372.51"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="798.24,-369.13 787.66,-369.78 796.34,-375.87 798.24,-369.13"/>
+</g>
+<!-- sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~geom_mgr.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node22"><a xlink:href="../sourcefile/geom_mgr.f90.html" xlink:title="geom_mgr.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="789.5,-327.76 698.5,-327.76 698.5,-303.76 789.5,-303.76 789.5,-327.76"/>
+<text text-anchor="middle" x="744" y="-313.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">geom_mgr.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M882.12,-387.61C867.7,-373.51 842.05,-350.43 816,-336.76 810.75,-334 805.09,-331.56 799.33,-329.4"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="800.21,-326 789.61,-326.04 797.92,-332.62 800.21,-326"/>
+</g>
+<!-- sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node23" class="node">
+<title>sourcefile~lu_bound.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node23"><a xlink:href="../sourcefile/lu_bound.f90.html" xlink:title="LU_Bound.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="610.5,-266.76 522.5,-266.76 522.5,-242.76 610.5,-242.76 610.5,-266.76"/>
+<text text-anchor="middle" x="566.5" y="-252.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LU_Bound.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M866.35,-411.84C822.24,-429.13 734.53,-455.28 672,-420.76 615.83,-389.75 585.74,-314.47 573.76,-276.88"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="576.99,-275.48 570.74,-266.93 570.3,-277.52 576.99,-275.48"/>
+</g>
+<!-- sourcefile~regridaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node25" class="node">
+<title>sourcefile~regridaction.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node25"><a xlink:href="../sourcefile/regridaction.f90.html" xlink:title="RegridAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="795.5,-285.76 692.5,-285.76 692.5,-261.76 795.5,-261.76 795.5,-285.76"/>
+<text text-anchor="middle" x="744" y="-271.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~regridaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~regridaction.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M888.34,-387.69C877.48,-365.82 851.56,-319.6 816,-294.76 812.56,-292.36 808.85,-290.23 804.98,-288.34"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="806.32,-285.1 795.75,-284.35 803.54,-291.53 806.32,-285.1"/>
+</g>
+<!-- sourcefile~udunits2f.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node26" class="node">
+<title>sourcefile~udunits2f.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node26"><a xlink:href="../sourcefile/udunits2f.f90.html" xlink:title="udunits2f.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="786,-491.76 702,-491.76 702,-467.76 786,-467.76 786,-491.76"/>
+<text text-anchor="middle" x="744" y="-477.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">udunits2f.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~udunits2f.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~udunits2f.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M878.9,-411.95C863.71,-423.79 839.25,-441.7 816,-453.76 808.71,-457.54 800.74,-461.02 792.86,-464.13"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="791.46,-460.92 783.35,-467.73 793.94,-467.47 791.46,-460.92"/>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge47" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M709.72,-45.79C697.8,-50.14 684.28,-55.12 672,-59.76 655.94,-65.82 652.29,-68.35 636,-73.76 606.02,-83.72 596.44,-80.08 567.5,-92.76"/>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M565.5,-92.76C536.56,-105.43 522.34,-92.89 497,-111.76 436.76,-156.59 468.33,-211.42 407,-254.76"/>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge48" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~esmf_utilities.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M699.62,-38.45C678.84,-40.7 653.56,-43.44 630.69,-45.92"/>
+<polygon fill="#003fff" stroke="#003fff" points="630.29,-42.44 620.72,-47 631.04,-49.4 630.29,-42.44"/>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge49" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M699.94,-22.22C648.68,-10.91 561.87,0.39 497,-31.76 262.28,-148.08 318.32,-308.86 140,-500.76 125.85,-515.99 108.27,-531.48 94.4,-543.04"/>
+<polygon fill="#003fff" stroke="#003fff" points="91.81,-540.64 86.31,-549.7 96.26,-546.05 91.81,-540.64"/>
+</g>
+<!-- sourcefile~nullaction.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge50" class="edge">
+<title>sourcefile~nullaction.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#1f00ff" stroke-dasharray="5,2" d="M371.44,-621.72C364.12,-618.02 356.83,-613.4 351,-607.76 326.15,-583.7 336.49,-565.86 315,-538.76 302.73,-523.28 285.96,-508.75 272.09,-497.99"/>
+<polygon fill="#1f00ff" stroke="#1f00ff" points="273.98,-495.04 263.89,-491.8 269.76,-500.62 273.98,-495.04"/>
+</g>
+<!-- sourcefile~nullaction.f90&#45;&gt;sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge51" class="edge">
+<title>sourcefile~nullaction.f90&#45;&gt;sourcefile~extensionaction.f90</title>
+<path fill="none" stroke="#1f00ff" stroke-dasharray="5,2" d="M377.26,-621.67C368.66,-617.59 359.27,-612.78 351,-607.76 333.91,-597.37 332.83,-589.82 315,-580.76 311.2,-578.82 307.18,-577.03 303.08,-575.37"/>
+<polygon fill="#1f00ff" stroke="#1f00ff" points="304.01,-571.98 293.41,-571.76 301.56,-578.54 304.01,-571.98"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge52" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~actualptvector.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M519.75,-689.78C511.56,-693.35 503.56,-697.93 497,-703.76 471.14,-726.73 486.77,-749.68 461,-772.76 459.54,-774.07 457.99,-775.3 456.37,-776.46"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="454.53,-773.47 447.8,-781.65 458.16,-779.46 454.53,-773.47"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge53" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M509.9,-685.98C478.53,-688.29 439.27,-687.2 407,-673.76"/>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M405,-673.76C381.52,-663.97 368.65,-673.08 351,-654.76 313.55,-615.88 344.6,-583.9 315,-538.76 304.38,-522.56 288.08,-508.27 274.05,-497.81"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="275.84,-494.79 265.68,-491.81 271.77,-500.48 275.84,-494.79"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge54" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~extensionaction.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M405,-673.76C381.52,-663.97 369.99,-671.69 351,-654.76 323.7,-630.42 342.79,-604.54 315,-580.76 313.44,-579.42 311.8,-578.17 310.09,-577"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="311.48,-573.76 301.07,-571.79 307.97,-579.82 311.48,-573.76"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~nullaction.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge55" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~nullaction.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M522.19,-665.73C502.97,-660.4 480.17,-654.07 459.95,-648.46"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="460.83,-645.07 450.26,-645.77 458.96,-651.81 460.83,-645.07"/>
+</g>
+<!-- sourcefile~ungriddeddimsspec.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge57" class="edge">
+<title>sourcefile~ungriddeddimsspec.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#df00ff" stroke-dasharray="5,2" d="M671.66,-199.65C586,-207.91 448.64,-225.33 407,-254.76"/>
+</g>
+<!-- sourcefile~dimspecvector.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~dimspecvector.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/dimspecvector.f90.html" xlink:title="DimSpecVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="624,-186.76 509,-186.76 509,-162.76 624,-162.76 624,-186.76"/>
+<text text-anchor="middle" x="566.5" y="-172.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DimSpecVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddimsspec.f90&#45;&gt;sourcefile~dimspecvector.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge56" class="edge">
+<title>sourcefile~ungriddeddimsspec.f90&#45;&gt;sourcefile~dimspecvector.f90</title>
+<path fill="none" stroke="#df00ff" stroke-dasharray="5,2" d="M671.87,-186.06C659.47,-184.71 646.62,-183.32 634.34,-181.99"/>
+<polygon fill="#df00ff" stroke="#df00ff" points="634.51,-178.49 624.19,-180.89 633.75,-185.45 634.51,-178.49"/>
+</g>
+<!-- sourcefile~ungriddeddimsspec.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge58" class="edge">
+<title>sourcefile~ungriddeddimsspec.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#df00ff" stroke-dasharray="5,2" d="M708.33,-205.81C680.68,-215.42 641.79,-228.94 611.87,-239.33"/>
+<polygon fill="#df00ff" stroke="#df00ff" points="610.4,-236.14 602.1,-242.73 612.7,-242.75 610.4,-236.14"/>
+</g>
+<!-- sourcefile~ungriddeddimspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_node27" class="node">
+<title>sourcefile~ungriddeddimspec.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~EfferentGraph_node27"><a xlink:href="../sourcefile/ungriddeddimspec.f90.html" xlink:title="UngriddedDimSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="636,-144.76 497,-144.76 497,-120.76 636,-120.76 636,-144.76"/>
+<text text-anchor="middle" x="566.5" y="-130.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddimsspec.f90&#45;&gt;sourcefile~ungriddeddimspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge59" class="edge">
+<title>sourcefile~ungriddeddimsspec.f90&#45;&gt;sourcefile~ungriddeddimspec.f90</title>
+<path fill="none" stroke="#df00ff" stroke-dasharray="5,2" d="M697.47,-181.75C688.9,-179.08 680.1,-176.05 672,-172.76 655.24,-165.94 652.72,-160.66 636,-153.76 631.17,-151.76 626.07,-149.85 620.93,-148.06"/>
+<polygon fill="#df00ff" stroke="#df00ff" points="621.65,-144.61 611.05,-144.76 619.43,-151.25 621.65,-144.61"/>
+</g>
+<!-- sourcefile~verticaldimspec.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge60" class="edge">
+<title>sourcefile~verticaldimspec.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M727.84,-547.56C713.33,-535.79 690.9,-517.36 672,-500.76 641.82,-474.24 441.99,-235.02 407,-254.76"/>
+</g>
+<!-- sourcefile~verticalgeom.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~bracketspec.f90~~EfferentGraph_edge61" class="edge">
+<title>sourcefile~verticalgeom.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff005f" stroke-dasharray="5,2" d="M719.92,-139.73C679.03,-119.14 595.55,-80.47 567.5,-92.76"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilebracketspecf90EfferentGraph = svgPanZoom('#sourcefilebracketspecf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~bracketspec.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilebracketspecf90AfferentGraph" width="641pt" height="228pt"
+ viewBox="0.00 0.00 641.00 227.66" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph" class="graph" transform="scale(2.19 2.19) rotate(0) translate(4 495)">
+<title>sourcefile~~bracketspec.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-495 1401,-495 1401,4 -4,4"/>
+<!-- sourcefile~bracketspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~bracketspec.f90</title>
+<polygon fill="none" stroke="black" points="103,-312 0,-312 0,-288 103,-288 103,-312"/>
+<text text-anchor="middle" x="51.5" y="-297.6" font-family="Helvetica,sans-Serif" font-size="10.50">BracketSpec.F90</text>
+</g>
+<!-- sourcefile~test_bracketspec.pf -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~test_bracketspec.pf</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/test_bracketspec.pf.html" xlink:title="Test_BracketSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="258,-333 139,-333 139,-309 258,-309 258,-333"/>
+<text text-anchor="middle" x="198.5" y="-318.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_BracketSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~bracketspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~bracketspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M138.94,-312.52C130.56,-311.31 121.92,-310.05 113.49,-308.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="113.75,-305.33 103.35,-307.36 112.74,-312.26 113.75,-305.33"/>
+</g>
+<!-- sourcefile~variablespec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~variablespec.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/variablespec.f90.html" xlink:title="VariableSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="251,-291 146,-291 146,-267 251,-267 251,-291"/>
+<text text-anchor="middle" x="198.5" y="-276.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~bracketspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~bracketspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M145.97,-286.46C135.48,-287.98 124.36,-289.59 113.57,-291.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="112.77,-287.73 103.38,-292.63 113.77,-294.66 112.77,-287.73"/>
+</g>
+<!-- sourcefile~componentspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~componentspec.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/componentspec.f90.html" xlink:title="ComponentSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="713,-331 589,-331 589,-307 713,-307 713,-331"/>
+<text text-anchor="middle" x="651" y="-316.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspec.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~componentspec.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M599.07,-306.91C550.06,-296.16 473.7,-281.73 406.5,-279"/>
+</g>
+<!-- sourcefile~variablespecvector.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~variablespecvector.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/variablespecvector.f90.html" xlink:title="VariableSpecVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="474,-350 337,-350 337,-326 474,-326 474,-350"/>
+<text text-anchor="middle" x="405.5" y="-335.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpecVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspec.f90&#45;&gt;sourcefile~variablespecvector.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge41" class="edge">
+<title>sourcefile~componentspec.f90&#45;&gt;sourcefile~variablespecvector.f90</title>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M588.87,-323.77C557.21,-326.24 518.2,-329.28 484.4,-331.92"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="483.79,-328.46 474.09,-332.73 484.33,-335.44 483.79,-328.46"/>
+</g>
+<!-- sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~componentspecparser.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/componentspecparser.f90.html" xlink:title="ComponentSpecParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="941,-404 785,-404 785,-380 941,-380 941,-404"/>
+<text text-anchor="middle" x="863" y="-389.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M650,-397C491.06,-389.36 428.42,-444.15 294,-359 268.05,-342.56 281.81,-319.41 258,-300 256.27,-298.59 254.43,-297.27 252.52,-296.03"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="254.19,-292.96 243.75,-291.14 250.78,-299.07 254.19,-292.96"/>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~componentspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~componentspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M827.32,-379.95C791.45,-367.48 735.32,-347.96 696.27,-334.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="697.32,-331.05 686.73,-331.07 695.03,-337.66 697.32,-331.05"/>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespecvector.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge42" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~variablespecvector.f90</title>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M784.67,-396.49C744.99,-398.12 695.89,-399.11 652,-397"/>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M650,-397C577.8,-393.53 496.73,-369.7 448.73,-353.41"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="449.6,-350.01 439,-350.06 447.32,-356.63 449.6,-350.01"/>
+</g>
+<!-- sourcefile~historycollectiongridcomp_private.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~historycollectiongridcomp_private.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/historycollectiongridcomp_private.f90.html" xlink:title="HistoryCollectionGridComp_private.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="517,-449 294,-449 294,-425 517,-425 517,-449"/>
+<text text-anchor="middle" x="405.5" y="-434.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionGridComp_private.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M315.25,-424.88C307.49,-421.29 300.23,-416.74 294,-411 255.85,-375.87 294.1,-337.24 258,-300 256.92,-298.89 255.78,-297.83 254.58,-296.83"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="256.27,-293.75 246.04,-291.01 252.33,-299.54 256.27,-293.75"/>
+</g>
+<!-- sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~mapl_generic.f90~2</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/mapl_generic.f90~2.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1136.5,-192 1025.5,-192 1025.5,-168 1136.5,-168 1136.5,-192"/>
+<text text-anchor="middle" x="1081" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1058.82,-167.93C1020.79,-147.56 937.98,-109.12 864,-115"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M862,-115C608.9,-135.12 517.47,-55.48 294,-176 257.82,-195.51 228.15,-234.29 212.21,-258.3"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="209.27,-256.41 206.79,-266.71 215.15,-260.2 209.27,-256.41"/>
+</g>
+<!-- sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~componentspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~componentspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M862,-115C780.55,-121.47 810.01,-205.66 749,-260 730.07,-276.86 705.67,-291.68 686.08,-302.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="684.39,-299.17 677.18,-306.93 687.66,-305.37 684.39,-299.17"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~outermetacomponent.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/outermetacomponent.f90.html" xlink:title="OuterMetaComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="940,-309 786,-309 786,-285 940,-285 940,-309"/>
+<text text-anchor="middle" x="863" y="-294.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M1025.36,-191.84C1009.31,-196.39 992.03,-202.37 977,-210 941.18,-228.19 905.37,-258.27 883.94,-277.87"/>
+<polygon fill="#003fff" stroke="#003fff" points="881.41,-275.44 876.47,-284.81 886.18,-280.57 881.41,-275.44"/>
+</g>
+<!-- sourcefile~mockitemspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~mockitemspec.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/mockitemspec.f90.html" xlink:title="MockItemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="462,-251 349,-251 349,-227 462,-227 462,-251"/>
+<text text-anchor="middle" x="405.5" y="-236.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockItemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockitemspec.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~mockitemspec.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M348.75,-249.88C321.62,-255.17 288.91,-261.55 261.04,-266.99"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="260.16,-263.6 251.01,-268.95 261.5,-270.47 260.16,-263.6"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M785.84,-294.04C695.38,-290.52 539.94,-284.43 406.5,-279"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M404.5,-279C356.49,-276.61 302.08,-276.74 261.39,-277.4"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="261.29,-273.9 251.35,-277.58 261.41,-280.9 261.29,-273.9"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M785.89,-304.97C765.4,-307.12 743.33,-309.43 723.13,-311.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="722.65,-308.08 713.06,-312.6 723.37,-315.04 722.65,-308.08"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~variablespecvector.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge43" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~variablespecvector.f90</title>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M838.05,-309.05C815.67,-319.59 781,-334.12 749,-340 659.26,-356.5 554.04,-352.5 484.14,-346.65"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="484.36,-343.15 474.09,-345.77 483.75,-350.13 484.36,-343.15"/>
+</g>
+<!-- sourcefile~statespec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~statespec.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/statespec.f90.html" xlink:title="StateSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="450,-209 361,-209 361,-185 450,-185 450,-209"/>
+<text text-anchor="middle" x="405.5" y="-194.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~statespec.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~statespec.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M360.91,-201.35C340.12,-204.4 315.21,-209.51 294,-218 267.67,-228.53 240.8,-246.75 222.48,-260.54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="220,-258.03 214.21,-266.9 224.27,-263.58 220,-258.03"/>
+</g>
+<!-- sourcefile~variablespecvector.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~variablespecvector.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M362.52,-325.92C330.32,-316.65 285.71,-303.81 251.3,-293.91"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="252,-290.47 241.42,-291.07 250.07,-297.2 252,-290.47"/>
+</g>
+<!-- sourcefile~generic3g.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~generic3g.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/generic3g.f90.html" xlink:title="Generic3g.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1354.5,-360 1263.5,-360 1263.5,-336 1354.5,-336 1354.5,-360"/>
+<text text-anchor="middle" x="1309" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Generic3g.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~generic3g.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~generic3g.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M1263.07,-345.97C1248.07,-343.18 1232.32,-337.64 1221,-327 1181.36,-289.73 1223.76,-248.18 1185,-210 1174.49,-199.65 1160.62,-192.83 1146.48,-188.35"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="1147.25,-184.93 1136.68,-185.6 1145.37,-191.67 1147.25,-184.93"/>
+</g>
+<!-- sourcefile~generic3g.f90&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~generic3g.f90&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M1263.48,-338.44C1208.07,-326.78 1116.54,-308.3 1082,-306"/>
+</g>
+<!-- sourcefile~genericgridcomp.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~genericgridcomp.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/genericgridcomp.f90.html" xlink:title="GenericGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1146.5,-358 1015.5,-358 1015.5,-334 1146.5,-334 1146.5,-358"/>
+<text text-anchor="middle" x="1081" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GenericGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M1026.88,-333.95C996.68,-327.1 958.67,-318.48 926.96,-311.28"/>
+<polygon fill="#003fff" stroke="#003fff" points="927.44,-307.8 916.91,-309 925.89,-314.63 927.44,-307.8"/>
+</g>
+<!-- sourcefile~griddedcomponentdriver_smod.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~griddedcomponentdriver_smod.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/griddedcomponentdriver_smod.f90.html" xlink:title="GriddedComponentDriver_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1185,-278 977,-278 977,-254 1185,-254 1185,-278"/>
+<text text-anchor="middle" x="1081" y="-263.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriver_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~griddedcomponentdriver_smod.f90&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~griddedcomponentdriver_smod.f90&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M996.18,-278.03C981,-280.21 965.16,-282.48 949.92,-284.67"/>
+<polygon fill="#003fff" stroke="#003fff" points="949.41,-281.21 940.01,-286.09 950.41,-288.13 949.41,-281.21"/>
+</g>
+<!-- sourcefile~historycollectiongridcomp.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~historycollectiongridcomp.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/historycollectiongridcomp.f90.html" xlink:title="HistoryCollectionGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="741,-449 561,-449 561,-425 741,-425 741,-449"/>
+<text text-anchor="middle" x="651" y="-434.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~historycollectiongridcomp.f90&#45;&gt;sourcefile~historycollectiongridcomp_private.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~historycollectiongridcomp.f90&#45;&gt;sourcefile~historycollectiongridcomp_private.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M560.71,-437C549.9,-437 538.73,-437 527.56,-437"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="527.32,-433.5 517.32,-437 527.32,-440.5 527.32,-433.5"/>
+</g>
+<!-- sourcefile~mapl3_deprecated.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~mapl3_deprecated.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/mapl3_deprecated.f90.html" xlink:title="MAPL3_Deprecated.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1378,-108 1240,-108 1240,-84 1378,-84 1378,-108"/>
+<text text-anchor="middle" x="1309" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL3_Deprecated.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl3_deprecated.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~mapl3_deprecated.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M1251.39,-108.02C1241.18,-110.65 1230.7,-113.67 1221,-117 1183.35,-129.95 1142,-149.4 1114.27,-163.27"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="1112.41,-160.28 1105.06,-167.92 1115.57,-166.53 1112.41,-160.28"/>
+</g>
+<!-- sourcefile~outermetacomponent_smod.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~outermetacomponent_smod.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/outermetacomponent_smod.f90.html" xlink:title="OuterMetaComponent_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1175,-400 987,-400 987,-376 1175,-376 1175,-400"/>
+<text text-anchor="middle" x="1081" y="-385.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent_smod.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~outermetacomponent_smod.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M986.83,-389.73C975.08,-389.94 963.1,-390.16 951.45,-390.38"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="951.24,-386.88 941.31,-390.57 951.37,-393.88 951.24,-386.88"/>
+</g>
+<!-- sourcefile~outermetacomponent_smod.f90&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~outermetacomponent_smod.f90&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M1005.1,-375.99C995.49,-373.5 985.91,-370.53 977,-367 943.86,-353.85 909.57,-331.08 887.58,-315.08"/>
+<polygon fill="#003fff" stroke="#003fff" points="889.63,-312.25 879.51,-309.11 885.46,-317.87 889.63,-312.25"/>
+</g>
+<!-- sourcefile~protoextdatagc.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~protoextdatagc.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/protoextdatagc.f90.html" xlink:title="ProtoExtDataGC.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1369,-318 1249,-318 1249,-294 1369,-294 1369,-318"/>
+<text text-anchor="middle" x="1309" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProtoExtDataGC.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protoextdatagc.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~protoextdatagc.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M1248.99,-299.27C1238.91,-296.1 1229.09,-291.55 1221,-285 1192.25,-261.75 1213.2,-233.91 1185,-210 1174.08,-200.74 1160.44,-194.34 1146.69,-189.91"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="1147.27,-186.44 1136.7,-187.02 1145.33,-193.16 1147.27,-186.44"/>
+</g>
+<!-- sourcefile~protoextdatagc.f90&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~protoextdatagc.f90&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M1248.92,-308.15C1203.28,-309.28 1138.57,-309.77 1082,-306"/>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M1080,-306C1037.28,-303.15 989.75,-301.06 950.17,-299.61"/>
+<polygon fill="#003fff" stroke="#003fff" points="950.14,-296.1 940.02,-299.24 949.89,-303.1 950.14,-296.1"/>
+</g>
+<!-- sourcefile~simpleleafgridcomp.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~simpleleafgridcomp.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/simpleleafgridcomp.f90.html" xlink:title="SimpleLeafGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1383.5,-150 1234.5,-150 1234.5,-126 1383.5,-126 1383.5,-150"/>
+<text text-anchor="middle" x="1309" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleLeafGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~simpleleafgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~simpleleafgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M1243.24,-150.04C1213,-155.65 1177.1,-162.33 1146.85,-167.95"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="1146.02,-164.54 1136.83,-169.81 1147.3,-171.42 1146.02,-164.54"/>
+</g>
+<!-- sourcefile~simpleparentgridcomp.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~simpleparentgridcomp.f90</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/simpleparentgridcomp.f90.html" xlink:title="SimpleParentGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1389,-276 1229,-276 1229,-252 1389,-252 1389,-276"/>
+<text text-anchor="middle" x="1309" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleParentGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~simpleparentgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~simpleparentgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M1242.07,-251.88C1234.76,-249.44 1227.58,-246.51 1221,-243 1201.84,-232.8 1203.91,-220.65 1185,-210 1173.05,-203.27 1159.45,-197.93 1146.15,-193.74"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="1147.12,-190.38 1136.54,-190.89 1145.13,-197.09 1147.12,-190.38"/>
+</g>
+<!-- sourcefile~simpleparentgridcomp.f90&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge34" class="edge">
+<title>sourcefile~simpleparentgridcomp.f90&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M1251.55,-251.98C1190.13,-239.22 1098.46,-221.24 1082,-224"/>
+</g>
+<!-- sourcefile~test_addfieldspec.pf -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~test_addfieldspec.pf</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/test_addfieldspec.pf.html" xlink:title="Test_AddFieldSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="712.5,-167 589.5,-167 589.5,-143 712.5,-143 712.5,-167"/>
+<text text-anchor="middle" x="651" y="-152.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_AddFieldSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_addfieldspec.pf&#45;&gt;sourcefile~statespec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge39" class="edge">
+<title>sourcefile~test_addfieldspec.pf&#45;&gt;sourcefile~statespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M589.5,-165.44C549.8,-172.28 498.36,-181.15 460.14,-187.75"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="459.48,-184.31 450.22,-189.46 460.67,-191.21 459.48,-184.31"/>
+</g>
+<!-- sourcefile~test_componentspecparser.pf -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~test_componentspecparser.pf</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/test_componentspecparser.pf.html" xlink:title="Test_ComponentSpecParser.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1167,-442 995,-442 995,-418 1167,-418 1167,-442"/>
+<text text-anchor="middle" x="1081" y="-427.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ComponentSpecParser.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M1011.66,-417.98C989.59,-414.09 964.95,-409.76 942.22,-405.76"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="942.72,-402.3 932.27,-404.01 941.51,-409.19 942.72,-402.3"/>
+</g>
+<!-- sourcefile~test_genericinitialize.pf -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~test_genericinitialize.pf</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/test_genericinitialize.pf.html" xlink:title="Test_GenericInitialize.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="720,-209 582,-209 582,-185 720,-185 720,-209"/>
+<text text-anchor="middle" x="651" y="-194.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_GenericInitialize.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_genericinitialize.pf&#45;&gt;sourcefile~statespec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge40" class="edge">
+<title>sourcefile~test_genericinitialize.pf&#45;&gt;sourcefile~statespec.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M581.85,-197C543.43,-197 496.12,-197 460.33,-197"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="460.08,-193.5 450.08,-197 460.08,-200.5 460.08,-193.5"/>
+</g>
+<!-- sourcefile~test_hierarchicalregistry.pf -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~test_hierarchicalregistry.pf</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/test_hierarchicalregistry.pf.html" xlink:title="Test_HierarchicalRegistry.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="729.5,-251 572.5,-251 572.5,-227 729.5,-227 729.5,-251"/>
+<text text-anchor="middle" x="651" y="-236.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_HierarchicalRegistry.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_hierarchicalregistry.pf&#45;&gt;sourcefile~mockitemspec.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~test_hierarchicalregistry.pf&#45;&gt;sourcefile~mockitemspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M572.29,-239C540.15,-239 503.28,-239 472.48,-239"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="472.29,-235.5 462.29,-239 472.29,-242.5 472.29,-235.5"/>
+</g>
+<!-- sourcefile~test_historycollectiongridcomp.pf -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~test_historycollectiongridcomp.pf</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/test_historycollectiongridcomp.pf.html" xlink:title="Test_HistoryCollectionGridComp.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="749,-491 553,-491 553,-467 749,-467 749,-491"/>
+<text text-anchor="middle" x="651" y="-476.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_HistoryCollectionGridComp.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_historycollectiongridcomp.pf&#45;&gt;sourcefile~historycollectiongridcomp_private.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~test_historycollectiongridcomp.pf&#45;&gt;sourcefile~historycollectiongridcomp_private.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M580.22,-466.96C550.93,-461.91 516.7,-456.01 486.4,-450.78"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="486.74,-447.29 476.29,-449.04 485.55,-454.19 486.74,-447.29"/>
+</g>
+<!-- sourcefile~test_runchild.pf -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~test_runchild.pf</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node26"><a xlink:href="../sourcefile/test_runchild.pf.html" xlink:title="Test_RunChild.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1358.5,-234 1259.5,-234 1259.5,-210 1358.5,-210 1358.5,-234"/>
+<text text-anchor="middle" x="1309" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_RunChild.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_runchild.pf&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~test_runchild.pf&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M1259.24,-212.94C1226.27,-206.81 1182.36,-198.65 1146.5,-191.99"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="1147.09,-188.54 1136.62,-190.15 1145.81,-195.42 1147.09,-188.54"/>
+</g>
+<!-- sourcefile~test_runchild.pf&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge35" class="edge">
+<title>sourcefile~test_runchild.pf&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M1259.12,-218.05C1213.09,-215.36 1142.37,-213.89 1082,-224"/>
+</g>
+<!-- sourcefile~test_scenarios.pf -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node27" class="node">
+<title>sourcefile~test_scenarios.pf</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node27"><a xlink:href="../sourcefile/test_scenarios.pf.html" xlink:title="Test_Scenarios.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1361,-192 1257,-192 1257,-168 1361,-168 1361,-192"/>
+<text text-anchor="middle" x="1309" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_Scenarios.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_scenarios.pf&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~test_scenarios.pf&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M1257,-180C1224.41,-180 1181.87,-180 1146.88,-180"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="1146.76,-176.5 1136.76,-180 1146.76,-183.5 1146.76,-176.5"/>
+</g>
+<!-- sourcefile~test_scenarios.pf&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge36" class="edge">
+<title>sourcefile~test_scenarios.pf&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M1256.98,-190.73C1211.26,-200.15 1142.32,-213.9 1082,-224"/>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M1080,-224C1033.92,-231.72 1021.4,-230.47 977,-245 948.44,-254.34 917.55,-268.89 895.3,-280.22"/>
+<polygon fill="#003fff" stroke="#003fff" points="893.6,-277.16 886.32,-284.86 896.81,-283.38 893.6,-277.16"/>
+</g>
+<!-- sourcefile~test_simpleleafgridcomp.pf -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node28" class="node">
+<title>sourcefile~test_simpleleafgridcomp.pf</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node28"><a xlink:href="../sourcefile/test_simpleleafgridcomp.pf.html" xlink:title="Test_SimpleLeafGridComp.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1392,-66 1226,-66 1226,-42 1392,-42 1392,-66"/>
+<text text-anchor="middle" x="1309" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_SimpleLeafGridComp.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M1244.69,-66.03C1236.53,-68.51 1228.44,-71.48 1221,-75 1173.88,-97.29 1127.21,-137.16 1101.73,-160.83"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="1099.11,-158.5 1094.23,-167.91 1103.91,-163.59 1099.11,-158.5"/>
+</g>
+<!-- sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge37" class="edge">
+<title>sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M1259.26,-41.93C1211.42,-32.77 1137.74,-25.99 1082,-54"/>
+</g>
+<!-- sourcefile~test_simpleparentgridcomp.pf -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_node29" class="node">
+<title>sourcefile~test_simpleparentgridcomp.pf</title>
+<g id="a_sourcefile~~bracketspec.f90~~AfferentGraph_node29"><a xlink:href="../sourcefile/test_simpleparentgridcomp.pf.html" xlink:title="Test_SimpleParentGridComp.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1397,-24 1221,-24 1221,0 1397,0 1397,-24"/>
+<text text-anchor="middle" x="1309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_SimpleParentGridComp.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_simpleparentgridcomp.pf&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~test_simpleparentgridcomp.pf&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M1240.45,-24.14C1233.66,-26.57 1227.05,-29.49 1221,-33 1213.55,-37.32 1135.99,-121.24 1100.07,-160.3"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="1097.27,-158.18 1093.08,-167.91 1102.42,-162.92 1097.27,-158.18"/>
+</g>
+<!-- sourcefile~test_simpleparentgridcomp.pf&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~bracketspec.f90~~AfferentGraph_edge38" class="edge">
+<title>sourcefile~test_simpleparentgridcomp.pf&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M1220.92,-16.73C1177.34,-21.88 1124.88,-32.45 1082,-54"/>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M1080,-54C978.11,-105.21 902.51,-226.93 875.17,-275.98"/>
+<polygon fill="#003fff" stroke="#003fff" points="872.08,-274.33 870.35,-284.78 878.22,-277.69 872.08,-274.33"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilebracketspecf90AfferentGraph = svgPanZoom('#sourcefilebracketspecf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">mapl3g_BracketSpec</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldSpec</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_StateItemSpec</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_UngriddedDimsSpec</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ActualConnectionPt</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ESMF_Utilities</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">get_substate</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ActualPtSpecPtrMap</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_MultiState</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ActualPtVector</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ActualConnectionPt</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandling</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_KeywordEnforcer</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ExtensionAction</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_BundleAction</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_VerticalGeom</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_VerticalDimSpec</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_AbstractActionSpec</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_NullAction</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">use </span><span class="n">gftl2_StringVector</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">use </span><span class="n">nuopc</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="k">   private</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">BracketSpec</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_BracketSpec_geom</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">BracketSpec</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="k">      type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">reference_spec</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bracket_size</span><span class="w"> </span><span class="c">! unallocated implies mirror value in connection</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_specs</span><span class="p">(:)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">payload</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">create</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">destroy</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">allocate</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">connect_to</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">can_connect_to</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_to_state</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_to_bundle</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">extension_cost</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_extension</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_action</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">   </span><span class="k">end type </span><span class="n">BracketSpec</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">   </span><span class="k">interface </span><span class="n">BracketSpec</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_BracketSpec_geom</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">   </span><span class="k">end interface </span><span class="n">BracketSpec</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="k">contains</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="k">   function </span><span class="n">new_BracketSpec_geom</span><span class="p">(</span><span class="n">field_spec</span><span class="p">,</span><span class="w"> </span><span class="n">bracket_size</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">bracket_spec</span><span class="p">)</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bracket_spec</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_spec</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bracket_size</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="n">bracket_spec</span><span class="p">%</span><span class="n">reference_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">field_spec</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">bracket_size</span><span class="p">))</span><span class="w"> </span><span class="n">bracket_spec</span><span class="p">%</span><span class="n">bracket_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bracket_size</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_BracketSpec_geom</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">create</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldBundleCreate</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">create</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">   </span><span class="c">! Tile / Grid   X  or X, Y</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">   </span><span class="k">subroutine allocate</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">alias</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">bracket_size</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">field_specs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="k">allocate</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">         </span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">field_specs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">get_payload</span><span class="p">()</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">         </span><span class="n">alias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_NamedAlias</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">int_to_string</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">         </span><span class="k">call </span><span class="n">ESMF_FieldBundleAdd</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">payload</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">alias</span><span class="p">],</span><span class="w"> </span><span class="n">multiflag</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="k">end do</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="k">      function </span><span class="n">int_to_string</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">         </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">s</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;(i0)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">         </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="k">end function </span><span class="n">int_to_string</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">   </span><span class="k">end subroutine allocate</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a>
+<a id="ln-113" name="ln-113" href="#ln-113"></a>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="k">   subroutine </span><span class="n">destroy</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="k">call </span><span class="n">destroy_component_fields</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldBundleDestroy</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">payload</span><span class="p">,</span><span class="w"> </span><span class="n">nogarbage</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="k">      subroutine </span><span class="n">destroy_component_fields</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fields</span><span class="p">(:)</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldCount</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">field_specs</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="k">            do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">bracket_size</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">               </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">field_specs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">destroy</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">            </span><span class="k">end do</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="k">         end if</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">destroy_component_fields</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">destroy</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a>
+<a id="ln-147" name="ln-147" href="#ln-147"></a>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">src_spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_spec</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">      </span><span class="k">select type</span><span class="p">(</span><span class="n">src_spec</span><span class="p">)</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">)</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">         </span><span class="n">can_connect_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">all</span><span class="w"> </span><span class="p">([</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">              </span><span class="n">this</span><span class="p">%</span><span class="n">reference_spec</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">src_spec</span><span class="p">%</span><span class="n">reference_spec</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">              </span><span class="n">match_integer</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">bracket_size</span><span class="p">,</span><span class="w"> </span><span class="n">src_spec</span><span class="p">%</span><span class="n">bracket_size</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! allow for mirroring</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">              </span><span class="p">])</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">      </span><span class="k">class </span><span class="n">default</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">         </span><span class="n">can_connect_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="c">! At least one of src/dst must have allocated a bracket size.</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">      </span><span class="c">! THe other can mirror.</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="kt">logical </span><span class="k">function </span><span class="n">match_integer</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="n">src</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">         </span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">         </span><span class="n">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">src</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="k">            </span><span class="n">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">src</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">dst</span><span class="p">)</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="k">      end function </span><span class="n">match_integer</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">   </span><span class="k">end function </span><span class="n">can_connect_to</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">connect_to</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">src_spec</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_spec</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_pt</span><span class="w"> </span><span class="c">! unused</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">src_spec</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;illegal connection&#39;</span><span class="p">)</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">src_spec</span><span class="p">)</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">)</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">destroy</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span><span class="c">! use bundle from src</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">src_spec</span><span class="p">%</span><span class="n">payload</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">         </span><span class="k">call </span><span class="n">mirror_bracket</span><span class="p">(</span><span class="n">dst</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">bracket_size</span><span class="p">,</span><span class="w"> </span><span class="n">src</span><span class="o">=</span><span class="n">src_spec</span><span class="p">%</span><span class="n">bracket_size</span><span class="p">)</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="w">         </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">bracket_size</span><span class="p">)</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">           </span><span class="n">this</span><span class="p">%</span><span class="n">field_specs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="n">this</span><span class="p">%</span><span class="n">reference_spec</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">)]</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="w">           </span><span class="n">src_spec</span><span class="p">%</span><span class="n">field_specs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="n">src_spec</span><span class="p">%</span><span class="n">reference_spec</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">)]</span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">           </span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">bracket_size</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">              </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">field_specs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">create</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">              </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">field_specs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">connect_to</span><span class="p">(</span><span class="n">src_spec</span><span class="p">%</span><span class="n">field_specs</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">           </span><span class="k">end do</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="k">         end associate</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="k">      class </span><span class="n">default</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Cannot connect field spec to non field spec.&#39;</span><span class="p">)</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">actual_pt</span><span class="p">)</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="k">      subroutine </span><span class="n">mirror_bracket</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="n">src</span><span class="p">)</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">src</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="k">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">dst</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;cannot mirror unallocated bracket size&#39;</span><span class="p">)</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">            </span><span class="n">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dst</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="k">         if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">dst</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="k">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">src</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;cannot mirror unallocated bracket size&#39;</span><span class="p">)</span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a><span class="w">            </span><span class="n">dst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-226" name="ln-226" href="#ln-226"></a>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="k">      end subroutine </span><span class="n">mirror_bracket</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">connect_to</span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a>
+<a id="ln-231" name="ln-231" href="#ln-231"></a>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">add_to_state</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">multi_state</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MultiState</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">multi_state</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_pt</span>
+<a id="ln-236" name="ln-236" href="#ln-236"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">alias</span>
+<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">substate</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">short_name</span>
+<a id="ln-242" name="ln-242" href="#ln-242"></a>
+<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">      </span><span class="k">call </span><span class="n">multi_state</span><span class="p">%</span><span class="n">get_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">%</span><span class="n">get_state_intent</span><span class="p">(),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-244" name="ln-244" href="#ln-244"></a><span class="w">      </span><span class="k">call </span><span class="n">get_substate</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">%</span><span class="n">get_comp_name</span><span class="p">(),</span><span class="w"> </span><span class="n">substate</span><span class="o">=</span><span class="n">substate</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-245" name="ln-245" href="#ln-245"></a>
+<a id="ln-246" name="ln-246" href="#ln-246"></a><span class="w">      </span><span class="n">short_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">%</span><span class="n">get_esmf_name</span><span class="p">()</span>
+<a id="ln-247" name="ln-247" href="#ln-247"></a><span class="w">      </span><span class="n">alias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_NamedAlias</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">payload</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">short_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateAdd</span><span class="p">(</span><span class="n">substate</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">alias</span><span class="p">],</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">add_to_state</span>
+<a id="ln-252" name="ln-252" href="#ln-252"></a>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">add_to_bundle</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-257" name="ln-257" href="#ln-257"></a>
+<a id="ln-258" name="ln-258" href="#ln-258"></a>
+<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="w">      </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;Cannot add bundle (bracket) to ESMF bundle.&quot;</span><span class="p">)</span>
+<a id="ln-260" name="ln-260" href="#ln-260"></a>
+<a id="ln-261" name="ln-261" href="#ln-261"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-262" name="ln-262" href="#ln-262"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">add_to_bundle</span>
+<a id="ln-263" name="ln-263" href="#ln-263"></a>
+<a id="ln-264" name="ln-264" href="#ln-264"></a>
+<a id="ln-265" name="ln-265" href="#ln-265"></a><span class="w">   </span><span class="kt">integer </span><span class="k">function </span><span class="n">extension_cost</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">src_spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">cost</span><span class="p">)</span>
+<a id="ln-266" name="ln-266" href="#ln-266"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-267" name="ln-267" href="#ln-267"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_spec</span>
+<a id="ln-268" name="ln-268" href="#ln-268"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-269" name="ln-269" href="#ln-269"></a>
+<a id="ln-270" name="ln-270" href="#ln-270"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-271" name="ln-271" href="#ln-271"></a>
+<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">src_spec</span><span class="p">)</span>
+<a id="ln-273" name="ln-273" href="#ln-273"></a><span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">)</span>
+<a id="ln-274" name="ln-274" href="#ln-274"></a><span class="w">         </span><span class="n">cost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">reference_spec</span><span class="p">%</span><span class="n">extension_cost</span><span class="p">(</span><span class="n">src_spec</span><span class="p">%</span><span class="n">reference_spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-275" name="ln-275" href="#ln-275"></a><span class="w">      </span><span class="k">class </span><span class="n">default</span>
+<a id="ln-276" name="ln-276" href="#ln-276"></a><span class="w">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Cannot extend BracketSpec with non BracketSpec.&#39;</span><span class="p">)</span>
+<a id="ln-277" name="ln-277" href="#ln-277"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-278" name="ln-278" href="#ln-278"></a>
+<a id="ln-279" name="ln-279" href="#ln-279"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-280" name="ln-280" href="#ln-280"></a><span class="w">   </span><span class="k">end function </span><span class="n">extension_cost</span>
+<a id="ln-281" name="ln-281" href="#ln-281"></a>
+<a id="ln-282" name="ln-282" href="#ln-282"></a><span class="w">   </span><span class="k">function </span><span class="n">make_extension</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">dst_spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">extension</span><span class="p">)</span>
+<a id="ln-283" name="ln-283" href="#ln-283"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">extension</span>
+<a id="ln-284" name="ln-284" href="#ln-284"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-285" name="ln-285" href="#ln-285"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst_spec</span>
+<a id="ln-286" name="ln-286" href="#ln-286"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-287" name="ln-287" href="#ln-287"></a>
+<a id="ln-288" name="ln-288" href="#ln-288"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-289" name="ln-289" href="#ln-289"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-290" name="ln-290" href="#ln-290"></a>
+<a id="ln-291" name="ln-291" href="#ln-291"></a><span class="c">!#      extension = this</span>
+<a id="ln-292" name="ln-292" href="#ln-292"></a><span class="c">!#      do i = 1, this%bracket_size</span>
+<a id="ln-293" name="ln-293" href="#ln-293"></a><span class="c">!#         extension%field_specs(i) = this%field_specs(i)%make_extension(dst_spec, _RC)</span>
+<a id="ln-294" name="ln-294" href="#ln-294"></a><span class="c">!#      end do</span>
+<a id="ln-295" name="ln-295" href="#ln-295"></a><span class="c">!#      call extension%create(_RC)</span>
+<a id="ln-296" name="ln-296" href="#ln-296"></a>
+<a id="ln-297" name="ln-297" href="#ln-297"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-298" name="ln-298" href="#ln-298"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_extension</span>
+<a id="ln-299" name="ln-299" href="#ln-299"></a>
+<a id="ln-300" name="ln-300" href="#ln-300"></a>
+<a id="ln-301" name="ln-301" href="#ln-301"></a><span class="w">   </span><span class="c">! Return an atomic action that tranforms payload of &quot;this&quot;</span>
+<a id="ln-302" name="ln-302" href="#ln-302"></a><span class="w">   </span><span class="c">! to payload of &quot;goal&quot;.</span>
+<a id="ln-303" name="ln-303" href="#ln-303"></a><span class="w">   </span><span class="k">function </span><span class="n">make_action</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">dst_spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+<a id="ln-304" name="ln-304" href="#ln-304"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtensionAction</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">action</span>
+<a id="ln-305" name="ln-305" href="#ln-305"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-306" name="ln-306" href="#ln-306"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst_spec</span>
+<a id="ln-307" name="ln-307" href="#ln-307"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-308" name="ln-308" href="#ln-308"></a>
+<a id="ln-309" name="ln-309" href="#ln-309"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-310" name="ln-310" href="#ln-310"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtensionAction</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">subaction</span>
+<a id="ln-311" name="ln-311" href="#ln-311"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-312" name="ln-312" href="#ln-312"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">BundleAction</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle_action</span>
+<a id="ln-313" name="ln-313" href="#ln-313"></a>
+<a id="ln-314" name="ln-314" href="#ln-314"></a><span class="w">      </span><span class="n">action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NullAction</span><span class="p">()</span><span class="w"> </span><span class="c">! default</span>
+<a id="ln-315" name="ln-315" href="#ln-315"></a>
+<a id="ln-316" name="ln-316" href="#ln-316"></a><span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">dst_spec</span><span class="p">)</span>
+<a id="ln-317" name="ln-317" href="#ln-317"></a><span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">)</span>
+<a id="ln-318" name="ln-318" href="#ln-318"></a><span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">bracket_size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">dst_spec</span><span class="p">%</span><span class="n">bracket_size</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;bracket size mismatch&#39;</span><span class="p">)</span>
+<a id="ln-319" name="ln-319" href="#ln-319"></a><span class="w">         </span><span class="n">bundle_action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BundleAction</span><span class="p">()</span>
+<a id="ln-320" name="ln-320" href="#ln-320"></a><span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">bracket_size</span>
+<a id="ln-321" name="ln-321" href="#ln-321"></a><span class="w">            </span><span class="n">subaction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">field_specs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">make_action</span><span class="p">(</span><span class="n">dst_spec</span><span class="p">%</span><span class="n">field_specs</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-322" name="ln-322" href="#ln-322"></a><span class="w">            </span><span class="k">call </span><span class="n">bundle_action</span><span class="p">%</span><span class="n">add_action</span><span class="p">(</span><span class="n">subaction</span><span class="p">)</span>
+<a id="ln-323" name="ln-323" href="#ln-323"></a><span class="w">         </span><span class="k">end do</span>
+<a id="ln-324" name="ln-324" href="#ln-324"></a><span class="c">!##ifdef __GFORTRAN__</span>
+<a id="ln-325" name="ln-325" href="#ln-325"></a><span class="c">!#         deallocate(action)</span>
+<a id="ln-326" name="ln-326" href="#ln-326"></a><span class="c">!##endif</span>
+<a id="ln-327" name="ln-327" href="#ln-327"></a><span class="w">         </span><span class="n">action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bundle_action</span>
+<a id="ln-328" name="ln-328" href="#ln-328"></a><span class="w">      </span><span class="k">class </span><span class="n">default</span>
+<a id="ln-329" name="ln-329" href="#ln-329"></a><span class="w">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Dst_spec is incompatible with BracketSpec.&#39;</span><span class="p">)</span>
+<a id="ln-330" name="ln-330" href="#ln-330"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-331" name="ln-331" href="#ln-331"></a>
+<a id="ln-332" name="ln-332" href="#ln-332"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-333" name="ln-333" href="#ln-333"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_action</span>
+<a id="ln-334" name="ln-334" href="#ln-334"></a>
+<a id="ln-335" name="ln-335" href="#ln-335"></a>
+<a id="ln-336" name="ln-336" href="#ln-336"></a><span class="k">end module </span><span class="n">mapl3g_BracketSpec</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

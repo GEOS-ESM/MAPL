@@ -1,0 +1,729 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>make_mapl_geom_from_spec &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>make_mapl_geom_from_spec
+      <small>Module Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">31 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/GeomManager_smod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/geommanager_smod.f90.html'>GeomManager_smod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/geommanager_smod.html'>GeomManager_smod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">make_mapl_geom_from_spec</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/make_mapl_geom_from_spec.html#src">make_mapl_geom_from_spec</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>module function make_mapl_geom_from_spec(this, spec, rc) result(mapl_geom)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item">gftl_StringVector</li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~make_mapl_geom_from_spec~~UsesGraph Pages: 1 -->
+<svg id="procmake_mapl_geom_from_specUsesGraph" width="315pt" height="32pt"
+ viewBox="0.00 0.00 315.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~make_mapl_geom_from_spec~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~make_mapl_geom_from_spec~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 311,-28 311,4 -4,4"/>
+<!-- proc~make_mapl_geom_from_spec -->
+<g id="proc~~make_mapl_geom_from_spec~~UsesGraph_node1" class="node">
+<title>proc~make_mapl_geom_from_spec</title>
+<polygon fill="none" stroke="black" points="307,-24 136,-24 136,0 307,0 307,-24"/>
+<text text-anchor="middle" x="221.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">make_mapl_geom_from_spec</text>
+</g>
+<!-- gftl_StringVector -->
+<g id="proc~~make_mapl_geom_from_spec~~UsesGraph_node2" class="node">
+<title>gftl_StringVector</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="100,-24 0,-24 0,0 100,0 100,-24"/>
+<text text-anchor="middle" x="50" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gftl_StringVector</text>
+</g>
+<!-- proc~make_mapl_geom_from_spec&#45;&gt;gftl_StringVector -->
+<g id="proc~~make_mapl_geom_from_spec~~UsesGraph_edge1" class="edge">
+<title>proc~make_mapl_geom_from_spec&#45;&gt;gftl_StringVector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M135.75,-12C127.14,-12 118.52,-12 110.27,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.03,-8.5 100.03,-12 110.03,-15.5 110.03,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~589"></span>
+              class(GeomManager),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec"></span>
+              class(<a href='../type/geomspec.html'>GeomSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>spec</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~126"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-mapl_geom~6"></span>
+          type(MaplGeom)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~make_mapl_geom_from_spec~~CallsGraph Pages: 1 -->
+<svg id="procmake_mapl_geom_from_specCallsGraph" width="641pt" height="243pt"
+ viewBox="0.00 0.00 641.00 242.68" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph" class="graph" transform="scale(1.52 1.52) rotate(0) translate(4 364)">
+<title>proc~~make_mapl_geom_from_spec~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-364 968,-364 968,4 -4,4"/>
+<!-- proc~make_mapl_geom_from_spec -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node1" class="node">
+<title>proc~make_mapl_geom_from_spec</title>
+<polygon fill="none" stroke="black" points="171,-192 0,-192 0,-168 171,-168 171,-192"/>
+<text text-anchor="middle" x="85.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50">make_mapl_geom_from_spec</text>
+</g>
+<!-- make_file_metadata -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node2" class="node">
+<title>make_file_metadata</title>
+<polygon fill="#777777" stroke="#777777" points="337,-360 216,-360 216,-336 337,-336 337,-360"/>
+<text text-anchor="middle" x="276.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_file_metadata</text>
+</g>
+<!-- proc~make_mapl_geom_from_spec&#45;&gt;make_file_metadata -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge1" class="edge">
+<title>proc~make_mapl_geom_from_spec&#45;&gt;make_file_metadata</title>
+<path fill="none" stroke="#ff0000" d="M93.17,-192.32C109.05,-220.5 151.91,-290.05 207,-327 209.55,-328.71 212.25,-330.29 215.04,-331.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="213.66,-334.96 224.21,-335.97 216.59,-328.6 213.66,-334.96"/>
+</g>
+<!-- make_geom -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node3" class="node">
+<title>make_geom</title>
+<polygon fill="#777777" stroke="#777777" points="316,-318 237,-318 237,-294 316,-294 316,-318"/>
+<text text-anchor="middle" x="276.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_geom</text>
+</g>
+<!-- proc~make_mapl_geom_from_spec&#45;&gt;make_geom -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge2" class="edge">
+<title>proc~make_mapl_geom_from_spec&#45;&gt;make_geom</title>
+<path fill="none" stroke="#ff0000" d="M97.21,-192.23C116.86,-213.96 160.91,-259.4 207,-285 213.14,-288.41 219.9,-291.34 226.71,-293.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="226.06,-297.3 236.65,-297.17 228.29,-290.67 226.06,-297.3"/>
+</g>
+<!-- make_gridded_dims -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node4" class="node">
+<title>make_gridded_dims</title>
+<polygon fill="#777777" stroke="#777777" points="336.5,-276 216.5,-276 216.5,-252 336.5,-252 336.5,-276"/>
+<text text-anchor="middle" x="276.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_gridded_dims</text>
+</g>
+<!-- proc~make_mapl_geom_from_spec&#45;&gt;make_gridded_dims -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge3" class="edge">
+<title>proc~make_mapl_geom_from_spec&#45;&gt;make_gridded_dims</title>
+<path fill="none" stroke="#ff0000" d="M106.84,-192.12C130.36,-205.78 170.53,-228.03 207,-243 211.84,-244.99 216.93,-246.89 222.07,-248.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="221.36,-252.13 231.96,-251.97 223.58,-245.49 221.36,-252.13"/>
+</g>
+<!-- mapl_assert -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node5" class="node">
+<title>mapl_assert</title>
+<polygon fill="#777777" stroke="#777777" points="315,-234 238,-234 238,-210 315,-210 315,-234"/>
+<text text-anchor="middle" x="276.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_assert</text>
+</g>
+<!-- proc~make_mapl_geom_from_spec&#45;&gt;mapl_assert -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge4" class="edge">
+<title>proc~make_mapl_geom_from_spec&#45;&gt;mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M140.66,-192.04C168.23,-198.16 201.43,-205.54 227.99,-211.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.3,-214.87 237.82,-213.63 228.82,-208.04 227.3,-214.87"/>
+</g>
+<!-- mapl_return -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node6" class="node">
+<title>mapl_return</title>
+<polygon fill="#777777" stroke="#777777" points="315,-192 238,-192 238,-168 315,-168 315,-192"/>
+<text text-anchor="middle" x="276.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_return</text>
+</g>
+<!-- proc~make_mapl_geom_from_spec&#45;&gt;mapl_return -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge5" class="edge">
+<title>proc~make_mapl_geom_from_spec&#45;&gt;mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M171.05,-180C190.42,-180 210.36,-180 227.55,-180"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.87,-183.5 237.87,-180 227.87,-176.5 227.87,-183.5"/>
+</g>
+<!-- mapl_verify -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node7" class="node">
+<title>mapl_verify</title>
+<polygon fill="#777777" stroke="#777777" points="314,-150 239,-150 239,-126 314,-126 314,-150"/>
+<text text-anchor="middle" x="276.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_verify</text>
+</g>
+<!-- proc~make_mapl_geom_from_spec&#45;&gt;mapl_verify -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge6" class="edge">
+<title>proc~make_mapl_geom_from_spec&#45;&gt;mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M140.66,-167.96C168.61,-161.75 202.36,-154.25 229.11,-148.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="229.98,-151.7 238.98,-146.11 228.46,-144.87 229.98,-151.7"/>
+</g>
+<!-- maplgeom -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node8" class="node">
+<title>maplgeom</title>
+<polygon fill="#777777" stroke="#777777" points="311.5,-108 241.5,-108 241.5,-84 311.5,-84 311.5,-108"/>
+<text text-anchor="middle" x="276.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">maplgeom</text>
+</g>
+<!-- proc~make_mapl_geom_from_spec&#45;&gt;maplgeom -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge7" class="edge">
+<title>proc~make_mapl_geom_from_spec&#45;&gt;maplgeom</title>
+<path fill="none" stroke="#ff0000" d="M106.84,-167.88C130.36,-154.22 170.53,-131.97 207,-117 214.86,-113.77 223.4,-110.78 231.69,-108.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="232.75,-111.45 241.27,-105.14 230.68,-104.76 232.75,-111.45"/>
+</g>
+<!-- none~supports~26 -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node9" class="node">
+<title>none~supports~26</title>
+<g id="a_proc~~make_mapl_geom_from_spec~~CallsGraph_node9"><a xlink:href="../type/geomfactory.html#boundprocedure-supports~26" xlink:title="GeomFactory%supports">
+<polygon fill="#a7506f" stroke="#a7506f" points="346,-66 207,-66 207,-42 346,-42 346,-66"/>
+<text text-anchor="middle" x="276.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GeomFactory%supports</text>
+</a>
+</g>
+</g>
+<!-- proc~make_mapl_geom_from_spec&#45;&gt;none~supports~26 -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge8" class="edge">
+<title>proc~make_mapl_geom_from_spec&#45;&gt;none~supports~26</title>
+<path fill="none" stroke="#ff0000" d="M97.21,-167.77C116.86,-146.04 160.91,-100.6 207,-75 210.29,-73.17 213.76,-71.48 217.33,-69.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="218.92,-73.05 226.91,-66.1 216.33,-66.55 218.92,-73.05"/>
+</g>
+<!-- of -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node10" class="node">
+<title>of</title>
+<polygon fill="#777777" stroke="#777777" points="303.5,-24 249.5,-24 249.5,0 303.5,0 303.5,-24"/>
+<text text-anchor="middle" x="276.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">of</text>
+</g>
+<!-- proc~make_mapl_geom_from_spec&#45;&gt;of -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge9" class="edge">
+<title>proc~make_mapl_geom_from_spec&#45;&gt;of</title>
+<path fill="none" stroke="#ff0000" d="M93.17,-167.68C109.05,-139.5 151.91,-69.95 207,-33 216.65,-26.53 228.38,-21.98 239.38,-18.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="240.39,-22.17 249.2,-16.29 238.65,-15.4 240.39,-22.17"/>
+</g>
+<!-- interface~supports_metadata -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node11" class="node">
+<title>interface~supports_metadata</title>
+<g id="a_proc~~make_mapl_geom_from_spec~~CallsGraph_node11"><a xlink:href="../interface/supports_metadata.html" xlink:title="LatLonGeomFactory%supports_metadata">
+<polygon fill="#a7506f" stroke="#a7506f" points="614,-66 382,-66 382,-42 614,-42 614,-66"/>
+<text text-anchor="middle" x="498" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomFactory%supports_metadata</text>
+</a>
+</g>
+</g>
+<!-- none~supports~26&#45;&gt;interface~supports_metadata -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge10" class="edge">
+<title>none~supports~26&#45;&gt;interface~supports_metadata</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M346.05,-54C354.37,-54 363.05,-54 371.87,-54"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="371.88,-57.5 381.88,-54 371.88,-50.5 371.88,-57.5"/>
+</g>
+<!-- proc~supports_metadata~3 -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node12" class="node">
+<title>proc~supports_metadata~3</title>
+<g id="a_proc~~make_mapl_geom_from_spec~~CallsGraph_node12"><a xlink:href="../proc/supports_metadata~3.html" xlink:title="supports_metadata">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="765,-66 650,-66 650,-42 765,-42 765,-66"/>
+<text text-anchor="middle" x="707.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">supports_metadata</text>
+</a>
+</g>
+</g>
+<!-- interface~supports_metadata&#45;&gt;proc~supports_metadata~3 -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge11" class="edge">
+<title>interface~supports_metadata&#45;&gt;proc~supports_metadata~3</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M614.28,-54C622.94,-54 631.49,-54 639.68,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="639.86,-57.5 649.86,-54 639.86,-50.5 639.86,-57.5"/>
+</g>
+<!-- none~supports~5 -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node13" class="node">
+<title>none~supports~5</title>
+<g id="a_proc~~make_mapl_geom_from_spec~~CallsGraph_node13"><a xlink:href="../type/latlongeomspec.html#boundprocedure-supports~5" xlink:title="LatLonGeomSpec%supports">
+<polygon fill="#a7506f" stroke="#a7506f" points="964,-108 801,-108 801,-84 964,-84 964,-108"/>
+<text text-anchor="middle" x="882.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomSpec%supports</text>
+</a>
+</g>
+</g>
+<!-- proc~supports_metadata~3&#45;&gt;none~supports~5 -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge12" class="edge">
+<title>proc~supports_metadata~3&#45;&gt;none~supports~5</title>
+<path fill="none" stroke="#ff0000" d="M758.07,-66.04C778.07,-70.89 801.31,-76.53 822.19,-81.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="821.37,-85 831.92,-83.96 823.03,-78.2 821.37,-85"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node14" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~make_mapl_geom_from_spec~~CallsGraph_node14"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="923.5,-66 841.5,-66 841.5,-42 923.5,-42 923.5,-66"/>
+<text text-anchor="middle" x="882.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~supports_metadata~3&#45;&gt;proc~mapl_return -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge13" class="edge">
+<title>proc~supports_metadata~3&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M765.15,-54C786.47,-54 810.56,-54 831.27,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="831.44,-57.5 841.44,-54 831.44,-50.5 831.44,-57.5"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_node15" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~make_mapl_geom_from_spec~~CallsGraph_node15"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="920.5,-24 844.5,-24 844.5,0 920.5,0 920.5,-24"/>
+<text text-anchor="middle" x="882.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~supports_metadata~3&#45;&gt;proc~mapl_verify -->
+<g id="proc~~make_mapl_geom_from_spec~~CallsGraph_edge14" class="edge">
+<title>proc~supports_metadata~3&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M758.07,-41.96C782.1,-36.13 810.8,-29.16 834.48,-23.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="835.4,-26.79 844.3,-21.03 833.75,-19.99 835.4,-26.79"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmake_mapl_geom_from_specCallsGraph = svgPanZoom('#procmake_mapl_geom_from_specCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">module function </span><span class="n">make_mapl_geom_from_spec</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">mapl_geom</span><span class="p">)</span>
+<span class="w">      </span><span class="k">use </span><span class="n">gftl_StringVector</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MaplGeom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mapl_geom</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">GeomManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">GeomSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">GeomFactory</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">factory</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_metadata</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridded_dims</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">found</span>
+
+<span class="w">      </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">factories</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">         </span><span class="n">factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">factories</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">factory</span><span class="p">%</span><span class="n">supports</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">         </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">         </span><span class="k">exit</span>
+<span class="k">      end do</span>
+<span class="k">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">found</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;No factory supports spec.&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">geom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factory</span><span class="p">%</span><span class="n">make_geom</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">file_metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factory</span><span class="p">%</span><span class="n">make_file_metadata</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">gridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factory</span><span class="p">%</span><span class="n">make_gridded_dims</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">mapl_geom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MaplGeom</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">file_metadata</span><span class="p">,</span><span class="w"> </span><span class="n">gridded_dims</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">make_mapl_geom_from_spec</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

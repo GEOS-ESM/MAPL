@@ -1,0 +1,926 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>omap_I_erase_range &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>omap_I_erase_range
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">8 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/GriddedComponentDriverMap.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/griddedcomponentdrivermap.f90.html'>GriddedComponentDriverMap.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_griddedcomponentdrivermap.html'>mapl3g_GriddedComponentDriverMap</a></li>
+            <li class="breadcrumb-item active" aria-current="page">omap_I_erase_range</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function omap_I_erase_range(this, first, last) result(new_iter)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/omap_map.html'>omap_Map</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1619"></span>
+              class(<a href='../type/omap_map.html'>omap_Map</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-first~79"></span>
+              type(<a href='../type/omap_mapiterator.html'>omap_MapIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-last~84"></span>
+              type(<a href='../type/omap_mapiterator.html'>omap_MapIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-new_iter~88"></span>
+          type(<a href='../type/omap_mapiterator.html'>omap_MapIterator</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~omap_i_erase_range~~CallsGraph Pages: 1 -->
+<svg id="procomap_i_erase_rangeCallsGraph" width="641pt" height="189pt"
+ viewBox="0.00 0.00 641.00 189.16" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~omap_i_erase_range~~CallsGraph" class="graph" transform="scale(2.23 2.23) rotate(0) translate(4 418)">
+<title>proc~~omap_i_erase_range~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-418 1426,-418 1426,4 -4,4"/>
+<!-- proc~omap_i_erase_range -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node1" class="node">
+<title>proc~omap_i_erase_range</title>
+<polygon fill="none" stroke="black" points="192,-292 0,-292 0,-268 192,-268 192,-292"/>
+<text text-anchor="middle" x="96" y="-277.6" font-family="Helvetica,sans-Serif" font-size="10.50">omap_Map%omap_I_erase_range</text>
+</g>
+<!-- none~erase~32 -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node2" class="node">
+<title>none~erase~32</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node2"><a xlink:href="../type/omap_i_set.html#boundprocedure-erase~32" xlink:title="omap_I_Set%erase">
+<polygon fill="#a7506f" stroke="#a7506f" points="342,-292 228,-292 228,-268 342,-268 342,-292"/>
+<text text-anchor="middle" x="285" y="-277.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_Set%erase</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_erase_range&#45;&gt;none~erase~32 -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge1" class="edge">
+<title>proc~omap_i_erase_range&#45;&gt;none~erase~32</title>
+<path fill="none" stroke="#ff0000" d="M192.14,-280C200.87,-280 209.57,-280 217.95,-280"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="218,-283.5 228,-280 218,-276.5 218,-283.5"/>
+</g>
+<!-- proc~omap_i_s_erase_iter -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node3" class="node">
+<title>proc~omap_i_s_erase_iter</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node3"><a xlink:href="../proc/omap_i_s_erase_iter.html" xlink:title="omap_I_Set%omap_I_s_erase_iter">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="576.5,-334 384.5,-334 384.5,-310 576.5,-310 576.5,-334"/>
+<text text-anchor="middle" x="480.5" y="-319.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_Set%omap_I_s_erase_iter</text>
+</a>
+</g>
+</g>
+<!-- none~erase~32&#45;&gt;proc~omap_i_s_erase_iter -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge2" class="edge">
+<title>none~erase~32&#45;&gt;proc~omap_i_s_erase_iter</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M342.4,-284.26C354.15,-286.73 366.47,-289.49 378,-292 400.46,-296.89 425.78,-302.12 445.51,-307.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="444.7,-310.67 455.27,-309.94 446.55,-303.92 444.7,-310.67"/>
+</g>
+<!-- proc~omap_i_s_erase_range -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node4" class="node">
+<title>proc~omap_i_s_erase_range</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node4"><a xlink:href="../proc/omap_i_s_erase_range.html" xlink:title="omap_I_Set%omap_I_s_erase_range">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="583,-292 378,-292 378,-268 583,-268 583,-292"/>
+<text text-anchor="middle" x="480.5" y="-277.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_Set%omap_I_s_erase_range</text>
+</a>
+</g>
+</g>
+<!-- none~erase~32&#45;&gt;proc~omap_i_s_erase_range -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge3" class="edge">
+<title>none~erase~32&#45;&gt;proc~omap_i_s_erase_range</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M342.23,-280C350.42,-280 359.08,-280 367.91,-280"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="367.93,-283.5 377.93,-280 367.93,-276.5 367.93,-283.5"/>
+</g>
+<!-- proc~omap_i_s_erase_value -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node5" class="node">
+<title>proc~omap_i_s_erase_value</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node5"><a xlink:href="../proc/omap_i_s_erase_value.html" xlink:title="omap_I_Set%omap_I_s_erase_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="582,-250 379,-250 379,-226 582,-226 582,-250"/>
+<text text-anchor="middle" x="480.5" y="-235.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_Set%omap_I_s_erase_value</text>
+</a>
+</g>
+</g>
+<!-- none~erase~32&#45;&gt;proc~omap_i_s_erase_value -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge4" class="edge">
+<title>none~erase~32&#45;&gt;proc~omap_i_s_erase_value</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M307.17,-267.92C323.39,-262.51 346.64,-256.94 368.96,-251.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="369.78,-255.39 378.79,-249.83 368.27,-248.55 369.78,-255.39"/>
+</g>
+<!-- proc~omap_i_s_erase_iter&#45;&gt;none~erase~32 -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge5" class="edge">
+<title>proc~omap_i_s_erase_iter&#45;&gt;none~erase~32</title>
+<path fill="none" stroke="#ff0000" d="M384.4,-311.38C382.25,-310.92 380.11,-310.46 378,-310 357.56,-305.55 334.63,-300.32 316.78,-295.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="317.76,-291.71 307.17,-292.08 315.67,-298.4 317.76,-291.71"/>
+</g>
+<!-- proc~omap_i_s_iter_next -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node11" class="node">
+<title>proc~omap_i_s_iter_next</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node11"><a xlink:href="../proc/omap_i_s_iter_next.html" xlink:title="omap_I_SetIterator%omap_I_s_iter_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="854.5,-414 630.5,-414 630.5,-390 854.5,-390 854.5,-414"/>
+<text text-anchor="middle" x="742.5" y="-399.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_SetIterator%omap_I_s_iter_next</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_erase_iter&#45;&gt;proc~omap_i_s_iter_next -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge6" class="edge">
+<title>proc~omap_i_s_erase_iter&#45;&gt;proc~omap_i_s_iter_next</title>
+<path fill="none" stroke="#ff0000" d="M505.2,-334.21C532.11,-347.59 577.65,-368.77 619,-381 627.66,-383.56 636.77,-385.85 645.94,-387.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="645.39,-391.34 655.9,-389.98 646.84,-384.49 645.39,-391.34"/>
+</g>
+<!-- proc~omap_i_s_deallocate_child -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node6" class="node">
+<title>proc~omap_i_s_deallocate_child</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node6"><a xlink:href="../proc/omap_i_s_deallocate_child.html" xlink:title="omap_I_s_Node%omap_I_s_deallocate_child">
+<polygon fill="#d9534f" stroke="#d9534f" points="866,-292 619,-292 619,-268 866,-268 866,-292"/>
+<text text-anchor="middle" x="742.5" y="-277.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_s_Node%omap_I_s_deallocate_child</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_deallocate_child -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge7" class="edge">
+<title>proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_deallocate_child</title>
+<path fill="none" stroke="#00ff00" d="M583.14,-280C591.53,-280 600.09,-280 608.67,-280"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="608.74,-283.5 618.74,-280 608.74,-276.5 608.74,-283.5"/>
+</g>
+<!-- proc~omap_i_s_erase_nonleaf -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node7" class="node">
+<title>proc~omap_i_s_erase_nonleaf</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node7"><a xlink:href="../proc/omap_i_s_erase_nonleaf.html" xlink:title="omap_I_Set%omap_I_s_erase_nonleaf">
+<polygon fill="#d9534f" stroke="#d9534f" points="849.5,-208 635.5,-208 635.5,-184 849.5,-184 849.5,-208"/>
+<text text-anchor="middle" x="742.5" y="-193.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_Set%omap_I_s_erase_nonleaf</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_erase_nonleaf -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge8" class="edge">
+<title>proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_erase_nonleaf</title>
+<path fill="none" stroke="#00ff00" d="M563.88,-267.91C570.57,-265.46 577.03,-262.52 583,-259 604.17,-246.51 597.62,-229.13 619,-217 622.29,-215.13 625.7,-213.42 629.21,-211.86"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="630.71,-215.03 638.68,-208.05 628.1,-208.53 630.71,-215.03"/>
+</g>
+<!-- proc~omap_i_s_get_parent -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node9" class="node">
+<title>proc~omap_i_s_get_parent</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node9"><a xlink:href="../proc/omap_i_s_get_parent.html" xlink:title="omap_I_s_Node%omap_I_s_get_parent">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="851,-250 634,-250 634,-226 851,-226 851,-250"/>
+<text text-anchor="middle" x="742.5" y="-235.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_s_Node%omap_I_s_get_parent</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_get_parent -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge9" class="edge">
+<title>proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_get_parent</title>
+<path fill="none" stroke="#00ff00" d="M556.01,-267.96C587.56,-262.87 624.47,-256.9 657.03,-251.65"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="657.67,-255.09 666.98,-250.04 656.55,-248.18 657.67,-255.09"/>
+</g>
+<!-- proc~omap_i_s_has_child -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node10" class="node">
+<title>proc~omap_i_s_has_child</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node10"><a xlink:href="../proc/omap_i_s_has_child.html" xlink:title="omap_I_s_Node%omap_I_s_has_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1408.5,-158 1199.5,-158 1199.5,-134 1408.5,-134 1408.5,-158"/>
+<text text-anchor="middle" x="1304" y="-143.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_s_Node%omap_I_s_has_child</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_has_child -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge10" class="edge">
+<title>proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_has_child</title>
+<path fill="none" stroke="#00ff00" d="M569.37,-267.78C574.22,-265.32 578.82,-262.42 583,-259 614.46,-233.3 585.9,-198.54 619,-175 707.61,-111.97 1019,-124.23 1189.43,-136.35"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1189.21,-139.84 1199.44,-137.07 1189.72,-132.86 1189.21,-139.84"/>
+</g>
+<!-- proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_iter_next -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge11" class="edge">
+<title>proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_iter_next</title>
+<path fill="none" stroke="#00ff00" d="M568.81,-292.06C573.86,-294.56 578.65,-297.51 583,-301 613.42,-325.39 588.17,-357.13 619,-381 620.8,-382.4 622.66,-383.71 624.58,-384.95"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="622.86,-388 633.28,-389.92 626.33,-381.92 622.86,-388"/>
+</g>
+<!-- proc~omap_i_s_rebalance -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node12" class="node">
+<title>proc~omap_i_s_rebalance</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node12"><a xlink:href="../proc/omap_i_s_rebalance.html" xlink:title="omap_I_Set%omap_I_s_rebalance">
+<polygon fill="#d9534f" stroke="#d9534f" points="1122,-272 930,-272 930,-248 1122,-248 1122,-272"/>
+<text text-anchor="middle" x="1026" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_Set%omap_I_s_rebalance</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_rebalance -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge12" class="edge">
+<title>proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_rebalance</title>
+<path fill="none" stroke="#00ff00" d="M546.66,-292.02C569.46,-295.68 595.28,-299.2 619,-301 728.46,-309.31 757.09,-314.82 866,-301 904.92,-296.06 947.94,-284.59 979.4,-275.03"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="980.67,-278.3 989.19,-272 978.61,-271.61 980.67,-278.3"/>
+</g>
+<!-- proc~omap_i_s_which_child -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node13" class="node">
+<title>proc~omap_i_s_which_child</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node13"><a xlink:href="../proc/omap_i_s_which_child.html" xlink:title="omap_I_s_Node%omap_I_s_which_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="853,-372 632,-372 632,-348 853,-348 853,-372"/>
+<text text-anchor="middle" x="742.5" y="-357.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_s_Node%omap_I_s_which_child</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_which_child -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge13" class="edge">
+<title>proc~omap_i_s_erase_range&#45;&gt;proc~omap_i_s_which_child</title>
+<path fill="none" stroke="#00ff00" d="M560.8,-292.02C568.5,-294.47 576.03,-297.43 583,-301 602.32,-310.89 599.7,-324.06 619,-334 627.46,-338.36 636.62,-341.99 645.97,-345.01"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="645.2,-348.43 655.78,-347.94 647.2,-341.72 645.2,-348.43"/>
+</g>
+<!-- proc~omap_i_s_erase_value&#45;&gt;none~erase~32 -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge14" class="edge">
+<title>proc~omap_i_s_erase_value&#45;&gt;none~erase~32</title>
+<path fill="none" stroke="#0000ff" d="M455.27,-250.06C434.69,-256.04 404.38,-262.26 378,-268 369.72,-269.8 361.02,-271.73 352.42,-273.6"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="351.45,-270.22 342.4,-275.74 352.91,-277.07 351.45,-270.22"/>
+</g>
+<!-- proc~omap_i_s_find -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node8" class="node">
+<title>proc~omap_i_s_find</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node8"><a xlink:href="../proc/omap_i_s_find.html" xlink:title="omap_I_Set%omap_I_s_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="822,-87 663,-87 663,-63 822,-63 822,-87"/>
+<text text-anchor="middle" x="742.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_Set%omap_I_s_find</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_erase_value&#45;&gt;proc~omap_i_s_find -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge15" class="edge">
+<title>proc~omap_i_s_erase_value&#45;&gt;proc~omap_i_s_find</title>
+<path fill="none" stroke="#0000ff" d="M492.95,-225.95C515.3,-203.02 567.1,-152.66 619,-122 641.31,-108.82 667.98,-98.07 690.73,-90.2"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="691.86,-93.51 700.21,-87 689.62,-86.88 691.86,-93.51"/>
+</g>
+<!-- proc~omap_i_s_erase_nonleaf&#45;&gt;proc~omap_i_s_rebalance -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge18" class="edge">
+<title>proc~omap_i_s_erase_nonleaf&#45;&gt;proc~omap_i_s_rebalance</title>
+<path fill="none" stroke="#ffbf00" d="M836.14,-208.01C846.37,-210.47 856.51,-213.44 866,-217 883.55,-223.59 884.44,-232.42 902,-239 908.34,-241.38 914.96,-243.49 921.7,-245.36"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="921.09,-248.82 931.65,-247.93 922.85,-242.04 921.09,-248.82"/>
+</g>
+<!-- proc~omap_i_s_advpos -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node15" class="node">
+<title>proc~omap_i_s_advpos</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node15"><a xlink:href="../proc/omap_i_s_advpos.html" xlink:title="omap_I_Set%omap_I_s_advpos">
+<polygon fill="#d9534f" stroke="#d9534f" points="1114.5,-352 937.5,-352 937.5,-328 1114.5,-328 1114.5,-352"/>
+<text text-anchor="middle" x="1026" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_Set%omap_I_s_advpos</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_erase_nonleaf&#45;&gt;proc~omap_i_s_advpos -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge16" class="edge">
+<title>proc~omap_i_s_erase_nonleaf&#45;&gt;proc~omap_i_s_advpos</title>
+<path fill="none" stroke="#ffbf00" d="M849.7,-206.54C855.52,-209.41 861.02,-212.87 866,-217 901.39,-246.36 867.18,-283.96 902,-314 909.62,-320.58 918.49,-325.63 927.91,-329.49"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="926.89,-332.84 937.49,-332.97 929.28,-326.26 926.89,-332.84"/>
+</g>
+<!-- proc~omap_i_s_get_child -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node17" class="node">
+<title>proc~omap_i_s_get_child</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node17"><a xlink:href="../proc/omap_i_s_get_child.html" xlink:title="omap_I_s_Node%omap_I_s_get_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1408,-346 1200,-346 1200,-322 1408,-322 1408,-346"/>
+<text text-anchor="middle" x="1304" y="-331.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_s_Node%omap_I_s_get_child</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_erase_nonleaf&#45;&gt;proc~omap_i_s_get_child -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge17" class="edge">
+<title>proc~omap_i_s_erase_nonleaf&#45;&gt;proc~omap_i_s_get_child</title>
+<path fill="none" stroke="#ffbf00" d="M849.58,-207.75C855.36,-210.34 860.89,-213.39 866,-217 892.67,-235.81 874.97,-262.71 902,-281 913.93,-289.07 1075.24,-308.56 1189.58,-321.52"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="1189.47,-325.03 1199.8,-322.68 1190.25,-318.08 1189.47,-325.03"/>
+</g>
+<!-- proc~omap_i_s_which_side_am_i -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node22" class="node">
+<title>proc~omap_i_s_which_side_am_i</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node22"><a xlink:href="../proc/omap_i_s_which_side_am_i.html" xlink:title="omap_I_s_Node%omap_I_s_which_side_am_i">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1150,-230 902,-230 902,-206 1150,-206 1150,-230"/>
+<text text-anchor="middle" x="1026" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_s_Node%omap_I_s_which_side_am_i</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_erase_nonleaf&#45;&gt;proc~omap_i_s_which_side_am_i -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge19" class="edge">
+<title>proc~omap_i_s_erase_nonleaf&#45;&gt;proc~omap_i_s_which_side_am_i</title>
+<path fill="none" stroke="#ffbf00" d="M849.52,-204.29C863.19,-205.35 877.33,-206.46 891.37,-207.56"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="891.33,-211.06 901.57,-208.35 891.87,-204.08 891.33,-211.06"/>
+</g>
+<!-- set_parent -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node23" class="node">
+<title>set_parent</title>
+<polygon fill="#777777" stroke="#777777" points="1060,-188 992,-188 992,-164 1060,-164 1060,-188"/>
+<text text-anchor="middle" x="1026" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_parent</text>
+</g>
+<!-- proc~omap_i_s_erase_nonleaf&#45;&gt;set_parent -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge20" class="edge">
+<title>proc~omap_i_s_erase_nonleaf&#45;&gt;set_parent</title>
+<path fill="none" stroke="#ffbf00" d="M849.52,-188.47C895.28,-185.22 946.27,-181.59 981.44,-179.09"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="982.1,-182.56 991.82,-178.36 981.6,-175.57 982.1,-182.56"/>
+</g>
+<!-- proc~omap_i_s_find_node -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node16" class="node">
+<title>proc~omap_i_s_find_node</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node16"><a xlink:href="../proc/omap_i_s_find_node.html" xlink:title="omap_I_Set%omap_I_s_find_node">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1121.5,-24 930.5,-24 930.5,0 1121.5,0 1121.5,-24"/>
+<text text-anchor="middle" x="1026" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_Set%omap_I_s_find_node</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_find&#45;&gt;proc~omap_i_s_find_node -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge21" class="edge">
+<title>proc~omap_i_s_find&#45;&gt;proc~omap_i_s_find_node</title>
+<path fill="none" stroke="#7fff00" d="M784.97,-62.92C816.8,-53.91 861.94,-41.71 902,-33 913.58,-30.48 925.82,-28.08 937.92,-25.87"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="938.81,-29.26 948.03,-24.05 937.57,-22.37 938.81,-29.26"/>
+</g>
+<!-- proc~omap_i_s_get_value -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node18" class="node">
+<title>proc~omap_i_s_get_value</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node18"><a xlink:href="../proc/omap_i_s_get_value.html" xlink:title="omap_I_s_Node%omap_I_s_get_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1131.5,-108 920.5,-108 920.5,-84 1131.5,-84 1131.5,-108"/>
+<text text-anchor="middle" x="1026" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_s_Node%omap_I_s_get_value</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_find&#45;&gt;proc~omap_i_s_get_value -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge22" class="edge">
+<title>proc~omap_i_s_find&#45;&gt;proc~omap_i_s_get_value</title>
+<path fill="none" stroke="#7fff00" d="M822.29,-80.88C849.61,-82.92 880.83,-85.25 910.45,-87.45"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="910.19,-90.94 920.42,-88.2 910.71,-83.96 910.19,-90.94"/>
+</g>
+<!-- proc~omap_i_s_order_eq -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node19" class="node">
+<title>proc~omap_i_s_order_eq</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node19"><a xlink:href="../proc/omap_i_s_order_eq.html" xlink:title="omap_I_s_order_eq">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1083.5,-66 968.5,-66 968.5,-42 1083.5,-42 1083.5,-66"/>
+<text text-anchor="middle" x="1026" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_s_order_eq</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_find&#45;&gt;proc~omap_i_s_order_eq -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge23" class="edge">
+<title>proc~omap_i_s_find&#45;&gt;proc~omap_i_s_order_eq</title>
+<path fill="none" stroke="#7fff00" d="M822.29,-69.12C865.02,-65.93 917.28,-62.04 958.03,-59"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="958.42,-62.48 968.13,-58.24 957.9,-55.5 958.42,-62.48"/>
+</g>
+<!-- proc~omap_i_s_iter_next&#45;&gt;proc~omap_i_s_advpos -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge24" class="edge">
+<title>proc~omap_i_s_iter_next&#45;&gt;proc~omap_i_s_advpos</title>
+<path fill="none" stroke="#003fff" d="M819.49,-389.98C834.93,-387.25 851.02,-384.21 866,-381 901.84,-373.32 941.79,-363.01 972.68,-354.65"/>
+<polygon fill="#003fff" stroke="#003fff" points="973.65,-358.02 982.37,-352.01 971.81,-351.26 973.65,-358.02"/>
+</g>
+<!-- proc~omap_i_s_rebalance&#45;&gt;proc~omap_i_s_has_child -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge27" class="edge">
+<title>proc~omap_i_s_rebalance&#45;&gt;proc~omap_i_s_has_child</title>
+<path fill="none" stroke="#7f00ff" d="M1122.23,-251.7C1132.04,-248.55 1141.5,-244.41 1150,-239 1173.71,-223.9 1163.64,-204.04 1186,-187 1200.88,-175.66 1219.14,-167.3 1236.77,-161.19"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1238.05,-164.46 1246.47,-158.03 1235.88,-157.8 1238.05,-164.46"/>
+</g>
+<!-- get_height -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node14" class="node">
+<title>get_height</title>
+<polygon fill="#777777" stroke="#777777" points="1338.5,-304 1269.5,-304 1269.5,-280 1338.5,-280 1338.5,-304"/>
+<text text-anchor="middle" x="1304" y="-289.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_height</text>
+</g>
+<!-- proc~omap_i_s_rebalance&#45;&gt;get_height -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge25" class="edge">
+<title>proc~omap_i_s_rebalance&#45;&gt;get_height</title>
+<path fill="none" stroke="#7f00ff" d="M1122.37,-271.06C1168.74,-276.43 1222.24,-282.64 1258.91,-286.89"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1258.91,-290.41 1269.25,-288.09 1259.72,-283.46 1258.91,-290.41"/>
+</g>
+<!-- proc~omap_i_s_rebalance&#45;&gt;proc~omap_i_s_get_child -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge26" class="edge">
+<title>proc~omap_i_s_rebalance&#45;&gt;proc~omap_i_s_get_child</title>
+<path fill="none" stroke="#7f00ff" d="M1108.66,-272.03C1122.79,-275.58 1137.08,-280.14 1150,-286 1168.21,-294.26 1167.66,-305.02 1186,-313 1191.09,-315.21 1196.39,-317.19 1201.82,-318.97"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1201.11,-322.41 1211.69,-321.93 1203.12,-315.7 1201.11,-322.41"/>
+</g>
+<!-- proc~omap_i_s_rot -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node20" class="node">
+<title>proc~omap_i_s_rot</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node20"><a xlink:href="../proc/omap_i_s_rot.html" xlink:title="omap_I_Set%omap_I_s_rot">
+<polygon fill="#d9534f" stroke="#d9534f" points="1380.5,-262 1227.5,-262 1227.5,-238 1380.5,-238 1380.5,-262"/>
+<text text-anchor="middle" x="1304" y="-247.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_Set%omap_I_s_rot</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_rebalance&#45;&gt;proc~omap_i_s_rot -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge28" class="edge">
+<title>proc~omap_i_s_rebalance&#45;&gt;proc~omap_i_s_rot</title>
+<path fill="none" stroke="#7f00ff" d="M1122.37,-256.54C1153.17,-255.43 1187.11,-254.2 1217.17,-253.11"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1217.34,-256.61 1227.21,-252.75 1217.09,-249.61 1217.34,-256.61"/>
+</g>
+<!-- proc~omap_i_s_update_height -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_node21" class="node">
+<title>proc~omap_i_s_update_height</title>
+<g id="a_proc~~omap_i_erase_range~~CallsGraph_node21"><a xlink:href="../proc/omap_i_s_update_height.html" xlink:title="omap_I_s_Node%omap_I_s_update_height">
+<polygon fill="#d9534f" stroke="#d9534f" points="1422,-220 1186,-220 1186,-196 1422,-196 1422,-220"/>
+<text text-anchor="middle" x="1304" y="-205.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_I_s_Node%omap_I_s_update_height</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_s_rebalance&#45;&gt;proc~omap_i_s_update_height -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge29" class="edge">
+<title>proc~omap_i_s_rebalance&#45;&gt;proc~omap_i_s_update_height</title>
+<path fill="none" stroke="#7f00ff" d="M1104.66,-247.98C1119.75,-245.29 1135.41,-242.26 1150,-239 1166.21,-235.38 1169.81,-232.69 1186,-229 1196.97,-226.5 1208.58,-224.11 1220.05,-221.9"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1220.9,-225.3 1230.08,-220 1219.6,-218.42 1220.9,-225.3"/>
+</g>
+<!-- proc~omap_i_s_which_child&#45;&gt;proc~omap_i_s_get_child -->
+<g id="proc~~omap_i_erase_range~~CallsGraph_edge30" class="edge">
+<title>proc~omap_i_s_which_child&#45;&gt;proc~omap_i_s_get_child</title>
+<path fill="none" stroke="#ff00bf" d="M853.28,-365.59C935.21,-368.47 1049.82,-369.77 1150,-361 1179.19,-358.44 1211.15,-353.2 1238.28,-348"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="1239.28,-351.37 1248.43,-346.02 1237.94,-344.5 1239.28,-351.37"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocomap_i_erase_rangeCallsGraph = svgPanZoom('#procomap_i_erase_rangeCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~omap_i_erase_range~~CalledByGraph Pages: 1 -->
+<svg id="procomap_i_erase_rangeCalledByGraph" width="641pt" height="113pt"
+ viewBox="0.00 0.00 641.00 113.35" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~omap_i_erase_range~~CalledByGraph" class="graph" transform="scale(1.02 1.02) rotate(0) translate(4 112)">
+<title>proc~~omap_i_erase_range~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 652,-112 652,4 -4,4"/>
+<!-- proc~omap_i_erase_range -->
+<g id="proc~~omap_i_erase_range~~CalledByGraph_node1" class="node">
+<title>proc~omap_i_erase_range</title>
+<polygon fill="none" stroke="black" points="648,-66 456,-66 456,-42 648,-42 648,-66"/>
+<text text-anchor="middle" x="552" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">omap_Map%omap_I_erase_range</text>
+</g>
+<!-- none~erase~35 -->
+<g id="proc~~omap_i_erase_range~~CalledByGraph_node2" class="node">
+<title>none~erase~35</title>
+<g id="a_proc~~omap_i_erase_range~~CalledByGraph_node2"><a xlink:href="../type/omap_map.html#boundprocedure-erase~35" xlink:title="omap_Map%erase">
+<polygon fill="#a7506f" stroke="#a7506f" points="420,-66 309,-66 309,-42 420,-42 420,-66"/>
+<text text-anchor="middle" x="364.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_Map%erase</text>
+</a>
+</g>
+</g>
+<!-- none~erase~35&#45;&gt;proc~omap_i_erase_range -->
+<g id="proc~~omap_i_erase_range~~CalledByGraph_edge1" class="edge">
+<title>none~erase~35&#45;&gt;proc~omap_i_erase_range</title>
+<path fill="none" stroke="#ff0000" d="M420.15,-54C428.22,-54 436.75,-54 445.43,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="445.68,-57.5 455.68,-54 445.68,-50.5 445.68,-57.5"/>
+</g>
+<!-- proc~omap_erase_iter -->
+<g id="proc~~omap_i_erase_range~~CalledByGraph_node3" class="node">
+<title>proc~omap_erase_iter</title>
+<g id="a_proc~~omap_i_erase_range~~CalledByGraph_node3"><a xlink:href="../proc/omap_erase_iter.html" xlink:title="GriddedComponentDriverMap%omap_erase_iter">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="272.5,-108 0.5,-108 0.5,-84 272.5,-84 272.5,-108"/>
+<text text-anchor="middle" x="136.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriverMap%omap_erase_iter</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_erase_iter&#45;&gt;none~erase~35 -->
+<g id="proc~~omap_i_erase_range~~CalledByGraph_edge2" class="edge">
+<title>proc~omap_erase_iter&#45;&gt;none~erase~35</title>
+<path fill="none" stroke="#ff0000" d="M221.51,-83.97C238.59,-81.25 256.41,-78.21 273,-75 283.32,-73.01 294.25,-70.67 304.81,-68.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="305.83,-71.64 314.8,-66 304.27,-64.82 305.83,-71.64"/>
+</g>
+<!-- proc~omap_erase_key -->
+<g id="proc~~omap_i_erase_range~~CalledByGraph_node4" class="node">
+<title>proc~omap_erase_key</title>
+<g id="a_proc~~omap_i_erase_range~~CalledByGraph_node4"><a xlink:href="../proc/omap_erase_key.html" xlink:title="GriddedComponentDriverMap%omap_erase_key">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="273,-66 0,-66 0,-42 273,-42 273,-66"/>
+<text text-anchor="middle" x="136.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriverMap%omap_erase_key</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_erase_key&#45;&gt;none~erase~35 -->
+<g id="proc~~omap_i_erase_range~~CalledByGraph_edge3" class="edge">
+<title>proc~omap_erase_key&#45;&gt;none~erase~35</title>
+<path fill="none" stroke="#ff0000" d="M273.2,-54C281.91,-54 290.42,-54 298.53,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="298.56,-57.5 308.56,-54 298.56,-50.5 298.56,-57.5"/>
+</g>
+<!-- proc~omap_i_erase_key -->
+<g id="proc~~omap_i_erase_range~~CalledByGraph_node5" class="node">
+<title>proc~omap_i_erase_key</title>
+<g id="a_proc~~omap_i_erase_range~~CalledByGraph_node5"><a xlink:href="../proc/omap_i_erase_key.html" xlink:title="omap_Map%omap_I_erase_key">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="226,-24 47,-24 47,0 226,0 226,-24"/>
+<text text-anchor="middle" x="136.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">omap_Map%omap_I_erase_key</text>
+</a>
+</g>
+</g>
+<!-- proc~omap_i_erase_key&#45;&gt;none~erase~35 -->
+<g id="proc~~omap_i_erase_range~~CalledByGraph_edge4" class="edge">
+<title>proc~omap_i_erase_key&#45;&gt;none~erase~35</title>
+<path fill="none" stroke="#ff0000" d="M221.51,-24.03C238.59,-26.75 256.41,-29.79 273,-33 283.32,-34.99 294.25,-37.33 304.81,-39.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="304.27,-43.18 314.8,-42 305.83,-36.36 304.27,-43.18"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocomap_i_erase_rangeCalledByGraph = svgPanZoom('#procomap_i_erase_rangeCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

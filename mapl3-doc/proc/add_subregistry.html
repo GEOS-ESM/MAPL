@@ -1,0 +1,927 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>add_subregistry &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>add_subregistry
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">13 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/HierarchicalRegistry.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/hierarchicalregistry.f90.html'>HierarchicalRegistry.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_hierarchicalregistry.html'>mapl3g_HierarchicalRegistry</a></li>
+            <li class="breadcrumb-item active" aria-current="page">add_subregistry</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/add_subregistry.html#src">add_subregistry</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine add_subregistry(this, subregistry, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/hierarchicalregistry.html'>HierarchicalRegistry</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2226"></span>
+              class(<a href='../type/hierarchicalregistry.html'>HierarchicalRegistry</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-subregistry"></span>
+              class(<a href='../type/hierarchicalregistry.html'>HierarchicalRegistry</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>subregistry</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~606"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~add_subregistry~~CallsGraph Pages: 1 -->
+<svg id="procadd_subregistryCallsGraph" width="641pt" height="152pt"
+ viewBox="0.00 0.00 641.00 151.74" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~add_subregistry~~CallsGraph" class="graph" transform="scale(1.73 1.73) rotate(0) translate(4 259)">
+<title>proc~~add_subregistry~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-259 1107,-259 1107,4 -4,4"/>
+<!-- proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CallsGraph_node1" class="node">
+<title>proc~add_subregistry</title>
+<polygon fill="none" stroke="black" points="214,-108 0,-108 0,-84 214,-84 214,-108"/>
+<text text-anchor="middle" x="107" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">HierarchicalRegistry%add_subregistry</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~add_subregistry~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~add_subregistry~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="395.5,-150 316.5,-150 316.5,-126 395.5,-126 395.5,-150"/>
+<text text-anchor="middle" x="356" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~add_subregistry&#45;&gt;interface~mapl_assert -->
+<g id="proc~~add_subregistry~~CallsGraph_edge1" class="edge">
+<title>proc~add_subregistry&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M178.78,-108.04C219.7,-114.99 270.12,-123.57 306.53,-129.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="305.96,-133.21 316.4,-131.44 307.13,-126.31 305.96,-133.21"/>
+</g>
+<!-- none~insert~199 -->
+<g id="proc~~add_subregistry~~CallsGraph_node3" class="node">
+<title>none~insert~199</title>
+<g id="a_proc~~add_subregistry~~CallsGraph_node3"><a xlink:href="../type/registryptrmap.html#boundprocedure-insert~199" xlink:title="RegistryPtrMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="422,-108 290,-108 290,-84 422,-84 422,-108"/>
+<text text-anchor="middle" x="356" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegistryPtrMap%insert</text>
+</a>
+</g>
+</g>
+<!-- proc~add_subregistry&#45;&gt;none~insert~199 -->
+<g id="proc~~add_subregistry~~CallsGraph_edge2" class="edge">
+<title>proc~add_subregistry&#45;&gt;none~insert~199</title>
+<path fill="none" stroke="#ff0000" d="M214.18,-96C236.22,-96 259,-96 279.66,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="279.93,-99.5 289.93,-96 279.93,-92.5 279.93,-99.5"/>
+</g>
+<!-- proc~get_name~5 -->
+<g id="proc~~add_subregistry~~CallsGraph_node4" class="node">
+<title>proc~get_name~5</title>
+<g id="a_proc~~add_subregistry~~CallsGraph_node4"><a xlink:href="../proc/get_name~5.html" xlink:title="HierarchicalRegistry%get_name">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="447.5,-66 264.5,-66 264.5,-42 447.5,-42 447.5,-66"/>
+<text text-anchor="middle" x="356" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HierarchicalRegistry%get_name</text>
+</a>
+</g>
+</g>
+<!-- proc~add_subregistry&#45;&gt;proc~get_name~5 -->
+<g id="proc~~add_subregistry~~CallsGraph_edge3" class="edge">
+<title>proc~add_subregistry&#45;&gt;proc~get_name~5</title>
+<path fill="none" stroke="#ff0000" d="M178.78,-83.96C208.49,-78.91 243.22,-73.01 273.95,-67.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="274.94,-71.16 284.21,-66.04 273.76,-64.26 274.94,-71.16"/>
+</g>
+<!-- proc~has_subregistry -->
+<g id="proc~~add_subregistry~~CallsGraph_node5" class="node">
+<title>proc~has_subregistry</title>
+<g id="a_proc~~add_subregistry~~CallsGraph_node5"><a xlink:href="../proc/has_subregistry.html" xlink:title="HierarchicalRegistry%has_subregistry">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="462,-24 250,-24 250,0 462,0 462,-24"/>
+<text text-anchor="middle" x="356" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HierarchicalRegistry%has_subregistry</text>
+</a>
+</g>
+</g>
+<!-- proc~add_subregistry&#45;&gt;proc~has_subregistry -->
+<g id="proc~~add_subregistry~~CallsGraph_edge4" class="edge">
+<title>proc~add_subregistry&#45;&gt;proc~has_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M131,-83.9C158.59,-69.83 206.56,-46.8 250,-33 257.68,-30.56 265.78,-28.34 273.92,-26.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="274.92,-29.71 283.86,-24.02 273.32,-22.89 274.92,-29.71"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~add_subregistry~~CallsGraph_node6" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~add_subregistry~~CallsGraph_node6"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="632.5,-213 550.5,-213 550.5,-189 632.5,-189 632.5,-213"/>
+<text text-anchor="middle" x="591.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~add_subregistry&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_subregistry~~CallsGraph_edge5" class="edge">
+<title>proc~add_subregistry&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M129.87,-108.15C157.13,-122.72 205.55,-146.69 250,-159 350.53,-186.84 472.87,-196.24 540.13,-199.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="540.29,-202.92 550.44,-199.86 540.6,-195.93 540.29,-202.92"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~add_subregistry~~CallsGraph_node9" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~add_subregistry~~CallsGraph_node9"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="658.5,-129 524.5,-129 524.5,-105 658.5,-105 658.5,-129"/>
+<text text-anchor="middle" x="591.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~add_subregistry~~CallsGraph_edge6" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M395.56,-134.53C427.73,-131.64 474.57,-127.43 514.27,-123.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="514.81,-127.32 524.46,-122.94 514.18,-120.35 514.81,-127.32"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~add_subregistry~~CallsGraph_node10" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~add_subregistry~~CallsGraph_node10"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="665.5,-171 517.5,-171 517.5,-147 665.5,-147 665.5,-171"/>
+<text text-anchor="middle" x="591.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~add_subregistry~~CallsGraph_edge7" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M395.56,-141.47C425.88,-144.19 469.22,-148.09 507.34,-151.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="507.15,-155.02 517.42,-152.43 507.78,-148.05 507.15,-155.02"/>
+</g>
+<!-- proc~map_insert_pair~8 -->
+<g id="proc~~add_subregistry~~CallsGraph_node8" class="node">
+<title>proc~map_insert_pair~8</title>
+<g id="a_proc~~add_subregistry~~CallsGraph_node8"><a xlink:href="../proc/map_insert_pair~8.html" xlink:title="RegistryPtrMap%map_insert_pair">
+<polygon fill="#d9534f" stroke="#d9534f" points="685,-87 498,-87 498,-63 685,-63 685,-87"/>
+<text text-anchor="middle" x="591.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegistryPtrMap%map_insert_pair</text>
+</a>
+</g>
+</g>
+<!-- none~insert~199&#45;&gt;proc~map_insert_pair~8 -->
+<g id="proc~~add_subregistry~~CallsGraph_edge8" class="edge">
+<title>none~insert~199&#45;&gt;proc~map_insert_pair~8</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M422.04,-90.15C442.4,-88.32 465.4,-86.25 487.7,-84.25"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="488.24,-87.71 497.88,-83.33 487.61,-80.74 488.24,-87.71"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~add_subregistry~~CallsGraph_node7" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~add_subregistry~~CallsGraph_node7"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="845,-213 730,-213 730,-189 845,-189 845,-213"/>
+<text text-anchor="middle" x="787.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~add_subregistry~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#cc00ff" d="M632.7,-201C657.81,-201 690.78,-201 719.74,-201"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="719.8,-204.5 729.8,-201 719.8,-197.5 719.8,-204.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~add_subregistry~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~add_subregistry~~CallsGraph_node11"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="854,-171 721,-171 721,-147 854,-147 854,-171"/>
+<text text-anchor="middle" x="787.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~add_subregistry~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M632.7,-192.3C658.11,-186.8 691.56,-179.55 720.77,-173.23"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="721.87,-176.57 730.91,-171.04 720.39,-169.73 721.87,-176.57"/>
+</g>
+<!-- at -->
+<g id="proc~~add_subregistry~~CallsGraph_node12" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1023.5,-255 969.5,-255 969.5,-231 1023.5,-231 1023.5,-255"/>
+<text text-anchor="middle" x="996.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~add_subregistry~~CallsGraph_edge11" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M845.12,-212.79C859.74,-215.82 875.45,-219.05 890,-222 913.17,-226.7 939.23,-231.89 959.65,-235.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="958.99,-239.37 969.48,-237.88 960.34,-232.5 958.99,-239.37"/>
+</g>
+<!-- insert -->
+<g id="proc~~add_subregistry~~CallsGraph_node13" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1023.5,-213 969.5,-213 969.5,-189 1023.5,-189 1023.5,-213"/>
+<text text-anchor="middle" x="996.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~add_subregistry~~CallsGraph_edge12" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M845.06,-201C881.52,-201 927.84,-201 959.38,-201"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="959.48,-204.5 969.48,-201 959.48,-197.5 959.48,-204.5"/>
+</g>
+<!-- none~insert~197 -->
+<g id="proc~~add_subregistry~~CallsGraph_node14" class="node">
+<title>none~insert~197</title>
+<g id="a_proc~~add_subregistry~~CallsGraph_node14"><a xlink:href="../type/map_set~5.html#boundprocedure-insert~197" xlink:title="map_Set%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="837,-87 738,-87 738,-63 837,-63 837,-87"/>
+<text text-anchor="middle" x="787.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%insert</text>
+</a>
+</g>
+</g>
+<!-- proc~map_insert_pair~8&#45;&gt;none~insert~197 -->
+<g id="proc~~add_subregistry~~CallsGraph_edge13" class="edge">
+<title>proc~map_insert_pair~8&#45;&gt;none~insert~197</title>
+<path fill="none" stroke="#cbff00" d="M685.24,-75C699.76,-75 714.4,-75 727.87,-75"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="727.92,-78.5 737.92,-75 727.92,-71.5 727.92,-78.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~add_subregistry~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff66" d="M648.09,-129.04C670.82,-133.96 697.28,-139.69 720.95,-144.81"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="720.39,-148.27 730.9,-146.96 721.87,-141.43 720.39,-148.27"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~add_subregistry~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0066ff" d="M648.09,-171.04C670.82,-175.96 697.28,-181.69 720.95,-186.81"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="720.39,-190.27 730.9,-188.96 721.87,-183.43 720.39,-190.27"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~add_subregistry~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M665.57,-159C680.32,-159 695.85,-159 710.69,-159"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="710.84,-162.5 720.84,-159 710.84,-155.5 710.84,-162.5"/>
+</g>
+<!-- proc~initialize~21 -->
+<g id="proc~~add_subregistry~~CallsGraph_node15" class="node">
+<title>proc~initialize~21</title>
+<g id="a_proc~~add_subregistry~~CallsGraph_node15"><a xlink:href="../proc/initialize~21.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1025,-171 968,-171 968,-147 1025,-147 1025,-171"/>
+<text text-anchor="middle" x="996.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~21 -->
+<g id="proc~~add_subregistry~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~21</title>
+<path fill="none" stroke="#cc00ff" d="M854.28,-159C888.44,-159 928.95,-159 957.81,-159"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="957.88,-162.5 967.88,-159 957.88,-155.5 957.88,-162.5"/>
+</g>
+<!-- proc~map_s_insert_initializer_list~8 -->
+<g id="proc~~add_subregistry~~CallsGraph_node16" class="node">
+<title>proc~map_s_insert_initializer_list~8</title>
+<g id="a_proc~~add_subregistry~~CallsGraph_node16"><a xlink:href="../proc/map_s_insert_initializer_list~8.html" xlink:title="map_Set%map_s_insert_initializer_list">
+<polygon fill="#d9534f" stroke="#d9534f" points="1103,-87 890,-87 890,-63 1103,-63 1103,-87"/>
+<text text-anchor="middle" x="996.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_insert_initializer_list</text>
+</a>
+</g>
+</g>
+<!-- none~insert~197&#45;&gt;proc~map_s_insert_initializer_list~8 -->
+<g id="proc~~add_subregistry~~CallsGraph_edge18" class="edge">
+<title>none~insert~197&#45;&gt;proc~map_s_insert_initializer_list~8</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M837.03,-75C849.95,-75 864.47,-75 879.34,-75"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="879.68,-78.5 889.68,-75 879.68,-71.5 879.68,-78.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocadd_subregistryCallsGraph = svgPanZoom('#procadd_subregistryCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~add_subregistry~~CalledByGraph Pages: 1 -->
+<svg id="procadd_subregistryCalledByGraph" width="457pt" height="494pt"
+ viewBox="0.00 0.00 457.00 494.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~add_subregistry~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 490)">
+<title>proc~~add_subregistry~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-490 453,-490 453,4 -4,4"/>
+<!-- proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_node1" class="node">
+<title>proc~add_subregistry</title>
+<polygon fill="none" stroke="black" points="449,-255 235,-255 235,-231 449,-231 449,-255"/>
+<text text-anchor="middle" x="342" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50">HierarchicalRegistry%add_subregistry</text>
+</g>
+<!-- proc~test_connect -->
+<g id="proc~~add_subregistry~~CalledByGraph_node2" class="node">
+<title>proc~test_connect</title>
+<g id="a_proc~~add_subregistry~~CalledByGraph_node2"><a xlink:href="../proc/test_connect.html" xlink:title="test_connect">
+<polygon fill="#d9534f" stroke="#d9534f" points="139.5,-486 59.5,-486 59.5,-462 139.5,-462 139.5,-486"/>
+<text text-anchor="middle" x="99.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_connect</text>
+</a>
+</g>
+</g>
+<!-- proc~test_connect&#45;&gt;proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_edge1" class="edge">
+<title>proc~test_connect&#45;&gt;proc~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M139.63,-472.45C158.87,-470.08 181.6,-464.73 199,-453 270.3,-404.93 315.48,-307.91 332.88,-264.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="336.23,-265.7 336.62,-255.11 329.71,-263.15 336.23,-265.7"/>
+</g>
+<!-- proc~test_connect_chain -->
+<g id="proc~~add_subregistry~~CalledByGraph_node3" class="node">
+<title>proc~test_connect_chain</title>
+<g id="a_proc~~add_subregistry~~CalledByGraph_node3"><a xlink:href="../proc/test_connect_chain.html" xlink:title="test_connect_chain">
+<polygon fill="#d9534f" stroke="#d9534f" points="157,-444 42,-444 42,-420 157,-420 157,-444"/>
+<text text-anchor="middle" x="99.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_connect_chain</text>
+</a>
+</g>
+</g>
+<!-- proc~test_connect_chain&#45;&gt;proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_edge2" class="edge">
+<title>proc~test_connect_chain&#45;&gt;proc~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M157.08,-426.52C171.46,-423.4 186.4,-418.55 199,-411 260.96,-373.9 308.86,-299.94 329.67,-263.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="332.73,-265.53 334.59,-255.1 326.63,-262.09 332.73,-265.53"/>
+</g>
+<!-- proc~test_do_not_propagate_import -->
+<g id="proc~~add_subregistry~~CalledByGraph_node4" class="node">
+<title>proc~test_do_not_propagate_import</title>
+<g id="a_proc~~add_subregistry~~CalledByGraph_node4"><a xlink:href="../proc/test_do_not_propagate_import.html" xlink:title="test_do_not_propagate_import">
+<polygon fill="#d9534f" stroke="#d9534f" points="186.5,-402 12.5,-402 12.5,-378 186.5,-378 186.5,-402"/>
+<text text-anchor="middle" x="99.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_do_not_propagate_import</text>
+</a>
+</g>
+</g>
+<!-- proc~test_do_not_propagate_import&#45;&gt;proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_edge3" class="edge">
+<title>proc~test_do_not_propagate_import&#45;&gt;proc~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M176.63,-377.95C184.38,-375.5 191.98,-372.55 199,-369 251.74,-342.35 300.26,-291.22 324.6,-262.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="327.29,-265.22 331.08,-255.33 321.95,-260.69 327.29,-265.22"/>
+</g>
+<!-- proc~test_e2e_preserve_actual_pt -->
+<g id="proc~~add_subregistry~~CalledByGraph_node5" class="node">
+<title>proc~test_e2e_preserve_actual_pt</title>
+<g id="a_proc~~add_subregistry~~CalledByGraph_node5"><a xlink:href="../proc/test_e2e_preserve_actual_pt.html" xlink:title="test_e2e_preserve_actual_pt">
+<polygon fill="#d9534f" stroke="#d9534f" points="181,-360 18,-360 18,-336 181,-336 181,-360"/>
+<text text-anchor="middle" x="99.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_e2e_preserve_actual_pt</text>
+</a>
+</g>
+</g>
+<!-- proc~test_e2e_preserve_actual_pt&#45;&gt;proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_edge4" class="edge">
+<title>proc~test_e2e_preserve_actual_pt&#45;&gt;proc~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M170.75,-335.96C180.39,-333.46 190.04,-330.5 199,-327 242.82,-309.9 288.86,-280.17 316.23,-261.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="318.29,-263.88 324.44,-255.25 314.25,-258.16 318.29,-263.88"/>
+</g>
+<!-- proc~test_export_to_export_connection -->
+<g id="proc~~add_subregistry~~CalledByGraph_node6" class="node">
+<title>proc~test_export_to_export_connection</title>
+<g id="a_proc~~add_subregistry~~CalledByGraph_node6"><a xlink:href="../proc/test_export_to_export_connection.html" xlink:title="test_export_to_export_connection">
+<polygon fill="#d9534f" stroke="#d9534f" points="194.5,-318 4.5,-318 4.5,-294 194.5,-294 194.5,-318"/>
+<text text-anchor="middle" x="99.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_export_to_export_connection</text>
+</a>
+</g>
+</g>
+<!-- proc~test_export_to_export_connection&#45;&gt;proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_edge5" class="edge">
+<title>proc~test_export_to_export_connection&#45;&gt;proc~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M160.57,-293.97C173.3,-291.2 186.63,-288.14 199,-285 230.73,-276.94 266.04,-266.5 293.51,-258.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="294.73,-261.33 303.25,-255.03 292.66,-254.65 294.73,-261.33"/>
+</g>
+<!-- proc~test_get_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_node7" class="node">
+<title>proc~test_get_subregistry</title>
+<g id="a_proc~~add_subregistry~~CalledByGraph_node7"><a xlink:href="../proc/test_get_subregistry.html" xlink:title="test_get_subregistry">
+<polygon fill="#d9534f" stroke="#d9534f" points="158.5,-276 40.5,-276 40.5,-252 158.5,-252 158.5,-276"/>
+<text text-anchor="middle" x="99.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_get_subregistry</text>
+</a>
+</g>
+</g>
+<!-- proc~test_get_subregistry&#45;&gt;proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_edge6" class="edge">
+<title>proc~test_get_subregistry&#45;&gt;proc~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M158.72,-258.92C178.7,-257.17 201.83,-255.15 224.76,-253.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="225.26,-256.62 234.92,-252.26 224.65,-249.65 225.26,-256.62"/>
+</g>
+<!-- proc~test_get_subregistry_fail_not_found -->
+<g id="proc~~add_subregistry~~CalledByGraph_node8" class="node">
+<title>proc~test_get_subregistry_fail_not_found</title>
+<g id="a_proc~~add_subregistry~~CalledByGraph_node8"><a xlink:href="../proc/test_get_subregistry_fail_not_found.html" xlink:title="test_get_subregistry_fail_not_found">
+<polygon fill="#d9534f" stroke="#d9534f" points="199,-234 0,-234 0,-210 199,-210 199,-234"/>
+<text text-anchor="middle" x="99.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_get_subregistry_fail_not_found</text>
+</a>
+</g>
+</g>
+<!-- proc~test_get_subregistry_fail_not_found&#45;&gt;proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_edge7" class="edge">
+<title>proc~test_get_subregistry_fail_not_found&#45;&gt;proc~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M199.01,-230.6C207.5,-231.34 216.13,-232.1 224.74,-232.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="224.55,-236.35 234.82,-233.73 225.16,-229.37 224.55,-236.35"/>
+</g>
+<!-- proc~test_import_from_child -->
+<g id="proc~~add_subregistry~~CalledByGraph_node9" class="node">
+<title>proc~test_import_from_child</title>
+<g id="a_proc~~add_subregistry~~CalledByGraph_node9"><a xlink:href="../proc/test_import_from_child.html" xlink:title="test_import_from_child">
+<polygon fill="#d9534f" stroke="#d9534f" points="166,-192 33,-192 33,-168 166,-168 166,-192"/>
+<text text-anchor="middle" x="99.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_import_from_child</text>
+</a>
+</g>
+</g>
+<!-- proc~test_import_from_child&#45;&gt;proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_edge8" class="edge">
+<title>proc~test_import_from_child&#45;&gt;proc~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M160.57,-192.03C173.3,-194.8 186.63,-197.86 199,-201 230.73,-209.06 266.04,-219.5 293.51,-227.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="292.66,-231.35 303.25,-230.97 294.73,-224.67 292.66,-231.35"/>
+</g>
+<!-- proc~test_import_from_parent -->
+<g id="proc~~add_subregistry~~CalledByGraph_node10" class="node">
+<title>proc~test_import_from_parent</title>
+<g id="a_proc~~add_subregistry~~CalledByGraph_node10"><a xlink:href="../proc/test_import_from_parent.html" xlink:title="test_import_from_parent">
+<polygon fill="#d9534f" stroke="#d9534f" points="170.5,-150 28.5,-150 28.5,-126 170.5,-126 170.5,-150"/>
+<text text-anchor="middle" x="99.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_import_from_parent</text>
+</a>
+</g>
+</g>
+<!-- proc~test_import_from_parent&#45;&gt;proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_edge9" class="edge">
+<title>proc~test_import_from_parent&#45;&gt;proc~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M170.75,-150.04C180.39,-152.54 190.04,-155.5 199,-159 242.82,-176.1 288.86,-205.83 316.23,-224.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="314.25,-227.84 324.44,-230.75 318.29,-222.12 314.25,-227.84"/>
+</g>
+<!-- proc~test_multi_import -->
+<g id="proc~~add_subregistry~~CalledByGraph_node11" class="node">
+<title>proc~test_multi_import</title>
+<g id="a_proc~~add_subregistry~~CalledByGraph_node11"><a xlink:href="../proc/test_multi_import.html" xlink:title="test_multi_import">
+<polygon fill="#d9534f" stroke="#d9534f" points="152,-108 47,-108 47,-84 152,-84 152,-108"/>
+<text text-anchor="middle" x="99.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_multi_import</text>
+</a>
+</g>
+</g>
+<!-- proc~test_multi_import&#45;&gt;proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_edge10" class="edge">
+<title>proc~test_multi_import&#45;&gt;proc~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M152.05,-101.83C167.7,-104.94 184.56,-109.71 199,-117 251.74,-143.65 300.26,-194.78 324.6,-223.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="321.95,-225.31 331.08,-230.67 327.29,-220.78 321.95,-225.31"/>
+</g>
+<!-- proc~test_propagate_import -->
+<g id="proc~~add_subregistry~~CalledByGraph_node12" class="node">
+<title>proc~test_propagate_import</title>
+<g id="a_proc~~add_subregistry~~CalledByGraph_node12"><a xlink:href="../proc/test_propagate_import.html" xlink:title="test_propagate_import">
+<polygon fill="#d9534f" stroke="#d9534f" points="166,-66 33,-66 33,-42 166,-42 166,-66"/>
+<text text-anchor="middle" x="99.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_propagate_import</text>
+</a>
+</g>
+</g>
+<!-- proc~test_propagate_import&#45;&gt;proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_edge11" class="edge">
+<title>proc~test_propagate_import&#45;&gt;proc~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M166.11,-61.67C177.58,-64.74 189.02,-69.03 199,-75 260.96,-112.1 308.86,-186.06 329.67,-222.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="326.63,-223.91 334.59,-230.9 332.73,-220.47 326.63,-223.91"/>
+</g>
+<!-- proc~test_sibling_activation -->
+<g id="proc~~add_subregistry~~CalledByGraph_node13" class="node">
+<title>proc~test_sibling_activation</title>
+<g id="a_proc~~add_subregistry~~CalledByGraph_node13"><a xlink:href="../proc/test_sibling_activation.html" xlink:title="test_sibling_activation">
+<polygon fill="#d9534f" stroke="#d9534f" points="164.5,-24 34.5,-24 34.5,0 164.5,0 164.5,-24"/>
+<text text-anchor="middle" x="99.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_sibling_activation</text>
+</a>
+</g>
+</g>
+<!-- proc~test_sibling_activation&#45;&gt;proc~add_subregistry -->
+<g id="proc~~add_subregistry~~CalledByGraph_edge12" class="edge">
+<title>proc~test_sibling_activation&#45;&gt;proc~add_subregistry</title>
+<path fill="none" stroke="#ff0000" d="M164.6,-18.25C176.72,-21.42 188.78,-26.11 199,-33 270.3,-81.07 315.48,-178.09 332.88,-221.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="329.71,-222.85 336.62,-230.89 336.23,-220.3 329.71,-222.85"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">add_subregistry</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">subregistry</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">HierarchicalRegistry</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">HierarchicalRegistry</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">subregistry</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegistryPtr</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wrap</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+
+<span class="w">      </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">subregistry</span><span class="p">%</span><span class="n">get_name</span><span class="p">()</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">has_subregistry</span><span class="p">(</span><span class="n">name</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;Duplicate subregistry entry.&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">wrap</span><span class="p">%</span><span class="n">registry</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">subregistry</span>
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">subregistries</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">wrap</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">add_subregistry</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

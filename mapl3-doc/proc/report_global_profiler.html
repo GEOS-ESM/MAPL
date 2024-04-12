@@ -1,0 +1,1282 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>report_global_profiler &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>report_global_profiler
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">75 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Profiler.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_profiler.f90~2.html'>MAPL_Profiler.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_profiler.html'>mapl_Profiler</a></li>
+            <li class="breadcrumb-item active" aria-current="page">report_global_profiler</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/report_global_profiler.html#src">report_global_profiler</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine report_global_profiler(unusable, comm, rc)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/pflogger.html'>pflogger</a></li>
+                  <li class="list-inline-item"><a href='http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm'>mpi</a></li>
+                  <li class="list-inline-item"><a href='../module/mapl_keywordenforcermod.html'>mapl_KeywordEnforcerMod</a></li>
+                  <li class="list-inline-item"><a href='../module/mapl_errorhandlingmod.html'>mapl_ErrorHandlingMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~report_global_profiler~~UsesGraph Pages: 1 -->
+<svg id="procreport_global_profilerUsesGraph" width="641pt" height="241pt"
+ viewBox="0.00 0.00 641.00 240.56" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~report_global_profiler~~UsesGraph" class="graph" transform="scale(1.28 1.28) rotate(0) translate(4 303.74)">
+<title>proc~~report_global_profiler~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-303.74 816,-303.74 816,4 -4,4"/>
+<!-- proc~report_global_profiler -->
+<g id="proc~~report_global_profiler~~UsesGraph_node1" class="node">
+<title>proc~report_global_profiler</title>
+<polygon fill="none" stroke="black" points="812,-237.74 685,-237.74 685,-213.74 812,-213.74 812,-237.74"/>
+<text text-anchor="middle" x="748.5" y="-223.34" font-family="Helvetica,sans-Serif" font-size="10.50">report_global_profiler</text>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="proc~~report_global_profiler~~UsesGraph_node2" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_proc~~report_global_profiler~~UsesGraph_node2"><a xlink:href="../module/mapl_errorhandlingmod.html" xlink:title="mapl_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="641.5,-299.74 499.5,-299.74 499.5,-275.74 641.5,-275.74 641.5,-299.74"/>
+<text text-anchor="middle" x="570.5" y="-285.34" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge1" class="edge">
+<title>proc~report_global_profiler&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M721.1,-237.83C701.47,-246.55 673.89,-258.23 649,-266.74 642.71,-268.89 636.07,-270.97 629.43,-272.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="628.4,-269.59 619.75,-275.71 630.33,-276.32 628.4,-269.59"/>
+</g>
+<!-- module~mapl_keywordenforcermod -->
+<g id="proc~~report_global_profiler~~UsesGraph_node3" class="node">
+<title>module~mapl_keywordenforcermod</title>
+<g id="a_proc~~report_global_profiler~~UsesGraph_node3"><a xlink:href="../module/mapl_keywordenforcermod.html" xlink:title="mapl_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="649,-257.74 492,-257.74 492,-233.74 649,-233.74 649,-257.74"/>
+<text text-anchor="middle" x="570.5" y="-243.34" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;module~mapl_keywordenforcermod -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge2" class="edge">
+<title>proc~report_global_profiler&#45;&gt;module~mapl_keywordenforcermod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M684.95,-232.85C676.64,-233.79 668,-234.77 659.37,-235.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="658.79,-232.3 649.25,-236.91 659.58,-239.25 658.79,-232.3"/>
+</g>
+<!-- module~pflogger -->
+<g id="proc~~report_global_profiler~~UsesGraph_node4" class="node">
+<title>module~pflogger</title>
+<g id="a_proc~~report_global_profiler~~UsesGraph_node4"><a xlink:href="../module/pflogger.html" xlink:title="pflogger">
+<polygon fill="#337ab7" stroke="#337ab7" points="599.5,-119.74 541.5,-119.74 541.5,-95.74 599.5,-95.74 599.5,-119.74"/>
+<text text-anchor="middle" x="570.5" y="-105.34" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pflogger</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;module~pflogger -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge3" class="edge">
+<title>proc~report_global_profiler&#45;&gt;module~pflogger</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M729.33,-213.56C698.16,-192.66 634.36,-149.89 598.15,-125.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="599.83,-122.52 589.57,-119.86 595.93,-128.33 599.83,-122.52"/>
+</g>
+<!-- mpi -->
+<g id="proc~~report_global_profiler~~UsesGraph_node5" class="node">
+<title>mpi</title>
+<g id="a_proc~~report_global_profiler~~UsesGraph_node5"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="261.5,-238.74 207.5,-238.74 207.5,-214.74 261.5,-214.74 261.5,-238.74"/>
+<text text-anchor="middle" x="234.5" y="-224.34" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;mpi -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge4" class="edge">
+<title>proc~report_global_profiler&#45;&gt;mpi</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M684.97,-225.01C673.03,-224.9 660.63,-224.8 649,-224.74 503.22,-224 466.77,-223.04 321,-224.74 304.84,-224.93 286.96,-225.32 271.74,-225.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="271.6,-222.21 261.69,-225.97 271.78,-229.21 271.6,-222.21"/>
+</g>
+<!-- module~mapl_errorhandling -->
+<g id="proc~~report_global_profiler~~UsesGraph_node6" class="node">
+<title>module~mapl_errorhandling</title>
+<g id="a_proc~~report_global_profiler~~UsesGraph_node6"><a xlink:href="../module/mapl_errorhandling.html" xlink:title="mapl_ErrorHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="448,-299.74 329,-299.74 329,-275.74 448,-275.74 448,-299.74"/>
+<text text-anchor="middle" x="388.5" y="-285.34" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge5" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M499.39,-287.74C485.86,-287.74 471.7,-287.74 458.22,-287.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="458.06,-284.24 448.06,-287.74 458.06,-291.24 458.06,-284.24"/>
+</g>
+<!-- module~mapl_keywordenforcer -->
+<g id="proc~~report_global_profiler~~UsesGraph_node7" class="node">
+<title>module~mapl_keywordenforcer</title>
+<g id="a_proc~~report_global_profiler~~UsesGraph_node7"><a xlink:href="../module/mapl_keywordenforcer.html" xlink:title="mapl_KeywordEnforcer">
+<polygon fill="#337ab7" stroke="#337ab7" points="456,-257.74 321,-257.74 321,-233.74 456,-233.74 456,-257.74"/>
+<text text-anchor="middle" x="388.5" y="-243.34" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_KeywordEnforcer</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_keywordenforcermod&#45;&gt;module~mapl_keywordenforcer -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge6" class="edge">
+<title>module~mapl_keywordenforcermod&#45;&gt;module~mapl_keywordenforcer</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M491.86,-245.74C483.4,-245.74 474.8,-245.74 466.35,-245.74"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="466.15,-242.24 456.15,-245.74 466.15,-249.24 466.15,-242.24"/>
+</g>
+<!-- module~pfl_keywordenforcermod -->
+<g id="proc~~report_global_profiler~~UsesGraph_node8" class="node">
+<title>module~pfl_keywordenforcermod</title>
+<g id="a_proc~~report_global_profiler~~UsesGraph_node8"><a xlink:href="../module/pfl_keywordenforcermod.html" xlink:title="PFL_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="148,-29.74 0,-29.74 0,-5.74 148,-5.74 148,-29.74"/>
+<text text-anchor="middle" x="74" y="-15.34" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_keywordenforcermod -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge7" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_keywordenforcermod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M557.64,-95.47C538.4,-76.51 498.26,-40.83 456,-26.74 357.78,6 237.29,2.08 158.45,-5.92"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="157.66,-2.48 148.08,-7.02 158.4,-9.45 157.66,-2.48"/>
+</g>
+<!-- module~pfl_logger -->
+<g id="proc~~report_global_profiler~~UsesGraph_node9" class="node">
+<title>module~pfl_logger</title>
+<g id="a_proc~~report_global_profiler~~UsesGraph_node9"><a xlink:href="../module/pfl_logger.html" xlink:title="PFL_Logger">
+<polygon fill="#337ab7" stroke="#337ab7" points="271,-80.74 198,-80.74 198,-56.74 271,-56.74 271,-80.74"/>
+<text text-anchor="middle" x="234.5" y="-66.34" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_Logger</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_logger -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge8" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_logger</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M541.31,-104.45C483.64,-97.72 351.73,-82.31 281.49,-74.11"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="281.51,-70.59 271.18,-72.91 280.7,-77.54 281.51,-70.59"/>
+</g>
+<!-- module~pfl_loggermanager -->
+<g id="proc~~report_global_profiler~~UsesGraph_node10" class="node">
+<title>module~pfl_loggermanager</title>
+<g id="a_proc~~report_global_profiler~~UsesGraph_node10"><a xlink:href="../module/pfl_loggermanager.html" xlink:title="PFL_LoggerManager">
+<polygon fill="#337ab7" stroke="#337ab7" points="449,-59.74 328,-59.74 328,-35.74 449,-35.74 449,-59.74"/>
+<text text-anchor="middle" x="388.5" y="-45.34" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_LoggerManager</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_loggermanager -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge9" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_loggermanager</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M541.38,-98.37C513.03,-88.92 468.81,-74.18 435.38,-63.03"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="436.41,-59.69 425.82,-59.85 434.2,-66.33 436.41,-59.69"/>
+</g>
+<!-- module~pfl_severitylevels -->
+<g id="proc~~report_global_profiler~~UsesGraph_node11" class="node">
+<title>module~pfl_severitylevels</title>
+<g id="a_proc~~report_global_profiler~~UsesGraph_node11"><a xlink:href="../module/pfl_severitylevels.html" xlink:title="PFL_SeverityLevels">
+<polygon fill="#337ab7" stroke="#337ab7" points="130.5,-151.74 17.5,-151.74 17.5,-127.74 130.5,-127.74 130.5,-151.74"/>
+<text text-anchor="middle" x="74" y="-137.34" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_SeverityLevels</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_severitylevels -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge10" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_severitylevels</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M544.05,-119.82C521.5,-129.82 487.37,-143.25 456,-148.74 346.69,-167.88 217.08,-158.08 140.68,-149.04"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="141.07,-145.56 130.72,-147.83 140.22,-152.51 141.07,-145.56"/>
+</g>
+<!-- module~pfl_wraparray -->
+<g id="proc~~report_global_profiler~~UsesGraph_node12" class="node">
+<title>module~pfl_wraparray</title>
+<g id="a_proc~~report_global_profiler~~UsesGraph_node12"><a xlink:href="../module/pfl_wraparray.html" xlink:title="PFL_WrapArray">
+<polygon fill="#337ab7" stroke="#337ab7" points="435,-139.74 342,-139.74 342,-115.74 435,-115.74 435,-139.74"/>
+<text text-anchor="middle" x="388.5" y="-125.34" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_WrapArray</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_wraparray -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge11" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_wraparray</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M541.38,-110.87C515.77,-113.71 477.21,-118 445.35,-121.54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="444.82,-118.07 435.27,-122.66 445.6,-125.03 444.82,-118.07"/>
+</g>
+<!-- module~mapl_errorhandling&#45;&gt;mpi -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge13" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;mpi</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M346.41,-275.7C337.94,-272.95 329.12,-269.91 321,-266.74 303.3,-259.84 284.09,-250.99 268.38,-243.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="269.61,-240.07 259.09,-238.8 266.52,-246.35 269.61,-240.07"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="proc~~report_global_profiler~~UsesGraph_node14" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_proc~~report_global_profiler~~UsesGraph_node14"><a xlink:href="../module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="285,-299.74 184,-299.74 184,-275.74 285,-275.74 285,-299.74"/>
+<text text-anchor="middle" x="234.5" y="-285.34" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandling&#45;&gt;module~mapl_throwmod -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge12" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M328.73,-287.74C317.84,-287.74 306.46,-287.74 295.53,-287.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="295.23,-284.24 285.23,-287.74 295.23,-291.24 295.23,-284.24"/>
+</g>
+<!-- module~pfl_logger&#45;&gt;module~pfl_keywordenforcermod -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge15" class="edge">
+<title>module~pfl_logger&#45;&gt;module~pfl_keywordenforcermod</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M197.93,-57.3C175.55,-50.09 146.41,-40.72 122.12,-32.9"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="122.97,-29.5 112.38,-29.77 120.83,-36.16 122.97,-29.5"/>
+</g>
+<!-- module~pfl_logger&#45;&gt;module~pfl_severitylevels -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge16" class="edge">
+<title>module~pfl_logger&#45;&gt;module~pfl_severitylevels</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M206.61,-80.79C180.43,-92.52 140.43,-110.43 111.41,-123.43"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="109.71,-120.36 102.02,-127.64 112.58,-126.74 109.71,-120.36"/>
+</g>
+<!-- gFTL_StringUnlimitedMap -->
+<g id="proc~~report_global_profiler~~UsesGraph_node13" class="node">
+<title>gFTL_StringUnlimitedMap</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="148,-80.74 0,-80.74 0,-56.74 148,-56.74 148,-80.74"/>
+<text text-anchor="middle" x="74" y="-66.34" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gFTL_StringUnlimitedMap</text>
+</g>
+<!-- module~pfl_logger&#45;&gt;gFTL_StringUnlimitedMap -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge14" class="edge">
+<title>module~pfl_logger&#45;&gt;gFTL_StringUnlimitedMap</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M197.93,-68.74C186.03,-68.74 172.22,-68.74 158.25,-68.74"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="158.07,-65.24 148.07,-68.74 158.07,-72.24 158.07,-65.24"/>
+</g>
+<!-- module~pfl_loggermanager&#45;&gt;module~pfl_logger -->
+<g id="proc~~report_global_profiler~~UsesGraph_edge17" class="edge">
+<title>module~pfl_loggermanager&#45;&gt;module~pfl_logger</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M327.86,-55.98C312.47,-58.11 296.14,-60.36 281.55,-62.38"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="280.71,-58.96 271.28,-63.8 281.67,-65.9 280.71,-58.96"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocreport_global_profilerUsesGraph = svgPanZoom('#procreport_global_profilerUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+    <p>$      call inclusive%add_column(FormattedTextColumn(&rsquo;   %  &lsquo;,&rsquo;(f6.2)&rsquo;, 6, PercentageColumn(InclusiveColumn()), separator=&rsquo;-&lsquo;))
+$      call exclusive%add_column(FormattedTextColumn(&rsquo;   %  &lsquo;,&rsquo;(f6.2)&rsquo;, 6, PercentageColumn(ExclusiveColumn()), separator=&rsquo;-&lsquo;))</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~74"></span>
+              class(<a href='../type/keywordenforcer~84.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-comm~20"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>comm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~648"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~report_global_profiler~~CallsGraph Pages: 1 -->
+<svg id="procreport_global_profilerCallsGraph" width="627pt" height="494pt"
+ viewBox="0.00 0.00 627.00 494.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~report_global_profiler~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 490)">
+<title>proc~~report_global_profiler~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-490 623,-490 623,4 -4,4"/>
+<!-- proc~report_global_profiler -->
+<g id="proc~~report_global_profiler~~CallsGraph_node1" class="node">
+<title>proc~report_global_profiler</title>
+<polygon fill="none" stroke="black" points="127,-255 0,-255 0,-231 127,-231 127,-255"/>
+<text text-anchor="middle" x="63.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50">report_global_profiler</text>
+</g>
+<!-- mpi_barrier -->
+<g id="proc~~report_global_profiler~~CallsGraph_node2" class="node">
+<title>mpi_barrier</title>
+<polygon fill="#777777" stroke="#777777" points="294.5,-486 219.5,-486 219.5,-462 294.5,-462 294.5,-486"/>
+<text text-anchor="middle" x="257" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_barrier</text>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;mpi_barrier -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge1" class="edge">
+<title>proc~report_global_profiler&#45;&gt;mpi_barrier</title>
+<path fill="none" stroke="#ff0000" d="M66.42,-255.25C72.8,-291.62 96.78,-399.76 163,-453 175.91,-463.38 192.94,-468.85 208.89,-471.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="208.77,-475.19 219.17,-473.16 209.78,-468.26 208.77,-475.19"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~report_global_profiler~~CallsGraph_node3" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="307.5,-444 206.5,-444 206.5,-420 307.5,-420 307.5,-444"/>
+<text text-anchor="middle" x="257" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;mpi_comm_rank -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge2" class="edge">
+<title>proc~report_global_profiler&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#ff0000" d="M67.87,-255.02C77.26,-286.16 106.77,-369.89 163,-411 172.81,-418.17 184.65,-422.96 196.54,-426.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="195.97,-429.6 206.5,-428.45 197.55,-422.78 195.97,-429.6"/>
+</g>
+<!-- mpi_comm_size -->
+<g id="proc~~report_global_profiler~~CallsGraph_node4" class="node">
+<title>mpi_comm_size</title>
+<polygon fill="#777777" stroke="#777777" points="305.5,-402 208.5,-402 208.5,-378 305.5,-378 305.5,-402"/>
+<text text-anchor="middle" x="257" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;mpi_comm_size -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge3" class="edge">
+<title>proc~report_global_profiler&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#ff0000" d="M70.42,-255.33C83.37,-280.89 116.79,-339.73 163,-369 173.59,-375.71 186.06,-380.29 198.36,-383.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="197.63,-386.83 208.16,-385.61 199.17,-380 197.63,-386.83"/>
+</g>
+<!-- none~generate_report -->
+<g id="proc~~report_global_profiler~~CallsGraph_node5" class="node">
+<title>none~generate_report</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node5"><a xlink:href="../type/profilereporter.html#boundprocedure-generate_report" xlink:title="ProfileReporter%generate_report">
+<polygon fill="#a7506f" stroke="#a7506f" points="351,-360 163,-360 163,-336 351,-336 351,-360"/>
+<text text-anchor="middle" x="257" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProfileReporter%generate_report</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;none~generate_report -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge4" class="edge">
+<title>proc~report_global_profiler&#45;&gt;none~generate_report</title>
+<path fill="none" stroke="#ff0000" d="M74.99,-255.1C91.69,-273.58 126.22,-308.59 163,-327 167.22,-329.11 171.65,-331.01 176.2,-332.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.06,-336.04 185.65,-335.98 177.34,-329.42 175.06,-336.04"/>
+</g>
+<!-- none~get_logger~5 -->
+<g id="proc~~report_global_profiler~~CallsGraph_node6" class="node">
+<title>none~get_logger~5</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node6"><a xlink:href="../type/loggermanager.html#boundprocedure-get_logger~5" xlink:title="LoggerManager%get_logger">
+<polygon fill="#a7506f" stroke="#a7506f" points="339,-318 175,-318 175,-294 339,-294 339,-318"/>
+<text text-anchor="middle" x="257" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LoggerManager%get_logger</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;none~get_logger~5 -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge5" class="edge">
+<title>proc~report_global_profiler&#45;&gt;none~get_logger~5</title>
+<path fill="none" stroke="#ff0000" d="M89.53,-255.17C109.16,-264.34 137.35,-276.71 163,-285 170.12,-287.3 177.62,-289.44 185.15,-291.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="184.49,-294.85 195.04,-293.9 186.19,-288.06 184.49,-294.85"/>
+</g>
+<!-- proc~add_column -->
+<g id="proc~~report_global_profiler~~CallsGraph_node7" class="node">
+<title>proc~add_column</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node7"><a xlink:href="../proc/add_column.html" xlink:title="MultiColumn%add_column">
+<polygon fill="#d9534f" stroke="#d9534f" points="334,-276 180,-276 180,-252 334,-252 334,-276"/>
+<text text-anchor="middle" x="257" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiColumn%add_column</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;proc~add_column -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge6" class="edge">
+<title>proc~report_global_profiler&#45;&gt;proc~add_column</title>
+<path fill="none" stroke="#ff0000" d="M127.2,-249.88C140.72,-251.36 155.24,-252.95 169.48,-254.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="169.47,-258.03 179.79,-255.64 170.23,-251.07 169.47,-258.03"/>
+</g>
+<!-- proc~get_global_memory_profiler -->
+<g id="proc~~report_global_profiler~~CallsGraph_node8" class="node">
+<title>proc~get_global_memory_profiler</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node8"><a xlink:href="../proc/get_global_memory_profiler.html" xlink:title="get_global_memory_profiler">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="338,-234 176,-234 176,-210 338,-210 338,-234"/>
+<text text-anchor="middle" x="257" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_global_memory_profiler</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;proc~get_global_memory_profiler -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge7" class="edge">
+<title>proc~report_global_profiler&#45;&gt;proc~get_global_memory_profiler</title>
+<path fill="none" stroke="#ff0000" d="M127.2,-236.12C139.43,-234.78 152.47,-233.35 165.38,-231.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="166.14,-235.38 175.7,-230.81 165.38,-228.42 166.14,-235.38"/>
+</g>
+<!-- proc~get_global_time_profiler -->
+<g id="proc~~report_global_profiler~~CallsGraph_node9" class="node">
+<title>proc~get_global_time_profiler</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node9"><a xlink:href="../proc/get_global_time_profiler.html" xlink:title="get_global_time_profiler">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="327.5,-192 186.5,-192 186.5,-168 327.5,-168 327.5,-192"/>
+<text text-anchor="middle" x="257" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_global_time_profiler</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge8" class="edge">
+<title>proc~report_global_profiler&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M89.53,-230.83C109.16,-221.66 137.35,-209.29 163,-201 170.12,-198.7 177.62,-196.56 185.15,-194.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.19,-197.94 195.04,-192.1 184.49,-191.15 186.19,-197.94"/>
+</g>
+<!-- proc~get_num_meters~2 -->
+<g id="proc~~report_global_profiler~~CallsGraph_node10" class="node">
+<title>proc~get_num_meters~2</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node10"><a xlink:href="../proc/get_num_meters~2.html" xlink:title="BaseProfiler%get_num_meters">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="344.5,-150 169.5,-150 169.5,-126 344.5,-126 344.5,-150"/>
+<text text-anchor="middle" x="257" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseProfiler%get_num_meters</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;proc~get_num_meters~2 -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge9" class="edge">
+<title>proc~report_global_profiler&#45;&gt;proc~get_num_meters~2</title>
+<path fill="none" stroke="#ff0000" d="M74.99,-230.9C91.69,-212.42 126.22,-177.41 163,-159 167.22,-156.89 171.65,-154.99 176.2,-153.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="177.34,-156.58 185.65,-150.02 175.06,-149.96 177.34,-156.58"/>
+</g>
+<!-- proc~info -->
+<g id="proc~~report_global_profiler~~CallsGraph_node11" class="node">
+<title>proc~info</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node11"><a xlink:href="../proc/info.html" xlink:title="Logger%info">
+<polygon fill="#d9534f" stroke="#d9534f" points="297,-108 217,-108 217,-84 297,-84 297,-108"/>
+<text text-anchor="middle" x="257" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Logger%info</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;proc~info -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge10" class="edge">
+<title>proc~report_global_profiler&#45;&gt;proc~info</title>
+<path fill="none" stroke="#ff0000" d="M70.42,-230.67C83.37,-205.11 116.79,-146.27 163,-117 175.95,-108.8 191.71,-103.78 206.54,-100.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="207.4,-104.12 216.61,-98.89 206.15,-97.23 207.4,-104.12"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~report_global_profiler~~CallsGraph_node12" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node12"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="298,-66 216,-66 216,-42 298,-42 298,-66"/>
+<text text-anchor="middle" x="257" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;proc~mapl_return -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge11" class="edge">
+<title>proc~report_global_profiler&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M67.87,-230.98C77.26,-199.84 106.77,-116.11 163,-75 175.38,-65.95 190.97,-60.7 205.84,-57.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="206.7,-61.09 215.96,-55.94 205.51,-54.19 206.7,-61.09"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~report_global_profiler~~CallsGraph_node13" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node13"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="295,-24 219,-24 219,0 295,0 295,-24"/>
+<text text-anchor="middle" x="257" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;proc~mapl_verify -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge12" class="edge">
+<title>proc~report_global_profiler&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M66.42,-230.75C72.8,-194.38 96.78,-86.24 163,-33 175.8,-22.71 192.66,-17.24 208.5,-14.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="209.33,-17.82 218.71,-12.89 208.31,-10.89 209.33,-17.82"/>
+</g>
+<!-- proc~generate_report_profiler -->
+<g id="proc~~report_global_profiler~~CallsGraph_node15" class="node">
+<title>proc~generate_report_profiler</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node15"><a xlink:href="../proc/generate_report_profiler.html" xlink:title="ProfileReporter%generate_report_profiler">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="619,-423 387,-423 387,-399 619,-399 619,-423"/>
+<text text-anchor="middle" x="503" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProfileReporter%generate_report_profiler</text>
+</a>
+</g>
+</g>
+<!-- none~generate_report&#45;&gt;proc~generate_report_profiler -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge13" class="edge">
+<title>none~generate_report&#45;&gt;proc~generate_report_profiler</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M323.31,-360.07C332.74,-362.59 342.22,-365.54 351,-369 368.24,-375.79 369.63,-383.57 387,-390 393.39,-392.37 400.09,-394.47 406.9,-396.35"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="406.38,-399.83 416.93,-398.93 408.12,-393.05 406.38,-399.83"/>
+</g>
+<!-- proc~get_logger_root -->
+<g id="proc~~report_global_profiler~~CallsGraph_node17" class="node">
+<title>proc~get_logger_root</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node17"><a xlink:href="../proc/get_logger_root.html" xlink:title="LoggerManager%get_logger_root">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="598,-381 408,-381 408,-357 598,-357 598,-381"/>
+<text text-anchor="middle" x="503" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LoggerManager%get_logger_root</text>
+</a>
+</g>
+</g>
+<!-- none~get_logger~5&#45;&gt;proc~get_logger_root -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge14" class="edge">
+<title>none~get_logger~5&#45;&gt;proc~get_logger_root</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M323.31,-318.07C332.74,-320.59 342.22,-323.54 351,-327 368.24,-333.79 369.63,-341.57 387,-348 393.39,-350.37 400.09,-352.47 406.9,-354.35"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="406.38,-357.83 416.93,-356.93 408.12,-351.05 406.38,-357.83"/>
+</g>
+<!-- get_num_rows_header -->
+<g id="proc~~report_global_profiler~~CallsGraph_node14" class="node">
+<title>get_num_rows_header</title>
+<polygon fill="#777777" stroke="#777777" points="569,-339 437,-339 437,-315 569,-315 569,-339"/>
+<text text-anchor="middle" x="503" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_num_rows_header</text>
+</g>
+<!-- proc~add_column&#45;&gt;get_num_rows_header -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge15" class="edge">
+<title>proc~add_column&#45;&gt;get_num_rows_header</title>
+<path fill="none" stroke="#00ff7f" d="M323.31,-276.07C332.74,-278.59 342.22,-281.54 351,-285 368.24,-291.79 369.63,-299.57 387,-306 399.51,-310.63 413.18,-314.27 426.59,-317.11"/>
+<polygon fill="#00ff7f" stroke="#00ff7f" points="426.28,-320.62 436.77,-319.14 427.65,-313.76 426.28,-320.62"/>
+</g>
+<!-- proc~get_num_rows_separator -->
+<g id="proc~~report_global_profiler~~CallsGraph_node19" class="node">
+<title>proc~get_num_rows_separator</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node19"><a xlink:href="../proc/get_num_rows_separator.html" xlink:title="TextColumn%get_num_rows_separator">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="611.5,-297 394.5,-297 394.5,-273 611.5,-273 611.5,-297"/>
+<text text-anchor="middle" x="503" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TextColumn%get_num_rows_separator</text>
+</a>
+</g>
+</g>
+<!-- proc~add_column&#45;&gt;proc~get_num_rows_separator -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge16" class="edge">
+<title>proc~add_column&#45;&gt;proc~get_num_rows_separator</title>
+<path fill="none" stroke="#00ff7f" d="M334.2,-270.56C350.1,-271.93 367.21,-273.4 384.21,-274.86"/>
+<polygon fill="#00ff7f" stroke="#00ff7f" points="383.93,-278.35 394.2,-275.72 384.53,-271.38 383.93,-278.35"/>
+</g>
+<!-- proc~get_width -->
+<g id="proc~~report_global_profiler~~CallsGraph_node20" class="node">
+<title>proc~get_width</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node20"><a xlink:href="../proc/get_width.html" xlink:title="TextColumn%get_width">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="570.5,-255 435.5,-255 435.5,-231 570.5,-231 570.5,-255"/>
+<text text-anchor="middle" x="503" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TextColumn%get_width</text>
+</a>
+</g>
+</g>
+<!-- proc~add_column&#45;&gt;proc~get_width -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge17" class="edge">
+<title>proc~add_column&#45;&gt;proc~get_width</title>
+<path fill="none" stroke="#00ff7f" d="M334.2,-257.44C363.22,-254.94 396.28,-252.1 425.34,-249.6"/>
+<polygon fill="#00ff7f" stroke="#00ff7f" points="425.78,-253.07 435.44,-248.73 425.18,-246.1 425.78,-253.07"/>
+</g>
+<!-- proc~set_width -->
+<g id="proc~~report_global_profiler~~CallsGraph_node22" class="node">
+<title>proc~set_width</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node22"><a xlink:href="../proc/set_width.html" xlink:title="TextColumn%set_width">
+<polygon fill="#d9534f" stroke="#d9534f" points="569.5,-213 436.5,-213 436.5,-189 569.5,-189 569.5,-213"/>
+<text text-anchor="middle" x="503" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TextColumn%set_width</text>
+</a>
+</g>
+</g>
+<!-- proc~add_column&#45;&gt;proc~set_width -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge18" class="edge">
+<title>proc~add_column&#45;&gt;proc~set_width</title>
+<path fill="none" stroke="#00ff7f" d="M323.31,-251.93C332.74,-249.41 342.22,-246.46 351,-243 368.24,-236.21 369.63,-228.43 387,-222 399.44,-217.4 413.02,-213.78 426.35,-210.94"/>
+<polygon fill="#00ff7f" stroke="#00ff7f" points="427.35,-214.31 436.47,-208.91 425.98,-207.44 427.35,-214.31"/>
+</g>
+<!-- proc~vector_push_back~9 -->
+<g id="proc~~report_global_profiler~~CallsGraph_node23" class="node">
+<title>proc~vector_push_back~9</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node23"><a xlink:href="../proc/vector_push_back~9.html" xlink:title="TextColumnVector%vector_push_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="609.5,-171 396.5,-171 396.5,-147 609.5,-147 609.5,-171"/>
+<text text-anchor="middle" x="503" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TextColumnVector%vector_push_back</text>
+</a>
+</g>
+</g>
+<!-- proc~add_column&#45;&gt;proc~vector_push_back~9 -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge19" class="edge">
+<title>proc~add_column&#45;&gt;proc~vector_push_back~9</title>
+<path fill="none" stroke="#00ff7f" d="M334.46,-252.39C340.34,-249.83 345.94,-246.74 351,-243 376.93,-223.82 360.68,-198.64 387,-180 389.14,-178.49 391.35,-177.07 393.63,-175.75"/>
+<polygon fill="#00ff7f" stroke="#00ff7f" points="395.4,-178.78 402.7,-171.1 392.21,-172.55 395.4,-178.78"/>
+</g>
+<!-- proc~get_num_nodes -->
+<g id="proc~~report_global_profiler~~CallsGraph_node18" class="node">
+<title>proc~get_num_nodes</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node18"><a xlink:href="../proc/get_num_nodes.html" xlink:title="MeterNode%get_num_nodes">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="585.5,-129 420.5,-129 420.5,-105 585.5,-105 585.5,-129"/>
+<text text-anchor="middle" x="503" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MeterNode%get_num_nodes</text>
+</a>
+</g>
+</g>
+<!-- proc~get_num_meters~2&#45;&gt;proc~get_num_nodes -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge20" class="edge">
+<title>proc~get_num_meters~2&#45;&gt;proc~get_num_nodes</title>
+<path fill="none" stroke="#0000ff" d="M344.71,-130.54C366,-128.71 388.85,-126.74 410.36,-124.89"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="410.8,-128.36 420.47,-124.02 410.2,-121.39 410.8,-128.36"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~report_global_profiler~~CallsGraph_node16" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node16"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="560.5,-66 445.5,-66 445.5,-42 560.5,-42 560.5,-66"/>
+<text text-anchor="middle" x="503" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00ff" d="M298.02,-54C335.15,-54 391.13,-54 435.05,-54"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="435.09,-57.5 445.09,-54 435.09,-50.5 435.09,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~report_global_profiler~~CallsGraph_node21" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~report_global_profiler~~CallsGraph_node21"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="569.5,-24 436.5,-24 436.5,0 569.5,0 569.5,-24"/>
+<text text-anchor="middle" x="503" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00ff" d="M298.02,-47.11C332.69,-41.14 383.8,-32.35 426.19,-25.05"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="426.94,-28.47 436.2,-23.33 425.75,-21.57 426.94,-28.47"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~report_global_profiler~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff007f" d="M295.06,-12C329.69,-12 382.45,-12 426.03,-12"/>
+<polygon fill="#ff007f" stroke="#ff007f" points="426.03,-15.5 436.03,-12 426.03,-8.5 426.03,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~report_global_profiler~~CalledByGraph Pages: 1 -->
+<svg id="procreport_global_profilerCalledByGraph" width="641pt" height="32pt"
+ viewBox="0.00 0.00 641.00 31.75" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~report_global_profiler~~CalledByGraph" class="graph" transform="scale(1.01 1.01) rotate(0) translate(4 28)">
+<title>proc~~report_global_profiler~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 642,-28 642,4 -4,4"/>
+<!-- proc~report_global_profiler -->
+<g id="proc~~report_global_profiler~~CalledByGraph_node1" class="node">
+<title>proc~report_global_profiler</title>
+<polygon fill="none" stroke="black" points="638,-24 511,-24 511,0 638,0 638,-24"/>
+<text text-anchor="middle" x="574.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">report_global_profiler</text>
+</g>
+<!-- proc~finalize~6 -->
+<g id="proc~~report_global_profiler~~CalledByGraph_node2" class="node">
+<title>proc~finalize~6</title>
+<g id="a_proc~~report_global_profiler~~CalledByGraph_node2"><a xlink:href="../proc/finalize~6.html" xlink:title="ExtData_DriverGridComp%finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="475,-24 280,-24 280,0 475,0 475,-24"/>
+<text text-anchor="middle" x="377.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_DriverGridComp%finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~6&#45;&gt;proc~report_global_profiler -->
+<g id="proc~~report_global_profiler~~CalledByGraph_edge1" class="edge">
+<title>proc~finalize~6&#45;&gt;proc~report_global_profiler</title>
+<path fill="none" stroke="#ff0000" d="M475.14,-12C483.79,-12 492.45,-12 500.84,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="500.93,-15.5 510.93,-12 500.93,-8.5 500.93,-15.5"/>
+</g>
+<!-- proc~run~25 -->
+<g id="proc~~report_global_profiler~~CalledByGraph_node3" class="node">
+<title>proc~run~25</title>
+<g id="a_proc~~report_global_profiler~~CalledByGraph_node3"><a xlink:href="../proc/run~25.html" xlink:title="ExtDataDriver%run">
+<polygon fill="#d9534f" stroke="#d9534f" points="244,-24 129,-24 129,0 244,0 244,-24"/>
+<text text-anchor="middle" x="186.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver%run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~25&#45;&gt;proc~finalize~6 -->
+<g id="proc~~report_global_profiler~~CalledByGraph_edge2" class="edge">
+<title>proc~run~25&#45;&gt;proc~finalize~6</title>
+<path fill="none" stroke="#ff0000" d="M244.21,-12C252.33,-12 260.91,-12 269.63,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="269.91,-15.5 279.91,-12 269.91,-8.5 269.91,-15.5"/>
+</g>
+<!-- program~extdata_driver -->
+<g id="proc~~report_global_profiler~~CalledByGraph_node4" class="node">
+<title>program~extdata_driver</title>
+<g id="a_proc~~report_global_profiler~~CalledByGraph_node4"><a xlink:href="../program/extdata_driver.html" xlink:title="ExtData_Driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="93,-24 0,-24 0,0 93,0 93,-24"/>
+<text text-anchor="middle" x="46.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_Driver</text>
+</a>
+</g>
+</g>
+<!-- program~extdata_driver&#45;&gt;proc~run~25 -->
+<g id="proc~~report_global_profiler~~CalledByGraph_edge3" class="edge">
+<title>program~extdata_driver&#45;&gt;proc~run~25</title>
+<path fill="none" stroke="#ff0000" d="M93.07,-12C101.31,-12 110.05,-12 118.75,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="118.9,-15.5 128.9,-12 118.9,-8.5 118.9,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocreport_global_profilerCalledByGraph = svgPanZoom('#procreport_global_profilerCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">report_global_profiler</span><span class="p">(</span><span class="n">unusable</span><span class="p">,</span><span class="n">comm</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">use </span><span class="n">mapl_KeywordEnforcerMod</span>
+<span class="w">      </span><span class="k">use </span><span class="n">mapl_ErrorHandlingMod</span>
+<span class="w">      </span><span class="k">use </span><span class="n">mpi</span>
+<span class="w">      </span><span class="k">use </span><span class="n">pflogger</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">logging</span>
+<span class="w">      </span><span class="k">use </span><span class="n">pflogger</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">Logger</span>
+
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ProfileReporter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">reporter</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">world_comm</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MultiColumn</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">inclusive</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MultiColumn</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">exclusive</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">my_rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">BaseProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">t_p</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">BaseProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">m_p</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">Logger</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lgr</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">comm</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">world_comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">comm</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">world_comm</span><span class="o">=</span><span class="n">MPI_COMM_WORLD</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">world_comm</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_Rank</span><span class="p">(</span><span class="n">world_comm</span><span class="p">,</span><span class="w"> </span><span class="n">my_rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+
+<span class="w">      </span><span class="n">t_p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_global_time_profiler</span><span class="p">()</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">t_p</span><span class="p">%</span><span class="n">get_num_meters</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">reporter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ProfileReporter</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">NameColumn</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="w"> </span><span class="s2">&quot; &quot;</span><span class="p">))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;#-cycles&#39;</span><span class="p">,</span><span class="s1">&#39;(i8.0)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">NumCyclesColumn</span><span class="p">(),</span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+
+<span class="w">         </span><span class="n">inclusive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MultiColumn</span><span class="p">([</span><span class="s1">&#39;Inclusive&#39;</span><span class="p">],</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">inclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; T (sec) &#39;</span><span class="p">,</span><span class="s1">&#39;(f9.3)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">InclusiveColumn</span><span class="p">(),</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">inclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;   %  &#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">InclusiveColumn</span><span class="p">(),</span><span class="s1">&#39;MAX&#39;</span><span class="p">),</span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">inclusive</span><span class="p">)</span>
+
+<span class="w">         </span><span class="n">exclusive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MultiColumn</span><span class="p">([</span><span class="s1">&#39;Exclusive&#39;</span><span class="p">],</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">exclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; T (sec) &#39;</span><span class="p">,</span><span class="s1">&#39;(f9.3)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(),</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">exclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;   %  &#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">ExclusiveColumn</span><span class="p">()),</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">exclusive</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">my_rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">report_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reporter</span><span class="p">%</span><span class="n">generate_report</span><span class="p">(</span><span class="n">t_p</span><span class="p">)</span>
+<span class="w">            </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">logging</span><span class="p">%</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;MAPL.profiler&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Report on process: %i0&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">my_rank</span><span class="p">)</span>
+<span class="w">            </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;%a&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">            </span><span class="k">end do</span>
+<span class="k">         end if</span>
+<span class="k">      end if</span>
+
+<span class="k">      </span><span class="n">m_p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_global_memory_profiler</span><span class="p">()</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_p</span><span class="p">%</span><span class="n">get_num_meters</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">reporter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ProfileReporter</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">NameColumn</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="w"> </span><span class="s2">&quot; &quot;</span><span class="p">))</span>
+
+<span class="w">         </span><span class="n">inclusive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MultiColumn</span><span class="p">([</span><span class="s1">&#39;Inclusive&#39;</span><span class="p">],</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">inclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">MemoryTextColumn</span><span class="p">([</span><span class="s1">&#39;  MEM  &#39;</span><span class="p">],</span><span class="s1">&#39;(i4,1x,a2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">InclusiveColumn</span><span class="p">(),</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<span class="c">!!$      call inclusive%add_column(FormattedTextColumn(&#39;   %  &#39;,&#39;(f6.2)&#39;, 6, PercentageColumn(InclusiveColumn()), separator=&#39;-&#39;))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">inclusive</span><span class="p">)</span>
+
+<span class="w">         </span><span class="n">exclusive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MultiColumn</span><span class="p">([</span><span class="s1">&#39;Exclusive&#39;</span><span class="p">],</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">exclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">MemoryTextColumn</span><span class="p">([</span><span class="s1">&#39;  MEM  &#39;</span><span class="p">],</span><span class="s1">&#39;(i4,1x,a2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(),</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">exclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; MEM (KB)&#39;</span><span class="p">,</span><span class="s1">&#39;(-3p,f15.3, 0p)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(),</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<span class="c">!!$      call exclusive%add_column(FormattedTextColumn(&#39;   %  &#39;,&#39;(f6.2)&#39;, 6, PercentageColumn(ExclusiveColumn()), separator=&#39;-&#39;))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">exclusive</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">my_rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">report_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reporter</span><span class="p">%</span><span class="n">generate_report</span><span class="p">(</span><span class="n">m_p</span><span class="p">)</span>
+<span class="w">            </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">logging</span><span class="p">%</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;MAPL.profiler&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;%a&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">            </span><span class="k">end do</span>
+<span class="k">         end if</span>
+<span class="k">      end if</span>
+
+<span class="k">      call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">world_comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">report_global_profiler</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

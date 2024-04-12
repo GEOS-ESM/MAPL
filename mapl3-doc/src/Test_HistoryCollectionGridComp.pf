@@ -1,0 +1,32 @@
+#include "MAPL_TestErr.h"
+module Test_HistoryCollectionGridComp
+
+   use pfunit
+   use mapl3g_HistoryCollectionGridComp_private
+   use esmf
+   implicit none
+
+contains
+
+   @Test
+   subroutine test_make_geom()
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      integer :: rank
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content= &
+         "{geom: {schema: latlon, im_world: 12, jm_world: 13, pole: PC, " // &
+         "dateline: DC, nx: 1, ny: 1}}", _RC)
+      geom = make_geom(hconfig, _RC)
+      call ESMF_GeomGet(geom, grid=grid, rank=rank, _RC)
+      @assert_that(rank, is(2))
+
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      call ESMF_GridDestroy(grid, nogarbage=.true., _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+
+   end subroutine test_make_geom
+
+end module Test_HistoryCollectionGridComp

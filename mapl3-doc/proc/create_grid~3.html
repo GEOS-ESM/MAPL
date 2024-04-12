@@ -1,0 +1,934 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>create_grid &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>create_grid
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">21 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_EpochSwathMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_epochswathmod.f90.html'>MAPL_EpochSwathMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_epochswathmod.html'>MAPL_EpochSwathMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">create_grid</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/create_grid~3.html#src">create_grid</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function create_grid(this, key, currTime, grid_type, rc) result(ogrid)  
+</h2>
+    
+
+    <p>call grid_validate (ogrid,)</p>
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/samplerhq.html'>samplerHQ</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~7666"></span>
+              class(<a href='../type/samplerhq.html'>samplerHQ</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-key~300"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>key</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-currtime~30"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>currTime</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid_type~20"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid_type</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2706"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-ogrid~2"></span>
+          type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~create_grid~3~~CallsGraph Pages: 1 -->
+<svg id="proccreate_grid3CallsGraph" width="641pt" height="200pt"
+ viewBox="0.00 0.00 641.00 199.56" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~create_grid~3~~CallsGraph" class="graph" transform="scale(1.82 1.82) rotate(0) translate(4 359)">
+<title>proc~~create_grid~3~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-359 1162,-359 1162,4 -4,4"/>
+<!-- proc~create_grid~3 -->
+<g id="proc~~create_grid~3~~CallsGraph_node1" class="node">
+<title>proc~create_grid~3</title>
+<polygon fill="none" stroke="black" points="142,-253 0,-253 0,-229 142,-229 142,-253"/>
+<text text-anchor="middle" x="71" y="-238.6" font-family="Helvetica,sans-Serif" font-size="10.50">samplerHQ%create_grid</text>
+</g>
+<!-- ESMF_ConfigSetAttribute -->
+<g id="proc~~create_grid~3~~CallsGraph_node2" class="node">
+<title>ESMF_ConfigSetAttribute</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_configsetattribute.html" xlink:title="ESMF_ConfigSetAttribute">
+<polygon fill="#a7506f" stroke="#a7506f" points="324,-355 180,-355 180,-331 324,-331 324,-355"/>
+<text text-anchor="middle" x="252" y="-340.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigSetAttribute</text>
+</a>
+</g>
+</g>
+<!-- proc~create_grid~3&#45;&gt;ESMF_ConfigSetAttribute -->
+<g id="proc~~create_grid~3~~CallsGraph_edge1" class="edge">
+<title>proc~create_grid~3&#45;&gt;ESMF_ConfigSetAttribute</title>
+<path fill="none" stroke="#ff0000" d="M84.63,-253.22C103.48,-270.83 140.76,-303.26 178,-322 181.95,-323.99 186.12,-325.82 190.38,-327.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="189.21,-330.79 199.8,-330.92 191.6,-324.21 189.21,-330.79"/>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~create_grid~3~~CallsGraph_node3" class="node">
+<title>ESMF_TimeGet</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html" xlink:title="ESMF_TimeGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="297.5,-313 206.5,-313 206.5,-289 297.5,-289 297.5,-313"/>
+<text text-anchor="middle" x="252" y="-298.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~create_grid~3&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~create_grid~3~~CallsGraph_edge2" class="edge">
+<title>proc~create_grid~3&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#ff0000" d="M108.22,-253.14C136.22,-262.53 175.14,-275.57 205.28,-285.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="204.54,-289.12 215.14,-288.98 206.77,-282.48 204.54,-289.12"/>
+</g>
+<!-- none~make_grid~3 -->
+<g id="proc~~create_grid~3~~CallsGraph_node4" class="node">
+<title>none~make_grid~3</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node4"><a xlink:href="../type/gridmanager.html#boundprocedure-make_grid~3" xlink:title="GridManager%make_grid">
+<polygon fill="#a7506f" stroke="#a7506f" points="326,-110 178,-110 178,-86 326,-86 326,-110"/>
+<text text-anchor="middle" x="252" y="-95.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GridManager%make_grid</text>
+</a>
+</g>
+</g>
+<!-- proc~create_grid~3&#45;&gt;none~make_grid~3 -->
+<g id="proc~~create_grid~3~~CallsGraph_edge3" class="edge">
+<title>proc~create_grid~3&#45;&gt;none~make_grid~3</title>
+<path fill="none" stroke="#ff0000" d="M80.59,-228.84C97.12,-206.22 135.48,-157.32 178,-128 185.87,-122.57 194.87,-117.88 203.8,-113.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="205.16,-117.14 213.04,-110.05 202.46,-110.68 205.16,-117.14"/>
+</g>
+<!-- proc~find_config -->
+<g id="proc~~create_grid~3~~CallsGraph_node5" class="node">
+<title>proc~find_config</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node5"><a xlink:href="../proc/find_config.html" xlink:title="samplerHQ%find_config">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="322.5,-233 181.5,-233 181.5,-209 322.5,-209 322.5,-233"/>
+<text text-anchor="middle" x="252" y="-218.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">samplerHQ%find_config</text>
+</a>
+</g>
+</g>
+<!-- proc~create_grid~3&#45;&gt;proc~find_config -->
+<g id="proc~~create_grid~3~~CallsGraph_edge4" class="edge">
+<title>proc~create_grid~3&#45;&gt;proc~find_config</title>
+<path fill="none" stroke="#ff0000" d="M142.23,-233.15C151.75,-232.09 161.58,-230.99 171.26,-229.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="171.71,-233.38 181.26,-228.79 170.94,-226.42 171.71,-233.38"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~create_grid~3~~CallsGraph_node6" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node6"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="746.5,-276 664.5,-276 664.5,-252 746.5,-252 746.5,-276"/>
+<text text-anchor="middle" x="705.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~create_grid~3&#45;&gt;proc~mapl_return -->
+<g id="proc~~create_grid~3~~CallsGraph_edge5" class="edge">
+<title>proc~create_grid~3&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M142.11,-243.55C270.92,-248.23 542.32,-258.1 654.43,-262.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="654.33,-265.68 664.45,-262.54 654.58,-258.68 654.33,-265.68"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~create_grid~3~~CallsGraph_node7" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node7"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="743.5,-150 667.5,-150 667.5,-126 743.5,-126 743.5,-150"/>
+<text text-anchor="middle" x="705.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~create_grid~3&#45;&gt;proc~mapl_verify -->
+<g id="proc~~create_grid~3~~CallsGraph_edge6" class="edge">
+<title>proc~create_grid~3&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M99.46,-228.93C120.61,-220 150.74,-208.03 178,-200 349.3,-149.56 563.37,-139.96 656.99,-138.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="657.32,-141.77 667.26,-138.11 657.21,-134.77 657.32,-141.77"/>
+</g>
+<!-- proc~make_grid_from_distgrid -->
+<g id="proc~~create_grid~3~~CallsGraph_node10" class="node">
+<title>proc~make_grid_from_distgrid</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node10"><a xlink:href="../proc/make_grid_from_distgrid.html" xlink:title="GridManager%make_grid_from_distGrid">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="587,-110 362,-110 362,-86 587,-86 587,-110"/>
+<text text-anchor="middle" x="474.5" y="-95.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GridManager%make_grid_from_distGrid</text>
+</a>
+</g>
+</g>
+<!-- none~make_grid~3&#45;&gt;proc~make_grid_from_distgrid -->
+<g id="proc~~create_grid~3~~CallsGraph_edge7" class="edge">
+<title>none~make_grid~3&#45;&gt;proc~make_grid_from_distgrid</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M326.12,-91.6C334.41,-91.44 343.01,-91.33 351.72,-91.28"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="351.98,-94.78 361.97,-91.25 351.95,-87.78 351.98,-94.78"/>
+</g>
+<!-- proc~find_config&#45;&gt;proc~mapl_return -->
+<g id="proc~~create_grid~3~~CallsGraph_edge9" class="edge">
+<title>proc~find_config&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffff" d="M322.53,-225.07C390.18,-229.35 495.81,-236.87 587,-247 609.18,-249.47 633.62,-252.89 654.44,-256.01"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="653.93,-259.48 664.34,-257.52 654.98,-252.56 653.93,-259.48"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~create_grid~3~~CallsGraph_node8" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node8"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="514,-195 435,-195 435,-171 514,-171 514,-195"/>
+<text text-anchor="middle" x="474.5" y="-180.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~find_config&#45;&gt;interface~mapl_assert -->
+<g id="proc~~create_grid~3~~CallsGraph_edge8" class="edge">
+<title>proc~find_config&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ffff" d="M322.77,-208.98C355.95,-203.26 394.81,-196.56 424.77,-191.4"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="425.71,-194.79 434.97,-189.64 424.52,-187.89 425.71,-194.79"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~create_grid~3~~CallsGraph_node9" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node9"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1002,-266 887,-266 887,-242 1002,-242 1002,-266"/>
+<text text-anchor="middle" x="944.5" y="-251.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~create_grid~3~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0000ff" d="M746.7,-262.3C782.21,-260.81 834.68,-258.59 876.52,-256.83"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="876.79,-260.32 886.64,-256.4 876.5,-253.32 876.79,-260.32"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~create_grid~3~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node11"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1011,-213 878,-213 878,-189 1011,-189 1011,-213"/>
+<text text-anchor="middle" x="944.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_grid~3~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M746.75,-253.79C759.91,-250.41 774.59,-246.59 788,-243 804.04,-238.71 807.98,-237.37 824,-233 845.01,-227.27 868.13,-221.06 888.38,-215.64"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="889.32,-219.02 898.08,-213.06 887.51,-212.25 889.32,-219.02"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_grid~3~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00ff" d="M743.85,-147.53C757.72,-151.09 773.59,-155.2 788,-159 821.77,-167.91 859.59,-178.12 889.48,-186.24"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="888.73,-189.67 899.3,-188.91 890.57,-182.91 888.73,-189.67"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~create_grid~3~~CallsGraph_node18" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node18"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="772.5,-192 638.5,-192 638.5,-168 772.5,-168 772.5,-192"/>
+<text text-anchor="middle" x="705.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~create_grid~3~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M514.09,-182.49C545.21,-182.09 589.96,-181.5 628.25,-181"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="628.4,-184.5 638.35,-180.87 628.31,-177.5 628.4,-184.5"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~create_grid~3~~CallsGraph_node19" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node19"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="779.5,-234 631.5,-234 631.5,-210 779.5,-210 779.5,-234"/>
+<text text-anchor="middle" x="705.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~create_grid~3~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M514.09,-189.57C544.04,-194.67 586.61,-201.92 623.91,-208.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="623.32,-211.73 633.77,-209.95 624.5,-204.82 623.32,-211.73"/>
+</g>
+<!-- at -->
+<g id="proc~~create_grid~3~~CallsGraph_node14" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1156.5,-260 1102.5,-260 1102.5,-236 1156.5,-236 1156.5,-260"/>
+<text text-anchor="middle" x="1129.5" y="-245.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~create_grid~3~~CallsGraph_edge15" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#7fff00" d="M1002.4,-252.13C1031.72,-251.17 1066.61,-250.03 1092.25,-249.19"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1092.4,-252.69 1102.28,-248.86 1092.17,-245.69 1092.4,-252.69"/>
+</g>
+<!-- insert -->
+<g id="proc~~create_grid~3~~CallsGraph_node15" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1156.5,-302 1102.5,-302 1102.5,-278 1156.5,-278 1156.5,-302"/>
+<text text-anchor="middle" x="1129.5" y="-287.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~create_grid~3~~CallsGraph_edge16" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#7fff00" d="M1002.4,-265.19C1031.72,-270.96 1066.61,-277.82 1092.25,-282.87"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1091.79,-286.35 1102.28,-284.84 1093.14,-279.48 1091.79,-286.35"/>
+</g>
+<!-- proc~make_grid_from_distgrid&#45;&gt;none~make_grid~3 -->
+<g id="proc~~create_grid~3~~CallsGraph_edge20" class="edge">
+<title>proc~make_grid_from_distgrid&#45;&gt;none~make_grid~3</title>
+<path fill="none" stroke="#00ffff" d="M361.97,-104.75C353.31,-104.74 344.67,-104.68 336.26,-104.57"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="336.17,-101.07 326.12,-104.4 336.06,-108.06 336.17,-101.07"/>
+</g>
+<!-- proc~make_grid_from_distgrid&#45;&gt;proc~mapl_return -->
+<g id="proc~~create_grid~3~~CallsGraph_edge21" class="edge">
+<title>proc~make_grid_from_distgrid&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffff" d="M507.73,-110C532.2,-120.51 565.25,-137.89 587,-162 613.39,-191.25 592.93,-217.55 623,-243 631.88,-250.52 643.13,-255.39 654.41,-258.54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="653.74,-261.98 664.27,-260.88 655.35,-255.16 653.74,-261.98"/>
+</g>
+<!-- proc~make_grid_from_distgrid&#45;&gt;proc~mapl_verify -->
+<g id="proc~~create_grid~3~~CallsGraph_edge22" class="edge">
+<title>proc~make_grid_from_distgrid&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffff" d="M544.21,-110C580.7,-116.38 624.63,-124.05 657.26,-129.75"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="656.99,-133.25 667.44,-131.53 658.19,-126.36 656.99,-133.25"/>
+</g>
+<!-- ESMF_InfoGetFromHost -->
+<g id="proc~~create_grid~3~~CallsGraph_node12" class="node">
+<title>ESMF_InfoGetFromHost</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node12"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infogetfromhost.html" xlink:title="ESMF_InfoGetFromHost">
+<polygon fill="#a7506f" stroke="#a7506f" points="773.5,-66 637.5,-66 637.5,-42 773.5,-42 773.5,-66"/>
+<text text-anchor="middle" x="705.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGetFromHost</text>
+</a>
+</g>
+</g>
+<!-- proc~make_grid_from_distgrid&#45;&gt;ESMF_InfoGetFromHost -->
+<g id="proc~~create_grid~3~~CallsGraph_edge17" class="edge">
+<title>proc~make_grid_from_distgrid&#45;&gt;ESMF_InfoGetFromHost</title>
+<path fill="none" stroke="#00ffff" d="M538.08,-85.98C567.11,-80.4 601.79,-73.74 631.96,-67.94"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="632.84,-71.33 642,-66.01 631.52,-64.46 632.84,-71.33"/>
+</g>
+<!-- ESMF_InfoSet -->
+<g id="proc~~create_grid~3~~CallsGraph_node13" class="node">
+<title>ESMF_InfoSet</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node13"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infoset.html" xlink:title="ESMF_InfoSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="747.5,-24 663.5,-24 663.5,0 747.5,0 747.5,-24"/>
+<text text-anchor="middle" x="705.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoSet</text>
+</a>
+</g>
+</g>
+<!-- proc~make_grid_from_distgrid&#45;&gt;ESMF_InfoSet -->
+<g id="proc~~create_grid~3~~CallsGraph_edge18" class="edge">
+<title>proc~make_grid_from_distgrid&#45;&gt;ESMF_InfoSet</title>
+<path fill="none" stroke="#00ffff" d="M499.54,-85.95C528.35,-71.85 578.31,-48.49 623,-33 632.83,-29.59 643.51,-26.45 653.79,-23.7"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="654.69,-27.08 663.49,-21.18 652.93,-20.31 654.69,-27.08"/>
+</g>
+<!-- none~make_factory~3 -->
+<g id="proc~~create_grid~3~~CallsGraph_node16" class="node">
+<title>none~make_factory~3</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node16"><a xlink:href="../type/gridmanager.html#boundprocedure-make_factory~3" xlink:title="GridManager%make_factory">
+<polygon fill="#a7506f" stroke="#a7506f" points="788,-108 623,-108 623,-84 788,-84 788,-108"/>
+<text text-anchor="middle" x="705.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GridManager%make_factory</text>
+</a>
+</g>
+</g>
+<!-- proc~make_grid_from_distgrid&#45;&gt;none~make_factory~3 -->
+<g id="proc~~create_grid~3~~CallsGraph_edge19" class="edge">
+<title>proc~make_grid_from_distgrid&#45;&gt;none~make_factory~3</title>
+<path fill="none" stroke="#00ffff" d="M587.32,-97.02C595.79,-96.95 604.29,-96.88 612.62,-96.8"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="612.71,-100.3 622.68,-96.71 612.65,-93.3 612.71,-100.3"/>
+</g>
+<!-- proc~initialize~21 -->
+<g id="proc~~create_grid~3~~CallsGraph_node17" class="node">
+<title>proc~initialize~21</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node17"><a xlink:href="../proc/initialize~21.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1158,-213 1101,-213 1101,-189 1158,-189 1158,-213"/>
+<text text-anchor="middle" x="1129.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~21 -->
+<g id="proc~~create_grid~3~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~21</title>
+<path fill="none" stroke="#7f00ff" d="M1011.05,-201C1037.73,-201 1067.62,-201 1090.57,-201"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1090.59,-204.5 1100.59,-201 1090.59,-197.5 1090.59,-204.5"/>
+</g>
+<!-- proc~make_factory_from_distgrid -->
+<g id="proc~~create_grid~3~~CallsGraph_node20" class="node">
+<title>proc~make_factory_from_distgrid</title>
+<g id="a_proc~~create_grid~3~~CallsGraph_node20"><a xlink:href="../proc/make_factory_from_distgrid.html" xlink:title="GridManager%make_factory_from_distGrid">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1065,-108 824,-108 824,-84 1065,-84 1065,-108"/>
+<text text-anchor="middle" x="944.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GridManager%make_factory_from_distGrid</text>
+</a>
+</g>
+</g>
+<!-- none~make_factory~3&#45;&gt;proc~make_factory_from_distgrid -->
+<g id="proc~~create_grid~3~~CallsGraph_edge24" class="edge">
+<title>none~make_factory~3&#45;&gt;proc~make_factory_from_distgrid</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M788.06,-96C796.34,-96 804.88,-96 813.51,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="813.66,-99.5 823.66,-96 813.66,-92.5 813.66,-99.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_grid~3~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M772.52,-185.85C802.05,-188.47 837.03,-191.57 867.64,-194.28"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="867.57,-197.79 877.84,-195.18 868.18,-190.81 867.57,-197.79"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~create_grid~3~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00bf" d="M779.54,-231.86C810.58,-236.05 846.52,-240.91 876.83,-245"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="876.5,-248.48 886.88,-246.35 877.43,-241.55 876.5,-248.48"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_grid~3~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00bf" d="M779.54,-215.53C807.52,-213.05 839.49,-210.22 867.72,-207.71"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="868.29,-211.18 877.94,-206.81 867.67,-204.21 868.29,-211.18"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreate_grid3CallsGraph = svgPanZoom('#proccreate_grid3CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~create_grid~3~~CalledByGraph Pages: 1 -->
+<svg id="proccreate_grid3CalledByGraph" width="483pt" height="74pt"
+ viewBox="0.00 0.00 483.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~create_grid~3~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~create_grid~3~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 479,-70 479,4 -4,4"/>
+<!-- proc~create_grid~3 -->
+<g id="proc~~create_grid~3~~CalledByGraph_node1" class="node">
+<title>proc~create_grid~3</title>
+<polygon fill="none" stroke="black" points="475,-45 333,-45 333,-21 475,-21 475,-45"/>
+<text text-anchor="middle" x="404" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">samplerHQ%create_grid</text>
+</g>
+<!-- proc~destroy_rh_regen_ogrid -->
+<g id="proc~~create_grid~3~~CalledByGraph_node2" class="node">
+<title>proc~destroy_rh_regen_ogrid</title>
+<g id="a_proc~~create_grid~3~~CalledByGraph_node2"><a xlink:href="../proc/destroy_rh_regen_ogrid.html" xlink:title="samplerHQ%destroy_rh_regen_ogrid">
+<polygon fill="#d9534f" stroke="#d9534f" points="297,-66 90,-66 90,-42 297,-42 297,-66"/>
+<text text-anchor="middle" x="193.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">samplerHQ%destroy_rh_regen_ogrid</text>
+</a>
+</g>
+</g>
+<!-- proc~destroy_rh_regen_ogrid&#45;&gt;proc~create_grid~3 -->
+<g id="proc~~create_grid~3~~CalledByGraph_edge1" class="edge">
+<title>proc~destroy_rh_regen_ogrid&#45;&gt;proc~create_grid~3</title>
+<path fill="none" stroke="#ff0000" d="M297.22,-43.65C305.77,-42.79 314.34,-41.93 322.68,-41.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="323.14,-44.56 332.74,-40.08 322.44,-37.6 323.14,-44.56"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~create_grid~3~~CalledByGraph_node3" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~create_grid~3~~CalledByGraph_node3"><a xlink:href="../proc/initialize.html" xlink:title="Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="222,-24 165,-24 165,0 222,0 222,-24"/>
+<text text-anchor="middle" x="193.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize&#45;&gt;proc~create_grid~3 -->
+<g id="proc~~create_grid~3~~CalledByGraph_edge2" class="edge">
+<title>proc~initialize&#45;&gt;proc~create_grid~3</title>
+<path fill="none" stroke="#ff0000" d="M222.19,-14.79C247.8,-17.37 287.14,-21.33 322.6,-24.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="322.67,-28.43 332.97,-25.95 323.37,-21.46 322.67,-28.43"/>
+</g>
+<!-- proc~run -->
+<g id="proc~~create_grid~3~~CalledByGraph_node4" class="node">
+<title>proc~run</title>
+<g id="a_proc~~create_grid~3~~CalledByGraph_node4"><a xlink:href="../proc/run.html" xlink:title="Run">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-66 0,-66 0,-42 54,-42 54,-66"/>
+<text text-anchor="middle" x="27" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run</text>
+</a>
+</g>
+</g>
+<!-- proc~run&#45;&gt;proc~destroy_rh_regen_ogrid -->
+<g id="proc~~create_grid~3~~CalledByGraph_edge3" class="edge">
+<title>proc~run&#45;&gt;proc~destroy_rh_regen_ogrid</title>
+<path fill="none" stroke="#ff0000" d="M54.07,-54C61.66,-54 70.49,-54 79.93,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.97,-57.5 89.97,-54 79.97,-50.5 79.97,-57.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">function </span><span class="n">create_grid</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="n">grid_type</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w">  </span><span class="k">result</span><span class="p">(</span><span class="n">ogrid</span><span class="p">)</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ogrid</span>
+<span class="w">    </span><span class="k">class</span><span class="p">(</span><span class="n">samplerHQ</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">key</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">currTime</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_type</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config_grid</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_string</span>
+
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">grid_type</span><span class="p">))</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_type</span><span class="p">)</span>
+<span class="w">    </span><span class="n">config_grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">find_config</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="n">timeString</span><span class="o">=</span><span class="n">time_string</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">!</span>
+<span class="w">    </span><span class="c">! -- the `ESMF_ConfigSetAttribute` shows a risk</span>
+<span class="w">    </span><span class="c">!    to overwrite the nextline in config</span>
+<span class="w">    </span><span class="c">!</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ConfigSetAttribute</span><span class="p">(</span><span class="w"> </span><span class="n">config_grid</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">time_string</span><span class="p">),</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;.Epoch_init:&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">ogrid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">grid_manager</span><span class="p">%</span><span class="n">make_grid</span><span class="p">(</span><span class="n">config_grid</span><span class="p">,</span><span class="w"> </span><span class="n">prefix</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;.&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="c">!!    call grid_validate (ogrid,)</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end function </span><span class="n">create_grid</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

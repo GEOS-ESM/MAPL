@@ -1,0 +1,965 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Test_DirectoryService.pf &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Test_DirectoryService.pf
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">187 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_DirectoryService.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">Test_DirectoryService.pf</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_directoryservice.html">Test_DirectoryService</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/test_directoryservice.pf.html#src">Test_DirectoryService.pf</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~test_directoryservice.pf~~EfferentGraph Pages: 1 -->
+<svg id="sourcefiletest_directoryservicepfEfferentGraph" width="641pt" height="434pt"
+ viewBox="0.00 0.00 641.00 434.50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph" class="graph" transform="scale(1.35 1.35) rotate(0) translate(4 584.37)">
+<title>sourcefile~~test_directoryservice.pf~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-584.37 864,-584.37 864,4 -4,4"/>
+<!-- sourcefile~test_directoryservice.pf -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node1" class="node">
+<title>sourcefile~test_directoryservice.pf</title>
+<polygon fill="none" stroke="black" points="860,-195.37 720,-195.37 720,-171.37 860,-171.37 860,-195.37"/>
+<text text-anchor="middle" x="790" y="-180.97" font-family="Helvetica,sans-Serif" font-size="10.50">Test_DirectoryService.pf</text>
+</g>
+<!-- sourcefile~abstractdirectoryservice.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node2" class="node">
+<title>sourcefile~abstractdirectoryservice.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node2"><a xlink:href="../sourcefile/abstractdirectoryservice.f90.html" xlink:title="AbstractDirectoryService.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="524,-476.37 356,-476.37 356,-452.37 524,-452.37 524,-476.37"/>
+<text text-anchor="middle" x="440" y="-461.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractDirectoryService.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~abstractdirectoryservice.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~abstractdirectoryservice.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M621,-424.37C594.75,-439.33 563.4,-448.69 534.26,-454.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="533.24,-451.19 524.06,-456.49 534.54,-458.07 533.24,-451.19"/>
+</g>
+<!-- sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node3" class="node">
+<title>sourcefile~abstractsocket.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node3"><a xlink:href="../sourcefile/abstractsocket.f90.html" xlink:title="AbstractSocket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="115,-417.37 0,-417.37 0,-393.37 115,-393.37 115,-417.37"/>
+<text text-anchor="middle" x="57.5" y="-402.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractSocket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M781.94,-171.36C767,-146.98 729.77,-91.45 684,-61.37 621.74,-20.44 597.65,-22.61 524,-11.37 450.19,-0.1 428.48,6.57 356,-11.37 297.72,-25.79 289.41,-45.98 236.5,-74.37"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M234.5,-74.37C200.66,-91.79 178.77,-67.34 151,-93.37 66.18,-172.88 57.96,-326.16 57.99,-383.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="54.49,-383.35 58.09,-393.32 61.49,-383.29 54.49,-383.35"/>
+</g>
+<!-- sourcefile~abstractsocketvector.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node4" class="node">
+<title>sourcefile~abstractsocketvector.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node4"><a xlink:href="../sourcefile/abstractsocketvector.f90.html" xlink:title="AbstractSocketVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="309.5,-458.37 161.5,-458.37 161.5,-434.37 309.5,-434.37 309.5,-458.37"/>
+<text text-anchor="middle" x="235.5" y="-443.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractSocketVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~abstractsocketvector.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~abstractsocketvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M621,-424.37C608.13,-431.7 428.82,-439.42 319.67,-443.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="319.53,-439.99 309.67,-443.85 319.79,-446.98 319.53,-439.99"/>
+</g>
+<!-- sourcefile~directoryservice.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node5" class="node">
+<title>sourcefile~directoryservice.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node5"><a xlink:href="../sourcefile/directoryservice.f90.html" xlink:title="DirectoryService.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="684,-226.37 560,-226.37 560,-202.37 684,-202.37 684,-226.37"/>
+<text text-anchor="middle" x="622" y="-211.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DirectoryService.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~directoryservice.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~directoryservice.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M724.34,-195.44C714.44,-197.29 704.18,-199.21 694.15,-201.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="693.4,-197.66 684.22,-202.93 694.69,-204.54 693.4,-197.66"/>
+</g>
+<!-- sourcefile~mockclient.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node6" class="node">
+<title>sourcefile~mockclient.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node6"><a xlink:href="../sourcefile/mockclient.f90.html" xlink:title="MockClient.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="669,-94.37 575,-94.37 575,-70.37 669,-70.37 669,-94.37"/>
+<text text-anchor="middle" x="622" y="-79.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockClient.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~mockclient.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~mockclient.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M768.98,-171.18C739.73,-153.39 685.19,-120.21 651.69,-99.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="653.2,-96.64 642.84,-94.44 649.56,-102.62 653.2,-96.64"/>
+</g>
+<!-- sourcefile~mockserver.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node7" class="node">
+<title>sourcefile~mockserver.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node7"><a xlink:href="../sourcefile/mockserver.f90.html" xlink:title="MockServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="488.5,-556.37 391.5,-556.37 391.5,-532.37 488.5,-532.37 488.5,-556.37"/>
+<text text-anchor="middle" x="440" y="-541.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~mockserver.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~mockserver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M621,-424.37C568.84,-454.09 575.59,-487.68 524,-518.37 516.09,-523.07 507.24,-527.01 498.35,-530.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="497.06,-527.02 488.73,-533.57 499.32,-533.65 497.06,-527.02"/>
+</g>
+<!-- sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node8" class="node">
+<title>sourcefile~mpisocket.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node8"><a xlink:href="../sourcefile/mpisocket.f90.html" xlink:title="MpiSocket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="485,-330.37 395,-330.37 395,-306.37 485,-306.37 485,-330.37"/>
+<text text-anchor="middle" x="440" y="-315.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MpiSocket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~mpisocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M784.99,-195.48C770.73,-236.44 718.12,-370.15 623,-424.37"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M621,-424.37C613.45,-428.67 516.4,-367.17 468.03,-335.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="469.89,-332.98 459.59,-330.49 466.09,-338.86 469.89,-332.98"/>
+</g>
+<!-- sourcefile~abstractdirectoryservice.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~abstractdirectoryservice.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M395.39,-476.4C382.53,-480.38 368.55,-485.14 356,-490.37 339.3,-497.32 337.56,-505.02 320,-509.37 247.09,-527.43 219.52,-540.13 151,-509.37 113.27,-492.43 84.65,-451.66 69.82,-426.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="72.8,-424.66 64.82,-417.69 66.71,-428.12 72.8,-424.66"/>
+</g>
+<!-- sourcefile~abstractdirectoryservice.f90&#45;&gt;sourcefile~abstractsocketvector.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~abstractdirectoryservice.f90&#45;&gt;sourcefile~abstractsocketvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M355.76,-456.97C343.95,-455.92 331.8,-454.84 319.98,-453.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="319.97,-450.27 309.7,-452.87 319.35,-457.25 319.97,-450.27"/>
+</g>
+<!-- sourcefile~baseserver.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node13" class="node">
+<title>sourcefile~baseserver.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node13"><a xlink:href="../sourcefile/baseserver.f90.html" xlink:title="BaseServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="283,-580.37 188,-580.37 188,-556.37 283,-556.37 283,-580.37"/>
+<text text-anchor="middle" x="235.5" y="-565.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractdirectoryservice.f90&#45;&gt;sourcefile~baseserver.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~abstractdirectoryservice.f90&#45;&gt;sourcefile~baseserver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M382.54,-476.47C373.15,-480.01 363.91,-484.55 356,-490.37 333.36,-507.03 342.65,-525.73 320,-542.37 311.92,-548.3 302.46,-552.9 292.87,-556.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="291.63,-553.19 283.27,-559.69 293.87,-559.82 291.63,-553.19"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node15" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node15"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="297.5,-416.37 173.5,-416.37 173.5,-392.37 297.5,-392.37 297.5,-416.37"/>
+<text text-anchor="middle" x="235.5" y="-401.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractdirectoryservice.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~abstractdirectoryservice.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M404.31,-452.28C380.68,-444.23 348.61,-433.64 320,-425.37 312.53,-423.21 304.64,-421.06 296.83,-419"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="297.55,-415.57 286.99,-416.46 295.79,-422.35 297.55,-415.57"/>
+</g>
+<!-- sourcefile~abstractsocketvector.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~abstractsocketvector.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M182.65,-434.29C163.04,-429.72 140.54,-424.48 120.12,-419.72"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="120.82,-416.29 110.29,-417.43 119.23,-423.11 120.82,-416.29"/>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~abstractdirectoryservice.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~abstractdirectoryservice.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M616.69,-226.76C605.3,-258.29 571.94,-343.14 524,-400.37 508.68,-418.66 487.27,-435.01 470.04,-446.6"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="467.91,-443.81 461.46,-452.21 471.74,-449.67 467.91,-443.81"/>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M559.91,-211.48C524.75,-208.86 479.95,-203.86 441,-194.37"/>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M439,-194.37C402.23,-185.41 385.16,-199.49 356,-175.37 325.33,-150 350.69,-118.72 320,-93.37 290.66,-69.13 270.04,-56.38 236.5,-74.37"/>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~abstractsocketvector.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~abstractsocketvector.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M439,-386.37C404.81,-403.85 392.23,-397.63 356,-410.37 339.65,-416.12 336.45,-419.9 320,-425.37 313.27,-427.6 306.17,-429.73 299.06,-431.71"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="298.14,-428.34 289.4,-434.32 299.97,-435.09 298.14,-428.34"/>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~mpisocket.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M610.35,-226.51C593.74,-244.69 559.82,-278.82 524,-297.37 514.99,-302.03 504.89,-305.7 494.91,-308.58"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="493.8,-305.25 485.02,-311.19 495.59,-312.02 493.8,-305.25"/>
+</g>
+<!-- sourcefile~abstractserver.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node12" class="node">
+<title>sourcefile~abstractserver.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node12"><a xlink:href="../sourcefile/abstractserver.f90.html" xlink:title="AbstractServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="496.5,-288.37 383.5,-288.37 383.5,-264.37 496.5,-264.37 496.5,-288.37"/>
+<text text-anchor="middle" x="440" y="-273.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~abstractserver.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~abstractserver.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M595.47,-226.42C576.15,-235.23 548.79,-247.05 524,-255.37 517.47,-257.56 510.58,-259.65 503.68,-261.6"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="502.32,-258.34 493.6,-264.35 504.17,-265.09 502.32,-258.34"/>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~baseserver.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~baseserver.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M617.42,-226.46C602.46,-276.69 544.76,-466.98 524,-485.37 466.69,-536.12 429.33,-501.38 356,-523.37 328.32,-531.67 297.83,-543.19 274.59,-552.49"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="273.06,-549.33 265.1,-556.33 275.68,-555.82 273.06,-549.33"/>
+</g>
+<!-- sourcefile~clientthread.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node14" class="node">
+<title>sourcefile~clientthread.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node14"><a xlink:href="../sourcefile/clientthread.f90.html" xlink:title="ClientThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="491.5,-44.37 388.5,-44.37 388.5,-20.37 491.5,-20.37 491.5,-44.37"/>
+<text text-anchor="middle" x="440" y="-29.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~clientthread.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~clientthread.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M614.34,-202.14C594.76,-166.35 537.83,-63.62 524,-53.37 517.22,-48.34 509.37,-44.51 501.25,-41.59"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="502.23,-38.23 491.64,-38.57 500.13,-44.91 502.23,-38.23"/>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M613.78,-226.68C599.23,-250.7 564.31,-304.51 524,-339.37 491.94,-367.1 478.74,-367.06 441,-386.37"/>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M439,-386.37C398.88,-406.89 348.41,-411.42 307.89,-410.8"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="307.9,-407.3 297.81,-410.54 307.72,-414.3 307.9,-407.3"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node16" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node16"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="320,-126.37 151,-126.37 151,-102.37 320,-102.37 320,-126.37"/>
+<text text-anchor="middle" x="235.5" y="-111.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M611.19,-202.31C595.19,-183.65 561.48,-148.37 524,-133.37 462.67,-108.81 388.1,-104.53 330.28,-106.15"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="329.92,-102.66 320.05,-106.5 330.16,-109.65 329.92,-102.66"/>
+</g>
+<!-- sourcefile~mpimutex.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node17" class="node">
+<title>sourcefile~mpimutex.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node17"><a xlink:href="../sourcefile/mpimutex.f90.html" xlink:title="MpiMutex.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="482.5,-246.37 397.5,-246.37 397.5,-222.37 482.5,-222.37 482.5,-246.37"/>
+<text text-anchor="middle" x="440" y="-231.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MpiMutex.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~mpimutex.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~mpimutex.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M559.81,-221.17C538,-223.59 513.67,-226.29 492.73,-228.62"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="492.3,-225.14 482.75,-229.73 493.08,-232.1 492.3,-225.14"/>
+</g>
+<!-- sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node20" class="node">
+<title>sourcefile~protocolparser.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node20"><a xlink:href="../sourcefile/protocolparser.f90.html" xlink:title="ProtocolParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="290.5,-168.37 180.5,-168.37 180.5,-144.37 290.5,-144.37 290.5,-168.37"/>
+<text text-anchor="middle" x="235.5" y="-153.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProtocolParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~protocolparser.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M439,-194.37C393.03,-183.16 340.49,-173.39 300.45,-166.56"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="301,-163.11 290.56,-164.89 299.83,-170.01 301,-163.11"/>
+</g>
+<!-- sourcefile~serverthread.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node21" class="node">
+<title>sourcefile~serverthread.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node21"><a xlink:href="../sourcefile/serverthread.f90.html" xlink:title="ServerThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="494,-166.37 386,-166.37 386,-142.37 494,-142.37 494,-166.37"/>
+<text text-anchor="middle" x="440" y="-151.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M587.43,-202.29C568.79,-195.66 545.17,-187.39 524,-180.37 513.03,-176.73 501.19,-172.94 489.99,-169.41"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="490.94,-166.04 480.35,-166.4 488.85,-172.72 490.94,-166.04"/>
+</g>
+<!-- sourcefile~simplesocket.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node22" class="node">
+<title>sourcefile~simplesocket.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node22"><a xlink:href="../sourcefile/simplesocket.f90.html" xlink:title="SimpleSocket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="494,-86.37 386,-86.37 386,-62.37 494,-62.37 494,-86.37"/>
+<text text-anchor="middle" x="440" y="-71.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleSocket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~simplesocket.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~simplesocket.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M613.87,-202.08C599.72,-178.79 565.82,-128.05 524,-100.37 517.85,-96.3 511.03,-92.84 504.02,-89.9"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="504.97,-86.51 494.38,-86.21 502.47,-93.05 504.97,-86.51"/>
+</g>
+<!-- sourcefile~mockclient.f90&#45;&gt;sourcefile~clientthread.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~mockclient.f90&#45;&gt;sourcefile~clientthread.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M581.94,-70.27C564.29,-64.92 543.15,-58.65 524,-53.37 516.26,-51.23 508.09,-49.06 500.01,-46.97"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="500.8,-43.56 490.25,-44.46 499.06,-50.34 500.8,-43.56"/>
+</g>
+<!-- sourcefile~abstractdatareference.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node9" class="node">
+<title>sourcefile~abstractdatareference.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node9"><a xlink:href="../sourcefile/abstractdatareference.f90.html" xlink:title="AbstractDataReference.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="315,-500.37 156,-500.37 156,-476.37 315,-476.37 315,-500.37"/>
+<text text-anchor="middle" x="235.5" y="-485.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractDataReference.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockserver.f90&#45;&gt;sourcefile~abstractdatareference.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~mockserver.f90&#45;&gt;sourcefile~abstractdatareference.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M395.56,-532.35C364.7,-523.82 323.07,-512.31 290.14,-503.2"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="290.79,-499.75 280.22,-500.46 288.92,-506.5 290.79,-499.75"/>
+</g>
+<!-- sourcefile~mockserver.f90&#45;&gt;sourcefile~baseserver.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~mockserver.f90&#45;&gt;sourcefile~baseserver.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M391.27,-550.02C361.96,-553.5 324.25,-557.97 293.39,-561.62"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="292.73,-558.18 283.21,-562.83 293.56,-565.13 292.73,-558.18"/>
+</g>
+<!-- sourcefile~mpisocket.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~mpisocket.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M394.92,-328.39C372.49,-333.48 344.8,-339.77 320,-345.37 244.91,-362.33 226.01,-366.02 151,-383.37 140.53,-385.79 129.41,-388.4 118.64,-390.95"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="117.8,-387.55 108.88,-393.27 119.42,-394.36 117.8,-387.55"/>
+</g>
+<!-- sourcefile~mpisocket.f90&#45;&gt;sourcefile~abstractdatareference.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~mpisocket.f90&#45;&gt;sourcefile~abstractdatareference.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M411.84,-330.43C393.84,-339.64 370.88,-353.89 356,-372.37 327.67,-407.53 353.72,-437.34 320,-467.37 318.66,-468.56 317.26,-469.69 315.8,-470.76"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="313.66,-467.97 307.01,-476.22 317.35,-473.92 313.66,-467.97"/>
+</g>
+<!-- sourcefile~abstractmessage.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node10" class="node">
+<title>sourcefile~abstractmessage.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node10"><a xlink:href="../sourcefile/abstractmessage.f90.html" xlink:title="AbstractMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="298.5,-336.37 172.5,-336.37 172.5,-312.37 298.5,-312.37 298.5,-336.37"/>
+<text text-anchor="middle" x="235.5" y="-321.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpisocket.f90&#45;&gt;sourcefile~abstractmessage.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~mpisocket.f90&#45;&gt;sourcefile~abstractmessage.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M394.81,-319.68C369.62,-320.42 337.43,-321.38 308.66,-322.23"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="308.54,-318.73 298.65,-322.53 308.75,-325.73 308.54,-318.73"/>
+</g>
+<!-- sourcefile~abstractrequesthandle.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node11" class="node">
+<title>sourcefile~abstractrequesthandle.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node11"><a xlink:href="../sourcefile/abstractrequesthandle.f90.html" xlink:title="AbstractRequestHandle.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="315.5,-294.37 155.5,-294.37 155.5,-270.37 315.5,-270.37 315.5,-294.37"/>
+<text text-anchor="middle" x="235.5" y="-279.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractRequestHandle.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpisocket.f90&#45;&gt;sourcefile~abstractrequesthandle.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~mpisocket.f90&#45;&gt;sourcefile~abstractrequesthandle.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M394.81,-310.51C371.18,-306.31 341.39,-301.01 314.05,-296.15"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="314.56,-292.69 304.1,-294.38 313.33,-299.58 314.56,-292.69"/>
+</g>
+<!-- sourcefile~mpisocket.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~mpisocket.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M394.78,-316.18C380.69,-313.34 366.15,-307.82 356,-297.37 304.61,-244.46 371.43,-188.24 320,-135.37 319.06,-134.4 318.09,-133.48 317.08,-132.6"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="318.91,-129.6 308.75,-126.59 314.81,-135.28 318.91,-129.6"/>
+</g>
+<!-- sourcefile~pfio_constants.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node18" class="node">
+<title>sourcefile~pfio_constants.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node18"><a xlink:href="../sourcefile/pfio_constants.f90.html" xlink:title="pFIO_Constants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="294,-252.37 177,-252.37 177,-228.37 294,-228.37 294,-252.37"/>
+<text text-anchor="middle" x="235.5" y="-237.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_Constants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpisocket.f90&#45;&gt;sourcefile~pfio_constants.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~mpisocket.f90&#45;&gt;sourcefile~pfio_constants.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M394.66,-311.77C381.65,-308.63 367.76,-304.05 356,-297.37 336.33,-286.19 339.68,-272.53 320,-261.37 314.92,-258.49 309.44,-255.99 303.81,-253.84"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="304.83,-250.49 294.23,-250.53 302.54,-257.1 304.83,-250.49"/>
+</g>
+<!-- sourcefile~pfio_utilities.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_node19" class="node">
+<title>sourcefile~pfio_utilities.f90</title>
+<g id="a_sourcefile~~test_directoryservice.pf~~EfferentGraph_node19"><a xlink:href="../sourcefile/pfio_utilities.f90.html" xlink:title="pFIO_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="287,-210.37 184,-210.37 184,-186.37 287,-186.37 287,-210.37"/>
+<text text-anchor="middle" x="235.5" y="-195.97" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpisocket.f90&#45;&gt;sourcefile~pfio_utilities.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~mpisocket.f90&#45;&gt;sourcefile~pfio_utilities.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M394.7,-314.6C381.09,-311.61 366.86,-306.39 356,-297.37 326.63,-272.97 349.39,-243.74 320,-219.37 313.23,-213.75 305.16,-209.61 296.74,-206.56"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="297.74,-203.2 287.15,-203.55 295.65,-209.88 297.74,-203.2"/>
+</g>
+<!-- sourcefile~mpisocket.f90&#45;&gt;sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~test_directoryservice.pf~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~mpisocket.f90&#45;&gt;sourcefile~protocolparser.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M394.77,-315.67C380.85,-312.77 366.42,-307.34 356,-297.37 315.78,-258.86 360.25,-215.84 320,-177.37 314.3,-171.92 307.41,-167.83 300.05,-164.76"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="301.14,-161.43 290.55,-161.4 298.81,-168.03 301.14,-161.43"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefiletest_directoryservicepfEfferentGraph = svgPanZoom('#sourcefiletest_directoryservicepfEfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">Test_DirectoryService</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use </span><span class="n">pfunit</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractDirectoryServiceMod</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_DirectoryServiceMod</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractSocketMod</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractSocketVectorMod</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_MpiSocketMod</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">MockServerMod</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">MockClientMod</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="k">contains</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_put_directory</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DirectoryService</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ds</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">win</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Directory</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dir</span><span class="p">,</span><span class="w"> </span><span class="n">dir2</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="n">comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">()</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">      </span><span class="n">ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DirectoryService</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="n">dir</span><span class="p">%</span><span class="n">num_entries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DirectoryEntry</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="n">win</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ds</span><span class="p">%</span><span class="n">get_win</span><span class="p">(</span><span class="s1">&#39;server_directory&#39;</span><span class="p">)</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">put_directory</span><span class="p">(</span><span class="n">dir</span><span class="p">,</span><span class="w"> </span><span class="n">win</span><span class="p">)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="n">dir2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ds</span><span class="p">%</span><span class="n">get_directory</span><span class="p">(</span><span class="n">win</span><span class="p">)</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dir</span><span class="p">%</span><span class="n">num_entries</span><span class="p">,</span><span class="w"> </span><span class="n">dir2</span><span class="p">%</span><span class="n">num_entries</span><span class="p">)</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">port_name</span><span class="p">,</span><span class="w"> </span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">port_name</span><span class="p">)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">partner_root_rank</span><span class="p">,</span><span class="w"> </span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">partner_root_rank</span><span class="p">)</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">free_directory_resources</span><span class="p">()</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_put_directory</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_publish</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DirectoryService</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ds</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockServer</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mock_server</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="n">comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">()</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="n">ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DirectoryService</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="n">mock_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockServer</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">publish</span><span class="p">(</span><span class="n">PortInfo</span><span class="p">(</span><span class="s1">&#39;service&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">),</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">free_directory_resources</span><span class="p">()</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_publish</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_connect</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DirectoryService</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ds</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockServer</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mock_server</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockClient</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mock_client</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="n">ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DirectoryService</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">())</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">()</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_split</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">(),</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">())</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="c">! server</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">         </span><span class="n">mock_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockServer</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">         </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">publish</span><span class="p">(</span><span class="n">PortInfo</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">),</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">         </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">connect_to_client</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="c">! client</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">         </span><span class="n">mock_client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockClient</span><span class="p">()</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">         </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">connect_to_server</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_client</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">)</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="c">!C$      select type (s)</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="c">!C$      type is (MpiSocket)</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="c">!C$      class default</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="c">!C$         @assertTrue(.false.)</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="c">!C$      end select</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">free_directory_resources</span><span class="p">()</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_connect</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a>
+<a id="ln-100" name="ln-100" href="#ln-100"></a>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_connect_swap_role</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DirectoryService</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ds</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockServer</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mock_server</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockClient</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mock_client</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span><span class="n">ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DirectoryService</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">())</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">()</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_split</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">(),</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">())</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="c">! server</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">         </span><span class="n">mock_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockServer</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">         </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">publish</span><span class="p">(</span><span class="n">PortInfo</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">),</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">         </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">connect_to_client</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="c">! client</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">         </span><span class="n">mock_client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockClient</span><span class="p">()</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">         </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">connect_to_server</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_client</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">)</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="c">!C$      select type (s)</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="c">!C$      type is (MpiSocket)</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="c">!C$      class default</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="c">!C$         @assertTrue(.false.)</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="c">!C$      end select</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="c">!C$</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">free_directory_resources</span><span class="p">()</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_connect_swap_role</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">   </span><span class="c">! 3 clients, 2 servers</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_connect_multi</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DirectoryService</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ds</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierror</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">key</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockServer</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mock_server</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockClient</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mock_client</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">      </span><span class="n">ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DirectoryService</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">())</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">      </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">()</span><span class="o">/</span><span class="mi">3</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">      </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_split</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">(),</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="c">! server</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">         </span><span class="n">mock_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockServer</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">         </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">publish</span><span class="p">(</span><span class="n">PortInfo</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">),</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">         </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">())</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="c">! have one</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">            </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">connect_to_client</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">            </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">connect_to_client</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">         </span><span class="k">end select</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="k">      case</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="c">! client</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">         </span><span class="n">mock_client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockClient</span><span class="p">()</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">         </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">connect_to_server</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_client</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">)</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="k">      call </span><span class="n">ds</span><span class="p">%</span><span class="n">free_directory_resources</span><span class="p">()</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_connect_multi</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a>
+<a id="ln-179" name="ln-179" href="#ln-179"></a>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">   </span><span class="c">! 3 clients, 2 servers, 1 unused</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">   </span><span class="c">! Just making sure that there is no implicit assumption that a process</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">   </span><span class="c">! is always involved in either a client or a server.</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_connect_with_unused_process</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DirectoryService</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ds</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">key</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierror</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockServer</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mock_server</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockClient</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mock_client</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">      </span><span class="n">ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DirectoryService</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">())</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="k">         </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">      </span><span class="k">else</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="k">         </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">()</span><span class="o">/</span><span class="mi">3</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">         </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="k">      call </span><span class="n">MPI_Comm_split</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">(),</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="c">! server</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">         </span><span class="n">mock_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockServer</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">         </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">publish</span><span class="p">(</span><span class="n">PortInfo</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">),</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">         </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">())</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="c">! have one</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="w">            </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">connect_to_client</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">            </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">connect_to_client</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">         </span><span class="k">end select</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="k">      case</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="c">! client</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">         </span><span class="n">mock_client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockClient</span><span class="p">()</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="w">         </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">connect_to_server</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_client</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">)</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="k">      call </span><span class="n">ds</span><span class="p">%</span><span class="n">free_directory_resources</span><span class="p">()</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a>
+<a id="ln-224" name="ln-224" href="#ln-224"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_connect_with_unused_process</span>
+<a id="ln-225" name="ln-225" href="#ln-225"></a>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">   </span><span class="c">! 4 clients, 2 servers</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_stress</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DirectoryService</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ds</span>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">key</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockServer</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mock_server</span>
+<a id="ln-236" name="ln-236" href="#ln-236"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockClient</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mock_client</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierror</span>
+<a id="ln-239" name="ln-239" href="#ln-239"></a>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">      </span><span class="n">ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DirectoryService</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">())</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a>
+<a id="ln-242" name="ln-242" href="#ln-242"></a><span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getProcessRank</span><span class="p">())</span>
+<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">)</span>
+<a id="ln-244" name="ln-244" href="#ln-244"></a><span class="w">         </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c">! client</span>
+<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="p">:</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="c">! none</span>
+<a id="ln-246" name="ln-246" href="#ln-246"></a><span class="w">         </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<a id="ln-247" name="ln-247" href="#ln-247"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">6</span><span class="p">:</span><span class="mi">7</span><span class="p">)</span>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="w">         </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="c">! server</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="k">         </span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="k">      </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_split</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getMpiCommunicator</span><span class="p">(),</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a>
+<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="c">! server</span>
+<a id="ln-257" name="ln-257" href="#ln-257"></a><span class="w">         </span><span class="n">mock_server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockServer</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
+<a id="ln-258" name="ln-258" href="#ln-258"></a><span class="w">         </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">publish</span><span class="p">(</span><span class="n">portInfo</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">),</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span>
+<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="w">         </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">connect_to_client</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span>
+<a id="ln-260" name="ln-260" href="#ln-260"></a><span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="c">! client</span>
+<a id="ln-261" name="ln-261" href="#ln-261"></a><span class="w">         </span><span class="n">mock_client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockClient</span><span class="p">()</span>
+<a id="ln-262" name="ln-262" href="#ln-262"></a><span class="w">         </span><span class="k">call </span><span class="n">ds</span><span class="p">%</span><span class="n">connect_to_server</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mock_client</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">)</span>
+<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-264" name="ln-264" href="#ln-264"></a>
+<a id="ln-265" name="ln-265" href="#ln-265"></a><span class="k">      call </span><span class="n">ds</span><span class="p">%</span><span class="n">free_directory_resources</span><span class="p">()</span>
+<a id="ln-266" name="ln-266" href="#ln-266"></a>
+<a id="ln-267" name="ln-267" href="#ln-267"></a><span class="w">    </span><span class="k">end subroutine </span><span class="n">test_stress</span>
+<a id="ln-268" name="ln-268" href="#ln-268"></a>
+<a id="ln-269" name="ln-269" href="#ln-269"></a>
+<a id="ln-270" name="ln-270" href="#ln-270"></a><span class="k">end module </span><span class="n">Test_DirectoryService</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

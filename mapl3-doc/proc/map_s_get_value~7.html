@@ -1,0 +1,637 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>map_s_get_value &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>map_s_get_value
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">5 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/IntegerRequestMap.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/integerrequestmap.f90.html'>IntegerRequestMap.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_integerrequestmapmod.html'>pFIO_IntegerRequestMapMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">map_s_get_value</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function map_s_get_value(this) result(value)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/map_s_node~13.html'>map_s_Node</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~3451"></span>
+              class(<a href='../type/map_s_node~13.html'>map_s_Node</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-value~540"></span>
+          type(<a href='../type/integerrequestpair.html'>IntegerRequestPair</a>), pointer
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~map_s_get_value~7~~CalledByGraph Pages: 1 -->
+<svg id="procmap_s_get_value7CalledByGraph" width="641pt" height="420pt"
+ viewBox="0.00 0.00 641.00 419.59" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~map_s_get_value~7~~CalledByGraph" class="graph" transform="scale(1.38 1.38) rotate(0) translate(4 574)">
+<title>proc~~map_s_get_value~7~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-574 879,-574 879,4 -4,4"/>
+<!-- proc~map_s_get_value~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node1" class="node">
+<title>proc~map_s_get_value~7</title>
+<polygon fill="none" stroke="black" points="875,-423 694,-423 694,-399 875,-399 875,-423"/>
+<text text-anchor="middle" x="784.5" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50">map_s_Node%map_s_get_value</text>
+</g>
+<!-- proc~map_s_find_node~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node2" class="node">
+<title>proc~map_s_find_node~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node2"><a xlink:href="../proc/map_s_find_node~7.html" xlink:title="map_Set%map_s_find_node">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="647.5,-444 486.5,-444 486.5,-420 647.5,-420 647.5,-444"/>
+<text text-anchor="middle" x="567" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_find_node</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_find_node~7&#45;&gt;proc~map_s_get_value~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge1" class="edge">
+<title>proc~map_s_find_node~7&#45;&gt;proc~map_s_get_value~7</title>
+<path fill="none" stroke="#ff0000" d="M647.63,-424.24C659.34,-423.1 671.53,-421.91 683.58,-420.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="684.05,-424.21 693.66,-419.75 683.37,-417.24 684.05,-424.21"/>
+</g>
+<!-- proc~map_s_find~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node3" class="node">
+<title>proc~map_s_find~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node3"><a xlink:href="../proc/map_s_find~7.html" xlink:title="map_Set%map_s_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="390,-528 261,-528 261,-504 390,-504 390,-528"/>
+<text text-anchor="middle" x="325.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_find</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_find~7&#45;&gt;proc~map_s_get_value~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge2" class="edge">
+<title>proc~map_s_find~7&#45;&gt;proc~map_s_get_value~7</title>
+<path fill="none" stroke="#ff0000" d="M390.15,-504.31C406.41,-501.3 423.85,-498.05 440,-495 536.96,-476.69 562.56,-478.05 658,-453 686.32,-445.57 717.55,-435.13 741.77,-426.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="743.12,-429.75 751.35,-423.07 740.76,-423.16 743.12,-429.75"/>
+</g>
+<!-- proc~map_s_find~7&#45;&gt;proc~map_s_find_node~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge5" class="edge">
+<title>proc~map_s_find~7&#45;&gt;proc~map_s_find_node~7</title>
+<path fill="none" stroke="#ff0000" d="M390.04,-507.49C406.54,-504.4 424.13,-500.32 440,-495 458.7,-488.73 503.87,-465.35 534.72,-448.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="536.62,-451.86 543.78,-444.06 533.32,-445.69 536.62,-451.86"/>
+</g>
+<!-- proc~map_s_insert_single~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node4" class="node">
+<title>proc~map_s_insert_single~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node4"><a xlink:href="../proc/map_s_insert_single~7.html" xlink:title="map_Set%map_s_insert_single">
+<polygon fill="#d9534f" stroke="#d9534f" points="413,-402 238,-402 238,-378 413,-378 413,-402"/>
+<text text-anchor="middle" x="325.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_insert_single</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_insert_single~7&#45;&gt;proc~map_s_get_value~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge3" class="edge">
+<title>proc~map_s_insert_single~7&#45;&gt;proc~map_s_get_value~7</title>
+<path fill="none" stroke="#ff0000" d="M413.26,-393.99C490.35,-397.53 602.99,-402.71 683.77,-406.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="683.8,-409.92 693.95,-406.89 684.12,-402.93 683.8,-409.92"/>
+</g>
+<!-- proc~map_s_insert_single~7&#45;&gt;proc~map_s_find_node~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge6" class="edge">
+<title>proc~map_s_insert_single~7&#45;&gt;proc~map_s_find_node~7</title>
+<path fill="none" stroke="#ff0000" d="M395.13,-402.04C423.94,-407.09 457.61,-412.99 487.41,-418.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="486.9,-421.68 497.36,-419.96 488.11,-414.79 486.9,-421.68"/>
+</g>
+<!-- proc~map_s_iter_of~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node5" class="node">
+<title>proc~map_s_iter_of~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node5"><a xlink:href="../proc/map_s_iter_of~7.html" xlink:title="map_SetIterator%map_s_iter_of">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="658,-213 476,-213 476,-189 658,-189 658,-213"/>
+<text text-anchor="middle" x="567" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_SetIterator%map_s_iter_of</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_iter_of~7&#45;&gt;proc~map_s_get_value~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge4" class="edge">
+<title>proc~map_s_iter_of~7&#45;&gt;proc~map_s_get_value~7</title>
+<path fill="none" stroke="#ff0000" d="M580.52,-213.2C616.45,-248.21 720.12,-349.24 763.76,-391.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="761.34,-394.3 770.95,-398.77 766.23,-389.28 761.34,-394.3"/>
+</g>
+<!-- proc~map_find~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node6" class="node">
+<title>proc~map_find~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node6"><a xlink:href="../proc/map_find~7.html" xlink:title="IntegerRequestMap%map_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="175,-570 0,-570 0,-546 175,-546 175,-570"/>
+<text text-anchor="middle" x="87.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IntegerRequestMap%map_find</text>
+</a>
+</g>
+</g>
+<!-- proc~map_find~7&#45;&gt;proc~map_s_find~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge9" class="edge">
+<title>proc~map_find~7&#45;&gt;proc~map_s_find~7</title>
+<path fill="none" stroke="#7fff00" d="M156.13,-545.96C185.74,-540.69 220.57,-534.5 250.84,-529.11"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="251.68,-532.51 260.91,-527.32 250.46,-525.62 251.68,-532.51"/>
+</g>
+<!-- proc~map_iter_of~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node7" class="node">
+<title>proc~map_iter_of~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node7"><a xlink:href="../proc/map_iter_of~7.html" xlink:title="IntegerRequestMapIterator%map_iter_of">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="440,-360 211,-360 211,-336 440,-336 440,-360"/>
+<text text-anchor="middle" x="325.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IntegerRequestMapIterator%map_iter_of</text>
+</a>
+</g>
+</g>
+<!-- proc~map_iter_of~7&#45;&gt;proc~map_s_iter_of~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge12" class="edge">
+<title>proc~map_iter_of~7&#45;&gt;proc~map_s_iter_of~7</title>
+<path fill="none" stroke="#7f00ff" d="M418.58,-335.96C426.02,-333.5 433.26,-330.54 440,-327 488.92,-301.27 530.93,-250.08 551.84,-221.51"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="554.9,-223.25 557.88,-213.08 549.21,-219.17 554.9,-223.25"/>
+</g>
+<!-- proc~map_of~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node8" class="node">
+<title>proc~map_of~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node8"><a xlink:href="../proc/map_of~7.html" xlink:title="IntegerRequestMap%map_of">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="408.5,-318 242.5,-318 242.5,-294 408.5,-294 408.5,-318"/>
+<text text-anchor="middle" x="325.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IntegerRequestMap%map_of</text>
+</a>
+</g>
+</g>
+<!-- proc~map_of~7&#45;&gt;proc~map_s_iter_of~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge13" class="edge">
+<title>proc~map_of~7&#45;&gt;proc~map_s_iter_of~7</title>
+<path fill="none" stroke="#7f00ff" d="M408.55,-294.94C419.33,-292.29 430.07,-289.03 440,-285 479.88,-268.82 520.28,-238.98 544.23,-219.57"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="546.49,-222.24 551.98,-213.18 542.04,-216.84 546.49,-222.24"/>
+</g>
+<!-- proc~map_s_count~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node9" class="node">
+<title>proc~map_s_count~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node9"><a xlink:href="../proc/map_s_count~7.html" xlink:title="map_Set%map_s_count">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="157,-528 18,-528 18,-504 157,-504 157,-528"/>
+<text text-anchor="middle" x="87.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_count</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_count~7&#45;&gt;proc~map_s_find~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge10" class="edge">
+<title>proc~map_s_count~7&#45;&gt;proc~map_s_find~7</title>
+<path fill="none" stroke="#7fff00" d="M157.08,-516C186.3,-516 220.45,-516 250.26,-516"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="250.61,-519.5 260.61,-516 250.61,-512.5 250.61,-519.5"/>
+</g>
+<!-- proc~map_s_deep_copy~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node10" class="node">
+<title>proc~map_s_deep_copy~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node10"><a xlink:href="../proc/map_s_deep_copy~7.html" xlink:title="map_Set%map_s_deep_copy">
+<polygon fill="#d9534f" stroke="#d9534f" points="408.5,-276 242.5,-276 242.5,-252 408.5,-252 408.5,-276"/>
+<text text-anchor="middle" x="325.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_deep_copy</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_deep_copy~7&#45;&gt;proc~map_s_iter_of~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge14" class="edge">
+<title>proc~map_s_deep_copy~7&#45;&gt;proc~map_s_iter_of~7</title>
+<path fill="none" stroke="#7f00ff" d="M399.79,-251.98C413.24,-249.34 427.1,-246.33 440,-243 468.55,-235.64 500.02,-225.15 524.37,-216.5"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="525.77,-219.71 534,-213.04 523.4,-213.12 525.77,-219.71"/>
+</g>
+<!-- proc~map_s_equal~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node11" class="node">
+<title>proc~map_s_equal~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node11"><a xlink:href="../proc/map_s_equal~7.html" xlink:title="map_s_equal">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="366.5,-234 284.5,-234 284.5,-210 366.5,-210 366.5,-234"/>
+<text text-anchor="middle" x="325.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_equal</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_equal~7&#45;&gt;proc~map_s_iter_of~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge15" class="edge">
+<title>proc~map_s_equal~7&#45;&gt;proc~map_s_iter_of~7</title>
+<path fill="none" stroke="#7f00ff" d="M366.59,-218.49C393.68,-216.11 430.72,-212.86 465.53,-209.81"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="466.1,-213.27 475.76,-208.91 465.49,-206.3 466.1,-213.27"/>
+</g>
+<!-- proc~map_s_erase_value~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node12" class="node">
+<title>proc~map_s_erase_value~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node12"><a xlink:href="../proc/map_s_erase_value~7.html" xlink:title="map_Set%map_s_erase_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="174,-486 1,-486 1,-462 174,-462 174,-486"/>
+<text text-anchor="middle" x="87.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_erase_value</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_erase_value~7&#45;&gt;proc~map_s_find~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge11" class="edge">
+<title>proc~map_s_erase_value~7&#45;&gt;proc~map_s_find~7</title>
+<path fill="none" stroke="#7fff00" d="M156.13,-486.04C185.74,-491.31 220.57,-497.5 250.84,-502.89"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="250.46,-506.38 260.91,-504.68 251.68,-499.49 250.46,-506.38"/>
+</g>
+<!-- proc~map_s_find_if_not~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node13" class="node">
+<title>proc~map_s_find_if_not~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node13"><a xlink:href="../proc/map_s_find_if_not~7.html" xlink:title="map_s_find_if_not">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="379,-192 272,-192 272,-168 379,-168 379,-192"/>
+<text text-anchor="middle" x="325.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_find_if_not</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_find_if_not~7&#45;&gt;proc~map_s_iter_of~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge16" class="edge">
+<title>proc~map_s_find_if_not~7&#45;&gt;proc~map_s_iter_of~7</title>
+<path fill="none" stroke="#7f00ff" d="M379.06,-184.61C404.54,-186.84 436.03,-189.6 465.85,-192.22"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="465.62,-195.71 475.89,-193.1 466.23,-188.74 465.62,-195.71"/>
+</g>
+<!-- proc~map_s_find_if~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node14" class="node">
+<title>proc~map_s_find_if~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node14"><a xlink:href="../proc/map_s_find_if~7.html" xlink:title="map_s_find_if">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="368,-150 283,-150 283,-126 368,-126 368,-150"/>
+<text text-anchor="middle" x="325.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_find_if</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_find_if~7&#45;&gt;proc~map_s_iter_of~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge17" class="edge">
+<title>proc~map_s_find_if~7&#45;&gt;proc~map_s_iter_of~7</title>
+<path fill="none" stroke="#7f00ff" d="M368.05,-144.26C389.66,-147.88 416.42,-152.92 440,-159 468.55,-166.36 500.02,-176.85 524.37,-185.5"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="523.4,-188.88 534,-188.96 525.77,-182.29 523.4,-188.88"/>
+</g>
+<!-- proc~map_s_insert_range~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node15" class="node">
+<title>proc~map_s_insert_range~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node15"><a xlink:href="../proc/map_s_insert_range~7.html" xlink:title="map_Set%map_s_insert_range">
+<polygon fill="#d9534f" stroke="#d9534f" points="413,-108 238,-108 238,-84 413,-84 413,-108"/>
+<text text-anchor="middle" x="325.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_insert_range</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_insert_range~7&#45;&gt;proc~map_s_iter_of~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge18" class="edge">
+<title>proc~map_s_insert_range~7&#45;&gt;proc~map_s_iter_of~7</title>
+<path fill="none" stroke="#7f00ff" d="M412.48,-108.06C421.92,-110.51 431.27,-113.46 440,-117 479.88,-133.18 520.28,-163.02 544.23,-182.43"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="542.04,-185.16 551.98,-188.82 546.49,-179.76 542.04,-185.16"/>
+</g>
+<!-- proc~map_s_less_than~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node16" class="node">
+<title>proc~map_s_less_than~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node16"><a xlink:href="../proc/map_s_less_than~7.html" xlink:title="map_s_less_than">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="376.5,-66 274.5,-66 274.5,-42 376.5,-42 376.5,-66"/>
+<text text-anchor="middle" x="325.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_less_than</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_less_than~7&#45;&gt;proc~map_s_iter_of~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge19" class="edge">
+<title>proc~map_s_less_than~7&#45;&gt;proc~map_s_iter_of~7</title>
+<path fill="none" stroke="#7f00ff" d="M376.67,-56.76C397.22,-59.52 420.67,-64.83 440,-75 488.92,-100.73 530.93,-151.92 551.84,-180.49"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="549.21,-182.83 557.88,-188.92 554.9,-178.75 549.21,-182.83"/>
+</g>
+<!-- proc~map_s_lower_bound~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node17" class="node">
+<title>proc~map_s_lower_bound~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node17"><a xlink:href="../proc/map_s_lower_bound~7.html" xlink:title="map_Set%map_s_lower_bound">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="414,-486 237,-486 237,-462 414,-462 414,-486"/>
+<text text-anchor="middle" x="325.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_lower_bound</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_lower_bound~7&#45;&gt;proc~map_s_find_node~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge7" class="edge">
+<title>proc~map_s_lower_bound~7&#45;&gt;proc~map_s_find_node~7</title>
+<path fill="none" stroke="#ff0000" d="M395.13,-461.96C423.94,-456.91 457.61,-451.01 487.41,-445.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="488.11,-449.21 497.36,-444.04 486.9,-442.32 488.11,-449.21"/>
+</g>
+<!-- proc~map_s_merge~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node18" class="node">
+<title>proc~map_s_merge~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node18"><a xlink:href="../proc/map_s_merge~7.html" xlink:title="map_Set%map_s_merge">
+<polygon fill="#d9534f" stroke="#d9534f" points="397.5,-24 253.5,-24 253.5,0 397.5,0 397.5,-24"/>
+<text text-anchor="middle" x="325.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_merge</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_merge~7&#45;&gt;proc~map_s_iter_of~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge20" class="edge">
+<title>proc~map_s_merge~7&#45;&gt;proc~map_s_iter_of~7</title>
+<path fill="none" stroke="#7f00ff" d="M397.63,-16.83C412.4,-20.06 427.31,-25.13 440,-33 498.34,-69.18 539.03,-143.03 556.46,-179.56"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="553.37,-181.21 560.76,-188.81 559.72,-178.26 553.37,-181.21"/>
+</g>
+<!-- proc~map_s_upper_bound~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_node19" class="node">
+<title>proc~map_s_upper_bound~7</title>
+<g id="a_proc~~map_s_get_value~7~~CalledByGraph_node19"><a xlink:href="../proc/map_s_upper_bound~7.html" xlink:title="map_Set%map_s_upper_bound">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="415,-444 236,-444 236,-420 415,-420 415,-444"/>
+<text text-anchor="middle" x="325.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_upper_bound</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_upper_bound~7&#45;&gt;proc~map_s_find_node~7 -->
+<g id="proc~~map_s_get_value~7~~CalledByGraph_edge8" class="edge">
+<title>proc~map_s_upper_bound~7&#45;&gt;proc~map_s_find_node~7</title>
+<path fill="none" stroke="#ff0000" d="M415,-432C434.95,-432 456.14,-432 476.15,-432"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="476.17,-435.5 486.17,-432 476.17,-428.5 476.17,-435.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmap_s_get_value7CalledByGraph = svgPanZoom('#procmap_s_get_value7CalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

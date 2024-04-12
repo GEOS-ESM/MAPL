@@ -1,0 +1,817 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_write_read_simple_variable &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_write_read_simple_variable
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">21 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_NetCDF4_FileFormatter.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_netcdf4_fileformatter.pf.html'>Test_NetCDF4_FileFormatter.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_netcdf4_fileformatter.html'>Test_NetCDF4_FileFormatter</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_write_read_simple_variable</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_write_read_simple_variable.html#src">test_write_read_simple_variable</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_write_read_simple_variable()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_write_read_simple_variable~~CallsGraph Pages: 1 -->
+<svg id="proctest_write_read_simple_variableCallsGraph" width="641pt" height="325pt"
+ viewBox="0.00 0.00 641.00 324.57" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_write_read_simple_variable~~CallsGraph" class="graph" transform="scale(1.97 1.97) rotate(0) translate(4 634)">
+<title>proc~~test_write_read_simple_variable~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-634 1256,-634 1256,4 -4,4"/>
+<!-- proc~test_write_read_simple_variable -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node1" class="node">
+<title>proc~test_write_read_simple_variable</title>
+<polygon fill="none" stroke="black" points="182,-548 0,-548 0,-524 182,-524 182,-548"/>
+<text text-anchor="middle" x="91" y="-533.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_write_read_simple_variable</text>
+</g>
+<!-- assertequal -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node2" class="node">
+<title>assertequal</title>
+<polygon fill="#777777" stroke="#777777" points="335.5,-630 260.5,-630 260.5,-606 335.5,-606 335.5,-630"/>
+<text text-anchor="middle" x="298" y="-615.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
+</g>
+<!-- proc~test_write_read_simple_variable&#45;&gt;assertequal -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge1" class="edge">
+<title>proc~test_write_read_simple_variable&#45;&gt;assertequal</title>
+<path fill="none" stroke="#ff0000" d="M113.74,-548.11C138.43,-561.48 180.18,-582.96 218,-597 228.39,-600.86 239.79,-604.31 250.62,-607.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="249.8,-610.66 260.36,-609.81 251.58,-603.89 249.8,-610.66"/>
+</g>
+<!-- asserttrue -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node3" class="node">
+<title>asserttrue</title>
+<polygon fill="#777777" stroke="#777777" points="331.5,-588 264.5,-588 264.5,-564 331.5,-564 331.5,-588"/>
+<text text-anchor="middle" x="298" y="-573.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">asserttrue</text>
+</g>
+<!-- proc~test_write_read_simple_variable&#45;&gt;asserttrue -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge2" class="edge">
+<title>proc~test_write_read_simple_variable&#45;&gt;asserttrue</title>
+<path fill="none" stroke="#ff0000" d="M153.51,-548C186.11,-554.36 225.33,-562.02 254.52,-567.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="253.92,-571.16 264.4,-569.64 255.26,-564.29 253.92,-571.16"/>
+</g>
+<!-- proc~add_dimension -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node4" class="node">
+<title>proc~add_dimension</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node4"><a xlink:href="../proc/add_dimension.html" xlink:title="FileMetadata%add_dimension">
+<polygon fill="#d9534f" stroke="#d9534f" points="789.5,-552 617.5,-552 617.5,-528 789.5,-528 789.5,-552"/>
+<text text-anchor="middle" x="703.5" y="-537.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata%add_dimension</text>
+</a>
+</g>
+</g>
+<!-- proc~test_write_read_simple_variable&#45;&gt;proc~add_dimension -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge3" class="edge">
+<title>proc~test_write_read_simple_variable&#45;&gt;proc~add_dimension</title>
+<path fill="none" stroke="#ff0000" d="M182.08,-536.59C295.9,-537.34 490.91,-538.61 607.16,-539.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="607.44,-542.88 617.47,-539.44 607.49,-535.88 607.44,-542.88"/>
+</g>
+<!-- proc~add_variable~2 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node5" class="node">
+<title>proc~add_variable~2</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node5"><a xlink:href="../proc/add_variable~2.html" xlink:title="FileMetadata%add_variable">
+<polygon fill="#d9534f" stroke="#d9534f" points="378,-270 218,-270 218,-246 378,-246 378,-270"/>
+<text text-anchor="middle" x="298" y="-255.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata%add_variable</text>
+</a>
+</g>
+</g>
+<!-- proc~test_write_read_simple_variable&#45;&gt;proc~add_variable~2 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge4" class="edge">
+<title>proc~test_write_read_simple_variable&#45;&gt;proc~add_variable~2</title>
+<path fill="none" stroke="#ff0000" d="M101.07,-523.7C133.22,-480.1 241.93,-332.68 282,-278.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="284.91,-280.29 288.03,-270.16 279.28,-276.13 284.91,-280.29"/>
+</g>
+<!-- proc~create~3 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node6" class="node">
+<title>proc~create~3</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node6"><a xlink:href="../proc/create~3.html" xlink:title="NetCDF4_FileFormatter%create">
+<polygon fill="#d9534f" stroke="#d9534f" points="793,-510 614,-510 614,-486 793,-486 793,-510"/>
+<text text-anchor="middle" x="703.5" y="-495.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NetCDF4_FileFormatter%create</text>
+</a>
+</g>
+</g>
+<!-- proc~test_write_read_simple_variable&#45;&gt;proc~create~3 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge5" class="edge">
+<title>proc~test_write_read_simple_variable&#45;&gt;proc~create~3</title>
+<path fill="none" stroke="#ff0000" d="M182.08,-530.39C294.72,-523.38 486.89,-511.42 603.54,-504.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="603.78,-507.65 613.54,-503.54 603.34,-500.67 603.78,-507.65"/>
+</g>
+<!-- insert -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node10" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1250.5,-364 1196.5,-364 1196.5,-340 1250.5,-340 1250.5,-364"/>
+<text text-anchor="middle" x="1223.5" y="-349.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~add_dimension&#45;&gt;insert -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge6" class="edge">
+<title>proc~add_dimension&#45;&gt;insert</title>
+<path fill="none" stroke="#00ff66" d="M789.6,-544.63C847.46,-545.24 925,-541.03 990,-520 1074.13,-492.78 1091.89,-472.58 1159,-415 1177.66,-398.99 1177.13,-389.89 1195,-373 1195.81,-372.24 1196.64,-371.47 1197.5,-370.72"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="1199.99,-373.19 1205.46,-364.12 1195.53,-367.8 1199.99,-373.19"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node19" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node19"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="957,-427 875,-427 875,-403 957,-403 957,-427"/>
+<text text-anchor="middle" x="916" y="-412.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~add_dimension&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge7" class="edge">
+<title>proc~add_dimension&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff66" d="M789.9,-528.95C795.67,-526.25 801.11,-522.97 806,-519 837.2,-493.63 811.79,-462.54 842,-436 848.62,-430.18 856.76,-425.97 865.18,-422.92"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="866.22,-426.26 874.73,-419.95 864.14,-419.58 866.22,-426.26"/>
+</g>
+<!-- at -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node7" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1250.5,-277 1196.5,-277 1196.5,-253 1250.5,-253 1250.5,-277"/>
+<text text-anchor="middle" x="1223.5" y="-262.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~add_variable~2&#45;&gt;at -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge8" class="edge">
+<title>proc~add_variable~2&#45;&gt;at</title>
+<path fill="none" stroke="#0066ff" d="M378.04,-246.13C459.23,-234.98 589.39,-220 702.5,-220 702.5,-220 702.5,-220 917,-220 1015.16,-220 1129.19,-243.02 1186.17,-256.13"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="1185.6,-259.59 1196.13,-258.46 1187.19,-252.77 1185.6,-259.59"/>
+</g>
+<!-- begin -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node8" class="node">
+<title>begin</title>
+<polygon fill="#777777" stroke="#777777" points="516.5,-192 462.5,-192 462.5,-168 516.5,-168 516.5,-192"/>
+<text text-anchor="middle" x="489.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
+</g>
+<!-- proc~add_variable~2&#45;&gt;begin -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge9" class="edge">
+<title>proc~add_variable~2&#45;&gt;begin</title>
+<path fill="none" stroke="#0066ff" d="M323.85,-245.99C346.96,-235.01 382.46,-218.6 414,-206 426.55,-200.99 440.48,-195.98 452.88,-191.71"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="454.09,-195 462.43,-188.46 451.84,-188.37 454.09,-195"/>
+</g>
+<!-- get -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node9" class="node">
+<title>get</title>
+<polygon fill="#777777" stroke="#777777" points="516.5,-150 462.5,-150 462.5,-126 516.5,-126 516.5,-150"/>
+<text text-anchor="middle" x="489.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get</text>
+</g>
+<!-- proc~add_variable~2&#45;&gt;get -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge10" class="edge">
+<title>proc~add_variable~2&#45;&gt;get</title>
+<path fill="none" stroke="#0066ff" d="M309.8,-245.71C328.8,-224.84 370.36,-182.43 414,-159 425.86,-152.63 439.86,-148.03 452.49,-144.79"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="453.34,-148.18 462.27,-142.47 451.73,-141.37 453.34,-148.18"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node11" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node11"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="743,-308 664,-308 664,-284 743,-284 743,-308"/>
+<text text-anchor="middle" x="703.5" y="-293.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;interface~mapl_assert -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge11" class="edge">
+<title>proc~add_variable~2&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0066ff" d="M378.17,-264.9C431.08,-269.58 502.23,-275.97 565,-282 594.52,-284.83 627.59,-288.2 653.89,-290.91"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="653.68,-294.41 663.99,-291.96 654.4,-287.45 653.68,-294.41"/>
+</g>
+<!-- next -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node12" class="node">
+<title>next</title>
+<polygon fill="#777777" stroke="#777777" points="516.5,-108 462.5,-108 462.5,-84 516.5,-84 516.5,-108"/>
+<text text-anchor="middle" x="489.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">next</text>
+</g>
+<!-- proc~add_variable~2&#45;&gt;next -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge12" class="edge">
+<title>proc~add_variable~2&#45;&gt;next</title>
+<path fill="none" stroke="#0066ff" d="M305.52,-245.69C320.7,-218.22 361.18,-151.66 414,-117 425.44,-109.5 439.56,-104.64 452.42,-101.51"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="453.35,-104.89 462.39,-99.36 451.87,-98.05 453.35,-104.89"/>
+</g>
+<!-- none~insert~91 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node14" class="node">
+<title>none~insert~91</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node14"><a xlink:href="../type/stringvariablemap.html#boundprocedure-insert~91" xlink:title="StringVariableMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="564.5,-66 414.5,-66 414.5,-42 564.5,-42 564.5,-66"/>
+<text text-anchor="middle" x="489.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%insert</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;none~insert~91 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge13" class="edge">
+<title>proc~add_variable~2&#45;&gt;none~insert~91</title>
+<path fill="none" stroke="#0066ff" d="M303.19,-245.57C315,-212.46 351.8,-121.53 414,-75 416.07,-73.45 418.25,-72.02 420.52,-70.69"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="422.26,-73.72 429.59,-66.07 419.09,-67.49 422.26,-73.72"/>
+</g>
+<!-- proc~get_const_value -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node15" class="node">
+<title>proc~get_const_value</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node15"><a xlink:href="../proc/get_const_value.html" xlink:title="Variable%get_const_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="565,-24 414,-24 414,0 565,0 565,-24"/>
+<text text-anchor="middle" x="489.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Variable%get_const_value</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;proc~get_const_value -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge14" class="edge">
+<title>proc~add_variable~2&#45;&gt;proc~get_const_value</title>
+<path fill="none" stroke="#0066ff" d="M301.59,-245.84C310.26,-208.11 341.9,-92.09 414,-33 415.6,-31.69 417.27,-30.46 419.01,-29.31"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="421.14,-32.13 428.14,-24.17 417.71,-26.03 421.14,-32.13"/>
+</g>
+<!-- proc~get_dimensions~3 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node16" class="node">
+<title>proc~get_dimensions~3</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node16"><a xlink:href="../proc/get_dimensions~3.html" xlink:title="Variable%get_dimensions">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="564,-432 415,-432 415,-408 564,-408 564,-432"/>
+<text text-anchor="middle" x="489.5" y="-417.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Variable%get_dimensions</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;proc~get_dimensions~3 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge15" class="edge">
+<title>proc~add_variable~2&#45;&gt;proc~get_dimensions~3</title>
+<path fill="none" stroke="#0066ff" d="M305.52,-270.31C320.7,-297.78 361.18,-364.34 414,-399 416.61,-400.71 419.36,-402.29 422.21,-403.74"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="421,-407.03 431.56,-407.95 423.87,-400.65 421,-407.03"/>
+</g>
+<!-- proc~get_shape -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node17" class="node">
+<title>proc~get_shape</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node17"><a xlink:href="../proc/get_shape.html" xlink:title="UnlimitedEntity%get_shape">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="782.5,-350 624.5,-350 624.5,-326 782.5,-326 782.5,-350"/>
+<text text-anchor="middle" x="703.5" y="-335.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnlimitedEntity%get_shape</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;proc~get_shape -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge16" class="edge">
+<title>proc~add_variable~2&#45;&gt;proc~get_shape</title>
+<path fill="none" stroke="#0066ff" d="M356,-270.06C374.49,-273.93 395.11,-278.19 414,-282 487.17,-296.74 570.92,-312.92 629.27,-324.08"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="628.65,-327.52 639.13,-325.96 629.97,-320.65 628.65,-327.52"/>
+</g>
+<!-- proc~is_empty -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node18" class="node">
+<title>proc~is_empty</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node18"><a xlink:href="../proc/is_empty.html" xlink:title="UnlimitedEntity%is_empty">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="565,-390 414,-390 414,-366 565,-366 565,-390"/>
+<text text-anchor="middle" x="489.5" y="-375.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnlimitedEntity%is_empty</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;proc~is_empty -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge17" class="edge">
+<title>proc~add_variable~2&#45;&gt;proc~is_empty</title>
+<path fill="none" stroke="#0066ff" d="M309.8,-270.29C328.8,-291.16 370.36,-333.57 414,-357 417.66,-358.97 421.53,-360.76 425.49,-362.41"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="424.29,-365.69 434.88,-365.96 426.77,-359.15 424.29,-365.69"/>
+</g>
+<!-- proc~add_variable~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge18" class="edge">
+<title>proc~add_variable~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0066ff" d="M302.26,-270.4C312.15,-305.1 345.36,-403.07 414,-441 428.08,-448.78 724.61,-448.2 806,-439 825.5,-436.8 846.62,-432.58 865.04,-428.29"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="866.05,-431.65 874.96,-425.91 864.42,-424.84 866.05,-431.65"/>
+</g>
+<!-- push_back -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node21" class="node">
+<title>push_back</title>
+<polygon fill="#777777" stroke="#777777" points="524,-348 455,-348 455,-324 524,-324 524,-348"/>
+<text text-anchor="middle" x="489.5" y="-333.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">push_back</text>
+</g>
+<!-- proc~add_variable~2&#45;&gt;push_back -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge19" class="edge">
+<title>proc~add_variable~2&#45;&gt;push_back</title>
+<path fill="none" stroke="#0066ff" d="M323.85,-270.01C346.96,-280.99 382.46,-297.4 414,-310 424.03,-314.01 434.94,-318.01 445.24,-321.63"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="444.29,-325.01 454.89,-324.98 446.59,-318.4 444.29,-325.01"/>
+</g>
+<!-- nf90_create -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node13" class="node">
+<title>nf90_create</title>
+<polygon fill="#777777" stroke="#777777" points="954,-511 878,-511 878,-487 954,-487 954,-511"/>
+<text text-anchor="middle" x="916" y="-496.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_create</text>
+</g>
+<!-- proc~create~3&#45;&gt;nf90_create -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge20" class="edge">
+<title>proc~create~3&#45;&gt;nf90_create</title>
+<path fill="none" stroke="#cc00ff" d="M793.16,-498.42C818.77,-498.54 845.72,-498.67 867.74,-498.78"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="867.8,-502.28 877.81,-498.82 867.83,-495.28 867.8,-502.28"/>
+</g>
+<!-- proc~create~3&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge21" class="edge">
+<title>proc~create~3&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#cc00ff" d="M772.54,-485.96C784.13,-482.41 795.73,-477.86 806,-472 825.66,-460.79 822.51,-447.49 842,-436 849.11,-431.81 857.1,-428.41 865.12,-425.67"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="866.35,-428.96 874.86,-422.65 864.28,-422.27 866.35,-428.96"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node20" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node20"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="954,-469 878,-469 878,-445 954,-445 954,-469"/>
+<text text-anchor="middle" x="916" y="-454.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~create~3&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge22" class="edge">
+<title>proc~create~3&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#cc00ff" d="M766.23,-485.98C798.57,-479.68 837.56,-472.08 867.51,-466.25"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="868.56,-469.61 877.7,-464.26 867.22,-462.74 868.56,-469.61"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node25" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node25"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="983,-385 849,-385 849,-361 983,-361 983,-385"/>
+<text text-anchor="middle" x="916" y="-370.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge23" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#65ff00" stroke-dasharray="5,2" d="M743.36,-298.85C763.04,-301.55 786.76,-306.8 806,-317 825.71,-327.46 822.7,-340.8 842,-352 845.21,-353.86 848.6,-355.57 852.09,-357.13"/>
+<polygon fill="#65ff00" stroke="#65ff00" points="850.91,-360.43 861.5,-360.94 853.54,-353.95 850.91,-360.43"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node26" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node26"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="990,-343 842,-343 842,-319 990,-319 990,-343"/>
+<text text-anchor="middle" x="916" y="-328.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge24" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#65ff00" stroke-dasharray="5,2" d="M743.11,-302.42C768.17,-306.59 801.8,-312.18 832.66,-317.31"/>
+<polygon fill="#65ff00" stroke="#65ff00" points="832.13,-320.77 842.57,-318.96 833.28,-313.86 832.13,-320.77"/>
+</g>
+<!-- proc~map_insert_pair~2 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node24" class="node">
+<title>proc~map_insert_pair~2</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node24"><a xlink:href="../proc/map_insert_pair~2.html" xlink:title="StringVariableMap%map_insert_pair">
+<polygon fill="#d9534f" stroke="#d9534f" points="806,-66 601,-66 601,-42 806,-42 806,-66"/>
+<text text-anchor="middle" x="703.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%map_insert_pair</text>
+</a>
+</g>
+</g>
+<!-- none~insert~91&#45;&gt;proc~map_insert_pair~2 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge25" class="edge">
+<title>none~insert~91&#45;&gt;proc~map_insert_pair~2</title>
+<path fill="none" stroke="#00ffcb" stroke-dasharray="5,2" d="M564.65,-54C573.15,-54 581.95,-54 590.81,-54"/>
+<polygon fill="#00ffcb" stroke="#00ffcb" points="590.82,-57.5 600.82,-54 590.82,-50.5 590.82,-57.5"/>
+</g>
+<!-- proc~get_shape&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge26" class="edge">
+<title>proc~get_shape&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M769.43,-350.05C781.94,-353.63 794.66,-358.2 806,-364 824.54,-373.48 823.6,-384.25 842,-394 849.21,-397.82 857.19,-401.02 865.16,-403.68"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="864.23,-407.05 874.82,-406.65 866.29,-400.36 864.23,-407.05"/>
+</g>
+<!-- proc~is_empty&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge28" class="edge">
+<title>proc~is_empty&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#6500ff" d="M565.27,-380.32C629.32,-382.83 723.93,-387.78 806,-397 825.3,-399.17 846.38,-402.44 864.82,-405.6"/>
+<polygon fill="#6500ff" stroke="#6500ff" points="864.31,-409.06 874.76,-407.33 865.51,-402.17 864.31,-409.06"/>
+</g>
+<!-- proc~get_value -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node23" class="node">
+<title>proc~get_value</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node23"><a xlink:href="../proc/get_value.html" xlink:title="UnlimitedEntity%get_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="781,-430 626,-430 626,-406 781,-406 781,-430"/>
+<text text-anchor="middle" x="703.5" y="-415.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnlimitedEntity%get_value</text>
+</a>
+</g>
+</g>
+<!-- proc~is_empty&#45;&gt;proc~get_value -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge27" class="edge">
+<title>proc~is_empty&#45;&gt;proc~get_value</title>
+<path fill="none" stroke="#6500ff" d="M554.11,-390C577.58,-394.43 604.38,-399.49 628.68,-404.07"/>
+<polygon fill="#6500ff" stroke="#6500ff" points="628.1,-407.52 638.57,-405.94 629.39,-400.64 628.1,-407.52"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node22" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node22"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1150,-354 1035,-354 1035,-330 1150,-330 1150,-354"/>
+<text text-anchor="middle" x="1092.5" y="-339.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#cc00ff" d="M957.02,-405.42C967.91,-402.29 979.57,-398.46 990,-394 1007.03,-386.72 1009.61,-381.64 1026,-373 1035.43,-368.03 1045.8,-362.95 1055.45,-358.38"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="1057.22,-361.42 1064.79,-354.01 1054.25,-355.08 1057.22,-361.42"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node27" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node27"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1159,-406 1026,-406 1026,-382 1159,-382 1159,-406"/>
+<text text-anchor="middle" x="1092.5" y="-391.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M957.03,-410.18C974.42,-408.09 995.39,-405.57 1015.54,-403.14"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="1016.15,-406.59 1025.66,-401.92 1015.32,-399.64 1016.15,-406.59"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00cb" d="M954.02,-447.22C965.62,-443.92 978.42,-440.05 990,-436 1012.02,-428.3 1036.18,-418.37 1055.39,-410.1"/>
+<polygon fill="#ff00cb" stroke="#ff00cb" points="1056.9,-413.26 1064.68,-406.07 1054.11,-406.84 1056.9,-413.26"/>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge32" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M1113.66,-329.97C1135.02,-317.22 1168.96,-296.96 1193.26,-282.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1195.27,-285.33 1202.06,-277.2 1191.68,-279.32 1195.27,-285.33"/>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge33" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M1150.08,-346.39C1162.29,-347.33 1174.89,-348.31 1186.08,-349.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1186.08,-352.69 1196.32,-349.97 1186.62,-345.71 1186.08,-352.69"/>
+</g>
+<!-- proc~get_value&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge34" class="edge">
+<title>proc~get_value&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ffff00" d="M781.09,-416.91C808.86,-416.51 839.52,-416.08 864.48,-415.72"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="864.86,-419.22 874.8,-415.57 864.76,-412.22 864.86,-419.22"/>
+</g>
+<!-- none~insert~89 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node28" class="node">
+<title>none~insert~89</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node28"><a xlink:href="../type/map_set~15.html#boundprocedure-insert~89" xlink:title="map_Set%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="965.5,-66 866.5,-66 866.5,-42 965.5,-42 965.5,-66"/>
+<text text-anchor="middle" x="916" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%insert</text>
+</a>
+</g>
+</g>
+<!-- proc~map_insert_pair~2&#45;&gt;none~insert~89 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge35" class="edge">
+<title>proc~map_insert_pair~2&#45;&gt;none~insert~89</title>
+<path fill="none" stroke="#00ff00" d="M806.05,-54C823.3,-54 840.68,-54 856.34,-54"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="856.36,-57.5 866.36,-54 856.36,-50.5 856.36,-57.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M983.47,-381C993.98,-382.26 1004.92,-383.58 1015.62,-384.87"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1015.45,-388.37 1025.79,-386.09 1016.28,-381.42 1015.45,-388.37"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0000ff" d="M990.25,-335.62C1001.67,-336.34 1013.43,-337.08 1024.7,-337.79"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1024.69,-341.3 1034.89,-338.43 1025.13,-334.31 1024.69,-341.3"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M962.03,-343.1C971.34,-345.84 981.04,-348.87 990,-352 1012.02,-359.7 1036.18,-369.63 1055.39,-377.9"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1054.11,-381.16 1064.68,-381.93 1056.9,-374.74 1054.11,-381.16"/>
+</g>
+<!-- proc~initialize~21 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_node29" class="node">
+<title>proc~initialize~21</title>
+<g id="a_proc~~test_write_read_simple_variable~~CallsGraph_node29"><a xlink:href="../proc/initialize~21.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1252,-406 1195,-406 1195,-382 1252,-382 1252,-406"/>
+<text text-anchor="middle" x="1223.5" y="-391.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~21 -->
+<g id="proc~~test_write_read_simple_variable~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~21</title>
+<path fill="none" stroke="#ff00ff" d="M1159.13,-394C1167.88,-394 1176.59,-394 1184.63,-394"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="1184.77,-397.5 1194.77,-394 1184.77,-390.5 1184.77,-397.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproctest_write_read_simple_variableCallsGraph = svgPanZoom('#proctest_write_read_simple_variableCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_write_read_simple_variable</span><span class="p">()</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">NetCDF4_FileFormatter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">formatter</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cf_expected</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cf_found</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">cf_expected</span><span class="p">%</span><span class="n">add_dimension</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">cf_expected</span><span class="p">%</span><span class="n">add_dimension</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">cf_expected</span><span class="p">%</span><span class="n">add_variable</span><span class="p">(</span><span class="s1">&#39;var&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">Variable</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">pFIO_INT32</span><span class="p">,</span><span class="w"> </span><span class="n">dimensions</span><span class="o">=</span><span class="s1">&#39;x,y&#39;</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="n">create</span><span class="p">(</span><span class="s1">&#39;test.nc&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">NF90_NOERR</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="k">write</span><span class="p">(</span><span class="n">cf_expected</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">NF90_NOERR</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="k">close</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">NF90_NOERR</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="k">open</span><span class="p">(</span><span class="s1">&#39;test.nc&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="o">=</span><span class="n">NF90_NOWRITE</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">NF90_NOERR</span><span class="p">)</span>
+<span class="w">      </span><span class="n">cf_found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">formatter</span><span class="p">%</span><span class="k">read</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="k">close</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">NF90_NOERR</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cf_expected</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cf_found</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_write_read_simple_variable</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

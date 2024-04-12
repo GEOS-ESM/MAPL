@@ -1,0 +1,1154 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Finalize &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Finalize
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">34 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/GenericCplComp.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/genericcplcomp.f90.html'>GenericCplComp.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericcplcompmod.html'>MAPL_GenericCplCompMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Finalize</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/finalize~2.html#src">Finalize</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine Finalize(CC, SRC, DST, CLOCK, RC)  
+</h2>
+    
+
+    <p><code>Finalize</code> method for the generic coupler.</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cc~5"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_cplcomp.html'>ESMF_CplComp</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-src~5"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SRC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dst~3"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>DST</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~32"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLOCK</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~235"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~finalize~2~~CallsGraph Pages: 1 -->
+<svg id="procfinalize2CallsGraph" width="641pt" height="482pt"
+ viewBox="0.00 0.00 641.00 481.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~finalize~2~~CallsGraph" class="graph" transform="scale(1.94 1.94) rotate(0) translate(4 931.22)">
+<title>proc~~finalize~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-931.22 1241,-931.22 1241,4 -4,4"/>
+<!-- proc~finalize~2 -->
+<g id="proc~~finalize~2~~CallsGraph_node1" class="node">
+<title>proc~finalize~2</title>
+<polygon fill="none" stroke="black" points="54,-474.78 0,-474.78 0,-450.78 54,-450.78 54,-474.78"/>
+<text text-anchor="middle" x="27" y="-460.38" font-family="Helvetica,sans-Serif" font-size="10.50">Finalize</text>
+</g>
+<!-- ESMF_CplCompGet -->
+<g id="proc~~finalize~2~~CallsGraph_node2" class="node">
+<title>ESMF_CplCompGet</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_cplcompget.html" xlink:title="ESMF_CplCompGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="238.5,-558.78 124.5,-558.78 124.5,-534.78 238.5,-534.78 238.5,-558.78"/>
+<text text-anchor="middle" x="181.5" y="-544.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CplCompGet</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~2&#45;&gt;ESMF_CplCompGet -->
+<g id="proc~~finalize~2~~CallsGraph_edge1" class="edge">
+<title>proc~finalize~2&#45;&gt;ESMF_CplCompGet</title>
+<path fill="none" stroke="#ff0000" d="M36.58,-475.02C47.37,-489.44 67.24,-513.03 90,-525.78 97.57,-530.02 105.94,-533.41 114.46,-536.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="113.52,-539.48 124.1,-538.88 115.46,-532.75 113.52,-539.48"/>
+</g>
+<!-- ESMF_CplCompGetInternalState -->
+<g id="proc~~finalize~2~~CallsGraph_node3" class="node">
+<title>ESMF_CplCompGetInternalState</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_cplcompgetinternalstate.html" xlink:title="ESMF_CplCompGetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="273,-516.78 90,-516.78 90,-492.78 273,-492.78 273,-516.78"/>
+<text text-anchor="middle" x="181.5" y="-502.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CplCompGetInternalState</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~2&#45;&gt;ESMF_CplCompGetInternalState -->
+<g id="proc~~finalize~2~~CallsGraph_edge2" class="edge">
+<title>proc~finalize~2&#45;&gt;ESMF_CplCompGetInternalState</title>
+<path fill="none" stroke="#ff0000" d="M54.07,-472.25C65.08,-476.08 78.09,-480.39 90,-483.78 98.03,-486.07 106.51,-488.29 114.93,-490.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.22,-493.8 124.76,-492.76 115.87,-487 114.22,-493.8"/>
+</g>
+<!-- interface~write_parallel -->
+<g id="proc~~finalize~2~~CallsGraph_node4" class="node">
+<title>interface~write_parallel</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node4"><a xlink:href="../interface/write_parallel.html" xlink:title="WRITE_PARALLEL">
+<polygon fill="#a7506f" stroke="#a7506f" points="234,-474.78 129,-474.78 129,-450.78 234,-450.78 234,-474.78"/>
+<text text-anchor="middle" x="181.5" y="-460.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WRITE_PARALLEL</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~2&#45;&gt;interface~write_parallel -->
+<g id="proc~~finalize~2~~CallsGraph_edge3" class="edge">
+<title>proc~finalize~2&#45;&gt;interface~write_parallel</title>
+<path fill="none" stroke="#ff0000" d="M54.22,-462.78C71.94,-462.78 96.12,-462.78 118.58,-462.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="118.75,-466.29 128.75,-462.78 118.75,-459.29 118.75,-466.29"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~finalize~2~~CallsGraph_node5" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node5"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="929.5,-358.78 847.5,-358.78 847.5,-334.78 929.5,-334.78 929.5,-358.78"/>
+<text text-anchor="middle" x="888.5" y="-344.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize~2~~CallsGraph_edge4" class="edge">
+<title>proc~finalize~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M30.69,-450.48C47.47,-377.33 144.68,-2.78 376,-2.78 376,-2.78 376,-2.78 563,-2.78 662.12,-2.78 706.45,15.53 781,-49.78 865.23,-123.57 882.85,-268.89 886.53,-324.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="883.04,-324.83 887.11,-334.61 890.03,-324.43 883.04,-324.83"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~finalize~2~~CallsGraph_node6" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node6"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="768,-242.78 692,-242.78 692,-218.78 768,-218.78 768,-242.78"/>
+<text text-anchor="middle" x="730" y="-228.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize~2~~CallsGraph_edge5" class="edge">
+<title>proc~finalize~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M41.93,-450.65C94.62,-405.67 288.56,-248.28 481,-195.78 550.46,-176.84 572.34,-181.96 643,-195.78 661.6,-199.43 681.26,-207.11 697.08,-214.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="695.86,-217.64 706.39,-218.76 698.85,-211.31 695.86,-217.64"/>
+</g>
+<!-- proc~write_parallel_i4_0 -->
+<g id="proc~~finalize~2~~CallsGraph_node9" class="node">
+<title>proc~write_parallel_i4_0</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node9"><a xlink:href="../proc/write_parallel_i4_0.html" xlink:title="WRITE_PARALLEL_I4_0">
+<polygon fill="#d9534f" stroke="#d9534f" points="628,-400.78 496,-400.78 496,-376.78 628,-376.78 628,-400.78"/>
+<text text-anchor="middle" x="562" y="-386.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WRITE_PARALLEL_I4_0</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_i4_0 -->
+<g id="proc~~finalize~2~~CallsGraph_edge6" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_i4_0</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M234.34,-452.65C300.37,-439.74 414.84,-417.36 489.23,-402.82"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="490.31,-406.17 499.45,-400.82 488.97,-399.3 490.31,-406.17"/>
+</g>
+<!-- proc~write_parallel_i4_1 -->
+<g id="proc~~finalize~2~~CallsGraph_node10" class="node">
+<title>proc~write_parallel_i4_1</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node10"><a xlink:href="../proc/write_parallel_i4_1.html" xlink:title="WRITE_PARALLEL_I4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="443,-340.78 311,-340.78 311,-316.78 443,-316.78 443,-340.78"/>
+<text text-anchor="middle" x="377" y="-326.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WRITE_PARALLEL_I4_1</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_i4_1 -->
+<g id="proc~~finalize~2~~CallsGraph_edge7" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_i4_1</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M200.01,-450.66C234.26,-426.94 310.25,-374.32 350.24,-346.62"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="352.44,-349.36 358.67,-340.79 348.45,-343.6 352.44,-349.36"/>
+</g>
+<!-- proc~write_parallel_r4_0 -->
+<g id="proc~~finalize~2~~CallsGraph_node11" class="node">
+<title>proc~write_parallel_r4_0</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node11"><a xlink:href="../proc/write_parallel_r4_0.html" xlink:title="WRITE_PARALLEL_R4_0">
+<polygon fill="#d9534f" stroke="#d9534f" points="630,-598.78 494,-598.78 494,-574.78 630,-574.78 630,-598.78"/>
+<text text-anchor="middle" x="562" y="-584.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WRITE_PARALLEL_R4_0</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_r4_0 -->
+<g id="proc~~finalize~2~~CallsGraph_edge8" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_r4_0</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M234.28,-466.88C247.93,-469.97 261.93,-475.16 273,-483.78 300.6,-505.29 280.39,-533.66 309,-553.78 359.52,-589.32 430.13,-595.86 483.76,-594.49"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="484.04,-597.98 493.91,-594.13 483.79,-590.99 484.04,-597.98"/>
+</g>
+<!-- proc~write_parallel_r4_1 -->
+<g id="proc~~finalize~2~~CallsGraph_node12" class="node">
+<title>proc~write_parallel_r4_1</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node12"><a xlink:href="../proc/write_parallel_r4_1.html" xlink:title="WRITE_PARALLEL_R4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="445,-516.78 309,-516.78 309,-492.78 445,-492.78 445,-516.78"/>
+<text text-anchor="middle" x="377" y="-502.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WRITE_PARALLEL_R4_1</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_r4_1 -->
+<g id="proc~~finalize~2~~CallsGraph_edge9" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_r4_1</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M234.1,-473.98C257.52,-479.07 285.49,-485.14 310.38,-490.54"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="309.96,-494.03 320.47,-492.73 311.44,-487.19 309.96,-494.03"/>
+</g>
+<!-- proc~write_parallel_r8_0 -->
+<g id="proc~~finalize~2~~CallsGraph_node13" class="node">
+<title>proc~write_parallel_r8_0</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node13"><a xlink:href="../proc/write_parallel_r8_0.html" xlink:title="WRITE_PARALLEL_R8_0">
+<polygon fill="#d9534f" stroke="#d9534f" points="630,-556.78 494,-556.78 494,-532.78 630,-532.78 630,-556.78"/>
+<text text-anchor="middle" x="562" y="-542.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WRITE_PARALLEL_R8_0</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_r8_0 -->
+<g id="proc~~finalize~2~~CallsGraph_edge10" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_r8_0</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M234,-468.86C247.36,-471.97 261.28,-476.68 273,-483.78 294.02,-496.53 287.07,-514.68 309,-525.78 362.85,-553.05 431.6,-556.5 483.69,-553.85"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="484.1,-557.34 493.87,-553.25 483.68,-550.35 484.1,-557.34"/>
+</g>
+<!-- proc~write_parallel_r8_1 -->
+<g id="proc~~finalize~2~~CallsGraph_node14" class="node">
+<title>proc~write_parallel_r8_1</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node14"><a xlink:href="../proc/write_parallel_r8_1.html" xlink:title="WRITE_PARALLEL_R8_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="445,-474.78 309,-474.78 309,-450.78 445,-450.78 445,-474.78"/>
+<text text-anchor="middle" x="377" y="-460.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WRITE_PARALLEL_R8_1</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_r8_1 -->
+<g id="proc~~finalize~2~~CallsGraph_edge11" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_r8_1</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M234.1,-462.78C253.91,-462.78 276.98,-462.78 298.69,-462.78"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="298.88,-466.29 308.88,-462.78 298.88,-459.29 298.88,-466.29"/>
+</g>
+<!-- proc~write_parallel_string_0 -->
+<g id="proc~~finalize~2~~CallsGraph_node15" class="node">
+<title>proc~write_parallel_string_0</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node15"><a xlink:href="../proc/write_parallel_string_0.html" xlink:title="WRITE_PARALLEL_STRING_0">
+<polygon fill="#d9534f" stroke="#d9534f" points="643,-754.78 481,-754.78 481,-730.78 643,-730.78 643,-754.78"/>
+<text text-anchor="middle" x="562" y="-740.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WRITE_PARALLEL_STRING_0</text>
+</a>
+</g>
+</g>
+<!-- interface~write_parallel&#45;&gt;proc~write_parallel_string_0 -->
+<g id="proc~~finalize~2~~CallsGraph_edge12" class="edge">
+<title>interface~write_parallel&#45;&gt;proc~write_parallel_string_0</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M234.17,-465.68C248.14,-468.72 262.33,-474.18 273,-483.78 309.36,-516.5 279.57,-548.71 309,-587.78 362.6,-658.96 459.26,-704.84 516.02,-727.03"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="514.87,-730.34 525.46,-730.65 517.37,-723.8 514.87,-730.34"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~finalize~2~~CallsGraph_node7" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node7"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1127.5,-358.78 1012.5,-358.78 1012.5,-334.78 1127.5,-334.78 1127.5,-358.78"/>
+<text text-anchor="middle" x="1070" y="-344.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~finalize~2~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0066ff" d="M929.78,-346.78C951.04,-346.78 977.67,-346.78 1001.94,-346.78"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="1002.18,-350.29 1012.18,-346.78 1002.18,-343.29 1002.18,-350.29"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~finalize~2~~CallsGraph_node8" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node8"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1136.5,-261.78 1003.5,-261.78 1003.5,-237.78 1136.5,-237.78 1136.5,-261.78"/>
+<text text-anchor="middle" x="1070" y="-247.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~finalize~2~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M911.87,-334.7C943.53,-317.59 1001.56,-286.23 1037.54,-266.78"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="1039.5,-269.71 1046.63,-261.87 1036.17,-263.55 1039.5,-269.71"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~finalize~2~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M768.14,-232.87C822.08,-235.9 923.29,-241.59 993.33,-245.53"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="993.25,-249.03 1003.43,-246.1 993.64,-242.04 993.25,-249.03"/>
+</g>
+<!-- at -->
+<g id="proc~~finalize~2~~CallsGraph_node16" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1235.5,-340.78 1181.5,-340.78 1181.5,-316.78 1235.5,-316.78 1235.5,-340.78"/>
+<text text-anchor="middle" x="1208.5" y="-326.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~finalize~2~~CallsGraph_edge16" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M1127.7,-339.31C1142.38,-337.37 1157.8,-335.34 1171.12,-333.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1171.85,-337.02 1181.31,-332.24 1170.93,-330.08 1171.85,-337.02"/>
+</g>
+<!-- insert -->
+<g id="proc~~finalize~2~~CallsGraph_node17" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1235.5,-382.78 1181.5,-382.78 1181.5,-358.78 1235.5,-358.78 1235.5,-382.78"/>
+<text text-anchor="middle" x="1208.5" y="-368.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~finalize~2~~CallsGraph_edge17" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M1127.7,-356.75C1142.38,-359.34 1157.8,-362.05 1171.12,-364.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1170.85,-367.89 1181.31,-366.18 1172.06,-361 1170.85,-367.89"/>
+</g>
+<!-- proc~initialize~21 -->
+<g id="proc~~finalize~2~~CallsGraph_node24" class="node">
+<title>proc~initialize~21</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node24"><a xlink:href="../proc/initialize~21.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1237,-261.78 1180,-261.78 1180,-237.78 1237,-237.78 1237,-261.78"/>
+<text text-anchor="middle" x="1208.5" y="-247.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~21 -->
+<g id="proc~~finalize~2~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~21</title>
+<path fill="none" stroke="#ffaa00" d="M1136.85,-249.78C1148.08,-249.78 1159.4,-249.78 1169.59,-249.78"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="1169.75,-253.29 1179.75,-249.78 1169.75,-246.29 1169.75,-253.29"/>
+</g>
+<!-- proc~write_parallel_i4_0&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize~2~~CallsGraph_edge24" class="edge">
+<title>proc~write_parallel_i4_0&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#aaff00" d="M628.35,-380.44C671.66,-374.9 729.73,-367.45 781,-360.78 799.32,-358.4 819.41,-355.77 837.15,-353.43"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="837.84,-356.87 847.3,-352.1 836.93,-349.93 837.84,-356.87"/>
+</g>
+<!-- proc~write_parallel_i4_0&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize~2~~CallsGraph_edge25" class="edge">
+<title>proc~write_parallel_i4_0&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#aaff00" d="M581.68,-376.74C598.49,-365.5 623.47,-347.81 643,-329.78 670.08,-304.79 697.3,-271.82 713.65,-250.95"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="716.6,-252.86 719.97,-242.81 711.07,-248.57 716.6,-252.86"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="proc~~finalize~2~~CallsGraph_node18" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node18"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="781,-828.78 679,-828.78 679,-804.78 781,-804.78 781,-828.78"/>
+<text text-anchor="middle" x="730" y="-814.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~write_parallel_i4_0&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~finalize~2~~CallsGraph_edge19" class="edge">
+<title>proc~write_parallel_i4_0&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#aaff00" d="M572.32,-401.05C589.2,-423.89 624.75,-475.05 643,-523.78 674.06,-606.73 650.4,-635.96 679,-719.78 688.42,-747.4 704.6,-776.89 716,-796"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="713.12,-798.02 721.31,-804.75 719.11,-794.38 713.12,-798.02"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~finalize~2~~CallsGraph_node19" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node19"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="928,-594.78 849,-594.78 849,-570.78 928,-570.78 928,-594.78"/>
+<text text-anchor="middle" x="888.5" y="-580.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~write_parallel_i4_0&#45;&gt;interface~mapl_assert -->
+<g id="proc~~finalize~2~~CallsGraph_edge20" class="edge">
+<title>proc~write_parallel_i4_0&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#aaff00" d="M628.07,-398.9C633.28,-400.81 638.33,-403.09 643,-405.78 663.71,-417.75 659.22,-432.33 679,-445.78 719,-472.99 739.83,-458.38 781,-483.78 816.63,-505.76 850.78,-540.8 870.43,-562.77"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="867.98,-565.29 877.22,-570.49 873.24,-560.67 867.98,-565.29"/>
+</g>
+<!-- mpi_file_seek -->
+<g id="proc~~finalize~2~~CallsGraph_node20" class="node">
+<title>mpi_file_seek</title>
+<polygon fill="#777777" stroke="#777777" points="772.5,-516.78 687.5,-516.78 687.5,-492.78 772.5,-492.78 772.5,-516.78"/>
+<text text-anchor="middle" x="730" y="-502.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_file_seek</text>
+</g>
+<!-- proc~write_parallel_i4_0&#45;&gt;mpi_file_seek -->
+<g id="proc~~finalize~2~~CallsGraph_edge21" class="edge">
+<title>proc~write_parallel_i4_0&#45;&gt;mpi_file_seek</title>
+<path fill="none" stroke="#aaff00" d="M618.71,-400.89C627.42,-404.42 635.88,-408.95 643,-414.78 668.25,-435.47 655.55,-456.09 679,-478.78 682.29,-481.97 686.05,-484.86 690,-487.46"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="688.44,-490.6 698.83,-492.67 692,-484.57 688.44,-490.6"/>
+</g>
+<!-- mpi_file_write -->
+<g id="proc~~finalize~2~~CallsGraph_node21" class="node">
+<title>mpi_file_write</title>
+<polygon fill="#777777" stroke="#777777" points="773,-710.78 687,-710.78 687,-686.78 773,-686.78 773,-710.78"/>
+<text text-anchor="middle" x="730" y="-696.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_file_write</text>
+</g>
+<!-- proc~write_parallel_i4_0&#45;&gt;mpi_file_write -->
+<g id="proc~~finalize~2~~CallsGraph_edge22" class="edge">
+<title>proc~write_parallel_i4_0&#45;&gt;mpi_file_write</title>
+<path fill="none" stroke="#aaff00" d="M570.61,-400.89C585.22,-424.29 617.98,-477.54 643,-523.78 672.49,-578.29 703.78,-644.33 719.22,-677.54"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="716.1,-679.14 723.48,-686.74 722.45,-676.19 716.1,-679.14"/>
+</g>
+<!-- proc~dealloc_ -->
+<g id="proc~~finalize~2~~CallsGraph_node23" class="node">
+<title>proc~dealloc_</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node23"><a xlink:href="../proc/dealloc_.html" xlink:title="dealloc_">
+<polygon fill="#d9534f" stroke="#d9534f" points="758.5,-436.78 701.5,-436.78 701.5,-412.78 758.5,-412.78 758.5,-436.78"/>
+<text text-anchor="middle" x="730" y="-422.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">dealloc_</text>
+</a>
+</g>
+</g>
+<!-- proc~write_parallel_i4_0&#45;&gt;proc~dealloc_ -->
+<g id="proc~~finalize~2~~CallsGraph_edge23" class="edge">
+<title>proc~write_parallel_i4_0&#45;&gt;proc~dealloc_</title>
+<path fill="none" stroke="#aaff00" d="M618.74,-400.87C642.53,-406.03 669.7,-411.92 691.11,-416.57"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="690.6,-420.04 701.11,-418.74 692.08,-413.2 690.6,-420.04"/>
+</g>
+<!-- proc~write_parallel_i4_1&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize~2~~CallsGraph_edge31" class="edge">
+<title>proc~write_parallel_i4_1&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff00" d="M379.14,-316.56C383.56,-277.09 403.39,-152.7 481,-102.78 593.14,-30.66 669.44,-29.76 781,-102.78 858.66,-153.62 880.01,-274.84 885.61,-324.74"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="882.14,-325.18 886.63,-334.78 889.1,-324.48 882.14,-325.18"/>
+</g>
+<!-- proc~write_parallel_i4_1&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize~2~~CallsGraph_edge32" class="edge">
+<title>proc~write_parallel_i4_1&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff00" d="M384.51,-316.64C398.4,-292.19 433.59,-237.6 481,-216.78 546.34,-188.1 630.82,-202.35 682.41,-216.01"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="681.7,-219.45 692.27,-218.72 683.55,-212.7 681.7,-219.45"/>
+</g>
+<!-- proc~write_parallel_i4_1&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~finalize~2~~CallsGraph_edge26" class="edge">
+<title>proc~write_parallel_i4_1&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#00ff00" d="M387.51,-340.81C402.58,-360.58 431.6,-401.78 445,-441.78 467.87,-510.06 432.42,-710.64 481,-763.78 530.58,-818.02 571.21,-781.13 643,-796.78 651.29,-798.59 660.01,-800.55 668.6,-802.52"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="668.05,-805.98 678.58,-804.81 669.62,-799.16 668.05,-805.98"/>
+</g>
+<!-- proc~write_parallel_i4_1&#45;&gt;interface~mapl_assert -->
+<g id="proc~~finalize~2~~CallsGraph_edge27" class="edge">
+<title>proc~write_parallel_i4_1&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff00" d="M382.92,-316.58C394.86,-288.88 428.29,-221.63 481,-195.78 600.84,-137.02 681,-121.38 781,-209.78 834.96,-257.49 797.76,-298.38 817,-367.78 836.86,-439.41 865.87,-522.61 879.66,-561.14"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="876.45,-562.56 883.13,-570.78 883.04,-560.19 876.45,-562.56"/>
+</g>
+<!-- proc~write_parallel_i4_1&#45;&gt;mpi_file_seek -->
+<g id="proc~~finalize~2~~CallsGraph_edge28" class="edge">
+<title>proc~write_parallel_i4_1&#45;&gt;mpi_file_seek</title>
+<path fill="none" stroke="#00ff00" d="M390.72,-340.93C409.3,-358.16 445.53,-389.79 481,-409.78 548.02,-447.56 571.22,-443.09 643,-470.78 658.09,-476.61 674.62,-483.11 689.13,-488.86"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="688.21,-492.27 698.8,-492.71 690.8,-485.76 688.21,-492.27"/>
+</g>
+<!-- proc~write_parallel_i4_1&#45;&gt;mpi_file_write -->
+<g id="proc~~finalize~2~~CallsGraph_edge29" class="edge">
+<title>proc~write_parallel_i4_1&#45;&gt;mpi_file_write</title>
+<path fill="none" stroke="#00ff00" d="M387.04,-340.98C401.45,-360.99 429.57,-402.51 445,-441.78 472.61,-512.05 427.28,-554.74 481,-607.78 533.28,-659.41 575.24,-612.36 643,-640.78 666.48,-650.63 690.25,-667.29 706.83,-680.23"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="704.81,-683.1 714.81,-686.61 709.18,-677.63 704.81,-683.1"/>
+</g>
+<!-- proc~alloc_ -->
+<g id="proc~~finalize~2~~CallsGraph_node22" class="node">
+<title>proc~alloc_</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node22"><a xlink:href="../proc/alloc_.html" xlink:title="alloc_">
+<polygon fill="#d9534f" stroke="#d9534f" points="589,-320.78 535,-320.78 535,-296.78 589,-296.78 589,-320.78"/>
+<text text-anchor="middle" x="562" y="-306.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">alloc_</text>
+</a>
+</g>
+</g>
+<!-- proc~write_parallel_i4_1&#45;&gt;proc~alloc_ -->
+<g id="proc~~finalize~2~~CallsGraph_edge30" class="edge">
+<title>proc~write_parallel_i4_1&#45;&gt;proc~alloc_</title>
+<path fill="none" stroke="#00ff00" d="M443.03,-321.68C470.47,-318.68 501.39,-315.3 524.68,-312.75"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="525.25,-316.21 534.81,-311.65 524.49,-309.25 525.25,-316.21"/>
+</g>
+<!-- proc~write_parallel_r4_0&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize~2~~CallsGraph_edge38" class="edge">
+<title>proc~write_parallel_r4_0&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffa9" d="M630.41,-591.86C676.79,-591.94 737.63,-584.94 781,-553.78 844.86,-507.91 873.17,-412.2 883.08,-368.9"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="886.56,-369.37 885.26,-358.85 879.72,-367.88 886.56,-369.37"/>
+</g>
+<!-- proc~write_parallel_r4_0&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize~2~~CallsGraph_edge39" class="edge">
+<title>proc~write_parallel_r4_0&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffa9" d="M630,-575.59C634.79,-572.94 639.22,-569.72 643,-565.78 694.15,-512.65 660.75,-475.25 679,-403.78 692.97,-349.08 712.11,-285.47 722.18,-252.74"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="725.61,-253.47 725.22,-242.88 718.93,-251.4 725.61,-253.47"/>
+</g>
+<!-- proc~write_parallel_r4_0&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~finalize~2~~CallsGraph_edge33" class="edge">
+<title>proc~write_parallel_r4_0&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#00ffa9" d="M571.69,-598.83C598.58,-636.08 680.61,-749.74 714.31,-796.43"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="711.5,-798.52 720.19,-804.58 717.18,-794.43 711.5,-798.52"/>
+</g>
+<!-- proc~write_parallel_r4_0&#45;&gt;interface~mapl_assert -->
+<g id="proc~~finalize~2~~CallsGraph_edge34" class="edge">
+<title>proc~write_parallel_r4_0&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ffa9" d="M606.47,-598.87C618.52,-602.77 631.46,-607.47 643,-612.78 660.03,-620.63 660.95,-629.71 679,-634.78 722.64,-647.06 736.83,-644.99 781,-634.78 809.81,-628.13 839.84,-612.55 860.64,-600.17"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="862.52,-603.13 869.23,-594.93 858.88,-597.15 862.52,-603.13"/>
+</g>
+<!-- proc~write_parallel_r4_0&#45;&gt;mpi_file_seek -->
+<g id="proc~~finalize~2~~CallsGraph_edge35" class="edge">
+<title>proc~write_parallel_r4_0&#45;&gt;mpi_file_seek</title>
+<path fill="none" stroke="#00ffa9" d="M619.42,-574.72C627.5,-572.21 635.58,-569.25 643,-565.78 666.73,-554.71 690.79,-536.96 707.41,-523.46"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="709.92,-525.92 715.38,-516.84 705.45,-520.54 709.92,-525.92"/>
+</g>
+<!-- proc~write_parallel_r4_0&#45;&gt;mpi_file_write -->
+<g id="proc~~finalize~2~~CallsGraph_edge36" class="edge">
+<title>proc~write_parallel_r4_0&#45;&gt;mpi_file_write</title>
+<path fill="none" stroke="#00ffa9" d="M618.16,-598.9C627.03,-602.43 635.69,-606.96 643,-612.78 667.33,-632.15 656.35,-651.47 679,-672.78 682.38,-675.96 686.22,-678.86 690.24,-681.46"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="688.8,-684.68 699.2,-686.7 692.33,-678.63 688.8,-684.68"/>
+</g>
+<!-- proc~write_parallel_r4_0&#45;&gt;proc~dealloc_ -->
+<g id="proc~~finalize~2~~CallsGraph_edge37" class="edge">
+<title>proc~write_parallel_r4_0&#45;&gt;proc~dealloc_</title>
+<path fill="none" stroke="#00ffa9" d="M629.21,-574.75C634.17,-572.28 638.85,-569.33 643,-565.78 673.26,-539.93 657.91,-517.54 679,-483.78 687.81,-469.67 699.81,-455.4 709.84,-444.43"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="712.45,-446.76 716.73,-437.07 707.34,-441.98 712.45,-446.76"/>
+</g>
+<!-- proc~write_parallel_r4_1&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize~2~~CallsGraph_edge45" class="edge">
+<title>proc~write_parallel_r4_1&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00a9ff" d="M432.93,-492.72C437.35,-490.27 441.47,-487.32 445,-483.78 483.12,-445.56 438.38,-400.91 481,-367.78 535.17,-325.68 741.03,-335.37 837.3,-342.5"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="837.14,-346 847.38,-343.27 837.67,-339.02 837.14,-346"/>
+</g>
+<!-- proc~write_parallel_r4_1&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize~2~~CallsGraph_edge46" class="edge">
+<title>proc~write_parallel_r4_1&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00a9ff" d="M434.02,-492.77C438.1,-490.31 441.85,-487.35 445,-483.78 503.69,-417.45 419.77,-351.78 481,-287.78 482.76,-285.95 610.37,-257.25 681.82,-241.29"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="682.94,-244.63 691.94,-239.03 681.41,-237.8 682.94,-244.63"/>
+</g>
+<!-- proc~write_parallel_r4_1&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~finalize~2~~CallsGraph_edge40" class="edge">
+<title>proc~write_parallel_r4_1&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#00a9ff" d="M379.89,-517.1C388.6,-572.17 426.85,-794.96 481,-834.78 543.73,-880.92 641.18,-853.11 693.28,-832.65"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="694.81,-835.8 702.77,-828.8 692.19,-829.31 694.81,-835.8"/>
+</g>
+<!-- proc~write_parallel_r4_1&#45;&gt;interface~mapl_assert -->
+<g id="proc~~finalize~2~~CallsGraph_edge41" class="edge">
+<title>proc~write_parallel_r4_1&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00a9ff" d="M379.63,-516.81C387.58,-573.76 424.36,-815.46 481,-860.78 585.19,-944.16 671.58,-949.17 781,-872.78 781,-872.78 854.8,-671.84 879.53,-604.49"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="882.9,-605.47 883.06,-594.88 876.33,-603.06 882.9,-605.47"/>
+</g>
+<!-- proc~write_parallel_r4_1&#45;&gt;mpi_file_seek -->
+<g id="proc~~finalize~2~~CallsGraph_edge42" class="edge">
+<title>proc~write_parallel_r4_1&#45;&gt;mpi_file_seek</title>
+<path fill="none" stroke="#00a9ff" d="M445.26,-504.78C512.82,-504.78 615.47,-504.78 677.02,-504.78"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="677.28,-508.29 687.28,-504.78 677.28,-501.29 677.28,-508.29"/>
+</g>
+<!-- proc~write_parallel_r4_1&#45;&gt;mpi_file_write -->
+<g id="proc~~finalize~2~~CallsGraph_edge43" class="edge">
+<title>proc~write_parallel_r4_1&#45;&gt;mpi_file_write</title>
+<path fill="none" stroke="#00a9ff" d="M381.1,-517.24C390.06,-550.28 419.37,-640.28 481,-678.78 540.2,-715.77 623.47,-714.03 676.84,-707.72"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="677.3,-711.19 686.77,-706.45 676.41,-704.25 677.3,-711.19"/>
+</g>
+<!-- proc~write_parallel_r4_1&#45;&gt;proc~alloc_ -->
+<g id="proc~~finalize~2~~CallsGraph_edge44" class="edge">
+<title>proc~write_parallel_r4_1&#45;&gt;proc~alloc_</title>
+<path fill="none" stroke="#00a9ff" d="M433.49,-492.77C437.74,-490.31 441.67,-487.35 445,-483.78 491.54,-434.03 434.72,-384.78 481,-334.78 492.31,-322.56 509.42,-316.07 524.91,-312.63"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="525.6,-316.06 534.78,-310.78 524.31,-309.18 525.6,-316.06"/>
+</g>
+<!-- proc~write_parallel_r8_0&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize~2~~CallsGraph_edge52" class="edge">
+<title>proc~write_parallel_r8_0&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M630.45,-554.13C676.28,-557.02 736.43,-553.76 781,-525.78 839.36,-489.16 869.84,-407.9 881.62,-368.73"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="884.99,-369.66 884.39,-359.09 878.26,-367.73 884.99,-369.66"/>
+</g>
+<!-- proc~write_parallel_r8_0&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize~2~~CallsGraph_edge53" class="edge">
+<title>proc~write_parallel_r8_0&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0000ff" d="M570.64,-532.7C585.32,-509.33 618.19,-456.14 643,-409.78 672.78,-354.14 703.95,-286.54 719.29,-252.55"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="722.62,-253.68 723.52,-243.12 716.23,-250.81 722.62,-253.68"/>
+</g>
+<!-- proc~write_parallel_r8_0&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~finalize~2~~CallsGraph_edge47" class="edge">
+<title>proc~write_parallel_r8_0&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#0000ff" d="M630.33,-556.24C634.99,-558.83 639.29,-561.98 643,-565.78 692.03,-616.16 654.71,-653.82 679,-719.78 689.08,-747.16 705.12,-776.7 716.31,-795.89"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="713.4,-797.85 721.51,-804.68 719.43,-794.29 713.4,-797.85"/>
+</g>
+<!-- proc~write_parallel_r8_0&#45;&gt;interface~mapl_assert -->
+<g id="proc~~finalize~2~~CallsGraph_edge48" class="edge">
+<title>proc~write_parallel_r8_0&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0000ff" d="M630.16,-552.95C646.16,-554.88 663.19,-556.92 679,-558.78 733.66,-565.23 796.4,-572.42 838.66,-577.24"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="838.35,-580.73 848.68,-578.38 839.14,-573.77 838.35,-580.73"/>
+</g>
+<!-- proc~write_parallel_r8_0&#45;&gt;mpi_file_seek -->
+<g id="proc~~finalize~2~~CallsGraph_edge49" class="edge">
+<title>proc~write_parallel_r8_0&#45;&gt;mpi_file_seek</title>
+<path fill="none" stroke="#0000ff" d="M612.81,-532.78C633.24,-527.86 656.89,-522.16 677.5,-517.19"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="678.44,-520.57 687.34,-514.82 676.8,-513.76 678.44,-520.57"/>
+</g>
+<!-- proc~write_parallel_r8_0&#45;&gt;mpi_file_write -->
+<g id="proc~~finalize~2~~CallsGraph_edge50" class="edge">
+<title>proc~write_parallel_r8_0&#45;&gt;mpi_file_write</title>
+<path fill="none" stroke="#0000ff" d="M627.01,-556.86C632.68,-559.31 638.12,-562.25 643,-565.78 682.64,-594.49 708.74,-647.59 720.96,-677.27"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="717.76,-678.71 724.7,-686.71 724.27,-676.13 717.76,-678.71"/>
+</g>
+<!-- proc~write_parallel_r8_0&#45;&gt;proc~dealloc_ -->
+<g id="proc~~finalize~2~~CallsGraph_edge51" class="edge">
+<title>proc~write_parallel_r8_0&#45;&gt;proc~dealloc_</title>
+<path fill="none" stroke="#0000ff" d="M579.83,-532.62C609.04,-511.51 669.26,-467.97 703.58,-443.16"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="706.07,-445.68 712.12,-436.98 701.97,-440.01 706.07,-445.68"/>
+</g>
+<!-- proc~write_parallel_r8_1&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize~2~~CallsGraph_edge59" class="edge">
+<title>proc~write_parallel_r8_1&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#aa00ff" d="M386.85,-450.51C400.98,-430.39 428.72,-388.71 445,-349.78 469.29,-291.7 431.44,-251.61 481,-212.78 585.97,-130.56 661.23,-151.19 781,-209.78 830.33,-233.92 863.4,-293.14 878.36,-325.25"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="875.29,-326.95 882.58,-334.64 881.68,-324.08 875.29,-326.95"/>
+</g>
+<!-- proc~write_parallel_r8_1&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize~2~~CallsGraph_edge60" class="edge">
+<title>proc~write_parallel_r8_1&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#aa00ff" d="M386.16,-450.63C399.57,-430.34 426.6,-388.01 445,-349.78 464.59,-309.1 445.12,-282.2 481,-254.78 538.8,-210.62 627.67,-214.12 681.86,-221.72"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="681.48,-225.2 691.89,-223.23 682.52,-218.28 681.48,-225.2"/>
+</g>
+<!-- proc~write_parallel_r8_1&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~finalize~2~~CallsGraph_edge54" class="edge">
+<title>proc~write_parallel_r8_1&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#aa00ff" d="M434.9,-474.96C438.68,-477.4 442.13,-480.31 445,-483.78 534.22,-591.71 380.31,-699.47 481,-796.78 530.81,-844.93 615.54,-840.6 671.89,-830.65"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="672.53,-834.09 681.72,-828.81 671.24,-827.21 672.53,-834.09"/>
+</g>
+<!-- proc~write_parallel_r8_1&#45;&gt;interface~mapl_assert -->
+<g id="proc~~finalize~2~~CallsGraph_edge55" class="edge">
+<title>proc~write_parallel_r8_1&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#aa00ff" d="M434.94,-474.93C438.72,-477.37 442.15,-480.29 445,-483.78 494.06,-543.81 424.35,-777.86 481,-830.78 529.73,-876.31 725.5,-874.75 781,-837.78 801.81,-823.92 859.36,-663.52 880.01,-604.45"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="883.33,-605.55 883.31,-594.96 876.72,-603.25 883.33,-605.55"/>
+</g>
+<!-- proc~write_parallel_r8_1&#45;&gt;mpi_file_seek -->
+<g id="proc~~finalize~2~~CallsGraph_edge56" class="edge">
+<title>proc~write_parallel_r8_1&#45;&gt;mpi_file_seek</title>
+<path fill="none" stroke="#aa00ff" d="M445.26,-470.83C512.82,-478.92 615.47,-491.2 677.02,-498.57"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="676.93,-502.08 687.28,-499.79 677.76,-495.13 676.93,-502.08"/>
+</g>
+<!-- proc~write_parallel_r8_1&#45;&gt;mpi_file_write -->
+<g id="proc~~finalize~2~~CallsGraph_edge57" class="edge">
+<title>proc~write_parallel_r8_1&#45;&gt;mpi_file_write</title>
+<path fill="none" stroke="#aa00ff" d="M433.85,-474.95C437.97,-477.38 441.77,-480.29 445,-483.78 493.6,-536.35 430.49,-590.05 481,-640.78 481.22,-641.01 604.43,-669.75 677.08,-686.69"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="676.44,-690.13 686.98,-688.99 678.03,-683.31 676.44,-690.13"/>
+</g>
+<!-- proc~write_parallel_r8_1&#45;&gt;proc~alloc_ -->
+<g id="proc~~finalize~2~~CallsGraph_edge58" class="edge">
+<title>proc~write_parallel_r8_1&#45;&gt;proc~alloc_</title>
+<path fill="none" stroke="#aa00ff" d="M384.52,-450.61C398.68,-425.29 434.74,-366.69 481,-334.78 494.09,-325.76 510.52,-319.71 525.07,-315.73"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="525.94,-319.12 534.79,-313.3 524.24,-312.33 525.94,-319.12"/>
+</g>
+<!-- proc~write_parallel_string_0&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize~2~~CallsGraph_edge65" class="edge">
+<title>proc~write_parallel_string_0&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff00aa" d="M643.02,-743.82C696.61,-742.78 760.9,-737.63 781,-719.78 834.86,-671.97 797.76,-631.19 817,-561.78 836.86,-490.16 865.87,-406.96 879.66,-368.43"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="883.04,-369.38 883.13,-358.79 876.45,-367.01 883.04,-369.38"/>
+</g>
+<!-- proc~write_parallel_string_0&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize~2~~CallsGraph_edge66" class="edge">
+<title>proc~write_parallel_string_0&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff00aa" d="M572.36,-730.53C589.29,-707.71 624.92,-656.58 643,-607.78 674.99,-521.45 658.19,-493.47 679,-403.78 691.76,-348.79 711.4,-285.3 721.86,-252.66"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="725.29,-253.42 725.03,-242.83 718.63,-251.27 725.29,-253.42"/>
+</g>
+<!-- proc~write_parallel_string_0&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~finalize~2~~CallsGraph_edge61" class="edge">
+<title>proc~write_parallel_string_0&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#ff00aa" d="M606.47,-754.87C618.52,-758.77 631.46,-763.47 643,-768.78 660.03,-776.63 662.67,-781.57 679,-790.78 684.35,-793.81 690.08,-796.91 695.69,-799.87"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="694.43,-803.16 704.91,-804.69 697.67,-796.96 694.43,-803.16"/>
+</g>
+<!-- proc~write_parallel_string_0&#45;&gt;interface~mapl_assert -->
+<g id="proc~~finalize~2~~CallsGraph_edge62" class="edge">
+<title>proc~write_parallel_string_0&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff00aa" d="M597.24,-754.8C642.42,-768.43 722.99,-784.9 781,-752.78 838.65,-720.87 869.26,-643.27 881.31,-604.94"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="884.7,-605.83 884.22,-595.25 877.99,-603.82 884.7,-605.83"/>
+</g>
+<!-- proc~write_parallel_string_0&#45;&gt;mpi_file_seek -->
+<g id="proc~~finalize~2~~CallsGraph_edge63" class="edge">
+<title>proc~write_parallel_string_0&#45;&gt;mpi_file_seek</title>
+<path fill="none" stroke="#ff00aa" d="M571.46,-730.66C598.21,-692.3 681.18,-573.35 714.72,-525.26"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="717.71,-527.09 720.56,-516.89 711.97,-523.09 717.71,-527.09"/>
+</g>
+<!-- proc~write_parallel_string_0&#45;&gt;mpi_file_write -->
+<g id="proc~~finalize~2~~CallsGraph_edge64" class="edge">
+<title>proc~write_parallel_string_0&#45;&gt;mpi_file_write</title>
+<path fill="none" stroke="#ff00aa" d="M608.36,-730.76C629.59,-725.14 654.98,-718.4 676.99,-712.57"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="678.06,-715.91 686.83,-709.96 676.27,-709.14 678.06,-715.91"/>
+</g>
+<!-- proc~mapl_am_i_root_layout -->
+<g id="proc~~finalize~2~~CallsGraph_node25" class="node">
+<title>proc~mapl_am_i_root_layout</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node25"><a xlink:href="../proc/mapl_am_i_root_layout.html" xlink:title="MAPL_Am_I_Root_Layout">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="960,-807.78 817,-807.78 817,-783.78 960,-783.78 960,-807.78"/>
+<text text-anchor="middle" x="888.5" y="-793.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Layout</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout -->
+<g id="proc~~finalize~2~~CallsGraph_edge67" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M781.38,-810.02C789.54,-808.93 798.16,-807.77 806.82,-806.61"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="807.53,-810.05 816.98,-805.25 806.6,-803.11 807.53,-810.05"/>
+</g>
+<!-- proc~mapl_am_i_root_vm -->
+<g id="proc~~finalize~2~~CallsGraph_node26" class="node">
+<title>proc~mapl_am_i_root_vm</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node26"><a xlink:href="../proc/mapl_am_i_root_vm.html" xlink:title="MAPL_Am_I_Root_Vm">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="951,-849.78 826,-849.78 826,-825.78 951,-825.78 951,-849.78"/>
+<text text-anchor="middle" x="888.5" y="-835.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Vm</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm -->
+<g id="proc~~finalize~2~~CallsGraph_edge68" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M781.38,-823.55C792.37,-825.02 804.2,-826.61 815.84,-828.17"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="815.61,-831.67 825.99,-829.53 816.54,-824.73 815.61,-831.67"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~finalize~2~~CallsGraph_node27" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node27"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1137,-615.78 1003,-615.78 1003,-591.78 1137,-591.78 1137,-615.78"/>
+<text text-anchor="middle" x="1070" y="-601.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~finalize~2~~CallsGraph_edge69" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M928.01,-587.29C946.86,-589.5 970.24,-592.23 992.51,-594.84"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="992.3,-598.34 1002.64,-596.02 993.12,-591.38 992.3,-598.34"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~finalize~2~~CallsGraph_node28" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~finalize~2~~CallsGraph_node28"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1144,-573.78 996,-573.78 996,-549.78 1144,-549.78 1144,-573.78"/>
+<text text-anchor="middle" x="1070" y="-559.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~finalize~2~~CallsGraph_edge70" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M928.01,-578.28C944.93,-576.3 965.5,-573.89 985.64,-571.54"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="986.27,-574.99 995.8,-570.35 985.46,-568.03 986.27,-574.99"/>
+</g>
+<!-- proc~alloc_&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize~2~~CallsGraph_edge73" class="edge">
+<title>proc~alloc_&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M589.24,-302.28C630.59,-293.1 713.19,-279.12 781,-294.78 809.81,-301.44 839.84,-317.02 860.64,-329.4"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="858.88,-332.42 869.23,-334.64 862.52,-326.44 858.88,-332.42"/>
+</g>
+<!-- proc~alloc_&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize~2~~CallsGraph_edge74" class="edge">
+<title>proc~alloc_&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0000ff" d="M589.03,-302.54C605.08,-298.15 625.81,-291.51 643,-282.78 660.6,-273.85 662.2,-267.14 679,-256.78 684.07,-253.66 689.55,-250.55 694.97,-247.63"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="696.71,-250.67 703.93,-242.91 693.45,-244.47 696.71,-250.67"/>
+</g>
+<!-- proc~alloc_&#45;&gt;interface~mapl_assert -->
+<g id="proc~~finalize~2~~CallsGraph_edge71" class="edge">
+<title>proc~alloc_&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0000ff" d="M589.35,-314.64C633.46,-325.57 723.09,-352.73 781,-403.78 831.86,-448.62 865.35,-523.8 879.63,-560.82"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="876.51,-562.47 883.29,-570.6 883.06,-560.01 876.51,-562.47"/>
+</g>
+<!-- proc~alloc_&#45;&gt;proc~dealloc_ -->
+<g id="proc~~finalize~2~~CallsGraph_edge72" class="edge">
+<title>proc~alloc_&#45;&gt;proc~dealloc_</title>
+<path fill="none" stroke="#0000ff" d="M580.45,-320.98C609.79,-341.48 669.15,-382.96 703.28,-406.81"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="701.58,-409.89 711.78,-412.75 705.59,-404.16 701.58,-409.89"/>
+</g>
+<!-- proc~dealloc_&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize~2~~CallsGraph_edge76" class="edge">
+<title>proc~dealloc_&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#aa00ff" d="M755.11,-412.77C781.65,-399.54 824.48,-378.19 854.21,-363.38"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="855.97,-366.41 863.36,-358.82 852.85,-360.14 855.97,-366.41"/>
+</g>
+<!-- proc~dealloc_&#45;&gt;interface~mapl_assert -->
+<g id="proc~~finalize~2~~CallsGraph_edge75" class="edge">
+<title>proc~dealloc_&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#aa00ff" d="M758.73,-436.64C766.35,-440.56 774.34,-445.33 781,-450.78 821.13,-483.62 856.44,-533.74 874.58,-561.83"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="871.74,-563.89 880.05,-570.45 877.65,-560.13 871.74,-563.89"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocfinalize2CallsGraph = svgPanZoom('#procfinalize2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">Finalize</span><span class="p">(</span><span class="n">CC</span><span class="p">,</span><span class="w"> </span><span class="n">SRC</span><span class="p">,</span><span class="w"> </span><span class="n">DST</span><span class="p">,</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+
+<span class="c">! !ARGUMENTS:</span>
+
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_CplComp</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">CC</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">SRC</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">DST</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="c">!EOPI</span>
+<span class="c">! ErrLog Variables</span>
+
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">COMP_NAME</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span>
+
+<span class="c">! Locals</span>
+
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_GenericCplState</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">STATE</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_GenericCplWrap</span><span class="w"> </span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">WRAP</span>
+
+<span class="c">! Begin...</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">SRC</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">DST</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">CLOCK</span><span class="p">)</span>
+
+<span class="c">! Get the target components name and set-up traceback handle.</span>
+<span class="c">! -----------------------------------------------------------</span>
+
+<span class="w">    </span><span class="n">IAm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;MAPL_GenericCplCompFinalize&quot;</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_CplCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">CC</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="n">COMP_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">COMP_NAME</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">Iam</span>
+
+<span class="c">! Retrieve the pointer to the internal state. It comes in a wrapper.</span>
+<span class="c">! ------------------------------------------------------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_CplCompGetInternalState</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">CC</span><span class="p">,</span><span class="w"> </span><span class="n">WRAP</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">STATE</span><span class="w">     </span><span class="o">=&gt;</span><span class="w">  </span><span class="n">WRAP</span><span class="p">%</span><span class="n">INTERNAL_STATE</span>
+
+
+<span class="w">    </span><span class="k">call </span><span class="n">write_parallel</span><span class="p">(</span><span class="s1">&#39;STUBBED in CPL finalize&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">Finalize</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-12T19:40:24.213569             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
