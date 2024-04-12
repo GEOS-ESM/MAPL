@@ -26,7 +26,7 @@ contains
       integer :: num_collections, status
 
       ! Set entry points
-      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_USER")
+      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_USER", _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       ! Determine collections
@@ -50,7 +50,7 @@ contains
       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
          _VERIFY(status)
          collection_name = ESMF_HConfigAsString(iter, _RC)
-         child_hconfig = make_child_hconfig(hconfig, collection_name)
+         child_hconfig = make_child_hconfig(hconfig, collection_name, _RC)
          child_name = make_child_name(collection_name, _RC)
          call MAPL_AddChild(gridcomp, child_name, user_setservices(collection_setServices), child_hconfig, _RC)
          !call ESMF_HConfigDestroy(child_hconfig, _RC)
