@@ -10,6 +10,7 @@ module MAPL_ObsUtilMod
   use pFIO_FileMetadataMod, only : FileMetadata
   use pFIO_NetCDF4_FileFormatterMod, only : NetCDF4_FileFormatter
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+  use, intrinsic :: iso_c_binding
   implicit none
   integer, parameter :: mx_ngeoval = 60
   ! GRS80 by Moritz
@@ -58,6 +59,18 @@ module MAPL_ObsUtilMod
      module procedure sort_three_arrays_by_time
      module procedure sort_four_arrays_by_time
   end interface sort_multi_arrays_by_time
+
+  interface
+     function f_call_c_glob(search_name, filename, slen) &
+           & result(stat)    bind(C, name="glob_C")
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer :: stat
+       character (kind=c_char), intent(in) :: search_name(*)
+       character (kind=c_char), intent(out) :: filename(*)
+       integer, intent(inout) :: slen
+     end function f_call_c_glob
+  end interface
 
 contains
 
@@ -546,12 +559,14 @@ contains
     type(ESMF_TimeInterval) :: dT
     type(ESMF_Time) :: time
     integer :: i, j, u
+    logical :: allow_wild_char
 
     character(len=ESMF_MAXSTR) :: file_template_left
     character(len=ESMF_MAXSTR) :: file_template_right
     character(len=ESMF_MAXSTR) :: filename_left
     character(len=ESMF_MAXSTR) :: filename_full
     character(len=ESMF_MAXSTR) :: filename2
+    character(len=ESMF_MAXSTR) :: filename3
     character(len=ESMF_MAXSTR) :: cmd
 
     call ESMF_TimeIntervalGet(obsfile_interval, s_r8=dT0_s, rc=status)
@@ -565,9 +580,34 @@ contains
 
     ! parse time info
     !
-    call fill_grads_template ( filename, file_template, &
-         experiment_id='', nymd=nymd, nhms=nhms, _RC )
-    inquire(file= trim(filename), EXIST = exist)
+    !
+    allow_wild_char=.true.
+    !
+    j= index(file_template, '*')
+    if (j>0) then
+       ! wild char exist
+       !!print*, 'pos of * in template =', j
+       file_template_left = file_template(1:j-1)
+       call fill_grads_template ( filename_left, file_template_left, &
+            experiment_id='', nymd=nymd, nhms=nhms, _RC )
+       filename2= trim(filename_left)//trim(file_template(j:))
+       call fglob(filename2, filename3, rc=status)
+       if (status==0) then
+          !  the *-file is found
+          exist=.true.
+          filename=trim(filename3)
+       else
+          !  the *-file is not found
+          exist=.false.
+          filename=filename2
+       end if
+       !
+    else
+       ! exact file name
+       call fill_grads_template ( filename, file_template, &
+            experiment_id='', nymd=nymd, nhms=nhms, _RC )
+       inquire(file= trim(filename), EXIST = exist)
+    end if
 
     _RETURN(_SUCCESS)
 
@@ -912,5 +952,28 @@ contains
 121   format (2x, a,10(2x,i8))
 
   end subroutine test_conversion
+
+
+  subroutine fglob(search_name, filename, rc)     ! give the last name
+    character(len=*), intent(in) ::  search_name
+    character(len=*), intent(INOUT) :: filename
+    integer, optional, intent(out)  :: rc
+
+    character(kind=C_CHAR, len=:), allocatable :: c_search_name
+    character(kind=C_CHAR, len=512) :: c_filename
+    integer n, status, slen
+
+    n=len(trim(search_name))
+    allocate(character(kind=C_CHAR,len=n+1) :: c_search_name)
+    c_search_name(1:n)=search_name(1:n)
+    c_search_name(n+1:n+1)=c_null_char
+
+    rc = f_call_c_glob(c_search_name, c_filename, slen)
+    filename=""
+    if (slen>0) filename(1:slen)=c_filename(1:slen)
+
+    deallocate(c_search_name)
+    return
+  end subroutine fglob
 
 end module MAPL_ObsUtilMod
