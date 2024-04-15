@@ -418,7 +418,7 @@ contains
         endif
 
         call Mpi_Bcast( back_local_rank, 1, MPI_INTEGER, 0, this%front_comm, ierror)
-
+        if (allocated(this%buffers(back_local_rank+1)%buffer)) call MPI_Wait(this%buffers(back_local_rank+1)%request, MPI_STAT, ierror)
         call f_d_ms(collection_counter)%serialize(this%buffers(back_local_rank+1)%buffer)
         call f_d_ms(collection_counter)%destroy(_RC)
         msg_size= size(this%buffers(back_local_rank+1)%buffer)
@@ -426,8 +426,6 @@ contains
              this%back_ranks(back_local_rank+1), this%server_comm, ierror)
         call Mpi_Isend(this%buffers(back_local_rank+1)%buffer, msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
             this%back_ranks(back_local_rank+1), this%server_comm, this%buffers(back_local_rank+1)%request,ierror)
-        call MPI_Wait(this%buffers(back_local_rank+1)%request, MPI_STAT, ierror)
-        deallocate(this%buffers(back_local_rank+1)%buffer)
         if (associated(ioserver_profiler)) call ioserver_profiler%stop("collection_"//i_to_string(collection_id))
      enddo
      if (associated(ioserver_profiler)) call ioserver_profiler%stop("forward_data")
