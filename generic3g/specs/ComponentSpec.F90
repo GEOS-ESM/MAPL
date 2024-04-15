@@ -6,6 +6,7 @@ module mapl3g_ComponentSpec
    use mapl3g_VariableSpec
    use mapl3g_VariableSpecVector
    use mapl3g_ChildSpecMap
+   use mapl3g_GeometrySpec
    use mapl_ErrorHandling
    use ESMF
    implicit none
@@ -15,10 +16,11 @@ module mapl3g_ComponentSpec
 
    type :: ComponentSpec
       !!$      private
-      type(ESMF_HConfig), allocatable :: geom_hconfig ! optional
+      type(GeometrySpec) :: geometry_spec
       type(VariableSpecVector) :: var_specs
       type(ConnectionVector) :: connections
       type(ChildSpecMap) :: children
+      type(ESMF_HConfig), allocatable :: geom_hconfig ! optional
    contains
       procedure :: has_geom_hconfig
       procedure :: add_var_spec
