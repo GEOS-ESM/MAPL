@@ -130,7 +130,8 @@ contains
 
       if (has_esmf_geom) then
          geom_mgr => get_geom_manager()
-         geom_spec = geom_mgr%make_geom_spec(esmf_geom_cfg, _RC)
+         allocate(geom_spec, source=geom_mgr%make_geom_spec(esmf_geom_cfg, rc=status))
+         _VERIFY(status)
          call ESMF_HConfigDestroy(geometry_cfg, _RC)
          geometry_spec = GeometrySpec(geom_spec)
          _RETURN(_SUCCESS)
