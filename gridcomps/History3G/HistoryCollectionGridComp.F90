@@ -76,13 +76,9 @@ contains
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
 
-      type(OuterMetaComponent), pointer :: outer_meta
-
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       geom = make_geom(hconfig)
-      !call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp,_RC)
-      call outer_meta%set_geom(geom)
+      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine init_geom

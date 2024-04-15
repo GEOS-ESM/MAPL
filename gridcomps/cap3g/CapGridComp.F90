@@ -57,9 +57,7 @@ contains
          call MAPL_ConnectAll(gridcomp, src_comp=cap%extdata_name, dst_comp=cap%root_name, _RC)
       end if
       if (cap%run_history) then
-         !call MAPL_ConnectAll(gridcomp, src_comp=cap%root_name, dst_comp=cap%history_name, _RC)
-         outer_meta => get_outer_meta_from_inner_gc(gridcomp,_RC)
-         call outer_meta%connect_all(cap%root_name, cap%history_name, _RC)
+         call MAPL_ConnectAll(gridcomp, src_comp=cap%root_name, dst_comp=cap%history_name, _RC)
       end if
       _RETURN(_SUCCESS)
    end subroutine setServices
@@ -73,7 +71,6 @@ contains
 
       integer :: status
       type(CapGridComp), pointer :: cap
-      type(OuterMetaComponent), pointer :: outer_meta
 
   _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 

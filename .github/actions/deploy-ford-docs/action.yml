@@ -68,7 +68,7 @@ runs:
 
     - name: Deploy Pages
       uses: JamesIves/github-pages-deploy-action@v4
-      if: github.event_name == 'push' && github.repository == 'GEOS-ESM/MAPL' && ( startsWith( github.ref, 'refs/tags/v' ) || github.ref == 'refs/heads/main' )
+      if: github.event_name == 'push' && github.repository == 'GEOS-ESM/MAPL' && ( startsWith( github.ref, 'refs/tags/v' ) || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release/MAPL-v3' )
       with:
         folder: ${{ inputs.doc-folder }}
         token: ${{ inputs.token }}
