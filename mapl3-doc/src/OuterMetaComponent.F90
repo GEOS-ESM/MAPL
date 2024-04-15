@@ -32,6 +32,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_UPDATE
    use mapl_ErrorHandling
    use mapl3g_VerticalGeom
+   use mapl3g_GeometrySpec
    use gFTL2_StringVector
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
    use esmf
@@ -84,7 +85,8 @@ module mapl3g_OuterMetaComponent
 
       procedure :: run_custom
       procedure :: initialize_user
-      procedure :: initialize_geom
+      procedure :: initialize_advertise_geom
+      procedure :: initialize_realize_geom
       procedure :: initialize_advertise
       procedure :: initialize_post_advertise
       procedure :: initialize_realize
@@ -353,17 +355,58 @@ contains
 
    ! ESMF initialize methods
 
-
    !----------
-   ! The procedure initialize_geom() is responsible for passing grid
-   ! down to children.  The parent geom can be overridden by a
+   !The parent geom can be overridden by a
    ! component by:
    !   - providing a geom spec in the generic section of its config
    !     file, or
    !   - specifying an INIT_GEOM phase
    ! If both are specified, the INIT_GEOM overrides the config spec.
+   !----------
+   recursive subroutine initialize_advertise_geom(this, unusable, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      ! optional arguments
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(MaplGeom), pointer :: mapl_geom
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE_GEOM'
+      type(GeomManager), pointer :: geom_mgr
+      class(GriddedComponentDriver), pointer :: provider
+      type(ESMF_GridComp) :: provider_gc
+      type(OuterMetaComponent), pointer :: provider_meta
+
+      associate (geometry_spec => this%component_spec%geometry_spec)
+        if (allocated(geometry_spec%geom_spec)) then
+           geom_mgr => get_geom_manager()
+           mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
+           this%geom = mapl_geom%get_geom()
+        end if
+
+        call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
+
+        call recurse(this, phase_idx=GENERIC_INIT_ADVERTISE_GEOM, _RC)
+
+        if (geometry_spec%kind == GEOMETRY_FROM_CHILD) then
+           provider => this%children%at(geometry_spec%provider, _RC)
+           provider_gc = provider%get_gridcomp()
+           provider_meta => get_outer_meta(provider_gc, _RC)
+           _ASSERT(allocated(provider_meta%geom), 'Specified child does not provide a geom.')
+           this%geom = provider_meta%geom
+        end if
+      end associate
+
+      _RETURN(ESMF_SUCCESS)
+   contains
+      
+   end subroutine initialize_advertise_geom
+
+   !----------
+   ! The procedure initialize_realize_geom() is responsible for passing grid
+   ! down to children.
    ! ---------
-   recursive subroutine initialize_geom(this, unusable, rc)
+   recursive subroutine initialize_realize_geom(this, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
@@ -371,19 +414,12 @@ contains
 
       integer :: status
       type(MaplGeom), pointer :: mapl_geom
-      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GEOM'
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE_GEOM'
       type(GeomManager), pointer :: geom_mgr
 
-      if (this%component_spec%has_geom_hconfig()) then
-         geom_mgr => get_geom_manager()
-         mapl_geom => geom_mgr%get_mapl_geom(this%component_spec%geom_hconfig, _RC)
-         this%geom = mapl_geom%get_geom()
-      end if
-
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-
       call apply_to_children(this, set_child_geom, _RC)
-      call recurse(this, phase_idx=GENERIC_INIT_GEOM, _RC)
+      call recurse(this, phase_idx=GENERIC_INIT_REALIZE_GEOM, _RC)
 
       _RETURN(ESMF_SUCCESS)
    contains
@@ -405,7 +441,7 @@ contains
          _RETURN(ESMF_SUCCESS)
       end subroutine set_child_geom
 
-   end subroutine initialize_geom
+   end subroutine initialize_realize_geom
 
    recursive subroutine initialize_advertise(this, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this

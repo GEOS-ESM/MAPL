@@ -1,0 +1,735 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>parse_geometry_spec &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>parse_geometry_spec
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">80 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ComponentSpecParser.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/componentspecparser.f90.html'>ComponentSpecParser.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_componentspecparser.html'>mapl3g_ComponentSpecParser</a></li>
+            <li class="breadcrumb-item active" aria-current="page">parse_geometry_spec</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/parse_geometry_spec.html#src">parse_geometry_spec</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function parse_geometry_spec(mapl_cfg, rc) result(geometry_spec)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mapl_cfg~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_hconfig.html'>ESMF_HConfig</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mapl_cfg</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~509"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-geometry_spec"></span>
+          type(<a href='../type/geometryspec.html'>GeometrySpec</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~parse_geometry_spec~~CallsGraph Pages: 1 -->
+<svg id="procparse_geometry_specCallsGraph" width="476pt" height="368pt"
+ viewBox="0.00 0.00 476.00 368.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~parse_geometry_spec~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 364)">
+<title>proc~~parse_geometry_spec~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-364 472,-364 472,4 -4,4"/>
+<!-- proc~parse_geometry_spec -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_node1" class="node">
+<title>proc~parse_geometry_spec</title>
+<polygon fill="none" stroke="black" points="130,-192 0,-192 0,-168 130,-168 130,-192"/>
+<text text-anchor="middle" x="65" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50">parse_geometry_spec</text>
+</g>
+<!-- ESMF_HConfigDestroy -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_node2" class="node">
+<title>ESMF_HConfigDestroy</title>
+<g id="a_proc~~parse_geometry_spec~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_hconfigdestroy.html" xlink:title="ESMF_HConfigDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="297.5,-360 167.5,-360 167.5,-336 297.5,-336 297.5,-360"/>
+<text text-anchor="middle" x="232.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_HConfigDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_geometry_spec&#45;&gt;ESMF_HConfigDestroy -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_edge1" class="edge">
+<title>proc~parse_geometry_spec&#45;&gt;ESMF_HConfigDestroy</title>
+<path fill="none" stroke="#ff0000" d="M70.98,-192.3C83,-220.42 116.31,-289.86 166,-327 168.05,-328.53 170.22,-329.96 172.47,-331.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.98,-334.45 181.47,-335.88 174.16,-328.21 170.98,-334.45"/>
+</g>
+<!-- esmf_hconfigasstring -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_node3" class="node">
+<title>esmf_hconfigasstring</title>
+<polygon fill="#777777" stroke="#777777" points="295.5,-318 169.5,-318 169.5,-294 295.5,-294 295.5,-318"/>
+<text text-anchor="middle" x="232.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigasstring</text>
+</g>
+<!-- proc~parse_geometry_spec&#45;&gt;esmf_hconfigasstring -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_edge2" class="edge">
+<title>proc~parse_geometry_spec&#45;&gt;esmf_hconfigasstring</title>
+<path fill="none" stroke="#ff0000" d="M74.43,-192.27C90.02,-214.06 125.48,-259.59 166,-285 168.78,-286.74 171.72,-288.36 174.76,-289.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="173.5,-293.12 184.06,-293.94 176.32,-286.71 173.5,-293.12"/>
+</g>
+<!-- esmf_hconfigcreateat -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_node4" class="node">
+<title>esmf_hconfigcreateat</title>
+<polygon fill="#777777" stroke="#777777" points="296.5,-276 168.5,-276 168.5,-252 296.5,-252 296.5,-276"/>
+<text text-anchor="middle" x="232.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigcreateat</text>
+</g>
+<!-- proc~parse_geometry_spec&#45;&gt;esmf_hconfigcreateat -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_edge3" class="edge">
+<title>proc~parse_geometry_spec&#45;&gt;esmf_hconfigcreateat</title>
+<path fill="none" stroke="#ff0000" d="M82.25,-192.05C101.45,-205.85 134.76,-228.43 166,-243 170.13,-244.93 174.48,-246.74 178.9,-248.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="178.03,-251.85 188.62,-251.97 180.42,-245.27 178.03,-251.85"/>
+</g>
+<!-- esmf_hconfigisdefined -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_node5" class="node">
+<title>esmf_hconfigisdefined</title>
+<polygon fill="#777777" stroke="#777777" points="299,-234 166,-234 166,-210 299,-210 299,-234"/>
+<text text-anchor="middle" x="232.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigisdefined</text>
+</g>
+<!-- proc~parse_geometry_spec&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_edge4" class="edge">
+<title>proc~parse_geometry_spec&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#ff0000" d="M113.43,-192.04C132.38,-196.85 154.39,-202.43 174.22,-207.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="173.51,-210.9 184.07,-209.96 175.24,-204.11 173.51,-210.9"/>
+</g>
+<!-- get_geom_manager -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_node6" class="node">
+<title>get_geom_manager</title>
+<polygon fill="#777777" stroke="#777777" points="292.5,-192 172.5,-192 172.5,-168 292.5,-168 292.5,-192"/>
+<text text-anchor="middle" x="232.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_geom_manager</text>
+</g>
+<!-- proc~parse_geometry_spec&#45;&gt;get_geom_manager -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_edge5" class="edge">
+<title>proc~parse_geometry_spec&#45;&gt;get_geom_manager</title>
+<path fill="none" stroke="#ff0000" d="M130.46,-180C140.92,-180 151.78,-180 162.34,-180"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="162.35,-183.5 172.35,-180 162.35,-176.5 162.35,-183.5"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_node7" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~parse_geometry_spec~~CallsGraph_node7"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="272,-150 193,-150 193,-126 272,-126 272,-150"/>
+<text text-anchor="middle" x="232.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_geometry_spec&#45;&gt;interface~mapl_assert -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_edge6" class="edge">
+<title>proc~parse_geometry_spec&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M113.43,-167.96C135.29,-162.42 161.21,-155.84 183.19,-150.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="184.15,-153.63 192.98,-147.78 182.42,-146.84 184.15,-153.63"/>
+</g>
+<!-- make_geom_spec -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_node8" class="node">
+<title>make_geom_spec</title>
+<polygon fill="#777777" stroke="#777777" points="287,-108 178,-108 178,-84 287,-84 287,-108"/>
+<text text-anchor="middle" x="232.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_geom_spec</text>
+</g>
+<!-- proc~parse_geometry_spec&#45;&gt;make_geom_spec -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_edge7" class="edge">
+<title>proc~parse_geometry_spec&#45;&gt;make_geom_spec</title>
+<path fill="none" stroke="#ff0000" d="M82.25,-167.95C101.45,-154.15 134.76,-131.57 166,-117 170.13,-115.07 174.48,-113.26 178.9,-111.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="180.42,-114.73 188.62,-108.03 178.03,-108.15 180.42,-114.73"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_node9" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~parse_geometry_spec~~CallsGraph_node9"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="273.5,-66 191.5,-66 191.5,-42 273.5,-42 273.5,-66"/>
+<text text-anchor="middle" x="232.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_geometry_spec&#45;&gt;proc~mapl_return -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_edge8" class="edge">
+<title>proc~parse_geometry_spec&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M74.43,-167.73C90.02,-145.94 125.48,-100.41 166,-75 170.93,-71.91 176.35,-69.24 181.9,-66.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="183.17,-70.19 191.3,-63.4 180.7,-63.64 183.17,-70.19"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_node10" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~parse_geometry_spec~~CallsGraph_node10"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="270.5,-24 194.5,-24 194.5,0 270.5,0 270.5,-24"/>
+<text text-anchor="middle" x="232.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_geometry_spec&#45;&gt;proc~mapl_verify -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_edge9" class="edge">
+<title>proc~parse_geometry_spec&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M70.98,-167.7C83,-139.58 116.31,-70.14 166,-33 171.59,-28.82 178.04,-25.46 184.67,-22.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.21,-25.92 194.43,-19.24 183.84,-19.33 186.21,-25.92"/>
+</g>
+<!-- at -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_node11" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="428.5,-108 374.5,-108 374.5,-84 428.5,-84 428.5,-108"/>
+<text text-anchor="middle" x="401.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#aa00ff" d="M273.5,-64.06C301.22,-71.03 337.82,-80.24 364.61,-86.97"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="363.8,-90.38 374.35,-89.42 365.51,-83.59 363.8,-90.38"/>
+</g>
+<!-- insert -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_node12" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="428.5,-66 374.5,-66 374.5,-42 428.5,-42 428.5,-66"/>
+<text text-anchor="middle" x="401.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#aa00ff" d="M273.5,-54C301.1,-54 337.5,-54 364.25,-54"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="364.35,-57.5 374.35,-54 364.35,-50.5 364.35,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_node13" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~parse_geometry_spec~~CallsGraph_node13"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="468,-24 335,-24 335,0 468,0 468,-24"/>
+<text text-anchor="middle" x="401.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#aa00ff" d="M273.5,-43.94C294.18,-38.74 319.79,-32.3 342.59,-26.56"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="343.66,-29.9 352.5,-24.07 341.95,-23.12 343.66,-29.9"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~parse_geometry_spec~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00aa" d="M270.56,-12C286.61,-12 306.01,-12 324.87,-12"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="324.97,-15.5 334.97,-12 324.97,-8.5 324.97,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~parse_geometry_spec~~CalledByGraph Pages: 1 -->
+<svg id="procparse_geometry_specCalledByGraph" width="313pt" height="32pt"
+ viewBox="0.00 0.00 313.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~parse_geometry_spec~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~parse_geometry_spec~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 309,-28 309,4 -4,4"/>
+<!-- proc~parse_geometry_spec -->
+<g id="proc~~parse_geometry_spec~~CalledByGraph_node1" class="node">
+<title>proc~parse_geometry_spec</title>
+<polygon fill="none" stroke="black" points="305,-24 175,-24 175,0 305,0 305,-24"/>
+<text text-anchor="middle" x="240" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">parse_geometry_spec</text>
+</g>
+<!-- proc~parse_component_spec -->
+<g id="proc~~parse_geometry_spec~~CalledByGraph_node2" class="node">
+<title>proc~parse_component_spec</title>
+<g id="a_proc~~parse_geometry_spec~~CalledByGraph_node2"><a xlink:href="../proc/parse_component_spec.html" xlink:title="parse_component_spec">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="139,-24 0,-24 0,0 139,0 139,-24"/>
+<text text-anchor="middle" x="69.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_component_spec</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_component_spec&#45;&gt;proc~parse_geometry_spec -->
+<g id="proc~~parse_geometry_spec~~CalledByGraph_edge1" class="edge">
+<title>proc~parse_component_spec&#45;&gt;proc~parse_geometry_spec</title>
+<path fill="none" stroke="#ff0000" d="M139.04,-12C147.46,-12 156.09,-12 164.6,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="164.88,-15.5 174.88,-12 164.88,-8.5 164.88,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">parse_geometry_spec</span><span class="p">(</span><span class="n">mapl_cfg</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">geometry_spec</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GeometrySpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geometry_spec</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mapl_cfg</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">has_geometry_section</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">has_esmf_geom</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">has_geometry_kind</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">has_geometry_provider</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geometry_kind_str</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">provider</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geometry_kind</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geometry_cfg</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">esmf_geom_cfg</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GeomManager</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_mgr</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">GeomSpec</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_spec</span>
+
+<span class="w">      </span><span class="n">has_geometry_section</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">mapl_cfg</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="n">COMPONENT_GEOMETRY_SECTION</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN_UNLESS</span><span class="p">(</span><span class="n">has_geometry_section</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">geometry_cfg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreateAt</span><span class="p">(</span><span class="n">mapl_cfg</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="n">COMPONENT_GEOMETRY_SECTION</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">has_geometry_kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">geometry_cfg</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="s1">&#39;kind&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">has_esmf_geom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">geometry_cfg</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="n">COMPONENT_ESMF_GEOM_SECTION</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">has_geometry_kind</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">has_esmf_geom</span><span class="p">))</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! default</span>
+<span class="w">         </span><span class="n">geometry_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeometrySpec</span><span class="p">(</span><span class="n">GEOMETRY_FROM_PARENT</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">geometry_cfg</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">has_geometry_kind</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">geometry_kind_str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsString</span><span class="p">(</span><span class="n">geometry_cfg</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="s1">&#39;kind&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">has_esmf_geom</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">esmf_geom_cfg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreateAt</span><span class="p">(</span><span class="n">geometry_cfg</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="n">COMPONENT_ESMF_GEOM_SECTION</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">has_geometry_kind</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">has_esmf_geom</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">geometry_kind_str</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;provider&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Geometry kind must be provider when using ESMF geom config.&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">has_esmf_geom</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">geom_mgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_geom_manager</span><span class="p">()</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">geom_spec</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">geom_mgr</span><span class="p">%</span><span class="n">make_geom_spec</span><span class="p">(</span><span class="n">esmf_geom_cfg</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">))</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">geometry_cfg</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">geometry_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeometrySpec</span><span class="p">(</span><span class="n">geom_spec</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">has_geometry_kind</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         select case</span><span class="w"> </span><span class="p">(</span><span class="n">geometry_kind_str</span><span class="p">)</span>
+<span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">geometry_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeometrySpec</span><span class="p">(</span><span class="n">GEOMETRY_NONE</span><span class="p">)</span>
+<span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;provider&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">geometry_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeometrySpec</span><span class="p">(</span><span class="n">GEOMETRY_PROVIDER</span><span class="p">)</span>
+<span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;from_parent&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">geometry_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeometrySpec</span><span class="p">(</span><span class="n">GEOMETRY_FROM_PARENT</span><span class="p">)</span>
+<span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;from_child&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">has_geometry_provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">geometry_cfg</span><span class="p">,</span><span class="w"> </span><span class="n">keystring</span><span class="o">=</span><span class="s1">&#39;provider&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">has_geometry_provider</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Must name provider when using GEOMETRY_FROM_CHILD&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsString</span><span class="p">(</span><span class="n">geometry_cfg</span><span class="p">,</span><span class="w"> </span><span class="n">keystring</span><span class="o">=</span><span class="s1">&#39;provider&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="n">geometry_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeometrySpec</span><span class="p">(</span><span class="n">provider</span><span class="p">)</span>
+<span class="w">         </span><span class="k">case </span><span class="n">default</span>
+<span class="w">            </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Invalid geometry kind&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end select</span>
+<span class="k">         call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">geometry_cfg</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">parse_geometry_spec</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-15T15:35:15.973372             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
