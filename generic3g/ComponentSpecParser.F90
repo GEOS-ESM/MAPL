@@ -18,6 +18,8 @@ module mapl3g_ComponentSpecParser
    use mapl3g_VerticalDimSpec
    use mapl3g_UngriddedDimsSpec
    use mapl3g_UngriddedDimSpec
+   use mapl3g_GeometrySpec
+   use mapl3g_geom_mgr
    use mapl3g_Stateitem
    use mapl3g_ESMF_Utilities
    use mapl3g_UserSetServices
@@ -33,11 +35,15 @@ module mapl3g_ComponentSpecParser
    public :: parse_children
    public :: parse_child
    public :: parse_SetServices
+   public :: parse_geometry_spec
+
 !!$   public :: parse_ChildSpecMap
 !!$   public :: parse_ChildSpec
 
    character(*), parameter :: MAPL_SECTION = 'mapl'
-   character(*), parameter :: COMPONENT_GEOM_SECTION = 'geom'
+   character(*), parameter :: COMPONENT_GEOMETRY_SECTION = 'geometry'
+   character(*), parameter :: COMPONENT_ESMF_GEOM_SECTION = 'esmf_geom'
+   character(*), parameter :: COMPONENT_VERTGEOM_SECTION = 'vert_geom'
    character(*), parameter :: COMPONENT_STATES_SECTION = 'states'
    character(*), parameter :: COMPONENT_IMPORT_STATE_SECTION = 'import'
    character(*), parameter :: COMPONENT_EXPORT_STATE_SECTION = 'export'
@@ -59,23 +65,18 @@ contains
 
       integer :: status
       logical :: has_mapl_section
-      logical :: has_geom_section
-      type(ESMF_HConfig) :: subcfg
+      type(ESMF_HConfig) :: mapl_cfg
 
       has_mapl_section = ESMF_HConfigIsDefined(hconfig, keyString=MAPL_SECTION, _RC)
       _RETURN_UNLESS(has_mapl_section)
-      subcfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
+      mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
 
-      has_geom_section = ESMF_HConfigIsDefined(subcfg,keyString=COMPONENT_GEOM_SECTION, _RC)
-      if (has_geom_section) then
-         spec%geom_hconfig = parse_geom_spec(subcfg, _RC)
-      end if
+      spec%geometry_spec = parse_geometry_spec(mapl_cfg, _RC)
+      spec%var_specs = parse_var_specs(mapl_cfg, _RC)
+      spec%connections = parse_connections(mapl_cfg, _RC)
+      spec%children = parse_children(mapl_cfg, _RC)
 
-      spec%var_specs = parse_var_specs(subcfg, _RC)
-      spec%connections = parse_connections(subcfg, _RC)
-      spec%children = parse_children(subcfg, _RC)
-
-      call ESMF_HConfigDestroy(subcfg, _RC)
+      call ESMF_HConfigDestroy(mapl_cfg, _RC)
 
       _RETURN(_SUCCESS)
    end function parse_component_spec
@@ -83,17 +84,80 @@ contains
 
    ! Geom subcfg is passed raw to the GeomManager layer.  So little
    ! processing is needed here.
-   function parse_geom_spec(hconfig, rc) result(geom_hconfig)
-      type(ESMF_HConfig) :: geom_hconfig
-      type(ESMF_HConfig), optional, intent(in) :: hconfig
+   function parse_geometry_spec(mapl_cfg, rc) result(geometry_spec)
+      type(GeometrySpec) :: geometry_spec
+      type(ESMF_HConfig), intent(in) :: mapl_cfg
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: has_geometry_section
+      logical :: has_esmf_geom
+      logical :: has_geometry_kind
+      logical :: has_geometry_provider
+      character(:), allocatable :: geometry_kind_str
+      character(:), allocatable :: provider
+      integer :: geometry_kind
+      type(ESMF_HConfig) :: geometry_cfg
+      type(ESMF_HConfig) :: esmf_geom_cfg
+      type(GeomManager), pointer :: geom_mgr
+      class(GeomSpec), allocatable :: geom_spec
 
-      geom_hconfig = ESMF_HConfigCreateAt(hconfig,keyString=COMPONENT_GEOM_SECTION, _RC)
+      has_geometry_section = ESMF_HConfigIsDefined(mapl_cfg,keyString=COMPONENT_GEOMETRY_SECTION, _RC)
+      _RETURN_UNLESS(has_geometry_section)
+
+      geometry_cfg = ESMF_HConfigCreateAt(mapl_cfg, keyString=COMPONENT_GEOMETRY_SECTION, _RC)
+
+      has_geometry_kind = ESMF_HConfigIsDefined(geometry_cfg, keyString='kind', _RC)
+      has_esmf_geom = ESMF_HConfigIsDefined(geometry_cfg, keyString=COMPONENT_ESMF_GEOM_SECTION, _RC)
+
+      if (.not. (has_geometry_kind .or. has_esmf_geom)) then ! default
+         geometry_spec = GeometrySpec(GEOMETRY_FROM_PARENT)
+         call ESMF_HConfigDestroy(geometry_cfg, _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      if (has_geometry_kind) then
+         geometry_kind_str = ESMF_HConfigAsString(geometry_cfg, keyString='kind', _RC)
+      end if
+
+      if (has_esmf_geom) then
+         esmf_geom_cfg = ESMF_HConfigCreateAt(geometry_cfg, keyString=COMPONENT_ESMF_GEOM_SECTION, _RC)
+      end if
+
+      if (has_geometry_kind .and. has_esmf_geom) then
+         _ASSERT(geometry_kind_str == 'provider', 'Geometry kind must be provider when using ESMF geom config.')
+      end if
+
+      if (has_esmf_geom) then
+         geom_mgr => get_geom_manager()
+         allocate(geom_spec, source=geom_mgr%make_geom_spec(esmf_geom_cfg, rc=status))
+         _VERIFY(status)
+         call ESMF_HConfigDestroy(geometry_cfg, _RC)
+         geometry_spec = GeometrySpec(geom_spec)
+         _RETURN(_SUCCESS)
+      end if
+
+      if (has_geometry_kind) then
+         select case (geometry_kind_str)
+         case ('none')
+            geometry_spec = GeometrySpec(GEOMETRY_NONE)
+         case ('provider')
+            geometry_spec = GeometrySpec(GEOMETRY_PROVIDER)
+         case ('from_parent')
+            geometry_spec = GeometrySpec(GEOMETRY_FROM_PARENT)
+         case ('from_child')
+            has_geometry_provider = ESMF_HConfigIsDefined(geometry_cfg, keystring='provider', _RC)
+            _ASSERT(has_geometry_provider, 'Must name provider when using GEOMETRY_FROM_CHILD')
+            provider = ESMF_HConfigAsString(geometry_cfg, keystring='provider', _RC)
+            geometry_spec = GeometrySpec(provider)
+         case default
+            _FAIL('Invalid geometry kind')
+         end select
+         call ESMF_HConfigDestroy(geometry_cfg, _RC)
+      end if
 
       _RETURN(_SUCCESS)
-   end function parse_geom_spec
+   end function parse_geometry_spec
 
    ! A component is not required to have var_specs.   E.g, in theory GCM gridcomp will not
    ! have var specs in MAPL3, as it does not really have a preferred geom on which to declare
@@ -236,11 +300,11 @@ contains
          integer :: status
          logical :: has_default_value
 
-         has_default_value = ESMF_HConfigIsDefined(attributes,keyString=KEY_DEFAULT_VALUE, _RC)
+         has_default_value = ESMF_HConfigIsDefined(attributes, keyString=KEY_DEFAULT_VALUE, _RC)
          _RETURN_UNLESS(has_default_value)
 
          allocate(x)
-         x = ESMF_HConfigAsR4(attributes,keyString=KEY_DEFAULT_VALUE,_RC)
+         x = ESMF_HConfigAsR4(attributes, keyString=KEY_DEFAULT_VALUE, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine val_to_float

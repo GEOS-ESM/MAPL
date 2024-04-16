@@ -214,6 +214,7 @@ contains
     do i = 1, n_oserver_group
 
         if ( trim(s_name) =='o_server'//trim(i_to_string(i)) ) then
+
            if (oserver_type_ == 'multicomm' ) then
 
               allocate(this%o_server, source = MultiCommServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend))
@@ -224,11 +225,14 @@ contains
                        npes_out_backend, './pfio_writer.x'))
 
            else if (oserver_type_ == 'multigroup' ) then
-
+ 
               allocate(this%o_server, source = MultiGroupServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend, &
                                                                 with_profiler=with_profiler, rc=status), stat=stat_alloc)
               _VERIFY(status)
               _VERIFY(stat_alloc)
+              if (nodes_out(i) > 0 .and. this%o_server%node_num /= nodes_out(i)) then
+                 _FAIL("Inconsistent output server number. " // "The requested "//i_to_string(nodes_out(i)) //" nodes for output server is different from available "//i_to_string(this%o_server%node_num)// " nodes")
+              endif
            else
 
               allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler, rc=status), stat=stat_alloc)

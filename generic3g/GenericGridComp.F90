@@ -54,7 +54,8 @@ contains
          integer :: phase
 
          ! Mandatory generic initialize phases
-         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_GEOM, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ADVERTISE_GEOM, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE_GEOM, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ADVERTISE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_POST_ADVERTISE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE, _RC)
@@ -101,7 +102,10 @@ contains
       integer :: status
 
       gridcomp = ESMF_GridCompCreate(name=outer_name(name), petlist=petlist,  _RC)
+      call set_is_generic(gridcomp, _RC)
+
       user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist,  _RC)
+      call set_is_generic(user_gridcomp, .false., _RC)
 
       call attach_outer_meta(gridcomp, _RC)
       outer_meta => get_outer_meta(gridcomp, _RC)
@@ -119,6 +123,7 @@ contains
 #endif
       call outer_meta%setservices(set_services, _RC)
       call outer_meta%init_meta(_RC)
+
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -150,8 +155,10 @@ contains
       outer_meta => get_outer_meta(gridcomp, _RC)
       call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
       select case (phase)
-      case (GENERIC_INIT_GEOM)
-         call outer_meta%initialize_geom(_RC)
+      case (GENERIC_INIT_ADVERTISE_GEOM)
+         call outer_meta%initialize_advertise_geom(_RC)
+      case (GENERIC_INIT_REALIZE_GEOM)
+         call outer_meta%initialize_realize_geom(_RC)
       case (GENERIC_INIT_ADVERTISE)
          call outer_meta%initialize_advertise(_RC)
       case (GENERIC_INIT_POST_ADVERTISE)
@@ -256,4 +263,21 @@ contains
       outer_name = "[" // inner_name // "]"
    end function outer_name
 
+   subroutine set_is_generic(gridcomp, flag, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      logical, optional, intent(in) :: flag
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: flag_
+      type(ESMF_Info) :: info
+
+      flag_ = .true.
+      if (present(flag)) flag_ = flag
+
+      call ESMF_InfoGetFromHost(gridcomp, info, _RC)
+      call ESMF_InfoSet(info, key='MAPL/GRIDCOMP_IS_GENERIC', value=flag_, _RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine set_is_generic
 end module mapl3g_GenericGridComp

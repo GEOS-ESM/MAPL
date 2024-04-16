@@ -126,8 +126,8 @@ contains
               ScenarioDescription('ungridded_dims',          'parent.yaml',      check_name, check_stateitem),  &
               ScenarioDescription('service_service',         'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('export_dependency',       'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('regrid',                  'cap.yaml',      check_name, check_stateitem) &
-
+              ScenarioDescription('regrid',                  'cap.yaml',         check_name, check_stateitem), &
+              ScenarioDescription('propagate_geom',          'parent.yaml',      check_name, check_stateitem) &
       ]
       end function add_params
    end function get_parameters
@@ -502,6 +502,10 @@ contains
            select case(rank)
            case(2)
               call ESMF_FieldGet(field, farrayptr=x2, _RC)
+              if (any (x2 /= expected_field_value)) then
+                 print*,'x2:',x2
+                 print*,'expected:',expected_field_value
+              end if
               @assert_that(all(x2 == expected_field_value), is(true()))
            case(3)
               call ESMF_FieldGet(field, farrayptr=x3, _RC)

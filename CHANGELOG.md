@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Removes backward compatibility for MAPL_FlapCLI and MAPL_FargparseCLI functions. Only accepts function usage in which the result is of
+- Removes backward compatibility for MAPL_FargparseCLI functions. Only accepts function usage in which the result is of
   MAPL_CapOptions type.
+- Remove FLAP support.
 
 ### Added
 
@@ -59,6 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add glob function in sampler code, supporting wild character, e.g., filename template = amsr2_gcom-w1.%y4%m2%d2T%h2%n2*.nc4
+- Checked resource for o-server. It quits if the numer requested is inconsistent with being used
 - Replace local HorzIJIndex sear with the GlobalHorzIJindex search
 - Change grd_is_ok function to avoid collective call
 - Allow fields with ungridded dimension and bundles to be created in ExtDataDriver.x

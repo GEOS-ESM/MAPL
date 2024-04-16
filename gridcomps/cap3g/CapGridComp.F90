@@ -1,15 +1,7 @@
 #include "MAPL_Generic.h"
 module mapl3g_CapGridComp
-   use :: generic3g, only: MAPL_GridCompSetEntryPoint
-   use :: generic3g, only: MAPL_ConnectAll
-   use :: generic3g, only: MAPL_GridCompGet
-   use :: generic3g, only: GriddedComponentDriver
-   use :: generic3g, only: MAPL_RunChild
-   use :: generic3g, only: MAPL_UserCompGetInternalState
-   use :: generic3g, only: MAPL_UserCompSetInternalState
-   use :: generic3g, only: GENERIC_INIT_USER
-   use :: hconfig3g, only: MAPL_HConfigGet, HConfigParams
-   use :: mapl_ErrorHandling
+   use :: generic3g
+   use :: mapl_ErrorHandling 
    use :: esmf, only: ESMF_GridComp
    use :: esmf, only: ESMF_Config
    use :: esmf, only: ESMF_HConfig
@@ -28,6 +20,8 @@ module mapl3g_CapGridComp
       character(:), allocatable :: extdata_name
       character(:), allocatable :: history_name
       character(:), allocatable :: root_name
+      logical :: run_extdata
+      logical :: run_history
    end type CapGridComp
 
    character(*), parameter :: PRIVATE_STATE = 'CapGridComp'
@@ -40,9 +34,8 @@ contains
 
       integer :: status
       type(CapGridComp), pointer :: cap
-      type(ESMF_HConfig) :: hconfig
       character(:), allocatable :: extdata, history
-      type(HConfigParams) :: hconfig_params
+      type(OuterMetaComponent), pointer :: outer_meta
 
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name='GENERIC::INIT_USER', _RC)
@@ -51,15 +44,21 @@ contains
       ! Attach private state
       _SET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 
-      ! Get Names of children
-      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
-      hconfig_params = HConfigParams(hconfig, 'extdata_name') 
-      call MAPL_HConfigGet(hconfig_params, value=cap%extdata_name, default='EXTDATA', _RC)
-      hconfig_params%label = 'history_name'
-      call MAPL_HConfigGet(hconfig_params, value=cap%history_name, default='HIST', _RC)
-      hconfig_params%label = 'root_name'
-      call MAPL_HConfigGet(hconfig_params, value=cap%root_name, _RC)
+      ! Disable extdata or history
+      call MAPL_ResourceGet(gridcomp, keystring='run_extdata', value=cap%run_extdata, default=.true., _RC)
+      call MAPL_ResourceGet(gridcomp, keystring='run_history', value=cap%run_history, default=.true., _RC)
 
+      ! Get Names of children
+      call MAPL_ResourceGet(gridcomp, keystring='extdata_name', value=cap%extdata_name, default='EXTDATA', _RC)
+      call MAPL_ResourceGet(gridcomp, keystring='root_name', value=cap%root_name, _RC)
+      call MAPL_ResourceGet(gridcomp, keystring='history_name', value=cap%history_name, default='HIST', _RC)
+
+      if (cap%run_extdata) then 
+         call MAPL_ConnectAll(gridcomp, src_comp=cap%extdata_name, dst_comp=cap%root_name, _RC)
+      end if
+      if (cap%run_history) then
+         call MAPL_ConnectAll(gridcomp, src_comp=cap%root_name, dst_comp=cap%history_name, _RC)
+      end if
       _RETURN(_SUCCESS)
    end subroutine setServices
 
@@ -73,22 +72,8 @@ contains
       integer :: status
       type(CapGridComp), pointer :: cap
 
-      ! To Do:
-      ! - determine run frequencey and offset (save as alarm)
-
-
   _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 
-      !------------------
-      ! Connections:
-      !------------------
-      ! At the cap level, the desire is to use ExtData to complete all unsatisfied
-      ! imports from the root gridcomp.  Likewise, we use the root gridcomp to
-      ! satisfy all imports for history.
-      !------------------
-      call MAPL_ConnectAll(gridcomp, src_comp=cap%extdata_name, dst_comp=cap%root_name, _RC)
-      call MAPL_ConnectAll(gridcomp, src_comp=cap%root_name, dst_comp=cap%history_name, _RC)
-      
       _RETURN(_SUCCESS)
    end subroutine init
 
@@ -105,9 +90,13 @@ contains
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 
-      call MAPL_RunChild(gridcomp, cap%extdata_name, _RC)
+      if (cap%run_extdata) then
+         call MAPL_RunChild(gridcomp, cap%extdata_name, _RC)
+      end if
       call MAPL_RunChild(gridcomp, cap%root_name, _RC)
-      call MAPL_RunChild(gridcomp, cap%history_name, phase_name='run', _RC)
+      if (cap%run_history) then
+         call MAPL_RunChild(gridcomp, cap%history_name, phase_name='run', _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine run

@@ -15,6 +15,7 @@ module mapl3g_ESMF_Subset
         ESMF_HConfig, &
         ESMF_HConfigIter, &
         ESMF_GridComp, &
+        ESMF_Info, &
         ESMF_State
 
 
@@ -29,8 +30,9 @@ module mapl3g_ESMF_Subset
         ESMF_SUCCESS
         
    ! procedures
-   use:: esmf, only: &
+   use :: esmf, only: &
         ESMF_HConfigAsStringMapKey, &
+        ESMF_HConfigCreate, &
         ESMF_HConfigCreateAt, &
         ESMF_HConfigDestroy, &
         ESMF_HConfigIsDefined, &
@@ -38,8 +40,12 @@ module mapl3g_ESMF_Subset
         ESMF_HConfigIterEnd, &
         ESMF_HConfigIterLoop, &
         ESMF_HConfigGetSize
-        
-   implicit none
 
+    use :: esmf, only: &
+         ESMF_InfoGetFromHost, &
+         ESMF_InfoGet, &
+         ESMF_InfoIsSet
+
+   implicit none
    
 end module mapl3g_ESMF_Subset

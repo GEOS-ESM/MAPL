@@ -24,7 +24,6 @@ contains
       integer :: i
       character(*), parameter :: ESCAPE = '\'
 
-
       child_name = ''
       do i = 1, len(collection_name)
          associate (c => collection_name(i:i))

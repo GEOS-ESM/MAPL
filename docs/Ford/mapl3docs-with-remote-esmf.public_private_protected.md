@@ -1,7 +1,7 @@
 ---
 preprocessor: cpp -traditional-cpp -E
 src_dir: ../../
-output_dir: mapl3-doc
+output_dir: mapl3-dev-doc
 search: true
 graph: true
 coloured_edges: true
@@ -21,6 +21,10 @@ exclude: **/EsmfRegridder.F90
          **/gridcomps/cap3g/ModelMode.F90
          **/gridcomps/cap3g/ServerMode.F90
          **/gridcomps/cap3g/mit.F90
+         **/generic3g/CouplerComponentVector.F90
+         **/generic3g/GenericCouplerComponent.F90
+         **/generic3g/SetServices_smod.F90
+         **/generic3g/reproducer.F90
          **/generic3g/couplers/BidirectionalObserver.F90
          **/generic3g/couplers/HandlerMap.F90
          **/generic3g/couplers/HandlerVector.F90
@@ -60,7 +64,6 @@ exclude_dir: ../../docs
 macro: USE_MPI=1
        BUILD_WITH_PFLOGGER=1
        BUILD_WITH_EXTDATA2G=1
-       USE_FLAP=1
        H5_HAVE_PARALLEL=1
        TWO_SIDED_COMM=1
        MAPL_MODE=1

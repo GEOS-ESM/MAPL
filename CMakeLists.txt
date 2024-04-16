@@ -125,11 +125,6 @@ if (BUILD_WITH_PFLOGGER)
   message (STATUS "Found pFlogger: ${PFLOGGER_DIR} (found version ${PFLOGGER_VERSION})")
 endif()
 
-option(BUILD_WITH_FLAP "Use FLAP for command line processing" OFF)
-if (BUILD_WITH_FLAP)
-  find_package(FLAP REQUIRED)
-endif ()
-
 ecbuild_declare_project()
 
 if (NOT Baselibs_FOUND)
