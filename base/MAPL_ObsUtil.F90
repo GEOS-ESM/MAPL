@@ -948,7 +948,6 @@ contains
     filename=""
     if (slen>0) filename(1:slen)=c_filename(1:slen)
 
-    deallocate(c_search_name)
     return
   end subroutine fglob
 
