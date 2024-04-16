@@ -1,4 +1,3 @@
-! vim:ft=fortran
       type(HConfigParams), intent(inout) :: params
       character(len=:), allocatable, optional, intent(out) :: valuestring
       integer, optional, intent(out) :: rc
@@ -55,3 +54,4 @@
       
       _RETURN(_SUCCESS)
 
+! vim:ft=fortran
