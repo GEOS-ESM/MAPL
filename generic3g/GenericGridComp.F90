@@ -41,6 +41,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta(gridcomp, _RC)
+      call outer_meta%setServices(_RC)
       call set_entry_points(gridcomp, _RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -113,15 +114,14 @@ contains
       user_clock = ESMF_ClockCreate(clock, _RC)
       user_gc_driver = GriddedComponentDriver(user_gridcomp, user_clock, MultiState())
 #ifndef __GFORTRAN__
-      outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, config)
+      outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, set_services, config)
 #else
       ! GFortran 12 & 13 cannot directly assign to outer_meta.  But
       ! the assignment works for an object without the POINTER
       ! attribute.  An internal procedure is a workaround, but
       ! ... ridiculous.
-      call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, config))
+      call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, set_services, config))
 #endif
-      call outer_meta%setservices(set_services, _RC)
       call outer_meta%init_meta(_RC)
 
 
