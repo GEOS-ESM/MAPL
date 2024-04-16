@@ -29,9 +29,8 @@ contains
    ! reverse when step (3) is moved to a new generic initialization phase.
    !=========================================================================
    
-   recursive module subroutine SetServices_(this, user_setservices, rc)
+   recursive module subroutine SetServices_(this, rc)
       use mapl3g_GenericGridComp, only: generic_setservices => setservices
-      class(AbstractUserSetServices), intent(in) :: user_setservices
       class(OuterMetaComponent), intent(inout) :: this
       integer, intent(out) :: rc
 
@@ -41,8 +40,9 @@ contains
       this%component_spec = parse_component_spec(this%hconfig, _RC)
       user_gridcomp = this%user_gc_driver%get_gridcomp()
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
+      call this%user_setservices%run(user_gridcomp, _RC)
       call add_children(this, _RC)
-      call user_setservices%run(user_gridcomp, _RC)
+      call run_children_setservices(this, _RC)
 
       _RETURN(ESMF_SUCCESS)
 
@@ -120,7 +120,6 @@ contains
       clock = this%user_gc_driver%get_clock()
       child_clock = ESMF_ClockCreate(clock, _RC)
       child_gc = create_grid_comp(child_name, setservices, hconfig, clock, _RC)
-      call ESMF_GridCompSetServices(child_gc, generic_setservices, _RC)
 
       child_gc_driver = GriddedComponentDriver(child_gc, child_clock, MultiState())
 

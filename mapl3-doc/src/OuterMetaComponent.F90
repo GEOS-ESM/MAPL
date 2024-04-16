@@ -2,6 +2,7 @@
 
 module mapl3g_OuterMetaComponent
    use mapl3g_geom_mgr
+   use mapl3g_UserSetServices
    use mapl3g_UserSetServices,   only: AbstractUserSetServices
    use mapl3g_VariableSpec
    use mapl3g_StateItem
@@ -50,6 +51,7 @@ module mapl3g_OuterMetaComponent
       
       type(ESMF_GridComp)                         :: self_gridcomp
       type(GriddedComponentDriver)                :: user_gc_driver
+      class(AbstractUserSetServices), allocatable :: user_setservices
       type(MethodPhasesMap)                       :: user_phases_map
       type(ESMF_HConfig)                          :: hconfig
 
@@ -138,8 +140,7 @@ module mapl3g_OuterMetaComponent
    ! Submodule interfaces
    interface
 
-      recursive module subroutine SetServices_(this, user_setservices, rc)
-         class(AbstractUserSetservices), intent(in) :: user_setservices
+      recursive module subroutine SetServices_(this, rc)
          class(OuterMetaComponent), intent(inout) :: this
          integer, intent(out) ::rc
       end subroutine
@@ -182,14 +183,16 @@ contains
 
 
    ! Keep the constructor simple
-   type(OuterMetaComponent) function new_outer_meta(gridcomp, user_gc_driver, hconfig) result(outer_meta)
+   type(OuterMetaComponent) function new_outer_meta(gridcomp, user_gc_driver, user_setServices, hconfig) result(outer_meta)
       type(ESMF_GridComp), intent(in) :: gridcomp
       type(GriddedComponentDriver), intent(in) :: user_gc_driver
+      class(AbstractUserSetServices), intent(in) :: user_setservices
       type(ESMF_HConfig), intent(in) :: hconfig
 
       
       outer_meta%self_gridcomp = gridcomp
       outer_meta%user_gc_driver = user_gc_driver
+      allocate(outer_meta%user_setServices, source=user_setServices)
       outer_meta%hconfig = hconfig
 
       counter = counter + 1
@@ -963,9 +966,6 @@ contains
 
       integer :: status
       class(Connection), allocatable :: conn
-
-      _ASSERT(this%children%count(src_comp) == 1, 'No child component named <'//src_comp//'>.')
-      _ASSERT(this%children%count(dst_comp) == 1, 'No child component named <'//dst_comp//'>.')
 
       conn = MatchConnection( &
            ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='^.*$')), &

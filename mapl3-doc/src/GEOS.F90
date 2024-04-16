@@ -5,6 +5,7 @@ program geos
    use mapl3g
    use mapl_ErrorHandling
    use esmf
+   use pflogger, only: pflogger_initialize => initialize
    implicit none
 
    integer :: status
@@ -12,6 +13,7 @@ program geos
    type(ESMF_HConfig) :: hconfig
 
    call ESMF_Initialize(configFileNameFromArgNum=1, configKey=['esmf'], config=config, _RC)
+   call pflogger_initialize()
    call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
    call run_geos(hconfig, _RC)
    call ESMF_Finalize(_RC)
