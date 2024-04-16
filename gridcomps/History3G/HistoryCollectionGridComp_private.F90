@@ -11,7 +11,12 @@ module mapl3g_HistoryCollectionGridComp_private
    implicit none
    private
 
-   public :: make_geom, make_import_state
+   public :: make_geom, register_imports
+
+   interface get_short_names
+      module procedure :: get_short_names_array
+!      module procedure :: get_short_names_vector
+   end interface get_short_names
 
 contains
 
@@ -34,7 +39,7 @@ contains
       _RETURN(_SUCCESS)
    end function make_geom
 
-   subroutine make_import_state(gridcomp, hconfig, rc) !wdb fixme change name to register_imports
+   subroutine register_imports(gridcomp, hconfig, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
@@ -43,38 +48,45 @@ contains
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: var_list
       character(len=:), allocatable :: item_name
-      type(StringStringMap) :: item_map
+!      type(StringStringMap) :: item_map
+      character(len=:), allocatable :: short_name
       character(len=:), allocatable :: expression
       type(VariableSpec) :: varspec
       integer :: status, i
       character(len=:), allocatable :: short_names(:)
 
+      _HERE
       var_list = ESMF_HConfigCreateAt(hconfig, keystring='var_list', _RC)
+      _HERE
       iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
-      iter_begin = ESMF_HConfigIterEnd(var_list,_RC)
+      iter_end = ESMF_HConfigIterEnd(var_list,_RC)
       iter = iter_begin
 
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
 
-         call parse_item(iter, item_name, item_map, _RC)
-         _ASSERT(item_map%count(SIMPLE_EXPRESSION) == 1, 'Expression for item "' // item_name // '" not found.')
-         expression = item_map%at(SIMPLE_EXPRESSION)
-         call get_short_names(expression, short_names)
-         do i = 1, size(short_names)
-            varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, short_names(i))
-            call MAPL_AddSpec(gridcomp, varspec, _RC)
-         end do
+         call parse_item(iter, item_name, short_name, _RC)
+         _HERE
+         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, short_name)
+         call MAPL_AddSpec(gridcomp, varspec, _RC)
+!         _ASSERT(item_map%count(SIMPLE_EXPRESSION) == 1, 'Expression for item "' // item_name // '" not found.')
+!         expression = item_map%at(SIMPLE_EXPRESSION)
+!         _HERE
+!         call get_short_names(expression, short_names)
+!         _HERE
+!         do i = 1, size(short_names)
+!            print *, 'short_names(i)', short_names(i)
+!            varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, short_names(i))
+!            call MAPL_AddSpec(gridcomp, varspec, _RC)
+!         end do
       end do
 
       _RETURN(_SUCCESS)
-   end subroutine make_import_state
+   end subroutine register_imports
 
-   subroutine parse_item(item, name, parts, rc)
+   subroutine parse_item(item, name, expression, rc)
       type(ESMF_HConfigIter), intent(in) :: item 
       character(len=:), allocatable, intent(out) :: name
-      type(StringStringMap), intent(out) :: parts
-!      character(len=:), allocatable, intent(out) :: expression_type
-!      character(len=:), allocatable, intent(out) :: expression
+      character(len=:), allocatable, intent(out) :: expression
       integer, optional, intent(out) :: rc
       integer :: status
       logical :: asOK, isScalar, isMap
@@ -92,24 +104,21 @@ contains
       _ASSERT(asOK, 'Name could not be processed as a String.')
 
       value = ESMF_HConfigCreateAtMapVal(item, _RC)
-      do while (ESMF_HConfigIterLoop(iter, iterBegin, iterEnd, rc=rc))
-         isScalar = ESMF_HConfigIsScalarMapKey(iter, _RC)
-         _ASSERT(isScalar, 'Map key is not scalar.')
+      expression = ESMF_HConfigAsString(value, keyString='expr', _RC)
+      expression = get_short_name(expression)
 
-         isScalar = ESMF_HConfigIsScalarMapVal(iter, _RC)
-         _ASSERT(isScalar, 'Map value is not scalar.')
-
-         part_key = ESMF_HConfigAsStringMapKey(iter, _RC)
-         part_value = ESMF_HConfigAsStringMapVal(iter, _RC)
-         call parts%insert(part_key, part_value)
-
-      end do
-!      call process_value_string(value, expression_type, expression, _RC)
-!      expression_type = ESMF_HConfigAsStringMapKey(value, asOkay=asOK, _RC)
-!      _ASSERT(asOK, 'Expression type could not be processed as a String.')
-
-!      expression = ESMF_HConfigAsStringMapVal(value, asOkay=asOK, _RC)
-!      _ASSERT(asOK, 'Expression could not be processed as a String.')
+!      do while (ESMF_HConfigIterLoop(iter, iterBegin, iterEnd, rc=rc))
+!         isScalar = ESMF_HConfigIsScalarMapKey(iter, _RC)
+!         _ASSERT(isScalar, 'Map key is not scalar.')
+!
+!         isScalar = ESMF_HConfigIsScalarMapVal(iter, _RC)
+!         _ASSERT(isScalar, 'Map value is not scalar.')
+!
+!         part_key = ESMF_HConfigAsStringMapKey(iter, _RC)
+!         part_value = ESMF_HConfigAsStringMapVal(iter, _RC)
+!         call parts%insert(part_key, part_value)
+!
+!      end do
       
       _RETURN(_SUCCESS)
    end subroutine parse_item
@@ -137,7 +146,7 @@ contains
 
    end subroutine process_value_string
 
-   subroutine get_short_names(expression, names)
+   subroutine get_short_names_array(expression, names)
       character(len=*), intent(in) :: expression
       character(len=:), allocatable :: names(:)
       character(len=*), parameter :: DELIMITER = '.'
@@ -150,6 +159,28 @@ contains
       if(i > 0) short_name = short_name(:(i-1))// REPLACEMENT // short_name((i+len(DELIMITER)):)
       names = [short_name]
 
-   end subroutine get_short_names
+   end subroutine get_short_names_array
+
+   function get_short_name(expression) result(short_name)
+      character(len=:), allocatable :: short_name
+      character(len=*), intent(in) :: expression
+      character(len=*), parameter :: DELIMITER = '.'
+      character(len=*), parameter :: REPLACEMENT = '/'
+      character(len=:), allocatable :: expression_
+      integer :: i
+
+      expression_ = trim(expression)
+      i = index(expression_, DELIMITER)
+      if(i > 0) expression_ = expression_(:(i-1))// REPLACEMENT // expression_((i+len(DELIMITER)):)
+      short_name = expression_
+
+   end function get_short_name
+!   function get_short_names_vector(expression) result(names)
+!      type(StringVector) :: names
+!      character(len=*), intent(in) :: expression
+!      
+!    !  names%insert(
+!
+!   end function get_short_names_vector
 
 end module mapl3g_HistoryCollectionGridComp_private
