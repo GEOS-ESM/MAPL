@@ -574,12 +574,9 @@ contains
 
     ! parse time info
     !
-    !
     allow_wild_char=.true.
     j= index(file_template, '*')
-    if (.NOT. allow_wild_char .AND. j>0) then
-       _FAIL("* is not allowed in template")
-    end if
+    _ASSERT ( j==0 .OR. allow_wild_char, "* is not allowed in template")
     call fill_grads_template ( filename, file_template, &
          experiment_id='', nymd=nymd, nhms=nhms, _RC )
     if (j==0) then
@@ -588,12 +585,8 @@ contains
     else
        ! now filename is:  file*.nc
        call fglob(filename, filename2, rc=status)
-       if (status==0) then
-          exist=.true.
-          filename=trim(filename2)
-       else
-          exist=.false.
-       end if
+       exist = (status==0)
+       if (exist) filename=trim(filename2)
     end if
 
     _RETURN(_SUCCESS)
