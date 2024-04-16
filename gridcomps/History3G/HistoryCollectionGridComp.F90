@@ -44,7 +44,7 @@ contains
       vertical_geom = VerticalGeom(4)
       call outer_meta%set_vertical_geom(vertical_geom)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
-      call make_import_state(gridcomp,hconfig,_RC)
+      call register_imports(gridcomp,hconfig,_RC)
 
       _RETURN(_SUCCESS)
    end subroutine setServices
@@ -93,6 +93,8 @@ contains
       integer :: status
       real(kind=ESMF_KIND_R4), pointer :: ptr(:,:)
       type(ESMF_Field) :: field
+
+      call ESMF_StateGet(importState, 'E_1', field, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine run
