@@ -23,6 +23,8 @@ contains
       integer :: status
       logical :: found
       real, allocatable :: coords(:)
+      character(len=:), allocatable :: temp_string
+      integer :: temp_int
       
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
@@ -33,18 +35,24 @@ contains
 
       spec = FieldSpec(geom, vertical_geom, VERTICAL_DIM_CENTER, &
            ESMF_TYPEKIND_R4, ungridded_dims_spec, &
-           '', '', 'unknown')
+           't', 'p', 'unknown')
 
       f = ESMF_FieldCreate(geom, ESMF_TYPEKIND_R4, ungriddedLbound=[1,1], ungriddedUbound=[2,3], _RC)
       call spec%set_info(f, _RC)
 
       call ESMF_InfoGetFromHost(f, info, _RC)
 
-      found = ESMF_InfoIsPresent(info, key='MAPL/vertical', _RC)
+      found = ESMF_InfoIsPresent(info, key='MAPL/vertical_dim', _RC)
       @assert_that(found, is(true()))
-      found = ESMF_InfoIsPresent(info, key='MAPL/vertical/vloc', _RC)
+      found = ESMF_InfoIsPresent(info, key='MAPL/vertical_dim/vloc', _RC)
       @assert_that(found, is(true()))
 
+      found = ESMF_InfoIsPresent(info, key='MAPL/vertical_geom', _RC)
+      @assert_that(found, is(true()))
+      found = ESMF_InfoIsPresent(info, key='MAPL/vertical_geom/num_levels', _RC)
+      @assert_that(found, is(true()))
+      call ESMF_InfoGet(info, 'MAPL/vertical_geom/num_levels',temp_int , _RC)
+      @assert_that(temp_int, equal_to(4))
 
       found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims', _RC)
       @assert_that(found, is(true()))
@@ -71,6 +79,20 @@ contains
       call ESMF_InfoGetAlloc(info, 'MAPL/ungridded_dims/dim_2/coordinates', coords, _RC)
       @assert_that(coords, equal_to([1.,2.,3.]))
 
+      found = ESMF_InfoIsPresent(info, key='MAPL/standard_name', _RC)
+      @assert_that(found, is(true()))
+      call ESMF_InfoGetCharAlloc(info, 'MAPL/standard_name', temp_string, _RC)
+      @assert_that(temp_string, equal_to("t"))
+
+      found = ESMF_InfoIsPresent(info, key='MAPL/long_name', _RC)
+      @assert_that(found, is(true()))
+      call ESMF_InfoGetCharAlloc(info, 'MAPL/long_name', temp_string, _RC)
+      @assert_that(temp_string, equal_to("p"))
+
+      found = ESMF_InfoIsPresent(info, key='MAPL/units', _RC)
+      @assert_that(found, is(true()))
+      call ESMF_InfoGetCharAlloc(info, 'MAPL/units', temp_string, _RC)
+      @assert_that(temp_string, equal_to("unknown"))
 
    end subroutine test_field_set_info
 end module Test_FieldInfo
