@@ -91,6 +91,9 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
+      real(kind=ESMF_KIND_R4), pointer :: ptr(:,:)
+      type(ESMF_Field) :: field
+
       _RETURN(_SUCCESS)
    end subroutine run
 
