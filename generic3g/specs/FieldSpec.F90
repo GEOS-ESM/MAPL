@@ -394,7 +394,7 @@ contains
          can_convert_units_ = can_connect_units(this%units, src_spec%units, _RC)
          can_connect_to = all ([ &
               this%ungridded_dims == src_spec%ungridded_dims, &
-!              this%vertical_dim == src_spec%vertical_dim, &
+              this%vertical_dim == src_spec%vertical_dim, &
               this%ungridded_dims == src_spec%ungridded_dims, & 
               includes(this%attributes, src_spec%attributes), &
               can_convert_units_ &
