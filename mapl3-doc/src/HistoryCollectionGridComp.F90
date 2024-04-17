@@ -44,7 +44,7 @@ contains
       vertical_geom = VerticalGeom(4)
       call outer_meta%set_vertical_geom(vertical_geom)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
-      !call make_import_state(gridcomp,hconfig,_RC)
+      call register_imports(gridcomp,hconfig,_RC)
 
       _RETURN(_SUCCESS)
    end subroutine setServices

@@ -112,6 +112,7 @@ contains
       _SET_OPTIONAL(typekind)
       _SET_OPTIONAL(service_items)
       _SET_OPTIONAL(default_value)
+      var_spec%vertical_dim_spec = VERTICAL_DIM_NONE
       _SET_OPTIONAL(vertical_dim_spec)
       _SET_OPTIONAL(ungridded_dims)
       _SET_OPTIONAL(attributes)
