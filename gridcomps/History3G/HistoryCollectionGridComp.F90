@@ -91,11 +91,6 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
-      real(kind=ESMF_KIND_R4), pointer :: ptr(:,:)
-      type(ESMF_Field) :: field
-
-      call ESMF_StateGet(importState, 'E_1', field, _RC)
-
       _RETURN(_SUCCESS)
    end subroutine run
 
