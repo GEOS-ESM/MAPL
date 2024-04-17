@@ -237,7 +237,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                  trim(traj%obs(i)%input_template))
             j=index(traj%obs(i)%input_template , '%')
             k=index(traj%obs(i)%input_template , '/', back=.true.)
-            _ASSERT(j>0, '% is not found,  template is wrong')
+            _ASSERT(j>0, '% is not found,  template is wrong, your input_template= '//trim(traj%obs(i)%input_template))
             traj%obs(i)%name = traj%obs(i)%input_template(k+1:j-1)
          end do
 
