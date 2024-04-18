@@ -703,7 +703,7 @@ contains
                      msize_word = word_size(q%type_kind)*product(int(q%global_count, INT64))
                      array_tmp = IntArray(msize_word)
                      call vars_map%insert(i_to_string(q%request_id),array_tmp)
-                     call array_tmp%destroy()
+                     !call array_tmp%destroy()
                      var_iter = vars_map%find(i_to_string(q%request_id))
                      call msg_map%insert(q%request_id, q)
                   endif

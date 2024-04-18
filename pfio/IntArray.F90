@@ -26,7 +26,7 @@ module pFIO_IntArrayMod
 
    public :: IntArray
    type :: IntArray
-      integer, allocatable :: values(:)
+      integer, pointer :: values(:)
    contains
       procedure :: get_values
       procedure :: destroy
@@ -62,7 +62,7 @@ contains
    subroutine destroy(this, rc)
       class (IntArray), intent(inout) :: this
       integer, optional, intent(out) :: rc
-      if(allocated(this%values)) deallocate(this%values)
+      if(associated(this%values)) deallocate(this%values)
       _RETURN(_SUCCESS)
    end subroutine destroy
 
@@ -71,7 +71,7 @@ contains
       integer, optional, intent(out) :: rc
       integer, pointer :: values(:)
 
-      if (allocated(this%values)) then
+      if (associated(this%values)) then
         values => this%values
       else
         values => null()
