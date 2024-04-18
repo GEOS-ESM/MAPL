@@ -335,6 +335,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      real :: aspect_ratio
 
       class (CoordinateVariable), pointer :: v
       class (*), pointer :: ptr(:)
@@ -400,9 +401,12 @@ contains
                lm = file_metadata%get_dimension(lev_name,_RC)
             end if
          end if
+         aspect_ratio = real(im)/real(jm)
     end associate
 
-    call this%make_arbitrary_decomposition(this%nx, this%ny, _RC)
+    print *, __LINE__, __FILE__, this%nx, this%ny, aspect_ratio
+    call this%make_arbitrary_decomposition(this%nx, this%ny, &
+         aspect_ratio=aspect_ratio, _RC)
 
     ! Determine IMS and JMS with constraint for ESMF that each DE has at least an extent
     ! of 2.  Required for ESMF_FieldRegrid().

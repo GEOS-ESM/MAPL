@@ -357,13 +357,14 @@ contains
    ! that is as close as possible to sqrt(npes)*sqrt(npes) with the
    ! leading dimension using fewer processes
    ! --------------------------------------------------------------------
-   subroutine make_arbitrary_decomposition(nx, ny, unusable, reduceFactor, rc)
+   subroutine make_arbitrary_decomposition(nx, ny, unusable, reduceFactor, aspect_ratio, rc)
       use ESMF
       use MAPL_KeywordEnforcerMod
       integer, intent(out) :: nx
       integer, intent(out) :: ny
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: reduceFactor
+      real, optional, intent(in) :: aspect_ratio
       integer, optional, intent(out) :: rc
 
       type (ESMF_VM) :: vm
@@ -371,6 +372,7 @@ contains
 
       character(len=*), parameter :: Iam= MOD_NAME // 'make_arbitrary_decomposition()'
       integer :: status
+      real :: aspect_ratio_
 
       _UNUSED_DUMMY(unusable)
 
@@ -380,14 +382,26 @@ contains
       _VERIFY(status)
       if (present(reduceFactor)) pet_count=pet_count/reduceFactor
 
+      aspect_ratio_ = 2.0
+      if (present(aspect_ratio)) aspect_ratio_ = aspect_ratio
+
+
       ! count down from sqrt(n)
-      ! Note: inal iteration (nx=1) is guaranteed to succeed.
-      do nx = floor(sqrt(real(2*pet_count))), 1, -1
+      ! Note: final iteration (nx=1) is guaranteed to succeed.
+      do nx = floor(sqrt(real(aspect_ratio_*pet_count))), 1, -1
          if (mod(pet_count, nx) == 0) then ! found a decomposition
             ny = pet_count / nx
             exit
          end if
       end do
+! only for debugging
+      block
+        integer :: myid
+        call ESMF_VMGet(vm, localPet=myid, _RC)
+        if (myid == 0) then
+           print *,"make_arb_decomp:",aspect_ratio_,nx,ny
+        end if
+      end block
 
       _RETURN(_SUCCESS)
 
