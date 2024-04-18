@@ -1128,6 +1128,8 @@ module NCIOMod
        call mpi_gatherv( a, size(a), MPI_REAL, recvbuf, recvcounts, displs, MPI_REAL, &
                       0, arrdes%iogathercomm, status )
        _VERIFY(STATUS)
+       call MPI_Barrier(arrdes%iogathercomm,status)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then
 
@@ -2703,6 +2705,8 @@ module NCIOMod
 
        call mpi_gatherv( a, size(a), MPI_DOUBLE_PRECISION, recvbuf, recvcounts, displs, &
                          MPI_DOUBLE_PRECISION, 0, arrdes%iogathercomm, status )
+       _VERIFY(STATUS)
+       call MPI_Barrier(arrdes%iogathercomm,status)
        _VERIFY(STATUS)
 
        if(myiorank==0) then
