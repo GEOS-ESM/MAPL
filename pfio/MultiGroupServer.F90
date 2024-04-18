@@ -833,6 +833,9 @@ contains
             call msg_iter%next()
             call array_ptr%destroy(_RC)
             call vars_map%erase(var_iter)
+         enddo
+         msg_iter = msg_map%begin()
+         do while (msg_iter /= msg_map%end())
             call msg_map%erase(msg_iter)
             msg_iter = msg_map%begin()
          enddo
