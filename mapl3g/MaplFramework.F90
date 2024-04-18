@@ -69,9 +69,11 @@ contains
       call ESMF_VMGet(mapl_vm, mpiCommunicator=comm_world, _RC)
 
 #ifdef BUILD_WITH_PFLOGGER
-      has_pflogger_cfg_file = ESMF_HConfigIsDefined(mapl_hconfig, keystring="pflogger_cfg_file", _RC)
-      if (has_pflogger_cfg_file) then
-         pflogger_cfg_file = ESMF_HConfigAsString(mapl_hconfig, keystring="pflogger_cfg_file", _RC)
+      if (present(mapl_hconfig)) then
+         has_pflogger_cfg_file = ESMF_HConfigIsDefined(mapl_hconfig, keystring="pflogger_cfg_file", _RC)
+         if (has_pflogger_cfg_file) then
+            pflogger_cfg_file = ESMF_HConfigAsString(mapl_hconfig, keystring="pflogger_cfg_file", _RC)
+         end if
       end if
       call initialize_pflogger(pflogger_cfg_file=pflogger_cfg_file, comm_world=comm_world, _RC)
 #endif
