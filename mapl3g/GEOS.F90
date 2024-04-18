@@ -34,7 +34,8 @@ contains
       end if
       call MAPL_Initialize(mapl_hconfig=mapl_hconfig, _RC)
       call ESMF_HConfigDestroy(mapl_hconfig, _RC)
- 
+
+      _RETURN(_SUCCESS)
    end subroutine initialize
 
    subroutine run_geos(config, rc)
