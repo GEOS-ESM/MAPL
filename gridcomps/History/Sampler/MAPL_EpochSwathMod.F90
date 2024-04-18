@@ -384,14 +384,23 @@ contains
     class(AbstractGridFactory), pointer :: factory
     type(ESMF_Field) :: field
     real(kind=ESMF_KIND_R4), pointer :: ptr2d(:,:)
+    type(ESMF_Grid) :: grid
+    logical :: has_de
 
     ! __ get field xname='time'
     call ESMF_FieldBundleGet (bundle, xname, field=field, _RC)
-    call ESMF_FieldGet (field, farrayptr=ptr2d, _RC)
+    call ESMF_FieldGet(field, grid=grid, _RC)
+    has_de = MAPL_GridHasDE(grid, _RC)
+    if (has_de) then
+       call ESMF_FieldGet (field, farrayptr=ptr2d, _RC)
+    end if
 
     ! __ obs_time from swath factory
     factory => grid_manager%get_factory(ogrid,_RC)
-    call factory%get_obs_time (ogrid, ptr2d, _RC)
+    has_de = MAPL_GridHasDE(ogrid, _RC)
+    if (has_de) then
+       call factory%get_obs_time (ogrid, ptr2d, _RC)
+    end if
 
     _RETURN(ESMF_SUCCESS)
 
@@ -1085,6 +1094,7 @@ contains
     integer :: j, jj
     integer :: ii1, iin, jj1, jjn
     integer, dimension(:), allocatable :: j1, j2
+    logical :: has_de
 
     is=xy_subset(1,1); ie=xy_subset(2,1)
     js=xy_subset(1,2); je=xy_subset(2,2)
@@ -1107,7 +1117,7 @@ contains
     allocate ( j1(0:localDEcount-1) ,_STAT)  ! start
     allocate ( j2(0:localDEcount-1) ,_STAT)  ! end
 
-    _ASSERT ( localDEcount == 1, 'failed, due to localDEcount > 1')
+    !_ASSERT ( localDEcount == 1, 'failed, due to localDEcount > 1')
     call MAPL_GridGetInterior(grid,ii1,iin,jj1,jjn)
 !!    write(6,*) 'MAPL_GridGetInterior, ii1,iin,jj1,jjn', ii1,iin,jj1,jjn
 !!    print*, 'js,je ', js, je
@@ -1175,35 +1185,38 @@ contains
        ! -- mask the time interval
        !    store the time interval fields into new bundle
        !    xname
-       call ESMF_FieldGet(outField, Array=array1, _RC)
+       call ESMF_FieldGet(outField, Array=array1, grid=grid, _RC)
        call ESMF_FieldBundleGet(this%acc_bundle,item%xname,field=new_outField,_RC)
        call ESMF_FieldGet(new_outField, Array=array2, _RC)
        call ESMF_ArrayGet(array1, rank=rank, _RC)
-       if (rank==2) then
-          call ESMF_ArrayGet(array1, farrayptr=pt2d, _RC)
-          call ESMF_ArrayGet(array2, farrayptr=pt2d_, _RC)
-          localDe=0
-          if (j1(localDe)>0) then
-             do j= j1(localDe), j2(localDe)
-                jj= j-jj1+1     ! j_local
-                !!                      write(6,*) 'j, jj', j, jj
-                pt2d_(:,jj) = pt2d(:,jj)
-             enddo
-          endif
-       elseif (rank==3) then
-          call ESMF_ArrayGet(array1, farrayptr=pt3d, _RC)
-          call ESMF_ArrayGet(array2, farrayptr=pt3d_, _RC)
-          do localDe=0, localDEcount-1
-             if (j1(localDe)>0) then
-                do j= j1(localDe), j2(localDe)
-                   jj= j-jj1+1
-                   pt3d_(:,jj,:) = pt3d(:,jj,:)
-                enddo
-             endif
-          enddo
-       else
-          _FAIL('failed interp_accumulate_fields')
-       endif
+       has_de = MAPL_GridHasDE(grid, _RC)
+       if (has_de) then
+         if (rank==2) then
+            call ESMF_ArrayGet(array1, farrayptr=pt2d, _RC)
+            call ESMF_ArrayGet(array2, farrayptr=pt2d_, _RC)
+            localDe=0
+            if (j1(localDe)>0) then
+               do j= j1(localDe), j2(localDe)
+                  jj= j-jj1+1     ! j_local
+                  !!                      write(6,*) 'j, jj', j, jj
+                  pt2d_(:,jj) = pt2d(:,jj)
+               enddo
+            endif
+         elseif (rank==3) then
+            call ESMF_ArrayGet(array1, farrayptr=pt3d, _RC)
+            call ESMF_ArrayGet(array2, farrayptr=pt3d_, _RC)
+            do localDe=0, localDEcount-1
+               if (j1(localDe)>0) then
+                  do j= j1(localDe), j2(localDe)
+                     jj= j-jj1+1
+                     pt3d_(:,jj,:) = pt3d(:,jj,:)
+                  enddo
+               endif
+            enddo
+         else
+            _FAIL('failed interp_accumulate_fields')
+         endif
+       end if
 
        ! __ additional step for yname if vector
        if (item%itemType == ItemTypeScalar) then

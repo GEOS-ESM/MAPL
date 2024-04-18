@@ -11,6 +11,7 @@ module MAPL_SwathGridFactoryMod
    use mapl_ErrorHandlingMod
    use MAPL_Constants
    use MAPL_Base, only : MAPL_GridGetInterior
+   use MAPL_BaseMod, only : MAPL_GridHasDE
    use ESMF
    use pFIO
    use MAPL_CommsMod
@@ -237,6 +238,7 @@ contains
       integer :: COUNTS(3), DIMS(3)
       integer :: i_1, i_n, j_1, j_n  ! regional array bounds
       type(Logger), pointer :: lgr
+      logical :: has_de
 
       ! debug
       type(ESMF_VM) :: vm
@@ -289,15 +291,20 @@ contains
 !      write(6,'(2x,a,2x,i5,4x,100f10.1)')  'PET', mypet, arr_lon(::5,189)
 !      call MPI_Barrier(mpic, status)
 
-      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
-      fptr=real(arr_lon(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
+      has_de = MAPL_GridHasDE(grid,_RC)
+      if (has_de) then
+         call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
+         fptr=real(arr_lon(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
+      end if
       call MAPL_SyncSharedMemory(_RC)
 
+      if (has_de) then
       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
            staggerloc=ESMF_STAGGERLOC_CENTER, &
            farrayPtr=fptr, rc=status)
       fptr=real(arr_lat(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
+      end if
 
       if(MAPL_ShmInitialized) then
          call MAPL_DeAllocNodeArray(arr_lon,_RC)
