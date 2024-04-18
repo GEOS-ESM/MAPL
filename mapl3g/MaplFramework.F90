@@ -10,13 +10,10 @@ module mapl3g_MaplFramework
    use mapl_KeywordEnforcerMod
    use mapl_profiler, only: DistributedProfiler
    use pfio_DirectoryServiceMod, only: DirectoryService
-   use esmf, only: ESMF_Config, ESMF_ConfigGet
-   use esmf, only: ESMF_HConfig, ESMF_HConfigDestroy
-   use esmf, only: ESMF_Initialize, ESMF_Finalize
-   use esmf, only: ESMF_VM
-   use esmf, only: ESMF_VMGet
-   use pflogger, only: pflogger_initialize => initialize
-   use pfl_LoggerManager, only: LoggerManager
+   use pflogger, only: logging
+   use pflogger, only: Logger
+   use esmf, only: ESMF_IsInitialized
+   use esmf, only: ESMF_VM, ESMF_VMGetCurrent, ESMF_VMGet
    implicit none
    private
 
@@ -28,9 +25,7 @@ module mapl3g_MaplFramework
    type :: MaplFramework
       private
       logical :: initialized = .false.
-      type(ESMF_HConfig) :: hconfig
       type(DirectoryService) :: directory_service
-      type(LoggerManager) :: logger_manager
       type(DistributedProfiler) :: time_profiler
    contains
       procedure :: initialize
@@ -50,33 +45,28 @@ module mapl3g_MaplFramework
 contains
 
    ! Type-bound procedures
-   subroutine initialize(this, unusable, configFilename, mpiCommunicator, configFilenameFromArgNum, rc)
-
+   subroutine initialize(this, unusable, logging_cfg_file, rc)
       class(MaplFramework), target, intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: configFilename
-      integer, optional, intent(in) :: mpiCommunicator
-      integer, optional, intent(in) :: configFilenameFromArgNum
+      character(*), optional, intent(in) :: logging_cfg_file
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      integer, allocatable :: configFilenameFromArgNum_
-      type(ESMF_Config) :: config
-      type(ESMF_VM) :: global_vm
+      logical :: esmf_is_initialized
       integer :: comm_world
+      type(ESMF_VM) :: mapl_vm
+      integer :: status
+
+      esmf_is_initialized = ESMF_IsInitialized(_RC)
+      _ASSERT(esmf_is_initialized, "ESMF must be initialized prior to initializing MAPL.")
 
       _ASSERT(.not. this%initialized, "MaplFramework object is already initialized")
-      if (present(configFilenameFromArgNum)) then
-         configFilenameFromArgNum_ = configFilenameFromArgNum
-         _ASSERT(.not. present(configFilename), "Cannot specify both configFilename and ConfigFilenameFromArgNum")
-      end if
-      call ESMF_Initialize(configFilenameFromArgNum=configFilenameFromArgNum_, configFileName=configFilename, configKey=['esmf'], &
-           mpiCommunicator=mpiCommunicator, &
-           config=config, vm=global_vm, _RC)
-      call ESMF_ConfigGet(config, hconfig=this%hconfig, _RC)
-      call ESMF_VMGet(global_vm, mpiCommunicator=comm_world, _RC)
 
-     call pflogger_initialize()
+      call ESMF_VMGetCurrent(mapl_vm, _RC)
+      call ESMF_VMGet(mapl_vm, mpiCommunicator=comm_world, _RC)
+
+#ifdef BUILD_WITH_PFLOGGER
+      call initialize_pflogger(comm_world=comm_world,logging_cfg_file=logging_cfg_file, _RC)
+#endif
 !#      call initialize_profiler(comm=comm_world, enable_global_timeprof=enable_global_timeprof, enable_global_memprof=enable_global_memprof, _RC)
 
       _HERE
@@ -85,20 +75,16 @@ contains
       _RETURN(_SUCCESS)
    end subroutine initialize
       
-   subroutine get(this, unusable, hconfig, directory_service, logger_manager, rc)
+   subroutine get(this, unusable, directory_service, rc)
       class(MaplFramework), target, intent(in) :: this
       class(KeywordEnforcer), optional, intent(out) :: unusable
-      type(ESMF_HConfig), optional, intent(out) :: hconfig
       type(DirectoryService), pointer, optional, intent(out) :: directory_service
-      type(LoggerManager), pointer, optional, intent(out) :: logger_manager
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       _ASSERT(this%is_initialized(), "MaplFramework object is not initialized")
-      if (present(hconfig)) hconfig = this%hconfig
       if (present(directory_service)) directory_service => this%directory_service
-      if (present(logger_manager)) logger_manager => this%logger_manager
 
       _RETURN(_SUCCESS)
    end subroutine get
@@ -115,24 +101,20 @@ contains
       integer :: status
 
 !#      call finalize_profiler(_RC)
-      call ESMF_HConfigDestroy(this%hconfig, _RC)
 !#      call pflogger_finalize()
-      call ESMF_Finalize(_RC)
       
       _RETURN(_SUCCESS)
    end subroutine finalize
 
    ! Procedures using singleton object
-   subroutine mapl_get(unusable, hconfig, directory_service, logger_manager, rc)
+   subroutine mapl_get(unusable, directory_service, rc)
       class(KeywordEnforcer), optional, intent(out) :: unusable
-      type(ESMF_HConfig), optional, intent(out) :: hconfig
       type(DirectoryService), pointer, optional, intent(out) :: directory_service
-      type(LoggerManager), pointer, optional, intent(out) :: logger_manager
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      call the_mapl_object%get(hconfig=hconfig, directory_service=directory_service, logger_manager=logger_manager, _RC)
+      call the_mapl_object%get(directory_service=directory_service, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine mapl_get
@@ -144,19 +126,15 @@ contains
    end subroutine mapl_get_mapl
 
 
-  subroutine mapl_initialize(unusable, configFilename, mpiCommunicator, configFilenameFromArgNum, rc)
-      use pflogger, only: pflogger_initialize => initialize
+  subroutine mapl_initialize(unusable, logging_cfg_file, rc)
       use mapl_KeywordEnforcerMod
-
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: configFilename
-      integer, optional, intent(in) :: mpiCommunicator
-      integer, optional, intent(in) :: configFilenameFromArgNum
+      character(len=*), optional, intent(in) :: logging_cfg_file
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      call the_mapl_object%initialize(unusable, configFilename=configFilename, mpiCommunicator=mpiCommunicator, configFilenameFromArgNum=configFilenameFromArgNum, _RC)
+      call the_mapl_object%initialize(unusable, logging_cfg_file=logging_cfg_file, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine mapl_initialize
@@ -170,5 +148,73 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine mapl_finalize
+
+#ifdef BUILD_WITH_PFLOGGER
+   subroutine initialize_pflogger(comm_world, unusable, logging_cfg_file, rc)
+      use pflogger, only: pfl_initialize => initialize
+      use pflogger, only: StreamHandler, FileHandler, HandlerVector
+      use pflogger, only: MpiLock, MpiFormatter
+      use pflogger, only: INFO, WARNING
+      use PFL_Formatter, only: get_sim_time
+      use mapl_SimulationTime, only: fill_time_dict
+
+      use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
+
+
+      integer, intent(in) :: comm_world
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), optional,intent(in) :: logging_cfg_file
+      integer, optional, intent(out) :: rc
+
+      type (HandlerVector) :: handlers
+      type (StreamHandler) :: console
+      type (FileHandler) :: file_handler
+      integer :: level,rank,status
+      type(Logger), pointer :: lgr
+
+
+      call pfl_initialize()
+      get_sim_time => fill_time_dict
+
+      if (present(logging_cfg_file)) then
+         call logging%load_file(logging_cfg_file)
+         _RETURN(_SUCCESS)
+      end if
+
+      ! Default configuration if no file provided
+
+      call MPI_COMM_Rank(comm_world,rank,status)
+      console = StreamHandler(OUTPUT_UNIT)
+      call console%set_level(INFO)
+      call console%set_formatter(MpiFormatter(comm_world, fmt='%(short_name)a10~: %(message)a'))
+      call handlers%push_back(console)
+      
+      file_handler = FileHandler('warnings_and_errors.log')
+      call file_handler%set_level(WARNING)
+      call file_handler%set_formatter(MpiFormatter(comm_world, fmt='pe=%(mpi_rank)i5.5~: %(short_name)a~: %(message)a'))
+      call file_handler%set_lock(MpiLock(comm_world))
+      call handlers%push_back(file_handler)
+      
+      level = WARNING
+      if (rank == 0) then
+         level = INFO
+      end if
+      
+      call logging%basic_config(level=level, handlers=handlers, rc=status)
+      _VERIFY(status)
+      
+      if (rank == 0) then
+         lgr => logging%get_logger('MAPL')
+         call lgr%warning('No configure file specified for logging layer.  Using defaults.')
+      end if
+
+      _RETURN(_SUCCESS)
+
+       _UNUSED_DUMMY(unusable)
+  end subroutine initialize_pflogger
+#endif
+
+
+
 
 end module mapl3g_MaplFramework

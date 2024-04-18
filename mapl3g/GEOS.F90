@@ -7,31 +7,61 @@ program geos
    implicit none
 
    integer :: status
-   type(MaplFramework), pointer :: mapl
+   type(ESMF_Config) :: config
 
-   call mapl_get(mapl=mapl)
-   call mapl%initialize(configFilenameFromArgNum=1, _RC)
-
-   call run_geos(mapl, _RC)
-
-   call mapl%finalize(_RC)
+   _HERE
+   call initialize(config=config, _RC)
+   call run_geos(config, _RC)
+   call finalize(config=config, _RC)
 
 contains
 
 #undef I_AM_MAIN
 #include "MAPL_Generic.h"
 
-   subroutine run_geos(mapl, rc)
-      type(MaplFramework), intent(inout) :: mapl
+   subroutine initialize(config, rc)
+      type(ESMF_Config), intent(out) :: config
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      character(:), allocatable :: logging_cfg_file
+      logical :: has_logging_cfg_file
+      type(ESMF_HConfig) :: hconfig
+
+      call ESMF_Initialize(configFilenameFromArgNum=1, configKey=['esmf'], config=config, _RC)
+      call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
+      has_logging_cfg_file = ESMF_HConfigIsDefined(hconfig, keystring='logging_cfg_file', _RC)
+      if (has_logging_cfg_file) then
+         logging_cfg_file = ESMF_HConfigAsString(hconfig, keystring='logging_cfg_file', _RC)
+      end if
+      call MAPL_Initialize(logging_cfg_file=logging_cfg_file, _RC)
+
+   end subroutine initialize
+
+   subroutine run_geos(config, rc)
+      type(ESMF_Config), intent(inout) :: config
       integer, optional, intent(out) :: rc
 
       type(ESMF_HConfig) :: cap_hconfig
       integer :: status
 
-      call mapl%get(hconfig=cap_hconfig)
+      call ESMF_ConfigGet(config, hconfig=cap_hconfig, _RC)
       call MAPL_run_driver(cap_hconfig, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine run_geos
+
+   subroutine finalize(config, rc)
+      type(ESMF_Config), intent(inout) :: config
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      
+      call MAPL_Finalize(_RC)
+      call ESMF_ConfigDestroy(config, _RC)
+      call ESMF_Finalize(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine finalize
 
 end program geos
