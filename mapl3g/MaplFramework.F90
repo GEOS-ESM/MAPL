@@ -45,6 +45,7 @@ module mapl3g_MaplFramework
 contains
 
    ! Type-bound procedures
+
    subroutine initialize(this, unusable, logging_cfg_file, rc)
       class(MaplFramework), target, intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -213,8 +214,5 @@ contains
        _UNUSED_DUMMY(unusable)
   end subroutine initialize_pflogger
 #endif
-
-
-
 
 end module mapl3g_MaplFramework
