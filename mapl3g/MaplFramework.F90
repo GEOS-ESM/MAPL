@@ -14,6 +14,7 @@ module mapl3g_MaplFramework
    use pflogger, only: Logger
    use esmf, only: ESMF_IsInitialized
    use esmf, only: ESMF_VM, ESMF_VMGetCurrent, ESMF_VMGet
+   use esmf, only: ESMF_HConfig, ESMF_HConfigIsDefined, Esmf_HconfigAsString
    implicit none
    private
 
@@ -46,12 +47,14 @@ contains
 
    ! Type-bound procedures
 
-   subroutine initialize(this, unusable, logging_cfg_file, rc)
+   subroutine initialize(this, unusable, mapl_hconfig, rc)
       class(MaplFramework), target, intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: logging_cfg_file
+      type(ESMF_HConfig), optional, intent(in) :: mapl_hconfig
       integer, optional, intent(out) :: rc
 
+      logical :: has_pflogger_cfg_file
+      character(:), allocatable :: pflogger_cfg_file
       logical :: esmf_is_initialized
       integer :: comm_world
       type(ESMF_VM) :: mapl_vm
@@ -66,13 +69,16 @@ contains
       call ESMF_VMGet(mapl_vm, mpiCommunicator=comm_world, _RC)
 
 #ifdef BUILD_WITH_PFLOGGER
-      call initialize_pflogger(comm_world=comm_world,logging_cfg_file=logging_cfg_file, _RC)
+      has_pflogger_cfg_file = ESMF_HConfigIsDefined(mapl_hconfig, keystring="pflogger_cfg_file", _RC)
+      if (has_pflogger_cfg_file) then
+         pflogger_cfg_file = ESMF_HConfigAsString(mapl_hconfig, keystring="pflogger_cfg_file", _RC)
+      end if
+      call initialize_pflogger(pflogger_cfg_file=pflogger_cfg_file, comm_world=comm_world, _RC)
 #endif
 !#      call initialize_profiler(comm=comm_world, enable_global_timeprof=enable_global_timeprof, enable_global_memprof=enable_global_memprof, _RC)
 
-      _HERE
       this%initialized = .true.
-
+      _HERE
       _RETURN(_SUCCESS)
    end subroutine initialize
       
@@ -127,15 +133,15 @@ contains
    end subroutine mapl_get_mapl
 
 
-  subroutine mapl_initialize(unusable, logging_cfg_file, rc)
+  subroutine mapl_initialize(unusable, mapl_hconfig, rc)
       use mapl_KeywordEnforcerMod
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(len=*), optional, intent(in) :: logging_cfg_file
+      type(ESMF_HConfig), optional, intent(in) :: mapl_hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      call the_mapl_object%initialize(unusable, logging_cfg_file=logging_cfg_file, _RC)
+      call the_mapl_object%initialize(unusable, mapl_hconfig=mapl_hconfig, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine mapl_initialize
@@ -151,7 +157,7 @@ contains
    end subroutine mapl_finalize
 
 #ifdef BUILD_WITH_PFLOGGER
-   subroutine initialize_pflogger(comm_world, unusable, logging_cfg_file, rc)
+   subroutine initialize_pflogger(comm_world, unusable, pflogger_cfg_file, rc)
       use pflogger, only: pfl_initialize => initialize
       use pflogger, only: StreamHandler, FileHandler, HandlerVector
       use pflogger, only: MpiLock, MpiFormatter
@@ -164,7 +170,7 @@ contains
 
       integer, intent(in) :: comm_world
       class (KeywordEnforcer), optional, intent(in) :: unusable
-      character(len=*), optional,intent(in) :: logging_cfg_file
+      character(len=*), optional,intent(in) :: pflogger_cfg_file
       integer, optional, intent(out) :: rc
 
       type (HandlerVector) :: handlers
@@ -177,8 +183,8 @@ contains
       call pfl_initialize()
       get_sim_time => fill_time_dict
 
-      if (present(logging_cfg_file)) then
-         call logging%load_file(logging_cfg_file)
+      if (present(pflogger_cfg_file)) then
+         call logging%load_file(pflogger_cfg_file)
          _RETURN(_SUCCESS)
       end if
 

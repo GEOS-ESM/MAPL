@@ -9,7 +9,6 @@ program geos
    integer :: status
    type(ESMF_Config) :: config
 
-   _HERE
    call initialize(config=config, _RC)
    call run_geos(config, _RC)
    call finalize(config=config, _RC)
@@ -24,18 +23,18 @@ contains
       integer, optional, intent(out) :: rc
       
       integer :: status
-      character(:), allocatable :: logging_cfg_file
-      logical :: has_logging_cfg_file
-      type(ESMF_HConfig) :: hconfig
+      type(ESMF_HConfig) :: hconfig, mapl_hconfig
+      logical :: has_mapl_section
 
       call ESMF_Initialize(configFilenameFromArgNum=1, configKey=['esmf'], config=config, _RC)
       call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
-      has_logging_cfg_file = ESMF_HConfigIsDefined(hconfig, keystring='logging_cfg_file', _RC)
-      if (has_logging_cfg_file) then
-         logging_cfg_file = ESMF_HConfigAsString(hconfig, keystring='logging_cfg_file', _RC)
+      has_mapl_section = ESMF_HConfigIsDefined(hconfig, keystring='mapl', _RC)
+      if (has_mapl_section) then
+         mapl_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='mapl', _RC)
       end if
-      call MAPL_Initialize(logging_cfg_file=logging_cfg_file, _RC)
-
+      call MAPL_Initialize(mapl_hconfig=mapl_hconfig, _RC)
+      call ESMF_HConfigDestroy(mapl_hconfig, _RC)
+ 
    end subroutine initialize
 
    subroutine run_geos(config, rc)
