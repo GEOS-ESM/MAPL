@@ -33,7 +33,6 @@ contains
          mapl_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='mapl', _RC)
       end if
       call MAPL_Initialize(mapl_hconfig=mapl_hconfig, _RC)
-      call ESMF_HConfigDestroy(mapl_hconfig, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine initialize

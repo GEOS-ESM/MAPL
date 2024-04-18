@@ -78,7 +78,7 @@ contains
 !#      call initialize_profiler(comm=comm_world, enable_global_timeprof=enable_global_timeprof, enable_global_memprof=enable_global_memprof, _RC)
 
       this%initialized = .true.
-      _HERE
+
       _RETURN(_SUCCESS)
    end subroutine initialize
       
