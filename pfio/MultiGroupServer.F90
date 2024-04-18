@@ -811,6 +811,7 @@ contains
          enddo ! nfront
 
          call FileMetadata_deserialize(buffer_fmd, fmd)
+         deallocate (buffer_fmd)
 
          call thread_ptr%hist_collections%push_back(HistoryCollection(fmd))
 
@@ -832,16 +833,12 @@ contains
             call msg_iter%next()
             call array_ptr%destroy(_RC)
             call vars_map%erase(var_iter)
-         enddo
-         msg_iter = msg_map%begin()
-         do while (msg_iter /= msg_map%end())
-           call msg_map%erase(msg_iter)
-           msg_iter = msg_map%begin()
+            call msg_map%erase(msg_iter)
+            msg_iter = msg_map%begin()
          enddo
 
          call thread_ptr%clear_hist_collections()
          call thread_ptr%hist_collections%clear()
-         deallocate (buffer_fmd)
 
          time = file_timer%get_total()
          file_size = file_size*4./1024./1024. ! 4-byte integer, unit is converted to MB
