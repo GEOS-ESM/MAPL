@@ -8,8 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-
 - Release the pfio memory as early as possible
+- Add glob function in sampler code, supporting wild character, e.g., filename template = amsr2_gcom-w1.%y4%m2%d2T%h2%n2*.nc4
+- Checked resource for o-server. It quits if the numer requested is inconsistent with being used
 - Replace local HorzIJIndex sear with the GlobalHorzIJindex search
 - Change grd_is_ok function to avoid collective call
 - Allow fields with ungridded dimension and bundles to be created in ExtDataDriver.x
@@ -53,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Use GCC 11.4 as Intel backing compiler at NCCS SLES15
 
 ### Fixed
-
+- Change to IntArry's pointer to store data to avoid Intel Ifort's bug
 - Fix inconsistency in History output so that multi-dimensional coordinate variables are also compressed if requested in the collection
 - Minor workaround to enable NAG 7.2.01 to compile.  (Reproducer submitted to NAG.)
 - Fixed bug with split restart files

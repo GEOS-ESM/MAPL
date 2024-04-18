@@ -35,9 +35,8 @@ module pFIO_MultiGroupServerMod
    use pFIO_HistoryCollectionVectorMod
    use pFIO_HistoryCollectionVectorUtilMod
    use pFIO_BaseServerMod
-   use pFIO_AttributeMod
-   use pFIO_StringAttributeMapMod
-   use pFIO_StringAttributeMapUtilMod
+   use pFIO_IntArrayMod
+   use pFIO_StringIntArrayMapMod
    use MAPL_SplitCommunicatorMod
    use MAPL_SimpleCommSplitterMod
    use pFIO_MpiSocketMod
@@ -625,15 +624,15 @@ contains
        integer, pointer :: g_4d(:,:,:,:), l_4d(:,:,:,:), g_5d(:,:,:,:,:), l_5d(:,:,:,:,:)
        integer :: d_rank, request_id
        integer(kind=INT64) :: msize_word, s0, e0, s1, e1, s2, e2, s3, e3, s4, e4, s5, e5
-       type (StringAttributeMap), target :: vars_map
-       type (StringAttributeMapIterator) :: var_iter
+       type (StringIntArrayMap), target :: vars_map
+       type (StringIntArrayMapIterator) :: var_iter
        type (IntegerMessageMap), target  :: msg_map
        type (IntegerMessageMapIterator)  :: msg_iter
 
-       class (*), pointer :: x_ptr(:)
+       integer, pointer :: x_ptr(:)
        integer , allocatable :: buffer_v(:)
-       type (Attribute), pointer :: attr_ptr
-       type (Attribute) :: attr_tmp
+       type (IntArray), pointer :: array_ptr
+       type (IntArray) :: array_tmp
        type (c_ptr) :: address
        type (ForwardDataAndMessage), target :: f_d_m
        type (FileMetaData) :: fmd
@@ -644,7 +643,6 @@ contains
        real(kind=REAL64) :: file_size, speed
 
        class(Logger), pointer :: lgr
-
        back_local_rank = this%rank
        thread_ptr => this%threads%at(1)
        file_timer = AdvancedMeter(MpiTimerGauge())
@@ -682,7 +680,7 @@ contains
          enddo ! nfront
 
          ! re-org data
-         vars_map = StringAttributeMap()
+         vars_map = StringIntArrayMap()
          msg_map  = IntegerMessageMap()
          file_size = 0.
 
@@ -699,23 +697,18 @@ contains
                msg => f_d_m%msg_vec%at(j)
                select type (q=>msg)
                type is (CollectiveStageDataMessage)
+                  msize_word = word_size(q%type_kind)*product(int(q%global_count, INT64))
                   var_iter = vars_map%find(i_to_string(q%request_id))
                   if (var_iter == vars_map%end()) then
                      msize_word = word_size(q%type_kind)*product(int(q%global_count, INT64))
-                     allocate(buffer_v(msize_word), source = -1)
-                     attr_tmp = Attribute(buffer_v)
-                     deallocate(buffer_v)
-                     call vars_map%insert(i_to_string(q%request_id),attr_tmp)
-                     call attr_tmp%destroy()
+                     array_tmp = IntArray(msize_word)
+                     call vars_map%insert(i_to_string(q%request_id),array_tmp)
                      var_iter = vars_map%find(i_to_string(q%request_id))
                      call msg_map%insert(q%request_id, q)
                   endif
-                  attr_ptr => var_iter%value()
-                  x_ptr => attr_ptr%get_values()
-                  select type (ptr=>x_ptr)
-                  type is (integer(INT32))
-                     address = c_loc(ptr(1))
-                  end select
+                  array_ptr => var_iter%value()
+                  x_ptr => array_ptr%get_values()
+                  address = c_loc(x_ptr(1))
                   d_rank = size(q%global_count)
                   ! first dimension increases
                   q%global_count(1) = word_size(q%type_kind)*q%global_count(1)
@@ -825,14 +818,10 @@ contains
          do while (msg_iter /= msg_map%end())
             request_id = msg_iter%key()
             msg =>msg_iter%value()
-
             var_iter = vars_map%find(i_to_string(request_id))
-            attr_ptr =>var_iter%value()
-            x_ptr => attr_ptr%get_values()
-            select type (ptr=>x_ptr)
-            type is (integer(INT32))
-                 address = c_loc(ptr(1))
-            end select
+            array_ptr =>var_iter%value()
+            x_ptr => array_ptr%get_values()
+            address = c_loc(x_ptr(1))
             select type (q=>msg)
             class is (AbstractDataMessage)
                filename =q%file_name
@@ -841,7 +830,7 @@ contains
                call file_timer%stop()
             end select
             call msg_iter%next()
-            call attr_ptr%destroy(_RC)
+            call array_ptr%destroy(_RC)
             call vars_map%erase(var_iter)
          enddo
          msg_iter = msg_map%begin()
