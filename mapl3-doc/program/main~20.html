@@ -78,19 +78,19 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 2.3% of total for programs.">141 statements</a>
+                 title=" 0.6% of total for programs.">36 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/mpi_demo.F90"> Source File</a>
+              <a href="../src/gc_run.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/mpi_demo.f90.html'>mpi_demo.F90</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/gc_run.f90.html'>gc_run.F90</a></li>
             <li class="breadcrumb-item active" aria-current="page">main</li>
           </ol>
         </nav>
@@ -117,17 +117,19 @@
       </a>
       <div id="vars-0" class="collapse">
         <div class="list-group list-group-flush">
-            <a class="list-group-item" href="../program/main~20.html#variable-empty~268">empty</a>
-            <a class="list-group-item" href="../program/main~20.html#variable-report_lines~8">report_lines</a>
-            <a class="list-group-item" href="../program/main~20.html#variable-i~1953">i</a>
-            <a class="list-group-item" href="../program/main~20.html#variable-ierror~70">ierror</a>
-            <a class="list-group-item" href="../program/main~20.html#variable-rank~129">rank</a>
-            <a class="list-group-item" href="../program/main~20.html#variable-lap_prof~2">lap_prof</a>
-            <a class="list-group-item" href="../program/main~20.html#variable-main_prof~2">main_prof</a>
-            <a class="list-group-item" href="../program/main~20.html#variable-mem_prof">mem_prof</a>
-            <a class="list-group-item" href="../program/main~20.html#variable-main_reporter">main_reporter</a>
-            <a class="list-group-item" href="../program/main~20.html#variable-mem_reporter">mem_reporter</a>
-            <a class="list-group-item" href="../program/main~20.html#variable-reporter~9">reporter</a>
+            <a class="list-group-item" href="../program/main~20.html#variable-c0~9">c0</a>
+            <a class="list-group-item" href="../program/main~20.html#variable-c1~18">c1</a>
+            <a class="list-group-item" href="../program/main~20.html#variable-cr">cr</a>
+            <a class="list-group-item" href="../program/main~20.html#variable-n_gcs">N_GCS</a>
+            <a class="list-group-item" href="../program/main~20.html#variable-n_steps">N_STEPS</a>
+            <a class="list-group-item" href="../program/main~20.html#variable-i~1726">i</a>
+            <a class="list-group-item" href="../program/main~20.html#variable-j~206">j</a>
+            <a class="list-group-item" href="../program/main~20.html#variable-rc~2180">rc</a>
+            <a class="list-group-item" href="../program/main~20.html#variable-status~1804">status</a>
+            <a class="list-group-item" href="../program/main~20.html#variable-userstatus">userStatus</a>
+            <a class="list-group-item" href="../program/main~20.html#variable-t_all">t_all</a>
+            <a class="list-group-item" href="../program/main~20.html#variable-t_one">t_one</a>
+            <a class="list-group-item" href="../program/main~20.html#variable-gcs~2">gcs</a>
         </div>
       </div>
     </div>
@@ -142,18 +144,7 @@
   
   
   
-      <div class="card mb-4">
-      <a data-bs-toggle="collapse" href="#subs-0"
-         aria-expanded="false" aria-controls="subs-0">
-         <h4 class="card-header bg-primary text-white">Subroutines</h4>
-      </a>
-      <div id="subs-0" class="collapse">
-        <div class="list-group list-group-flush">
-            <a class="list-group-item" href="../program/main~20.html#proc-do_lap~2">do_lap</a>
-        </div>
-      </div>
-    </div>
-
+  
   
   
   
@@ -180,8 +171,10 @@
         <ul class="list-group list-group-flush">
             <li class="list-group-item">
               <ul class="list-inline">
-                  <li class="list-inline-item"><a href='http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm'>mpi</a></li>
-                  <li class="list-inline-item"><a href='../module/mapl_profiler.html'>mapl_Profiler</a></li>
+                  <li class="list-inline-item"><a href='../module/mapl_errorhandlingmod.html'>mapl_ErrorHandlingMod</a></li>
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
+                  <li class="list-inline-item"><a href='../module/my_gc.html'>my_gc</a></li>
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
               </ul>
             </li>
             <li class="list-group-item">
@@ -191,50 +184,141 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: program~~main~20~~UsesGraph Pages: 1 -->
-<svg id="programmain20UsesGraph" width="180pt" height="74pt"
- viewBox="0.00 0.00 180.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="program~~main~20~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<svg id="programmain20UsesGraph" width="641pt" height="129pt"
+ viewBox="0.00 0.00 641.00 129.34" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="program~~main~20~~UsesGraph" class="graph" transform="scale(1.03 1.03) rotate(0) translate(4 129.58)">
 <title>program~~main~20~~UsesGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 176,-70 176,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-129.58 658,-129.58 658,4 -4,4"/>
 <!-- program~main~20 -->
 <g id="program~~main~20~~UsesGraph_node1" class="node">
 <title>program~main~20</title>
-<polygon fill="none" stroke="black" points="172,-45 118,-45 118,-21 172,-21 172,-45"/>
-<text text-anchor="middle" x="145" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">main</text>
+<polygon fill="none" stroke="black" points="654,-86 600,-86 600,-62 654,-62 654,-86"/>
+<text text-anchor="middle" x="627" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50">main</text>
 </g>
-<!-- module~mapl_profiler -->
+<!-- ESMF -->
 <g id="program~~main~20~~UsesGraph_node2" class="node">
-<title>module~mapl_profiler</title>
-<g id="a_program~~main~20~~UsesGraph_node2"><a xlink:href="../module/mapl_profiler.html" xlink:title="mapl_Profiler">
-<polygon fill="#337ab7" stroke="#337ab7" points="82,-66 0,-66 0,-42 82,-42 82,-66"/>
-<text text-anchor="middle" x="41" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_Profiler</text>
+<title>ESMF</title>
+<g id="a_program~~main~20~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="390,-117 336,-117 336,-93 390,-93 390,-117"/>
+<text text-anchor="middle" x="363" y="-102.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
 </a>
 </g>
 </g>
-<!-- program~main~20&#45;&gt;module~mapl_profiler -->
+<!-- program~main~20&#45;&gt;ESMF -->
 <g id="program~~main~20~~UsesGraph_edge1" class="edge">
-<title>program~main~20&#45;&gt;module~mapl_profiler</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M118,-38.35C110.11,-39.98 101.16,-41.82 92.23,-43.66"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="91.32,-40.27 82.24,-45.72 92.74,-47.13 91.32,-40.27"/>
+<title>program~main~20&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M612.97,-86.29C601.21,-96.48 582.89,-110.2 564,-116 508.68,-132.97 440.78,-123.23 400.02,-114.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="400.8,-110.92 390.27,-112.11 399.24,-117.75 400.8,-110.92"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="program~~main~20~~UsesGraph_node3" class="node">
+<title>iso_fortran_env</title>
+<g id="a_program~~main~20~~UsesGraph_node3"><a xlink:href="http://fortranwiki.org/fortran/show/iso_fortran_env" xlink:title="iso_fortran_env">
+<polygon fill="#337ab7" stroke="#337ab7" points="564,-107 470,-107 470,-83 564,-83 564,-107"/>
+<text text-anchor="middle" x="517" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</a>
+</g>
+</g>
+<!-- program~main~20&#45;&gt;iso_fortran_env -->
+<g id="program~~main~20~~UsesGraph_edge2" class="edge">
+<title>program~main~20&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M599.86,-79.08C592.05,-80.6 583.19,-82.33 574.23,-84.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="573.29,-80.68 564.14,-86.03 574.63,-87.55 573.29,-80.68"/>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="program~~main~20~~UsesGraph_node4" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_program~~main~20~~UsesGraph_node4"><a xlink:href="../module/mapl_errorhandlingmod.html" xlink:title="mapl_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="434,-45 292,-45 292,-21 434,-21 434,-45"/>
+<text text-anchor="middle" x="363" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- program~main~20&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="program~~main~20~~UsesGraph_edge3" class="edge">
+<title>program~main~20&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M612.97,-61.71C601.21,-51.52 582.89,-37.8 564,-32 525.92,-20.32 481.81,-19.3 444.72,-21.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="444.16,-18.28 434.45,-22.52 444.69,-25.26 444.16,-18.28"/>
+</g>
+<!-- module~my_gc -->
+<g id="program~~main~20~~UsesGraph_node5" class="node">
+<title>module~my_gc</title>
+<g id="a_program~~main~20~~UsesGraph_node5"><a xlink:href="../module/my_gc.html" xlink:title="my_gc">
+<polygon fill="#337ab7" stroke="#337ab7" points="544,-65 490,-65 490,-41 544,-41 544,-65"/>
+<text text-anchor="middle" x="517" y="-50.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">my_gc</text>
+</a>
+</g>
+</g>
+<!-- program~main~20&#45;&gt;module~my_gc -->
+<g id="program~~main~20~~UsesGraph_edge4" class="edge">
+<title>program~main~20&#45;&gt;module~my_gc</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M599.86,-68.92C586.16,-66.25 569.17,-62.95 554.23,-60.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="554.76,-56.58 544.28,-58.11 553.43,-63.45 554.76,-56.58"/>
+</g>
+<!-- module~mapl_errorhandling -->
+<g id="program~~main~20~~UsesGraph_node6" class="node">
+<title>module~mapl_errorhandling</title>
+<g id="a_program~~main~20~~UsesGraph_node6"><a xlink:href="../module/mapl_errorhandling.html" xlink:title="mapl_ErrorHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="256,-45 137,-45 137,-21 256,-21 256,-45"/>
+<text text-anchor="middle" x="196.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_ErrorHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling -->
+<g id="program~~main~20~~UsesGraph_edge5" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_errorhandling</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M291.76,-33C283.32,-33 274.7,-33 266.28,-33"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="266.13,-29.5 256.13,-33 266.13,-36.5 266.13,-29.5"/>
+</g>
+<!-- module~my_gc&#45;&gt;ESMF -->
+<g id="program~~main~20~~UsesGraph_edge6" class="edge">
+<title>module~my_gc&#45;&gt;ESMF</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M489.87,-61.94C465,-70.45 427.37,-83.32 399.73,-92.78"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="398.37,-89.54 390.04,-96.09 400.64,-96.17 398.37,-89.54"/>
+</g>
+<!-- module~my_gc&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="program~~main~20~~UsesGraph_edge7" class="edge">
+<title>module~my_gc&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M489.87,-49.56C477.08,-47.88 460.91,-45.75 444.46,-43.59"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="444.58,-40.07 434.21,-42.24 443.67,-47.01 444.58,-40.07"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="program~~main~20~~UsesGraph_node7" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_program~~main~20~~UsesGraph_node7"><a xlink:href="../module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="101,-66 0,-66 0,-42 101,-42 101,-66"/>
+<text text-anchor="middle" x="50.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandling&#45;&gt;module~mapl_throwmod -->
+<g id="program~~main~20~~UsesGraph_edge8" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M136.93,-41.54C128.52,-42.77 119.85,-44.03 111.41,-45.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.65,-41.84 101.26,-46.74 111.66,-48.76 110.65,-41.84"/>
 </g>
 <!-- mpi -->
-<g id="program~~main~20~~UsesGraph_node3" class="node">
+<g id="program~~main~20~~UsesGraph_node8" class="node">
 <title>mpi</title>
-<g id="a_program~~main~20~~UsesGraph_node3"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
-<polygon fill="#337ab7" stroke="#337ab7" points="68,-24 14,-24 14,0 68,0 68,-24"/>
-<text text-anchor="middle" x="41" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+<g id="a_program~~main~20~~UsesGraph_node8"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-24 23.5,-24 23.5,0 77.5,0 77.5,-24"/>
+<text text-anchor="middle" x="50.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
 </a>
 </g>
 </g>
-<!-- program~main~20&#45;&gt;mpi -->
-<g id="program~~main~20~~UsesGraph_edge2" class="edge">
-<title>program~main~20&#45;&gt;mpi</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M118,-27.65C105.98,-25.17 91.51,-22.19 78.43,-19.5"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="78.81,-16.01 68.31,-17.42 77.4,-22.86 78.81,-16.01"/>
+<!-- module~mapl_errorhandling&#45;&gt;mpi -->
+<g id="program~~main~20~~UsesGraph_edge9" class="edge">
+<title>module~mapl_errorhandling&#45;&gt;mpi</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M136.93,-24.46C120.39,-22.05 102.87,-19.49 88.02,-17.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="88.14,-13.81 77.74,-15.83 87.13,-20.73 88.14,-13.81"/>
 </g>
 </g>
 </svg>
-</div>          <div>
+</div>                <script>
+                  var panprogrammain20UsesGraph = svgPanZoom('#programmain20UsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
             <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
           </div>
           <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
@@ -324,184 +408,283 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: program~~main~20~~CallsGraph Pages: 1 -->
-<svg id="programmain20CallsGraph" width="286pt" height="494pt"
- viewBox="0.00 0.00 286.00 494.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="program~~main~20~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 490)">
+<svg id="programmain20CallsGraph" width="578pt" height="410pt"
+ viewBox="0.00 0.00 578.00 410.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="program~~main~20~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 406)">
 <title>program~~main~20~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-490 282,-490 282,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-406 574,-406 574,4 -4,4"/>
 <!-- program~main~20 -->
 <g id="program~~main~20~~CallsGraph_node1" class="node">
 <title>program~main~20</title>
-<polygon fill="none" stroke="black" points="54,-255 0,-255 0,-231 54,-231 54,-255"/>
-<text text-anchor="middle" x="27" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50">main</text>
+<polygon fill="none" stroke="black" points="54,-294 0,-294 0,-270 54,-270 54,-294"/>
+<text text-anchor="middle" x="27" y="-279.6" font-family="Helvetica,sans-Serif" font-size="10.50">main</text>
 </g>
-<!-- mpi_barrier -->
+<!-- ESMF_Finalize -->
 <g id="program~~main~20~~CallsGraph_node2" class="node">
-<title>mpi_barrier</title>
-<polygon fill="#777777" stroke="#777777" points="221.5,-486 146.5,-486 146.5,-462 221.5,-462 221.5,-486"/>
-<text text-anchor="middle" x="184" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_barrier</text>
+<title>ESMF_Finalize</title>
+<g id="a_program~~main~20~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_finalize.html" xlink:title="ESMF_Finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="193.5,-398 107.5,-398 107.5,-374 193.5,-374 193.5,-398"/>
+<text text-anchor="middle" x="150.5" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Finalize</text>
+</a>
 </g>
-<!-- program~main~20&#45;&gt;mpi_barrier -->
+</g>
+<!-- program~main~20&#45;&gt;ESMF_Finalize -->
 <g id="program~~main~20~~CallsGraph_edge1" class="edge">
-<title>program~main~20&#45;&gt;mpi_barrier</title>
-<path fill="none" stroke="#ff0000" d="M27.65,-255.1C27.3,-291.06 31.47,-398.16 90,-453 102.4,-464.62 119.82,-470.3 136.23,-472.93"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="135.91,-476.42 146.27,-474.2 136.79,-469.47 135.91,-476.42"/>
+<title>program~main~20&#45;&gt;ESMF_Finalize</title>
+<path fill="none" stroke="#ff0000" d="M34.09,-294.23C43.64,-312.21 63.78,-345.71 90,-365 92.52,-366.86 95.22,-368.56 98.03,-370.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="96.75,-373.39 107.27,-374.64 99.83,-367.1 96.75,-373.39"/>
 </g>
-<!-- mpi_comm_rank -->
+<!-- ESMF_GridCompRun -->
 <g id="program~~main~20~~CallsGraph_node3" class="node">
-<title>mpi_comm_rank</title>
-<polygon fill="#777777" stroke="#777777" points="234.5,-444 133.5,-444 133.5,-420 234.5,-420 234.5,-444"/>
-<text text-anchor="middle" x="184" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+<title>ESMF_GridCompRun</title>
+<g id="a_program~~main~20~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_gridcomprun.html" xlink:title="ESMF_GridCompRun">
+<polygon fill="#d9534f" stroke="#d9534f" points="211,-356 90,-356 90,-332 211,-332 211,-356"/>
+<text text-anchor="middle" x="150.5" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompRun</text>
+</a>
 </g>
-<!-- program~main~20&#45;&gt;mpi_comm_rank -->
+</g>
+<!-- program~main~20&#45;&gt;ESMF_GridCompRun -->
 <g id="program~~main~20~~CallsGraph_edge2" class="edge">
-<title>program~main~20&#45;&gt;mpi_comm_rank</title>
-<path fill="none" stroke="#ff0000" d="M28.69,-255.34C31.15,-286.53 42.07,-368.99 90,-411 99.43,-419.26 111.42,-424.48 123.63,-427.72"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="122.91,-431.14 133.43,-429.92 124.44,-424.31 122.91,-431.14"/>
+<title>program~main~20&#45;&gt;ESMF_GridCompRun</title>
+<path fill="none" stroke="#ff0000" d="M43.92,-294.11C56.07,-302.95 73.48,-314.78 90,-323 93.59,-324.79 97.38,-326.49 101.22,-328.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.25,-331.49 110.84,-331.91 102.83,-324.98 100.25,-331.49"/>
 </g>
-<!-- mpi_finalize -->
+<!-- ESMF_Initialize -->
 <g id="program~~main~20~~CallsGraph_node4" class="node">
-<title>mpi_finalize</title>
-<polygon fill="#777777" stroke="#777777" points="222,-402 146,-402 146,-378 222,-378 222,-402"/>
-<text text-anchor="middle" x="184" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_finalize</text>
+<title>ESMF_Initialize</title>
+<g id="a_program~~main~20~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_initialize.html" xlink:title="ESMF_Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="196,-314 105,-314 105,-290 196,-290 196,-314"/>
+<text text-anchor="middle" x="150.5" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Initialize</text>
+</a>
 </g>
-<!-- program~main~20&#45;&gt;mpi_finalize -->
+</g>
+<!-- program~main~20&#45;&gt;ESMF_Initialize -->
 <g id="program~~main~20~~CallsGraph_edge3" class="edge">
-<title>program~main~20&#45;&gt;mpi_finalize</title>
-<path fill="none" stroke="#ff0000" d="M30.35,-255.25C35.9,-280.68 52.29,-339.26 90,-369 102.9,-379.17 119.78,-384.62 135.61,-387.47"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="135.4,-390.97 145.81,-388.99 136.44,-384.05 135.4,-390.97"/>
+<title>program~main~20&#45;&gt;ESMF_Initialize</title>
+<path fill="none" stroke="#ff0000" d="M54.06,-286.29C65.96,-288.25 80.52,-290.65 94.66,-292.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="94.39,-296.48 104.83,-294.65 95.53,-289.57 94.39,-296.48"/>
 </g>
-<!-- mpi_init -->
+<!-- proc~make_gc_t -->
 <g id="program~~main~20~~CallsGraph_node5" class="node">
-<title>mpi_init</title>
-<polygon fill="#777777" stroke="#777777" points="211.5,-360 156.5,-360 156.5,-336 211.5,-336 211.5,-360"/>
-<text text-anchor="middle" x="184" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_init</text>
+<title>proc~make_gc_t</title>
+<g id="a_program~~main~20~~CallsGraph_node5"><a xlink:href="../proc/make_gc_t.html" xlink:title="make_gc_t">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="185.5,-234 115.5,-234 115.5,-210 185.5,-210 185.5,-234"/>
+<text text-anchor="middle" x="150.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_gc_t</text>
+</a>
 </g>
-<!-- program~main~20&#45;&gt;mpi_init -->
+</g>
+<!-- program~main~20&#45;&gt;proc~make_gc_t -->
 <g id="program~~main~20~~CallsGraph_edge4" class="edge">
-<title>program~main~20&#45;&gt;mpi_init</title>
-<path fill="none" stroke="#ff0000" d="M33.47,-255.17C42.48,-273.73 62.23,-308.86 90,-327 106.64,-337.87 128.14,-343.16 146.27,-345.72"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="145.88,-349.2 156.22,-346.9 146.7,-342.25 145.88,-349.2"/>
+<title>program~main~20&#45;&gt;proc~make_gc_t</title>
+<path fill="none" stroke="#ff0000" d="M48.99,-269.88C60.88,-263.17 76.12,-254.82 90,-248 96.75,-244.68 104.02,-241.33 111.08,-238.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="112.76,-241.27 120.51,-234.05 109.95,-234.86 112.76,-241.27"/>
 </g>
-<!-- none~accumulate -->
+<!-- proc~mapl_abort -->
 <g id="program~~main~20~~CallsGraph_node6" class="node">
-<title>none~accumulate</title>
-<g id="a_program~~main~20~~CallsGraph_node6"><a xlink:href="../type/baseprofiler.html#boundprocedure-accumulate" xlink:title="BaseProfiler%accumulate">
-<polygon fill="#a7506f" stroke="#a7506f" points="258.5,-318 109.5,-318 109.5,-294 258.5,-294 258.5,-318"/>
-<text text-anchor="middle" x="184" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseProfiler%accumulate</text>
+<title>proc~mapl_abort</title>
+<g id="a_program~~main~20~~CallsGraph_node6"><a xlink:href="../proc/mapl_abort.html" xlink:title="MAPL_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="188,-108 113,-108 113,-84 188,-84 188,-108"/>
+<text text-anchor="middle" x="150.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_abort</text>
 </a>
 </g>
 </g>
-<!-- program~main~20&#45;&gt;none~accumulate -->
+<!-- program~main~20&#45;&gt;proc~mapl_abort -->
 <g id="program~~main~20~~CallsGraph_edge5" class="edge">
-<title>program~main~20&#45;&gt;none~accumulate</title>
-<path fill="none" stroke="#ff0000" d="M42.37,-255.03C54.38,-264.51 72.34,-277.35 90,-285 95.03,-287.18 100.32,-289.15 105.71,-290.92"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="104.91,-294.33 115.49,-293.91 106.95,-287.64 104.91,-294.33"/>
+<title>program~main~20&#45;&gt;proc~mapl_abort</title>
+<path fill="none" stroke="#ff0000" d="M35.97,-269.8C56.4,-238.52 110.8,-155.24 136.15,-116.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="139.12,-118.29 141.66,-108.01 133.26,-114.47 139.12,-118.29"/>
 </g>
-<!-- none~add_column -->
+<!-- proc~mapl_verify -->
 <g id="program~~main~20~~CallsGraph_node7" class="node">
-<title>none~add_column</title>
-<g id="a_program~~main~20~~CallsGraph_node7"><a xlink:href="../type/multicolumn.html#boundprocedure-add_column" xlink:title="MultiColumn%add_column">
-<polygon fill="#a7506f" stroke="#a7506f" points="261,-276 107,-276 107,-252 261,-252 261,-276"/>
-<text text-anchor="middle" x="184" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiColumn%add_column</text>
+<title>proc~mapl_verify</title>
+<g id="a_program~~main~20~~CallsGraph_node7"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="362,-402 286,-402 286,-378 362,-378 362,-402"/>
+<text text-anchor="middle" x="324" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
 </a>
 </g>
 </g>
-<!-- program~main~20&#45;&gt;none~add_column -->
+<!-- program~main~20&#45;&gt;proc~mapl_verify -->
 <g id="program~~main~20~~CallsGraph_edge6" class="edge">
-<title>program~main~20&#45;&gt;none~add_column</title>
-<path fill="none" stroke="#ff0000" d="M54.29,-246.56C66.27,-248.18 81.19,-250.21 96.59,-252.29"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="96.38,-255.8 106.76,-253.67 97.32,-248.86 96.38,-255.8"/>
+<title>program~main~20&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M54.26,-273.36C92.34,-262.57 163.52,-249.12 211,-281 246.08,-304.55 215.4,-340.95 247,-369 255.07,-376.16 265.37,-380.91 275.77,-384.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="275.14,-387.49 285.7,-386.58 276.88,-380.71 275.14,-387.49"/>
 </g>
-<!-- none~finalize~6 -->
+<!-- proc~make_gc_t&#45;&gt;proc~mapl_verify -->
+<g id="program~~main~20~~CallsGraph_edge15" class="edge">
+<title>proc~make_gc_t&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffff" d="M185.63,-231.03C194.93,-234.93 204.28,-240.4 211,-248 248.17,-290.03 206.94,-329.72 247,-369 254.93,-376.78 265.47,-381.74 276.17,-384.88"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="275.42,-388.3 285.97,-387.28 277.09,-381.5 275.42,-388.3"/>
+</g>
+<!-- ESMF_CalendarSetDefault -->
 <g id="program~~main~20~~CallsGraph_node8" class="node">
-<title>none~finalize~6</title>
-<g id="a_program~~main~20~~CallsGraph_node8"><a xlink:href="../type/baseprofiler.html#boundprocedure-finalize~6" xlink:title="BaseProfiler%finalize">
-<polygon fill="#a7506f" stroke="#a7506f" points="246,-234 122,-234 122,-210 246,-210 246,-234"/>
-<text text-anchor="middle" x="184" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseProfiler%finalize</text>
+<title>ESMF_CalendarSetDefault</title>
+<g id="a_program~~main~20~~CallsGraph_node8"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_calendarsetdefault.html" xlink:title="ESMF_CalendarSetDefault">
+<polygon fill="#a7506f" stroke="#a7506f" points="399.5,-360 248.5,-360 248.5,-336 399.5,-336 399.5,-360"/>
+<text text-anchor="middle" x="324" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CalendarSetDefault</text>
 </a>
 </g>
 </g>
-<!-- program~main~20&#45;&gt;none~finalize~6 -->
+<!-- proc~make_gc_t&#45;&gt;ESMF_CalendarSetDefault -->
 <g id="program~~main~20~~CallsGraph_edge7" class="edge">
-<title>program~main~20&#45;&gt;none~finalize~6</title>
-<path fill="none" stroke="#ff0000" d="M54.29,-239.44C70.18,-237.29 91.26,-234.43 111.75,-231.65"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="112.3,-235.11 121.74,-230.3 111.36,-228.17 112.3,-235.11"/>
+<title>proc~make_gc_t&#45;&gt;ESMF_CalendarSetDefault</title>
+<path fill="none" stroke="#00ffff" d="M185.61,-231.9C194.69,-235.79 203.93,-241.04 211,-248 238.5,-275.07 217.65,-301.95 247,-327 248.56,-328.33 250.2,-329.58 251.91,-330.75"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="250.48,-333.97 260.88,-335.97 254,-327.92 250.48,-333.97"/>
 </g>
-<!-- none~generate_report -->
+<!-- ESMF_ClockCreate -->
 <g id="program~~main~20~~CallsGraph_node9" class="node">
-<title>none~generate_report</title>
-<g id="a_program~~main~20~~CallsGraph_node9"><a xlink:href="../type/profilereporter.html#boundprocedure-generate_report" xlink:title="ProfileReporter%generate_report">
-<polygon fill="#a7506f" stroke="#a7506f" points="278,-192 90,-192 90,-168 278,-168 278,-192"/>
-<text text-anchor="middle" x="184" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProfileReporter%generate_report</text>
+<title>ESMF_ClockCreate</title>
+<g id="a_program~~main~20~~CallsGraph_node9"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_clockcreate.html" xlink:title="ESMF_ClockCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="379.5,-318 268.5,-318 268.5,-294 379.5,-294 379.5,-318"/>
+<text text-anchor="middle" x="324" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockCreate</text>
 </a>
 </g>
 </g>
-<!-- program~main~20&#45;&gt;none~generate_report -->
+<!-- proc~make_gc_t&#45;&gt;ESMF_ClockCreate -->
 <g id="program~~main~20~~CallsGraph_edge8" class="edge">
-<title>program~main~20&#45;&gt;none~generate_report</title>
-<path fill="none" stroke="#ff0000" d="M42.37,-230.97C54.38,-221.49 72.34,-208.65 90,-201 95.03,-198.82 100.32,-196.85 105.71,-195.08"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="106.95,-198.36 115.49,-192.09 104.91,-191.67 106.95,-198.36"/>
+<title>proc~make_gc_t&#45;&gt;ESMF_ClockCreate</title>
+<path fill="none" stroke="#00ffff" d="M185.13,-234C193.92,-237.85 203.12,-242.55 211,-248 229.86,-261.06 227.25,-273.32 247,-285 250.81,-287.26 254.88,-289.28 259.07,-291.09"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="257.81,-294.35 268.4,-294.72 260.35,-287.83 257.81,-294.35"/>
 </g>
-<!-- none~reduce~2 -->
+<!-- ESMF_GridCompCreate -->
 <g id="program~~main~20~~CallsGraph_node10" class="node">
-<title>none~reduce~2</title>
-<g id="a_program~~main~20~~CallsGraph_node10"><a xlink:href="../type/distributedprofiler.html#boundprocedure-reduce~2" xlink:title="DistributedProfiler%reduce">
-<polygon fill="#a7506f" stroke="#a7506f" points="261.5,-150 106.5,-150 106.5,-126 261.5,-126 261.5,-150"/>
-<text text-anchor="middle" x="184" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DistributedProfiler%reduce</text>
+<title>ESMF_GridCompCreate</title>
+<g id="a_program~~main~20~~CallsGraph_node10"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_gridcompcreate.html" xlink:title="ESMF_GridCompCreate">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="392,-276 256,-276 256,-252 392,-252 392,-276"/>
+<text text-anchor="middle" x="324" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompCreate</text>
 </a>
 </g>
 </g>
-<!-- program~main~20&#45;&gt;none~reduce~2 -->
+<!-- proc~make_gc_t&#45;&gt;ESMF_GridCompCreate -->
 <g id="program~~main~20~~CallsGraph_edge9" class="edge">
-<title>program~main~20&#45;&gt;none~reduce~2</title>
-<path fill="none" stroke="#ff0000" d="M33.47,-230.83C42.48,-212.27 62.23,-177.14 90,-159 92.62,-157.29 95.36,-155.72 98.18,-154.27"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="99.8,-157.39 107.47,-150.08 96.91,-151.01 99.8,-157.39"/>
+<title>proc~make_gc_t&#45;&gt;ESMF_GridCompCreate</title>
+<path fill="none" stroke="#00ffff" d="M185.79,-230.4C208.16,-235.87 237.93,-243.17 264.02,-249.56"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="263.28,-252.98 273.82,-251.96 264.94,-246.18 263.28,-252.98"/>
 </g>
-<!-- none~reset~13 -->
+<!-- ESMF_TimeIntervalSet -->
 <g id="program~~main~20~~CallsGraph_node11" class="node">
-<title>none~reset~13</title>
-<g id="a_program~~main~20~~CallsGraph_node11"><a xlink:href="../type/baseprofiler.html#boundprocedure-reset~13" xlink:title="BaseProfiler%reset">
-<polygon fill="#a7506f" stroke="#a7506f" points="240,-108 128,-108 128,-84 240,-84 240,-108"/>
-<text text-anchor="middle" x="184" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseProfiler%reset</text>
+<title>ESMF_TimeIntervalSet</title>
+<g id="a_program~~main~20~~CallsGraph_node11"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="389,-234 259,-234 259,-210 389,-210 389,-234"/>
+<text text-anchor="middle" x="324" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
 </a>
 </g>
 </g>
-<!-- program~main~20&#45;&gt;none~reset~13 -->
+<!-- proc~make_gc_t&#45;&gt;ESMF_TimeIntervalSet -->
 <g id="program~~main~20~~CallsGraph_edge10" class="edge">
-<title>program~main~20&#45;&gt;none~reset~13</title>
-<path fill="none" stroke="#ff0000" d="M30.35,-230.75C35.9,-205.32 52.29,-146.74 90,-117 98.17,-110.55 107.95,-106.01 118.04,-102.81"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="119.05,-106.17 127.77,-100.15 117.2,-99.42 119.05,-106.17"/>
+<title>proc~make_gc_t&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#00ffff" d="M185.79,-222C203.93,-222 226.95,-222 248.92,-222"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="248.92,-225.5 258.92,-222 248.92,-218.5 248.92,-225.5"/>
 </g>
-<!-- none~start~81 -->
+<!-- ESMF_TimeSet -->
 <g id="program~~main~20~~CallsGraph_node12" class="node">
-<title>none~start~81</title>
-<g id="a_program~~main~20~~CallsGraph_node12"><a xlink:href="../type/distributedprofiler.html#boundprocedure-start~81" xlink:title="DistributedProfiler%start">
-<polygon fill="#a7506f" stroke="#a7506f" points="255,-66 113,-66 113,-42 255,-42 255,-66"/>
-<text text-anchor="middle" x="184" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DistributedProfiler%start</text>
+<title>ESMF_TimeSet</title>
+<g id="a_program~~main~20~~CallsGraph_node12"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="369,-192 279,-192 279,-168 369,-168 369,-192"/>
+<text text-anchor="middle" x="324" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
 </a>
 </g>
 </g>
-<!-- program~main~20&#45;&gt;none~start~81 -->
+<!-- proc~make_gc_t&#45;&gt;ESMF_TimeSet -->
 <g id="program~~main~20~~CallsGraph_edge11" class="edge">
-<title>program~main~20&#45;&gt;none~start~81</title>
-<path fill="none" stroke="#ff0000" d="M28.69,-230.66C31.15,-199.47 42.07,-117.01 90,-75 94.02,-71.48 98.51,-68.51 103.28,-66.01"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="105.06,-69.05 112.75,-61.76 102.2,-62.66 105.06,-69.05"/>
+<title>proc~make_gc_t&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#00ffff" d="M185.79,-213.6C209.65,-207.76 241.93,-199.85 269.19,-193.18"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="270.1,-196.56 278.98,-190.78 268.44,-189.76 270.1,-196.56"/>
 </g>
-<!-- proc~do_lap~2 -->
+<!-- esmf_gridcompsetservices -->
 <g id="program~~main~20~~CallsGraph_node13" class="node">
-<title>proc~do_lap~2</title>
-<g id="a_program~~main~20~~CallsGraph_node13"><a xlink:href="../proc/do_lap~2.html" xlink:title="do_lap">
-<polygon fill="#d9534f" stroke="#d9534f" points="211,-24 157,-24 157,0 211,0 211,-24"/>
-<text text-anchor="middle" x="184" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">do_lap</text>
+<title>esmf_gridcompsetservices</title>
+<polygon fill="#777777" stroke="#777777" points="401,-150 247,-150 247,-126 401,-126 401,-150"/>
+<text text-anchor="middle" x="324" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_gridcompsetservices</text>
+</g>
+<!-- proc~make_gc_t&#45;&gt;esmf_gridcompsetservices -->
+<g id="program~~main~20~~CallsGraph_edge12" class="edge">
+<title>proc~make_gc_t&#45;&gt;esmf_gridcompsetservices</title>
+<path fill="none" stroke="#00ffff" d="M166.5,-209.93C184.61,-195.89 216.44,-172.88 247,-159 251.44,-156.98 256.12,-155.12 260.88,-153.41"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="262.35,-156.61 270.72,-150.11 260.12,-149.97 262.35,-156.61"/>
+</g>
+<!-- esmf_statecreate -->
+<g id="program~~main~20~~CallsGraph_node14" class="node">
+<title>esmf_statecreate</title>
+<polygon fill="#777777" stroke="#777777" points="376,-108 272,-108 272,-84 376,-84 376,-108"/>
+<text text-anchor="middle" x="324" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_statecreate</text>
+</g>
+<!-- proc~make_gc_t&#45;&gt;esmf_statecreate -->
+<g id="program~~main~20~~CallsGraph_edge13" class="edge">
+<title>proc~make_gc_t&#45;&gt;esmf_statecreate</title>
+<path fill="none" stroke="#00ffff" d="M159.09,-209.9C173.48,-187.96 206.9,-141.65 247,-117 251.74,-114.09 256.89,-111.57 262.19,-109.4"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="263.69,-112.58 271.87,-105.84 261.28,-106.01 263.69,-112.58"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="program~~main~20~~CallsGraph_node16" class="node">
+<title>proc~mapl_return</title>
+<g id="a_program~~main~20~~CallsGraph_node16"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="365,-66 283,-66 283,-42 365,-42 365,-66"/>
+<text text-anchor="middle" x="324" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
 </a>
 </g>
 </g>
-<!-- program~main~20&#45;&gt;proc~do_lap~2 -->
-<g id="program~~main~20~~CallsGraph_edge12" class="edge">
-<title>program~main~20&#45;&gt;proc~do_lap~2</title>
-<path fill="none" stroke="#ff0000" d="M27.65,-230.9C27.3,-194.94 31.47,-87.84 90,-33 105.08,-18.87 127.58,-13.53 146.67,-11.76"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="147.1,-15.24 156.85,-11.12 146.65,-8.25 147.1,-15.24"/>
+<!-- proc~make_gc_t&#45;&gt;proc~mapl_return -->
+<g id="program~~main~20~~CallsGraph_edge14" class="edge">
+<title>proc~make_gc_t&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffff" d="M157.86,-209.95C174.83,-178.24 221.59,-93.61 247,-75 254.62,-69.42 263.66,-65.32 272.8,-62.31"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="274.05,-65.59 282.69,-59.45 272.11,-58.86 274.05,-65.59"/>
+</g>
+<!-- mpi_abort -->
+<g id="program~~main~20~~CallsGraph_node15" class="node">
+<title>mpi_abort</title>
+<polygon fill="#777777" stroke="#777777" points="357.5,-24 290.5,-24 290.5,0 357.5,0 357.5,-24"/>
+<text text-anchor="middle" x="324" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_abort</text>
+</g>
+<!-- proc~mapl_abort&#45;&gt;mpi_abort -->
+<g id="program~~main~20~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_abort&#45;&gt;mpi_abort</title>
+<path fill="none" stroke="#0000ff" d="M166.5,-83.93C184.61,-69.89 216.44,-46.88 247,-33 257.5,-28.23 269.31,-24.33 280.44,-21.24"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="281.63,-24.54 290.41,-18.62 279.85,-17.77 281.63,-24.54"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="program~~main~20~~CallsGraph_node17" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_program~~main~20~~CallsGraph_node17"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="570,-265 437,-265 437,-241 570,-241 570,-265"/>
+<text text-anchor="middle" x="503.5" y="-250.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="program~~main~20~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00ff" d="M362.36,-384.22C375.28,-381.08 389.41,-376.28 401,-369 440.15,-344.41 472.69,-300.17 489.71,-274.01"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="492.86,-275.58 495.26,-265.26 486.95,-271.83 492.86,-275.58"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="program~~main~20~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M365.19,-59C377.62,-62.07 390.74,-67.02 401,-75 453.9,-116.15 483.91,-193.14 496.07,-230.93"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="492.86,-232.38 499.16,-240.9 499.55,-230.31 492.86,-232.38"/>
+</g>
+<!-- at -->
+<g id="program~~main~20~~CallsGraph_node18" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="530.5,-87 476.5,-87 476.5,-63 530.5,-63 530.5,-87"/>
+<text text-anchor="middle" x="503.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="program~~main~20~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#cc00ff" d="M365.28,-58.77C395.61,-62.35 436.85,-67.23 466.18,-70.7"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="466.06,-74.21 476.4,-71.91 466.88,-67.26 466.06,-74.21"/>
+</g>
+<!-- insert -->
+<g id="program~~main~20~~CallsGraph_node19" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="530.5,-45 476.5,-45 476.5,-21 530.5,-21 530.5,-45"/>
+<text text-anchor="middle" x="503.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="program~~main~20~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#cc00ff" d="M365.28,-49.23C395.61,-45.65 436.85,-40.77 466.18,-37.3"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="466.88,-40.74 476.4,-36.09 466.06,-33.79 466.88,-40.74"/>
 </g>
 </g>
 </svg>
@@ -602,14 +785,14 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-empty~268"></span>
-              character(len=1)
+              <span class="anchor" id="variable-c0~9"></span>
+              integer(kind=INT64)
             </td>
             <td>
               
             </td>
             <td>::</td>
-            <td><strong>empty</strong>(0)</td>
+            <td><strong>c0</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -618,14 +801,14 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-report_lines~8"></span>
-              character(len=:),
+              <span class="anchor" id="variable-c1~18"></span>
+              integer(kind=INT64)
             </td>
             <td>
-              allocatable
+              
             </td>
             <td>::</td>
-            <td><strong>report_lines</strong>(:)</td>
+            <td><strong>c1</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -634,7 +817,55 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-i~1953"></span>
+              <span class="anchor" id="variable-cr"></span>
+              integer(kind=INT64)
+            </td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cr</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n_gcs"></span>
+              integer,
+            </td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>N_GCS</strong></td>
+<td> =</td>
+                <td>100</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n_steps"></span>
+              integer,
+            </td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>N_STEPS</strong></td>
+<td> =</td>
+                <td>10</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i~1726"></span>
               integer
             </td>
             <td>
@@ -650,14 +881,14 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ierror~70"></span>
+              <span class="anchor" id="variable-j~206"></span>
               integer
             </td>
             <td>
               
             </td>
             <td>::</td>
-            <td><strong>ierror</strong></td>
+            <td><strong>j</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -666,14 +897,14 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rank~129"></span>
+              <span class="anchor" id="variable-rc~2180"></span>
               integer
             </td>
             <td>
               
             </td>
             <td>::</td>
-            <td><strong>rank</strong></td>
+            <td><strong>rc</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -682,62 +913,14 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lap_prof~2"></span>
-              type(<a href='../type/distributedprofiler.html'>DistributedProfiler</a>),
-            </td>
-            <td>
-              target
-            </td>
-            <td>::</td>
-            <td><strong>lap_prof</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-main_prof~2"></span>
-              type(<a href='../type/distributedprofiler.html'>DistributedProfiler</a>),
-            </td>
-            <td>
-              target
-            </td>
-            <td>::</td>
-            <td><strong>main_prof</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-mem_prof"></span>
-              type(<a href='../type/memoryprofiler.html'>MemoryProfiler</a>),
-            </td>
-            <td>
-              target
-            </td>
-            <td>::</td>
-            <td><strong>mem_prof</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-main_reporter"></span>
-              type(<a href='../type/profilereporter.html'>ProfileReporter</a>)
+              <span class="anchor" id="variable-status~1804"></span>
+              integer
             </td>
             <td>
               
             </td>
             <td>::</td>
-            <td><strong>main_reporter</strong></td>
+            <td><strong>status</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -746,14 +929,14 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-mem_reporter"></span>
-              type(<a href='../type/profilereporter.html'>ProfileReporter</a>)
+              <span class="anchor" id="variable-userstatus"></span>
+              integer
             </td>
             <td>
               
             </td>
             <td>::</td>
-            <td><strong>mem_reporter</strong></td>
+            <td><strong>userStatus</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -762,14 +945,46 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-reporter~9"></span>
-              type(<a href='../type/profilereporter.html'>ProfileReporter</a>)
+              <span class="anchor" id="variable-t_all"></span>
+              real
             </td>
             <td>
               
             </td>
             <td>::</td>
-            <td><strong>reporter</strong></td>
+            <td><strong>t_all</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t_one"></span>
+              real
+            </td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>t_one</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gcs~2"></span>
+              type(<a href='../type/gc_t.html'>GC_T</a>),
+            </td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>gcs</strong>(:)</td>
                 <td></td>
                 <td></td>
             <td>
@@ -788,237 +1003,49 @@ large graphs.</div>
     
 
 
-    <section>
-    <h2>Subroutines</h2>
-      <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-do_lap~2"></span> <h3> subroutine <a href='../proc/do_lap~2.html'>do_lap</a>(prof)  
-</h3></div>
-    <div class="card-body">
-          
-  
-
-  <h4>Arguments</h4>
-      <table class="table table-striped varlist">
-    <thead>
-      <tr>
-        <th scope="col">Type</th>
-<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
-        <th scope="col"></th>
-        <th scope="col">Name</th>
-        <th scope="col"></th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-prof~9"></span>
-              type(<a href='../type/distributedprofiler.html'>DistributedProfiler</a>),
-            </td>
-<td></td>
-              <td></td>            <td>
-              target
-            </td>
-            <td>::</td>
-            <td><strong>prof</strong></td>
-            <td>
-
-            </td>
-        </tr>
-    </tbody>
-  </table>
-
-
-    </div>
-  </div>
-
-    </section>    
     
 
     <section>
     <h2 id="src">Source Code</h2>
     <div class="hl codehilite"><pre><span></span><span class="k">program </span><span class="n">main</span>
-<span class="w">   </span><span class="k">use </span><span class="n">mapl_Profiler</span>
-<span class="w">   </span><span class="k">use </span><span class="n">MPI</span>
+<span class="w">   </span><span class="k">use </span><span class="n">my_gc</span>
+<span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandlingMod</span>
+<span class="w">   </span><span class="k">use </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">INT64</span>
 <span class="w">   </span><span class="k">implicit none</span>
 
+<span class="k">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
 
-<span class="k">   type</span><span class="w"> </span><span class="p">(</span><span class="n">MemoryProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mem_prof</span>
-<span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DistributedProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">main_prof</span>
-<span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DistributedProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lap_prof</span>
-<span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ProfileReporter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">reporter</span><span class="p">,</span><span class="w"> </span><span class="n">main_reporter</span>
-<span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ProfileReporter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mem_reporter</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">GC_T</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gcs</span><span class="p">(:)</span>
 
-<span class="w">   </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(:)</span>
-<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
-<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span>
-<span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">N_GCS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">N_STEPS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span>
+<span class="w">   </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">t_all</span><span class="p">,</span><span class="w"> </span><span class="n">t_one</span>
+<span class="w">   </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">c0</span><span class="p">,</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="n">cr</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">userStatus</span>
 
-<span class="c">!$   mem_prof = MemoryProfiler(&#39;TOTAL&#39;)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_Initialize</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">   </span><span class="k">allocate</span><span class="p">(</span><span class="n">gcs</span><span class="p">(</span><span class="n">N_GCS</span><span class="p">))</span>
+<span class="w">   </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">N_GCS</span>
+<span class="w">      </span><span class="n">gcs</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_gc_t</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end do</span>
 
-<span class="w">   </span><span class="k">call </span><span class="n">MPI_Init</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
-<span class="w">   </span><span class="k">call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
-
-<span class="w">   </span><span class="n">main_prof</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DistributedProfiler</span><span class="p">(</span><span class="s1">&#39;TOTAL&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">MpiTimerGauge</span><span class="p">(),</span><span class="w"> </span><span class="n">MPI_COMM_WORLD</span><span class="p">)</span><span class="w">   </span><span class="c">! timer 1</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">start</span><span class="p">()</span>
-<span class="w">   </span><span class="n">lap_prof</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DistributedProfiler</span><span class="p">(</span><span class="s1">&#39;Lap&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">MpiTimerGauge</span><span class="p">(),</span><span class="w"> </span><span class="n">MPI_COMM_WORLD</span><span class="p">)</span>
-<span class="w">   </span><span class="k">call </span><span class="n">lap_prof</span><span class="p">%</span><span class="n">start</span><span class="p">()</span>
-
-<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;init reporter&#39;</span><span class="p">)</span>
-<span class="w">   </span><span class="n">reporter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ProfileReporter</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span>
-<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">NameColumn</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;#-cycles&#39;</span><span class="p">,</span><span class="s1">&#39;(i5.0)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">NumCyclesColumn</span><span class="p">()))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; T(inc)&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">InclusiveColumn</span><span class="p">()))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; T(exc)&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">()))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;%(inc)&#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">InclusiveColumn</span><span class="p">())))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;%(exc)&#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">ExclusiveColumn</span><span class="p">())))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;  std. dev &#39;</span><span class="p">,</span><span class="s1">&#39;(f12.4)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="n">StdDevColumn</span><span class="p">()))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;  rel. dev &#39;</span><span class="p">,</span><span class="s1">&#39;(f12.4)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="n">StdDevColumn</span><span class="p">(</span><span class="n">relative</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;  max cyc &#39;</span><span class="p">,</span><span class="s1">&#39;(f12.8)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="n">MaxCycleColumn</span><span class="p">()))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;  min cyc &#39;</span><span class="p">,</span><span class="s1">&#39;(f12.8)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="n">MinCycleColumn</span><span class="p">()))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; mean cyc&#39;</span><span class="p">,</span><span class="s1">&#39;(f12.8)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="n">MeanCycleColumn</span><span class="p">()))</span>
-
-<span class="w">   </span><span class="n">main_reporter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ProfileReporter</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">NameColumn</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;Inclusive&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">InclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MEAN&#39;</span><span class="p">)))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;% Incl&#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">InclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MEAN&#39;</span><span class="p">),</span><span class="s1">&#39;MAX&#39;</span><span class="p">)))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;Exclusive&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MEAN&#39;</span><span class="p">)))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;% Excl&#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MEAN&#39;</span><span class="p">))))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; Max Excl)&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MAX&#39;</span><span class="p">)))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; Min Excl)&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MIN&#39;</span><span class="p">)))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;Max PE)&#39;</span><span class="p">,</span><span class="s1">&#39;(1x,i4.4,1x)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MAX_PE&#39;</span><span class="p">)))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;Min PE)&#39;</span><span class="p">,</span><span class="s1">&#39;(1x,i4.4,1x)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(</span><span class="s1">&#39;MIN_PE&#39;</span><span class="p">)))</span>
-
-<span class="w">   </span><span class="k">call </span><span class="n">mem_reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">NameColumn</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
-<span class="w">   </span><span class="k">call </span><span class="n">mem_reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;#-cycles&#39;</span><span class="p">,</span><span class="s1">&#39;(i5.0)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">NumCyclesColumn</span><span class="p">()))</span>
-<span class="w">   </span><span class="c">!call mem_reporter%add_column(MemoryTextColumn(&#39;  RSS  &#39;,&#39;(i4,1x,a2)&#39;, 7, InclusiveColumn()))</span>
-<span class="w">   </span><span class="c">!call mem_reporter%add_column(MemoryTextColumn(&#39;Cyc RSS&#39;,&#39;(i4,1x,a2)&#39;, 7, MeanCycleColumn()))</span>
-
-<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;init reporter&#39;</span><span class="p">)</span>
-
-
-<span class="c">!$   call mem_prof%start(&#39;lap&#39;)</span>
-<span class="w">   </span><span class="k">call </span><span class="n">do_lap</span><span class="p">(</span><span class="n">lap_prof</span><span class="p">)</span><span class="w"> </span><span class="c">! lap 1</span>
-<span class="w">   </span><span class="k">call </span><span class="n">lap_prof</span><span class="p">%</span><span class="n">finalize</span><span class="p">()</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">accumulate</span><span class="p">(</span><span class="n">lap_prof</span><span class="p">)</span>
-<span class="c">!$   call mem_prof%stop(&#39;lap&#39;)</span>
-
-
-<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;use reporter&#39;</span><span class="p">)</span>
-<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">      </span><span class="n">report_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reporter</span><span class="p">%</span><span class="n">generate_report</span><span class="p">(</span><span class="n">lap_prof</span><span class="p">)</span>
-<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;Lap 1&#39;</span>
-<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;=====&#39;</span>
-<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span>
-<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="k">   call </span><span class="nb">system_clock</span><span class="p">(</span><span class="n">c0</span><span class="p">,</span><span class="w"> </span><span class="n">cr</span><span class="p">)</span>
+<span class="w">   </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">N_STEPS</span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">N_GCS</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_GridCompRun</span><span class="p">(</span><span class="n">gcs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">importState</span><span class="o">=</span><span class="n">gcs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="o">=</span><span class="n">gcs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="o">=</span><span class="n">gcs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">userrc</span><span class="o">=</span><span class="n">userStatus</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">userStatus</span><span class="p">)</span>
 <span class="w">      </span><span class="k">end do</span>
-<span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;&#39;</span>
-<span class="w">   </span><span class="k">end if</span>
-<span class="k">   call </span><span class="n">main_prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;use reporter&#39;</span><span class="p">)</span>
+<span class="k">   end do</span>
+<span class="k">   call </span><span class="nb">system_clock</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span>
 
-<span class="c">!$   call mem_prof%start(&#39;lap&#39;)</span>
-<span class="w">   </span><span class="k">call </span><span class="n">lap_prof</span><span class="p">%</span><span class="n">reset</span><span class="p">()</span>
-<span class="w">   </span><span class="k">call </span><span class="n">do_lap</span><span class="p">(</span><span class="n">lap_prof</span><span class="p">)</span><span class="w"> </span><span class="c">! lap 2</span>
-<span class="w">   </span><span class="k">call </span><span class="n">lap_prof</span><span class="p">%</span><span class="n">finalize</span><span class="p">()</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">accumulate</span><span class="p">(</span><span class="n">lap_prof</span><span class="p">)</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;use reporter&#39;</span><span class="p">)</span>
+<span class="w">   </span><span class="n">t_all</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="n">c1</span><span class="o">-</span><span class="n">c0</span><span class="p">)</span><span class="o">/</span><span class="kt">real</span><span class="p">(</span><span class="n">cr</span><span class="p">)</span>
+<span class="w">   </span><span class="n">t_one</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t_all</span><span class="o">/</span><span class="kt">real</span><span class="p">(</span><span class="n">N_GCS</span><span class="o">*</span><span class="n">N_STEPS</span><span class="p">)</span>
 
-<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">      </span><span class="n">report_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reporter</span><span class="p">%</span><span class="n">generate_report</span><span class="p">(</span><span class="n">lap_prof</span><span class="p">)</span>
-<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;Lap 2&#39;</span>
-<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;=====&#39;</span>
-<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span>
-<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-<span class="w">      </span><span class="k">end do</span>
-<span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
-<span class="w">   </span><span class="k">end if</span>
+<span class="w">   </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;Time: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">t_one</span><span class="p">,</span><span class="w"> </span><span class="n">t_all</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_Finalize</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
-<span class="k">   call </span><span class="n">main_prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;use reporter&#39;</span><span class="p">)</span>
-<span class="c">!$   call mem_prof%stop(&#39;lap&#39;)</span>
-
-<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">finalize</span><span class="p">()</span>
-<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">reduce</span><span class="p">()</span>
-<span class="w">   </span><span class="n">report_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reporter</span><span class="p">%</span><span class="n">generate_report</span><span class="p">(</span><span class="n">main_prof</span><span class="p">)</span>
-<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;Final profile(0)&#39;</span>
-<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;=============&#39;</span>
-<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span>
-<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-<span class="w">      </span><span class="k">end do</span>
-<span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
-<span class="w">   </span><span class="k">end if</span>
-<span class="k">   call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
-<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;Final profile (1)&#39;</span>
-<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;================&#39;</span>
-<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span>
-<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-<span class="w">      </span><span class="k">end do</span>
-<span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
-<span class="w">   </span><span class="k">end if</span>
-<span class="k">   call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
-
-<span class="w">   </span><span class="n">report_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">main_reporter</span><span class="p">%</span><span class="n">generate_report</span><span class="p">(</span><span class="n">main_prof</span><span class="p">)</span>
-<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;Parallel profile&#39;</span>
-<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;================&#39;</span>
-<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span>
-<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-<span class="w">      </span><span class="k">end do</span>
-<span class="k">      write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
-<span class="w">   </span><span class="k">end if</span>
-<span class="w">   </span>
-<span class="c">!$   call mem_prof%finalize()</span>
-<span class="c">!$   if (rank == 0) then</span>
-<span class="c">!$      report_lines = mem_reporter%generate_report(mem_prof)</span>
-<span class="c">!$      write(*,&#39;(a)&#39;)&#39;Memory profile&#39;</span>
-<span class="c">!$      write(*,&#39;(a)&#39;)&#39;==============&#39;</span>
-<span class="c">!$      do i = 1, size(report_lines)</span>
-<span class="c">!$         write(*,&#39;(a)&#39;) report_lines(i)</span>
-<span class="c">!$      end do</span>
-<span class="c">!$      write(*,&#39;(a)&#39;) &#39;&#39;</span>
-<span class="c">!$   end if</span>
-
-<span class="w">   </span><span class="k">call </span><span class="n">MPI_Finalize</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
-
-<span class="k">contains</span>
-
-<span class="k">   subroutine </span><span class="n">do_lap</span><span class="p">(</span><span class="n">prof</span><span class="p">)</span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DistributedProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prof</span>
-
-<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span><span class="p">(:)</span>
-
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 2</span>
-<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">x</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="mi">7</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">rank</span><span class="p">))</span>
-<span class="w">      </span><span class="k">call </span><span class="nb">random_number</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">      </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1a&#39;</span><span class="p">)</span><span class="c">! 3</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1a&#39;</span><span class="p">)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1b&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 4</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1b1&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 5</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1b1&#39;</span><span class="p">)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1b&#39;</span><span class="p">)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 6</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_2b&#39;</span><span class="p">)</span><span class="c">! 7</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_2b&#39;</span><span class="p">)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span>
-
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 2</span>
-<span class="w">      </span><span class="k">block</span>
-<span class="k">        </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span><span class="p">(:)</span>
-<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">x</span><span class="p">(</span><span class="mi">1000000</span><span class="p">))</span>
-<span class="w">        </span><span class="k">call </span><span class="nb">random_number</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">        </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;sum: &#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="nb">exp</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-<span class="w">        </span><span class="k">deallocate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">      </span><span class="k">end block</span>
-<span class="k">      call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1a&#39;</span><span class="p">)</span><span class="c">! 3</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1a&#39;</span><span class="p">)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span>
-
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 6</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 6</span>
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span>
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">do_lap</span>
 
 <span class="k">end program </span><span class="n">main</span>
 </pre></div>
@@ -1043,7 +1070,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-04-18T13:03:05.436978             </p>
+ on 2024-04-18T18:05:44.572849             </p>
           </div>
         </div>
         <br>
