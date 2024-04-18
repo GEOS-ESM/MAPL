@@ -5,12 +5,18 @@ module mapl3g_HistoryCollectionGridComp_private
    use mapl3g_VariableSpec
    use esmf
    use Mapl_ErrorHandling
+   use gFTL2_StringVector
    use mapl3g_geom_mgr
 
    implicit none
    private
 
    public :: make_geom, register_imports
+
+   interface parse_item
+      module procedure :: parse_item_simple
+      module procedure :: parse_item_expression
+   end interface parse_item
 
    character(len=*), parameter :: VARIABLE_DELIMITER = '.'
    character(len=*), parameter :: DELIMITER_REPLACEMENT = '/'
@@ -44,8 +50,7 @@ contains
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: var_list
       character(len=:), allocatable :: item_name
-      character(len=:), allocatable :: short_name
-      type(VariableSpec) :: varspec
+      type(StringVector) :: variable_names
       integer :: status
 
       var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, _RC)
@@ -54,15 +59,33 @@ contains
       iter = iter_begin
 
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
-         call parse_item(iter, item_name, short_name, _RC)
-         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, short_name)
-         call MAPL_AddSpec(gridcomp, varspec, _RC)
+         call parse_item(iter, item_name, variable_names, _RC)
+         call add_spec(gridcomp, variable_names, _RC)
       end do
 
       _RETURN(_SUCCESS)
    end subroutine register_imports
 
-   subroutine parse_item(item, item_name, short_name, rc)
+   subroutine add_spec(gridcomp, names, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(StringVector), intent(in) :: names
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(StringVector) :: iter
+      type(VariableSpec) :: varspec
+
+      iter = names%begin()
+      do while(iter /= names%end())
+         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, iter%of())
+         call MAPL_AddSpec(gridcomp, varspec, _RC)
+         call iterator%next()
+      end do
+
+      _RETURN(_SUCCESS)
+
+   end subroutine add_spec
+
+   subroutine parse_item_simple(item, item_name, short_name, rc)
       type(ESMF_HConfigIter), intent(in) :: item 
       character(len=:), allocatable, intent(out) :: item_name
       character(len=:), allocatable, intent(out) :: short_name
@@ -72,7 +95,6 @@ contains
       logical :: asOK, isScalar, isMap
       type(ESMF_HConfig) :: value
       type(ESMF_HConfigIter) :: iter, iterBegin, iterEnd
-      character(len=:), allocatable :: part_key, part_value
 
       isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
       _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
@@ -88,7 +110,36 @@ contains
       short_name = replace_delimiter(short_name, VARIABLE_DELIMITER, DELIMITER_REPLACEMENT)
 
       _RETURN(_SUCCESS)
-   end subroutine parse_item
+   end subroutine parse_item_simple
+
+   subroutine parse_item_expression(item, item_name, short_names, rc)
+      type(ESMF_HConfigIter), intent(in) :: item 
+      character(len=:), allocatable, intent(out) :: item_name
+      type(StringVector), intent(out) :: short_names
+      integer, optional, intent(out) :: rc
+      character(len=*), parameter :: EXPRESSION_KEY = 'expr'
+      integer :: status
+      logical :: asOK, isScalar, isMap
+      type(ESMF_HConfig) :: value
+      type(ESMF_HConfigIter) :: iter, iterBegin, iterEnd
+      character(len=:), allocatable :: expression
+
+      isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
+      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
+
+      isMap = ESMF_HConfigIsMapMapVal(item, _RC)
+      _ASSERT(isMap, 'Variable list item does not have a map value.')
+
+      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
+      _ASSERT(asOK, 'Name could not be processed as a String.')
+
+      value = ESMF_HConfigCreateAtMapVal(item, _RC)
+      expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
+
+      short_name = replace_delimiter(short_name, VARIABLE_DELIMITER, DELIMITER_REPLACEMENT)
+
+      _RETURN(_SUCCESS)
+   end subroutine parse_item_expression
 
    function replace_delimiter(string, delimiter, replacement) result(replaced)
       character(len=:), allocatable :: replaced
