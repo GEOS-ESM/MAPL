@@ -705,6 +705,7 @@ contains
       integer :: status
       type(ESMF_Info) :: ungridded_dims_info
       type(ESMF_Info) :: vertical_dim_info
+      type(ESMF_Info) :: vertical_geom_info
 
       type(ESMF_Info) :: field_info
 
@@ -715,9 +716,22 @@ contains
       call ESMF_InfoDestroy(ungridded_dims_info, _RC)
 
       vertical_dim_info = this%vertical_dim%make_info(_RC)
-
-      call ESMF_InfoSet(field_info, key='MAPL/vertical', value=vertical_dim_info, _RC)
+      call ESMF_InfoSet(field_info, key='MAPL/vertical_dim', value=vertical_dim_info, _RC)
       call ESMF_InfoDestroy(vertical_dim_info, _RC)
+
+      vertical_geom_info = this%vertical_geom%make_info(_RC)
+      call ESMF_InfoSet(field_info, key='MAPL/vertical_geom', value=vertical_geom_info, _RC)
+      call ESMF_InfoDestroy(vertical_geom_info, _RC)
+
+      if (allocated(this%units)) then
+         call ESMF_InfoSet(field_info, key='MAPL/units', value=this%units, _RC)
+      end if
+      if (allocated(this%long_name)) then
+         call ESMF_InfoSet(field_info, key='MAPL/long_name', value=this%long_name, _RC)
+      end if
+      if (allocated(this%standard_name)) then
+         call ESMF_InfoSet(field_info, key='MAPL/standard_name', value=this%standard_name, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine set_info
