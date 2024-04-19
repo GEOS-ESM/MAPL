@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-<<<<<<< HEAD
 - Release the pfio memory as early as possible
 - Add glob function in sampler code, supporting wild character, e.g., filename template = `amsr2_gcom-w1.%y4%m2%d2T%h2%n2*.nc4`
 - Checked resource for o-server. It quits if the numer requested is inconsistent with being used
