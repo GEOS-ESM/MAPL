@@ -23,6 +23,10 @@ module mapl3g_HistoryCollectionGridComp_private
       module procedure :: replace_delimiter_expression
    end interface replace_delimiter
 
+   interface convert_string_vector
+      module procedure :: convert_string_vector_v2
+   end interface convert_string_vector
+
    character(len=*), parameter :: VARIABLE_DELIMITER = '.'
    character(len=*), parameter :: DELIMITER_REPLACEMENT = '/'
 
@@ -101,6 +105,7 @@ contains
       type(ESMF_HConfig) :: value
       type(ESMF_HConfigIter) :: iter, iterBegin, iterEnd
       character(len=:), allocatable :: expression
+      type(StringVectorV1) :: v1svector
 
       isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
       _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
@@ -114,7 +119,9 @@ contains
       value = ESMF_HConfigCreateAtMapVal(item, _RC)
       expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
       expression = replace_delimiter(expression, VARIABLE_DELIMITER, DELIMITER_REPLACEMENT)
-      short_names = parser_variables_in_expression(expression, _RC)
+!      short_names = parser_variables_in_expression(expression, _RC) !wdb fixme Workaround until function returns gFTL2 StringVector
+      v1svector = parser_variables_in_expression(expression, _RC)
+      short_names = convert_string_vector(v1svector)
 
       _RETURN(_SUCCESS)
    end subroutine parse_item_expression
@@ -144,11 +151,6 @@ contains
       end function inner
 
    end function replace_delimiter_expression
-
-   function convert_v1string_vector(v1string_vector) result(string_vector)
-      type(StringVector) :: string_vector
-      type(StringVectorV1), intent(in) :: v1string_vector
-
 
    subroutine parse_item_simple(item, item_name, short_name, rc)
       type(ESMF_HConfigIter), intent(in) :: item 
@@ -189,5 +191,17 @@ contains
       if(i > 0) replaced = replaced(:(i-1))// replacement // replaced((i+len(delimiter)):)
 
    end function replace_delimiter_simple
+
+   function convert_string_vector_v2(svector1) result(svector)
+      type(StringVector) :: svector
+      type(StringVectorV1) :: svector1
+      type(StringVectorIteratorV1) :: iter
+
+      iter = svector1%begin()
+      do while(iter /= svector1%end())
+        call svector%push_back(iter%of()) 
+     end do
+
+   end function convert_string_vector_v2
 
 end module mapl3g_HistoryCollectionGridComp_private
