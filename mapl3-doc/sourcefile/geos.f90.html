@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for source files.">60 statements</a>
+                 title=" 0.0% of total for source files.">69 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -527,18 +527,18 @@
 <path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M393.43,-150.04C374.91,-154.82 353.41,-160.38 334.01,-165.4"/>
 <polygon fill="#7f00ff" stroke="#7f00ff" points="332.88,-162.07 324.07,-167.96 334.63,-168.85 332.88,-162.07"/>
 </g>
-<!-- sourcefile~mapl_profiler.f90 -->
+<!-- sourcefile~mapl_profiler.f90~2 -->
 <g id="sourcefile~~geos.f90~~EfferentGraph_node18" class="node">
-<title>sourcefile~mapl_profiler.f90</title>
-<g id="a_sourcefile~~geos.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/mapl_profiler.f90.html" xlink:title="MAPL_Profiler.F90">
+<title>sourcefile~mapl_profiler.f90~2</title>
+<g id="a_sourcefile~~geos.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/mapl_profiler.f90~2.html" xlink:title="MAPL_Profiler.F90">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="329,-108 224,-108 224,-84 329,-84 329,-108"/>
 <text text-anchor="middle" x="276.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Profiler.F90</text>
 </a>
 </g>
 </g>
-<!-- sourcefile~maplframework.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<!-- sourcefile~maplframework.f90&#45;&gt;sourcefile~mapl_profiler.f90~2 -->
 <g id="sourcefile~~geos.f90~~EfferentGraph_edge28" class="edge">
-<title>sourcefile~maplframework.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<title>sourcefile~maplframework.f90&#45;&gt;sourcefile~mapl_profiler.f90~2</title>
 <path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M393.43,-125.96C374.91,-121.18 353.41,-115.62 334.01,-110.6"/>
 <polygon fill="#7f00ff" stroke="#7f00ff" points="334.63,-107.15 324.07,-108.04 332.88,-113.93 334.63,-107.15"/>
 </g>
@@ -656,47 +656,53 @@ large graphs.</div>
 <a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 <a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span>
 <a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
-<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">mapl_hconfig</span>
-<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">has_mapl_section</span>
-<a id="ln-28" name="ln-28" href="#ln-28"></a>
-<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_Initialize</span><span class="p">(</span><span class="n">configFilenameFromArgNum</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">configKey</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;esmf&#39;</span><span class="p">],</span><span class="w"> </span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGet</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="o">=</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="n">has_mapl_section</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">keystring</span><span class="o">=</span><span class="s1">&#39;mapl&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_mapl_section</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="k">         </span><span class="n">mapl_hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreateAt</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">keystring</span><span class="o">=</span><span class="s1">&#39;mapl&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">end if</span>
-<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="k">      call </span><span class="n">MAPL_Initialize</span><span class="p">(</span><span class="n">mapl_hconfig</span><span class="o">=</span><span class="n">mapl_hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-36" name="ln-36" href="#ln-36"></a>
-<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize</span>
-<a id="ln-39" name="ln-39" href="#ln-39"></a>
-<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">run_geos</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
-<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
-<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
-<a id="ln-43" name="ln-43" href="#ln-43"></a>
-<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap_hconfig</span>
-<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
-<a id="ln-46" name="ln-46" href="#ln-46"></a>
-<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGet</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="o">=</span><span class="n">cap_hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">call </span><span class="n">MAPL_run_driver</span><span class="p">(</span><span class="n">cap_hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-49" name="ln-49" href="#ln-49"></a>
-<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">run_geos</span>
-<a id="ln-52" name="ln-52" href="#ln-52"></a>
-<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">finalize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
-<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
-<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
-<a id="ln-56" name="ln-56" href="#ln-56"></a>
-<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
-<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span>
-<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="k">call </span><span class="n">MAPL_Finalize</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigDestroy</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_Finalize</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mapl_hconfig</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">has_mapl_section</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_Initialize</span><span class="p">(</span><span class="n">configFilenameFromArgNum</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">configKey</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;esmf&#39;</span><span class="p">],</span><span class="w"> </span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGet</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="o">=</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="n">has_mapl_section</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">keystring</span><span class="o">=</span><span class="s1">&#39;mapl&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_mapl_section</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="k">         </span><span class="n">mapl_hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreateAt</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">keystring</span><span class="o">=</span><span class="s1">&#39;mapl&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="k">      call </span><span class="n">MAPL_Initialize</span><span class="p">(</span><span class="n">mapl_hconfig</span><span class="o">=</span><span class="n">mapl_hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">run_geos</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">has_cap_hconfig</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGet</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="o">=</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="n">has_cap_hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">keystring</span><span class="o">=</span><span class="s1">&#39;cap&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">has_cap_hconfig</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;No cap section found in configuration file&#39;</span><span class="p">)</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="n">cap_hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreateAt</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">keystring</span><span class="o">=</span><span class="s1">&#39;cap&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="k">call </span><span class="n">MAPL_run_driver</span><span class="p">(</span><span class="n">cap_hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">cap_hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">run_geos</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">finalize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 <a id="ln-62" name="ln-62" href="#ln-62"></a>
-<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">finalize</span>
-<a id="ln-65" name="ln-65" href="#ln-65"></a>
-<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="k">end program </span><span class="n">geos</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="k">call </span><span class="n">MAPL_Finalize</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigDestroy</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_Finalize</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">finalize</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="k">end program </span><span class="n">geos</span>
 </pre></div>
 
       </section>
@@ -718,7 +724,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-04-18T20:21:08.488979             </p>
+ on 2024-04-19T13:08:11.732181             </p>
           </div>
         </div>
         <br>

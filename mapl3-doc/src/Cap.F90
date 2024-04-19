@@ -44,11 +44,13 @@ contains
       type(ESMF_Clock) :: clock
       character(:), allocatable :: cap_name
       integer :: status, user_status
+      type(ESMF_HConfig) :: cap_gc_hconfig
 
-      cap_name = ESMF_HConfigAsString(hconfig, keystring='cap_name', _RC)
+      cap_name = ESMF_HConfigAsString(hconfig, keystring='name', _RC)
       ! TODO:  Rename to MAPL_CreateGridComp() ?
       clock = create_clock(hconfig, _RC)
-      cap_gridcomp = create_grid_comp(cap_name, user_setservices(cap_setservices), hconfig, clock, _RC)
+      cap_gc_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='cap_gc', _RC)
+      cap_gridcomp = create_grid_comp(cap_name, user_setservices(cap_setservices), cap_gc_hconfig, clock, _RC)
       call ESMF_GridCompSetServices(cap_gridcomp, generic_setServices, userRC=user_status, _RC)
       _VERIFY(user_status)
 

@@ -23,7 +23,8 @@ contains
       integer, optional, intent(out) :: rc
       
       integer :: status
-      type(ESMF_HConfig) :: hconfig, mapl_hconfig
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_HConfig), allocatable :: mapl_hconfig
       logical :: has_mapl_section
 
       call ESMF_Initialize(configFilenameFromArgNum=1, configKey=['esmf'], config=config, _RC)
@@ -41,11 +42,16 @@ contains
       type(ESMF_Config), intent(inout) :: config
       integer, optional, intent(out) :: rc
 
-      type(ESMF_HConfig) :: cap_hconfig
+      type(ESMF_HConfig) :: cap_hconfig, hconfig
+      logical :: has_cap_hconfig
       integer :: status
 
-      call ESMF_ConfigGet(config, hconfig=cap_hconfig, _RC)
+      call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
+      has_cap_hconfig = ESMF_HConfigIsDefined(hconfig, keystring='cap', _RC)
+      _ASSERT(has_cap_hconfig, 'No cap section found in configuration file')
+      cap_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='cap', _RC)
       call MAPL_run_driver(cap_hconfig, _RC)
+      call ESMF_HConfigDestroy(cap_hconfig, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine run_geos

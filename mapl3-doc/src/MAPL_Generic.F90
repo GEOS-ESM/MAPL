@@ -253,8 +253,7 @@ contains
 
    ! In this procedure, gridcomp is actually an _outer_ gridcomp.   The intent is that
    ! an inner gridcomp will call this on its child which is a wrapped user comp.
-
-   subroutine run_child_by_name(gridcomp, child_name, unusable, phase_name, rc)
+   recursive subroutine run_child_by_name(gridcomp, child_name, unusable, phase_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -272,7 +271,7 @@ contains
    end subroutine run_child_by_name
 
 
-   subroutine run_children(gridcomp, unusable, phase_name, rc)
+   recursive subroutine run_children(gridcomp, unusable, phase_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), intent(in) :: phase_name
