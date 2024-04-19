@@ -38,7 +38,7 @@ module mapl3g_FieldSpec
 
       type(ESMF_Geom), allocatable :: geom
       type(VerticalGeom) :: vertical_geom
-      type(VerticalDimSpec) :: vertical_dim
+      type(VerticalDimSpec) :: vertical_dim = VERTICAL_DIM_UNDEF
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(UngriddedDimsSpec) :: ungridded_dims
       type(StringVector) :: attributes
@@ -86,6 +86,7 @@ module mapl3g_FieldSpec
       procedure :: match_geom
       procedure :: match_typekind
       procedure :: match_string
+      procedure :: match_vertical_dim
    end interface match
 
    interface get_cost
@@ -294,6 +295,8 @@ contains
       type(LU_Bound) :: vertical_bounds
 
       bounds = this%ungridded_dims%get_bounds()
+      _ASSERT(this%vertical_dim /= VERTICAL_DIM_MIRROR, \
+           'get_ungridded_bounds() should not be called until after VerticalDimSpec is fully established.')
       if (this%vertical_dim == VERTICAL_DIM_NONE) return
 
       vertical_bounds = get_vertical_bounds(this%vertical_dim, this%vertical_geom)
@@ -325,6 +328,7 @@ contains
       interface mirror
          procedure :: mirror_typekind
          procedure :: mirror_string
+         procedure :: mirror_vertical_dim
       end interface mirror
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
@@ -336,6 +340,7 @@ contains
          this%payload = src_spec%payload
          call mirror(dst=this%typekind, src=src_spec%typekind)
          call mirror(dst=this%units, src=src_spec%units)
+         call mirror(dst=this%vertical_dim, src=src_spec%vertical_dim)
 
       class default
          _FAIL('Cannot connect field spec to non field spec.')
@@ -361,6 +366,24 @@ contains
 
          _ASSERT(dst == src, 'unsupported typekind mismatch')
       end subroutine mirror_typekind
+
+      ! Earlier checks should rule out double-mirror before this is
+      ! called.
+      subroutine mirror_vertical_dim(dst, src)
+         type(VerticalDimSpec), intent(inout) :: dst, src
+
+         if (dst == src) return
+
+         if (dst == VERTICAL_DIM_MIRROR) then
+            dst = src
+         end if
+
+         if (src == VERTICAL_DIM_MIRROR) then
+            src = dst
+         end if
+
+         _ASSERT(dst == src, 'unsupported typekind mismatch')
+      end subroutine mirror_vertical_dim
 
       subroutine mirror_string(dst, src)
          character(len=:), allocatable, intent(inout) :: dst, src
@@ -394,7 +417,7 @@ contains
          can_convert_units_ = can_connect_units(this%units, src_spec%units, _RC)
          can_connect_to = all ([ &
               this%ungridded_dims == src_spec%ungridded_dims, &
-              this%vertical_dim == src_spec%vertical_dim, &
+              match(this%vertical_dim,src_spec%vertical_dim), &
               this%ungridded_dims == src_spec%ungridded_dims, & 
               includes(this%attributes, src_spec%attributes), &
               can_convert_units_ &
@@ -614,6 +637,24 @@ contains
       ! Both are mirror
       match = .false.
    end function match_string
+
+   logical function match_vertical_dim(a, b) result(match)
+      type(VerticalDimSpec), intent(in) :: a, b
+
+      logical :: mirror_a, mirror_b
+
+      match = .false.
+      if (mirror(a) .and. mirror(b)) return ! At most one can mirror
+
+      match = (mirror(a) .or. mirror(b))
+      if (match) return ! One mirror is always ok
+
+      ! No mirrors - must match exactly
+      match = (a == b)
+
+      ! Both are mirror
+      match = .false.
+   end function match_vertical_dim
 
    logical function mirror(str)
       character(:), allocatable :: str
