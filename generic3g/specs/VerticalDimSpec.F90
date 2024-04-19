@@ -17,7 +17,7 @@ module mapl3g_VerticalDimSpec
    public :: VERTICAL_DIM_EDGE
    public :: VERTICAL_DIM_MIRROR
 
-   public operator(==)
+   public :: operator(==)
 
    type :: VerticalDimSpec
       private

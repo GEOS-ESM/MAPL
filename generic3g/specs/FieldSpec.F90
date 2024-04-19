@@ -229,7 +229,6 @@ contains
 
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
-      
       if (allocated(this%default_value)) then
          call set_field_default(_RC)
       end if
@@ -245,7 +244,7 @@ contains
          real(kind=ESMF_KIND_R4), pointer :: x_r4_1d(:),x_r4_2d(:,:),x_r4_3d(:,:,:),x_r4_4d(:,:,:,:)
          real(kind=ESMF_KIND_R8), pointer :: x_r8_1d(:),x_r8_2d(:,:),x_r8_3d(:,:,:),x_r8_4d(:,:,:,:)
          integer :: status, rank
-         
+
          call ESMF_FieldGet(this%payload,rank=rank,_RC) 
          if (this%typekind == ESMF_TYPEKIND_R4) then
             if (rank == 1) then
@@ -295,8 +294,6 @@ contains
       type(LU_Bound) :: vertical_bounds
 
       bounds = this%ungridded_dims%get_bounds()
-      _ASSERT(this%vertical_dim /= VERTICAL_DIM_MIRROR, \
-           'get_ungridded_bounds() should not be called until after VerticalDimSpec is fully established.')
       if (this%vertical_dim == VERTICAL_DIM_NONE) return
 
       vertical_bounds = get_vertical_bounds(this%vertical_dim, this%vertical_geom)
@@ -328,6 +325,7 @@ contains
       interface mirror
          procedure :: mirror_typekind
          procedure :: mirror_string
+         procedure :: mirror_real
          procedure :: mirror_vertical_dim
       end interface mirror
 
@@ -341,6 +339,7 @@ contains
          call mirror(dst=this%typekind, src=src_spec%typekind)
          call mirror(dst=this%units, src=src_spec%units)
          call mirror(dst=this%vertical_dim, src=src_spec%vertical_dim)
+         call mirror(dst=this%default_value, src=src_spec%default_value)
 
       class default
          _FAIL('Cannot connect field spec to non field spec.')
@@ -399,6 +398,21 @@ contains
          end if
 
       end subroutine mirror_string
+
+      subroutine mirror_real(dst, src)
+         real, allocatable, intent(inout) :: dst, src
+
+         if (allocated(dst) .eqv. allocated(src)) return
+
+         if (.not. allocated(dst)) then
+            dst = src
+         end if
+
+         if (.not. allocated(src)) then
+            src = dst
+         end if
+
+      end subroutine mirror_real
 
    end subroutine connect_to
 
@@ -612,12 +626,11 @@ contains
    logical function match_typekind(a, b) result(match)
       type(ESMF_TypeKind_Flag), intent(in) :: a, b
 
-      ! If both typekinds are MIRROR then must fail (but not here)
-      if (a /= b) then
-         match = any([a%dkind,b%dkind] == MAPL_TYPEKIND_MIRROR%dkind)
-      else
-         match = (a == b)
-      end if
+      integer :: n_mirror
+
+      n_mirror = count([a%dkind,b%dkind] == MAPL_TYPEKIND_MIRROR%dkind)
+      match = (n_mirror == 1) .or. (n_mirror == 0 .and. a == b)
+
    end function match_typekind
 
    logical function match_string(a, b) result(match)
@@ -641,19 +654,11 @@ contains
    logical function match_vertical_dim(a, b) result(match)
       type(VerticalDimSpec), intent(in) :: a, b
 
-      logical :: mirror_a, mirror_b
+      integer :: n_mirror
 
-      match = .false.
-      if (mirror(a) .and. mirror(b)) return ! At most one can mirror
+      n_mirror = count([a,b] == VERTICAL_DIM_MIRROR)
+      match = (n_mirror == 1) .or. (n_mirror == 0 .and. a == b)
 
-      match = (mirror(a) .or. mirror(b))
-      if (match) return ! One mirror is always ok
-
-      ! No mirrors - must match exactly
-      match = (a == b)
-
-      ! Both are mirror
-      match = .false.
    end function match_vertical_dim
 
    logical function mirror(str)
