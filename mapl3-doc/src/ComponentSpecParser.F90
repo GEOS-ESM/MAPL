@@ -262,6 +262,8 @@ contains
                  ungridded_dims=ungridded_dim_specs, &
                  dependencies=dependencies &
                  )
+            if (allocated(units)) deallocate(units)
+            if (allocated(standard_name)) deallocate(standard_name)
 
             call var_specs%push_back(var_spec)
 
@@ -359,12 +361,14 @@ contains
          vertical_str= ESMF_HConfigAsString(attributes,keyString=KEY_VERTICAL_DIM_SPEC,_RC)
 
          select case (vertical_str)
-         case ('vertical_dim_none', 'N')
+         case ('vertical_dim_none', 'N', 'NONE')
             vertical_dim_spec = VERTICAL_DIM_NONE
-         case ('vertical_dim_center', 'C')
+         case ('vertical_dim_center', 'C', 'CENTER')
             vertical_dim_spec = VERTICAL_DIM_CENTER
-         case ('vertical_dim_edge', 'E')
+         case ('vertical_dim_edge', 'E', 'EDGE')
             vertical_dim_spec = VERTICAL_DIM_EDGE
+         case ('vertical_dim_mirror', 'M', 'MIRROR')
+            vertical_dim_spec = VERTICAL_DIM_MIRROR
          case default
             _FAIL('Unsupported vertical_dim_spec')
          end select

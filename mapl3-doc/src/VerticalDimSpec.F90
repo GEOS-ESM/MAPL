@@ -11,11 +11,13 @@ module mapl3g_VerticalDimSpec
   
    public :: VerticalDimSpec
   
+   public :: VERTICAL_DIM_UNDEF
    public :: VERTICAL_DIM_NONE
    public :: VERTICAL_DIM_CENTER
    public :: VERTICAL_DIM_EDGE
+   public :: VERTICAL_DIM_MIRROR
 
-   public operator(==)
+   public :: operator(==)
 
    type :: VerticalDimSpec
       private
@@ -24,9 +26,11 @@ module mapl3g_VerticalDimSpec
       procedure :: make_info
    end type VerticalDimSpec
 
+   type(VerticalDimSpec), parameter :: VERTICAL_DIM_UNDEF = VerticalDimSpec(-1)
    type(VerticalDimSpec), parameter :: VERTICAL_DIM_NONE = VerticalDimSpec(0)
    type(VerticalDimSpec), parameter :: VERTICAL_DIM_CENTER = VerticalDimSpec(1)
    type(VerticalDimSpec), parameter :: VERTICAL_DIM_EDGE = VerticalDimSpec(2)
+   type(VerticalDimSpec), parameter :: VERTICAL_DIM_MIRROR = VerticalDimSpec(3)
 
    interface operator(==)
       procedure equal_to

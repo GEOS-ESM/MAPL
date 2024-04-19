@@ -647,13 +647,20 @@ contains
          type(ActualPtVector), pointer :: actual_pts
          type(ActualConnectionPt), pointer :: actual_pt
          integer :: i
+         class(StateItemSpec), pointer :: spec
+         type(StateItemSpecPtr), pointer :: wrap
 
          actual_pts => this%virtual_pts%at(virtual_pt, rc=iostat)
          if (iostat /= 0) return
 
          do i = 1, actual_pts%size()
             actual_pt => actual_pts%of(i)
-            write(unit,*,iostat=iostat,iomsg=iomsg)'           ',actual_pt, new_line('a')
+
+            spec => null()
+            wrap => this%actual_specs_map%at(actual_pt, rc=iostat)
+            if (iostat /= 0) return
+            if (associated(wrap)) spec => wrap%ptr
+            write(unit,*,iostat=iostat,iomsg=iomsg)'           ',actual_pt, spec%is_active(), new_line('a')
             if (iostat /= 0) return
          end do
 

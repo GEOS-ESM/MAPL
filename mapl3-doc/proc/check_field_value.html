@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.2% of total for procedures.">109 statements</a>
+                 title=" 0.2% of total for procedures.">106 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -178,7 +178,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-state~51"></span>
+              <span class="anchor" id="variable-state~35"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td>intent(inout)</td>
@@ -193,7 +193,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-short_name~26"></span>
+              <span class="anchor" id="variable-short_name~17"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -208,7 +208,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-description~6"></span>
+              <span class="anchor" id="variable-description~5"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -223,7 +223,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1514"></span>
+              <span class="anchor" id="variable-rc~1268"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -568,7 +568,8 @@ large graphs.</div>
 <span class="k">      </span><span class="n">expected_field_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsR4</span><span class="p">(</span><span class="n">expectations</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">      </span>
 <span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">short_name</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">typekind</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">typekind</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="s1">&#39;field get failed &#39;</span><span class="o">//</span><span class="n">short_name</span><span class="p">,</span><span class="w">  </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">         block</span>
@@ -576,13 +577,13 @@ large graphs.</div>
 <span class="w">           </span><span class="k">select case</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span>
 <span class="w">           </span><span class="k">case</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="w">              </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">              </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="n">x2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_field_value</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">              </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="s1">&#39;value of &#39;</span><span class="o">//</span><span class="n">short_name</span><span class="p">,</span><span class="w"> </span><span class="k">all</span><span class="p">(</span><span class="n">x2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_field_value</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
 <span class="w">           </span><span class="k">case</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="w">              </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x3</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">              </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="n">x3</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_field_value</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">              </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="s1">&#39;value of &#39;</span><span class="o">//</span><span class="n">short_name</span><span class="p">,</span><span class="w"> </span><span class="k">all</span><span class="p">(</span><span class="n">x3</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_field_value</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
 <span class="w">           </span><span class="k">case</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
 <span class="w">              </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">              </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="n">x4</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_field_value</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">              </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="s1">&#39;value of &#39;</span><span class="o">//</span><span class="n">short_name</span><span class="p">,</span><span class="w"> </span><span class="k">all</span><span class="p">(</span><span class="n">x4</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_field_value</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
 <span class="w">           </span><span class="k">end select</span>
 <span class="k">         end block</span>
 <span class="k">      elseif</span><span class="w"> </span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R8</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
@@ -595,13 +596,13 @@ large graphs.</div>
 <span class="k">                 print</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;x2:&#39;</span><span class="p">,</span><span class="n">x2</span>
 <span class="w">                 </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;expected:&#39;</span><span class="p">,</span><span class="n">expected_field_value</span>
 <span class="w">              </span><span class="k">end if</span>
-<span class="w">              </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="n">x2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_field_value</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">              </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="s1">&#39;value of &#39;</span><span class="o">//</span><span class="n">short_name</span><span class="p">,</span><span class="w"> </span><span class="k">all</span><span class="p">(</span><span class="n">x2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_field_value</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
 <span class="w">           </span><span class="k">case</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="w">              </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x3</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">              </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="n">x3</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_field_value</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">              </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="s1">&#39;value of &#39;</span><span class="o">//</span><span class="n">short_name</span><span class="p">,</span><span class="w"> </span><span class="k">all</span><span class="p">(</span><span class="n">x3</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_field_value</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
 <span class="w">           </span><span class="k">case</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
 <span class="w">              </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">x4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">              </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="n">x4</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_field_value</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">              </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="s1">&#39;value of &#39;</span><span class="o">//</span><span class="n">short_name</span><span class="p">,</span><span class="w"> </span><span class="k">all</span><span class="p">(</span><span class="n">x4</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_field_value</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
 <span class="w">           </span><span class="k">end select</span>
 <span class="k">         end block</span>
 <span class="k">      else</span>
@@ -633,7 +634,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-04-19T14:43:33.252309             </p>
+ on 2024-04-19T18:19:07.940332             </p>
           </div>
         </div>
         <br>
