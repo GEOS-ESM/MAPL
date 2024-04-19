@@ -8,8 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+<<<<<<< HEAD
 - Release the pfio memory as early as possible
-- Add glob function in sampler code, supporting wild character, e.g., filename template = amsr2_gcom-w1.%y4%m2%d2T%h2%n2*.nc4
+- Add glob function in sampler code, supporting wild character, e.g., filename template = `amsr2_gcom-w1.%y4%m2%d2T%h2%n2*.nc4`
 - Checked resource for o-server. It quits if the numer requested is inconsistent with being used
 - Replace local HorzIJIndex sear with the GlobalHorzIJindex search
 - Change grd_is_ok function to avoid collective call
@@ -33,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a new "SPLIT\_CHECKPOINT:" option that has replaced the write-by-face option. This will write a file per writer
 - Implemented a new algorthm to read tile files
 - Added two options, depends_on and depends_on_children, to ACG
+- Add CI job to test Ford build (does not publish)
 
 ### Changed
 
