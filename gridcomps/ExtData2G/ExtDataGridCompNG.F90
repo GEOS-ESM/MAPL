@@ -27,7 +27,7 @@
 ! !USES:
 !
    USE ESMF
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use gFTL_IntegerVector
    use MAPL_BaseMod
    use MAPL_CommsMod

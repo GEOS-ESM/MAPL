@@ -7,7 +7,7 @@ module MAPL_ExtDataMask
    use ESMFL_Mod
    use MAPL_BaseMod
    use MAPL_ExceptionHandling
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use MAPL_NewArthParserMod
    use MAPL_Constants
    implicit none
