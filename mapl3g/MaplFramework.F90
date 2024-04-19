@@ -110,7 +110,7 @@ contains
       integer :: status
 
 !#      call finalize_profiler(_RC)
-!#      call pflogger_finalize()
+      call logging%free()
       
       _RETURN(_SUCCESS)
    end subroutine finalize
