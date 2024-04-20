@@ -207,8 +207,8 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      write(unit, '("Actual{intent: <",a,">, name: <",a,">}")', iostat=iostat, iomsg=iomsg) &
-           this%get_state_intent(), this%get_full_name()
+      write(unit, '("Actual{intent: <",a,">, comp: <",a,">, full name: <",a,">}")', iostat=iostat, iomsg=iomsg) &
+           this%get_state_intent(), this%get_comp_name(), this%get_full_name()
    end subroutine write_formatted
 
    function get_comp_name(this) result(name)
