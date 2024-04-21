@@ -480,13 +480,18 @@ contains
       type(ESMF_Field) :: alias
       integer :: status
       type(ESMF_State) :: state, substate
-      character(:), allocatable :: short_name
+      character(:), allocatable :: full_name, inner_name
+      integer :: idx
 
       call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
-      call get_substate(state, actual_pt%get_comp_name(), substate=substate, _RC)
 
-      short_name = actual_pt%get_esmf_name()
-      alias = ESMF_NamedAlias(this%payload, name=short_name, _RC)
+      full_name = actual_pt%get_full_name()
+      idx = index(full_name, '/', back=.true.)
+      call get_substate(state, full_name(:idx-1), substate=substate, _RC)
+      inner_name = full_name(idx+1:)
+      
+
+      alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
       call ESMF_StateAdd(substate, [alias], _RC)
 
       _RETURN(_SUCCESS)

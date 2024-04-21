@@ -226,8 +226,8 @@ contains
             name = ESMF_HConfigAsStringMapKey(iter, _RC)
             attributes = ESMF_HConfigCreateAtMapVal(iter,_RC)
 
-            call split(name, short_name, substate)
-
+!#            call split(name, short_name, substate)
+            short_name = name
             typekind = to_typekind(attributes, _RC)
             call val_to_float(default_value, attributes, 'default_value', _RC)
             vertical_dim_spec = to_VerticalDimSpec(attributes,_RC)
@@ -256,7 +256,7 @@ contains
                  standard_name=standard_name, &
                  units=units, &
                  typekind=typekind, &
-                 substate=substate, &
+!#                 substate=substate, &
                  default_value=default_value, &
                  vertical_dim_spec=vertical_dim_spec, &
                  ungridded_dims=ungridded_dim_specs, &
