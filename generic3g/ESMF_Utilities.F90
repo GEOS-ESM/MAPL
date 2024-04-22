@@ -154,24 +154,22 @@ contains
       current_path = path
       do while (path /= '')
          idx = index(current_path, '/')
-         if (idx == 0) then
-            substate_name = current_path
-         else
+         substate_name = current_path
+         if (idx > 0) then
             substate_name = current_path(:idx-1)
          end if
 
          call ESMF_StateGet(substate, substate_name, itemType, _RC)
          
-         if (itemType == ESMF_STATEITEM_NOTFOUND) then ! New substate
+         if (itemType == ESMF_STATEITEM_NOTFOUND) then ! New tmp_state
             tmp_state = ESMF_StateCreate(name=substate_name, _RC)
             call ESMF_StateAdd(substate, [tmp_state], _RC)
-            substate = tmp_state
          else
-            _ASSERT(itemType == ESMF_STATEITEM_STATE, 'incorrect object in state')
+            _ASSERT(itemType == ESMF_STATEITEM_STATE, 'expected ' // substate_name // ' to be an ESMF_State.')
             call ESMF_StateGet(substate, substate_name, tmp_state, _RC)
-            substate = tmp_state
          end if
-         _RETURN_IF(idx == 0)
+         substate = tmp_state
+         if (idx == 0) exit
          current_path = current_path(idx+1:)
       end do
 

@@ -489,7 +489,6 @@ contains
       idx = index(full_name, '/', back=.true.)
       call get_substate(state, full_name(:idx-1), substate=substate, _RC)
       inner_name = full_name(idx+1:)
-      
 
       alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
       call ESMF_StateAdd(substate, [alias], _RC)
