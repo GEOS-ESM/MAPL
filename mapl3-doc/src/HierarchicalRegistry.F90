@@ -710,7 +710,6 @@ contains
         do while (actual_iter /= e)
 
            actual_pt => actual_iter%first()
-
            if (actual_pt%is_represented_in(mode)) then
               item_spec_ptr =>  actual_iter%second()
               item_spec => item_spec_ptr%ptr

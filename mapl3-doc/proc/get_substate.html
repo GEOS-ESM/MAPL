@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.1% of total for procedures.">31 statements</a>
+                 title=" 0.1% of total for procedures.">42 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -144,7 +144,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine get_substate(state, name, substate, rc)  
+    <h2>public  subroutine get_substate(state, path, substate, rc)  
 </h2>
         <div class="card mb-4">
       <h3 class="card-header card-title bg-light">Uses</h3>
@@ -298,7 +298,6 @@ large graphs.</div>
     </div>
 
 
-    <p>$      substate_name = &lsquo;[&rsquo; // name // &lsquo;]&rsquo;</p>
 
 
     <h3>Arguments</h3>
@@ -314,7 +313,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-state~35"></span>
+              <span class="anchor" id="variable-state~54"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td>intent(inout)</td>
@@ -329,7 +328,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~118"></span>
+              <span class="anchor" id="variable-path~6"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -337,14 +336,14 @@ large graphs.</div>
               
             </td>
             <td>::</td>
-            <td><strong>name</strong></td>
+            <td><strong>path</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-substate~9"></span>
+              <span class="anchor" id="variable-substate~7"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td>intent(out)</td>
@@ -359,7 +358,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1265"></span>
+              <span class="anchor" id="variable-rc~1325"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -629,18 +628,18 @@ large graphs.</div>
 <polygon fill="none" stroke="black" points="370,-24 290,-24 290,0 370,0 370,-24"/>
 <text text-anchor="middle" x="330" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_substate</text>
 </g>
-<!-- none~add_to_state~7 -->
+<!-- none~add_to_state~5 -->
 <g id="proc~~get_substate~~CalledByGraph_node2" class="node">
-<title>none~add_to_state~7</title>
-<g id="a_proc~~get_substate~~CalledByGraph_node2"><a xlink:href="../type/fieldspec~2.html#boundprocedure-add_to_state~7" xlink:title="FieldSpec%add_to_state">
+<title>none~add_to_state~5</title>
+<g id="a_proc~~get_substate~~CalledByGraph_node2"><a xlink:href="../type/fieldspec~2.html#boundprocedure-add_to_state~5" xlink:title="FieldSpec%add_to_state">
 <polygon fill="#a7506f" stroke="#a7506f" points="254,-24 113,-24 113,0 254,0 254,-24"/>
 <text text-anchor="middle" x="183.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec%add_to_state</text>
 </a>
 </g>
 </g>
-<!-- none~add_to_state~7&#45;&gt;proc~get_substate -->
+<!-- none~add_to_state~5&#45;&gt;proc~get_substate -->
 <g id="proc~~get_substate~~CalledByGraph_edge1" class="edge">
-<title>none~add_to_state~7&#45;&gt;proc~get_substate</title>
+<title>none~add_to_state~5&#45;&gt;proc~get_substate</title>
 <path fill="none" stroke="#ff0000" d="M254.21,-12C262.84,-12 271.51,-12 279.74,-12"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="279.89,-15.5 289.89,-12 279.89,-8.5 279.89,-15.5"/>
 </g>
@@ -653,9 +652,9 @@ large graphs.</div>
 </a>
 </g>
 </g>
-<!-- proc~test_vertical&#45;&gt;none~add_to_state~7 -->
+<!-- proc~test_vertical&#45;&gt;none~add_to_state~5 -->
 <g id="proc~~get_substate~~CalledByGraph_edge2" class="edge">
-<title>proc~test_vertical&#45;&gt;none~add_to_state~7</title>
+<title>proc~test_vertical&#45;&gt;none~add_to_state~5</title>
 <path fill="none" stroke="#ff0000" d="M77.07,-12C85.07,-12 93.8,-12 102.71,-12"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="102.81,-15.5 112.81,-12 102.81,-8.5 102.81,-15.5"/>
 </g>
@@ -756,38 +755,48 @@ large graphs.</div>
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">get_substate</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">substate</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">get_substate</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">substate</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
 <span class="w">      </span><span class="k">use </span><span class="n">mapl_ErrorHandling</span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">path</span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">substate</span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_StateItem_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">itemType</span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">substate_name</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">substate_name</span><span class="p">,</span><span class="w"> </span><span class="n">current_path</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmp_state</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">idx</span>
 
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! no substate</span>
-<span class="w">         </span><span class="n">substate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span>
+<span class="w">      </span><span class="n">substate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">path</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! no substate</span>
 <span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 <span class="w">      </span><span class="k">end if</span>
 
-<span class="c">!!$      substate_name = &#39;[&#39; // name // &#39;]&#39;</span>
-<span class="w">      </span><span class="n">substate_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">substate_name</span><span class="p">,</span><span class="w"> </span><span class="n">itemType</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="k">      </span><span class="n">current_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">path</span>
+<span class="w">      </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">path</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">current_path</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="n">substate_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_path</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">idx</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">substate_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_path</span><span class="p">(:</span><span class="n">idx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
 
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_STATEITEM_NOTFOUND</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! New substate</span>
-<span class="w">         </span><span class="n">substate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_StateCreate</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">substate_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">         </span><span class="k">call </span><span class="n">ESMF_StateAdd</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">substate</span><span class="p">],</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<span class="w">      </span><span class="k">end if</span>
+<span class="k">         call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">substate</span><span class="p">,</span><span class="w"> </span><span class="n">substate_name</span><span class="p">,</span><span class="w"> </span><span class="n">itemType</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_STATEITEM_NOTFOUND</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! New tmp_state</span>
+<span class="w">            </span><span class="n">tmp_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_StateCreate</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">substate_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_StateAdd</span><span class="p">(</span><span class="n">substate</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">tmp_state</span><span class="p">],</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">else</span>
+<span class="k">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_STATEITEM_STATE</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;expected &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">substate_name</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39; to be an ESMF_State.&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">substate</span><span class="p">,</span><span class="w"> </span><span class="n">substate_name</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_state</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">         </span><span class="n">substate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp_state</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">idx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">exit</span>
+<span class="k">         </span><span class="n">current_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_path</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span>
+<span class="w">      </span><span class="k">end do</span>
 
-<span class="k">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_STATEITEM_STATE</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;incorrect object in state&#39;</span><span class="p">)</span>
 
-<span class="w">      </span><span class="c">! Substate exists so ...</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">substate_name</span><span class="p">,</span><span class="w"> </span><span class="n">substate</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-
-<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">get_substate</span>
 </pre></div>
 
@@ -812,7 +821,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-04-22T12:22:39.717050             </p>
+ on 2024-04-22T13:11:42.842420             </p>
           </div>
         </div>
         <br>

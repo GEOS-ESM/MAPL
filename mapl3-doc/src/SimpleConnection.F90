@@ -166,6 +166,8 @@ contains
          ! the dst_spec to support multiple matches.  A bit of a kludge.
          effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
               src_pt%v_pt%get_esmf_name(), comp_name=src_pt%v_pt%get_comp_name()))
+         effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
+              src_pt%v_pt%get_comp_name()//'/'//src_pt%v_pt%get_esmf_name()))
          call dst_spec%connect_to(last_spec, effective_pt, _RC)
          call dst_spec%set_active()
             

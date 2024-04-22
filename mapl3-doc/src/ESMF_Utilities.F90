@@ -131,39 +131,48 @@ contains
 
    end subroutine write_state_
 
-   ! If name is empty string then return the existing state.
-   ! Otherwise, return the named substate; creating it if it does
-   ! not already exist.
-   subroutine get_substate(state, name, substate, rc)
+   ! Traverse nested states to return the innermost substate specified by path.
+   ! Intermediate states are created if they do not exist.
+   subroutine get_substate(state, path, substate, rc)
       use mapl_ErrorHandling
       type(ESMF_State), intent(inout) :: state
-      character(*), intent(in) :: name
+      character(*), intent(in) :: path
       type(ESMF_State), intent(out) :: substate
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_StateItem_Flag) :: itemType
-      character(:), allocatable :: substate_name
+      character(:), allocatable :: substate_name, current_path
+      type(ESMF_State) :: tmp_state
+      integer :: idx
 
-      if (name == '') then ! no substate
-         substate = state
+      substate = state
+      if (path == '') then ! no substate
          _RETURN(_SUCCESS)
       end if
 
-!!$      substate_name = '[' // name // ']'
-      substate_name = name
-      call ESMF_StateGet(state, substate_name, itemType, _RC)
+      current_path = path
+      do while (path /= '')
+         idx = index(current_path, '/')
+         substate_name = current_path
+         if (idx > 0) then
+            substate_name = current_path(:idx-1)
+         end if
 
-      if (itemType == ESMF_STATEITEM_NOTFOUND) then ! New substate
-         substate = ESMF_StateCreate(name=substate_name, _RC)
-         call ESMF_StateAdd(state, [substate], _RC)
-         _RETURN(_SUCCESS)
-      end if
+         call ESMF_StateGet(substate, substate_name, itemType, _RC)
+         
+         if (itemType == ESMF_STATEITEM_NOTFOUND) then ! New tmp_state
+            tmp_state = ESMF_StateCreate(name=substate_name, _RC)
+            call ESMF_StateAdd(substate, [tmp_state], _RC)
+         else
+            _ASSERT(itemType == ESMF_STATEITEM_STATE, 'expected ' // substate_name // ' to be an ESMF_State.')
+            call ESMF_StateGet(substate, substate_name, tmp_state, _RC)
+         end if
+         substate = tmp_state
+         if (idx == 0) exit
+         current_path = current_path(idx+1:)
+      end do
 
-      _ASSERT(itemType == ESMF_STATEITEM_STATE, 'incorrect object in state')
-
-      ! Substate exists so ...
-      call ESMF_StateGet(state, substate_name, substate, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine get_substate
