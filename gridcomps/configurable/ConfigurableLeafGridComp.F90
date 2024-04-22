@@ -29,12 +29,12 @@ contains
 
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
-    
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp,_RC) 
+
+      outer_meta => get_outer_meta_from_inner_gc(gridcomp,_RC)
       vertical_geom = VerticalGeom(4)
       call outer_meta%set_vertical_geom(vertical_geom)
 
-      
+
       _RETURN(_SUCCESS)
    end subroutine setServices
 
@@ -42,7 +42,7 @@ contains
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
+      type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
       integer :: status
@@ -55,14 +55,13 @@ contains
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
+      type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
       integer :: status
-      type(ESMF_Field) :: field
-      real(kind=ESMF_KIND_R4), pointer :: ptr(:,:)
-      type(OuterMetaComponent), pointer :: outer_meta
-      type(ESMF_State) :: internal
+      character(len=ESMF_MAXSTR) :: gc_name
+      call ESMF_GridCompGet(gridcomp, name=gc_name, _RC)
+      print*,'running ',trim(gc_name)
 
       _RETURN(_SUCCESS)
    end subroutine run
@@ -72,7 +71,7 @@ end module ConfigurableLeafGridComp
 subroutine setServices(gridcomp,rc)
    use ESMF
    use MAPL_ErrorHandlingMod
-   use ConfigurableLeafGridComp, only: ConfigurableLeaf_setServices => SetServices    
+   use ConfigurableLeafGridComp, only: ConfigurableLeaf_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 

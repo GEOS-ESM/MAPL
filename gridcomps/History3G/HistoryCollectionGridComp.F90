@@ -60,22 +60,14 @@ contains
       character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       type(ESMF_HConfig) :: hconfig
-      character(len=100) :: message
 
       ! To Do:
       ! - determine run frequencey and offset (save as alarm)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
 
-      write(*,*,iostat=status,iomsg=message)importState 
-      print*,status,' ',message
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
-      !block
-         !type(ESMF_State) :: substate
-         !call ESMF_StateGet(importstate,"AGCM",substate,_RC)
-         !print*,substate
-      !end block
       collection_gridcomp%output_bundle = create_output_bundle(hconfig, importState, _RC)
-     
+
       _RETURN(_SUCCESS)
    end subroutine init
 
@@ -106,8 +98,6 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
-      real(kind=ESMF_KIND_R4), pointer :: ptr(:,:)
-      type(ESMF_Field) :: field
 
       _RETURN(_SUCCESS)
    end subroutine run
