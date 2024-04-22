@@ -126,7 +126,6 @@ contains
       bundle = ESMF_FieldBundleCreate(_RC)
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
          call parse_item(iter, alias, short_name, _RC)
-         print*,"bmaa ",trim(short_name)
          call ESMF_StateGet(import_state, short_name, field, _RC)
          new_field = ESMF_FieldCreate(field, dataCopyFlag=ESMF_DATACOPY_REFERENCE, name=alias,  _RC)
          call ESMF_InfoGetFromHost(field, info, _RC)
