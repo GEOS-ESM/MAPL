@@ -1,0 +1,42 @@
+esmf:
+  logKindFlag: ESMF_LOGKIND_MULTI_ON_ERROR
+
+#mapl:
+#  pflogger_cfg_file: pflogger.yaml
+
+cap:
+  name: cap
+
+  clock:
+    dt: PT1H
+    start: 1891-03-01T00:00:00
+    stop: 2999-03-02T21:00:00
+    segment_duration: PT10H
+
+    num_segments: 1 # segments per batch submission
+
+    servers:
+      pfio:
+        num_nodes: 9
+      model:
+        num_nodes: any
+
+  cap_gc:
+    run_extdata: false
+    extdata_name: EXTDATA
+    history_name: HIST
+    root_name: GCM
+
+    mapl:
+      children:
+        GCM:
+          #dso: libconfigurable_leaf_gridcomp.dylib
+          dso: libconfigurable_parent_gridcomp.dylib
+          setServices: setservices_
+          config_file: GCM.yaml
+        #EXTDATA:
+          #dso: libextdata_gc
+          #config_file: extdata.yaml
+        HIST:
+          dso: libMAPL.history3g.dylib
+          config_file: history.yaml

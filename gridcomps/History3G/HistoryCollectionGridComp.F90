@@ -14,6 +14,7 @@ module mapl3g_HistoryCollectionGridComp
    ! Private state
    type :: HistoryCollectionGridComp
 !#      class(Client), pointer :: client
+      type(ESMF_FieldBundle) :: output_bundle
    end type HistoryCollectionGridComp
 
 
@@ -34,7 +35,6 @@ contains
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init_geom, phase_name='GENERIC::INIT_ADVERTISE_GEOM', _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, _RC)
-      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init_geom, phase_name='GENERIC_RUN_UPDATE_GEOM', _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       ! Attach private state
@@ -57,9 +57,24 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
+      character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
+      type(HistoryCollectionGridComp), pointer :: collection_gridcomp
+      type(ESMF_HConfig) :: hconfig
+      character(len=100) :: message
 
       ! To Do:
       ! - determine run frequencey and offset (save as alarm)
+      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+
+      write(*,*,iostat=status,iomsg=message)importState 
+      print*,status,' ',message
+      _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
+      !block
+         !type(ESMF_State) :: substate
+         !call ESMF_StateGet(importstate,"AGCM",substate,_RC)
+         !print*,substate
+      !end block
+      collection_gridcomp%output_bundle = create_output_bundle(hconfig, importState, _RC)
      
       _RETURN(_SUCCESS)
    end subroutine init

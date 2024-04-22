@@ -1,8 +1,6 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_HistoryGridComp
-   use mapl3g_HistoryGridComp_private
-   use mapl3g_HistoryCollectionGridComp, only: collection_setServices => setServices
+module ConfigurableParentGridComp
    use generic3g
    use mapl_ErrorHandling
    use pFlogger, only: logger
@@ -15,6 +13,7 @@ module mapl3g_HistoryGridComp
 contains
 
    subroutine setServices(gridcomp, rc)
+      use mapl3g_VerticalGeom
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
@@ -24,38 +23,17 @@ contains
       logical :: has_active_collections
       class(logger), pointer :: lgr
       integer :: num_collections, status
+      type(VerticalGeom) :: vertical_geom
+      type(ESMF_GridComp) outer_gridcomp
+      type(OuterMetaComponent), pointer :: outer_meta
 
-      ! Set entry points
-      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_USER", _RC)
+      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
+    
+      outer_meta => get_outer_meta_from_inner_gc(gridcomp,_RC) 
+      vertical_geom = VerticalGeom(4)
+      call outer_meta%set_vertical_geom(vertical_geom)
 
-      ! Determine collections
-      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
-
-      has_active_collections = ESMF_HConfigIsDefined(hconfig, keyString='active_collections', _RC)
-      if (.not. has_active_collections) then
-         call MAPL_GridCompGet(gridcomp,logger=lgr, _RC)
-         call lgr%warning("no active collection specified in History")
-         _RETURN(_SUCCESS)
-      end if
-
-      collections_config = ESMF_HConfigCreateAt(hconfig, keystring='active_collections', _RC)
-      num_collections = ESMF_HConfigGetSize(collections_config, _RC)
-      _RETURN_UNLESS(num_collections > 0)
-
-      iter_begin = ESMF_HConfigIterBegin(collections_config,_RC)
-      iter_end = ESMF_HConfigIterEnd(collections_config, _RC)
-      iter = iter_begin
-
-      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
-         _VERIFY(status)
-         collection_name = ESMF_HConfigAsString(iter, _RC)
-         child_hconfig = make_child_hconfig(hconfig, collection_name, _RC)
-         child_name = make_child_name(collection_name, _RC)
-         call MAPL_AddChild(gridcomp, child_name, user_setservices(collection_setServices), child_hconfig, _RC)
-         !call ESMF_HConfigDestroy(child_hconfig, _RC)
-         
-      end do
       
       _RETURN(_SUCCESS)
    end subroutine setServices
@@ -68,12 +46,12 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
-      
+
       _RETURN(_SUCCESS)
    end subroutine init
 
-
    subroutine run(gridcomp, importState, exportState, clock, rc)
+      !use mapl3g_MultiState
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
@@ -81,24 +59,29 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
- 
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R4), pointer :: ptr(:,:)
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ESMF_State) :: internal
+      character(len=ESMF_MAXSTR) :: gc_name
+      call ESMF_GridCompGet(gridcomp, name=gc_name, _RC)
+      print*,'running ',trim(gc_name)
       call MAPL_RunChildren(gridcomp, phase_name='run', _RC)
-
       _RETURN(_SUCCESS)
    end subroutine run
 
-end module mapl3g_HistoryGridComp
+end module ConfigurableParentGridComp
 
 subroutine setServices(gridcomp,rc)
    use ESMF
    use MAPL_ErrorHandlingMod
-   use mapl3g_HistoryGridComp, only: History_setServices => SetServices    
+   use ConfigurableParentGridComp, only: ConfigurableParent_setServices => SetServices    
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 
    integer :: status
 
-   call History_setServices(gridcomp,_RC)
+   call ConfigurableParent_setServices(gridcomp,_RC)
    _RETURN(_SUCCESS)
 
 end subroutine
