@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module ConfigurableLeafGridComp
+module ConfigurableParentGridComp
    use generic3g
    use mapl_ErrorHandling
    use pFlogger, only: logger
@@ -62,22 +62,22 @@ contains
       character(len=ESMF_MAXSTR) :: gc_name
       call ESMF_GridCompGet(gridcomp, name=gc_name, _RC)
       print*,'running ',trim(gc_name)
-
+      call MAPL_RunChildren(gridcomp, phase_name='run', _RC)
       _RETURN(_SUCCESS)
    end subroutine run
 
-end module ConfigurableLeafGridComp
+end module ConfigurableParentGridComp
 
 subroutine setServices(gridcomp,rc)
    use ESMF
    use MAPL_ErrorHandlingMod
-   use ConfigurableLeafGridComp, only: ConfigurableLeaf_setServices => SetServices
+   use ConfigurableParentGridComp, only: ConfigurableParent_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 
    integer :: status
 
-   call ConfigurableLeaf_setServices(gridcomp,_RC)
+   call ConfigurableParent_setServices(gridcomp,_RC)
    _RETURN(_SUCCESS)
 
 end subroutine
