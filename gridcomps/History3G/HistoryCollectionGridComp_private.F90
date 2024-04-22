@@ -63,7 +63,7 @@ contains
    end subroutine register_imports
 
    subroutine parse_item(item, item_name, short_name, rc)
-      type(ESMF_HConfigIter), intent(in) :: item 
+      type(ESMF_HConfigIter), intent(in) :: item
       character(len=:), allocatable, intent(out) :: item_name
       character(len=:), allocatable, intent(out) :: short_name
       integer, optional, intent(out) :: rc
@@ -130,8 +130,8 @@ contains
          new_field = ESMF_FieldCreate(field, dataCopyFlag=ESMF_DATACOPY_REFERENCE, name=alias,  _RC)
          call ESMF_InfoGetFromHost(field, info, _RC)
          call ESMF_InfoGetFromHost(new_field, new_info, _RC)
-         new_info = ESMF_InfoCreate(info, _RC)
-         call ESMF_FieldBundleAdd(bundle, [new_field], _RC) 
+         call ESMF_InfoSet(new_info, key="", value=info, _RC)
+         call ESMF_FieldBundleAdd(bundle, [new_field], _RC)
       end do
 
       _RETURN(_SUCCESS)
