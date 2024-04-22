@@ -43,7 +43,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          character(len=ESMF_MAXSTR), allocatable :: word(:)
          integer                    :: nobs, head, jvar
          logical                    :: tend
-         integer                    :: i, j, k, M
+         integer                    :: i, j, k, k2, M
          integer                    :: count, idx
          integer                    :: unitr, unitw
          type(GriddedIOitem)        :: item
@@ -235,12 +235,21 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          do i=1, traj%nobs_type
             call lgr%debug('%a %i4 %a  %a', 'obs(', i, ') input_template =', &
                  trim(traj%obs(i)%input_template))
-            j=index(traj%obs(i)%input_template , '%')
             k=index(traj%obs(i)%input_template , '/', back=.true.)
-            _ASSERT(j>0, '% is not found,  template is wrong')
-            traj%obs(i)%name = traj%obs(i)%input_template(k+1:j-1)
+            j=index(traj%obs(i)%input_template(k+1:), '%')
+            if (j>0) then
+               ! normal case:  geos_atmosphere/aircraft.%y4%m2%d2T%h2%n2%S2Z.nc4
+               traj%obs(i)%name = traj%obs(i)%input_template(k+1:k+j-1)
+            else
+               ! different case:  Y%y4/M%m2/.../this.nc or ./this
+               k2=index(traj%obs(i)%input_template(k+1:), '.')
+               if (k2>0) then
+                  traj%obs(i)%name = traj%obs(i)%input_template(k+1:k+k2)
+               else
+                  traj%obs(i)%name = trim(traj%obs(i)%input_template(k+1:))
+               end if
+            end if
          end do
-
 
          _RETURN(_SUCCESS)
 
