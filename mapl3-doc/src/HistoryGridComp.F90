@@ -33,11 +33,11 @@ contains
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
 
       has_active_collections = ESMF_HConfigIsDefined(hconfig, keyString='active_collections', _RC)
-      !if (.not. has_active_collections) then
-         !call MAPL_GridCompGet(gridcomp,logger=lgr, _RC)
-         !call lgr%warning("no active collection specified in History")
-         !_RETURN(_SUCCESS)
-      !end if
+      if (.not. has_active_collections) then
+         call MAPL_GridCompGet(gridcomp,logger=lgr, _RC)
+         call lgr%warning("no active collection specified in History")
+         _RETURN(_SUCCESS)
+      end if
 
       collections_config = ESMF_HConfigCreateAt(hconfig, keystring='active_collections', _RC)
       num_collections = ESMF_HConfigGetSize(collections_config, _RC)

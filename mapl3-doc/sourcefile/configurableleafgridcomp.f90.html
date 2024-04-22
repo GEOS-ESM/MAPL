@@ -138,7 +138,7 @@
       </a>
       <div id="subs-0" class="collapse">
         <div class="list-group list-group-flush">
-            <a class="list-group-item" href="../proc/setservices~5.html">setServices</a>
+            <a class="list-group-item" href="../proc/setservices~7.html">setServices</a>
         </div>
       </div>
     </div>
@@ -529,12 +529,12 @@ large graphs.</div>
 <a id="ln-29" name="ln-29" href="#ln-29"></a>
 <a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w"> </span><span class="n">init</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_RUN</span><span class="p">,</span><span class="w"> </span><span class="n">run</span><span class="p">,</span><span class="w"> </span><span class="n">phase_name</span><span class="o">=</span><span class="s1">&#39;run&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">    </span>
-<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="n">outer_meta</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_outer_meta_from_inner_gc</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="n">outer_meta</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_outer_meta_from_inner_gc</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="n">vertical_geom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VerticalGeom</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
 <a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="k">call </span><span class="n">outer_meta</span><span class="p">%</span><span class="n">set_vertical_geom</span><span class="p">(</span><span class="n">vertical_geom</span><span class="p">)</span>
 <a id="ln-36" name="ln-36" href="#ln-36"></a>
-<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a>
 <a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 <a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">setServices</span>
 <a id="ln-40" name="ln-40" href="#ln-40"></a>
@@ -542,7 +542,7 @@ large graphs.</div>
 <a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
 <a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span>
 <a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">exportState</span>
-<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span><span class="w">      </span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
 <a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 <a id="ln-47" name="ln-47" href="#ln-47"></a>
 <a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
@@ -555,33 +555,32 @@ large graphs.</div>
 <a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
 <a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span>
 <a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">exportState</span>
-<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span><span class="w">      </span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
 <a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 <a id="ln-60" name="ln-60" href="#ln-60"></a>
 <a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
-<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span>
-<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ptr</span><span class="p">(:,:)</span>
-<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">OuterMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outer_meta</span>
-<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">internal</span>
-<a id="ln-66" name="ln-66" href="#ln-66"></a>
-<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">run</span>
-<a id="ln-69" name="ln-69" href="#ln-69"></a>
-<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="k">end module </span><span class="n">ConfigurableLeafGridComp</span>
-<a id="ln-71" name="ln-71" href="#ln-71"></a>
-<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="k">subroutine </span><span class="n">setServices</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
-<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span>
-<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_ErrorHandlingMod</span>
-<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">   </span><span class="k">use </span><span class="n">ConfigurableLeafGridComp</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ConfigurableLeaf_setServices</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">SetServices</span><span class="w">    </span>
-<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
-<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
-<a id="ln-78" name="ln-78" href="#ln-78"></a>
-<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
-<a id="ln-80" name="ln-80" href="#ln-80"></a>
-<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">   </span><span class="k">call </span><span class="n">ConfigurableLeaf_setServices</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">   </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<a id="ln-83" name="ln-83" href="#ln-83"></a>
-<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="k">end subroutine</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gc_name</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">gc_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;running &#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">gc_name</span><span class="p">)</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">run</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="k">end module </span><span class="n">ConfigurableLeafGridComp</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="k">subroutine </span><span class="n">setServices</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_ErrorHandlingMod</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">   </span><span class="k">use </span><span class="n">ConfigurableLeafGridComp</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ConfigurableLeaf_setServices</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">SetServices</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">   </span><span class="k">call </span><span class="n">ConfigurableLeaf_setServices</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">   </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="k">end subroutine</span>
 </pre></div>
 
       </section>
@@ -603,7 +602,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-04-22T13:11:42.842420             </p>
+ on 2024-04-22T20:23:33.419024             </p>
           </div>
         </div>
         <br>
