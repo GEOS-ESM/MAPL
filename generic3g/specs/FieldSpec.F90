@@ -38,7 +38,7 @@ module mapl3g_FieldSpec
 
       type(ESMF_Geom), allocatable :: geom
       type(VerticalGeom) :: vertical_geom
-      type(VerticalDimSpec) :: vertical_dim
+      type(VerticalDimSpec) :: vertical_dim = VERTICAL_DIM_UNDEF
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(UngriddedDimsSpec) :: ungridded_dims
       type(StringVector) :: attributes
@@ -86,6 +86,7 @@ module mapl3g_FieldSpec
       procedure :: match_geom
       procedure :: match_typekind
       procedure :: match_string
+      procedure :: match_vertical_dim
    end interface match
 
    interface get_cost
@@ -228,7 +229,6 @@ contains
 
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
-      
       if (allocated(this%default_value)) then
          call set_field_default(_RC)
       end if
@@ -244,7 +244,7 @@ contains
          real(kind=ESMF_KIND_R4), pointer :: x_r4_1d(:),x_r4_2d(:,:),x_r4_3d(:,:,:),x_r4_4d(:,:,:,:)
          real(kind=ESMF_KIND_R8), pointer :: x_r8_1d(:),x_r8_2d(:,:),x_r8_3d(:,:,:),x_r8_4d(:,:,:,:)
          integer :: status, rank
-         
+
          call ESMF_FieldGet(this%payload,rank=rank,_RC) 
          if (this%typekind == ESMF_TYPEKIND_R4) then
             if (rank == 1) then
@@ -325,6 +325,8 @@ contains
       interface mirror
          procedure :: mirror_typekind
          procedure :: mirror_string
+         procedure :: mirror_real
+         procedure :: mirror_vertical_dim
       end interface mirror
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
@@ -336,6 +338,8 @@ contains
          this%payload = src_spec%payload
          call mirror(dst=this%typekind, src=src_spec%typekind)
          call mirror(dst=this%units, src=src_spec%units)
+         call mirror(dst=this%vertical_dim, src=src_spec%vertical_dim)
+         call mirror(dst=this%default_value, src=src_spec%default_value)
 
       class default
          _FAIL('Cannot connect field spec to non field spec.')
@@ -362,6 +366,24 @@ contains
          _ASSERT(dst == src, 'unsupported typekind mismatch')
       end subroutine mirror_typekind
 
+      ! Earlier checks should rule out double-mirror before this is
+      ! called.
+      subroutine mirror_vertical_dim(dst, src)
+         type(VerticalDimSpec), intent(inout) :: dst, src
+
+         if (dst == src) return
+
+         if (dst == VERTICAL_DIM_MIRROR) then
+            dst = src
+         end if
+
+         if (src == VERTICAL_DIM_MIRROR) then
+            src = dst
+         end if
+
+         _ASSERT(dst == src, 'unsupported typekind mismatch')
+      end subroutine mirror_vertical_dim
+
       subroutine mirror_string(dst, src)
          character(len=:), allocatable, intent(inout) :: dst, src
 
@@ -376,6 +398,21 @@ contains
          end if
 
       end subroutine mirror_string
+
+      subroutine mirror_real(dst, src)
+         real, allocatable, intent(inout) :: dst, src
+
+         if (allocated(dst) .eqv. allocated(src)) return
+
+         if (.not. allocated(dst)) then
+            dst = src
+         end if
+
+         if (.not. allocated(src)) then
+            src = dst
+         end if
+
+      end subroutine mirror_real
 
    end subroutine connect_to
 
@@ -394,7 +431,7 @@ contains
          can_convert_units_ = can_connect_units(this%units, src_spec%units, _RC)
          can_connect_to = all ([ &
               this%ungridded_dims == src_spec%ungridded_dims, &
-              this%vertical_dim == src_spec%vertical_dim, &
+              match(this%vertical_dim,src_spec%vertical_dim), &
               this%ungridded_dims == src_spec%ungridded_dims, & 
               includes(this%attributes, src_spec%attributes), &
               can_convert_units_ &
@@ -443,13 +480,17 @@ contains
       type(ESMF_Field) :: alias
       integer :: status
       type(ESMF_State) :: state, substate
-      character(:), allocatable :: short_name
+      character(:), allocatable :: full_name, inner_name
+      integer :: idx
 
       call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
-      call get_substate(state, actual_pt%get_comp_name(), substate=substate, _RC)
 
-      short_name = actual_pt%get_esmf_name()
-      alias = ESMF_NamedAlias(this%payload, name=short_name, _RC)
+      full_name = actual_pt%get_full_name()
+      idx = index(full_name, '/', back=.true.)
+      call get_substate(state, full_name(:idx-1), substate=substate, _RC)
+      inner_name = full_name(idx+1:)
+
+      alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
       call ESMF_StateAdd(substate, [alias], _RC)
 
       _RETURN(_SUCCESS)
@@ -589,12 +630,11 @@ contains
    logical function match_typekind(a, b) result(match)
       type(ESMF_TypeKind_Flag), intent(in) :: a, b
 
-      ! If both typekinds are MIRROR then must fail (but not here)
-      if (a /= b) then
-         match = any([a%dkind,b%dkind] == MAPL_TYPEKIND_MIRROR%dkind)
-      else
-         match = (a == b)
-      end if
+      integer :: n_mirror
+
+      n_mirror = count([a%dkind,b%dkind] == MAPL_TYPEKIND_MIRROR%dkind)
+      match = (n_mirror == 1) .or. (n_mirror == 0 .and. a == b)
+
    end function match_typekind
 
    logical function match_string(a, b) result(match)
@@ -614,6 +654,16 @@ contains
       ! Both are mirror
       match = .false.
    end function match_string
+
+   logical function match_vertical_dim(a, b) result(match)
+      type(VerticalDimSpec), intent(in) :: a, b
+
+      integer :: n_mirror
+
+      n_mirror = count([a,b] == VERTICAL_DIM_MIRROR)
+      match = (n_mirror == 1) .or. (n_mirror == 0 .and. a == b)
+
+   end function match_vertical_dim
 
    logical function mirror(str)
       character(:), allocatable :: str
@@ -705,6 +755,7 @@ contains
       integer :: status
       type(ESMF_Info) :: ungridded_dims_info
       type(ESMF_Info) :: vertical_dim_info
+      type(ESMF_Info) :: vertical_geom_info
 
       type(ESMF_Info) :: field_info
 
@@ -715,9 +766,22 @@ contains
       call ESMF_InfoDestroy(ungridded_dims_info, _RC)
 
       vertical_dim_info = this%vertical_dim%make_info(_RC)
-
-      call ESMF_InfoSet(field_info, key='MAPL/vertical', value=vertical_dim_info, _RC)
+      call ESMF_InfoSet(field_info, key='MAPL/vertical_dim', value=vertical_dim_info, _RC)
       call ESMF_InfoDestroy(vertical_dim_info, _RC)
+
+      vertical_geom_info = this%vertical_geom%make_info(_RC)
+      call ESMF_InfoSet(field_info, key='MAPL/vertical_geom', value=vertical_geom_info, _RC)
+      call ESMF_InfoDestroy(vertical_geom_info, _RC)
+
+      if (allocated(this%units)) then
+         call ESMF_InfoSet(field_info, key='MAPL/units', value=this%units, _RC)
+      end if
+      if (allocated(this%long_name)) then
+         call ESMF_InfoSet(field_info, key='MAPL/long_name', value=this%long_name, _RC)
+      end if
+      if (allocated(this%standard_name)) then
+         call ESMF_InfoSet(field_info, key='MAPL/standard_name', value=this%standard_name, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine set_info

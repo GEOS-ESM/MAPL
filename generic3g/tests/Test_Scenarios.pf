@@ -250,14 +250,13 @@ contains
             return
          end if
 
-   
+         call comp_states%get_state(state, state_intent, _RC)
+
          msg = comp_path // '::' // state_intent
+   
          state_items = ESMF_HConfigCreateAt(comp_expectations,keyString=state_intent,_RC)
          @assertTrue(ESMF_HConfigIsMap(state_items), msg)
 
-         call comp_states%get_state(state, state_intent, _RC)
-
-!!$         print*, state
 
          hconfigIter = ESMF_HConfigIterBegin(state_items)
          hconfigIterBegin = ESMF_HConfigIterBegin(state_items)
@@ -289,18 +288,25 @@ contains
 
       integer :: status
       integer :: idx
-      type(ESMF_State) :: substate
+      type(ESMF_State) :: substate, tmp_state
+      character(:), allocatable :: name
 
+      integer :: itemcount
+      
       rc = 0
-      idx = index(short_name,'/')
-
-      substate = state ! unless
-      if (idx /= 0) then
-         call ESMF_StateGet(state, short_name(:idx-1), itemtype=itemtype, _RC)
-         @assert_that(itemtype == ESMF_STATEITEM_STATE, is(true()))
-         call ESMF_StateGet(state, short_name(:idx-1), substate, _RC)
-      end if
-      call ESMF_StateGet(substate, short_name(idx+1:), itemtype=itemtype, _RC)
+      name = short_name
+      substate = state
+      do
+         idx = index(name, '/')
+         if (idx == 0) then
+            call ESMF_StateGet(substate, name, itemtype=itemtype, _RC)
+            return
+         end if
+         call ESMF_StateGet(substate, name(:idx-1), tmp_state, rc=status)
+         @assert_that(short_name, status, is(0))
+         name = name(idx+1:)
+         substate = tmp_state
+      end do
 
       rc = 0
    end function get_itemtype
@@ -321,8 +327,8 @@ contains
       expected_itemtype = get_expected_itemtype(expectations, _RC)
 
 
-      itemtype=get_itemtype(state, short_name, _RC)
-      @assert_that(short_name, expected_itemtype == itemtype, is(true()))
+      itemtype = get_itemtype(state, short_name, _RC)
+      @assert_that('check item type of '//short_name, expected_itemtype == itemtype, is(true()))
 
       rc = 0
 
@@ -477,9 +483,10 @@ contains
       end if
 
       expected_field_value = ESMF_HConfigAsR4(expectations,keyString='value',_RC)
-      
+
       call ESMF_StateGet(state, short_name, field, _RC)
-      call ESMF_FieldGet(field, typekind=typekind, rank=rank, _RC)
+      call ESMF_FieldGet(field, typekind=typekind, rank=rank, rc=status)
+      @assert_that('field get failed '//short_name,  status, is(0))
 
       if (typekind == ESMF_TYPEKIND_R4) then
          block
@@ -487,13 +494,13 @@ contains
            select case(rank)
            case(2)
               call ESMF_FieldGet(field, farrayptr=x2, _RC)
-              @assert_that(all(x2 == expected_field_value), is(true()))
+              @assert_that('value of '//short_name, all(x2 == expected_field_value), is(true()))
            case(3)
               call ESMF_FieldGet(field, farrayptr=x3, _RC)
-              @assert_that(all(x3 == expected_field_value), is(true()))
+              @assert_that('value of '//short_name, all(x3 == expected_field_value), is(true()))
            case(4)
               call ESMF_FieldGet(field, farrayptr=x4, _RC)
-              @assert_that(all(x4 == expected_field_value), is(true()))
+              @assert_that('value of '//short_name, all(x4 == expected_field_value), is(true()))
            end select
          end block
       elseif (typekind == ESMF_TYPEKIND_R8) then
@@ -506,13 +513,14 @@ contains
                  print*,'x2:',x2
                  print*,'expected:',expected_field_value
               end if
-              @assert_that(all(x2 == expected_field_value), is(true()))
+
+              @assert_that('value of '//short_name, all(x2 == expected_field_value), is(true()))
            case(3)
               call ESMF_FieldGet(field, farrayptr=x3, _RC)
-              @assert_that(all(x3 == expected_field_value), is(true()))
+              @assert_that('value of '//short_name, all(x3 == expected_field_value), is(true()))
            case(4)
               call ESMF_FieldGet(field, farrayptr=x4, _RC)
-              @assert_that(all(x4 == expected_field_value), is(true()))
+              @assert_that('value of '//short_name, all(x4 == expected_field_value), is(true()))
            end select
          end block
       else

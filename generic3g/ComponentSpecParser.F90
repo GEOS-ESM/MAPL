@@ -195,7 +195,6 @@ contains
          type(ESMF_HConfigIter) :: iter,e,b
          character(:), allocatable :: name
          character(:), allocatable :: short_name
-         character(:), allocatable :: substate
          type(ESMF_HConfig) :: attributes
          type(ESMF_TypeKind_Flag) :: typekind
          real, allocatable :: default_value
@@ -226,8 +225,7 @@ contains
             name = ESMF_HConfigAsStringMapKey(iter, _RC)
             attributes = ESMF_HConfigCreateAtMapVal(iter,_RC)
 
-            call split(name, short_name, substate)
-
+            short_name = name
             typekind = to_typekind(attributes, _RC)
             call val_to_float(default_value, attributes, 'default_value', _RC)
             vertical_dim_spec = to_VerticalDimSpec(attributes,_RC)
@@ -256,12 +254,13 @@ contains
                  standard_name=standard_name, &
                  units=units, &
                  typekind=typekind, &
-                 substate=substate, &
                  default_value=default_value, &
                  vertical_dim_spec=vertical_dim_spec, &
                  ungridded_dims=ungridded_dim_specs, &
                  dependencies=dependencies &
                  )
+            if (allocated(units)) deallocate(units)
+            if (allocated(standard_name)) deallocate(standard_name)
 
             call var_specs%push_back(var_spec)
 
@@ -273,23 +272,6 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine parse_state_specs
-
-      subroutine split(name, short_name, substate)
-         character(*), intent(in) :: name
-         character(:), allocatable, intent(out) :: short_name
-         character(:), allocatable, intent(out) :: substate
-
-         integer :: idx
-
-         idx = index(name, '/')
-         if (idx == 0) then
-            short_name = name
-            return
-         end if
-
-         short_name = name(idx+1:)
-         substate = name(:idx-1)
-      end subroutine split
 
       subroutine val_to_float(x, attributes, key, rc)
          real, allocatable, intent(out) :: x
@@ -359,12 +341,14 @@ contains
          vertical_str= ESMF_HConfigAsString(attributes,keyString=KEY_VERTICAL_DIM_SPEC,_RC)
 
          select case (vertical_str)
-         case ('vertical_dim_none', 'N')
+         case ('vertical_dim_none', 'N', 'NONE')
             vertical_dim_spec = VERTICAL_DIM_NONE
-         case ('vertical_dim_center', 'C')
+         case ('vertical_dim_center', 'C', 'CENTER')
             vertical_dim_spec = VERTICAL_DIM_CENTER
-         case ('vertical_dim_edge', 'E')
+         case ('vertical_dim_edge', 'E', 'EDGE')
             vertical_dim_spec = VERTICAL_DIM_EDGE
+         case ('vertical_dim_mirror', 'M', 'MIRROR')
+            vertical_dim_spec = VERTICAL_DIM_MIRROR
          case default
             _FAIL('Unsupported vertical_dim_spec')
          end select

@@ -13,7 +13,7 @@ module mapl3g_HistoryCollectionGridComp_private
    implicit none
    private
 
-   public :: make_geom, register_imports
+   public :: make_geom, register_imports, create_output_bundle
 
    interface parse_item
       module procedure :: parse_item_expression
@@ -203,5 +203,39 @@ contains
      end do
 
    end function convert_string_vector_v2
+
+   function create_output_bundle(hconfig, import_state, rc) result(bundle)
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_HConfig), intent(in) :: hconfig
+      type(ESMF_State), intent(in) :: import_state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
+      type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
+      type(ESMF_HConfig) :: var_list
+      character(len=:), allocatable :: alias, short_name
+      type(ESMF_Field) :: field, new_field
+      type(ESMF_Info) :: info, new_info
+      type(ESMF_StateItem_Flag) :: itemType
+
+      var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, _RC)
+      iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
+      iter_end = ESMF_HConfigIterEnd(var_list,_RC)
+      iter = iter_begin
+
+      bundle = ESMF_FieldBundleCreate(_RC)
+      do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
+         call parse_item(iter, alias, short_name, _RC)
+         call ESMF_StateGet(import_state, short_name, field, _RC)
+         new_field = ESMF_FieldCreate(field, dataCopyFlag=ESMF_DATACOPY_REFERENCE, name=alias,  _RC)
+         call ESMF_InfoGetFromHost(field, info, _RC)
+         call ESMF_InfoGetFromHost(new_field, new_info, _RC)
+         call ESMF_InfoSet(new_info, key="", value=info, _RC)
+         call ESMF_FieldBundleAdd(bundle, [new_field], _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end function create_output_bundle
 
 end module mapl3g_HistoryCollectionGridComp_private

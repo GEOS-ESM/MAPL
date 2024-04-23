@@ -76,6 +76,7 @@ contains
       integer :: i, j, k
       class(StateItemSpec), allocatable :: new_spec
       type(ConnectionPt) :: s_pt, d_pt
+      character(1000) :: message
 
       src_pt = this%get_source()
       dst_pt = this%get_destination()
@@ -95,6 +96,10 @@ contains
               dst_pattern%get_esmf_name(), comp_name=dst_pattern%get_comp_name())
 
          src_v_pts = src_registry%filter(src_pattern)
+         if (src_v_pts%size() == 0) then
+            write(message,*) dst_pattern
+            _FAIL('No matching source found for connection dest: ' // trim(message))
+         end if
          do j = 1, src_v_pts%size()
             src_v_pt => src_v_pts%of(j)
 
