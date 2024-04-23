@@ -5,11 +5,12 @@ target_sources(MAPL.generic3g PRIVATE
   VariableSpecVector.F90
 
   GeometrySpec.F90
+  UngriddedDim.F90
+  UngriddedDimVector.F90
+  UngriddedDims.F90
+
   HorizontalDimsSpec.F90
   VerticalDimSpec.F90
-  UngriddedDimSpec.F90
-  DimSpecVector.F90
-  UngriddedDimsSpec.F90
   GridSpec.F90
   
   StateItemSpec.F90

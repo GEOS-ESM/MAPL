@@ -1,8 +1,8 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_UngriddedDimsSpec
-   use mapl3g_DimSpecVector
-   use mapl3g_UngriddedDimSpec
+module mapl3g_UngriddedDims
+   use mapl3g_UngriddedDimVector
+   use mapl3g_UngriddedDim
    use mapl3g_LU_Bound
    use mapl_ErrorHandling
    use esmf, only: ESMF_Info
@@ -13,28 +13,28 @@ module mapl3g_UngriddedDimsSpec
 
    private
 
-   public :: UngriddedDimsSpec
+   public :: UngriddedDims
    public :: operator(==)
    public :: operator(/=)
 
    ! Note: GEOS convention is that the vertical dim spec should be
    ! before any other ungridded dim specs.
-   type :: UngriddedDimsSpec
+   type :: UngriddedDims
       private
-      type(DimSpecVector) :: dim_specs
+      type(UngriddedDimVector) :: dim_specs
    contains
-      procedure :: add_dim_spec
+      procedure :: add_dim
       procedure :: get_num_ungridded
       procedure :: get_ith_dim_spec
       procedure :: get_bounds
       procedure :: make_info
-   end type UngriddedDimsSpec
+   end type UngriddedDims
 
-   interface UngriddedDimsSpec
-      module procedure new_UngriddedDimsSpec_empty
-      module procedure new_UngriddedDimsSpec_vec
-      module procedure new_UngriddedDimsSpec_arr
-   end interface UngriddedDimsSpec
+   interface UngriddedDims
+      module procedure new_UngriddedDims_empty
+      module procedure new_UngriddedDims_vec
+      module procedure new_UngriddedDims_arr
+   end interface UngriddedDims
 
    interface operator(==)
       module procedure equal_to
@@ -48,25 +48,25 @@ module mapl3g_UngriddedDimsSpec
 contains
 
 
-   function new_UngriddedDimsSpec_empty() result(spec)
-      type(UngriddedDimsSpec) :: spec
+   function new_UngriddedDims_empty() result(spec)
+      type(UngriddedDims) :: spec
 
-      spec%dim_specs = DimSpecVector()
+      spec%dim_specs = UngriddedDimVector()
 
-   end function new_UngriddedDimsSpec_empty
+   end function new_UngriddedDims_empty
 
-   pure function new_UngriddedDimsSpec_vec(dim_specs) result(spec)
-      type(UngriddedDimsSpec) :: spec
-      type(DimSpecVector), intent(in) :: dim_specs
+   pure function new_UngriddedDims_vec(dim_specs) result(spec)
+      type(UngriddedDims) :: spec
+      type(UngriddedDimVector), intent(in) :: dim_specs
 
       spec%dim_specs = dim_specs
 
-   end function new_UngriddedDimsSpec_vec
+   end function new_UngriddedDims_vec
 
 
-   function new_UngriddedDimsSpec_arr(dim_specs) result(spec)
-      type(UngriddedDimsSpec) :: spec
-      type(UngriddedDimSpec), intent(in) :: dim_specs(:)
+   function new_UngriddedDims_arr(dim_specs) result(spec)
+      type(UngriddedDims) :: spec
+      type(UngriddedDim), intent(in) :: dim_specs(:)
 
       integer :: i
 
@@ -74,13 +74,13 @@ contains
          call spec%dim_specs%push_back(dim_specs(i))
       end do
 
-   end function new_UngriddedDimsSpec_arr
+   end function new_UngriddedDims_arr
 
 
    ! Note: Ensure that vertical is the first ungridded dimension.
-   subroutine add_dim_spec(this, dim_spec, rc)
-      class(UngriddedDimsSpec), intent(inout) :: this
-      type(UngriddedDimSpec), intent(in) :: dim_spec
+   subroutine add_dim(this, dim_spec, rc)
+      class(UngriddedDims), intent(inout) :: this
+      type(UngriddedDim), intent(in) :: dim_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -91,10 +91,10 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(status)
-   end subroutine add_dim_spec
+   end subroutine add_dim
 
    pure integer function get_num_ungridded(this)
-      class(UngriddedDimsSpec), intent(in) :: this
+      class(UngriddedDims), intent(in) :: this
 
       get_num_ungridded = this%dim_specs%size()
       
@@ -102,8 +102,8 @@ contains
 
 
    function get_ith_dim_spec(this, i, rc) result(dim_spec)
-      type(UngriddedDimSpec), pointer :: dim_spec
-      class(UngriddedDimsSpec), target, intent(in) :: this
+      type(UngriddedDim), pointer :: dim_spec
+      class(UngriddedDims), target, intent(in) :: this
       integer, intent(in) :: i
       integer, optional, intent(out) :: rc
 
@@ -117,10 +117,10 @@ contains
 
    function get_bounds(this) result(bounds)
       type(LU_Bound), allocatable :: bounds(:)
-      class(UngriddedDimsSpec), intent(in) :: this
+      class(UngriddedDims), intent(in) :: this
 
       integer :: i
-      class(UngriddedDimSpec), pointer :: dim_spec
+      class(UngriddedDim), pointer :: dim_spec
 
       allocate(bounds(this%get_num_ungridded()))
       do i = 1, this%get_num_ungridded()
@@ -131,8 +131,8 @@ contains
    end function get_bounds
 
    logical function equal_to(a, b)
-      type(UngriddedDimsSpec), intent(in) :: a
-      type(UngriddedDimsSpec), intent(in) :: b
+      type(UngriddedDims), intent(in) :: a
+      type(UngriddedDims), intent(in) :: b
 
       integer :: i
 
@@ -152,8 +152,8 @@ contains
 
 
    logical function not_equal_to(a, b)
-      type(UngriddedDimsSpec), intent(in) :: a
-      type(UngriddedDimsSpec), intent(in) :: b
+      type(UngriddedDims), intent(in) :: a
+      type(UngriddedDims), intent(in) :: b
 
       not_equal_to = .not. (a == b)
 
@@ -161,12 +161,12 @@ contains
 
    function make_info(this, rc)  result(info)
       type(ESMF_Info) :: info
-      class(UngriddedDimsSpec), target, intent(in) :: this
+      class(UngriddedDims), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: i
-      type(UngriddedDimSpec), pointer :: dim_spec
+      type(UngriddedDim), pointer :: dim_spec
       type(ESMF_Info) :: dim_info
       character(5) :: dim_key
 
@@ -186,5 +186,5 @@ contains
       _RETURN(_SUCCESS)
    end function make_info
 
-end module mapl3g_UngriddedDimsSpec
+end module mapl3g_UngriddedDims
 
