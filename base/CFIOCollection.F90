@@ -10,7 +10,7 @@ module ESMF_CFIOCollectionMod
   use pFIO
   use MAPL_GridManagerMod
   use MAPL_AbstractGridFactoryMod
-  use gFTL_StringIntegerMap
+  use gFTL2_StringIntegerMap
   use MAPL_ExceptionHandling
   implicit none
   private
@@ -28,7 +28,7 @@ module ESMF_CFIOCollectionMod
      type (ESMF_CFIO), pointer :: formatter => null()
      type (FileMetadata), pointer :: file => null()
   contains
-    procedure :: find
+    procedure :: find => find_formatter
     procedure :: unfind
   end type CFIOCollection
 
@@ -52,7 +52,7 @@ contains
 
 
 
-  function find(this, file_name, rc) result(formatter)
+  function find_formatter(this, file_name, rc) result(formatter)
     type (ESMF_CFIO), pointer :: formatter
     class (CFIOCollection), target, intent(inout) :: this
     character(len=*), intent(in) :: file_name
@@ -65,8 +65,8 @@ contains
     integer :: status
     class (AbstractGridFactory), allocatable :: factory
 
-    file_id => this%file_ids%at(trim(file_name))
-    if (associated(file_id)) then
+    file_id => this%file_ids%at(trim(file_name), rc=status)
+    if (status == 0 .and. associated(file_id)) then
        formatter => this%formatters%at(file_id)
        this%file => this%files%at(file_id)
     else
@@ -81,9 +81,9 @@ contains
 
           iter = this%file_ids%begin()
           do while (iter /= this%file_ids%end())
-             file_id => iter%value()
+             file_id => iter%second()
              if (file_id == 1) then
-                call this%file_ids%erase(iter)
+                iter = this%file_ids%erase(iter)
                 exit
              end if
              call iter%next()
@@ -92,7 +92,7 @@ contains
           ! Fix the old file_id's accordingly
           iter = this%file_ids%begin()
           do while (iter /= this%file_ids%end())
-             file_id => iter%value()
+             file_id => iter%second()
              file_id = file_id -1
              call iter%next()
           end do
@@ -128,7 +128,7 @@ contains
 
     _RETURN(_SUCCESS)
 
-  end function find
+  end function find_formatter
 
   subroutine unfind(this)
     class (CFIOCollection), intent(inout) :: this
