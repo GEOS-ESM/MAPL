@@ -87,7 +87,6 @@ contains
       dst_v_pts = dst_registry%filter(dst_pt%v_pt)
 
       do i = 1, dst_v_pts%size()
-         _HERE, i
          dst_pattern => dst_v_pts%of(i)
          src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
               '^'//dst_pattern%get_esmf_name()//'$', comp_name=dst_pattern%get_comp_name())
