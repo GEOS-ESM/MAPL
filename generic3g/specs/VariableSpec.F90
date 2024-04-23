@@ -4,7 +4,7 @@
 module mapl3g_VariableSpec
    use mapl3g_StateItemSpec
    use mapl3g_StateItem
-   use mapl3g_UngriddedDimsSpec
+   use mapl3g_UngriddedDims
    use mapl3g_VerticalDimSpec
    use mapl3g_HorizontalDimsSpec
    use mapl3g_FieldSpec
@@ -50,7 +50,7 @@ module mapl3g_VariableSpec
       ! Geometry
       type(VerticalDimSpec) :: vertical_dim_spec ! none, center, edge
       type(HorizontalDimsSpec) :: horizontal_dims_spec ! none, geom
-      type(UngriddedDimsSpec) :: ungridded_dims
+      type(UngriddedDims) :: ungridded_dims
       type(StringVector) :: dependencies
    contains
       procedure :: make_virtualPt
@@ -91,7 +91,7 @@ contains
       character(*), optional, intent(in) :: substate
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       type(VerticalDimSpec), optional, intent(in) :: vertical_dim_spec
-      type(UngriddedDimsSpec), optional, intent(in) :: ungridded_dims
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
       real, optional, intent(in) :: default_value
       type(StringVector), optional, intent(in) :: attributes
       integer, optional, intent(in) :: bracket_size

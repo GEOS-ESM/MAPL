@@ -2,7 +2,7 @@
 
 module mapl3g_FieldSpec
    use mapl3g_StateItemSpec
-   use mapl3g_UngriddedDimsSpec
+   use mapl3g_UngriddedDims
    use mapl3g_ActualConnectionPt
    use mapl3g_ESMF_Utilities, only: get_substate
    use mapl3g_ActualPtSpecPtrMap
@@ -38,9 +38,9 @@ module mapl3g_FieldSpec
 
       type(ESMF_Geom), allocatable :: geom
       type(VerticalGeom) :: vertical_geom
-      type(VerticalDimSpec) :: vertical_dim = VERTICAL_DIM_UNDEF
+      type(VerticalDimSpec) :: vertical_dim = VERTICAL_DIM_UNKNOWN
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
-      type(UngriddedDimsSpec) :: ungridded_dims
+      type(UngriddedDims) :: ungridded_dims
       type(StringVector) :: attributes
 
       ! Metadata
@@ -113,7 +113,7 @@ contains
       type(VerticalGeom), intent(in) :: vertical_geom
       type(VerticalDimSpec), intent(in) :: vertical_dim
       type(ESMF_Typekind_Flag), intent(in) :: typekind
-      type(UngriddedDimsSpec), intent(in) :: ungridded_dims
+      type(UngriddedDims), intent(in) :: ungridded_dims
 
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: units
