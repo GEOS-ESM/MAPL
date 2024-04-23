@@ -54,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Updates to GFE v1.15
     - Fixes for NAG
     - Use GCC 11.4 as Intel backing compiler at NCCS SLES15
+- Update CI to use Baselibs 7.23.0 and GCC 13.2 for GNU tests
 
 ### Fixed
 
