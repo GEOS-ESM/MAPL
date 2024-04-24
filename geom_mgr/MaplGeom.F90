@@ -40,7 +40,7 @@ module mapl3g_MaplGeom
       procedure :: get_factory
 !!$      procedure :: get_grid
       procedure :: get_file_metadata
-!!$      procedure :: get_gridded_dims
+      procedure :: get_gridded_dims
 
       ! Only used by regridder
       procedure :: get_basis
@@ -85,6 +85,11 @@ module mapl3g_MaplGeom
          type(FileMetadata) :: file_metadata
          class(MaplGeom), intent(in) :: this
       end function get_file_metadata
+
+      module function get_gridded_dims(this) result(gridded_dims)
+         type(StringVector) :: gridded_dims
+         class(MaplGeom), intent(in) :: this
+      end function get_gridded_dims
 
       recursive module function get_basis(this, mode, rc) result(basis)
          type(VectorBasis), pointer :: basis
