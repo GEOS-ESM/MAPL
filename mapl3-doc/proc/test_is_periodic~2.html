@@ -84,15 +84,15 @@
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Test_CoordinateAxis.pf"> Source File</a>
+              <a href="../src/Test_LonAxis.pf"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/test_coordinateaxis.pf.html'>Test_CoordinateAxis.pf</a></li>
-                <li class="breadcrumb-item"><a href='../module/test_coordinateaxis.html'>Test_CoordinateAxis</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/test_lonaxis.pf.html'>Test_LonAxis.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_lonaxis.html'>Test_LonAxis</a></li>
             <li class="breadcrumb-item active" aria-current="page">test_is_periodic</li>
           </ol>
         </nav>
@@ -188,18 +188,18 @@
 <path fill="none" stroke="#ff0000" d="M94.14,-66.04C116.3,-71.82 142.73,-78.71 164.65,-84.43"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="163.82,-87.83 174.38,-86.97 165.58,-81.06 163.82,-87.83"/>
 </g>
-<!-- none~is_periodic -->
+<!-- none~is_periodic~2 -->
 <g id="proc~~test_is_periodic~2~~CallsGraph_node3" class="node">
-<title>none~is_periodic</title>
-<g id="a_proc~~test_is_periodic~2~~CallsGraph_node3"><a xlink:href="../type/coordinateaxis.html#boundprocedure-is_periodic" xlink:title="CoordinateAxis%is_periodic">
+<title>none~is_periodic~2</title>
+<g id="a_proc~~test_is_periodic~2~~CallsGraph_node3"><a xlink:href="../type/coordinateaxis.html#boundprocedure-is_periodic~2" xlink:title="CoordinateAxis%is_periodic">
 <polygon fill="#a7506f" stroke="#a7506f" points="290,-66 130,-66 130,-42 290,-42 290,-66"/>
 <text text-anchor="middle" x="210" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CoordinateAxis%is_periodic</text>
 </a>
 </g>
 </g>
-<!-- proc~test_is_periodic~2&#45;&gt;none~is_periodic -->
+<!-- proc~test_is_periodic~2&#45;&gt;none~is_periodic~2 -->
 <g id="proc~~test_is_periodic~2~~CallsGraph_edge2" class="edge">
-<title>proc~test_is_periodic~2&#45;&gt;none~is_periodic</title>
+<title>proc~test_is_periodic~2&#45;&gt;none~is_periodic~2</title>
 <path fill="none" stroke="#ff0000" d="M94.14,-54C102.15,-54 110.72,-54 119.44,-54"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="119.72,-57.5 129.72,-54 119.72,-50.5 119.72,-57.5"/>
 </g>
@@ -313,7 +313,7 @@ large graphs.</div>
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_is_periodic</span><span class="p">()</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">CoordinateAxis</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">axis</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">LonAxis</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">axis</span>
 
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span>
 <span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">centers</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
@@ -325,7 +325,7 @@ large graphs.</div>
 <span class="w">         </span><span class="n">corners</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mi">36</span><span class="mf">0.</span><span class="o">/</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="mi">36</span><span class="mf">0.</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">))</span>
 <span class="w">      </span><span class="k">end do</span>
 <span class="k">      </span><span class="n">corners</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">360</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="mi">36</span><span class="mf">0.</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">))</span>
-<span class="w">      </span><span class="n">axis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CoordinateAxis</span><span class="p">(</span><span class="n">centers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">centers</span><span class="p">,</span><span class="w"> </span><span class="n">corners</span><span class="o">=</span><span class="n">corners</span><span class="p">)</span>
+<span class="w">      </span><span class="n">axis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LonAxis</span><span class="p">(</span><span class="n">centers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">centers</span><span class="p">,</span><span class="w"> </span><span class="n">corners</span><span class="o">=</span><span class="n">corners</span><span class="p">)</span>
 
 <span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">axis</span><span class="p">%</span><span class="n">is_periodic</span><span class="p">(),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
 <span class="w">           </span>
@@ -353,7 +353,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-04-24T19:22:38.503131             </p>
+ on 2024-04-24T20:38:38.857624             </p>
           </div>
         </div>
         <br>

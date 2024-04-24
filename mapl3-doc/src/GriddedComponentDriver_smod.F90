@@ -15,7 +15,7 @@ contains
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC
+      integer :: status, user_status
 
       call this%run_import_couplers(_RC)
       
@@ -27,8 +27,7 @@ contains
              importState=importState, &
              exportState=exportState, &
              clock=this%clock, &
-             phase=phase_idx, userRC=userRC, _RC)
-        _VERIFY(userRC)
+             phase=phase_idx, _USERRC)
       end associate
       call this%run_export_couplers(phase_idx=phase_idx, _RC)
 
@@ -42,7 +41,7 @@ contains
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC
+      integer :: status, user_status
 
       associate ( &
            importState => this%states%importState, &
@@ -50,8 +49,7 @@ contains
 
         call ESMF_GridCompInitialize(this%gridcomp, &
              importState=importState, exportState=exportState, clock=this%clock, &
-             phase=phase_idx, userRC=userRC, _RC)
-        _VERIFY(userRC)
+             phase=phase_idx, _USERRC)
 
       end associate
 
@@ -65,7 +63,7 @@ contains
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC
+      integer :: status, user_status
 
       associate ( &
            importState => this%states%importState, &
@@ -73,8 +71,8 @@ contains
 
         call ESMF_GridCompFinalize(this%gridcomp, &
              importState=importState, exportState=exportState, clock=this%clock, &
-             phase=phase_idx, userRC=userRC, _RC)
-        _VERIFY(userRC)
+             phase=phase_idx, _USERRC)
+
       end associate
 
       _RETURN(_SUCCESS)
