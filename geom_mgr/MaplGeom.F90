@@ -3,6 +3,7 @@
 module mapl3g_MaplGeom
    use mapl3g_GeomSpec
    use mapl3g_VectorBasis
+   use mapl3g_GeomFactory
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Geom
    use gftl_StringVector
@@ -28,6 +29,7 @@ module mapl3g_MaplGeom
       type(ESMF_Geom) :: geom
       type(FileMetadata) :: file_metadata
       type(StringVector) :: gridded_dims ! center staggered
+      class(GeomFactory), allocatable :: factory
 
       ! Derived - lazy initialization
       type(VectorBases) :: bases
@@ -35,9 +37,10 @@ module mapl3g_MaplGeom
       procedure :: set_id
       procedure :: get_spec
       procedure :: get_geom
+      procedure :: get_factory
 !!$      procedure :: get_grid
       procedure :: get_file_metadata
-!!$      procedure :: get_gridded_dims
+      procedure :: get_gridded_dims
 
       ! Only used by regridder
       procedure :: get_basis
@@ -48,10 +51,11 @@ module mapl3g_MaplGeom
    end interface MaplGeom
 
    interface 
-      module function new_MaplGeom(spec, geom, file_metadata, gridded_dims) result(mapl_geom)
+      module function new_MaplGeom(spec, geom, factory, file_metadata, gridded_dims) result(mapl_geom)
          class(GeomSpec), intent(in) :: spec
          type(MaplGeom) :: mapl_geom
          type(ESMF_Geom), intent(in) :: geom
+         class(GeomFactory), intent(in) :: factory
          type(FileMetadata), optional, intent(in) :: file_metadata
          type(StringVector), optional, intent(in) :: gridded_dims
       end function new_MaplGeom
@@ -72,10 +76,20 @@ module mapl3g_MaplGeom
          class(MaplGeom), intent(in) :: this
       end function get_geom
 
+      module function get_factory(this) result(factory)
+         class(GeomFactory), allocatable :: factory
+         class(MaplGeom), intent(in) :: this
+      end function get_factory
+
       module function get_file_metadata(this) result(file_metadata)
          type(FileMetadata) :: file_metadata
          class(MaplGeom), intent(in) :: this
       end function get_file_metadata
+
+      module function get_gridded_dims(this) result(gridded_dims)
+         type(StringVector) :: gridded_dims
+         class(MaplGeom), intent(in) :: this
+      end function get_gridded_dims
 
       recursive module function get_basis(this, mode, rc) result(basis)
          type(VectorBasis), pointer :: basis
