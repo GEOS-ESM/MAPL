@@ -12,15 +12,17 @@ submodule (mapl3g_MaplGeom) MaplGeom_smod
 
 contains
    
-   module function new_MaplGeom(spec, geom, file_metadata, gridded_dims) result(mapl_geom)
+   module function new_MaplGeom(spec, geom, factory, file_metadata, gridded_dims) result(mapl_geom)
       class(GeomSpec), intent(in) :: spec
       type(MaplGeom) :: mapl_geom
       type(ESMF_Geom), intent(in) :: geom
+      class(GeomFactory), intent(in) :: factory
       type(FileMetadata), optional, intent(in) :: file_metadata
       type(StringVector), optional, intent(in) :: gridded_dims
 
       mapl_geom%spec = spec
       mapl_geom%geom = geom
+      mapl_geom%factory = factory
       if (present(file_metadata)) mapl_geom%file_metadata = file_metadata
       if (present(gridded_dims)) mapl_geom%gridded_dims = gridded_dims
 
@@ -51,11 +53,23 @@ contains
       geom = this%geom
    end function get_geom
 
+   module function get_factory(this) result(factory)
+     class(GeomFactory), allocatable :: factory
+      class(MaplGEOM), intent(in) :: this
+      factory = this%factory
+   end function get_factory
+
    module function get_file_metadata(this) result(file_metadata)
      type(FileMetadata) :: file_metadata
       class(MaplGeom), intent(in) :: this
       file_metadata = this%file_metadata
    end function get_file_metadata
+
+   module function get_gridded_dims(this) result(gridded_dims)
+      type(StringVector) :: gridded_dims
+      class(MaplGeom), intent(in) :: this
+      gridded_dims = this%gridded_dims
+   end function get_gridded_dims
 
    recursive module function get_basis(this, mode, rc) result(basis)
       type(VectorBasis), pointer :: basis
