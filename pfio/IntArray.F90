@@ -26,6 +26,7 @@ module pFIO_IntArrayMod
 
    public :: IntArray
    type :: IntArray
+      private
       integer, pointer :: values(:)
    contains
       procedure :: get_values
