@@ -55,7 +55,7 @@ contains
 
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
          call parse_item(iter, item_name, short_name, _RC)
-         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, short_name)
+         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, vertical_dim_spec=VERTICAL_DIM_MIRROR)
          call MAPL_AddSpec(gridcomp, varspec, _RC)
       end do
 

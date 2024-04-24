@@ -1,5 +1,5 @@
 #include "MAPL_Generic.h"
-module mapl3g_UngriddedDimSpec
+module mapl3g_UngriddedDim
    use mapl3g_LU_Bound
    use mapl_ErrorHandling
    use esmf, only: ESMF_Info
@@ -8,11 +8,11 @@ module mapl3g_UngriddedDimSpec
    implicit none
    private
 
-   public :: UngriddedDimSpec
+   public :: UngriddedDim
    public :: operator(==)
    public :: operator(/=)
 
-   type :: UngriddedDimSpec
+   type :: UngriddedDim
       private
       character(:), allocatable :: name
       character(:), allocatable :: units
@@ -24,13 +24,13 @@ module mapl3g_UngriddedDimSpec
       procedure :: get_coordinates
       procedure :: get_bounds
       procedure :: make_info
-   end type UngriddedDimSpec
+   end type UngriddedDim
 
-   interface UngriddedDimSpec
-      module procedure new_UngriddedDimSpec_extent
-      module procedure new_UngriddedDimSpec_name_and_coords
-      module procedure new_UngriddedDimSpec_name_units_and_coords
-   end interface UngriddedDimSpec
+   interface UngriddedDim
+      module procedure new_UngriddedDim_extent
+      module procedure new_UngriddedDim_name_and_coords
+      module procedure new_UngriddedDim_name_units_and_coords
+   end interface UngriddedDim
 
    interface operator(==)
       module procedure equal_to
@@ -46,8 +46,8 @@ module mapl3g_UngriddedDimSpec
 
 contains
 
-   pure function new_UngriddedDimSpec_name_units_and_coords(name, units, coordinates) result(spec)
-      type(UngriddedDimSpec) :: spec
+   pure function new_UngriddedDim_name_units_and_coords(name, units, coordinates) result(spec)
+      type(UngriddedDim) :: spec
       character(*), intent(in) :: name
       character(*), intent(in) :: units
       real, intent(in) :: coordinates(:)
@@ -56,21 +56,21 @@ contains
       spec%units = units
       spec%coordinates = coordinates
 
-   end function new_UngriddedDimSpec_name_units_and_coords
+   end function new_UngriddedDim_name_units_and_coords
 
-   pure function new_UngriddedDimSpec_name_and_coords(name, coordinates) result(spec)
-      type(UngriddedDimSpec) :: spec
+   pure function new_UngriddedDim_name_and_coords(name, coordinates) result(spec)
+      type(UngriddedDim) :: spec
       character(*), intent(in) :: name
       real, intent(in) :: coordinates(:)
-      spec = UngriddedDimSpec(name, UNKNOWN_DIM_UNITS, coordinates)
-   end function new_UngriddedDimSpec_name_and_coords
+      spec = UngriddedDim(name, UNKNOWN_DIM_UNITS, coordinates)
+   end function new_UngriddedDim_name_and_coords
 
 
-   pure function new_UngriddedDimSpec_extent(extent) result(spec)
+   pure function new_UngriddedDim_extent(extent) result(spec)
       integer, intent(in) :: extent
-      type(UngriddedDimSpec) :: spec
-      spec = UngriddedDimSpec(UNKNOWN_DIM_NAME, default_coords(extent))
-   end function new_UngriddedDimSpec_extent
+      type(UngriddedDim) :: spec
+      spec = UngriddedDim(UNKNOWN_DIM_NAME, default_coords(extent))
+   end function new_UngriddedDim_extent
 
 
    pure function default_coords(extent, lbound) result(coords)
@@ -92,43 +92,43 @@ contains
 
 
    pure integer function get_extent(this) result(extent)
-      class(UngriddedDimSpec), intent(in) :: this
+      class(UngriddedDim), intent(in) :: this
       extent = size(this%coordinates)
    end function get_extent
 
 
    pure function get_name(this) result(name)
       character(:), allocatable :: name
-      class(UngriddedDimSpec), intent(in) :: this
+      class(UngriddedDim), intent(in) :: this
       name = this%name
    end function get_name
 
 
    pure function get_units(this) result(units)
       character(:), allocatable :: units
-      class(UngriddedDimSpec), intent(in) :: this
+      class(UngriddedDim), intent(in) :: this
       units = this%units
    end function get_units
 
 
    pure function get_coordinates(this) result(coordinates)
       real, allocatable :: coordinates(:)
-      class(UngriddedDimSpec), intent(in) :: this
+      class(UngriddedDim), intent(in) :: this
       coordinates = this%coordinates
    end function get_coordinates
 
 
    pure function get_bounds(this) result(bound)
       type(LU_Bound) :: bound
-      class(UngriddedDimSpec), intent(in) :: this
+      class(UngriddedDim), intent(in) :: this
       bound%lower = 1
       bound%upper = size(this%coordinates)
    end function get_bounds
 
 
    pure logical function equal_to(a, b)
-      class(UngriddedDimSpec), intent(in) :: a
-      class(UngriddedDimSpec), intent(in) :: b
+      class(UngriddedDim), intent(in) :: a
+      class(UngriddedDim), intent(in) :: b
 
       equal_to = &
            same_type_as(a, b) .and. &
@@ -140,8 +140,8 @@ contains
 
 
    pure logical function not_equal_to(a, b)
-      type(UngriddedDimSpec), intent(in) :: a
-      type(UngriddedDimSpec), intent(in) :: b
+      type(UngriddedDim), intent(in) :: a
+      type(UngriddedDim), intent(in) :: b
 
       not_equal_to = .not. (a == b)
 
@@ -149,7 +149,7 @@ contains
 
    function make_info(this, rc) result(info)
       type(ESMF_Info) :: info
-      class(UngriddedDimSpec), intent(in) :: this
+      class(UngriddedDim), intent(in) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -166,4 +166,4 @@ contains
       _RETURN(_SUCCESS)
    end function make_info
 
-end module mapl3g_UngriddedDimSpec
+end module mapl3g_UngriddedDim

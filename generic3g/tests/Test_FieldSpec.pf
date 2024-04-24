@@ -1,7 +1,7 @@
 module Test_FieldSpec
    use funit
    use mapl3g_FieldSpec
-   use mapl3g_UngriddedDimsSpec
+   use mapl3g_UngriddedDims
    use mapl3g_VerticalDimSpec
    use mapl3g_VerticalGeom
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
@@ -18,19 +18,19 @@ contains
       type(StringVector) :: import_attributes, export_attributes
 
       spec_r4 = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', units='m')
       spec_r8 = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R8, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', units='m')
       spec_mirror = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=MAPL_TYPEKIND_MIRROR, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', units='m')
 
       @assert_that(spec_r4%can_connect_to(spec_r4), is(true()))
@@ -57,15 +57,15 @@ contains
 
       
       import_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', units='m', &
            attributes=import_attributes)
       export_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', units='m', &
            attributes=export_attributes)
 
@@ -86,15 +86,15 @@ contains
       call export_attributes%push_back('other')
       
       import_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', units='m', &
            attributes=import_attributes)
       export_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', units='m', &
            attributes=export_attributes)
 
@@ -120,15 +120,15 @@ contains
 
       
       import_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', units='m', &
            attributes=import_attributes)
       export_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', units='m', &
            attributes=export_attributes)
 
@@ -143,16 +143,16 @@ contains
       type(ESMF_Geom) :: geom
 
       import_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', attributes=StringVector(), &
            units='m')
 
       export_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', attributes=StringVector(), &
            units='g')
 
@@ -167,16 +167,16 @@ contains
       type(ESMF_Geom) :: geom
 
       import_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', attributes=StringVector(), &
            units='m')
 
       export_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', attributes=StringVector(), &
            units='km')
 
@@ -191,16 +191,16 @@ contains
       type(ESMF_Geom) :: geom
 
       import_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', attributes=StringVector(), &
            units='m')
 
       export_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', attributes=StringVector(), &
            units='m')
 
@@ -214,16 +214,17 @@ contains
       type(FieldSpec) :: export_spec
       type(ESMF_Geom) :: geom
 
+      
       import_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', attributes=StringVector())
 
       export_spec = FieldSpec( &
-           geom=geom, vertical_geom=VerticalGeom(), vertical_dim=VerticalDimSpec(), &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = UngriddedDimsSpec(), &
+           ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', attributes=StringVector(), &
            units='m')
 
