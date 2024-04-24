@@ -4,7 +4,7 @@
 module mapl3g_VariableSpec
    use mapl3g_StateItemSpec
    use mapl3g_StateItem
-   use mapl3g_UngriddedDimsSpec
+   use mapl3g_UngriddedDims
    use mapl3g_VerticalDimSpec
    use mapl3g_HorizontalDimsSpec
    use mapl3g_FieldSpec
@@ -48,9 +48,9 @@ module mapl3g_VariableSpec
       integer, allocatable :: bracket_size
 
       ! Geometry
-      type(VerticalDimSpec) :: vertical_dim_spec ! none, center, edge
-      type(HorizontalDimsSpec) :: horizontal_dims_spec ! none, geom
-      type(UngriddedDimsSpec) :: ungridded_dims
+      type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN ! none, center, edge
+      type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! none, geom
+      type(UngriddedDims) :: ungridded_dims
       type(StringVector) :: dependencies
    contains
       procedure :: make_virtualPt
@@ -91,7 +91,7 @@ contains
       character(*), optional, intent(in) :: substate
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       type(VerticalDimSpec), optional, intent(in) :: vertical_dim_spec
-      type(UngriddedDimsSpec), optional, intent(in) :: ungridded_dims
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
       real, optional, intent(in) :: default_value
       type(StringVector), optional, intent(in) :: attributes
       integer, optional, intent(in) :: bracket_size
@@ -112,7 +112,6 @@ contains
       _SET_OPTIONAL(typekind)
       _SET_OPTIONAL(service_items)
       _SET_OPTIONAL(default_value)
-      var_spec%vertical_dim_spec = VERTICAL_DIM_NONE
       _SET_OPTIONAL(vertical_dim_spec)
       _SET_OPTIONAL(ungridded_dims)
       _SET_OPTIONAL(attributes)
@@ -244,7 +243,8 @@ contains
 
       call fill_units(this, units, _RC)
 
-      field_spec = FieldSpec(geom=geom, vertical_geom = vertical_geom, vertical_dim = this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
+      field_spec = FieldSpec(geom=geom, vertical_geom=vertical_geom, vertical_dim_spec=this%vertical_dim_spec, ungridded_dims=this%ungridded_dims, &
+           typekind=this%typekind, &
            standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value)
 
       
@@ -307,9 +307,11 @@ contains
          _RETURN(_FAILURE)
       end if
 
+      _ASSERT(this%vertical_dim_spec /= VERTICAL_DIM_UNKNOWN, 'must provide a vertical dim spec')
       call fill_units(this, units, _RC)
 
-      field_spec = FieldSpec(geom=geom, vertical_geom = vertical_geom, vertical_dim = this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
+      field_spec = FieldSpec(geom=geom, vertical_geom=vertical_geom, vertical_dim_spec=this%vertical_dim_spec, ungridded_dims=this%ungridded_dims, &
+           typekind=this%typekind, &
            standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value)
 
       _RETURN(_SUCCESS)
@@ -386,7 +388,7 @@ contains
       type(FieldSpec) :: field_spec
 
       field_spec = new_FieldSpec_geom(geom=geom, vertical_geom=vertical_geom, &
-           vertical_dim=this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
+           vertical_dim_spec=this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
            attributes=this%attributes, default_value=this%default_value)
       wildcard_spec = WildCardSpec(field_spec)
 

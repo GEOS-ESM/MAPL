@@ -3,6 +3,8 @@ module mapl3g_HorizontalDimsSpec
    private
 
    public :: HorizontalDimsSpec
+
+   public :: HORIZONTAL_DIMS_UNKNOWN
    public :: HORIZONTAL_DIMS_NONE
    public :: HORIZONTAL_DIMS_GEOM
 
@@ -18,6 +20,7 @@ module mapl3g_HorizontalDimsSpec
       integer :: id = -1
    end type HorizontalDimsSpec
 
+   type(HorizontalDimsSpec), parameter :: HORIZONTAL_DIMS_UNKNOWN = HorizontalDimsSpec(-1)
    type(HorizontalDimsSpec), parameter :: HORIZONTAL_DIMS_NONE = HorizontalDimsSpec(0)
    type(HorizontalDimsSpec), parameter :: HORIZONTAL_DIMS_GEOM = HorizontalDimsSpec(1)
 

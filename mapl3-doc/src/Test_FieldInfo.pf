@@ -3,8 +3,8 @@ module Test_FieldInfo
    use mapl3g_FieldSpec
    use mapl3g_VerticalDimSpec
    use mapl3g_VerticalGeom
-   use mapl3g_UngriddedDimsSpec
-   use mapl3g_UngriddedDimSpec
+   use mapl3g_UngriddedDims
+   use mapl3g_UngriddedDim
    use esmf
    use funit
    implicit none
@@ -19,7 +19,7 @@ contains
       type(VerticalGeom) :: vertical_geom
       type(ESMF_Field) :: f
       type(ESMF_Info) :: info
-      type(UngriddedDimsSpec) :: ungridded_dims_spec
+      type(UngriddedDims) :: ungridded_dims
       integer :: status
       logical :: found
       real, allocatable :: coords(:)
@@ -30,11 +30,11 @@ contains
       geom = ESMF_GeomCreate(grid, _RC)
       vertical_geom = VerticalGeom(4)
 
-      call ungridded_dims_spec%add_dim_spec(UngriddedDimSpec('a', 'm', [1.,2.]))
-      call ungridded_dims_spec%add_dim_spec(UngriddedDimSpec('b', 's', [1.,2.,3.]))
+      call ungridded_dims%add_dim(UngriddedDim('a', 'm', [1.,2.]))
+      call ungridded_dims%add_dim(UngriddedDim('b', 's', [1.,2.,3.]))
 
       spec = FieldSpec(geom, vertical_geom, VERTICAL_DIM_CENTER, &
-           ESMF_TYPEKIND_R4, ungridded_dims_spec, &
+           ESMF_TYPEKIND_R4, ungridded_dims, &
            't', 'p', 'unknown')
 
       f = ESMF_FieldCreate(geom, ESMF_TYPEKIND_R4, ungriddedLbound=[1,1], ungriddedUbound=[2,3], _RC)

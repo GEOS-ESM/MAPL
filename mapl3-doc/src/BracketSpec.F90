@@ -3,7 +3,6 @@
 module mapl3g_BracketSpec
    use mapl3g_FieldSpec
    use mapl3g_StateItemSpec
-   use mapl3g_UngriddedDimsSpec
    use mapl3g_ActualConnectionPt
    use mapl3g_ESMF_Utilities, only: get_substate
    use mapl3g_ActualPtSpecPtrMap
