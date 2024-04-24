@@ -1,7 +1,6 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_GeomFactory
-   use mapl3g_MaplGeom
    implicit none
    private
 

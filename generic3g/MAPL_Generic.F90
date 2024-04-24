@@ -209,6 +209,7 @@ contains
         outer_meta, &
         logger, &
         registry, &
+        geom, &
         rc)
 
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -217,6 +218,7 @@ contains
       type(OuterMetaComponent), pointer, optional, intent(out) :: outer_meta
       class(Logger_t), optional, pointer, intent(out) :: logger
       type(HierarchicalRegistry), optional, pointer, intent(out) :: registry
+      type(ESMF_Geom), optional, intent(out) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -228,6 +230,7 @@ contains
       if (present(outer_meta)) outer_meta => outer_meta_
       if (present(logger)) logger => outer_meta_%get_lgr()
       if (present(registry)) registry => outer_meta_%get_registry()
+      if (present(geom)) geom = outer_meta_%get_geom()
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get
