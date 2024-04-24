@@ -138,7 +138,7 @@ contains
       end if
 
       if (has_geometry_kind) then
-         select case (geometry_kind_str)
+         select case (ESMF_UtilStringLowerCase(geometry_kind_str))
          case ('none')
             geometry_spec = GeometrySpec(GEOMETRY_NONE)
          case ('provider')
@@ -307,14 +307,14 @@ contains
          _RETURN_UNLESS(typekind_is_specified)
 
          typekind_str= ESMF_HConfigAsString(attributes,keyString='typekind',_RC)
-         select case (typekind_str)
-         case ('R4')
+         select case (ESMF_UtilStringLowerCase(typekind_str))
+         case ('r4')
             typekind = ESMF_TYPEKIND_R4
-         case ('R8')
+         case ('r8')
             typekind = ESMF_TYPEKIND_R8
-         case ('I4')
+         case ('i4')
             typekind = ESMF_TYPEKIND_I4
-         case ('I8')
+         case ('i8')
             typekind = ESMF_TYPEKIND_I8
          case ('mirror')
             typekind = MAPL_TYPEKIND_MIRROR
@@ -334,20 +334,20 @@ contains
          character(:), allocatable :: vertical_str
          logical :: has_dim_spec
 
-         vertical_dim_spec = VERTICAL_DIM_NONE ! GEOS default
+         vertical_dim_spec = VERTICAL_DIM_UNKNOWN
          has_dim_spec = ESMF_HConfigIsDefined(attributes,keyString=KEY_VERTICAL_DIM_SPEC, _RC)
          _RETURN_UNLESS(has_dim_spec)
-         
-         vertical_str= ESMF_HConfigAsString(attributes,keyString=KEY_VERTICAL_DIM_SPEC,_RC)
 
-         select case (vertical_str)
-         case ('vertical_dim_none', 'N', 'NONE')
+         vertical_str = ESMF_HConfigAsString(attributes,keyString=KEY_VERTICAL_DIM_SPEC,_RC)
+
+         select case (ESMF_UtilStringLowerCase(vertical_str))
+         case ('vertical_dim_none', 'n', 'none')
             vertical_dim_spec = VERTICAL_DIM_NONE
-         case ('vertical_dim_center', 'C', 'CENTER')
+         case ('vertical_dim_center', 'c', 'center')
             vertical_dim_spec = VERTICAL_DIM_CENTER
-         case ('vertical_dim_edge', 'E', 'EDGE')
+         case ('vertical_dim_edge', 'e', 'edge')
             vertical_dim_spec = VERTICAL_DIM_EDGE
-         case ('vertical_dim_mirror', 'M', 'MIRROR')
+         case ('vertical_dim_mirror', 'm', 'mirror')
             vertical_dim_spec = VERTICAL_DIM_MIRROR
          case default
             _FAIL('Unsupported vertical_dim_spec')
@@ -405,7 +405,7 @@ contains
          
          subclass= ESMF_HConfigAsString(attributes, keyString='class',_RC) 
 
-         select case (subclass)
+         select case (ESMF_UtilStringLowerCase(subclass))
          case ('field')
             itemtype = MAPL_STATEITEM_FIELD
          case ('service')

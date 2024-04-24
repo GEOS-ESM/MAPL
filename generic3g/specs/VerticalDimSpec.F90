@@ -28,10 +28,10 @@ module mapl3g_VerticalDimSpec
    end type VerticalDimSpec
 
    type(VerticalDimSpec), parameter :: VERTICAL_DIM_UNKNOWN = VerticalDimSpec(-1)
-   type(VerticalDimSpec), parameter :: VERTICAL_DIM_NONE = VerticalDimSpec(0)
-   type(VerticalDimSpec), parameter :: VERTICAL_DIM_CENTER = VerticalDimSpec(1)
-   type(VerticalDimSpec), parameter :: VERTICAL_DIM_EDGE = VerticalDimSpec(2)
-   type(VerticalDimSpec), parameter :: VERTICAL_DIM_MIRROR = VerticalDimSpec(3)
+   type(VerticalDimSpec), parameter :: VERTICAL_DIM_NONE = VerticalDimSpec(1)
+   type(VerticalDimSpec), parameter :: VERTICAL_DIM_CENTER = VerticalDimSpec(2)
+   type(VerticalDimSpec), parameter :: VERTICAL_DIM_EDGE = VerticalDimSpec(3)
+   type(VerticalDimSpec), parameter :: VERTICAL_DIM_MIRROR = VerticalDimSpec(4)
 
    interface operator(==)
       procedure equal_to
