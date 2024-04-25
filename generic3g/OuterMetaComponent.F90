@@ -75,6 +75,7 @@ module mapl3g_OuterMetaComponent
       procedure :: get_user_gc_driver
       procedure :: set_hconfig
       procedure :: get_hconfig
+      procedure :: get_geom
       procedure :: get_registry
       procedure :: get_lgr
 
@@ -355,6 +356,13 @@ contains
 
    end function get_hconfig
 
+   function get_geom(this) result(geom)
+      type(ESMF_Geom) :: geom
+      class(OuterMetaComponent), intent(inout) :: this
+
+      geom = this%geom
+
+   end function get_geom
 
    ! ESMF initialize methods
 

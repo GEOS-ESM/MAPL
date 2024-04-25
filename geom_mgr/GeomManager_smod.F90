@@ -292,7 +292,7 @@ contains
       geom = factory%make_geom(spec, _RC)
       file_metadata = factory%make_file_metadata(spec, _RC)
       gridded_dims = factory%make_gridded_dims(spec, _RC)
-      mapl_geom = MaplGeom(spec, geom, file_metadata, gridded_dims)
+      mapl_geom = MaplGeom(spec, geom, factory, file_metadata, gridded_dims)
 
       _RETURN(_SUCCESS)
    end function make_mapl_geom_from_spec

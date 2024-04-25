@@ -16,8 +16,8 @@ module mapl3g_ComponentSpecParser
    use mapl3g_ReexportConnection
    use mapl3g_ConnectionVector
    use mapl3g_VerticalDimSpec
-   use mapl3g_UngriddedDimsSpec
-   use mapl3g_UngriddedDimSpec
+   use mapl3g_UngriddedDims
+   use mapl3g_UngriddedDim
    use mapl3g_GeometrySpec
    use mapl3g_geom_mgr
    use mapl3g_Stateitem
@@ -52,7 +52,7 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: COMPONENT_CHILDREN_SECTION = 'children'
 
    character(*), parameter :: KEY_DEFAULT_VALUE = 'default_value'
-   character(*), parameter :: KEY_UNGRIDDED_DIM_SPECS = 'ungridded_dim_specs'
+   character(*), parameter :: KEY_UNGRIDDED_DIMS = 'ungridded_dims'
    character(*), parameter :: KEY_UNGRIDDED_DIM_NAME = 'dim_name'
    character(*), parameter :: KEY_UNGRIDDED_DIM_EXTENT = 'extent'
    character(*), parameter :: KEY_VERTICAL_DIM_SPEC = 'vertical_dim_spec'
@@ -138,7 +138,7 @@ contains
       end if
 
       if (has_geometry_kind) then
-         select case (geometry_kind_str)
+         select case (ESMF_UtilStringLowerCase(geometry_kind_str))
          case ('none')
             geometry_spec = GeometrySpec(GEOMETRY_NONE)
          case ('provider')
@@ -199,7 +199,7 @@ contains
          type(ESMF_TypeKind_Flag) :: typekind
          real, allocatable :: default_value
          type(VerticalDimSpec) :: vertical_dim_spec
-         type(UngriddedDimsSpec) :: ungridded_dim_specs
+         type(UngriddedDims) :: ungridded_dims
          character(:), allocatable :: standard_name
          character(:), allocatable :: units
          type(ESMF_StateItem_Flag), allocatable :: itemtype
@@ -229,7 +229,7 @@ contains
             typekind = to_typekind(attributes, _RC)
             call val_to_float(default_value, attributes, 'default_value', _RC)
             vertical_dim_spec = to_VerticalDimSpec(attributes,_RC)
-            ungridded_dim_specs = to_UngriddedDimsSpec(attributes, _RC)
+            ungridded_dims = to_UngriddedDims(attributes, _RC)
 
             has_standard_name = ESMF_HConfigIsDefined(attributes,keyString='standard_name', _RC)
             if (has_standard_name) then
@@ -256,7 +256,7 @@ contains
                  typekind=typekind, &
                  default_value=default_value, &
                  vertical_dim_spec=vertical_dim_spec, &
-                 ungridded_dims=ungridded_dim_specs, &
+                 ungridded_dims=ungridded_dims, &
                  dependencies=dependencies &
                  )
             if (allocated(units)) deallocate(units)
@@ -307,14 +307,14 @@ contains
          _RETURN_UNLESS(typekind_is_specified)
 
          typekind_str= ESMF_HConfigAsString(attributes,keyString='typekind',_RC)
-         select case (typekind_str)
-         case ('R4')
+         select case (ESMF_UtilStringLowerCase(typekind_str))
+         case ('r4')
             typekind = ESMF_TYPEKIND_R4
-         case ('R8')
+         case ('r8')
             typekind = ESMF_TYPEKIND_R8
-         case ('I4')
+         case ('i4')
             typekind = ESMF_TYPEKIND_I4
-         case ('I8')
+         case ('i8')
             typekind = ESMF_TYPEKIND_I8
          case ('mirror')
             typekind = MAPL_TYPEKIND_MIRROR
@@ -334,20 +334,20 @@ contains
          character(:), allocatable :: vertical_str
          logical :: has_dim_spec
 
-         vertical_dim_spec = VERTICAL_DIM_NONE ! GEOS default
+         vertical_dim_spec = VERTICAL_DIM_UNKNOWN
          has_dim_spec = ESMF_HConfigIsDefined(attributes,keyString=KEY_VERTICAL_DIM_SPEC, _RC)
          _RETURN_UNLESS(has_dim_spec)
-         
-         vertical_str= ESMF_HConfigAsString(attributes,keyString=KEY_VERTICAL_DIM_SPEC,_RC)
 
-         select case (vertical_str)
-         case ('vertical_dim_none', 'N', 'NONE')
+         vertical_str = ESMF_HConfigAsString(attributes,keyString=KEY_VERTICAL_DIM_SPEC,_RC)
+
+         select case (ESMF_UtilStringLowerCase(vertical_str))
+         case ('vertical_dim_none', 'n', 'none')
             vertical_dim_spec = VERTICAL_DIM_NONE
-         case ('vertical_dim_center', 'C', 'CENTER')
+         case ('vertical_dim_center', 'c', 'center')
             vertical_dim_spec = VERTICAL_DIM_CENTER
-         case ('vertical_dim_edge', 'E', 'EDGE')
+         case ('vertical_dim_edge', 'e', 'edge')
             vertical_dim_spec = VERTICAL_DIM_EDGE
-         case ('vertical_dim_mirror', 'M', 'MIRROR')
+         case ('vertical_dim_mirror', 'm', 'mirror')
             vertical_dim_spec = VERTICAL_DIM_MIRROR
          case default
             _FAIL('Unsupported vertical_dim_spec')
@@ -356,8 +356,8 @@ contains
          _RETURN(_SUCCESS)
       end function to_VerticalDimSpec
 
-      function to_UngriddedDimsSpec(attributes,rc) result(ungridded_dims_spec)
-         type(UngriddedDimsSpec) :: ungridded_dims_spec
+      function to_UngriddedDims(attributes,rc) result(ungridded_dims)
+         type(UngriddedDims) :: ungridded_dims
          type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc
 
@@ -365,30 +365,30 @@ contains
          type(ESMF_HConfig) :: dim_specs, dim_spec
          character(len=:), allocatable :: dim_name
          integer :: dim_size,i
-         type(UngriddedDimSpec) :: temp_dim_spec
+         type(UngriddedDim) :: temp_dim
 
-         logical :: has_ungridded_dim_specs
+         logical :: has_ungridded_dims
          integer :: n_specs
 
-         has_ungridded_dim_specs = ESMF_HConfigIsDefined(attributes, keyString=KEY_UNGRIDDED_DIM_SPECS, _RC)
-         _RETURN_UNLESS(has_ungridded_dim_specs)
+         has_ungridded_dims = ESMF_HConfigIsDefined(attributes, keyString=KEY_UNGRIDDED_DIMS, _RC)
+         _RETURN_UNLESS(has_ungridded_dims)
 
-         dim_specs = ESMF_HConfigCreateAt(attributes, keyString=KEY_UNGRIDDED_DIM_SPECS, _RC)
+         dim_specs = ESMF_HConfigCreateAt(attributes, keyString=KEY_UNGRIDDED_DIMS, _RC)
 
          n_specs = ESMF_HConfigGetSize(dim_specs, _RC)
          do i = 1, n_specs
             dim_spec = ESMF_HConfigCreateAt(dim_specs, index=i, _RC)
             dim_name = ESMF_HConfigAsString(dim_spec, keyString=KEY_UNGRIDDED_DIM_NAME, _RC)
             dim_size = ESMF_HConfigAsI4(dim_spec, keyString=KEY_UNGRIDDED_DIM_EXTENT, _RC)
-            temp_dim_spec = UngriddedDimSpec(dim_size)
-            call ungridded_dims_spec%add_dim_spec(temp_dim_spec, _RC)
+            temp_dim = UngriddedDim(dim_size)
+            call ungridded_dims%add_dim(temp_dim, _RC)
             call ESMF_HConfigDestroy(dim_spec, _RC)
          end do 
 
          call ESMF_HConfigDestroy(dim_specs, _RC)
          
          _RETURN(_SUCCESS)
-      end function to_UngriddedDimsSpec
+      end function to_UngriddedDims
 
 
       subroutine to_itemtype(itemtype, attributes, rc)
@@ -405,7 +405,7 @@ contains
          
          subclass= ESMF_HConfigAsString(attributes, keyString='class',_RC) 
 
-         select case (subclass)
+         select case (ESMF_UtilStringLowerCase(subclass))
          case ('field')
             itemtype = MAPL_STATEITEM_FIELD
          case ('service')

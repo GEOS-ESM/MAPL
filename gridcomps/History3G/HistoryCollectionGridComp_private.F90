@@ -70,138 +70,11 @@ contains
 
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
          call parse_item(iter, item_name, variable_names, _RC)
-         call add_spec(gridcomp, variable_names, _RC)
+         call add_specs(gridcomp, variable_names, _RC)
       end do
 
       _RETURN(_SUCCESS)
    end subroutine register_imports
-
-   subroutine add_spec(gridcomp, names, rc)
-      type(ESMF_GridComp), intent(inout) :: gridcomp
-      type(StringVector), intent(in) :: names
-      integer, optional, intent(out) :: rc
-      integer :: status
-      type(StringVectorIterator) :: iter
-      type(VariableSpec) :: varspec
-
-      iter = names%begin()
-      do while(iter /= names%end())
-         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, iter%of())
-         call MAPL_AddSpec(gridcomp, varspec, _RC)
-         call iter%next()
-      end do
-
-      _RETURN(_SUCCESS)
-
-   end subroutine add_spec
-
-   subroutine parse_item_expression(item, item_name, short_names, rc)
-      type(ESMF_HConfigIter), intent(in) :: item 
-      character(len=:), allocatable, intent(out) :: item_name
-      type(StringVector), intent(out) :: short_names
-      integer, optional, intent(out) :: rc
-      character(len=*), parameter :: EXPRESSION_KEY = 'expr'
-      integer :: status
-      logical :: asOK, isScalar, isMap
-      type(ESMF_HConfig) :: value
-      character(len=:), allocatable :: expression
-      type(StringVectorV1) :: v1svector
-
-      isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
-      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
-
-      isMap = ESMF_HConfigIsMapMapVal(item, _RC)
-      _ASSERT(isMap, 'Variable list item does not have a map value.')
-
-      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
-      _ASSERT(asOK, 'Name could not be processed as a String.')
-
-      value = ESMF_HConfigCreateAtMapVal(item, _RC)
-      expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
-      expression = replace_delimiter(expression, VARIABLE_DELIMITER, DELIMITER_REPLACEMENT)
-!      short_names = parser_variables_in_expression(expression, _RC) !wdb fixme Workaround until function returns gFTL2 StringVector
-      v1svector = parser_variables_in_expression(expression, _RC)
-      short_names = convert_string_vector(v1svector)
-
-      _RETURN(_SUCCESS)
-   end subroutine parse_item_expression
-
-   function replace_delimiter_expression(string, delimiter, replacement) result(replaced)
-      character(len=:), allocatable :: replaced
-      character(len=*), intent(in) :: string
-      character(len=*), intent(in) :: delimiter
-      character(len=*), intent(in) :: replacement
-      integer :: delwidth
-
-      delwidth = len(delimiter)
-      replaced = inner(string)
-
-   contains
-
-      recursive function inner(s_in) result(s_out)
-         character(len=:), allocatable :: s_out
-         character(len=*), intent(in) :: s_in
-         integer :: i
-
-         s_out = trim(s_in)
-         i = index(s_out, delimiter)
-         if(i == 0) return
-         s_out = s_out(:(i-1)) // replacement // inner(s_in((i+delwidth):))
-
-      end function inner
-
-   end function replace_delimiter_expression
-
-   subroutine parse_item_simple(item, item_name, short_name, rc)
-      type(ESMF_HConfigIter), intent(in) :: item 
-      character(len=:), allocatable, intent(out) :: item_name
-      character(len=:), allocatable, intent(out) :: short_name
-      integer, optional, intent(out) :: rc
-      character(len=*), parameter :: EXPRESSION_KEY = 'expr'
-      integer :: status
-      logical :: asOK, isScalar, isMap
-      type(ESMF_HConfig) :: value
-
-      isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
-      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
-
-      isMap = ESMF_HConfigIsMapMapVal(item, _RC)
-      _ASSERT(isMap, 'Variable list item does not have a map value.')
-
-      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
-      _ASSERT(asOK, 'Name could not be processed as a String.')
-
-      value = ESMF_HConfigCreateAtMapVal(item, _RC)
-      short_name = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
-      short_name = replace_delimiter(short_name, VARIABLE_DELIMITER, DELIMITER_REPLACEMENT)
-
-      _RETURN(_SUCCESS)
-   end subroutine parse_item_simple
-
-   function replace_delimiter_simple(string, delimiter, replacement) result(replaced)
-      character(len=:), allocatable :: replaced
-      character(len=*), intent(in) :: string
-      character(len=*), intent(in) :: delimiter
-      character(len=*), intent(in) :: replacement
-      integer :: i
-
-      replaced = trim(string)
-      i = index(replaced, delimiter)
-      if(i > 0) replaced = replaced(:(i-1))// replacement // replaced((i+len(delimiter)):)
-
-   end function replace_delimiter_simple
-
-   function convert_string_vector_v2(svector1) result(svector)
-      type(StringVector) :: svector
-      type(StringVectorV1) :: svector1
-      type(StringVectorIteratorV1) :: iter
-
-      iter = svector1%begin()
-      do while(iter /= svector1%end())
-        call svector%push_back(iter%get()) 
-     end do
-
-   end function convert_string_vector_v2
 
    function create_output_bundle(hconfig, import_state, rc) result(bundle)
       type(ESMF_FieldBundle) :: bundle
@@ -236,5 +109,131 @@ contains
 
       _RETURN(_SUCCESS)
    end function create_output_bundle
+
+   subroutine parse_item_expression(item, item_name, short_names, rc)
+      type(ESMF_HConfigIter), intent(in) :: item 
+      character(len=:), allocatable, intent(out) :: item_name
+      type(StringVector), intent(out) :: short_names
+      integer, optional, intent(out) :: rc
+      character(len=*), parameter :: EXPRESSION_KEY = 'expr'
+      integer :: status
+      logical :: asOK, isScalar, isMap
+      type(ESMF_HConfig) :: value
+      character(len=:), allocatable :: expression
+      type(StringVectorV1) :: v1svector
+
+      isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
+      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
+
+      isMap = ESMF_HConfigIsMapMapVal(item, _RC)
+      _ASSERT(isMap, 'Variable list item does not have a map value.')
+
+      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
+      _ASSERT(asOK, 'Name could not be processed as a String.')
+
+      value = ESMF_HConfigCreateAtMapVal(item, _RC)
+      expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
+      expression = replace_delimiter(expression, VARIABLE_DELIMITER, DELIMITER_REPLACEMENT)
+      v1svector = parser_variables_in_expression(expression, _RC) !wdb fixme Temporary workaround until function returns gFTL2 StringVector
+      short_names = convert_string_vector(v1svector)
+
+      _RETURN(_SUCCESS)
+   end subroutine parse_item_expression
+
+   subroutine parse_item_simple(item, item_name, short_name, rc)
+      type(ESMF_HConfigIter), intent(in) :: item 
+      character(len=:), allocatable, intent(out) :: item_name
+      character(len=:), allocatable, intent(out) :: short_name
+      integer, optional, intent(out) :: rc
+      character(len=*), parameter :: EXPRESSION_KEY = 'expr'
+      integer :: status
+      logical :: asOK, isScalar, isMap
+      type(ESMF_HConfig) :: value
+
+      isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
+      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
+
+      isMap = ESMF_HConfigIsMapMapVal(item, _RC)
+      _ASSERT(isMap, 'Variable list item does not have a map value.')
+
+      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
+      _ASSERT(asOK, 'Name could not be processed as a String.')
+
+      value = ESMF_HConfigCreateAtMapVal(item, _RC)
+      short_name = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
+      short_name = replace_delimiter(short_name, VARIABLE_DELIMITER, DELIMITER_REPLACEMENT)
+
+      _RETURN(_SUCCESS)
+   end subroutine parse_item_simple
+
+   subroutine add_specs(gridcomp, names, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(StringVector), intent(in) :: names
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(StringVectorIterator) :: iter
+      type(VariableSpec) :: varspec
+
+      iter = names%begin()
+      do while(iter /= names%end())
+         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, iter%of(), vertical_dim_spec=VERTICAL_DIM_MIRROR)
+         call MAPL_AddSpec(gridcomp, varspec, _RC)
+         call iter%next()
+      end do
+
+      _RETURN(_SUCCESS)
+
+   end subroutine add_specs
+
+   function replace_delimiter_expression(string, delimiter, replacement) result(replaced)
+      character(len=:), allocatable :: replaced
+      character(len=*), intent(in) :: string
+      character(len=*), intent(in) :: delimiter
+      character(len=*), intent(in) :: replacement
+      integer :: delwidth
+
+      delwidth = len(delimiter)
+      replaced = inner(string)
+
+   contains
+
+      recursive function inner(s_in) result(s_out)
+         character(len=:), allocatable :: s_out
+         character(len=*), intent(in) :: s_in
+         integer :: i
+
+         s_out = trim(s_in)
+         i = index(s_out, delimiter)
+         if(i == 0) return
+         s_out = s_out(:(i-1)) // replacement // inner(s_in((i+delwidth):))
+
+      end function inner
+
+   end function replace_delimiter_expression
+
+   function replace_delimiter_simple(string, delimiter, replacement) result(replaced)
+      character(len=:), allocatable :: replaced
+      character(len=*), intent(in) :: string
+      character(len=*), intent(in) :: delimiter
+      character(len=*), intent(in) :: replacement
+      integer :: i
+
+      replaced = trim(string)
+      i = index(replaced, delimiter)
+      if(i > 0) replaced = replaced(:(i-1))// replacement // replaced((i+len(delimiter)):)
+
+   end function replace_delimiter_simple
+
+   function convert_string_vector_v2(svector1) result(svector)
+      type(StringVector) :: svector
+      type(StringVectorV1) :: svector1
+      type(StringVectorIteratorV1) :: iter
+
+      iter = svector1%begin()
+      do while(iter /= svector1%end())
+        call svector%push_back(iter%get()) 
+      end do
+
+   end function convert_string_vector_v2
 
 end module mapl3g_HistoryCollectionGridComp_private

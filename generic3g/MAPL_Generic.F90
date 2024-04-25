@@ -23,7 +23,7 @@ module mapl3g_Generic
    use :: mapl3g_ComponentSpec, only: ComponentSpec
    use :: mapl3g_VariableSpec, only: VariableSpec
    use :: mapl3g_GriddedComponentDriver, only: GriddedComponentDriver
-   use :: mapl3g_UngriddedDimsSpec, only: UngriddedDimsSpec
+   use :: mapl3g_UngriddedDims, only: UngriddedDims
    use :: mapl3g_Validation, only: is_valid_name
    use :: mapl3g_ESMF_Interfaces, only: I_Run
    use :: mapl3g_StateItemSpec
@@ -209,6 +209,7 @@ contains
         outer_meta, &
         logger, &
         registry, &
+        geom, &
         rc)
 
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -217,6 +218,7 @@ contains
       type(OuterMetaComponent), pointer, optional, intent(out) :: outer_meta
       class(Logger_t), optional, pointer, intent(out) :: logger
       type(HierarchicalRegistry), optional, pointer, intent(out) :: registry
+      type(ESMF_Geom), optional, intent(out) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -228,6 +230,7 @@ contains
       if (present(outer_meta)) outer_meta => outer_meta_
       if (present(logger)) logger => outer_meta_%get_lgr()
       if (present(registry)) registry => outer_meta_%get_registry()
+      if (present(geom)) geom = outer_meta_%get_geom()
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get
@@ -368,7 +371,7 @@ contains
       character(*), intent(in) :: short_name
       character(*), intent(in) :: standard_name
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
-      type(UngriddedDimsSpec), intent(in) :: ungridded_dims
+      type(UngriddedDims), intent(in) :: ungridded_dims
       character(*), optional, intent(in) :: units
       integer, optional, intent(out) :: rc
 
@@ -443,7 +446,7 @@ contains
    end function to_typekind
 
    function to_ungridded_dims(dims, vlocation, legacy_ungridded_dims, ungridded_coords) result(ungridded_dims)
-      type(UngriddedDimsSpec) :: ungridded_dims
+      type(UngriddedDims) :: ungridded_dims
       integer, optional, intent(in) :: dims
       integer, optional, intent(in) :: vlocation
       integer, optional, intent(in) :: legacy_ungridded_dims(:)
@@ -451,7 +454,7 @@ contains
       character(len=11) :: dim_name
 
       if (any(dims == [MAPL_DimsVertOnly, MAPL_DimsHorzVert])) then
-!!$         call extra_dims%add_dim_spec(UngriddedDimSpec('lev', ...))
+!!$         call extra_dims%add_dim_spec(UngriddedDim('lev', ...))
 !!$         call ungridded_dims%add_dim_spec(DefferredDimSpec('lev', ...))
       end if
 

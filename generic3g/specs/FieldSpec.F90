@@ -2,7 +2,7 @@
 
 module mapl3g_FieldSpec
    use mapl3g_StateItemSpec
-   use mapl3g_UngriddedDimsSpec
+   use mapl3g_UngriddedDims
    use mapl3g_ActualConnectionPt
    use mapl3g_ESMF_Utilities, only: get_substate
    use mapl3g_ActualPtSpecPtrMap
@@ -38,9 +38,9 @@ module mapl3g_FieldSpec
 
       type(ESMF_Geom), allocatable :: geom
       type(VerticalGeom) :: vertical_geom
-      type(VerticalDimSpec) :: vertical_dim = VERTICAL_DIM_UNDEF
+      type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
-      type(UngriddedDimsSpec) :: ungridded_dims
+      type(UngriddedDims) :: ungridded_dims
       type(StringVector) :: attributes
 
       ! Metadata
@@ -86,7 +86,7 @@ module mapl3g_FieldSpec
       procedure :: match_geom
       procedure :: match_typekind
       procedure :: match_string
-      procedure :: match_vertical_dim
+      procedure :: match_vertical_dim_spec
    end interface match
 
    interface get_cost
@@ -104,16 +104,16 @@ module mapl3g_FieldSpec
 contains
 
 
-   function new_FieldSpec_geom(geom, vertical_geom, vertical_dim, typekind, ungridded_dims, &
+   function new_FieldSpec_geom(geom, vertical_geom, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
         attributes, default_value) result(field_spec)
       type(FieldSpec) :: field_spec
 
       type(ESMF_Geom), intent(in) :: geom
       type(VerticalGeom), intent(in) :: vertical_geom
-      type(VerticalDimSpec), intent(in) :: vertical_dim
+      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       type(ESMF_Typekind_Flag), intent(in) :: typekind
-      type(UngriddedDimsSpec), intent(in) :: ungridded_dims
+      type(UngriddedDims), intent(in) :: ungridded_dims
 
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: units
@@ -125,7 +125,7 @@ contains
 
       field_spec%geom = geom
       field_spec%vertical_geom = vertical_geom
-      field_spec%vertical_dim = vertical_dim
+      field_spec%vertical_dim_spec = vertical_dim_spec
       field_spec%typekind = typekind
       field_spec%ungridded_dims = ungridded_dims
 
@@ -220,7 +220,7 @@ contains
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
-      bounds = get_ungridded_bounds(this)
+      bounds = get_ungridded_bounds(this, _RC)
       call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
            ungriddedLBound=bounds%lower,  &
            ungriddedUBound=bounds%upper,  &
@@ -286,33 +286,43 @@ contains
             
    end subroutine allocate
 
-   function get_ungridded_bounds(this) result(bounds)
+   function get_ungridded_bounds(this, rc) result(bounds)
       type(LU_Bound), allocatable :: bounds(:)
       type(FieldSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
 
+      integer :: status
       integer:: num_levels
       type(LU_Bound) :: vertical_bounds
 
-      bounds = this%ungridded_dims%get_bounds()
-      if (this%vertical_dim == VERTICAL_DIM_NONE) return
+      _ASSERT(this%vertical_dim_spec /= VERTICAL_DIM_UNKNOWN, 'vertical_dim_spec has not been specified')
 
-      vertical_bounds = get_vertical_bounds(this%vertical_dim, this%vertical_geom)
+      bounds = this%ungridded_dims%get_bounds()
+      if (this%vertical_dim_spec == VERTICAL_DIM_NONE) return
+
+      vertical_bounds = get_vertical_bounds(this%vertical_dim_spec, this%vertical_geom, _RC)
       bounds = [vertical_bounds, bounds]
 
+      _RETURN(_SUCCESS)
    end function get_ungridded_bounds
 
-   function get_vertical_bounds(vertical_dim_spec, vertical_geom) result(bounds)
+   function get_vertical_bounds(vertical_dim_spec, vertical_geom, rc) result(bounds)
       type(LU_Bound) :: bounds
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       type(VerticalGeom), intent(in) :: vertical_geom
+      integer, optional, intent(out) :: rc
 
+      integer :: status
+
+      _ASSERT(vertical_dim_spec /= VERTICAL_DIM_UNKNOWN, 'vertical_dim_spec has not been specified')
       bounds%lower = 1
       bounds%upper = vertical_geom%get_num_levels()
 
       if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
          bounds%upper = bounds%upper + 1
       end if
-      
+
+      _RETURN(_SUCCESS)
    end function get_vertical_bounds
 
   subroutine connect_to(this, src_spec, actual_pt, rc)
@@ -326,7 +336,7 @@ contains
          procedure :: mirror_typekind
          procedure :: mirror_string
          procedure :: mirror_real
-         procedure :: mirror_vertical_dim
+         procedure :: mirror_vertical_dim_spec
       end interface mirror
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
@@ -338,7 +348,7 @@ contains
          this%payload = src_spec%payload
          call mirror(dst=this%typekind, src=src_spec%typekind)
          call mirror(dst=this%units, src=src_spec%units)
-         call mirror(dst=this%vertical_dim, src=src_spec%vertical_dim)
+         call mirror(dst=this%vertical_dim_spec, src=src_spec%vertical_dim_spec)
          call mirror(dst=this%default_value, src=src_spec%default_value)
 
       class default
@@ -368,7 +378,7 @@ contains
 
       ! Earlier checks should rule out double-mirror before this is
       ! called.
-      subroutine mirror_vertical_dim(dst, src)
+      subroutine mirror_vertical_dim_spec(dst, src)
          type(VerticalDimSpec), intent(inout) :: dst, src
 
          if (dst == src) return
@@ -382,7 +392,7 @@ contains
          end if
 
          _ASSERT(dst == src, 'unsupported typekind mismatch')
-      end subroutine mirror_vertical_dim
+      end subroutine mirror_vertical_dim_spec
 
       subroutine mirror_string(dst, src)
          character(len=:), allocatable, intent(inout) :: dst, src
@@ -431,7 +441,7 @@ contains
          can_convert_units_ = can_connect_units(this%units, src_spec%units, _RC)
          can_connect_to = all ([ &
               this%ungridded_dims == src_spec%ungridded_dims, &
-              match(this%vertical_dim,src_spec%vertical_dim), &
+              match(this%vertical_dim_spec,src_spec%vertical_dim_spec), &
               this%ungridded_dims == src_spec%ungridded_dims, & 
               includes(this%attributes, src_spec%attributes), &
               can_convert_units_ &
@@ -655,7 +665,7 @@ contains
       match = .false.
    end function match_string
 
-   logical function match_vertical_dim(a, b) result(match)
+   logical function match_vertical_dim_spec(a, b) result(match)
       type(VerticalDimSpec), intent(in) :: a, b
 
       integer :: n_mirror
@@ -663,7 +673,7 @@ contains
       n_mirror = count([a,b] == VERTICAL_DIM_MIRROR)
       match = (n_mirror == 1) .or. (n_mirror == 0 .and. a == b)
 
-   end function match_vertical_dim
+   end function match_vertical_dim_spec
 
    logical function mirror(str)
       character(:), allocatable :: str
@@ -765,7 +775,7 @@ contains
       call ESMF_InfoSet(field_info, key='MAPL/ungridded_dims', value=ungridded_dims_info, _RC)
       call ESMF_InfoDestroy(ungridded_dims_info, _RC)
 
-      vertical_dim_info = this%vertical_dim%make_info(_RC)
+      vertical_dim_info = this%vertical_dim_spec%make_info(_RC)
       call ESMF_InfoSet(field_info, key='MAPL/vertical_dim', value=vertical_dim_info, _RC)
       call ESMF_InfoDestroy(vertical_dim_info, _RC)
 

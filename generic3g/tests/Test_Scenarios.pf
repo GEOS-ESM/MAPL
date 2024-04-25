@@ -122,6 +122,7 @@ contains
               ScenarioDescription('history_wildcard',        'cap.yaml',         check_name, check_stateitem), &
               ScenarioDescription('extdata_1',               'cap.yaml',         check_name, check_stateitem), &
               ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_stateitem), &
+              ScenarioDescription('precision_extension_3d',  'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('3d_specs',                'parent.yaml',      check_name, check_stateitem), & 
               ScenarioDescription('ungridded_dims',          'parent.yaml',      check_name, check_stateitem),  &
               ScenarioDescription('service_service',         'parent.yaml',      check_name, check_stateitem), &
@@ -177,12 +178,10 @@ contains
            end associate
         end do
 
-!#        if (this%scenario_name == 'precision_extension') then
            call ESMF_GridCompRun(outer_gc, & 
                   importState=importState, exportState=exportState, clock=clock, &
                   userRC=user_status, _RC)
            _VERIFY(user_status)
-!#        end if
 
       end associate
 
