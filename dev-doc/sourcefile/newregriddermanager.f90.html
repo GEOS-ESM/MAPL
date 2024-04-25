@@ -1,0 +1,1564 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>NewRegridderManager.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>NewRegridderManager.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">140 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/NewRegridderManager.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">NewRegridderManager.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_newregriddermanager_private.html">mapl_NewRegridderManager_private</a>
+            <a class="list-group-item" href="../module/mapl_newregriddermanager.html">mapl_NewRegridderManager</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/newregriddermanager.f90.html#src">NewRegridderManager.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~newregriddermanager.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilenewregriddermanagerf90EfferentGraph" width="641pt" height="424pt"
+ viewBox="0.00 0.00 641.00 423.59" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph" class="graph" transform="scale(2.11 2.11) rotate(0) translate(4 890.75)">
+<title>sourcefile~~newregriddermanager.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-890.75 1350,-890.75 1350,4 -4,4"/>
+<!-- sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~newregriddermanager.f90</title>
+<polygon fill="none" stroke="black" points="1346,-348.75 1190,-348.75 1190,-324.75 1346,-324.75 1346,-348.75"/>
+<text text-anchor="middle" x="1268" y="-334.35" font-family="Helvetica,sans-Serif" font-size="10.50">NewRegridderManager.F90</text>
+</g>
+<!-- sourcefile~horizontalfluxregridder.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~horizontalfluxregridder.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/horizontalfluxregridder.f90.html" xlink:title="HorizontalFluxRegridder.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1154,-327.75 991,-327.75 991,-303.75 1154,-303.75 1154,-327.75"/>
+<text text-anchor="middle" x="1072.5" y="-313.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HorizontalFluxRegridder.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~horizontalfluxregridder.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~horizontalfluxregridder.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1189.97,-328.39C1181.48,-327.47 1172.79,-326.53 1164.16,-325.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1164.39,-322.1 1154.07,-324.5 1163.64,-329.05 1164.39,-322.1"/>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~mapl_abstractregridder.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/mapl_abstractregridder.f90.html" xlink:title="MAPL_AbstractRegridder.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="955,-425.75 791,-425.75 791,-401.75 955,-401.75 955,-425.75"/>
+<text text-anchor="middle" x="873" y="-411.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractRegridder.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1239.7,-348.94C1217.15,-358.5 1184.09,-371.39 1154,-378.75 1091.96,-393.94 1020.48,-402.74 965.27,-407.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="964.82,-404.24 955.16,-408.6 965.43,-411.21 964.82,-404.24"/>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~mapl_errorhandling.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/mapl_errorhandling.f90.html" xlink:title="MAPL_ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="310,-272.75 167,-272.75 167,-248.75 310,-248.75 310,-272.75"/>
+<text text-anchor="middle" x="238.5" y="-258.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1261.18,-324.66C1246.34,-294.66 1204.68,-215.37 1154,-161.75 1078.83,-82.22 1059.05,-50.64 955,-16.75 825.71,25.36 780.85,-21.1 653.5,-68.75"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M651.5,-68.75C608.14,-82.68 594.78,-74.49 550,-82.75 503.56,-91.32 491.18,-91.47 446.5,-106.75"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M444.5,-106.75C415.01,-116.84 403.96,-110.12 377,-125.75 324.58,-156.14 277.51,-211.1 254.45,-240.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="251.66,-238.55 248.35,-248.62 257.21,-242.81 251.66,-238.55"/>
+</g>
+<!-- sourcefile~mapl_esmfregridder.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~mapl_esmfregridder.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/mapl_esmfregridder.f90.html" xlink:title="MAPL_EsmfRegridder.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1145.5,-449.75 999.5,-449.75 999.5,-425.75 1145.5,-425.75 1145.5,-449.75"/>
+<text text-anchor="middle" x="1072.5" y="-435.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_EsmfRegridder.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_esmfregridder.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_esmfregridder.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1251.73,-348.88C1230.74,-365.06 1191.33,-393.76 1154,-411.75 1145.74,-415.73 1136.72,-419.32 1127.81,-422.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1126.57,-419.19 1118.22,-425.7 1128.81,-425.82 1126.57,-419.19"/>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~mapl_gridmanager.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/mapl_gridmanager.f90.html" xlink:title="MAPL_GridManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="514,-676.75 377,-676.75 377,-652.75 514,-652.75 514,-676.75"/>
+<text text-anchor="middle" x="445.5" y="-662.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_gridmanager.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_gridmanager.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M872,-700.75C729.01,-688.52 692.86,-690.35 550,-676.75 541.65,-675.96 532.93,-675.06 524.25,-674.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="524.43,-670.61 514.1,-672.99 523.66,-677.57 524.43,-670.61"/>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~mapl_identityregridder.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/mapl_identityregridder.f90.html" xlink:title="MAPL_IdentityRegridder.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1152.5,-194.75 992.5,-194.75 992.5,-170.75 1152.5,-170.75 1152.5,-194.75"/>
+<text text-anchor="middle" x="1072.5" y="-180.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_IdentityRegridder.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_identityregridder.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_identityregridder.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1252.06,-324.62C1230.49,-307.11 1189.31,-273.79 1154,-245.75 1135,-230.67 1113.34,-213.73 1097.28,-201.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1099.02,-198.15 1088.98,-194.77 1094.73,-203.67 1099.02,-198.15"/>
+</g>
+<!-- sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~mapl_keywordenforcer.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/mapl_keywordenforcer.f90.html" xlink:title="MAPL_KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="317,-314.75 160,-314.75 160,-290.75 317,-290.75 317,-314.75"/>
+<text text-anchor="middle" x="238.5" y="-300.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1261.88,-348.78C1233.15,-414.14 1085.82,-722.84 874,-700.75"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M872,-700.75C815.45,-707.12 809.22,-666.02 755,-648.75 621.74,-606.32 575.14,-641.63 446.5,-586.75"/>
+</g>
+<!-- sourcefile~mapl_regriddervector.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~mapl_regriddervector.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/mapl_regriddervector.f90.html" xlink:title="MAPL_RegridderVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1149.5,-369.75 995.5,-369.75 995.5,-345.75 1149.5,-345.75 1149.5,-369.75"/>
+<text text-anchor="middle" x="1072.5" y="-355.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_RegridderVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_regriddervector.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_regriddervector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1189.97,-345.11C1180.01,-346.19 1169.76,-347.31 1159.66,-348.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1159.2,-344.93 1149.64,-349.49 1159.95,-351.89 1159.2,-344.93"/>
+</g>
+<!-- sourcefile~regridderspec.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~regridderspec.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/regridderspec.f90.html" xlink:title="RegridderSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="709.5,-272.75 595.5,-272.75 595.5,-248.75 709.5,-248.75 709.5,-272.75"/>
+<text text-anchor="middle" x="652.5" y="-258.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~regridderspec.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~regridderspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1241.16,-324.7C1218.66,-314.82 1184.9,-301.4 1154,-294.75 1001.2,-261.89 816.67,-258.39 719.99,-259.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="719.74,-255.74 709.78,-259.35 719.81,-262.74 719.74,-255.74"/>
+</g>
+<!-- sourcefile~regridmethods.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~regridmethods.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/regridmethods.f90.html" xlink:title="RegridMethods.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="503,-196.75 388,-196.75 388,-172.75 503,-172.75 503,-196.75"/>
+<text text-anchor="middle" x="445.5" y="-182.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridMethods.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~regridmethods.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~regridmethods.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M651.5,-68.75C582.54,-94.56 509.17,-141.45 471.71,-167"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="469.66,-164.16 463.41,-172.71 473.63,-169.92 469.66,-164.16"/>
+</g>
+<!-- sourcefile~horizontalfluxregridder.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~horizontalfluxregridder.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1007.65,-327.83C1001.77,-330.28 996.11,-333.22 991,-336.75 968.19,-352.55 977.36,-371.33 955,-387.75 949.77,-391.6 943.94,-394.89 937.88,-397.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="936.09,-394.65 928.22,-401.74 938.79,-401.11 936.09,-394.65"/>
+</g>
+<!-- sourcefile~horizontalfluxregridder.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~horizontalfluxregridder.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1062.42,-303.74C1044.55,-281.04 1002.41,-231.94 955,-207.75 942.17,-201.21 460.3,-102.64 446.5,-106.75"/>
+</g>
+<!-- sourcefile~horizontalfluxregridder.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~horizontalfluxregridder.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M872,-297.75C678.93,-272.88 449.97,-284.85 327.4,-294.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="327,-291.09 317.31,-295.38 327.56,-298.06 327,-291.09"/>
+</g>
+<!-- sourcefile~horizontalfluxregridder.f90&#45;&gt;sourcefile~regridderspec.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~horizontalfluxregridder.f90&#45;&gt;sourcefile~regridderspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M872,-297.75C820.78,-291.15 763.19,-281.3 720.01,-273.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="720.37,-269.93 709.91,-271.57 719.11,-276.82 720.37,-269.93"/>
+</g>
+<!-- sourcefile~horizontalfluxregridder.f90&#45;&gt;sourcefile~regridmethods.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~horizontalfluxregridder.f90&#45;&gt;sourcefile~regridmethods.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M990.63,-309.75C954.83,-306.74 912.25,-302.68 874,-297.75"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M872,-297.75C814.44,-290.34 810.04,-258.15 755,-239.75 711.47,-225.2 698.7,-228.68 653.5,-220.75"/>
+</g>
+<!-- sourcefile~base_base.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~base_base.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/base_base.f90.html" xlink:title="Base_Base.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="699,-352.75 606,-352.75 606,-328.75 699,-328.75 699,-352.75"/>
+<text text-anchor="middle" x="652.5" y="-338.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Base.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~horizontalfluxregridder.f90&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~horizontalfluxregridder.f90&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1023.72,-327.79C1012.93,-330.62 1001.55,-333.71 991,-336.75 938.6,-351.86 928.38,-369.63 874,-373.75"/>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M831.33,-425.78C808.93,-432.17 780.56,-439.9 755,-445.75 664.68,-466.44 632.06,-440.7 550,-483.75 492.53,-513.9 506.19,-612.22 446.5,-586.75"/>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M444.5,-586.75C415.21,-574.26 400.08,-584.69 377,-562.75 346.67,-533.92 359.63,-513.22 341,-475.75 312.78,-418.99 273.37,-355.48 252.96,-323.52"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="255.84,-321.54 247.49,-315.01 249.95,-325.32 255.84,-321.54"/>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~regridderspec.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~regridderspec.f90</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M856.38,-401.6C839.99,-388.82 813.54,-368.05 791,-349.75 774.83,-336.63 772.06,-331.69 755,-319.75 732.7,-304.14 706.04,-288.76 685.65,-277.62"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="687.21,-274.49 676.75,-272.82 683.89,-280.65 687.21,-274.49"/>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M825.59,-401.62C814,-397.85 801.81,-393.22 791,-387.75 773.39,-378.85 773.06,-369.71 755,-361.75 740.68,-355.45 724.38,-351 709.09,-347.88"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="709.7,-344.43 699.22,-346.02 708.4,-351.31 709.7,-344.43"/>
+</g>
+<!-- sourcefile~constants.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~constants.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/constants.f90.html" xlink:title="Constants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="696.5,-516.75 608.5,-516.75 608.5,-492.75 696.5,-492.75 696.5,-516.75"/>
+<text text-anchor="middle" x="652.5" y="-502.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Constants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M853.68,-425.88C831.25,-440.27 791.7,-464.14 755,-478.75 739.75,-484.82 722.64,-489.85 706.88,-493.8"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="705.64,-490.5 696.74,-496.25 707.29,-497.3 705.64,-490.5"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="737,-436.75 568,-436.75 568,-412.75 737,-412.75 737,-436.75"/>
+<text text-anchor="middle" x="652.5" y="-422.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M790.95,-417.83C776.88,-418.54 762.13,-419.28 747.74,-420.01"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="747.15,-416.53 737.34,-420.53 747.51,-423.52 747.15,-416.53"/>
+</g>
+<!-- sourcefile~mapl_memutils.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~mapl_memutils.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node22"><a xlink:href="../sourcefile/mapl_memutils.f90.html" xlink:title="MAPL_MemUtils.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="711.5,-394.75 593.5,-394.75 593.5,-370.75 711.5,-370.75 711.5,-394.75"/>
+<text text-anchor="middle" x="652.5" y="-380.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MemUtils.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~mapl_memutils.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~mapl_memutils.f90</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M790.95,-402.25C768.09,-399.01 743.47,-395.52 721.47,-392.4"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="721.95,-388.93 711.56,-390.99 720.97,-395.86 721.95,-388.93"/>
+</g>
+<!-- sourcefile~regridderspecroutehandlemap.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node30" class="node">
+<title>sourcefile~regridderspecroutehandlemap.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node30"><a xlink:href="../sourcefile/regridderspecroutehandlemap.f90.html" xlink:title="RegridderSpecRouteHandleMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="755,-558.75 550,-558.75 550,-534.75 755,-534.75 755,-558.75"/>
+<text text-anchor="middle" x="652.5" y="-544.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpecRouteHandleMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~regridderspecroutehandlemap.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~regridderspecroutehandlemap.f90</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M863.23,-425.81C845.58,-449.14 803.29,-500.38 755,-525.75 751.19,-527.75 747.21,-529.56 743.12,-531.2"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="741.62,-528.02 733.41,-534.72 744,-534.6 741.62,-528.02"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node25" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node25"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-272.75 0,-272.75 0,-248.75 100,-248.75 100,-272.75"/>
+<text text-anchor="middle" x="50" y="-258.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M166.99,-260.75C148.28,-260.75 128.27,-260.75 110.22,-260.75"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="110.14,-257.25 100.14,-260.75 110.14,-264.25 110.14,-257.25"/>
+</g>
+<!-- sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M999.36,-428.99C988.28,-427.64 976.72,-426.23 965.29,-424.85"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="965.65,-421.36 955.3,-423.63 964.8,-428.31 965.65,-421.36"/>
+</g>
+<!-- sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M651.5,-586.75C607.13,-575.02 588.83,-592.22 550,-567.75 416.81,-483.81 473.39,-366.96 341,-281.75 334.46,-277.54 327.23,-274.15 319.73,-271.43"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="320.72,-268.07 310.13,-268.33 318.56,-274.73 320.72,-268.07"/>
+</g>
+<!-- sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~mapl_gridmanager.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~mapl_gridmanager.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M651.5,-662.75C609.56,-660.93 562.74,-661.21 524.45,-662.05"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="524.31,-658.55 514.4,-662.28 524.48,-665.55 524.31,-658.55"/>
+</g>
+<!-- sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M651.5,-586.75C563.42,-563.46 530.3,-622.51 446.5,-586.75"/>
+</g>
+<!-- sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~regridderspec.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~regridderspec.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M1056.58,-425.55C1035.24,-408.64 994.25,-378.1 955,-359.75 886.2,-327.59 863.09,-335.64 791,-311.75 757.96,-300.8 720.99,-287 693.72,-276.52"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="694.72,-273.16 684.14,-272.82 692.2,-279.69 694.72,-273.16"/>
+</g>
+<!-- sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~regridmethods.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~regridmethods.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M872,-564.75C824.61,-576.41 700.68,-599.23 653.5,-586.75"/>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M651.5,-586.75C607.13,-575.02 581.25,-601.37 550,-567.75 501.28,-515.34 546.15,-311.68 514,-247.75 504.91,-229.68 488.37,-214.11 473.94,-202.97"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="475.89,-200.06 465.76,-196.94 471.73,-205.69 475.89,-200.06"/>
+</g>
+<!-- sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M1051.68,-425.68C1016.81,-405.74 941.75,-368.62 874,-373.75"/>
+</g>
+<!-- sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M1059.09,-450.11C1029.94,-478.05 953.57,-545.18 874,-564.75"/>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M872,-564.75C818.77,-577.85 807.93,-540 755,-525.75 739.46,-521.57 722.4,-517.75 706.77,-514.54"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="707.22,-511.07 696.73,-512.53 705.85,-517.93 707.22,-511.07"/>
+</g>
+<!-- sourcefile~mapl_abstractgridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~mapl_abstractgridfactory.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/mapl_abstractgridfactory.f90.html" xlink:title="MAPL_AbstractGridFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="325,-508.75 152,-508.75 152,-484.75 325,-484.75 325,-508.75"/>
+<text text-anchor="middle" x="238.5" y="-494.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractGridFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~mapl_abstractgridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~mapl_abstractgridfactory.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M1068,-450.06C1057.47,-484.57 1022.6,-582.51 955,-625.75 841.27,-698.5 788.38,-668.61 653.5,-662.75"/>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M651.5,-662.75C620.23,-662.32 401.08,-620.7 377,-600.75 346.04,-575.1 372.2,-543.12 341,-517.75 338.92,-516.06 336.75,-514.5 334.48,-513.05"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="335.84,-509.8 325.4,-508.03 332.46,-515.93 335.84,-509.8"/>
+</g>
+<!-- sourcefile~maplgrid.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node28" class="node">
+<title>sourcefile~maplgrid.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node28"><a xlink:href="../sourcefile/maplgrid.f90.html" xlink:title="MaplGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="914.5,-616.75 831.5,-616.75 831.5,-592.75 914.5,-592.75 914.5,-616.75"/>
+<text text-anchor="middle" x="873" y="-602.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~maplgrid.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~maplgrid.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M1064.76,-449.93C1049.11,-477.11 1007.58,-543.13 955,-578.75 945.83,-584.97 935.07,-589.77 924.45,-593.46"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="923.25,-590.17 914.78,-596.54 925.37,-596.84 923.25,-590.17"/>
+</g>
+<!-- sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~regridderspecroutehandlemap.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~mapl_esmfregridder.f90&#45;&gt;sourcefile~regridderspecroutehandlemap.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M872,-564.75C817.36,-578.19 752.97,-570.11 708.31,-560.88"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="709.04,-557.46 698.53,-558.77 707.57,-564.3 709.04,-557.46"/>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M433.71,-652.59C418.28,-634.45 390.32,-598.58 377,-562.75 355.06,-503.74 383.78,-327.94 341,-281.75 335.07,-275.35 327.74,-270.62 319.75,-267.15"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="320.72,-263.78 310.13,-263.65 318.33,-270.36 320.72,-263.78"/>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M427.34,-652.71C412,-641.09 390,-622.14 377,-600.75 346.97,-551.35 363.81,-528.88 341,-475.75 315.99,-417.5 275.23,-354.62 253.76,-323.15"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="256.55,-321.03 248,-314.78 250.79,-325 256.55,-321.03"/>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_abstractgridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_abstractgridfactory.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M396.41,-652.61C389.19,-649.09 382.37,-644.56 377,-638.75 338.91,-597.55 382.33,-555.7 341,-517.75 338.83,-515.76 336.51,-513.93 334.09,-512.26"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="335.85,-509.23 325.46,-507.16 332.29,-515.26 335.85,-509.23"/>
+</g>
+<!-- sourcefile~mapl_cubedspheregridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~mapl_cubedspheregridfactory.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/mapl_cubedspheregridfactory.f90.html" xlink:title="MAPL_CubedSphereGridFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="339,-634.75 138,-634.75 138,-610.75 339,-610.75 339,-634.75"/>
+<text text-anchor="middle" x="238.5" y="-620.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CubedSphereGridFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_cubedspheregridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_cubedspheregridfactory.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M385.76,-652.72C361.52,-647.75 333.27,-641.96 308.1,-636.81"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="308.75,-633.37 298.25,-634.79 307.35,-640.23 308.75,-633.37"/>
+</g>
+<!-- sourcefile~mapl_externalgridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~mapl_externalgridfactory.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/mapl_externalgridfactory.f90.html" xlink:title="MAPL_ExternalGridFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="325,-592.75 152,-592.75 152,-568.75 325,-568.75 325,-592.75"/>
+<text text-anchor="middle" x="238.5" y="-578.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExternalGridFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_externalgridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_externalgridfactory.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M404.54,-652.63C395.12,-648.9 385.38,-644.29 377,-638.75 357.85,-626.11 361.12,-612.78 341,-601.75 337.46,-599.81 333.77,-598.05 329.96,-596.45"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="330.93,-593.07 320.33,-592.8 328.45,-599.62 330.93,-593.07"/>
+</g>
+<!-- sourcefile~mapl_integer64gridfactorymap.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~mapl_integer64gridfactorymap.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/mapl_integer64gridfactorymap.f90.html" xlink:title="MAPL_Integer64GridFactoryMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="341,-550.75 136,-550.75 136,-526.75 341,-526.75 341,-550.75"/>
+<text text-anchor="middle" x="238.5" y="-536.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Integer64GridFactoryMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_integer64gridfactorymap.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_integer64gridfactorymap.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M398.47,-652.6C390.67,-649.05 383.13,-644.52 377,-638.75 348.91,-612.3 371.16,-583.82 341,-559.75 339.37,-558.45 337.67,-557.22 335.92,-556.06"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="337.21,-552.76 326.79,-550.84 333.74,-558.84 337.21,-552.76"/>
+</g>
+<!-- sourcefile~mapl_latlongridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~mapl_latlongridfactory.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/mapl_latlongridfactory.f90.html" xlink:title="MAPL_LatLonGridFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="321,-886.75 156,-886.75 156,-862.75 321,-862.75 321,-886.75"/>
+<text text-anchor="middle" x="238.5" y="-872.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LatLonGridFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_latlongridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_latlongridfactory.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M441.67,-676.82C433.07,-710.71 403.86,-807.25 341,-853.75 337.72,-856.18 334.22,-858.34 330.57,-860.27"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="328.83,-857.22 321.22,-864.58 331.76,-863.57 328.83,-857.22"/>
+</g>
+<!-- sourcefile~mapl_stringgridfactorymap.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node23" class="node">
+<title>sourcefile~mapl_stringgridfactorymap.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node23"><a xlink:href="../sourcefile/mapl_stringgridfactorymap.f90.html" xlink:title="MAPL_StringGridFactoryMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="330.5,-844.75 146.5,-844.75 146.5,-820.75 330.5,-820.75 330.5,-844.75"/>
+<text text-anchor="middle" x="238.5" y="-830.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringGridFactoryMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_stringgridfactorymap.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_stringgridfactorymap.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M439.66,-677C427.68,-705.64 393.71,-777.16 341,-811.75 338.41,-813.45 335.72,-815.01 332.93,-816.45"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="331.42,-813.3 323.8,-820.65 334.35,-819.66 331.42,-813.3"/>
+</g>
+<!-- sourcefile~mapl_swathgridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node24" class="node">
+<title>sourcefile~mapl_swathgridfactory.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node24"><a xlink:href="../sourcefile/mapl_swathgridfactory.f90.html" xlink:title="MAPL_SwathGridFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="319,-802.75 158,-802.75 158,-778.75 319,-778.75 319,-802.75"/>
+<text text-anchor="middle" x="238.5" y="-788.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SwathGridFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_swathgridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_swathgridfactory.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M436.42,-676.75C420.8,-698.95 384.17,-746.26 341,-769.75 337.07,-771.89 332.95,-773.81 328.7,-775.54"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="327.43,-772.27 319.26,-779.01 329.85,-778.84 327.43,-772.27"/>
+</g>
+<!-- sourcefile~mapl_tripolargridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node26" class="node">
+<title>sourcefile~mapl_tripolargridfactory.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node26"><a xlink:href="../sourcefile/mapl_tripolargridfactory.f90.html" xlink:title="MAPL_TripolarGridFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="323,-760.75 154,-760.75 154,-736.75 323,-736.75 323,-760.75"/>
+<text text-anchor="middle" x="238.5" y="-746.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TripolarGridFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_tripolargridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_tripolargridfactory.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M428.57,-676.87C408.99,-691.16 374.27,-714.64 341,-727.75 335.12,-730.07 328.95,-732.14 322.67,-734"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="321.45,-730.71 312.74,-736.75 323.31,-737.46 321.45,-730.71"/>
+</g>
+<!-- sourcefile~mapl_xygridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node27" class="node">
+<title>sourcefile~mapl_xygridfactory.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node27"><a xlink:href="../sourcefile/mapl_xygridfactory.f90.html" xlink:title="MAPL_XYGridFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="310,-718.75 167,-718.75 167,-694.75 310,-694.75 310,-718.75"/>
+<text text-anchor="middle" x="238.5" y="-704.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_XYGridFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_xygridfactory.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~mapl_xygridfactory.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M385.76,-676.79C361.52,-681.75 333.27,-687.54 308.1,-692.7"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="307.35,-689.28 298.25,-694.71 308.75,-696.14 307.35,-689.28"/>
+</g>
+<!-- sourcefile~pfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node29" class="node">
+<title>sourcefile~pfio.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node29"><a xlink:href="../sourcefile/pfio.f90.html" xlink:title="pFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="267.5,-676.75 209.5,-676.75 209.5,-652.75 267.5,-652.75 267.5,-676.75"/>
+<text text-anchor="middle" x="238.5" y="-662.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~pfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge47" class="edge">
+<title>sourcefile~mapl_gridmanager.f90&#45;&gt;sourcefile~pfio.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M376.81,-664.75C343.92,-664.75 305.61,-664.75 277.83,-664.75"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="277.73,-661.25 267.73,-664.75 277.73,-668.25 277.73,-661.25"/>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge49" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1061.23,-194.83C1044.74,-214.65 1012.09,-255.8 991,-294.75 969.9,-333.73 987.25,-357.35 955,-387.75 951.2,-391.33 946.91,-394.42 942.33,-397.08"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="940.56,-394.05 933.23,-401.7 943.73,-400.3 940.56,-394.05"/>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge51" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1066.06,-170.74C1052.32,-142.07 1013.12,-70 955,-42.75 889,-11.81 857.58,-13.1 791,-42.75 769.15,-52.48 776.45,-72.18 755,-82.75 631.64,-143.54 577.05,-63.52 446.5,-106.75"/>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge53" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1004.04,-170.75C849.32,-144.8 474.73,-91.39 377,-163.75 332.93,-196.38 381.51,-244.81 341,-281.75 336.61,-285.75 331.67,-289.07 326.39,-291.82"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="324.92,-288.64 317.22,-295.91 327.78,-295.03 324.92,-288.64"/>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~regridderspec.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge54" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~regridderspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M872,-221.75C820.67,-228.96 762.95,-239.36 719.73,-247.61"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="719.07,-244.17 709.91,-249.5 720.39,-251.05 719.07,-244.17"/>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~regridmethods.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge55" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~regridmethods.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1018.96,-194.78C979.32,-203.45 923.49,-214.8 874,-221.75"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M872,-221.75C775.83,-235.26 749.15,-237.53 653.5,-220.75"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M651.5,-220.75C605.24,-212.64 553.1,-203.48 512.99,-196.44"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="513.51,-192.97 503.06,-194.69 512.3,-199.87 513.51,-192.97"/>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge48" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1062.3,-195C1030.66,-236.56 925.37,-369.86 874,-373.75"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M872,-373.75C841.36,-376.07 763.52,-362.57 709.55,-352.14"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="709.91,-348.64 699.42,-350.16 708.57,-355.51 709.91,-348.64"/>
+</g>
+<!-- sourcefile~mapl_comms.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~mapl_comms.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/mapl_comms.f90.html" xlink:title="MAPL_Comms.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="927.5,-117.75 818.5,-117.75 818.5,-93.75 927.5,-93.75 927.5,-117.75"/>
+<text text-anchor="middle" x="873" y="-103.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Comms.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_comms.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge50" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_comms.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1045.9,-170.64C1022.5,-159.79 986.8,-143.78 955,-131.75 945.05,-127.99 934.3,-124.29 923.97,-120.91"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="924.83,-117.51 914.24,-117.78 922.69,-124.17 924.83,-117.51"/>
+</g>
+<!-- sourcefile~mapl_gridspec.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~mapl_gridspec.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/mapl_gridspec.f90.html" xlink:title="MAPL_GridSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="932,-75.75 814,-75.75 814,-51.75 932,-51.75 932,-75.75"/>
+<text text-anchor="middle" x="873" y="-61.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_gridspec.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge52" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_gridspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1060.55,-170.51C1041.29,-149.71 999.15,-107.54 955,-84.75 950.78,-82.58 946.33,-80.61 941.76,-78.85"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="942.85,-75.52 932.26,-75.48 940.52,-82.12 942.85,-75.52"/>
+</g>
+<!-- sourcefile~mapl_regriddervector.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge56" class="edge">
+<title>sourcefile~mapl_regriddervector.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M1029.13,-369.77C999.03,-378.3 958.43,-389.81 926.31,-398.92"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="925.3,-395.57 916.64,-401.66 927.21,-402.3 925.3,-395.57"/>
+</g>
+<!-- sourcefile~regridderspec.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge57" class="edge">
+<title>sourcefile~regridderspec.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M595.34,-259.65C554.12,-259.17 496.8,-259.21 446.5,-261.75"/>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M444.5,-261.75C403.72,-263.82 358.33,-263.83 320.64,-263.22"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="320.29,-259.71 310.23,-263.03 320.16,-266.71 320.29,-259.71"/>
+</g>
+<!-- sourcefile~regridderspec.f90&#45;&gt;sourcefile~mapl_gridmanager.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge58" class="edge">
+<title>sourcefile~regridderspec.f90&#45;&gt;sourcefile~mapl_gridmanager.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M614.35,-272.78C592,-282.01 565.04,-297.08 550,-319.75 480.38,-424.67 570.99,-488.48 514,-600.75 504.65,-619.17 487.8,-635.16 473.27,-646.55"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="470.96,-643.91 465.06,-652.71 475.16,-649.51 470.96,-643.91"/>
+</g>
+<!-- sourcefile~regridderspec.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge59" class="edge">
+<title>sourcefile~regridderspec.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M444.5,-261.75C437.51,-262.11 364.53,-276.92 307.61,-288.63"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="306.64,-285.26 297.55,-290.71 308.05,-292.12 306.64,-285.26"/>
+</g>
+<!-- sourcefile~regridderspec.f90&#45;&gt;sourcefile~regridmethods.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~EfferentGraph_edge60" class="edge">
+<title>sourcefile~regridderspec.f90&#45;&gt;sourcefile~regridmethods.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M596.11,-248.69C580.97,-244.82 564.69,-240.12 550,-234.75 524.76,-225.53 497.43,-212.17 477.2,-201.58"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="478.63,-198.38 468.16,-196.79 475.35,-204.56 478.63,-198.38"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilenewregriddermanagerf90EfferentGraph = svgPanZoom('#sourcefilenewregriddermanagerf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~newregriddermanager.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilenewregriddermanagerf90AfferentGraph" width="641pt" height="517pt"
+ viewBox="0.00 0.00 641.00 516.80" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph" class="graph" transform="scale(1.2 1.2) rotate(0) translate(4 616)">
+<title>sourcefile~~newregriddermanager.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-616 765,-616 765,4 -4,4"/>
+<!-- sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~newregriddermanager.f90</title>
+<polygon fill="none" stroke="black" points="156,-276 0,-276 0,-252 156,-252 156,-276"/>
+<text text-anchor="middle" x="78" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50">NewRegridderManager.F90</text>
+</g>
+<!-- sourcefile~base.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~base.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/base.f90.html" xlink:title="Base.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="498.5,-276 437.5,-276 437.5,-252 498.5,-252 498.5,-276"/>
+<text text-anchor="middle" x="468" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base.f90&#45;&gt;sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~base.f90&#45;&gt;sourcefile~newregriddermanager.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M437.2,-264C379.93,-264 252.54,-264 166.19,-264"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="166.13,-260.5 156.13,-264 166.13,-267.5 166.13,-260.5"/>
+</g>
+<!-- sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~mapl_cfio.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/mapl_cfio.f90.html" xlink:title="MAPL_CFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="317,-381 224,-381 224,-357 317,-357 317,-381"/>
+<text text-anchor="middle" x="270.5" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base.f90&#45;&gt;sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~base.f90&#45;&gt;sourcefile~mapl_cfio.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M437.2,-268.75C421.21,-272 401.46,-277.17 385,-285 349.27,-301.99 313.48,-330.94 291.91,-350.02"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="289.46,-347.52 284.37,-356.8 294.14,-352.72 289.46,-347.52"/>
+</g>
+<!-- sourcefile~griddedio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~griddedio.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/griddedio.f90.html" xlink:title="GriddedIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="314.5,-129 226.5,-129 226.5,-105 314.5,-105 314.5,-129"/>
+<text text-anchor="middle" x="270.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~griddedio.f90&#45;&gt;sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~griddedio.f90&#45;&gt;sourcefile~newregriddermanager.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M253.91,-129.03C220.7,-154.66 142.78,-214.79 103.11,-245.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.58,-242.92 94.8,-251.8 104.86,-248.47 100.58,-242.92"/>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~newregriddermanager.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M247.65,-356.96C213.86,-338.33 148.81,-302.48 110.12,-281.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="111.34,-277.83 100.89,-276.07 107.96,-283.96 111.34,-277.83"/>
+</g>
+<!-- sourcefile~mapl_epochswathmod.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~mapl_epochswathmod.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/mapl_epochswathmod.f90.html" xlink:title="MAPL_EpochSwathMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="349,-234 192,-234 192,-210 349,-210 349,-234"/>
+<text text-anchor="middle" x="270.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_EpochSwathMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_epochswathmod.f90&#45;&gt;sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_epochswathmod.f90&#45;&gt;sourcefile~newregriddermanager.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M214.91,-234.04C192.59,-238.96 166.61,-244.69 143.37,-249.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="142.61,-246.39 133.6,-251.96 144.12,-253.23 142.61,-246.39"/>
+</g>
+<!-- sourcefile~regrid_util.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~regrid_util.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/regrid_util.f90.html" xlink:title="Regrid_Util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="514,-612 422,-612 422,-588 514,-588 514,-612"/>
+<text text-anchor="middle" x="468" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regrid_util.f90&#45;&gt;sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~regrid_util.f90&#45;&gt;sourcefile~newregriddermanager.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M421.97,-592.94C409.48,-589.81 396.27,-585.34 385,-579 246.55,-501.04 130.73,-341.26 92.44,-284.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="95.24,-282.43 86.78,-276.05 89.42,-286.31 95.24,-282.43"/>
+</g>
+<!-- sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl_cfio.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M421.69,-596.15C408.63,-593.12 395.18,-587.9 385,-579 352.88,-550.91 368.59,-527.91 349,-490 329.91,-453.06 302.82,-412.92 286.24,-389.41"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="289.09,-387.38 280.44,-381.26 283.39,-391.44 289.09,-387.38"/>
+</g>
+<!-- sourcefile~extdata_iobundlemod.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~extdata_iobundlemod.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/extdata_iobundlemod.f90.html" xlink:title="ExtData_IOBundleMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="545,-150 391,-150 391,-126 545,-126 545,-150"/>
+<text text-anchor="middle" x="468" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_IOBundleMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdata_iobundlemod.f90&#45;&gt;sourcefile~griddedio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~extdata_iobundlemod.f90&#45;&gt;sourcefile~griddedio.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M390.85,-129.82C368.75,-127.45 345.1,-124.91 324.72,-122.72"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="325.02,-119.23 314.7,-121.64 324.27,-126.19 325.02,-119.23"/>
+</g>
+<!-- sourcefile~extdata_iobundlemod.f90~2 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~extdata_iobundlemod.f90~2</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/extdata_iobundlemod.f90~2.html" xlink:title="ExtData_IOBundleMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="545,-108 391,-108 391,-84 545,-84 545,-108"/>
+<text text-anchor="middle" x="468" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_IOBundleMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdata_iobundlemod.f90~2&#45;&gt;sourcefile~griddedio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~extdata_iobundlemod.f90~2&#45;&gt;sourcefile~griddedio.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M390.85,-104.18C368.75,-106.55 345.1,-109.09 324.72,-111.28"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="324.27,-107.81 314.7,-112.36 325.02,-114.77 324.27,-107.81"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~extdatadrivermod.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/extdatadrivermod.f90.html" xlink:title="ExtDataDriverMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="534.5,-444 401.5,-444 401.5,-420 534.5,-420 534.5,-444"/>
+<text text-anchor="middle" x="468" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl_cfio.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M416.46,-419.94C406.01,-417.19 395.1,-414.15 385,-411 360.13,-403.24 332.72,-393.14 311.07,-384.79"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="312.14,-381.45 301.56,-381.09 309.61,-387.98 312.14,-381.45"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~extdatagridcompmod.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/extdatagridcompmod.f90.html" xlink:title="ExtDataGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="545,-402 391,-402 391,-378 545,-378 545,-402"/>
+<text text-anchor="middle" x="468" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_cfio.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M390.85,-381.82C369.67,-379.55 347.07,-377.12 327.29,-374.99"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="327.54,-371.5 317.23,-373.91 326.8,-378.46 327.54,-371.5"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~extdatagridcompng.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/extdatagridcompng.f90.html" xlink:title="ExtDataGridCompNG.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="541.5,-360 394.5,-360 394.5,-336 541.5,-336 541.5,-360"/>
+<text text-anchor="middle" x="468" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompNG.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_cfio.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M394.48,-355.79C372.26,-358.18 348.16,-360.77 327.24,-363.01"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="326.81,-359.54 317.24,-364.09 327.56,-366.5 326.81,-359.54"/>
+</g>
+<!-- sourcefile~fieldbundleread.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~fieldbundleread.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/fieldbundleread.f90.html" xlink:title="FieldBundleRead.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="530,-66 406,-66 406,-42 530,-42 530,-66"/>
+<text text-anchor="middle" x="468" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleRead.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleread.f90&#45;&gt;sourcefile~griddedio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~fieldbundleread.f90&#45;&gt;sourcefile~griddedio.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M416.46,-66.06C406.01,-68.81 395.1,-71.85 385,-75 360.13,-82.76 332.72,-92.86 311.07,-101.21"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="309.61,-98.02 301.56,-104.91 312.14,-104.55 309.61,-98.02"/>
+</g>
+<!-- sourcefile~fieldbundlewrite.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~fieldbundlewrite.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/fieldbundlewrite.f90.html" xlink:title="FieldBundleWrite.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="530.5,-24 405.5,-24 405.5,0 530.5,0 530.5,-24"/>
+<text text-anchor="middle" x="468" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleWrite.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundlewrite.f90&#45;&gt;sourcefile~griddedio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~fieldbundlewrite.f90&#45;&gt;sourcefile~griddedio.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M408.23,-24.09C400.25,-26.58 392.3,-29.53 385,-33 349.27,-49.99 313.48,-78.94 291.91,-98.02"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="289.46,-95.52 284.37,-104.8 294.14,-100.72 289.46,-95.52"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="706,-381 642,-381 642,-357 706,-357 706,-381"/>
+<text text-anchor="middle" x="674" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M641.79,-367.38C624.21,-365.09 602.71,-359.84 587,-348 561.24,-328.6 576.65,-304.55 551,-285 538.96,-275.83 523.34,-270.63 508.96,-267.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="509.23,-264.2 498.78,-265.95 508.04,-271.1 509.23,-264.2"/>
+</g>
+<!-- sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~mapl_cap.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/mapl_cap.f90.html" xlink:title="MAPL_Cap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="513,-318 423,-318 423,-294 513,-294 513,-318"/>
+<text text-anchor="middle" x="468" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_cfio.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M422.93,-316.39C410.58,-319.54 397.2,-323.19 385,-327 360.13,-334.76 332.72,-344.86 311.07,-353.21"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="309.61,-350.02 301.56,-356.91 312.14,-356.55 309.61,-350.02"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~mapl_historycollection.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/mapl_historycollection.f90.html" xlink:title="MAPL_HistoryCollection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="548,-192 388,-192 388,-168 548,-168 548,-192"/>
+<text text-anchor="middle" x="468" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryCollection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~griddedio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~griddedio.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M416.46,-167.94C406.01,-165.19 395.1,-162.15 385,-159 360.13,-151.24 332.72,-141.14 311.07,-132.79"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="312.14,-129.45 301.56,-129.09 309.61,-135.98 312.14,-129.45"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_cfio.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M401.48,-192.04C395.64,-194.49 390.05,-197.45 385,-201 370.79,-211.01 310.95,-305.57 284.34,-348.26"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="281.36,-346.43 279.05,-356.77 287.31,-350.13 281.36,-346.43"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_epochswathmod.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_epochswathmod.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M410.98,-192.04C388.07,-196.96 361.4,-202.69 337.56,-207.81"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="336.57,-204.44 327.53,-209.96 338.04,-211.28 336.57,-204.44"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~mapl_historygridcomp.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/mapl_historygridcomp.f90.html" xlink:title="MAPL_HistoryGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="548,-234 388,-234 388,-210 548,-210 548,-234"/>
+<text text-anchor="middle" x="468" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_cfio.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M403.67,-234.15C397.14,-236.58 390.78,-239.5 385,-243 340.42,-269.98 303.23,-319.88 284.52,-348.11"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="281.4,-346.5 278.9,-356.79 287.27,-350.3 281.4,-346.5"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_epochswathmod.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_epochswathmod.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M387.76,-222C378.44,-222 368.88,-222 359.44,-222"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="359.26,-218.5 349.26,-222 359.26,-225.5 359.26,-218.5"/>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~mapl_nuopcwrappermod.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/mapl_nuopcwrappermod.f90.html" xlink:title="MAPL_NUOPCWrapperMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="761,-339 587,-339 587,-315 761,-315 761,-339"/>
+<text text-anchor="middle" x="674" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NUOPCWrapperMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M613.99,-314.99C604.82,-312.44 595.55,-309.45 587,-306 569.82,-299.06 568.14,-292.03 551,-285 537.67,-279.53 522.53,-275.17 508.92,-271.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="509.39,-268.39 498.86,-269.56 507.82,-275.21 509.39,-268.39"/>
+</g>
+<!-- sourcefile~mapl_simplebundlemod.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~mapl_simplebundlemod.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/mapl_simplebundlemod.f90.html" xlink:title="MAPL_SimpleBundleMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="551,-570 385,-570 385,-546 551,-546 551,-570"/>
+<text text-anchor="middle" x="468" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SimpleBundleMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_simplebundlemod.f90&#45;&gt;sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~mapl_simplebundlemod.f90&#45;&gt;sourcefile~mapl_cfio.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M401.48,-545.96C395.64,-543.51 390.05,-540.55 385,-537 377.85,-531.96 313.32,-433.38 284.87,-389.62"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="287.76,-387.65 279.38,-381.17 281.89,-391.46 287.76,-387.65"/>
+</g>
+<!-- sourcefile~test_cfio_bundle.pf -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~test_cfio_bundle.pf</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/test_cfio_bundle.pf.html" xlink:title="Test_CFIO_Bundle.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="733.5,-297 614.5,-297 614.5,-273 733.5,-273 733.5,-297"/>
+<text text-anchor="middle" x="674" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_CFIO_Bundle.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_cfio_bundle.pf&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~test_cfio_bundle.pf&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M614.27,-278.95C580.36,-275.46 538.63,-271.17 508.61,-268.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="508.82,-264.58 498.51,-267.04 508.1,-271.54 508.82,-264.58"/>
+</g>
+<!-- sourcefile~tstqsat.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~tstqsat.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/tstqsat.f90.html" xlink:title="tstqsat.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="709,-255 639,-255 639,-231 709,-231 709,-255"/>
+<text text-anchor="middle" x="674" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tstqsat.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~tstqsat.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~tstqsat.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M638.85,-246.51C602.98,-250.21 546.62,-256.01 508.76,-259.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="508.2,-256.45 498.61,-260.95 508.92,-263.41 508.2,-256.45"/>
+</g>
+<!-- sourcefile~ut_extdata.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~ut_extdata.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/ut_extdata.f90.html" xlink:title="ut_ExtData.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="720.5,-213 627.5,-213 627.5,-189 720.5,-189 720.5,-213"/>
+<text text-anchor="middle" x="674" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ExtData.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ut_extdata.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~ut_extdata.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M627.15,-209.61C613.94,-212.78 599.68,-216.88 587,-222 569.82,-228.94 568.14,-235.97 551,-243 537.67,-248.47 522.53,-252.83 508.92,-256.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="507.82,-252.79 498.86,-258.44 509.39,-259.61 507.82,-252.79"/>
+</g>
+<!-- sourcefile~utcfio_array.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~utcfio_array.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/utcfio_array.f90.html" xlink:title="utCFIO_Array.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="519.5,-528 416.5,-528 416.5,-504 519.5,-504 519.5,-528"/>
+<text text-anchor="middle" x="468" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO_Array.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~utcfio_array.f90&#45;&gt;sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~utcfio_array.f90&#45;&gt;sourcefile~mapl_cfio.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M416.13,-507.91C405.37,-504.87 394.43,-500.71 385,-495 340.42,-468.02 303.23,-418.12 284.52,-389.89"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="287.27,-387.7 278.9,-381.21 281.4,-391.5 287.27,-387.7"/>
+</g>
+<!-- sourcefile~utcfio_bundle.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~utcfio_bundle.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/utcfio_bundle.f90.html" xlink:title="utCFIO_Bundle.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="730.5,-171 617.5,-171 617.5,-147 730.5,-147 730.5,-171"/>
+<text text-anchor="middle" x="674" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO_Bundle.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~utcfio_bundle.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~utcfio_bundle.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M617.28,-165.63C606.51,-168.77 595.84,-173.34 587,-180 561.24,-199.4 576.65,-223.45 551,-243 538.96,-252.17 523.34,-257.37 508.96,-260.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="508.04,-256.9 498.78,-262.05 509.23,-263.8 508.04,-256.9"/>
+</g>
+<!-- sourcefile~utcfio_nbits.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~utcfio_nbits.f90</title>
+<g id="a_sourcefile~~newregriddermanager.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/utcfio_nbits.f90.html" xlink:title="utCFIO_Nbits.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="519,-486 417,-486 417,-462 519,-462 519,-486"/>
+<text text-anchor="middle" x="468" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO_Nbits.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~utcfio_nbits.f90&#45;&gt;sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~newregriddermanager.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~utcfio_nbits.f90&#45;&gt;sourcefile~mapl_cfio.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M416.92,-464.45C406.11,-461.5 394.95,-457.73 385,-453 349.27,-436.01 313.48,-407.06 291.91,-387.98"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="294.14,-385.28 284.37,-381.2 289.46,-390.48 294.14,-385.28"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilenewregriddermanagerf90AfferentGraph = svgPanZoom('#sourcefilenewregriddermanagerf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">mapl_NewRegridderManager_private</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_GridManagerMod</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_RegridderSpec</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_RegridderVectorMod</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_KeywordEnforcerMod</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandlingMod</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_AbstractRegridderMod</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_IdentityRegridderMod</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_HorizontalFluxRegridder</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_EsmfRegridderMod</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_RegridMethods</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="k">   private</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NewRegridderManager</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="c">! Private set of pre-computed route-handles.</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="c">! Convervative, Tiling, and Voting can all use the same route-handle.</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">   </span><span class="c">! Despite being treated as &quot;different&quot; grids.</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NewRegridderManager</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="k">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialized</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prototypes</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridders</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_prototype</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">find_prototype</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_regridder_</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">make_regridder_</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_initialized</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">   </span><span class="k">end type </span><span class="n">NewRegridderManager</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MOD_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;mapl_NewRegridderManager_private::&#39;</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="k">contains</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="k">   subroutine </span><span class="n">add_prototype</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">prototype</span><span class="p">)</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">NewRegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prototype</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">prototypes</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">prototype</span><span class="p">)</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">add_prototype</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">   </span><span class="k">function </span><span class="n">make_regridder_</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">grid_in</span><span class="p">,</span><span class="w"> </span><span class="n">grid_out</span><span class="p">,</span><span class="w"> </span><span class="n">regrid_method</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">hints</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">regridder</span><span class="p">)</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">NewRegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_in</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_out</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regrid_method</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hints</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="o">=</span><span class="w"> </span><span class="n">MOD_NAME</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;make_regridder_from_grids&#39;</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">ESMF_KIND_I8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">id_in</span><span class="p">,</span><span class="w"> </span><span class="n">id_out</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prototype</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">is_initialized</span><span class="p">())</span><span class="w"> </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">initialize</span><span class="p">()</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="n">id_in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_factory_id</span><span class="p">(</span><span class="n">grid_in</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="n">id_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_factory_id</span><span class="p">(</span><span class="n">grid_out</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="c">! Special case if two grids are the same</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">id_in</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">id_out</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="k">         </span><span class="n">regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">identity_regridder</span><span class="p">()</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="c">! If manager already has suitable regridder, use it.</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">grid_in</span><span class="p">,</span><span class="w"> </span><span class="n">grid_out</span><span class="p">,</span><span class="w"> </span><span class="n">regrid_method</span><span class="p">,</span><span class="w"> </span><span class="n">hints</span><span class="o">=</span><span class="n">hints</span><span class="p">)</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">      </span><span class="n">regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">find</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">regridders</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">)</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">regridder</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="c">! Else build from prototype</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="n">prototype</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">find_prototype</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">regridders</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">prototype</span><span class="p">)</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="n">regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">regridders</span><span class="p">%</span><span class="n">back</span><span class="p">()</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="k">call </span><span class="n">regridder</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="k">      function </span><span class="n">find</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">match</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">         </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">RegridderVector</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vector</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">         </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">         </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">RegridderVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">         </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vector</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">         </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">vector</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">            </span><span class="n">match</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">match</span><span class="p">%</span><span class="n">get_spec</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">spec</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="k">           call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">        </span><span class="k">end do</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="k">        </span><span class="n">match</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">     </span><span class="k">end function </span><span class="n">find</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_regridder_</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">   </span><span class="k">function </span><span class="n">find_prototype</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">prototype</span><span class="p">)</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prototype</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">NewRegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">supports</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">      </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">prototypes</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">      </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">prototypes</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">         </span><span class="n">prototype</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">         </span><span class="n">supports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prototype</span><span class="p">%</span><span class="n">supports</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">supports</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="k">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="k">         call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">      </span><span class="k">end do</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">      </span><span class="c">! not found</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">FAILURE</span><span class="p">)</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">   </span><span class="k">end function </span><span class="n">find_prototype</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">is_initialized</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">NewRegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">      </span><span class="n">is_initialized</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">initialized</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">   </span><span class="k">end function </span><span class="n">is_initialized</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">NewRegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">EsmfRegridder</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">esmf_regridder</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">HorizontalFluxRegridder</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">horizontal_flux_regridder</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">is_initialized</span><span class="p">())</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="k">      </span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="k">      call </span><span class="n">this</span><span class="p">%</span><span class="n">add_prototype</span><span class="p">(</span><span class="n">esmf_regridder</span><span class="p">)</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">add_prototype</span><span class="p">(</span><span class="n">horizontal_flux_regridder</span><span class="p">)</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">      </span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">initialized</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="k">end module </span><span class="n">mapl_NewRegridderManager_private</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a>
+<a id="ln-171" name="ln-171" href="#ln-171"></a>
+<a id="ln-172" name="ln-172" href="#ln-172"></a>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="k">module </span><span class="n">mapl_NewRegridderManager</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_NewRegridderManager_private</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="k">   private</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_regridder_manager</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">NewRegridderManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">save</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_regridder_manager</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="k">end module </span><span class="n">mapl_NewRegridderManager</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-25T16:53:00.658383             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

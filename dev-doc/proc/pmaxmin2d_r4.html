@@ -1,0 +1,1300 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>pmaxmin2d_r4 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>pmaxmin2d_r4
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">58 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_MaxMinMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_maxminmod.f90.html'>MAPL_MaxMinMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_maxminmod.html'>MAPL_MaxMinMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">pmaxmin2d_r4</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/pmaxmin2d_r4.html#src">pmaxmin2d_r4</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine pmaxmin2d_r4(qname, a, pmin_, pmax_, fac_)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qname~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>qname</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~130"></span>
+              real(kind=ESMF_KIND_R4),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pmin_"></span>
+              real(kind=ESMF_KIND_R4),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>pmin_</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pmax_"></span>
+              real(kind=ESMF_KIND_R4),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>pmax_</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fac_"></span>
+              real(kind=ESMF_KIND_R4),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fac_</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~pmaxmin2d_r4~~CallsGraph Pages: 1 -->
+<svg id="procpmaxmin2d_r4CallsGraph" width="641pt" height="357pt"
+ viewBox="0.00 0.00 641.00 357.12" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~pmaxmin2d_r4~~CallsGraph" class="graph" transform="scale(1.32 1.32) rotate(0) translate(4 469)">
+<title>proc~~pmaxmin2d_r4~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-469 845,-469 845,4 -4,4"/>
+<!-- proc~pmaxmin2d_r4 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node1" class="node">
+<title>proc~pmaxmin2d_r4</title>
+<polygon fill="none" stroke="black" points="93,-402 0,-402 0,-378 93,-378 93,-402"/>
+<text text-anchor="middle" x="46.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50">pmaxmin2d_r4</text>
+</g>
+<!-- ESMF_VMGetCurrent -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node2" class="node">
+<title>ESMF_VMGetCurrent</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_vmgetcurrent.html" xlink:title="ESMF_VMGetCurrent">
+<polygon fill="#d9534f" stroke="#d9534f" points="270.5,-444 149.5,-444 149.5,-420 270.5,-420 270.5,-444"/>
+<text text-anchor="middle" x="210" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGetCurrent</text>
+</a>
+</g>
+</g>
+<!-- proc~pmaxmin2d_r4&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge1" class="edge">
+<title>proc~pmaxmin2d_r4&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#ff0000" d="M93.35,-401.92C111.85,-406.74 133.38,-412.33 152.81,-417.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="152.2,-420.84 162.76,-419.97 153.96,-414.07 152.2,-420.84"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node3" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node3"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="261,-402 159,-402 159,-378 261,-378 261,-402"/>
+<text text-anchor="middle" x="210" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~pmaxmin2d_r4&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge2" class="edge">
+<title>proc~pmaxmin2d_r4&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#ff0000" d="M93.35,-390C110.58,-390 130.44,-390 148.78,-390"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="148.79,-393.5 158.79,-390 148.79,-386.5 148.79,-393.5"/>
+</g>
+<!-- interface~mapl_commsallreducemax -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node4" class="node">
+<title>interface~mapl_commsallreducemax</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node4"><a xlink:href="../interface/mapl_commsallreducemax.html" xlink:title="MAPL_CommsAllReduceMax">
+<polygon fill="#a7506f" stroke="#a7506f" points="291,-213 129,-213 129,-189 291,-189 291,-213"/>
+<text text-anchor="middle" x="210" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsAllReduceMax</text>
+</a>
+</g>
+</g>
+<!-- proc~pmaxmin2d_r4&#45;&gt;interface~mapl_commsallreducemax -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge3" class="edge">
+<title>proc~pmaxmin2d_r4&#45;&gt;interface~mapl_commsallreducemax</title>
+<path fill="none" stroke="#ff0000" d="M57.85,-377.89C85.02,-346.1 158.58,-260.01 192.03,-220.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="194.69,-223.13 198.53,-213.25 189.37,-218.58 194.69,-223.13"/>
+</g>
+<!-- proc~mapl_am_i_root_layout -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node5" class="node">
+<title>proc~mapl_am_i_root_layout</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node5"><a xlink:href="../proc/mapl_am_i_root_layout.html" xlink:title="MAPL_Am_I_Root_Layout">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="495,-444 352,-444 352,-420 495,-420 495,-444"/>
+<text text-anchor="middle" x="423.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Layout</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge4" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M261.12,-399.95C288.23,-405.34 322.16,-412.07 351.9,-417.98"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="351.32,-421.43 361.81,-419.95 352.68,-414.57 351.32,-421.43"/>
+</g>
+<!-- proc~mapl_am_i_root_vm -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node6" class="node">
+<title>proc~mapl_am_i_root_vm</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node6"><a xlink:href="../proc/mapl_am_i_root_vm.html" xlink:title="MAPL_Am_I_Root_Vm">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="486,-402 361,-402 361,-378 486,-378 486,-402"/>
+<text text-anchor="middle" x="423.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Vm</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge5" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M261.12,-390C287.78,-390 321.04,-390 350.43,-390"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="350.64,-393.5 360.64,-390 350.64,-386.5 350.64,-393.5"/>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_0 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node7" class="node">
+<title>proc~mapl_commsallreducemax_i4_0</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node7"><a xlink:href="../proc/mapl_commsallreducemax_i4_0.html" xlink:title="MAPL_CommsAllReduceMax_I4_0">
+<polygon fill="#d9534f" stroke="#d9534f" points="518,-360 329,-360 329,-336 518,-336 518,-360"/>
+<text text-anchor="middle" x="423.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsAllReduceMax_I4_0</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_i4_0 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge6" class="edge">
+<title>interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_i4_0</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M218.55,-213.34C234.9,-238.93 276.21,-297.82 327,-327 330.28,-328.89 333.72,-330.61 337.26,-332.17"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="336.24,-335.53 346.83,-335.96 338.82,-329.02 336.24,-335.53"/>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_1 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node8" class="node">
+<title>proc~mapl_commsallreducemax_i4_1</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node8"><a xlink:href="../proc/mapl_commsallreducemax_i4_1.html" xlink:title="MAPL_CommsAllReduceMax_I4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="518,-318 329,-318 329,-294 518,-294 518,-318"/>
+<text text-anchor="middle" x="423.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsAllReduceMax_I4_1</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_i4_1 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge7" class="edge">
+<title>interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_i4_1</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M223.79,-213.05C244.05,-231.46 285.48,-266.38 327,-285 331.94,-287.21 337.13,-289.2 342.43,-290.99"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="341.47,-294.36 352.06,-293.98 343.55,-287.67 341.47,-294.36"/>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_2 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node9" class="node">
+<title>proc~mapl_commsallreducemax_i4_2</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node9"><a xlink:href="../proc/mapl_commsallreducemax_i4_2.html" xlink:title="MAPL_CommsAllReduceMax_I4_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="518,-276 329,-276 329,-252 518,-252 518,-276"/>
+<text text-anchor="middle" x="423.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsAllReduceMax_I4_2</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_i4_2 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_i4_2</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M241.17,-213.16C264.38,-222.2 297.38,-234.42 327,-243 335.09,-245.34 343.62,-247.56 352.13,-249.63"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="351.55,-253.08 362.08,-251.97 353.15,-246.27 351.55,-253.08"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_0 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node10" class="node">
+<title>proc~mapl_commsallreducemax_r4_0</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node10"><a xlink:href="../proc/mapl_commsallreducemax_r4_0.html" xlink:title="MAPL_CommsAllReduceMax_R4_0">
+<polygon fill="#d9534f" stroke="#d9534f" points="520,-234 327,-234 327,-210 520,-210 520,-234"/>
+<text text-anchor="middle" x="423.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsAllReduceMax_R4_0</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_r4_0 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_r4_0</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M291.26,-208.97C299.58,-209.79 308.11,-210.64 316.65,-211.49"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="316.37,-214.98 326.67,-212.48 317.06,-208.01 316.37,-214.98"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_1 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node11" class="node">
+<title>proc~mapl_commsallreducemax_r4_1</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node11"><a xlink:href="../proc/mapl_commsallreducemax_r4_1.html" xlink:title="MAPL_CommsAllReduceMax_R4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="520,-192 327,-192 327,-168 520,-168 520,-192"/>
+<text text-anchor="middle" x="423.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsAllReduceMax_R4_1</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_r4_1 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_r4_1</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M291.26,-193.03C299.58,-192.21 308.11,-191.36 316.65,-190.51"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="317.06,-193.99 326.67,-189.52 316.37,-187.02 317.06,-193.99"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_2 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node12" class="node">
+<title>proc~mapl_commsallreducemax_r4_2</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node12"><a xlink:href="../proc/mapl_commsallreducemax_r4_2.html" xlink:title="MAPL_CommsAllReduceMax_R4_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="520,-150 327,-150 327,-126 520,-126 520,-150"/>
+<text text-anchor="middle" x="423.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsAllReduceMax_R4_2</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_r4_2 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge11" class="edge">
+<title>interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_r4_2</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M241.17,-188.84C264.38,-179.8 297.38,-167.58 327,-159 335.09,-156.66 343.62,-154.44 352.13,-152.37"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="353.15,-155.73 362.08,-150.03 351.55,-148.92 353.15,-155.73"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_0 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node13" class="node">
+<title>proc~mapl_commsallreducemax_r8_0</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node13"><a xlink:href="../proc/mapl_commsallreducemax_r8_0.html" xlink:title="MAPL_CommsAllReduceMax_R8_0">
+<polygon fill="#d9534f" stroke="#d9534f" points="520,-108 327,-108 327,-84 520,-84 520,-108"/>
+<text text-anchor="middle" x="423.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsAllReduceMax_R8_0</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_r8_0 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge12" class="edge">
+<title>interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_r8_0</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M223.79,-188.95C244.05,-170.54 285.48,-135.62 327,-117 331.94,-114.79 337.13,-112.8 342.43,-111.01"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="343.55,-114.33 352.06,-108.02 341.47,-107.64 343.55,-114.33"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_1 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node14" class="node">
+<title>proc~mapl_commsallreducemax_r8_1</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node14"><a xlink:href="../proc/mapl_commsallreducemax_r8_1.html" xlink:title="MAPL_CommsAllReduceMax_R8_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="520,-66 327,-66 327,-42 520,-42 520,-66"/>
+<text text-anchor="middle" x="423.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsAllReduceMax_R8_1</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_r8_1 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_r8_1</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M218.55,-188.66C234.9,-163.07 276.21,-104.18 327,-75 330.28,-73.11 333.72,-71.39 337.26,-69.83"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="338.82,-72.98 346.83,-66.04 336.24,-66.47 338.82,-72.98"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_2 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node15" class="node">
+<title>proc~mapl_commsallreducemax_r8_2</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node15"><a xlink:href="../proc/mapl_commsallreducemax_r8_2.html" xlink:title="MAPL_CommsAllReduceMax_R8_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="520,-24 327,-24 327,0 520,0 520,-24"/>
+<text text-anchor="middle" x="423.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsAllReduceMax_R8_2</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_r8_2 -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_commsallreducemax&#45;&gt;proc~mapl_commsallreducemax_r8_2</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M215.61,-188.94C228.21,-157.69 266.39,-73.71 327,-33 329.44,-31.36 332,-29.84 334.63,-28.44"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="336.28,-31.53 343.86,-24.12 333.32,-25.19 336.28,-31.53"/>
+</g>
+<!-- interface~mapl_am_i_rank -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node17" class="node">
+<title>interface~mapl_am_i_rank</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node17"><a xlink:href="../interface/mapl_am_i_rank.html" xlink:title="MAPL_Am_I_Rank">
+<polygon fill="#a7506f" stroke="#a7506f" points="660,-423 556,-423 556,-399 660,-399 660,-423"/>
+<text text-anchor="middle" x="608" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Rank</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_am_i_root_layout&#45;&gt;interface~mapl_am_i_rank -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_am_i_root_layout&#45;&gt;interface~mapl_am_i_rank</title>
+<path fill="none" stroke="#ff0000" d="M495.06,-423.88C511.84,-421.95 529.6,-419.91 545.92,-418.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="546.33,-421.5 555.87,-416.88 545.53,-414.55 546.33,-421.5"/>
+</g>
+<!-- proc~mapl_am_i_root_vm&#45;&gt;interface~mapl_am_i_rank -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_am_i_root_vm&#45;&gt;interface~mapl_am_i_rank</title>
+<path fill="none" stroke="#ff8b00" d="M486.03,-397.08C505.24,-399.29 526.42,-401.73 545.62,-403.94"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="545.42,-407.44 555.76,-405.1 546.22,-400.48 545.42,-407.44"/>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node16" class="node">
+<title>ESMF_VMGet</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node16"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_vmget.html" xlink:title="ESMF_VMGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="649,-213 567,-213 567,-189 649,-189 649,-213"/>
+<text text-anchor="middle" x="608" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_0&#45;&gt;ESMF_VMGet -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_commsallreducemax_i4_0&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#e7ff00" d="M507.04,-335.97C511.7,-333.47 516.07,-330.5 520,-327 556.81,-294.16 522.18,-257.92 556,-222 557.03,-220.91 558.12,-219.88 559.26,-218.89"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="561.28,-221.75 567.45,-213.14 557.26,-216.02 561.28,-221.75"/>
+</g>
+<!-- mpi_allreduce -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node18" class="node">
+<title>mpi_allreduce</title>
+<polygon fill="#777777" stroke="#777777" points="652,-171 564,-171 564,-147 652,-147 652,-171"/>
+<text text-anchor="middle" x="608" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_allreduce</text>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_0&#45;&gt;mpi_allreduce -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_commsallreducemax_i4_0&#45;&gt;mpi_allreduce</title>
+<path fill="none" stroke="#e7ff00" d="M508.29,-335.86C512.53,-333.37 516.48,-330.44 520,-327 568.12,-280 512.15,-231 556,-180 556.86,-179 557.78,-178.05 558.74,-177.14"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="561,-179.81 566.89,-171.01 556.79,-174.22 561,-179.81"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node19" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node19"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="649,-129 567,-129 567,-105 649,-105 649,-129"/>
+<text text-anchor="middle" x="608" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_0&#45;&gt;proc~mapl_return -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_commsallreducemax_i4_0&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#e7ff00" d="M508.94,-335.81C512.96,-333.32 516.69,-330.41 520,-327 579.61,-265.69 501.95,-204.26 556,-138 556.85,-136.96 557.76,-135.96 558.73,-135.02"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="561.15,-137.57 566.95,-128.7 556.89,-132.02 561.15,-137.57"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node20" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node20"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="646,-255 570,-255 570,-231 646,-231 646,-255"/>
+<text text-anchor="middle" x="608" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_0&#45;&gt;proc~mapl_verify -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_commsallreducemax_i4_0&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#e7ff00" d="M498.96,-335.91C506.28,-333.47 513.42,-330.53 520,-327 549.5,-311.19 575.99,-282.49 591.79,-263.1"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="594.6,-265.18 598.07,-255.17 589.12,-260.83 594.6,-265.18"/>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_1&#45;&gt;ESMF_VMGet -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_commsallreducemax_i4_1&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#5cff00" d="M504.43,-293.94C509.95,-291.47 515.21,-288.52 520,-285 545.98,-265.9 531.78,-243.29 556,-222 557.48,-220.7 559.06,-219.47 560.7,-218.31"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="562.61,-221.24 569.37,-213.08 559,-215.25 562.61,-221.24"/>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_1&#45;&gt;mpi_allreduce -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_commsallreducemax_i4_1&#45;&gt;mpi_allreduce</title>
+<path fill="none" stroke="#5cff00" d="M507.04,-293.97C511.7,-291.47 516.07,-288.5 520,-285 556.81,-252.16 522.18,-215.92 556,-180 557.03,-178.91 558.12,-177.88 559.26,-176.89"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="561.28,-179.75 567.45,-171.14 557.26,-174.02 561.28,-179.75"/>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_1&#45;&gt;proc~mapl_return -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_commsallreducemax_i4_1&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#5cff00" d="M508.29,-293.86C512.53,-291.37 516.48,-288.44 520,-285 568.12,-238 512.15,-189 556,-138 556.86,-137 557.78,-136.05 558.74,-135.14"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="561,-137.81 566.89,-129.01 556.79,-132.22 561,-137.81"/>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_1&#45;&gt;proc~mapl_verify -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_commsallreducemax_i4_1&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#5cff00" d="M489.03,-293.97C499.5,-291.4 510.13,-288.41 520,-285 539.34,-278.31 560.02,-268.45 576.36,-259.97"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="578.23,-262.93 585.43,-255.16 574.96,-256.75 578.23,-262.93"/>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_2&#45;&gt;ESMF_VMGet -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_commsallreducemax_i4_2&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#00ff2e" d="M491.82,-251.97C501.42,-249.46 511.07,-246.49 520,-243 537.25,-236.26 539.4,-230.21 556,-222 559.33,-220.35 562.82,-218.72 566.35,-217.14"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="567.9,-220.29 575.68,-213.1 565.11,-213.86 567.9,-220.29"/>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_2&#45;&gt;mpi_allreduce -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_commsallreducemax_i4_2&#45;&gt;mpi_allreduce</title>
+<path fill="none" stroke="#00ff2e" d="M504.43,-251.94C509.95,-249.47 515.21,-246.52 520,-243 545.98,-223.9 531.78,-201.29 556,-180 557.48,-178.7 559.06,-177.47 560.7,-176.31"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="562.61,-179.24 569.37,-171.08 559,-173.25 562.61,-179.24"/>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_2&#45;&gt;proc~mapl_return -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_commsallreducemax_i4_2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff2e" d="M507.04,-251.97C511.7,-249.47 516.07,-246.5 520,-243 556.81,-210.16 522.18,-173.92 556,-138 557.03,-136.91 558.12,-135.88 559.26,-134.89"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="561.28,-137.75 567.45,-129.14 557.26,-132.02 561.28,-137.75"/>
+</g>
+<!-- proc~mapl_commsallreducemax_i4_2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_commsallreducemax_i4_2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff2e" d="M518.16,-253.22C532.66,-251.55 547.08,-249.9 559.95,-248.41"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="560.38,-251.89 569.92,-247.27 559.58,-244.93 560.38,-251.89"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_0&#45;&gt;ESMF_VMGet -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_commsallreducemax_r4_0&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#00ffb9" d="M520.03,-211.01C532.7,-209.55 545.27,-208.1 556.75,-206.78"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="557.42,-210.23 566.95,-205.61 556.62,-203.27 557.42,-210.23"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_0&#45;&gt;mpi_allreduce -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_commsallreducemax_r4_0&#45;&gt;mpi_allreduce</title>
+<path fill="none" stroke="#00ffb9" d="M491.82,-209.97C501.42,-207.46 511.07,-204.49 520,-201 537.25,-194.26 539.4,-188.21 556,-180 559.33,-178.35 562.82,-176.72 566.35,-175.14"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="567.9,-178.29 575.68,-171.1 565.11,-171.86 567.9,-178.29"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_0&#45;&gt;proc~mapl_return -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_commsallreducemax_r4_0&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffb9" d="M504.43,-209.94C509.95,-207.47 515.21,-204.52 520,-201 545.98,-181.9 531.78,-159.29 556,-138 557.48,-136.7 559.06,-135.47 560.7,-134.31"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="562.61,-137.24 569.37,-129.08 559,-131.25 562.61,-137.24"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_0&#45;&gt;proc~mapl_verify -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_commsallreducemax_r4_0&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffb9" d="M520.03,-232.99C533.91,-234.59 547.65,-236.17 559.98,-237.59"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="559.64,-241.07 569.97,-238.74 560.44,-234.12 559.64,-241.07"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_1&#45;&gt;ESMF_VMGet -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_commsallreducemax_r4_1&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#00b9ff" d="M520.03,-190.99C532.7,-192.45 545.27,-193.9 556.75,-195.22"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="556.62,-198.73 566.95,-196.39 557.42,-191.77 556.62,-198.73"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_1&#45;&gt;mpi_allreduce -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_commsallreducemax_r4_1&#45;&gt;mpi_allreduce</title>
+<path fill="none" stroke="#00b9ff" d="M520.03,-169.01C531.66,-167.67 543.2,-166.34 553.89,-165.11"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="554.32,-168.59 563.85,-163.97 553.52,-161.63 554.32,-168.59"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_1&#45;&gt;proc~mapl_return -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge35" class="edge">
+<title>proc~mapl_commsallreducemax_r4_1&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00b9ff" d="M491.82,-167.97C501.42,-165.46 511.07,-162.49 520,-159 537.25,-152.26 539.4,-146.21 556,-138 559.33,-136.35 562.82,-134.72 566.35,-133.14"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="567.9,-136.29 575.68,-129.1 565.11,-129.86 567.9,-136.29"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_1&#45;&gt;proc~mapl_verify -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_commsallreducemax_r4_1&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00b9ff" d="M491.82,-192.03C501.42,-194.54 511.07,-197.51 520,-201 537.25,-207.74 539.4,-213.79 556,-222 559.33,-223.65 562.82,-225.28 566.35,-226.86"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="565.11,-230.14 575.68,-230.9 567.9,-223.71 565.11,-230.14"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_2&#45;&gt;ESMF_VMGet -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_commsallreducemax_r4_2&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#002eff" d="M491.82,-150.03C501.42,-152.54 511.07,-155.51 520,-159 537.25,-165.74 539.4,-171.79 556,-180 559.33,-181.65 562.82,-183.28 566.35,-184.86"/>
+<polygon fill="#002eff" stroke="#002eff" points="565.11,-188.14 575.68,-188.9 567.9,-181.71 565.11,-188.14"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_2&#45;&gt;mpi_allreduce -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_commsallreducemax_r4_2&#45;&gt;mpi_allreduce</title>
+<path fill="none" stroke="#002eff" d="M520.03,-148.99C531.66,-150.33 543.2,-151.66 553.89,-152.89"/>
+<polygon fill="#002eff" stroke="#002eff" points="553.52,-156.37 563.85,-154.03 554.32,-149.41 553.52,-156.37"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_2&#45;&gt;proc~mapl_return -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_commsallreducemax_r4_2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#002eff" d="M520.03,-127.01C532.7,-125.55 545.27,-124.1 556.75,-122.78"/>
+<polygon fill="#002eff" stroke="#002eff" points="557.42,-126.23 566.95,-121.61 556.62,-119.27 557.42,-126.23"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r4_2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_commsallreducemax_r4_2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#002eff" d="M504.43,-150.06C509.95,-152.53 515.21,-155.48 520,-159 545.98,-178.1 531.78,-200.71 556,-222 557.54,-223.35 559.17,-224.62 560.88,-225.82"/>
+<polygon fill="#002eff" stroke="#002eff" points="559.51,-229.08 569.89,-231.19 563.09,-223.06 559.51,-229.08"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_0&#45;&gt;ESMF_VMGet -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge41" class="edge">
+<title>proc~mapl_commsallreducemax_r8_0&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#5c00ff" d="M504.43,-108.06C509.95,-110.53 515.21,-113.48 520,-117 545.98,-136.1 531.78,-158.71 556,-180 557.48,-181.3 559.06,-182.53 560.7,-183.69"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="559,-186.75 569.37,-188.92 562.61,-180.76 559,-186.75"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_0&#45;&gt;mpi_allreduce -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge42" class="edge">
+<title>proc~mapl_commsallreducemax_r8_0&#45;&gt;mpi_allreduce</title>
+<path fill="none" stroke="#5c00ff" d="M491.82,-108.03C501.42,-110.54 511.07,-113.51 520,-117 537.25,-123.74 539.4,-129.79 556,-138 559.33,-139.65 562.82,-141.28 566.35,-142.86"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="565.11,-146.14 575.68,-146.9 567.9,-139.71 565.11,-146.14"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_0&#45;&gt;proc~mapl_return -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge43" class="edge">
+<title>proc~mapl_commsallreducemax_r8_0&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#5c00ff" d="M520.03,-106.99C532.7,-108.45 545.27,-109.9 556.75,-111.22"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="556.62,-114.73 566.95,-112.39 557.42,-107.77 556.62,-114.73"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_0&#45;&gt;proc~mapl_verify -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge44" class="edge">
+<title>proc~mapl_commsallreducemax_r8_0&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#5c00ff" d="M507.04,-108.03C511.7,-110.53 516.07,-113.5 520,-117 556.81,-149.84 522.18,-186.08 556,-222 557.57,-223.67 559.3,-225.21 561.13,-226.64"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="559.45,-229.71 569.76,-232.14 563.21,-223.81 559.45,-229.71"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_1&#45;&gt;ESMF_VMGet -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge45" class="edge">
+<title>proc~mapl_commsallreducemax_r8_1&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#e700ff" d="M507.04,-66.03C511.7,-68.53 516.07,-71.5 520,-75 556.81,-107.84 522.18,-144.08 556,-180 557.03,-181.09 558.12,-182.12 559.26,-183.11"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="557.26,-185.98 567.45,-188.86 561.28,-180.25 557.26,-185.98"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_1&#45;&gt;mpi_allreduce -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge46" class="edge">
+<title>proc~mapl_commsallreducemax_r8_1&#45;&gt;mpi_allreduce</title>
+<path fill="none" stroke="#e700ff" d="M504.43,-66.06C509.95,-68.53 515.21,-71.48 520,-75 545.98,-94.1 531.78,-116.71 556,-138 557.48,-139.3 559.06,-140.53 560.7,-141.69"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="559,-144.75 569.37,-146.92 562.61,-138.76 559,-144.75"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_1&#45;&gt;proc~mapl_return -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge47" class="edge">
+<title>proc~mapl_commsallreducemax_r8_1&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#e700ff" d="M489.03,-66.03C499.5,-68.6 510.13,-71.59 520,-75 539.34,-81.69 560.02,-91.55 576.36,-100.03"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="574.96,-103.25 585.43,-104.84 578.23,-97.07 574.96,-103.25"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_1&#45;&gt;proc~mapl_verify -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge48" class="edge">
+<title>proc~mapl_commsallreducemax_r8_1&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#e700ff" d="M508.29,-66.14C512.53,-68.63 516.48,-71.56 520,-75 568.12,-122 512.15,-171 556,-222 557.55,-223.8 559.27,-225.45 561.13,-226.96"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="559.65,-230.17 569.94,-232.72 563.48,-224.31 559.65,-230.17"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_2&#45;&gt;ESMF_VMGet -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge49" class="edge">
+<title>proc~mapl_commsallreducemax_r8_2&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#ff008b" d="M508.29,-24.14C512.53,-26.63 516.48,-29.56 520,-33 568.12,-80 512.15,-129 556,-180 556.86,-181 557.78,-181.95 558.74,-182.86"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="556.79,-185.78 566.89,-188.99 561,-180.19 556.79,-185.78"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_2&#45;&gt;mpi_allreduce -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge50" class="edge">
+<title>proc~mapl_commsallreducemax_r8_2&#45;&gt;mpi_allreduce</title>
+<path fill="none" stroke="#ff008b" d="M507.04,-24.03C511.7,-26.53 516.07,-29.5 520,-33 556.81,-65.84 522.18,-102.08 556,-138 557.03,-139.09 558.12,-140.12 559.26,-141.11"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="557.26,-143.98 567.45,-146.86 561.28,-138.25 557.26,-143.98"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_2&#45;&gt;proc~mapl_return -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge51" class="edge">
+<title>proc~mapl_commsallreducemax_r8_2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff008b" d="M498.96,-24.09C506.28,-26.53 513.42,-29.47 520,-33 549.5,-48.81 575.99,-77.51 591.79,-96.9"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="589.12,-99.17 598.07,-104.83 594.6,-94.82 589.12,-99.17"/>
+</g>
+<!-- proc~mapl_commsallreducemax_r8_2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge52" class="edge">
+<title>proc~mapl_commsallreducemax_r8_2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff008b" d="M508.94,-24.19C512.96,-26.68 516.69,-29.59 520,-33 579.61,-94.31 501.95,-155.74 556,-222 557.64,-224.01 559.51,-225.83 561.53,-227.48"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="559.71,-230.47 569.99,-233.02 563.54,-224.62 559.71,-230.47"/>
+</g>
+<!-- proc~mapl_am_i_rank_layout -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node22" class="node">
+<title>proc~mapl_am_i_rank_layout</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node22"><a xlink:href="../proc/mapl_am_i_rank_layout.html" xlink:title="MAPL_Am_I_Rank_Layout">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="841,-465 696,-465 696,-441 841,-441 841,-465"/>
+<text text-anchor="middle" x="768.5" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Rank_Layout</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_rank&#45;&gt;proc~mapl_am_i_rank_layout -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge53" class="edge">
+<title>interface~mapl_am_i_rank&#45;&gt;proc~mapl_am_i_rank_layout</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M654.42,-423.04C672.49,-427.82 693.45,-433.38 712.39,-438.4"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="711.51,-441.78 722.07,-440.96 713.3,-435.02 711.51,-441.78"/>
+</g>
+<!-- proc~mapl_am_i_rank_only -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node23" class="node">
+<title>proc~mapl_am_i_rank_only</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node23"><a xlink:href="../proc/mapl_am_i_rank_only.html" xlink:title="MAPL_Am_I_Rank_Only">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="835,-423 702,-423 702,-399 835,-399 835,-423"/>
+<text text-anchor="middle" x="768.5" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Rank_Only</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_rank&#45;&gt;proc~mapl_am_i_rank_only -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge54" class="edge">
+<title>interface~mapl_am_i_rank&#45;&gt;proc~mapl_am_i_rank_only</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M660.02,-411C670.1,-411 680.89,-411 691.59,-411"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="691.8,-414.5 701.8,-411 691.8,-407.5 691.8,-414.5"/>
+</g>
+<!-- proc~mapl_am_i_rank_vm -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node24" class="node">
+<title>proc~mapl_am_i_rank_vm</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node24"><a xlink:href="../proc/mapl_am_i_rank_vm.html" xlink:title="MAPL_Am_I_Rank_Vm">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="832,-381 705,-381 705,-357 832,-357 832,-381"/>
+<text text-anchor="middle" x="768.5" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Rank_Vm</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_rank&#45;&gt;proc~mapl_am_i_rank_vm -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge55" class="edge">
+<title>interface~mapl_am_i_rank&#45;&gt;proc~mapl_am_i_rank_vm</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M654.42,-398.96C672.49,-394.18 693.45,-388.62 712.39,-383.6"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="713.3,-386.98 722.07,-381.04 711.51,-380.22 713.3,-386.98"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node21" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node21"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="826,-129 711,-129 711,-105 826,-105 826,-129"/>
+<text text-anchor="middle" x="768.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge56" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0066ff" d="M649.41,-117C664.97,-117 683.19,-117 700.6,-117"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="700.72,-120.5 710.72,-117 700.72,-113.5 700.72,-120.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_node25" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~pmaxmin2d_r4~~CallsGraph_node25"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="835,-213 702,-213 702,-189 835,-189 835,-213"/>
+<text text-anchor="middle" x="768.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge57" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M640.32,-129.09C646.9,-131.85 653.74,-134.89 660,-138 687.98,-151.87 718.59,-170.14 739.97,-183.43"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="738.2,-186.45 748.53,-188.79 741.91,-180.51 738.2,-186.45"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~pmaxmin2d_r4~~CallsGraph_edge58" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M646.16,-233.15C665.84,-227.94 690.39,-221.43 712.26,-215.64"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="713.32,-218.98 722.09,-213.03 711.52,-212.21 713.32,-218.98"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocpmaxmin2d_r4CallsGraph = svgPanZoom('#procpmaxmin2d_r4CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~pmaxmin2d_r4~~CalledByGraph Pages: 1 -->
+<svg id="procpmaxmin2d_r4CalledByGraph" width="641pt" height="186pt"
+ viewBox="0.00 0.00 641.00 185.69" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph" class="graph" transform="scale(1.03 1.03) rotate(0) translate(4 188.06)">
+<title>proc~~pmaxmin2d_r4~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-188.06 659,-188.06 659,4 -4,4"/>
+<!-- proc~pmaxmin2d_r4 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_node1" class="node">
+<title>proc~pmaxmin2d_r4</title>
+<polygon fill="none" stroke="black" points="655,-125 562,-125 562,-101 655,-101 655,-125"/>
+<text text-anchor="middle" x="608.5" y="-110.6" font-family="Helvetica,sans-Serif" font-size="10.50">pmaxmin2d_r4</text>
+</g>
+<!-- interface~mapl_maxmin -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_node2" class="node">
+<title>interface~mapl_maxmin</title>
+<g id="a_proc~~pmaxmin2d_r4~~CalledByGraph_node2"><a xlink:href="../interface/mapl_maxmin.html" xlink:title="MAPL_MaxMin">
+<polygon fill="#a7506f" stroke="#a7506f" points="268,-122 181,-122 181,-98 268,-98 268,-122"/>
+<text text-anchor="middle" x="224.5" y="-107.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MaxMin</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_maxmin&#45;&gt;proc~pmaxmin2d_r4 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_edge4" class="edge">
+<title>interface~mapl_maxmin&#45;&gt;proc~pmaxmin2d_r4</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M237.41,-122.48C251.69,-136.44 277.09,-158.26 304,-167 397.98,-197.52 431.16,-182.71 526,-155 544.98,-149.45 564.73,-139.4 580.03,-130.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="582.15,-133.33 588.94,-125.19 578.56,-127.32 582.15,-133.33"/>
+</g>
+<!-- proc~pmaxmin1d_r4 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_node3" class="node">
+<title>proc~pmaxmin1d_r4</title>
+<g id="a_proc~~pmaxmin2d_r4~~CalledByGraph_node3"><a xlink:href="../proc/pmaxmin1d_r4.html" xlink:title="pmaxmin1d_r4">
+<polygon fill="#d9534f" stroke="#d9534f" points="526,-146 433,-146 433,-122 526,-122 526,-146"/>
+<text text-anchor="middle" x="479.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pmaxmin1d_r4</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_maxmin&#45;&gt;proc~pmaxmin1d_r4 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_edge7" class="edge">
+<title>interface~mapl_maxmin&#45;&gt;proc~pmaxmin1d_r4</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M242.6,-122.04C257.88,-132.02 281.3,-145.43 304,-151 344.22,-160.87 390.99,-155.45 425.97,-148.2"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="426.95,-151.57 435.97,-146.01 425.46,-144.73 426.95,-151.57"/>
+</g>
+<!-- proc~pmaxmin2d_r8 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_node4" class="node">
+<title>proc~pmaxmin2d_r8</title>
+<g id="a_proc~~pmaxmin2d_r4~~CalledByGraph_node4"><a xlink:href="../proc/pmaxmin2d_r8.html" xlink:title="pmaxmin2d_r8">
+<polygon fill="#d9534f" stroke="#d9534f" points="526,-104 433,-104 433,-80 526,-80 526,-104"/>
+<text text-anchor="middle" x="479.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pmaxmin2d_r8</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_maxmin&#45;&gt;proc~pmaxmin2d_r8 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_edge8" class="edge">
+<title>interface~mapl_maxmin&#45;&gt;proc~pmaxmin2d_r8</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M268.13,-106.97C310.55,-103.95 375.87,-99.3 422.46,-95.99"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="422.97,-99.46 432.7,-95.26 422.47,-92.48 422.97,-99.46"/>
+</g>
+<!-- proc~pmaxmin3d_r4 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_node5" class="node">
+<title>proc~pmaxmin3d_r4</title>
+<g id="a_proc~~pmaxmin2d_r4~~CalledByGraph_node5"><a xlink:href="../proc/pmaxmin3d_r4.html" xlink:title="pmaxmin3d_r4">
+<polygon fill="#d9534f" stroke="#d9534f" points="526,-62 433,-62 433,-38 526,-38 526,-62"/>
+<text text-anchor="middle" x="479.5" y="-47.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pmaxmin3d_r4</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_maxmin&#45;&gt;proc~pmaxmin3d_r4 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_edge10" class="edge">
+<title>interface~mapl_maxmin&#45;&gt;proc~pmaxmin3d_r4</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M268.13,-99.89C310.64,-89.81 376.15,-74.27 422.76,-63.22"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="423.77,-66.58 432.7,-60.86 422.16,-59.76 423.77,-66.58"/>
+</g>
+<!-- proc~pmaxmin1d_r8 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_node7" class="node">
+<title>proc~pmaxmin1d_r8</title>
+<g id="a_proc~~pmaxmin2d_r4~~CalledByGraph_node7"><a xlink:href="../proc/pmaxmin1d_r8.html" xlink:title="pmaxmin1d_r8">
+<polygon fill="#d9534f" stroke="#d9534f" points="397,-142 304,-142 304,-118 397,-118 397,-142"/>
+<text text-anchor="middle" x="350.5" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pmaxmin1d_r8</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_maxmin&#45;&gt;proc~pmaxmin1d_r8 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_edge11" class="edge">
+<title>interface~mapl_maxmin&#45;&gt;proc~pmaxmin1d_r8</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M268.17,-116.88C276.43,-118.21 285.2,-119.63 293.8,-121.02"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="293.35,-124.49 303.78,-122.63 294.47,-117.58 293.35,-124.49"/>
+</g>
+<!-- proc~pmaxmin3d_r8 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_node8" class="node">
+<title>proc~pmaxmin3d_r8</title>
+<g id="a_proc~~pmaxmin2d_r4~~CalledByGraph_node8"><a xlink:href="../proc/pmaxmin3d_r8.html" xlink:title="pmaxmin3d_r8">
+<polygon fill="#d9534f" stroke="#d9534f" points="397,-24 304,-24 304,0 397,0 397,-24"/>
+<text text-anchor="middle" x="350.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pmaxmin3d_r8</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_maxmin&#45;&gt;proc~pmaxmin3d_r8 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_edge12" class="edge">
+<title>interface~mapl_maxmin&#45;&gt;proc~pmaxmin3d_r8</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M237.01,-97.89C251.71,-82.81 278.31,-56.76 304,-38 308.01,-35.07 312.39,-32.21 316.78,-29.51"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="318.88,-32.34 325.73,-24.26 315.33,-26.31 318.88,-32.34"/>
+</g>
+<!-- proc~pmaxmin1d_r4&#45;&gt;proc~pmaxmin2d_r4 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_edge1" class="edge">
+<title>proc~pmaxmin1d_r4&#45;&gt;proc~pmaxmin2d_r4</title>
+<path fill="none" stroke="#ff0000" d="M526.35,-126.42C534.62,-125.05 543.33,-123.61 551.85,-122.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="552.42,-125.65 561.72,-120.57 551.28,-118.75 552.42,-125.65"/>
+</g>
+<!-- proc~pmaxmin2d_r8&#45;&gt;proc~pmaxmin2d_r4 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_edge2" class="edge">
+<title>proc~pmaxmin2d_r8&#45;&gt;proc~pmaxmin2d_r4</title>
+<path fill="none" stroke="#ff0000" d="M526.35,-99.58C534.62,-100.95 543.33,-102.39 551.85,-103.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="551.28,-107.25 561.72,-105.43 552.42,-100.35 551.28,-107.25"/>
+</g>
+<!-- proc~pmaxmin3d_r4&#45;&gt;proc~pmaxmin2d_r4 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_edge3" class="edge">
+<title>proc~pmaxmin3d_r4&#45;&gt;proc~pmaxmin2d_r4</title>
+<path fill="none" stroke="#ff0000" d="M507.06,-62.02C513.3,-64.91 519.9,-68.02 526,-71 542.58,-79.1 560.86,-88.47 575.9,-96.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="574.32,-99.43 584.8,-100.97 577.56,-93.23 574.32,-99.43"/>
+</g>
+<!-- proc~mapl_simplebundleprint -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_node6" class="node">
+<title>proc~mapl_simplebundleprint</title>
+<g id="a_proc~~pmaxmin2d_r4~~CalledByGraph_node6"><a xlink:href="../proc/mapl_simplebundleprint.html" xlink:title="MAPL_SimpleBundlePrint">
+<polygon fill="#d9534f" stroke="#d9534f" points="145,-122 0,-122 0,-98 145,-98 145,-122"/>
+<text text-anchor="middle" x="72.5" y="-107.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SimpleBundlePrint</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_simplebundleprint&#45;&gt;interface~mapl_maxmin -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_edge5" class="edge">
+<title>proc~mapl_simplebundleprint&#45;&gt;interface~mapl_maxmin</title>
+<path fill="none" stroke="#ff0000" d="M145.42,-110C153.88,-110 162.39,-110 170.53,-110"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.59,-113.5 180.59,-110 170.59,-106.5 170.59,-113.5"/>
+</g>
+<!-- proc~pmaxmin1d_r8&#45;&gt;proc~pmaxmin1d_r4 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_edge6" class="edge">
+<title>proc~pmaxmin1d_r8&#45;&gt;proc~pmaxmin1d_r4</title>
+<path fill="none" stroke="#7fff00" d="M397.35,-131.44C405.53,-131.7 414.14,-131.97 422.57,-132.24"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="422.61,-135.74 432.72,-132.56 422.83,-128.74 422.61,-135.74"/>
+</g>
+<!-- proc~pmaxmin3d_r8&#45;&gt;proc~pmaxmin3d_r4 -->
+<g id="proc~~pmaxmin2d_r4~~CalledByGraph_edge9" class="edge">
+<title>proc~pmaxmin3d_r8&#45;&gt;proc~pmaxmin3d_r4</title>
+<path fill="none" stroke="#7f00ff" d="M391.68,-24.02C403.38,-27.52 416.3,-31.39 428.53,-35.05"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="427.56,-38.41 438.14,-37.92 429.56,-31.7 427.56,-38.41"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocpmaxmin2d_r4CalledByGraph = svgPanZoom('#procpmaxmin2d_r4CalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">    </span><span class="k">subroutine </span><span class="n">pmaxmin2d_r4</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">qname</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">pmin_</span><span class="p">,</span><span class="w"> </span><span class="n">pmax_</span><span class="p">,</span><span class="w"> </span><span class="n">fac_</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">implicit none</span>
+<span class="k">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">             </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">qname</span><span class="w">        </span><span class="c">! label to print</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="p">(:,:)</span><span class="w">       </span><span class="c">! input array</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">fac_</span><span class="w">         </span><span class="c">! multiplication factor</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pmax_</span><span class="p">,</span><span class="w"> </span><span class="n">pmin_</span><span class="w"> </span><span class="c">! min/max value</span>
+<span class="c">!                                           ---</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pmax</span><span class="p">,</span><span class="w"> </span><span class="n">pmin</span><span class="p">,</span><span class="w"> </span><span class="n">fac</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">im</span><span class="p">,</span><span class="w"> </span><span class="n">jt</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">two</span><span class="o">=</span><span class="mi">2</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">qmin</span><span class="p">(:),</span><span class="w"> </span><span class="n">qmax</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real </span><span class="n">pm1</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">real </span><span class="n">pm_res</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="n">im</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">jt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">qmin</span><span class="p">(</span><span class="n">jt</span><span class="p">),</span><span class="n">qmax</span><span class="p">(</span><span class="n">jt</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">fac_</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">fac</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fac_</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">fac</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">ESMF_VmGetCurrent</span><span class="p">(</span><span class="n">vm</span><span class="o">=</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">jt</span>
+<span class="w">         </span><span class="n">pmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+<span class="w">         </span><span class="n">pmin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+<span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">im</span>
+<span class="w">            </span><span class="n">pmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">pmax</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">))</span>
+<span class="w">            </span><span class="n">pmin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">min</span><span class="p">(</span><span class="n">pmin</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">))</span>
+<span class="w">         </span><span class="k">enddo</span>
+<span class="k">         </span><span class="n">qmax</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pmax</span>
+<span class="w">         </span><span class="n">qmin</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pmin</span>
+<span class="w">      </span><span class="k">enddo</span>
+<span class="c">!</span>
+<span class="c">! Now find max/min of amax/amin</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="n">pmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qmax</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">pmin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qmin</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">jt</span>
+<span class="w">         </span><span class="n">pmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">pmax</span><span class="p">,</span><span class="w"> </span><span class="n">qmax</span><span class="p">(</span><span class="n">j</span><span class="p">))</span>
+<span class="w">         </span><span class="n">pmin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">min</span><span class="p">(</span><span class="n">pmin</span><span class="p">,</span><span class="w"> </span><span class="n">qmin</span><span class="p">(</span><span class="n">j</span><span class="p">))</span>
+<span class="w">      </span><span class="k">enddo</span>
+
+<span class="k">      </span><span class="n">pm1</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pmax</span>
+<span class="w">      </span><span class="n">pm1</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">pmin</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_CommsAllReduceMax</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">sendbuf</span><span class="o">=</span><span class="n">pm1</span><span class="p">,</span><span class="w"> </span><span class="n">recvbuf</span><span class="o">=</span><span class="n">pm_res</span><span class="p">,</span><span class="w"> </span><span class="n">cnt</span><span class="o">=</span><span class="n">two</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="n">pmax</span><span class="o">=</span><span class="n">pm_res</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">pmin</span><span class="o">=-</span><span class="n">pm_res</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">pmax_</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">pmax_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pmax</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">pmin_</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">pmin_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pmin</span>
+<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">qmax</span><span class="p">,</span><span class="n">qmin</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">fac</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">  </span><span class="c">! trick to prevent printing</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">MAPL_am_I_root</span><span class="p">()</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;            &#39;</span>
+<span class="w">            </span><span class="n">name</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">qname</span><span class="p">))</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qname</span>
+<span class="w">            </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; max = &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">pmax</span><span class="o">*</span><span class="n">fac</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; min = &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">pmin</span><span class="o">*</span><span class="n">fac</span>
+<span class="w">            </span><span class="k">return</span>
+<span class="k">         end if</span>
+<span class="k">      end if</span>
+
+<span class="k">      return</span>
+
+<span class="k">    end subroutine </span><span class="n">pmaxmin2d_r4</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-25T16:53:00.658383             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
