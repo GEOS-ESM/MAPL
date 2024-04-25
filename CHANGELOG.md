@@ -17,6 +17,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.45.0] - 2024-04-25
+
+### Added
+
+- Add glob function in sampler code, supporting wild character, e.g., filename template = `amsr2_gcom-w1.%y4%m2%d2T%h2%n2*.nc4`
+- Checked resource for o-server. It quits if the numer requested is inconsistent with being used
+- Replace local HorzIJIndex sear with the GlobalHorzIJindex search
+- Change grd_is_ok function to avoid collective call
+- Allow fields with ungridded dimension and bundles to be created in ExtDataDriver.x
+- Allow arithmetic operations to be performed on fields from bundles in History
+- Adapted subroutine RegridVector from GriddedIO.F90 to MAPL_EpochSwathMod.F90 (changing class name for this)
+- Give informative error message when swath grid Epoch does not equal swath sampler frequency
+- Add mask sampler for geostationary satellite (GEOS-R series)
+- Add geostation name into NC for station sampler
+- Add mapping between the IODA loc_index and trajectory NC output loc_index
+- Add `allocate(X, _STAT)` to sampler codes
+- Skip destroy_regen_grid when list(n)%end_alarm is active (the last time step in sampler)
+- Add extract_unquoted_item(STR1) to fix a bug in geoval_xname(mx_ngeoval) in trajectory sampler
+- Add `if (compute_transpose)` to sub. destroy_route_handle to avoid destroying a nonexisting route handle
+- Add option to MAPL regridding layer to write and retrieve ESMF weights.
+- Add options to History and ExtData to turn on the ability to write and read route handle weights
+- Add option to renable the transpose computation when calling make\_regridder
+- Added procedures to remove an attribute from a FileMetadata object and from a Variable object in PFIO
+- Add per-collection timer output for History
+- Add python utilities to split and recombine restarts
+- Add a new "SPLIT\_CHECKPOINT:" option that has replaced the write-by-face option. This will write a file per writer
+- Implemented a new algorthm to read tile files
+- Added two options, depends_on and depends_on_children, to ACG
+- Add CI job to test Ford build (does not publish)
+
+### Changed
+
+- Release the pfio memory as early as possible
+- Trajectory sampler: ls_rt -> ls_chunk (via mpi_gatherV) -> ls_distributed(bk=cs_grid; via ESMF_FieldRedistStore), aiming to save computational time. To gather 3D data via mpi,  options for level by level and single-3D are added via ifdef.
+- The MAPL\_ESMFRegridder manage now does compute the transpose by default
+- Bypassed the I-Server reading call when there is no extdata
+- Created new `ESSENTIAL` ctest label for tests that must pass for a release
+  - These are "simple" quick tests that don't require a lot of resources
+  - With ESMA_cmake v3.43.0, `make tests` will only run tests with the `ESSENTIAL` label. To run all tests, use `make tests-all`
+- Update `components.yaml`
+  - ESMA_cmake v3.43.0
+    - Updates to MPI detection
+    - Enable `-quiet` flag for NAG
+    - `make tests` now only runs tests with the `ESSENTIAL` label. To run all tests, use `make tests-all`
+    - `BUILT_ON_SLES15` set to `FALSE` on NCCS if not built on SLES15
+  - ESMA_env v4.28.0 (Baselibs 7.23.0)
+    - Updates to GFE v1.15
+    - Fixes for NAG
+    - Use GCC 11.4 as Intel backing compiler at NCCS SLES15
+- Update CI to use Baselibs 7.23.0 and GCC 13.2 for GNU tests
+
+### Fixed
+
+- Change to IntArray's pointer to store data to avoid Intel Ifort bug
+- Fix inconsistency in History output so that multi-dimensional coordinate variables are also compressed if requested in the collection
+- Minor workaround to enable NAG 7.2.01 to compile.  (Reproducer submitted to NAG.)
+- Fixed bug with split restart files
+- Removed unnecessary memory allocation for tile reads. This is critical for high res runs on SCU17
+- Fixes to allow SCM model to run
+
+### Removed
+
+- Removed CMake logic for macOS + Intel as that is an unsupported configuration
+
 ## [2.44.3] - 2024-03-28
 
 ### Fixed
@@ -82,6 +146,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add check to make sure ESMF was not built as `mpiuni`
 - Fixed failing tests for `field_utils`.
 - Various fixes for NVHPC work
+
+### Removed
+
+### Deprecated
+- The write-by-face option for checkpoint/restart has been depreciated. This has been replaced by a more generic file-per-writer option
 
 ## [2.43.2] - 2024-02-06
 
