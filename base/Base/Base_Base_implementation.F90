@@ -2929,6 +2929,7 @@ contains
                 print*, "Error: It could be "
                 print*, "  1)Grid is NOT gnomonic_ed;"
                 print*, "  2)lats lons from MAPL_GridGetCorners are NOT accurate (single precision from ESMF)"
+                print*, "  3)This is a stretched grid which is not yet supported"
                 OK = .false.
                 return
              endif
