@@ -1,0 +1,1016 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>finalize_io_clients_servers &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>finalize_io_clients_servers
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">19 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataDriverMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatadrivermod.f90.html'>ExtDataDriverMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/extdatadrivermod.html'>ExtDataDriverMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">finalize_io_clients_servers</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/finalize_io_clients_servers~2.html#src">finalize_io_clients_servers</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine finalize_io_clients_servers(this, unusable, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/extdatadriver.html'>ExtDataDriver</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2073"></span>
+              class(<a href='../type/extdatadriver.html'>ExtDataDriver</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~191"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~843"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~finalize_io_clients_servers~2~~CallsGraph Pages: 1 -->
+<svg id="procfinalize_io_clients_servers2CallsGraph" width="641pt" height="300pt"
+ viewBox="0.00 0.00 641.00 299.76" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph" class="graph" transform="scale(1.93 1.93) rotate(0) translate(4 574)">
+<title>proc~~finalize_io_clients_servers~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-574 1232,-574 1232,4 -4,4"/>
+<!-- proc~finalize_io_clients_servers~2 -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node1" class="node">
+<title>proc~finalize_io_clients_servers~2</title>
+<polygon fill="none" stroke="black" points="235,-361 0,-361 0,-337 235,-337 235,-361"/>
+<text text-anchor="middle" x="117.5" y="-346.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataDriver%finalize_io_clients_servers</text>
+</g>
+<!-- proc~finalize~2 -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node2" class="node">
+<title>proc~finalize~2</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node2"><a xlink:href="../proc/finalize~2.html" xlink:title="ServerManager%finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="434,-445 291,-445 291,-421 434,-421 434,-445"/>
+<text text-anchor="middle" x="362.5" y="-430.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerManager%finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_io_clients_servers~2&#45;&gt;proc~finalize~2 -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge1" class="edge">
+<title>proc~finalize_io_clients_servers~2&#45;&gt;proc~finalize~2</title>
+<path fill="none" stroke="#ff0000" d="M143.92,-361.01C173.81,-374.78 225.17,-397.32 271,-412 278.16,-414.29 285.7,-416.44 293.27,-418.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="292.63,-421.88 303.18,-420.95 294.35,-415.1 292.63,-421.88"/>
+</g>
+<!-- proc~get_name~3 -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node3" class="node">
+<title>proc~get_name~3</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node3"><a xlink:href="../proc/get_name~3.html" xlink:title="SplitCommunicator%get_name">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="451.5,-403 273.5,-403 273.5,-379 451.5,-379 451.5,-403"/>
+<text text-anchor="middle" x="362.5" y="-388.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SplitCommunicator%get_name</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_io_clients_servers~2&#45;&gt;proc~get_name~3 -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge2" class="edge">
+<title>proc~finalize_io_clients_servers~2&#45;&gt;proc~get_name~3</title>
+<path fill="none" stroke="#ff0000" d="M188.13,-361.04C217.37,-366.09 251.53,-371.99 281.77,-377.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="281.41,-380.71 291.86,-378.96 282.6,-373.81 281.41,-380.71"/>
+</g>
+<!-- proc~get_splitcomm -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node4" class="node">
+<title>proc~get_splitcomm</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node4"><a xlink:href="../proc/get_splitcomm.html" xlink:title="ServerManager%get_splitcomm">
+<polygon fill="#d9534f" stroke="#d9534f" points="454,-361 271,-361 271,-337 454,-337 454,-361"/>
+<text text-anchor="middle" x="362.5" y="-346.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerManager%get_splitcomm</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_io_clients_servers~2&#45;&gt;proc~get_splitcomm -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge3" class="edge">
+<title>proc~finalize_io_clients_servers~2&#45;&gt;proc~get_splitcomm</title>
+<path fill="none" stroke="#ff0000" d="M235.02,-349C243.59,-349 252.2,-349 260.67,-349"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="260.91,-352.5 270.91,-349 260.91,-345.5 260.91,-352.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node5" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node5"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="907.5,-360 825.5,-360 825.5,-336 907.5,-336 907.5,-360"/>
+<text text-anchor="middle" x="866.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_io_clients_servers~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge4" class="edge">
+<title>proc~finalize_io_clients_servers~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M190.82,-336.98C216.11,-333.32 244.74,-329.8 271,-328 472.46,-314.19 713,-333.15 815.39,-342.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="815.15,-346.36 825.44,-343.84 815.82,-339.39 815.15,-346.36"/>
+</g>
+<!-- proc~terminate -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node6" class="node">
+<title>proc~terminate</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node6"><a xlink:href="../proc/terminate.html" xlink:title="ClientManager%terminate">
+<polygon fill="#d9534f" stroke="#d9534f" points="439,-176 286,-176 286,-152 439,-152 439,-176"/>
+<text text-anchor="middle" x="362.5" y="-161.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientManager%terminate</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_io_clients_servers~2&#45;&gt;proc~terminate -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge5" class="edge">
+<title>proc~finalize_io_clients_servers~2&#45;&gt;proc~terminate</title>
+<path fill="none" stroke="#ff0000" d="M134.44,-336.86C175.98,-305.24 287.73,-220.17 337.27,-182.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="339.66,-185.03 345.5,-176.18 335.42,-179.46 339.66,-185.03"/>
+</g>
+<!-- proc~finalize~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge8" class="edge">
+<title>proc~finalize~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M434.29,-439.14C510.64,-442.96 634.25,-440.93 731,-400 750.45,-391.77 748.08,-378.38 767,-369 781.78,-361.67 799.04,-356.89 814.95,-353.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="815.93,-357.16 825.17,-351.96 814.71,-350.27 815.93,-357.16"/>
+</g>
+<!-- proc~free_directory_resources -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node8" class="node">
+<title>proc~free_directory_resources</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node8"><a xlink:href="../proc/free_directory_resources.html" xlink:title="DirectoryService%free_directory_resources">
+<polygon fill="#d9534f" stroke="#d9534f" points="731,-476 490,-476 490,-452 731,-452 731,-476"/>
+<text text-anchor="middle" x="610.5" y="-461.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DirectoryService%free_directory_resources</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~2&#45;&gt;proc~free_directory_resources -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge6" class="edge">
+<title>proc~finalize~2&#45;&gt;proc~free_directory_resources</title>
+<path fill="none" stroke="#ff0000" d="M434.32,-441.92C456.06,-444.66 480.46,-447.74 503.99,-450.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="503.65,-454.19 514.01,-451.97 504.53,-447.24 503.65,-454.19"/>
+</g>
+<!-- proc~free_sub_comm -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node9" class="node">
+<title>proc~free_sub_comm</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node9"><a xlink:href="../proc/free_sub_comm.html" xlink:title="SimpleCommSplitter%free_sub_comm">
+<polygon fill="#d9534f" stroke="#d9534f" points="719,-544 502,-544 502,-520 719,-520 719,-544"/>
+<text text-anchor="middle" x="610.5" y="-529.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleCommSplitter%free_sub_comm</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~2&#45;&gt;proc~free_sub_comm -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge7" class="edge">
+<title>proc~finalize~2&#45;&gt;proc~free_sub_comm</title>
+<path fill="none" stroke="#ff0000" d="M392.34,-445C417.94,-455.62 456.4,-471.49 490,-485 516.24,-495.55 545.83,-507.19 568.99,-516.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="567.91,-519.58 578.5,-519.96 570.46,-513.06 567.91,-519.58"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node12" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node12"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="904.5,-318 828.5,-318 828.5,-294 904.5,-294 904.5,-318"/>
+<text text-anchor="middle" x="866.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge9" class="edge">
+<title>proc~finalize~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M419.23,-420.93C430.77,-418.19 442.82,-415.15 454,-412 470.23,-407.42 473.84,-404.82 490,-400 612.01,-363.63 643.15,-356.5 767,-327 783.76,-323.01 802.22,-318.98 818.57,-315.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="819.38,-318.94 828.45,-313.46 817.95,-312.08 819.38,-318.94"/>
+</g>
+<!-- proc~report_profile -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node13" class="node">
+<title>proc~report_profile</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node13"><a xlink:href="../proc/report_profile.html" xlink:title="AbstractServer%report_profile">
+<polygon fill="#d9534f" stroke="#d9534f" points="697,-243 524,-243 524,-219 697,-219 697,-243"/>
+<text text-anchor="middle" x="610.5" y="-228.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer%report_profile</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~2&#45;&gt;proc~report_profile -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge10" class="edge">
+<title>proc~finalize~2&#45;&gt;proc~report_profile</title>
+<path fill="none" stroke="#ff0000" d="M434.41,-421.21C441.27,-418.71 447.93,-415.68 454,-412 458.48,-409.29 553.08,-297.72 592.5,-251.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="595.39,-253.11 599.18,-243.22 590.05,-248.6 595.39,-253.11"/>
+</g>
+<!-- proc~get_splitcomm&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge11" class="edge">
+<title>proc~get_splitcomm&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff66" d="M454.12,-348.82C559.85,-348.61 730.91,-348.27 815.23,-348.1"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="815.33,-351.6 825.32,-348.08 815.31,-344.6 815.33,-351.6"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node10" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node10"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1126,-360 1011,-360 1011,-336 1126,-336 1126,-360"/>
+<text text-anchor="middle" x="1068.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0066ff" d="M907.97,-348C934.53,-348 969.9,-348 1000.59,-348"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="1000.79,-351.5 1010.79,-348 1000.79,-344.5 1000.79,-351.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node11"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1135,-318 1002,-318 1002,-294 1135,-294 1135,-318"/>
+<text text-anchor="middle" x="1068.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M907.97,-339.5C934.33,-333.97 969.36,-326.61 999.88,-320.2"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="1000.97,-323.55 1010.03,-318.07 999.53,-316.7 1000.97,-323.55"/>
+</g>
+<!-- proc~terminate&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge15" class="edge">
+<title>proc~terminate&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#cc00ff" d="M376.74,-176.19C398.57,-195.55 444.26,-233.08 490,-252 590.54,-293.59 633.1,-247.52 731,-295 750.26,-304.34 747.9,-317.34 767,-327 781.72,-334.45 798.96,-339.26 814.88,-342.36"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="814.65,-345.87 825.1,-344.17 815.86,-338.98 814.65,-345.87"/>
+</g>
+<!-- none~at~244 -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node7" class="node">
+<title>none~at~244</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node7"><a xlink:href="../type/clientthreadvector.html#boundprocedure-at~244" xlink:title="ClientThreadVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="678,-176 543,-176 543,-152 678,-152 678,-176"/>
+<text text-anchor="middle" x="610.5" y="-161.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientThreadVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~terminate&#45;&gt;none~at~244 -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge14" class="edge">
+<title>proc~terminate&#45;&gt;none~at~244</title>
+<path fill="none" stroke="#cc00ff" d="M439.32,-164C468.87,-164 502.7,-164 532.37,-164"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="532.68,-167.5 542.68,-164 532.68,-160.5 532.68,-167.5"/>
+</g>
+<!-- proc~terminate~2 -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node14" class="node">
+<title>proc~terminate~2</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node14"><a xlink:href="../proc/terminate~2.html" xlink:title="ClientThread%terminate">
+<polygon fill="#d9534f" stroke="#d9534f" points="682,-134 539,-134 539,-110 682,-110 682,-134"/>
+<text text-anchor="middle" x="610.5" y="-119.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientThread%terminate</text>
+</a>
+</g>
+</g>
+<!-- proc~terminate&#45;&gt;proc~terminate~2 -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge16" class="edge">
+<title>proc~terminate&#45;&gt;proc~terminate~2</title>
+<path fill="none" stroke="#cc00ff" d="M433.99,-151.96C463.59,-146.91 498.17,-141.01 528.78,-135.78"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="529.73,-139.17 539,-134.04 528.55,-132.27 529.73,-139.17"/>
+</g>
+<!-- proc~wait_all -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node15" class="node">
+<title>proc~wait_all</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node15"><a xlink:href="../proc/wait_all.html" xlink:title="ClientThread%wait_all">
+<polygon fill="#d9534f" stroke="#d9534f" points="675.5,-59 545.5,-59 545.5,-35 675.5,-35 675.5,-59"/>
+<text text-anchor="middle" x="610.5" y="-44.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientThread%wait_all</text>
+</a>
+</g>
+</g>
+<!-- proc~terminate&#45;&gt;proc~wait_all -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge17" class="edge">
+<title>proc~terminate&#45;&gt;proc~wait_all</title>
+<path fill="none" stroke="#cc00ff" d="M387.15,-151.89C412.47,-139 453.87,-118.15 490,-101 517.48,-87.96 548.82,-73.82 572.51,-63.28"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="574.11,-66.4 581.84,-59.15 571.28,-60 574.11,-66.4"/>
+</g>
+<!-- proc~v_at_32~20 -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node29" class="node">
+<title>proc~v_at_32~20</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node29"><a xlink:href="../proc/v_at_32~20.html" xlink:title="ClientThreadVector%v_at_32">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="949,-150 784,-150 784,-126 949,-126 949,-150"/>
+<text text-anchor="middle" x="866.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientThreadVector%v_at_32</text>
+</a>
+</g>
+</g>
+<!-- none~at~244&#45;&gt;proc~v_at_32~20 -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge18" class="edge">
+<title>none~at~244&#45;&gt;proc~v_at_32~20</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M678.24,-157.17C707.41,-154.18 742.12,-150.63 773.68,-147.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="774.21,-150.86 783.8,-146.36 773.5,-143.9 774.21,-150.86"/>
+</g>
+<!-- proc~free_directory_resources&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge24" class="edge">
+<title>proc~free_directory_resources&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ffaa00" d="M705.74,-451.94C714.79,-448.36 723.41,-443.8 731,-438 758.49,-417.01 739.46,-389.93 767,-369 780.72,-358.57 798.47,-353.06 815.12,-350.23"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="815.88,-353.65 825.3,-348.79 814.9,-346.72 815.88,-353.65"/>
+</g>
+<!-- mpi_barrier -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node18" class="node">
+<title>mpi_barrier</title>
+<polygon fill="#777777" stroke="#777777" points="904,-528 829,-528 829,-504 904,-504 904,-528"/>
+<text text-anchor="middle" x="866.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_barrier</text>
+</g>
+<!-- proc~free_directory_resources&#45;&gt;mpi_barrier -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge19" class="edge">
+<title>proc~free_directory_resources&#45;&gt;mpi_barrier</title>
+<path fill="none" stroke="#ffaa00" d="M670.41,-476.06C715.63,-485.32 777.2,-497.92 818.99,-506.48"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="818.41,-509.93 828.91,-508.51 819.81,-503.07 818.41,-509.93"/>
+</g>
+<!-- mpi_comm_free -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node19" class="node">
+<title>mpi_comm_free</title>
+<polygon fill="#777777" stroke="#777777" points="915.5,-570 817.5,-570 817.5,-546 915.5,-546 915.5,-570"/>
+<text text-anchor="middle" x="866.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_free</text>
+</g>
+<!-- proc~free_directory_resources&#45;&gt;mpi_comm_free -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge20" class="edge">
+<title>proc~free_directory_resources&#45;&gt;mpi_comm_free</title>
+<path fill="none" stroke="#ffaa00" d="M649.19,-476.09C673.27,-484.47 704.79,-496.68 731,-511 748.32,-520.46 748.96,-528.99 767,-537 779.67,-542.62 793.93,-546.78 807.59,-549.83"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="806.9,-553.26 817.4,-551.87 808.32,-546.41 806.9,-553.26"/>
+</g>
+<!-- mpi_free_mem -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node20" class="node">
+<title>mpi_free_mem</title>
+<polygon fill="#777777" stroke="#777777" points="912.5,-486 820.5,-486 820.5,-462 912.5,-462 912.5,-486"/>
+<text text-anchor="middle" x="866.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_free_mem</text>
+</g>
+<!-- proc~free_directory_resources&#45;&gt;mpi_free_mem -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge21" class="edge">
+<title>proc~free_directory_resources&#45;&gt;mpi_free_mem</title>
+<path fill="none" stroke="#ffaa00" d="M731.06,-468.71C758.75,-469.8 786.91,-470.91 810.25,-471.82"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="810.15,-475.32 820.28,-472.22 810.43,-468.33 810.15,-475.32"/>
+</g>
+<!-- mpi_win_free -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node21" class="node">
+<title>mpi_win_free</title>
+<polygon fill="#777777" stroke="#777777" points="907.5,-444 825.5,-444 825.5,-420 907.5,-420 907.5,-444"/>
+<text text-anchor="middle" x="866.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_win_free</text>
+</g>
+<!-- proc~free_directory_resources&#45;&gt;mpi_win_free -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge22" class="edge">
+<title>proc~free_directory_resources&#45;&gt;mpi_win_free</title>
+<path fill="none" stroke="#ffaa00" d="M706.8,-451.99C743.61,-447.36 784.2,-442.24 815.12,-438.35"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="815.73,-441.8 825.22,-437.07 814.86,-434.85 815.73,-441.8"/>
+</g>
+<!-- proc~free_mpi_resources -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node25" class="node">
+<title>proc~free_mpi_resources</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node25"><a xlink:href="../proc/free_mpi_resources.html" xlink:title="MpiMutex%free_mpi_resources">
+<polygon fill="#d9534f" stroke="#d9534f" points="954,-402 779,-402 779,-378 954,-378 954,-402"/>
+<text text-anchor="middle" x="866.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MpiMutex%free_mpi_resources</text>
+</a>
+</g>
+</g>
+<!-- proc~free_directory_resources&#45;&gt;proc~free_mpi_resources -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge23" class="edge">
+<title>proc~free_directory_resources&#45;&gt;proc~free_mpi_resources</title>
+<path fill="none" stroke="#ffaa00" d="M690.21,-451.92C704.14,-448.38 718.26,-443.83 731,-438 749.19,-429.68 748.79,-419.28 767,-411 771.75,-408.84 776.74,-406.9 781.83,-405.15"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="783.26,-408.37 791.74,-402.03 781.15,-401.7 783.26,-408.37"/>
+</g>
+<!-- proc~free_sub_comm&#45;&gt;mpi_comm_free -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge25" class="edge">
+<title>proc~free_sub_comm&#45;&gt;mpi_comm_free</title>
+<path fill="none" stroke="#aaff00" d="M719.22,-543.03C749.42,-546.12 781.11,-549.36 807.24,-552.04"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="807.03,-555.53 817.33,-553.07 807.74,-548.57 807.03,-555.53"/>
+</g>
+<!-- at -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node16" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1226.5,-402 1172.5,-402 1172.5,-378 1226.5,-378 1226.5,-402"/>
+<text text-anchor="middle" x="1199.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge26" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ff00" d="M1106.47,-360.04C1124.02,-365.75 1144.92,-372.55 1162.36,-378.23"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1161.59,-381.66 1172.18,-381.43 1163.75,-375.01 1161.59,-381.66"/>
+</g>
+<!-- insert -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node17" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1226.5,-360 1172.5,-360 1172.5,-336 1226.5,-336 1226.5,-360"/>
+<text text-anchor="middle" x="1199.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge27" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ff00" d="M1126.08,-348C1138.29,-348 1150.89,-348 1162.08,-348"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1162.32,-351.5 1172.32,-348 1162.32,-344.5 1162.32,-351.5"/>
+</g>
+<!-- proc~initialize~5 -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node27" class="node">
+<title>proc~initialize~5</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node27"><a xlink:href="../proc/initialize~5.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1228,-318 1171,-318 1171,-294 1228,-294 1228,-318"/>
+<text text-anchor="middle" x="1199.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~5 -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~5</title>
+<path fill="none" stroke="#00ffa9" d="M1135.13,-306C1143.88,-306 1152.59,-306 1160.63,-306"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="1160.77,-309.5 1170.77,-306 1160.77,-302.5 1160.77,-309.5"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00a9ff" d="M904.65,-306C929,-306 961.72,-306 991.44,-306"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="991.81,-309.5 1001.81,-306 991.81,-302.5 991.81,-309.5"/>
+</g>
+<!-- proc~report_profile&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge32" class="edge">
+<title>proc~report_profile&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M697.24,-239.94C709.36,-243.87 721.07,-249.37 731,-257 758.74,-278.31 739.21,-305.75 767,-327 780.69,-337.47 798.43,-342.99 815.08,-345.82"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="814.87,-349.32 825.26,-347.25 815.85,-342.39 814.87,-349.32"/>
+</g>
+<!-- proc~report_profile&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge33" class="edge">
+<title>proc~report_profile&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0000ff" d="M690.93,-243.06C704.64,-246.6 718.5,-251.15 731,-257 749.36,-265.59 748.62,-276.45 767,-285 782.88,-292.39 801.43,-297.21 818.11,-300.35"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="817.77,-303.84 828.22,-302.09 818.96,-296.94 817.77,-303.84"/>
+</g>
+<!-- none~generate_report -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node22" class="node">
+<title>none~generate_report</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node22"><a xlink:href="../type/profilereporter.html#boundprocedure-generate_report" xlink:title="ProfileReporter%generate_report">
+<polygon fill="#a7506f" stroke="#a7506f" points="960.5,-276 772.5,-276 772.5,-252 960.5,-252 960.5,-276"/>
+<text text-anchor="middle" x="866.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProfileReporter%generate_report</text>
+</a>
+</g>
+</g>
+<!-- proc~report_profile&#45;&gt;none~generate_report -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge30" class="edge">
+<title>proc~report_profile&#45;&gt;none~generate_report</title>
+<path fill="none" stroke="#0000ff" d="M697.14,-242.13C718.25,-244.87 741.06,-247.83 762.88,-250.67"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="762.46,-254.14 772.83,-251.96 763.36,-247.2 762.46,-254.14"/>
+</g>
+<!-- proc~add_column -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node23" class="node">
+<title>proc~add_column</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node23"><a xlink:href="../proc/add_column.html" xlink:title="MultiColumn%add_column">
+<polygon fill="#d9534f" stroke="#d9534f" points="943.5,-234 789.5,-234 789.5,-210 943.5,-210 943.5,-234"/>
+<text text-anchor="middle" x="866.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiColumn%add_column</text>
+</a>
+</g>
+</g>
+<!-- proc~report_profile&#45;&gt;proc~add_column -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge31" class="edge">
+<title>proc~report_profile&#45;&gt;proc~add_column</title>
+<path fill="none" stroke="#0000ff" d="M697.14,-227.97C723.57,-227.03 752.69,-226 779.17,-225.06"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="779.31,-228.56 789.18,-224.7 779.07,-221.56 779.31,-228.56"/>
+</g>
+<!-- proc~reduce -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node28" class="node">
+<title>proc~reduce</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node28"><a xlink:href="../proc/reduce.html" xlink:title="DistributedProfiler%reduce">
+<polygon fill="#d9534f" stroke="#d9534f" points="944,-192 789,-192 789,-168 944,-168 944,-192"/>
+<text text-anchor="middle" x="866.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DistributedProfiler%reduce</text>
+</a>
+</g>
+</g>
+<!-- proc~report_profile&#45;&gt;proc~reduce -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge34" class="edge">
+<title>proc~report_profile&#45;&gt;proc~reduce</title>
+<path fill="none" stroke="#0000ff" d="M671.37,-218.98C708.53,-211.52 756.45,-201.9 795.38,-194.08"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="796.47,-197.43 805.59,-192.03 795.1,-190.57 796.47,-197.43"/>
+</g>
+<!-- proc~terminate~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge36" class="edge">
+<title>proc~terminate~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#aa00ff" d="M682.18,-120.65C700.13,-123.71 717.99,-130.24 731,-143 790.49,-201.35 708.58,-267.58 767,-327 779.5,-339.71 797.68,-345.63 815.02,-348.15"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="814.76,-351.64 825.08,-349.26 815.53,-344.68 814.76,-351.64"/>
+</g>
+<!-- proc~terminate~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge37" class="edge">
+<title>proc~terminate~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#aa00ff" d="M682.04,-121.18C699.88,-124.26 717.72,-130.68 731,-143 778.72,-187.3 720.09,-239.85 767,-285 780.54,-298.03 800.08,-303.83 818.19,-306.16"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="818.05,-309.66 828.34,-307.14 818.73,-302.69 818.05,-309.66"/>
+</g>
+<!-- proc~get_connection -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node26" class="node">
+<title>proc~get_connection</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node26"><a xlink:href="../proc/get_connection.html" xlink:title="BaseThread%get_connection">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="950.5,-108 782.5,-108 782.5,-84 950.5,-84 950.5,-108"/>
+<text text-anchor="middle" x="866.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseThread%get_connection</text>
+</a>
+</g>
+</g>
+<!-- proc~terminate~2&#45;&gt;proc~get_connection -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge35" class="edge">
+<title>proc~terminate~2&#45;&gt;proc~get_connection</title>
+<path fill="none" stroke="#aa00ff" d="M682.25,-114.76C710.08,-111.91 742.42,-108.6 772.12,-105.56"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="772.49,-109.04 782.08,-104.54 771.78,-102.08 772.49,-109.04"/>
+</g>
+<!-- send -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node30" class="node">
+<title>send</title>
+<polygon fill="#777777" stroke="#777777" points="893.5,-66 839.5,-66 839.5,-42 893.5,-42 893.5,-66"/>
+<text text-anchor="middle" x="866.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">send</text>
+</g>
+<!-- proc~terminate~2&#45;&gt;send -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge38" class="edge">
+<title>proc~terminate~2&#45;&gt;send</title>
+<path fill="none" stroke="#aa00ff" d="M648.33,-109.92C679.68,-99.86 726.03,-85.54 767,-75 787.57,-69.71 810.81,-64.71 829.54,-60.92"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="830.32,-64.33 839.44,-58.94 828.95,-57.47 830.32,-64.33"/>
+</g>
+<!-- proc~clear_requesthandle -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_node24" class="node">
+<title>proc~clear_requesthandle</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CallsGraph_node24"><a xlink:href="../proc/clear_requesthandle.html" xlink:title="BaseThread%clear_RequestHandle">
+<polygon fill="#d9534f" stroke="#d9534f" points="966,-24 767,-24 767,0 966,0 966,-24"/>
+<text text-anchor="middle" x="866.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseThread%clear_RequestHandle</text>
+</a>
+</g>
+</g>
+<!-- proc~wait_all&#45;&gt;proc~clear_requesthandle -->
+<g id="proc~~finalize_io_clients_servers~2~~CallsGraph_edge39" class="edge">
+<title>proc~wait_all&#45;&gt;proc~clear_requesthandle</title>
+<path fill="none" stroke="#ff00aa" d="M675.59,-38.17C703.71,-34.29 737.32,-29.66 768.41,-25.38"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="768.97,-28.83 778.4,-24 768.01,-21.9 768.97,-28.83"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocfinalize_io_clients_servers2CallsGraph = svgPanZoom('#procfinalize_io_clients_servers2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~finalize_io_clients_servers~2~~CalledByGraph Pages: 1 -->
+<svg id="procfinalize_io_clients_servers2CalledByGraph" width="523pt" height="32pt"
+ viewBox="0.00 0.00 523.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~finalize_io_clients_servers~2~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~finalize_io_clients_servers~2~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 519,-28 519,4 -4,4"/>
+<!-- proc~finalize_io_clients_servers~2 -->
+<g id="proc~~finalize_io_clients_servers~2~~CalledByGraph_node1" class="node">
+<title>proc~finalize_io_clients_servers~2</title>
+<polygon fill="none" stroke="black" points="515,-24 280,-24 280,0 515,0 515,-24"/>
+<text text-anchor="middle" x="397.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataDriver%finalize_io_clients_servers</text>
+</g>
+<!-- proc~run~9 -->
+<g id="proc~~finalize_io_clients_servers~2~~CalledByGraph_node2" class="node">
+<title>proc~run~9</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CalledByGraph_node2"><a xlink:href="../proc/run~9.html" xlink:title="ExtDataDriver%run">
+<polygon fill="#d9534f" stroke="#d9534f" points="244,-24 129,-24 129,0 244,0 244,-24"/>
+<text text-anchor="middle" x="186.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver%run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~9&#45;&gt;proc~finalize_io_clients_servers~2 -->
+<g id="proc~~finalize_io_clients_servers~2~~CalledByGraph_edge1" class="edge">
+<title>proc~run~9&#45;&gt;proc~finalize_io_clients_servers~2</title>
+<path fill="none" stroke="#ff0000" d="M244.06,-12C252.23,-12 260.89,-12 269.79,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="269.91,-15.5 279.91,-12 269.91,-8.5 269.91,-15.5"/>
+</g>
+<!-- program~extdata_driver -->
+<g id="proc~~finalize_io_clients_servers~2~~CalledByGraph_node3" class="node">
+<title>program~extdata_driver</title>
+<g id="a_proc~~finalize_io_clients_servers~2~~CalledByGraph_node3"><a xlink:href="../program/extdata_driver.html" xlink:title="ExtData_Driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="93,-24 0,-24 0,0 93,0 93,-24"/>
+<text text-anchor="middle" x="46.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_Driver</text>
+</a>
+</g>
+</g>
+<!-- program~extdata_driver&#45;&gt;proc~run~9 -->
+<g id="proc~~finalize_io_clients_servers~2~~CalledByGraph_edge2" class="edge">
+<title>program~extdata_driver&#45;&gt;proc~run~9</title>
+<path fill="none" stroke="#ff0000" d="M93.07,-12C101.31,-12 110.05,-12 118.75,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="118.9,-15.5 128.9,-12 118.9,-8.5 118.9,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">finalize_io_clients_servers</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ExtDataDriver</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">SplitCommunicator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">split_comm</span>
+
+<span class="w">     </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">     </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">cap_server</span><span class="p">%</span><span class="n">get_splitcomm</span><span class="p">(</span><span class="n">split_comm</span><span class="p">)</span>
+<span class="w">     </span><span class="k">select case</span><span class="p">(</span><span class="n">split_comm</span><span class="p">%</span><span class="n">get_name</span><span class="p">())</span>
+<span class="w">     </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">i_Clients</span><span class="p">%</span><span class="n">terminate</span><span class="p">()</span>
+<span class="w">        </span><span class="k">call </span><span class="n">o_Clients</span><span class="p">%</span><span class="n">terminate</span><span class="p">()</span>
+<span class="w">     </span><span class="k">end select</span>
+<span class="k">     call </span><span class="n">this</span><span class="p">%</span><span class="n">cap_server</span><span class="p">%</span><span class="n">finalize</span><span class="p">()</span>
+<span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">finalize_io_clients_servers</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-04-25T17:14:53.987542             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
