@@ -26,6 +26,7 @@ module pFIO_ForwardDataAndMessageMod
       procedure :: add_data_message
       procedure :: serialize
       procedure :: deserialize
+      procedure :: destroy
    end type ForwardDataAndMessage
 
    interface ForwardDataAndMessage
@@ -101,6 +102,20 @@ contains
          this%idata = [this%idata, i_ptr]
       endif
 
+      _RETURN(_SUCCESS)
+   end subroutine
+
+   subroutine destroy(this, rc)
+      class (ForwardDataAndMessage), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      type (MessageVectorIterator) :: iter
+
+      if (allocated(this%idata)) deallocate(this%idata)
+      iter = this%msg_vec%begin()
+      do while (iter /= this%msg_vec%end())
+        call this%msg_vec%erase(iter)
+        iter = this%msg_vec%begin()
+     enddo
       _RETURN(_SUCCESS)
    end subroutine
 
