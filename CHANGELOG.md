@@ -8,8 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-
-- Bug fix for filename with wild character in trajectory sampler
+- Release the pfio memory as early as possible
 - Add glob function in sampler code, supporting wild character, e.g., filename template = `amsr2_gcom-w1.%y4%m2%d2T%h2%n2*.nc4`
 - Checked resource for o-server. It quits if the numer requested is inconsistent with being used
 - Replace local HorzIJIndex sear with the GlobalHorzIJindex search
@@ -57,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update CI to use Baselibs 7.23.0 and GCC 13.2 for GNU tests
 
 ### Fixed
-
+- Change to IntArray's pointer to store data to avoid Intel Ifort bug
 - Fix inconsistency in History output so that multi-dimensional coordinate variables are also compressed if requested in the collection
 - Minor workaround to enable NAG 7.2.01 to compile.  (Reproducer submitted to NAG.)
 - Fixed bug with split restart files
@@ -66,6 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed non-Baselibs build using `ESMF::ESMF` target
 
 ### Removed
+
+- Removed CMake logic for macOS + Intel as that is an unsupported configuration
 
 ### Deprecated
 
