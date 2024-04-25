@@ -40,6 +40,7 @@ contains
 
       type(ESMF_RegridMethod_Flag) :: local_regrid_method
       type(ESMF_Field) :: src_field, dst_field
+      real, pointer :: pt2d(:,:), pt1d(:)
       integer :: status
 
       _UNUSED_DUMMY(unusable)
@@ -53,6 +54,12 @@ contains
       _VERIFY(status)
       dst_field = ESMF_FieldCreate(locstream,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],rc=status)
       _VERIFY(status)
+
+      call ESMF_FieldGet(src_field, localDE=0, farrayPtr=pt2d, _RC)
+      call ESMF_FieldGet(dst_field, localDE=0, farrayPtr=pt1d, _RC)
+      pt2d = 0.0
+      pt1d = 0.0
+
       call ESMF_FieldRegridStore(srcField=src_field,dstField=dst_field, &
            routeHandle=regridder%route_handle,regridmethod=local_regrid_method,rc=status)
       _VERIFY(status)

@@ -20,6 +20,7 @@ module  BinIOMod
   use FileIOSharedMod, only: STD_OUT_UNIT_NUMBER, LAST_UNIT, TAKEN, MTAKEN, mname
   use FileIOSharedMod, only: r4_2, r4_1, r8_2, r8_1, i4_1
   use FileIOSharedMod, only: MEM_UNITS, munit, REC
+  use FileIOSharedMod, only: ArrayScatterShm
   use ESMF
   use MAPL_BaseMod
   use MAPL_SortMod
@@ -71,10 +72,6 @@ module  BinIOMod
      module procedure READ_PARALLEL_R8_1
      module procedure READ_PARALLEL_R8_2
   end interface
-
-  interface ArrayScatterShm
-     module procedure ArrayScatterShmR4D1
-  end interface ArrayScatterShm
 
   interface MAPL_MemFileInquire
      module procedure InqFileMem
@@ -3935,190 +3932,6 @@ module  BinIOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_Rewind
-
-  subroutine ArrayScatterShmR4D1(local_array, global_array, grid, mask, rc)
-
-! Mask is really a permutation on the first dimension
-
-    real,         intent(  OUT) :: local_array(:)
-!    TYPE_(kind=EKIND_), target, intent(IN   ) :: global_array DIMENSIONS_
-    real, target                :: global_array(:)
-    type (ESMF_Grid)                          :: grid
-    integer, optional,          intent(IN   ) :: mask(:)
-    integer, optional,          intent(  OUT) :: rc
-
-! Local variables
-
-    integer                               :: status
-
-    real,    pointer        :: myglob(:) => null()
-    real,    pointer        :: VAR(:)
-    type (ESMF_DistGrid)                  :: distGrid
-    type(ESMF_DELayout)                   :: LAYOUT
-    type (ESMF_VM)                        :: vm
-    integer,               allocatable    :: AL(:,:)
-    integer,               allocatable    :: AU(:,:)
-    integer, dimension(:), allocatable    :: SENDCOUNTS, DISPLS
-    integer                               :: KK
-    integer                               :: nDEs
-    integer                               :: recvcount
-    integer                               :: I, K, II, deId
-    integer                               :: gridRank
-    integer                               :: LX
-    integer                               :: srcPE
-    integer                               :: ISZ
-    logical                               :: alloc_var
-    logical                               :: use_shmem
-
-! Works only on 1D and 2D arrays
-! Note: for tile variables the gridRank is 1
-! and the case RANK_=2 needs additional attention
-
-! use_shmem controls communication (bcastToNodes+local copy vs scatterv)
-    use_shmem = .true.
-
-    ! temporary Shmem restricted only to 1d and tile vars
-    if (.not.present(mask)) use_shmem = .false.
-
-! Optional change of source PE. Default=MAPL_Root
-
-    srcPE = MAPL_Root
-
-! Initialize
-    alloc_var = .true.
-
-! Get grid and layout information
-
-    call ESMF_GridGet    (GRID,   dimCount=gridRank, rc=STATUS);_VERIFY(STATUS)
-    call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS);_VERIFY(STATUS)
-    call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS);_VERIFY(STATUS)
-    call ESMF_DELayoutGet(layout, vm=vm, rc=status);_VERIFY(STATUS)
-    call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status);_VERIFY(STATUS)
-
-    if (use_shmem) then
-       srcPE = deId
-    end if
-
-    allocate (AL(gridRank,0:nDEs-1),  stat=status)
-    _VERIFY(STATUS)
-    allocate (AU(gridRank,0:nDEs-1),  stat=status)
-    _VERIFY(STATUS)
-    allocate (sendcounts(0:nDEs-1), stat=status)
-    _VERIFY(STATUS)
-    call MAPL_DistGridGet(distgrid, &
-         minIndex=AL, maxIndex=AU, rc=status)
-    _VERIFY(STATUS)
-
-    ISZ = size(GLOBAL_ARRAY,1)
-
-    if (use_shmem) then
-       call MAPL_SyncSharedMemory(rc=STATUS)
-       _VERIFY(STATUS)
-       call MAPL_BroadcastToNodes(global_array, N=ISZ, ROOT=MAPL_Root, rc=status)
-       _VERIFY(STATUS)
-       call MAPL_SyncSharedMemory(rc=STATUS)
-       _VERIFY(STATUS)
-    end if
-
-! Compute count to be sent to each PE
-
-    if(present(mask)) then
-       sendcounts = 0
-       do II = 1,ISZ
-          sendcounts(mask(ii)) = sendcounts(mask(ii)) + 1
-       enddo
-    else
-       do I = 0,nDEs-1
-          LX = AU(1,I) - AL(1,I) + 1
-          sendcounts(I) = LX
-       end do
-    end if
-
-! Count I will recieve
-
-    recvcount = sendcounts(deId)
-
-! Put VAR together at the srcPE
-
-    if (deId == srcPE) then
-
-       allocate(DISPLS(0:nDEs          ), stat=status)
-       _VERIFY(STATUS)
-
-! Compute displacements into the VAR vector
-
-       displs(0) = 0
-       do I = 1,nDEs
-          displs(I) = displs(I-1) + sendcounts(I-1)
-       end do
-
-       myglob => global_array
-
-! Fill the VAR vector
-
-       if (present(mask)) then
-          allocate(VAR(displs(deId):displs(deId+1)-1), stat=status)
-          _VERIFY(STATUS)
-          KK = DISPLS(deId)
-
-          do I=1,ISZ
-             K = MASK(I)
-             if(K == deId) then
-                II = KK
-                VAR(II) = MYGLOB(I)
-                KK = KK + 1
-             end if
-          end do
-
-       else
-
-          var => myglob
-          alloc_var = .false.
-
-       endif !  present(mask)
-
-     else
-        allocate(var(0:1), stat=status)
-        _VERIFY(STATUS)
-        allocate(DISPLS(0:nDEs), stat=status)
-        _VERIFY(STATUS)
-     end if !  I am srcPEa
-
-
-! Do the communications
-    if (use_shmem) then
-       ! copy my piece from var (var is local but was filled from shared array)
-       call MAPL_SyncSharedMemory(rc=STATUS)
-       _VERIFY(STATUS)
-       local_array = var(displs(deId):displs(deId+1)-1)
-       call MAPL_SyncSharedMemory(rc=STATUS)
-       _VERIFY(STATUS)
-    else
-       call MAPL_CommsScatterV(layout, var, sendcounts, displs, &
-                               local_array, recvcount, srcPE, status)
-       _VERIFY(STATUS)
-    end if
-
-! Clean-up
-
-    deallocate(displs, stat=status)
-    _VERIFY(STATUS)
-    if(alloc_var) then
-       deallocate(VAR, stat=status)
-       _VERIFY(STATUS)
-    end if
-
-    deallocate(sendcounts, stat=status)
-    _VERIFY(STATUS)
-    deallocate(AU,         stat=status)
-    _VERIFY(STATUS)
-    deallocate(AL,         stat=status)
-    _VERIFY(STATUS)
-
-! All done
-
-    _RETURN(ESMF_SUCCESS)
-  end subroutine ArrayScatterShmR4D1
 
   INTEGER FUNCTION GETFILE( NAME, DO_OPEN, FORM, ALL_PES, &
                              BLOCKSIZE, NUMBUFFERS, RC )
