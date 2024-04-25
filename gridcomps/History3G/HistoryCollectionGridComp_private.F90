@@ -17,6 +17,7 @@ module mapl3g_HistoryCollectionGridComp_private
 
    interface parse_item
       module procedure :: parse_item_expression
+      module procedure :: parse_item_simple
    end interface parse_item
 
    interface replace_delimiter
@@ -103,7 +104,6 @@ contains
       integer :: status
       logical :: asOK, isScalar, isMap
       type(ESMF_HConfig) :: value
-      type(ESMF_HConfigIter) :: iter, iterBegin, iterEnd
       character(len=:), allocatable :: expression
       type(StringVectorV1) :: v1svector
 
@@ -161,7 +161,6 @@ contains
       integer :: status
       logical :: asOK, isScalar, isMap
       type(ESMF_HConfig) :: value
-      type(ESMF_HConfigIter) :: iter, iterBegin, iterEnd
 
       isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
       _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
@@ -199,7 +198,7 @@ contains
 
       iter = svector1%begin()
       do while(iter /= svector1%end())
-        call svector%push_back(iter%of()) 
+        call svector%push_back(iter%get()) 
      end do
 
    end function convert_string_vector_v2
