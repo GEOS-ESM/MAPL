@@ -12,7 +12,8 @@ module mapl3g_MaplFramework
    use pfio_DirectoryServiceMod, only: DirectoryService
    use pfio_ClientManagerMod
    use pfio_MpiServerMod, only: MpiServer
-   use pfio
+   use pfio_ClientThreadMod, only: ClientThread
+   use pfio_AbstractDirectoryServiceMod, only: PortInfo
    use pflogger, only: logging
    use pflogger, only: Logger
    use esmf, only: ESMF_IsInitialized
