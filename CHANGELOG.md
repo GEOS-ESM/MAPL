@@ -59,7 +59,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Release the pfio memory as early as possible
+
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.45.0] - 2024-04-25
+
+### Added
+
 - Add glob function in sampler code, supporting wild character, e.g., filename template = `amsr2_gcom-w1.%y4%m2%d2T%h2%n2*.nc4`
 - Checked resource for o-server. It quits if the numer requested is inconsistent with being used
 - Replace local HorzIJIndex sear with the GlobalHorzIJindex search
@@ -88,6 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Release the pfio memory as early as possible
 - Trajectory sampler: ls_rt -> ls_chunk (via mpi_gatherV) -> ls_distributed(bk=cs_grid; via ESMF_FieldRedistStore), aiming to save computational time. To gather 3D data via mpi,  options for level by level and single-3D are added via ifdef.
 - The MAPL\_ESMFRegridder manage now does compute the transpose by default
 - Bypassed the I-Server reading call when there is no extdata
@@ -107,6 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update CI to use Baselibs 7.23.0 and GCC 13.2 for GNU tests
 
 ### Fixed
+
 - Change to IntArray's pointer to store data to avoid Intel Ifort bug
 - Fix inconsistency in History output so that multi-dimensional coordinate variables are also compressed if requested in the collection
 - Minor workaround to enable NAG 7.2.01 to compile.  (Reproducer submitted to NAG.)
@@ -117,8 +131,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Removed CMake logic for macOS + Intel as that is an unsupported configuration
-
-### Deprecated
 
 ## [2.44.3] - 2024-03-28
 
