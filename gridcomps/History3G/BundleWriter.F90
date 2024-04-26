@@ -42,7 +42,8 @@ module mapl3g_BundleWriter
       metadata = mapl_geom%get_file_metadata()
       ! we need vertical spec/geom metadata, in theory property of outermeta that could be queried
 
-      ! we need ungridded dim spec metadata but that function of individual fields
+      ! we need ungridded dim spec metadata but that function of individual fields so have
+      ! check for all unique ungridded dims
 
       ! time metdata?
 
