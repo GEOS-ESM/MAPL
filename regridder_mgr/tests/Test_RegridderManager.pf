@@ -35,7 +35,7 @@ contains
       integer :: status
       type(ESMF_HConfig) :: hconfig_
 
-      hconfig_ = ESMF_HConfigCreate(content="{schema: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+      hconfig_ = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
            _RC2)
       if (present(hconfig)) hconfig_ = hconfig
 
@@ -153,7 +153,7 @@ contains
 
       geom_1 = make_geom(geom_mgr, _RC)
 
-      hconfig = ESMF_HConfigCreate(content="{schema: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DC, nx: 1, ny: 1}", _RC)
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DC, nx: 1, ny: 1}", _RC)
       geom_2 = make_geom(geom_mgr, hconfig, _RC) ! variant of geom_1
 
       
@@ -186,10 +186,10 @@ contains
       geom_mgr = GeomManager()
       regridder_mgr = RegridderManager()
 
-      hconfig = ESMF_HConfigCreate(content="{schema: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
       geom_1 = make_geom(geom_mgr, hconfig, _RC)
 
-      hconfig = ESMF_HConfigCreate(content="{schema: latlon, im_world: 6, jm_world: 5, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
       geom_2 = make_geom(geom_mgr, hconfig, _RC) ! variant of geom_1
 
       spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE), geom_1, geom_2)
@@ -232,10 +232,10 @@ contains
       geom_mgr = GeomManager()
       regridder_mgr = RegridderManager()
 
-      hconfig = ESMF_HConfigCreate(content="{schema: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
       geom_1 = make_geom(geom_mgr, hconfig, _RC)
 
-      hconfig = ESMF_HConfigCreate(content="{schema: latlon, im_world: 6, jm_world: 5, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
       geom_2 = make_geom(geom_mgr, hconfig, _RC) ! variant of geom_1
 
       dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=real(MAPL_UNDEF,kind=ESMF_KIND_R8), handleAllElements=.true.,_RC)
