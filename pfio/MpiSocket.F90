@@ -114,7 +114,7 @@ contains
       call MPI_Recv(buffer, count, MPI_INTEGER, this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, &
            & status, ierror)
 
-      allocate(message, source=this%parser%decode(buffer))
+      call this%parser%decode(buffer, message)
       _RETURN(_SUCCESS)
    end subroutine receive
 

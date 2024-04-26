@@ -72,7 +72,7 @@ contains
      n=2
      msgVec = MessageVector()
      do while (n < length)
-       allocate(msg, source = parser%decode(buffer(n:))) 
+        call parser%decode(buffer(n:), msg)
        call msgVec%push_back(msg)
        n = n + msg%get_length()+1 
        deallocate(msg)

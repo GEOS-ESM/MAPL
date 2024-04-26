@@ -3,7 +3,7 @@
 
 module pFIO_FileMetadataMod
    use mapl_KeywordEnforcerMod
-   use gFTL_StringIntegerMap
+   use gFTL2_StringIntegerMap
    use pFIO_StringIntegerMapUtilMod
    use pFIO_ConstantsMod
    use pFIO_UtilitiesMod
@@ -528,8 +528,8 @@ contains
       dims => meta%get_dimensions()
       dim_iter = dims%begin()
       do while (dim_iter /= dims%end())
-        name => dim_iter%key()
-        extent = dim_iter%value()
+        name => dim_iter%first()
+        extent = dim_iter%second()
         call this%add_dimension(name, extent)
         call dim_iter%next()
       end do
@@ -585,13 +585,13 @@ contains
          iter = a%dimensions%begin()
          do while (iter /= a%dimensions%end())
 
-            dim_name => iter%key()
+            dim_name => iter%first()
             dim_b => b%dimensions%at(dim_name)
 
             equal = (associated(dim_b))
             if (.not. equal) return
 
-            dim_a => iter%value()
+            dim_a => iter%second()
             equal = (dim_a == dim_b)
             if (.not. equal) return
 
@@ -765,7 +765,7 @@ contains
       associate (e => dimensions%end())
         iter = dimensions%begin()
         do while (iter /= e)
-           write(unit, '(T8,a,1x,a,1x,i0,/)', iostat=iostat, iomsg=iomsg) iter%key(), "=" , iter%value()
+           write(unit, '(T8,a,1x,a,1x,i0,/)', iostat=iostat, iomsg=iomsg) iter%first(), "=" , iter%second()
            if (iostat /= 0) return
            call iter%next()
         end do
