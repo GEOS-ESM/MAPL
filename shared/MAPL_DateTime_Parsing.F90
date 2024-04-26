@@ -39,7 +39,7 @@
 module MAPL_DateTime_Parsing
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: R64 => real64
 
    implicit none

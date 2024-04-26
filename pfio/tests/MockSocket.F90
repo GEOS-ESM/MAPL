@@ -107,9 +107,9 @@ contains
 
    end subroutine add_message
 
-   function receive(this, rc) result(message)
-      class (AbstractMessage), pointer :: message
+   subroutine receive(this, message, rc)
       class (MockSocket), intent(inout) :: this
+      class (AbstractMessage), allocatable, intent(out) :: message
       integer, optional, intent(out) :: rc
 
       type (MessageVectorIterator) :: iter
@@ -132,10 +132,11 @@ contains
             call this%prefix("receive<PrefetchData('"//message%var_name//"')>")  
          end select
       else
-         message => null()
+         ! leave message unallocated.
+!#         message => null()
       end if
       _RETURN(_SUCCESS)
-   end function receive
+   end subroutine receive
 
 
    subroutine send(this, message, rc)

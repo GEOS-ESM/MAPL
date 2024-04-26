@@ -5,7 +5,7 @@ module MAPL_FileMetadataUtilsMod
    use MAPL_GridManagerMod
    use MAPL_AbstractGridFactoryMod
    use Mapl_keywordenforcermod
-   use gFTL_StringIntegerMap
+   use gFTL2_StringIntegerMap
    use ESMF
    use MAPL_ExceptionHandling
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32,INT64,INT32

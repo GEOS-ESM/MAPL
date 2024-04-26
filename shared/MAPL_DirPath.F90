@@ -3,7 +3,7 @@
 module MAPL_DirPathMod
    use MAPL_KeywordEnforcerMod
    use MAPL_Constants
-   use gFTL_StringVector
+   use gFTL2_StringVector
    private
 
    public :: DirPath
@@ -12,7 +12,7 @@ module MAPL_DirPathMod
    type, extends(StringVector) :: DirPath
       private
    contains
-      procedure :: find
+      procedure :: find => find_
       procedure :: append
    end type DirPath
 
@@ -20,7 +20,7 @@ module MAPL_DirPathMod
 
 contains
 
-   function find(this, file, unusable, rc) result(full_name)
+   function find_(this, file, unusable, rc) result(full_name)
       character(len=:), allocatable :: full_name
       class (DirPath), intent(in) :: this
       character(len=*), intent(in) :: file
@@ -35,7 +35,7 @@ contains
 
       iter = this%begin()
       do while (iter /= this%end())
-         dir => iter%get()
+         dir => iter%of()
          full_name = trim(dir) // '/' // file
          inquire(file=full_name, exist=exist)
          if (exist) then
@@ -53,7 +53,7 @@ contains
       end if
       
       
-   end function find
+   end function find_
 
 
    subroutine append(this, directory, unusable, rc)
