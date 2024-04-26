@@ -49,7 +49,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: request_id, status
-      class (AbstractMessage), pointer :: handshake_msg
+      class (AbstractMessage), allocatable :: handshake_msg
       class(AbstractSocket),pointer :: connection
       type (LocalMemReference) :: mem_data_reference
 
@@ -62,7 +62,8 @@ contains
            var_name, &
            data_reference,unusable=unusable,start=start),_RC)
 
-      handshake_msg => connection%receive()
+      call connection%receive(handshake_msg, _RC)
+
       deallocate(handshake_msg)
       associate (id => request_id)
 
@@ -98,7 +99,7 @@ contains
 
       integer :: request_id, status
 
-      class (AbstractMessage), pointer :: handshake_msg
+      class (AbstractMessage), allocatable :: handshake_msg
       class(AbstractSocket),pointer :: connection
       type (LocalMemReference) :: mem_data_reference
 
@@ -113,8 +114,7 @@ contains
            data_reference,unusable=unusable, start=start,&
            global_start=global_start,global_count=global_count),_RC)
 
-      handshake_msg => connection%receive()
-      deallocate(handshake_msg)
+      call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
 
            select type (data_reference)
@@ -146,7 +146,7 @@ contains
 
       integer :: request_id, status
 
-      class (AbstractMessage), pointer :: handshake_msg
+      class (AbstractMessage), allocatable :: handshake_msg
       class(AbstractSocket),pointer :: connection
       type (LocalMemReference) :: mem_data_reference
 
@@ -159,8 +159,7 @@ contains
            var_name, &
            data_reference),_RC)
 
-      handshake_msg => connection%receive()
-      deallocate(handshake_msg)
+      call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
 
          select type (data_reference)

@@ -97,9 +97,9 @@ contains
       _RETURN(_SUCCESS)
    end function new_MpiSocket
 
-   function receive(this, rc) result(message)
-      class (AbstractMessage), pointer :: message
+   subroutine receive(this, message, rc)
       class (MpiSocket), intent(inout) :: this
+      class (AbstractMessage), allocatable, intent(out) :: message
       integer, optional, intent(out) :: rc
 
       integer, allocatable :: buffer(:)
@@ -116,7 +116,7 @@ contains
 
       allocate(message, source=this%parser%decode(buffer))
       _RETURN(_SUCCESS)
-   end function receive
+   end subroutine receive
 
    subroutine send(this, message, rc)
       class (MpiSocket), target, intent(inout) :: this

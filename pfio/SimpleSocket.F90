@@ -77,15 +77,15 @@ contains
       socket%visitor => null()
    end function new_SimpleSocket
 
-   function receive(this, rc) result(message)
-      class (AbstractMessage), pointer:: message
+   subroutine receive(this, message, rc)
       class (SimpleSocket), intent(inout) :: this
+      class (AbstractMessage), allocatable, intent(out) :: message
       integer, optional, intent(out) :: rc
 
       _ASSERT(allocated(this%msg),"simple socket receive nothing")
       allocate(message, source=this%msg)
       _RETURN(_SUCCESS)
-   end function receive
+   end subroutine receive
 
    recursive subroutine send(this, message, rc)
       class (SimpleSocket), target, intent(inout) :: this
