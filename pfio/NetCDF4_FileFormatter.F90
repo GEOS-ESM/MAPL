@@ -731,7 +731,7 @@ contains
          dim_iter = var_dims%begin()
          idim = 1
          do while (dim_iter /= var_dims%end())
-            dim_name => dim_itexor%of()
+            dim_name => dim_iter%of()
             !$omp critical
             status = nf90_inq_dimid(this%ncid, dim_name, dimids(idim))
             !$omp end critical
