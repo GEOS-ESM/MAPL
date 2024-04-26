@@ -19,7 +19,7 @@ module MAPL_GriddedIOMod
   use pFIO_ClientManagerMod
   use MAPL_DataCollectionMod
   use MAPL_DataCollectionManagerMod
-  use gFTL_StringVector
+  use gFTL2_StringVector
   use gFTL_StringStringMap
   use MAPL_FileMetadataUtilsMod
   use MAPL_DownbitMod

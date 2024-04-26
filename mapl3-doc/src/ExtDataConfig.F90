@@ -2,7 +2,7 @@
 module MAPL_ExtDataConfig
    use ESMF
    use PFIO
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_ExtDataFileStream
@@ -379,7 +379,7 @@ contains
 
       string_iter = derived_items%begin()
       do while(string_iter /= derived_items%end() )
-         derived_name => string_iter%get()
+         derived_name => string_iter%of()
          derived_item => this%derived_map%at(derived_name)
          variables_in_expression = derived_item%get_variables_in_expression(_RC)
          ! now we have a stringvector of the variables involved in the expression

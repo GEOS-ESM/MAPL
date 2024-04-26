@@ -55,7 +55,7 @@ MODULE MAPL_NewArthParserMod
   use MAPL_FieldUtils
   use MAPL_CommsMod
   use MAPL_ExceptionHandling
-  use gFTL_StringVector
+  use gFTL2_StringVector
 
   IMPLICIT NONE
   !------- -------- --------- --------- --------- --------- --------- --------- -------

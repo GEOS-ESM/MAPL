@@ -3,7 +3,7 @@
 
 module pFIO_FileMetadataMod
    use mapl_KeywordEnforcerMod
-   use gFTL_StringIntegerMap
+   use gFTL2_StringIntegerMap
    use pFIO_StringIntegerMapUtilMod
    use pFIO_ConstantsMod
    use pFIO_UtilitiesMod
@@ -15,7 +15,7 @@ module pFIO_FileMetadataMod
    use pFIO_StringVariableMapMod
    use pFIO_StringVariableMapUtilMod
    use pFIO_StringAttributeMapMod
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use pFIO_StringVectorUtilMod
    implicit none
    private
@@ -365,11 +365,11 @@ contains
       character(len=:), pointer :: var_name
 
       _ASSERT(newOrder%size() == this%variables%size(),'New order must be same size as the variables')
-      call this%order%erase(this%order%begin(),this%order%end())
+      iter = this%order%erase(this%order%begin(),this%order%end())
       this%order = newOrder
       iter = this%order%begin()
       do while (iter/=this%order%end())
-         var_name => iter%get()
+         var_name => iter%of()
          var => this%variables%at(var_name)
          _ASSERT(associated(var),trim(var_name)//' not in metadata')
          call iter%next()
@@ -400,7 +400,7 @@ contains
       iter = dims%begin()
       do while (iter /= dims%end())
 
-         dim_name => iter%get()
+         dim_name => iter%of()
          dim_this => this%dimensions%at(dim_name)
          _ASSERT( associated(dim_this),"FileMetadata::add_variable() - undefined dimension: " // dim_name)
          shp =[shp,dim_this]
@@ -437,7 +437,7 @@ contains
       dims => var%get_dimensions()
       iter = dims%begin()
       do while (iter /= dims%end())
-         dim_name => iter%get()
+         dim_name => iter%of()
          dim_this => this%dimensions%at(dim_name)
          _ASSERT( associated(dim_this), "FileMetadata:: modify_variable() - undefined dimension " // dim_name )
          call iter%next()
@@ -459,9 +459,9 @@ contains
 
       viter = this%order%begin()
       do while (viter /= this%order%end())
-         if ( var_name == viter%get() ) then
-           call  this%order%erase(viter)
-           exit
+         if ( var_name == viter%of() ) then
+            viter = this%order%erase(viter)
+            exit
          endif
          call viter%next()
       enddo
@@ -528,8 +528,8 @@ contains
       dims => meta%get_dimensions()
       dim_iter = dims%begin()
       do while (dim_iter /= dims%end())
-        name => dim_iter%key()
-        extent = dim_iter%value()
+        name => dim_iter%first()
+        extent = dim_iter%second()
         call this%add_dimension(name, extent)
         call dim_iter%next()
       end do
@@ -585,13 +585,13 @@ contains
          iter = a%dimensions%begin()
          do while (iter /= a%dimensions%end())
 
-            dim_name => iter%key()
+            dim_name => iter%first()
             dim_b => b%dimensions%at(dim_name)
 
             equal = (associated(dim_b))
             if (.not. equal) return
 
-            dim_a => iter%value()
+            dim_a => iter%second()
             equal = (dim_a == dim_b)
             if (.not. equal) return
 
@@ -765,7 +765,7 @@ contains
       associate (e => dimensions%end())
         iter = dimensions%begin()
         do while (iter /= e)
-           write(unit, '(T8,a,1x,a,1x,i0,/)', iostat=iostat, iomsg=iomsg) iter%key(), "=" , iter%value()
+           write(unit, '(T8,a,1x,a,1x,i0,/)', iostat=iostat, iomsg=iomsg) iter%first(), "=" , iter%second()
            if (iostat /= 0) return
            call iter%next()
         end do

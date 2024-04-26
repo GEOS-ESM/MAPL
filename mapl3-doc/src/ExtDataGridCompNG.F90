@@ -27,7 +27,7 @@
 ! !USES:
 !
    USE ESMF
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use pfio_StringVectorUtilMod
    use gFTL_IntegerVector
    use MAPL_BaseMod
@@ -63,7 +63,7 @@
    use pflogger, only: logging, Logger
    use MAPL_ExtDataLogger
    use MAPL_ExtDataConstants
-   use gFTL_StringIntegerMap
+   use gFTL2_StringIntegerMap
 
    IMPLICIT NONE
    PRIVATE
@@ -351,7 +351,7 @@ CONTAINS
    extra_variables_needed = config_yaml%get_extra_derived_items(self%primary%import_names,self%derived%import_names,_RC)
    siter = extra_variables_needed%begin()
    do while(siter/=extra_variables_needed%end())
-      extra_var => siter%get()
+      extra_var => siter%of()
       idx = index(extra_var,",")
       primary_var_name = extra_var(:idx-1)
       derived_var_name = extra_var(idx+1:)

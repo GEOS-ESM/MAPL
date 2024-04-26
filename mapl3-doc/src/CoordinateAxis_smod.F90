@@ -3,7 +3,7 @@
 submodule (mapl3g_CoordinateAxis) CoordinateAxis_smod
    use esmf, only: ESMF_UtilStringLowerCase
    use mapl_ErrorHandling
-   use gftl_StringVector
+   use gftl2_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 
 contains

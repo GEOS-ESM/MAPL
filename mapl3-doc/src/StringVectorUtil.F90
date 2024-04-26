@@ -4,7 +4,7 @@
 module pFIO_StringVectorUtilMod
    use pFIO_UtilitiesMod
    use pFIO_AttributeMod
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use MAPL_ExceptionHandling
    implicit none
    private
@@ -25,7 +25,7 @@ contains
        allocate(buffer(0))
        iter = strVec%begin()
        do while (iter /= strVec%end())
-          str => iter%get()
+          str => iter%of()
           buffer=[buffer,serialize_intrinsic(str)]
           call iter%next()
        enddo
@@ -68,7 +68,7 @@ contains
       in_vector = .false.
       iter = string_vector%begin()
       do while(iter /= string_vector%end())
-         if (trim(target_string) == iter%get()) in_vector = .true.
+         if (trim(target_string) == iter%of()) in_vector = .true.
          call iter%next()
       enddo
    end function string_in_stringVector

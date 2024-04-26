@@ -160,17 +160,17 @@ contains
       class (ServerThread), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      class (AbstractMessage), pointer :: message
-      class(AbstractSocket),pointer :: connection
+      class (AbstractMessage), allocatable :: message
+      class(AbstractSocket), pointer :: connection
       integer :: status
 
       if (associated(ioserver_profiler)) call ioserver_profiler%start("wait_message")
       connection=>this%get_connection()
-      message => connection%receive()
+      call connection%receive(message, _RC)
+
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("wait_message")
-      if (associated(message)) then
+      if (allocated(message)) then
          call message%dispatch(this, _RC)
-         deallocate(message)
       end if
       _RETURN(_SUCCESS)
    end subroutine run
@@ -179,7 +179,7 @@ contains
       class (ServerThread), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      class (AbstractMessage), pointer :: message
+      class (AbstractMessage), allocatable :: message
       type(DoneMessage) :: dMessage
       class(AbstractSocket),pointer :: connection
       logical :: all_backlog_is_empty
@@ -197,11 +197,9 @@ contains
       endif
 
       connection=>this%get_connection()
-      message => connection%receive()
-      if (associated(message)) then
-         call message%dispatch(this, status)
-         _VERIFY(status)
-         deallocate(message)
+      call connection%receive(message, _RC)
+      if (allocated(message)) then
+         call message%dispatch(this, _RC)
       end if
       _RETURN(_SUCCESS)
    end subroutine run_done
@@ -222,7 +220,7 @@ contains
       type (DoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      class(AbstractMessage),pointer :: dMessage
+      class(AbstractMessage), pointer :: dMessage
       type (MessageVectorIterator) :: iter
       class (AbstractMessage), pointer :: msg
       integer :: status

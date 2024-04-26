@@ -9,7 +9,7 @@ module performace_CLI
    use MAPL_ExceptionHandling
    use pFIO
    use gFTL_StringVector
-   use gFTL_StringIntegerMap
+   use gFTL2_StringIntegerMap
    implicit none
    private
 

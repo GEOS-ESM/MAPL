@@ -23,8 +23,8 @@ module NCIOMod
   use netcdf
   use pFIO
   !use pFIO_ClientManagerMod
-  use gFTL_StringIntegerMap
-  use gFTL_StringVector
+  use gFTL2_StringIntegerMap
+  use gFTL2_StringVector
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
   use mpi
@@ -4200,7 +4200,7 @@ module NCIOMod
                 arrdes%collection_id(i) = oClients%add_hist_collection(cf)
                 call RstCollections%insert(trim(fname_by_writer), arrdes%collection_id(i))
              else
-                arrdes%collection_id(i) = iter%value()
+                arrdes%collection_id(i) = iter%second()
                 call oClients%modify_metadata(arrdes%collection_id(i), var_map = var_map, rc=status)
                 _VERIFY(status)
              endif
@@ -4213,7 +4213,7 @@ module NCIOMod
              arrdes%collection_id(1) = oClients%add_hist_collection(cf)
              call RstCollections%insert(trim(BundleName), arrdes%collection_id(1))
           else
-             arrdes%collection_id(1) = iter%value()
+             arrdes%collection_id(1) = iter%second()
              call oClients%modify_metadata(arrdes%collection_id(1), var_map = var_map, rc=status)
              _VERIFY(status)
           endif
@@ -4668,7 +4668,7 @@ module NCIOMod
 
          iter = dims%begin()
          do while (iter /= dims%end())
-            name => iter%key()
+            name => iter%first()
             newExtent => newDims%at(trim(name))
             if (associated(newExtent)) then
                call cfOut%modify_dimension(trim(name),newExtent,rc=status)

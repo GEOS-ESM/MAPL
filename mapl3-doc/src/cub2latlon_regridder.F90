@@ -17,8 +17,8 @@ module SupportMod
    use MAPL_Constants
    use MAPL_RangeMod
    use MAPL_StringRouteHandleMapMod
-   use gFTL_StringVector
-   use gFTL_StringIntegerMap
+   use gFTL2_StringVector
+   use gFTL2_StringIntegerMap
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT64
    use mpi
    implicit none
@@ -485,7 +485,7 @@ contains
          ll_dims = ''
          dim_iter = cs_dims%begin()
          do while (dim_iter /= cs_dims%end())
-            d => dim_iter%get()
+            d => dim_iter%of()
             select case (d)
             case ('Ydim')
                ll_dims = ll_dims // 'lat' // pFIO_DIMENSION_SEPARATOR
