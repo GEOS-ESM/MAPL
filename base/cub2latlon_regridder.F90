@@ -18,7 +18,7 @@ module SupportMod
    use MAPL_RangeMod
    use MAPL_StringRouteHandleMapMod
    use gFTL_StringVector
-   use gFTL_StringIntegerMap
+   use gFTL2_StringIntegerMap
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT64
    use mpi
    implicit none

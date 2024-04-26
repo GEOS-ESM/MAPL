@@ -159,7 +159,7 @@ contains
    
 
    subroutine init(this, options, comm, d_s)
-      use gFTL_StringIntegerMap
+      use gFTL2_StringIntegerMap
       class (FakeExtData), intent(inout) :: this
       type (CommandLineOptions), intent(in) :: options
       integer, intent(in) :: comm

@@ -63,7 +63,7 @@
    use pflogger, only: logging, Logger
    use MAPL_ExtDataLogger
    use MAPL_ExtDataConstants
-   use gFTL_StringIntegerMap
+   use gFTL2_StringIntegerMap
 
    IMPLICIT NONE
    PRIVATE

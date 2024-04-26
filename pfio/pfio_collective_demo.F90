@@ -158,7 +158,7 @@ contains
    
 
    subroutine init(this, options, comm, d_s, port_name)
-      use gFTL_StringIntegerMap
+      use gFTL2_StringIntegerMap
       class (FakeExtData),target, intent(inout) :: this
       type (CommandLineOptions), intent(in) :: options
       integer, intent(in) :: comm
