@@ -6,7 +6,7 @@ module mapl3g_MaplGeom
    use mapl3g_GeomFactory
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Geom
-   use gftl_StringVector
+   use gftl2_StringVector
    implicit none
    private
 
@@ -24,12 +24,12 @@ module mapl3g_MaplGeom
    ! MaplGeom encapsulates an ESMF Geom object and various items associated
    ! with that object.
    type :: MaplGeom
-      private
+!#      private
       class(GeomSpec), allocatable :: spec
       type(ESMF_Geom) :: geom
+      class(GeomFactory), allocatable :: factory
       type(FileMetadata) :: file_metadata
       type(StringVector) :: gridded_dims ! center staggered
-      class(GeomFactory), allocatable :: factory
 
       ! Derived - lazy initialization
       type(VectorBases) :: bases
