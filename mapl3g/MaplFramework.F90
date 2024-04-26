@@ -10,6 +10,10 @@ module mapl3g_MaplFramework
    use mapl_KeywordEnforcerMod
    use mapl_profiler, only: DistributedProfiler
    use pfio_DirectoryServiceMod, only: DirectoryService
+   use pfio_ClientManagerMod
+   use pfio_MpiServerMod, only: MpiServer
+   use pfio_ClientThreadMod, only: ClientThread
+   use pfio_AbstractDirectoryServiceMod, only: PortInfo
    use pflogger, only: logging
    use pflogger, only: Logger
    use esmf, only: ESMF_IsInitialized
@@ -27,12 +31,14 @@ module mapl3g_MaplFramework
       private
       logical :: initialized = .false.
       type(DirectoryService) :: directory_service
+      type(MpiServer), pointer :: o_server => null()
       type(DistributedProfiler) :: time_profiler
    contains
       procedure :: initialize
       procedure :: get
       procedure :: is_initialized
       procedure :: finalize
+      procedure :: initialize_simple_oserver
    end type MaplFramework
 
    ! Private singleton object.  Used 
@@ -79,11 +85,38 @@ contains
 #endif
 !#      call initialize_profiler(comm=comm_world, enable_global_timeprof=enable_global_timeprof, enable_global_memprof=enable_global_memprof, _RC)
 
+      call this%initialize_simple_oserver(_RC)
+
       this%initialized = .true.
 
       _RETURN(_SUCCESS)
    end subroutine initialize
-      
+
+   subroutine initialize_simple_oserver(this, unusable, rc)
+      class(MaplFramework), target, intent(inout) :: this
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status, stat_alloc, comm_world
+      type(ESMF_VM) :: vm
+      type(ClientThread), pointer :: clientPtr
+
+      call ESMF_VMGetCurrent(vm, _RC)
+      call ESMF_VMGet(vm, mpiCommunicator=comm_world, _RC)
+
+      this%directory_service = DirectoryService(comm_world)
+      call init_IO_ClientManager(comm_world, _RC)
+      allocate(this%o_server, source = MpiServer(comm_world, 'o_server', rc=status), stat=stat_alloc)
+      _VERIFY(status)
+      _VERIFY(stat_alloc)
+      call this%directory_service%publish(PortInfo('o_server', this%o_server), this%o_server)
+      clientPtr => o_Clients%current()
+      call this%directory_service%connect_to_server('o_server', clientPtr, comm_world)
+ 
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize_simple_oserver
+ 
    subroutine get(this, unusable, directory_service, rc)
       class(MaplFramework), target, intent(in) :: this
       class(KeywordEnforcer), optional, intent(out) :: unusable
@@ -111,6 +144,7 @@ contains
 
 !#      call finalize_profiler(_RC)
       call logging%free()
+      call this%directory_service%free_directory_resources()
       
       _RETURN(_SUCCESS)
    end subroutine finalize
