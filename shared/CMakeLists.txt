@@ -34,7 +34,7 @@ set (srcs
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.constants GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.constants GFTL_SHARED::gftl-shared GFTL_SHARED::gftl-shared-v2 MPI::MPI_Fortran PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
 
 # We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
 # interfaces (e.g. MPI) that allow multiple types for the same argument (eg buffer).

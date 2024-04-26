@@ -27,7 +27,7 @@ contains
       type (SimpleSocket),target :: server_connection
       class(BaseThread), pointer :: visitor
       class(AbstractSocket), pointer :: connection
-      class(AbstractMessage), pointer :: msg
+      class(AbstractMessage), allocatable:: msg
      
       server_connection = SimpleSocket()
       call s%set_connection(server_connection)
@@ -36,7 +36,7 @@ contains
       @assertEqual('handle_Terminate()', s%log)
       visitor =>client_connection%visitor
       connection=>visitor%get_connection()
-      msg => connection%receive()
+      call connection%receive(msg)
       @assertEqual(TERMINATE_ID,msg%get_type_id())
    end subroutine test_send_terminate
 
@@ -47,7 +47,7 @@ contains
       type (SimpleSocket) :: server_connection
       class(BaseThread), pointer :: visitor
       class(AbstractSocket), pointer :: connection
-      class(AbstractMessage), pointer :: msg
+      class(AbstractMessage), allocatable :: msg
 
       call s%set_connection(server_connection)
       call client_connection%set_visitor(s)
@@ -55,7 +55,7 @@ contains
       @assertEqual('handle_Done()', s%log)
       visitor =>client_connection%visitor
       connection=>visitor%get_connection()
-      msg => connection%receive()
+      call connection%receive(msg)
       @assertEqual(DONE_ID,msg%get_type_id())
    end subroutine test_send_done
 

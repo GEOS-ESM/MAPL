@@ -1,7 +1,7 @@
 program main
   use MAPL_ExceptionHandling
   use pFIO
-  use gFTL_StringVector
+  use gFTL2_StringVector
   use gFTL_StringIntegerMap
   use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
   use, intrinsic :: iso_fortran_env, only: REAL32

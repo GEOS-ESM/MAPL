@@ -9,7 +9,7 @@
 !
 module server_demo_CLI
    use MAPL_ExceptionHandling
-   use gFTL_StringVector
+   use gFTL2_StringVector
    implicit none
    private
 
@@ -120,7 +120,7 @@ end module server_demo_CLI
 module FakeExtDataMod_server
    use server_demo_CLI
    use pFIO
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
@@ -159,7 +159,7 @@ contains
    
 
    subroutine init(this, options, comm, d_s)
-      use gFTL_StringIntegerMap
+      use gFTL2_StringIntegerMap
       class (FakeExtData), intent(inout) :: this
       type (CommandLineOptions), intent(in) :: options
       integer, intent(in) :: comm

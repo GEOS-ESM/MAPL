@@ -7,8 +7,8 @@
 module ctest_io_CLI
    use MAPL_ExceptionHandling
    use pFIO
-   use gFTL_StringVector
-   use gFTL_StringIntegerMap
+   use gFTL2_StringVector
+   use gFTL2_StringIntegerMap
    implicit none
    private
 
@@ -147,8 +147,8 @@ module FakeHistData0Mod
    use MAPL_ExceptionHandling
    use ctest_io_CLI
    use pFIO
-   use gFTL_StringVector
-   use gFTL_StringIntegerMap
+   use gFTL2_StringVector
+   use gFTL2_StringIntegerMap
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
@@ -571,7 +571,7 @@ program main
       endif
 
    enddo
- 
+
    ! app + ocilent comm
    my_ocomm = MPI_COMM_NULL
    do k = 1, N_oclient_group

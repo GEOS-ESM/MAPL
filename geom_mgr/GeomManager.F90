@@ -155,7 +155,7 @@ module mapl3g_GeomManager
 
 
       module function make_mapl_geom_from_spec(this, spec, rc) result(mapl_geom)
-         use gftl_StringVector
+         use gftl2_StringVector
          type(MaplGeom) :: mapl_geom
          class(GeomManager), target, intent(inout) :: this
          class(GeomSpec), intent(in) :: spec

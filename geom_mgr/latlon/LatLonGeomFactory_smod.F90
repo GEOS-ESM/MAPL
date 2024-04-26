@@ -9,7 +9,7 @@ submodule (mapl3g_LatLonGeomFactory) LatLonGeomFactory_smod
    use mapl_ErrorHandlingMod
    use mapl_Constants
    use pFIO
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    implicit none
