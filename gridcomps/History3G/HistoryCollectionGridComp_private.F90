@@ -263,17 +263,14 @@ contains
       character(len=*), intent(in) :: expression
       integer, optional, intent(out) :: rc
       integer :: status
-!wdb fixme Temporary workaround until function returns gFTL2 StringVector
-!Once it returns gFTL2 String Vector, these two variables become type(StringVector) and type(StringVectorIterator)
-      type(StringVectorV1) :: raw_vars
-      type(StringVectorIteratorV1) :: iter
-!wdb fixme Temporary workaround until function returns gFTL2 StringVector (END)
+      type(StringVector) :: raw_vars
+      type(StringVectorIterator) :: iter
       character(len=:), allocatable :: varname
 
       raw_vars = parser_variables_in_expression(expression, _RC)
       iter = raw_vars%begin()
       do while(iter /= raw_vars%end())
-        varname = replace_delimiter(iter%get())
+        varname = replace_delimiter(iter%of())
         call variables%push_back(varname) 
         call iter%next()
       end do
