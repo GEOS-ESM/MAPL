@@ -15,7 +15,7 @@ module pFIO_FileMetadataMod
    use pFIO_StringVariableMapMod
    use pFIO_StringVariableMapUtilMod
    use pFIO_StringAttributeMapMod
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use pFIO_StringVectorUtilMod
    implicit none
    private
@@ -365,11 +365,11 @@ contains
       character(len=:), pointer :: var_name
 
       _ASSERT(newOrder%size() == this%variables%size(),'New order must be same size as the variables')
-      call this%order%erase(this%order%begin(),this%order%end())
+      iter = this%order%erase(this%order%begin(),this%order%end())
       this%order = newOrder
       iter = this%order%begin()
       do while (iter/=this%order%end())
-         var_name => iter%get()
+         var_name => iter%of()
          var => this%variables%at(var_name)
          _ASSERT(associated(var),trim(var_name)//' not in metadata')
          call iter%next()
@@ -400,7 +400,7 @@ contains
       iter = dims%begin()
       do while (iter /= dims%end())
 
-         dim_name => iter%get()
+         dim_name => iter%of()
          dim_this => this%dimensions%at(dim_name)
          _ASSERT( associated(dim_this),"FileMetadata::add_variable() - undefined dimension: " // dim_name)
          shp =[shp,dim_this]
@@ -437,7 +437,7 @@ contains
       dims => var%get_dimensions()
       iter = dims%begin()
       do while (iter /= dims%end())
-         dim_name => iter%get()
+         dim_name => iter%of()
          dim_this => this%dimensions%at(dim_name)
          _ASSERT( associated(dim_this), "FileMetadata:: modify_variable() - undefined dimension " // dim_name )
          call iter%next()
@@ -459,9 +459,9 @@ contains
 
       viter = this%order%begin()
       do while (viter /= this%order%end())
-         if ( var_name == viter%get() ) then
-           call  this%order%erase(viter)
-           exit
+         if ( var_name == viter%of() ) then
+            viter = this%order%erase(viter)
+            exit
          endif
          call viter%next()
       enddo

@@ -13,7 +13,7 @@ module pFIO_NetCDF4_FileFormatterMod
    use pFIO_CoordinateVariableMod
    use pFIO_FileMetadataMod
    use mapl_KeywordEnforcerMod
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use gFTL2_StringIntegerMap
    use pFIO_StringVariableMapMod
    use pFIO_StringAttributeMapMod
@@ -715,7 +715,7 @@ contains
       order = cf%get_order()
       var_iter = order%begin()
       do while (var_iter /= order%end())
-         var_name => var_iter%get()
+         var_name => var_iter%of()
          if ( present (varname)) then
            if (var_name /= varname) then
              call var_iter%next()
@@ -731,7 +731,7 @@ contains
          dim_iter = var_dims%begin()
          idim = 1
          do while (dim_iter /= var_dims%end())
-            dim_name => dim_iter%get()
+            dim_name => dim_itexor%of()
             !$omp critical
             status = nf90_inq_dimid(this%ncid, dim_name, dimids(idim))
             !$omp end critical

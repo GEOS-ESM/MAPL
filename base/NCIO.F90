@@ -24,7 +24,7 @@ module NCIOMod
   use pFIO
   !use pFIO_ClientManagerMod
   use gFTL2_StringIntegerMap
-  use gFTL_StringVector
+  use gFTL2_StringVector
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
   use mpi

@@ -20,7 +20,7 @@ module MAPL_ESMFFieldBundleRead
    use MAPL_GriddedIOItemVectorMod
    use MAPL_SimpleAlarm
    use MAPL_StringTemplate
-   use gFTL_StringVector
+   use gFTL2_StringVector
    implicit none
    private
 
@@ -87,7 +87,7 @@ module MAPL_ESMFFieldBundleRead
                dimensions => this_variable%get_dimensions()
                dim_iter = dimensions%begin()
                do while (dim_iter /= dimensions%end())
-                  dim_name => dim_iter%get()
+                  dim_name => dim_iter%of()
                   if (trim(dim_name) == lev_name) var_has_levels=.true.
                   call dim_iter%next()
                enddo

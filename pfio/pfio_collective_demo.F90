@@ -6,7 +6,7 @@
 
 module collective_demo_CLI
    use MAPL_ExceptionHandling
-   use gFTL_StringVector
+   use gFTL2_StringVector
    implicit none
    private
 
@@ -119,7 +119,7 @@ module FakeExtDataMod_collective
    use MAPL_ExceptionHandling
    use collective_demo_CLI
    use pFIO
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private

@@ -24,7 +24,7 @@ module mapl3g_MaplGeom
    ! MaplGeom encapsulates an ESMF Geom object and various items associated
    ! with that object.
    type :: MaplGeom
-!#      private
+      private
       class(GeomSpec), allocatable :: spec
       type(ESMF_Geom) :: geom
       class(GeomFactory), allocatable :: factory
