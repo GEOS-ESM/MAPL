@@ -5,7 +5,7 @@ module mapl3g_BundleWriter
    use esmf
    use pfio
    use mapl3g_geom_mgr
-   use gftl_StringVector
+   use gFTL2_StringVector
    implicit none
    private
 
@@ -129,18 +129,14 @@ module mapl3g_BundleWriter
             type(StringVector), intent(in) :: string_vec
             type(stringVectorIterator) :: iter
             character(len=:), pointer :: var
-            logical :: first
-         
-            first = .true. 
+
             iter = string_vec%begin()
-            do while (iter /= string_Vec%end())
-               var => iter%get()
-               if (first) then
-                  comma_sep = var
-                  first = .false.
-               else
-                  comma_sep = comma_sep//","//var
-               endif
+            var => iter%of()
+            comma_sep = var
+            call iter%next()
+            do while (iter /= string_vec%end())
+               var => iter%of()
+               comma_sep = comma_sep//","//var
                call iter%next()
             enddo
          end function 
