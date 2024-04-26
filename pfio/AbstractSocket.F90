@@ -17,14 +17,14 @@ module pFIO_AbstractSocketMod
    abstract interface
 
 
-      function receive(this, rc) result(message)
+      subroutine receive(this, message, rc)
          use pFIO_AbstractMessageMod
          import AbstractSocket
          implicit none
-         class (AbstractMessage), pointer :: message
+         class (AbstractMessage), allocatable, intent(out) :: message
          class (AbstractSocket), intent(inout) :: this
          integer, optional, intent(out) :: rc
-      end function receive
+      end subroutine receive
 
 
       subroutine send(this, message, rc)

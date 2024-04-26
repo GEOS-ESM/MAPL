@@ -6,7 +6,7 @@ module MAPL_DataCollectionMod
   use MAPL_FileMetadataUtilsMod
   use MAPL_GridManagerMod
   use MAPL_AbstractGridFactoryMod
-  use gFTL_StringIntegerMap
+  use gFTL2_StringIntegerMap
   use esmf
   use mapl_ErrorHandlingMod
   implicit none
@@ -79,9 +79,9 @@ contains
 
           iter = this%file_ids%begin()
           do while (iter /= this%file_ids%end())
-             file_id => iter%value()
+             file_id => iter%second()
              if (file_id == 1) then
-                call this%file_ids%erase(iter)
+                iter = this%file_ids%erase(iter)
                 exit
              end if
              call iter%next()
@@ -90,7 +90,7 @@ contains
           ! Fix the old file_id's accordingly
           iter = this%file_ids%begin()
           do while (iter /= this%file_ids%end())
-             file_id => iter%value()
+             file_id => iter%second()
              file_id = file_id -1
              call iter%next()
           end do

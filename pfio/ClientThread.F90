@@ -112,13 +112,14 @@ contains
       character(len=*), intent(in) :: template
       integer, optional, intent(out) :: rc
 
-      class (AbstractMessage), pointer :: message
+      class (AbstractMessage), allocatable :: message
       class(AbstractSocket),pointer :: connection
       integer :: status
 
       connection=>this%get_connection()
       call connection%send(AddExtCollectionMessage(template),_RC)
-      message => connection%receive()
+      call connection%receive(message, _RC)
+
       select type(message)
       type is(IDMessage)
         collection_id = message%id
@@ -136,13 +137,14 @@ contains
       integer, optional, intent(in) :: mode
       integer, optional, intent(out) :: rc
 
-      class (AbstractMessage), pointer :: message
+      class (AbstractMessage), allocatable :: message
       class(AbstractSocket), pointer :: connection
+      integer :: status
 
       connection=>this%get_connection()
       call connection%send(AddHistCollectionMessage(fmd, mode=mode))
 
-      message => connection%receive()
+      call connection%receive(message, _RC)
       select type(message)
       type is(IDMessage)
         hist_collection_id = message%id
@@ -166,7 +168,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: request_id
-      class (AbstractMessage), pointer :: handshake_msg
+      class (AbstractMessage), allocatable :: handshake_msg
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -179,8 +181,7 @@ contains
            var_name, &
            data_reference,unusable=unusable,start=start),_RC)
 
-      handshake_msg => connection%receive()
-      deallocate(handshake_msg)
+      call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the get call iRecv
         call this%insert_RequestHandle(id, connection%get(id, data_reference))
@@ -195,7 +196,7 @@ contains
       type (StringVariableMap), optional,intent(in) :: var_map
       integer, optional, intent(out) :: rc
 
-      class (AbstractMessage), pointer :: handshake_msg
+      class (AbstractMessage), allocatable :: handshake_msg
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -204,8 +205,7 @@ contains
            collection_id, &
            var_map=var_map),_RC)
 
-      handshake_msg => connection%receive()
-      deallocate(handshake_msg)
+      call connection%receive(handshake_msg, _RC)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine modify_metadata
@@ -216,15 +216,14 @@ contains
       type (FileMetadata),intent(in) :: fmd
       integer, optional, intent(out) :: rc
 
-      class (AbstractMessage), pointer :: handshake_msg
+      class (AbstractMessage), allocatable :: handshake_msg
       class(AbstractSocket),pointer :: connection
       integer :: status
 
       connection=>this%get_connection()
       call connection%send(ReplaceMetadataMessage(collection_id,fmd),_RC)
 
-      handshake_msg => connection%receive()
-      deallocate(handshake_msg)
+      call  connection%receive(handshake_msg, _RC)
       _RETURN(_SUCCESS)
    end subroutine replace_metadata
 
@@ -243,7 +242,7 @@ contains
 
       integer :: request_id
 
-      class (AbstractMessage), pointer :: handshake_msg
+      class (AbstractMessage), allocatable :: handshake_msg
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -258,8 +257,7 @@ contains
            data_reference,unusable=unusable, start=start,&
            global_start=global_start,global_count=global_count),_RC)
 
-      handshake_msg => connection%receive()
-      deallocate(handshake_msg)
+      call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the get call iRecv
         call this%insert_RequestHandle(id, connection%get(id, data_reference))
@@ -280,7 +278,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: request_id
-      class (AbstractMessage), pointer :: handshake_msg
+      class (AbstractMessage), allocatable :: handshake_msg
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -293,8 +291,7 @@ contains
            var_name, &
            data_reference,unusable=unusable,start=start),_RC)
 
-      handshake_msg => connection%receive()
-      deallocate(handshake_msg)
+      call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the put call iSend
         call this%insert_RequestHandle(id, connection%put(id, data_reference))
@@ -317,7 +314,7 @@ contains
 
       integer :: request_id
 
-      class (AbstractMessage), pointer :: handshake_msg
+      class (AbstractMessage), allocatable :: handshake_msg
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -332,8 +329,7 @@ contains
            data_reference,unusable=unusable, start=start,&
            global_start=global_start,global_count=global_count),_RC)
 
-      handshake_msg => connection%receive()
-      deallocate(handshake_msg)
+      call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the put call iSend
         call this%insert_RequestHandle(id, connection%put(id, data_reference))
@@ -352,8 +348,9 @@ contains
 
 
       integer :: request_id
+      integer :: status
 
-      class (AbstractMessage), pointer :: handshake_msg
+      class (AbstractMessage), allocatable :: handshake_msg
       class(AbstractSocket),pointer :: connection
 
       request_id = this%get_unique_collective_request_id()
@@ -365,8 +362,7 @@ contains
            var_name, &
            data_reference))
 
-      handshake_msg => connection%receive()
-      deallocate(handshake_msg)
+      call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the put call iSend
         call this%insert_RequestHandle(id, connection%put(id, data_reference))
@@ -379,14 +375,12 @@ contains
       integer, optional, intent(out) :: rc
       class(AbstractSocket),pointer :: connection
 
-      class (AbstractMessage), pointer :: handshake_msg
+      class (AbstractMessage), allocatable :: handshake_msg
       integer :: status
 
       connection=>this%get_connection()
       call connection%send(HandShakeMessage(),_RC)
-
-      handshake_msg => connection%receive()
-      deallocate(handshake_msg)
+      call connection%receive(handshake_msg, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine shake_hand

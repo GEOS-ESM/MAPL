@@ -142,15 +142,15 @@ contains
    end function encode
 
    
-   function decode(this, buffer) result(message)
+   subroutine decode(this, buffer, message)
       class (ProtocolParser), intent(in) :: this
-      class (AbstractMessage), allocatable :: message
+      class (AbstractMessage), allocatable, intent(out) :: message
       integer, intent(in) :: buffer(:)
 
       allocate(message, source=this%prototypes%at(buffer(1)))
       call message%deserialize(buffer(2:))
       
-   end function decode
+   end subroutine decode
 
 
 end module pFIO_ProtocolParserMod
