@@ -5,8 +5,8 @@ module mapl3g_HistoryCollectionGridComp_private
    use mapl3g_VariableSpec
    use esmf
    use Mapl_ErrorHandling
-   use gFTL2_StringVector, only: StringVector, StringVectorIterator
-   use gFTL_StringVector, only: StringVectorV1 => StringVector, StringVectorIteratorV1 => StringVectorIterator
+   use gFTL2_StringVector
+   use gFTL_StringVector, StringVectorV1 => StringVector, StringVectorIteratorV1 => StringVectorIterator
    use mapl3g_geom_mgr
    use MAPL_NewArthParserMod, only: parser_variables_in_expression
 
@@ -24,12 +24,9 @@ module mapl3g_HistoryCollectionGridComp_private
       module procedure :: replace_delimiter_expression
    end interface replace_delimiter
 
-   interface convert_string_vector
-      module procedure :: convert_string_vector_v2
-   end interface convert_string_vector
-
    character(len=*), parameter :: VARIABLE_DELIMITER = '.'
    character(len=*), parameter :: DELIMITER_REPLACEMENT = '/'
+   character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
 
 contains
 
@@ -56,7 +53,6 @@ contains
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
-      character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: var_list
       character(len=:), allocatable :: item_name
@@ -120,7 +116,7 @@ contains
       logical :: asOK, isScalar, isMap
       type(ESMF_HConfig) :: value
       character(len=:), allocatable :: expression
-      type(StringVectorV1) :: v1svector
+
 
       isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
       _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
@@ -134,8 +130,7 @@ contains
       value = ESMF_HConfigCreateAtMapVal(item, _RC)
       expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
       expression = replace_delimiter(expression, VARIABLE_DELIMITER, DELIMITER_REPLACEMENT)
-      v1svector = parser_variables_in_expression(expression, _RC) !wdb fixme Temporary workaround until function returns gFTL2 StringVector
-      short_names = convert_string_vector(v1svector)
+      short_names = get_expression_variables(expression, _RC) !wdb fixme Temporary workaround until function returns gFTL2 StringVector
 
       _RETURN(_SUCCESS)
    end subroutine parse_item_expression
@@ -171,14 +166,15 @@ contains
       type(StringVector), intent(in) :: names
       integer, optional, intent(out) :: rc
       integer :: status
-      type(StringVectorIterator) :: iter
+      type(StringVectorIterator) :: ftn_iter, ftn_end
       type(VariableSpec) :: varspec
 
-      iter = names%begin()
-      do while(iter /= names%end())
-         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, iter%of(), vertical_dim_spec=VERTICAL_DIM_MIRROR)
+      ftn_end = names%ftn_end()
+      ftn_iter = names%ftn_begin()
+      do while (ftn_iter /= ftn_end)
+         call ftn_iter%next()
+         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, ftn_iter%of(), vertical_dim_spec=VERTICAL_DIM_MIRROR)
          call MAPL_AddSpec(gridcomp, varspec, _RC)
-         call iter%next()
       end do
 
       _RETURN(_SUCCESS)
@@ -224,16 +220,20 @@ contains
 
    end function replace_delimiter_simple
 
-   function convert_string_vector_v2(svector1) result(svector)
-      type(StringVector) :: svector
+   function get_expression_variables(expression, rc) result(variables)
+      type(StringVector) :: variables
+      character(len=*), intent(in) :: expression
+      integer, optional, intent(out) :: rc
+      integer :: status
       type(StringVectorV1) :: svector1
       type(StringVectorIteratorV1) :: iter
 
+      svector1 = parser_variables_in_expression(expression, _RC)
       iter = svector1%begin()
       do while(iter /= svector1%end())
-        call svector%push_back(iter%get()) 
+        call variables%push_back(iter%get()) 
       end do
 
-   end function convert_string_vector_v2
+   end function get_expression_variables
 
 end module mapl3g_HistoryCollectionGridComp_private
