@@ -260,7 +260,7 @@ contains
          _ASSERT(found, "run phase: <"//phase_name//"> not found.")
       end if
 
-      call child%run(phase_idx=phase_idx, _RC)
+      call child%run(phase_idx=phase_idx+size(GENERIC_RUN_PHASES), _RC)
 
       _RETURN(_SUCCESS)
    end subroutine run_child_by_name
@@ -734,7 +734,7 @@ contains
            call drvr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
         end do
       end associate
-      
+
       call this%user_gc_driver%run(phase_idx=phase, _RC)
    
       export_couplers => this%registry%get_export_couplers()

@@ -186,7 +186,7 @@ contains
       integer :: status
       type(ESMF_Clock) :: clock
       type(ESMF_Time) :: currTime, stopTime
-      
+
       clock = driver%get_clock()
       call ESMF_ClockGet(clock, currTime=currTime, stopTime=stopTime, _RC)
 
