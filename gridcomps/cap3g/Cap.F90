@@ -192,8 +192,9 @@ contains
 
       do while (currTime < stopTime)
          ! TODO:  include Bill's monitoring log messages here
-         call driver%run(_RC)
-         call ESMF_ClockAdvance(clock, _RC)
+         call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+         call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+         call driver%clock_advance(_RC)
          call ESMF_ClockGet(clock, currTime=currTime, _RC)
       end do
       call ESMF_TimePrint(currTime, options='string', preString='Cap time after loop: ', _RC)

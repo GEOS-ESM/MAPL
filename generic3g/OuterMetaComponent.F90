@@ -94,7 +94,7 @@ module mapl3g_OuterMetaComponent
       procedure :: initialize_post_advertise
       procedure :: initialize_realize
 
-      procedure :: run
+      procedure :: run_user
       procedure :: run_clock_advance
       procedure :: finalize
       procedure :: read_restart
@@ -702,7 +702,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine run_custom
 
-   recursive subroutine run(this, phase_name, unusable, rc)
+   recursive subroutine run_user(this, phase_name, unusable, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       ! optional arguments
       character(len=*), optional, intent(in) :: phase_name
@@ -721,15 +721,9 @@ contains
       type(ActualPtComponentDriverMapIterator) :: iter
       type(GriddedComponentDriver), pointer :: drvr
 
-      select case (phase_name)
-      case ('GENERIC::RUN_CLOCK_ADVANCE')
-         call this%run_clock_advance(_RC)
-         _RETURN(_SUCCESS)
-      end select
-
       run_phases => this%get_phases(ESMF_METHOD_RUN)
       phase = get_phase_index(run_phases, phase_name, found=found)
-      _RETURN_UNLESS(found)
+      _ASSERT(found, 'phase <'//phase_name//'> not found for gridcomp <'//this%get_name()//'>')
       
       import_couplers => this%registry%get_import_couplers()
       associate (e => import_couplers%ftn_end())
@@ -755,24 +749,10 @@ contains
 
       
       _RETURN(ESMF_SUCCESS)
-   end subroutine run
-
-   ! TODO: Not sure how this should actually work.  One option is that
-   ! all gridcomp drivers advance their clock in one sweep of the
-   ! hierarchy.  This will unfortunately advance the clock too often
-   ! for components that run less frequently.  An alternative is that
-   ! parent components must advace the clock of their children, which
-   ! is fine except that existing GEOS gridcomps do not do this, and
-   ! it will be the source of subtle runtime errors.  Yet another
-   ! option would be to designate a specific run phase as the "advance
-   ! clock" phase during set services.  (Default with one phase will
-   ! also be the advance clock phase.)  Then OuterMetaComponent can be
-   ! responsible and only do it when that child's run phase happens
-   ! (alarm is ringing)
-   
+   end subroutine run_user
 
    recursive subroutine run_clock_advance(this, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
