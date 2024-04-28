@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.1% of total for source files.">198 statements</a>
+                 title=" 0.1% of total for source files.">200 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -310,18 +310,18 @@
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M351.85,-553.98C332.57,-544.28 308.59,-528.74 296,-507.18 252.56,-432.78 313.24,-188.91 260,-121.18 259.31,-120.3 258.58,-119.45 257.81,-118.64"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="260.03,-115.93 250.08,-112.27 255.58,-121.34 260.03,-115.93"/>
 </g>
-<!-- sourcefile~mapl_profiler.f90 -->
+<!-- sourcefile~mapl_profiler.f90~2 -->
 <g id="sourcefile~~cap.f90~~EfferentGraph_node16" class="node">
-<title>sourcefile~mapl_profiler.f90</title>
-<g id="a_sourcefile~~cap.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/mapl_profiler.f90.html" xlink:title="MAPL_Profiler.F90">
+<title>sourcefile~mapl_profiler.f90~2</title>
+<g id="a_sourcefile~~cap.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/mapl_profiler.f90~2.html" xlink:title="MAPL_Profiler.F90">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="250.5,-620.18 145.5,-620.18 145.5,-596.18 250.5,-596.18 250.5,-620.18"/>
 <text text-anchor="middle" x="198" y="-605.78" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Profiler.F90</text>
 </a>
 </g>
 </g>
-<!-- sourcefile~applicationsupport.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<!-- sourcefile~applicationsupport.f90&#45;&gt;sourcefile~mapl_profiler.f90~2 -->
 <g id="sourcefile~~cap.f90~~EfferentGraph_edge11" class="edge">
-<title>sourcefile~applicationsupport.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<title>sourcefile~applicationsupport.f90&#45;&gt;sourcefile~mapl_profiler.f90~2</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M328.85,-578.21C307.53,-583.13 282.72,-588.86 260.52,-593.98"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="259.49,-590.62 250.53,-596.28 261.06,-597.45 259.49,-590.62"/>
 </g>
@@ -951,23 +951,24 @@ large graphs.</div>
 <a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
 <a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
 <a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="n">stopTime</span>
-<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">      </span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a>
 <a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">      </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">driver</span><span class="p">%</span><span class="n">get_clock</span><span class="p">()</span>
 <a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_ClockGet</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">currTime</span><span class="o">=</span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="n">stopTime</span><span class="o">=</span><span class="n">stopTime</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-192" name="ln-192" href="#ln-192"></a>
 <a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">      </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">currTime</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">stopTime</span><span class="p">)</span>
 <a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">         </span><span class="c">! TODO:  include Bill&#39;s monitoring log messages here</span>
-<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">         </span><span class="k">call </span><span class="n">driver</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="w">         </span><span class="k">call </span><span class="n">ESMF_ClockAdvance</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">         </span><span class="k">call </span><span class="n">ESMF_ClockGet</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">currTime</span><span class="o">=</span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="w">      </span><span class="k">end do</span>
-<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="k">      call </span><span class="n">ESMF_TimePrint</span><span class="p">(</span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="k">options</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">preString</span><span class="o">=</span><span class="s1">&#39;Cap time after loop: &#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-200" name="ln-200" href="#ln-200"></a>
-<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">      </span>
-<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">integrate</span>
-<a id="ln-204" name="ln-204" href="#ln-204"></a>
-<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="k">end module </span><span class="n">mapl3g_Cap</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">         </span><span class="k">call </span><span class="n">driver</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">phase_idx</span><span class="o">=</span><span class="n">GENERIC_RUN_USER</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="w">         </span><span class="k">call </span><span class="n">driver</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">phase_idx</span><span class="o">=</span><span class="n">GENERIC_RUN_CLOCK_ADVANCE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">         </span><span class="k">call </span><span class="n">driver</span><span class="p">%</span><span class="n">clock_advance</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="w">         </span><span class="k">call </span><span class="n">ESMF_ClockGet</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">currTime</span><span class="o">=</span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">      </span><span class="k">end do</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="k">      call </span><span class="n">ESMF_TimePrint</span><span class="p">(</span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="k">options</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">preString</span><span class="o">=</span><span class="s1">&#39;Cap time after loop: &#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">      </span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">integrate</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="k">end module </span><span class="n">mapl3g_Cap</span>
 </pre></div>
 
       </section>
@@ -989,7 +990,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-04-26T18:43:59.358535             </p>
+ on 2024-04-28T13:10:28.016491             </p>
           </div>
         </div>
         <br>

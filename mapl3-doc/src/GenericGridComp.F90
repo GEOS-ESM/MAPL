@@ -52,7 +52,9 @@ contains
          type(ESMF_GridComp), intent(inout) :: gridcomp
          integer, intent(out) :: rc
          integer :: status
-         integer :: phase
+         integer :: phase_idx
+
+         integer, parameter :: NUM_GENERIC_RUN_PHASES = 1
 
          ! Mandatory generic initialize phases
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ADVERTISE_GEOM, _RC)
@@ -65,9 +67,10 @@ contains
 
          ! Run phases, including mandatory
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+
          associate (phases => outer_meta%get_phases(ESMF_METHOD_RUN))
-           do phase = 1, phases%size()
-              call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase=phase, _RC)
+           do phase_idx = 1, phases%size()
+              call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase=phase_idx+size(GENERIC_RUN_PHASES), _RC)
            end do
          end associate
 
@@ -97,7 +100,6 @@ contains
 
       type(ESMF_GridComp) :: user_gridcomp
       type(OuterMetaComponent), pointer :: outer_meta
-      type(OuterMetaComponent) :: outer_meta_tmp
       type(ESMF_Clock) :: user_clock
       type(GriddedComponentDriver) :: user_gc_driver
       integer :: status
@@ -186,18 +188,21 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      integer :: phase
+      integer :: phase_idx
       character(:), pointer :: phase_name
       type(OuterMetaComponent), pointer :: outer_meta
       type(StringVector), pointer :: phases
       
       outer_meta => get_outer_meta(gridcomp, _RC)
-      call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
-
-      phases => outer_meta%get_phases(ESMF_METHOD_RUN)
-      phase_name => phases%of(phase)
-   
-      call outer_meta%run(phase_name=phase_name, _RC)
+      call ESMF_GridCompGet(gridcomp, currentPhase=phase_idx, _RC)
+      select case (phase_idx)
+      case (GENERIC_RUN_CLOCK_ADVANCE)
+         call outer_meta%run_clock_advance(_RC)
+      case default ! user-defined run phase
+         phases => outer_meta%get_phases(ESMF_METHOD_RUN)
+         phase_name => phases%of(phase_idx-size(GENERIC_RUN_PHASES))
+         call outer_meta%run_user(phase_name=phase_name, _RC)
+      end select
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run
