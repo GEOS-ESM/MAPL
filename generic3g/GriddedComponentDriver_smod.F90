@@ -17,6 +17,7 @@ contains
 
       integer :: status, user_status
 
+      _ASSERT(present(phase_idx), 'until made not optional')
       call this%run_import_couplers(_RC)
       
       associate ( &
@@ -28,7 +29,9 @@ contains
              exportState=exportState, &
              clock=this%clock, &
              phase=phase_idx, _USERRC)
+
       end associate
+
       call this%run_export_couplers(phase_idx=phase_idx, _RC)
 
       _RETURN(_SUCCESS)
@@ -149,7 +152,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
+
       call ESMF_ClockAdvance(this%clock, _RC)
 
       _RETURN(_SUCCESS)
