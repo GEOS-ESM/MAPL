@@ -78,6 +78,132 @@ logical_emit = lambda s: TRUE_VALUE if lstripped(s) in TRUEVALUES else FALSE_VAL
 # emit function for Option.ADD2EXPORT
 ADD2EXPORT_EMIT = make_entry_emit({'T': '.true.', 'F': '.false.'})
 
+# simple class to group information for a condition in a Rule
+# compare option value against expected, produce logical value and message
+statement = namedtuple('statement', 'option rel expected s')
+
+def process_statement(s):
+    option_name, rel, expected, message = r.split()
+    option = Option[option_name.upper()]
+    return statement(option, rel, expected, message)
+
+class OptionRule:
+
+    @classmethod
+    def predicate(cls, option, rel, expected):
+        return partial(rel, option, expected)
+
+    def check(self, values):
+        if self.rule is None:
+            self.rule = self.make_rule_check()
+        result, messages = self.rule(values)
+
+    def make_rule_check(self):
+
+        def rule_check(values):
+
+        return rule_check
+
+class CompoundOptionRule(OptionRule):
+
+    joiners = {'and': (all, False), 'or': (any, True)}
+
+    def __init__(self, components, joiner = 'and'):
+        self.components = components
+        self.joiner = joiner
+
+        # break_on_true sets behavior one condition is met
+        try:
+            self.rule_joiner, self.break_on_true = joiners[joiner]
+        except KeyError:
+            raise ValueError("Invalid joiner")
+
+    @property
+    def components(self):
+        return self.__components
+
+    @components.setter
+    def components(self, val):
+        self.__components = val
+
+    @property
+    def joiner(self):
+        return self.__joiner
+
+    @joiner.setter
+    def joiner(self, val):
+        self.__joiner = val
+
+    @property
+    def rule_joiner(self):
+        return self.__rule_joiner
+
+    @rule_joiner.setter
+    def rule_joiner(self, val):
+        self.__rule_joiner = val
+
+    @property
+    def break_on_true(self):
+        return self.__break_on_true
+
+    @break_on_true.setter
+    def break_on_true(self, val):
+        self.__break_on_true = val
+
+    @property
+    def rule(self):
+        return self.__rule
+
+    @rule.setter
+    def rule(self, val):
+        self.__rule = val
+
+    def make_rule_check(self):
+        
+        def rule_check(values):
+            results = []
+            messages = []
+            for component in self.components:
+                option, rel, expected, s = component
+                test = Rule.predicate(option, rel, expected)
+                result = test(values)
+                results.append(result)
+                if result:
+                    # add message and break conditionally
+                    messages.append(' '.join('Statement "', s, '" is not true.')
+                    if self.break_on_true:
+                        break
+                    
+            return self.rule_joiner(results), messages
+
+        return rule_check
+
+class SimpleOptionRule(OptionRule):
+
+    def __init__(self, statement):
+        self.statement = process_statement(statement)
+
+    @property
+    def statement(self):
+        return self.__statement
+
+    @statement.setter
+    def statement(self, val):
+        self.__statement = val
+
+    def make_rule_check(self):
+
+        def rule_check(values):
+            option, rel, expected, s = self.statement
+            test = OptionRule.predicate(option, rel, expected)
+            result = test(values)
+            message = None
+            if result:
+                message = ' '.join('Statement "', s, '" is not true.')
+            return result, [message]
+
+        return rule_check
+
 # parent class for class Option
 # defines a few methods
 class OptionType(Enum):
@@ -156,23 +282,39 @@ def relation(relop, lhs, rhs, values):
 equals = partial(relation, operator.eq)
 does_not_equal = partial(relation, operator.ne)
 
-# simple class to group information for a condition in a Rule
-# compare option value against expected, produce logical value and message
-condition = namedtuple('condition', 'option rel expected message')
+def process_rule(r):
+    option_name, rel, expected, message = r.split()
+    option = Option[option_name.upper()]
+    return condition(option, rel, expected, message)
 
 class Rule:
     """ rule for testing conditions on Options  """
+    joiners = {'and': (all, False), 'or': (any, True)}
+    relations = {'equals': equals,
+         '==': equals,
+         'is equal to': equals,
+         'does not equal': does_not_equal,
+         '/=': does_not_equal,
+         '!=': does_not_equal
+         'is not equal to': does_not_equal}
+
+    @classmethod
+    def process_statement(cls, s):
+        parts = s.split()
+        optn = Option[parts[0].upper()]
+        expected = parts[-1]
+        relstring = ' '.join(parts[1:-1]).strip()
+        rel = relations[relstring]
+        return statement(optn, rel, expected, s)
 
     @classmethod
     def predicate(cls, option, rel, expected):
         return partial(rel, option, expected)
 
-    def __init__(self, conditions, joiner = all):
-        """ creates rule conditions from tuples (conditions) joined by joiner function """
+    def __init__(self, statements, joiner = 'and'):
+        """ creates rule statements from tuples (statements) joined by joiner function """
         """ set the check function (rule_check) """
-        joiners = {all: (' and ', False), any: (' or ', True)}
-
-        processed_conditions = tuple([condition(option, rel, expected, message) for option, rel, expected, message in conditions]) 
+        processed_statements = tuple([process_statement(s) for s in statements]) 
 
         # break_on_true sets behavior one condition is met
         try:
@@ -181,27 +323,30 @@ class Rule:
             raise ValueError("Invalid joiner")
         
         def rule_check(values):
-            messages = []
             results = []
-            for next_condition in processed_conditions:
-                option, rel, expected, message = next_condition
+            messages = []
+            for next_statement in processed_statements:
+                option, rel, expected, s = next_statement
                 test = Rule.predicate(option, rel, expected)
-                test_result = test(values)
-                results.append(test_result)
-                if test_result:
+                result = test(values)
+                results.append(result)
+                if result:
                     # add message and break conditionally
-                    messages.append(option.name_key + " " + message) 
+                    messages.append(' '.join('Statement "', s, '" is not true.')
                     if break_on_true:
                         break
                     
-            if joiner(results) == True:
-                raise RuntimeError(rule_joiner.join(messages))
+            if rule_joiner(results) == True:
+                raise RuntimeError(joiner.join(messages))
 
         self.rule = rule_check
     
     def check(self, values):
         """ run rules on Option values """
         return self.rule(values)
+
+#    rules = [Rule('DIMS equals MAPL_DimsHorzVert.', 'VLOCATION equals MAPL_VlocationNone.', 'and'),
+#           Rule('DIMS equals MAPL_DimsHorzOnly.', 'VLOCATION does not equal MAPL_VlocationNone.')]
 
 def check_option_values(values):
 
