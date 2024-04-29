@@ -17,7 +17,7 @@ contains
       integer :: status
 
       hconfig = ESMF_HConfigCreate(content= &
-         "{geom: {schema: latlon, im_world: 12, jm_world: 13, pole: PC, " // &
+         "{geom: {class: latlon, im_world: 12, jm_world: 13, pole: PC, " // &
          "dateline: DC, nx: 1, ny: 1}}", _RC)
       geom = make_geom(hconfig, _RC)
       call ESMF_GeomGet(geom, grid=grid, rank=rank, _RC)
@@ -42,7 +42,7 @@ contains
       type(ESMF_Field) :: field
 
       hconfig_geom = ESMF_HConfigCreate(content= &
-         "{geom: {schema: latlon, im_world: 14, jm_world: 13, pole: PC, " // &
+         "{geom: {class: latlon, im_world: 14, jm_world: 13, pole: PC, " // &
          "dateline: DC, nx: 1, ny: 1}}", _RC)
       geom = make_geom(hconfig_geom, _RC)
       call ESMF_GeomGet(geom, grid=grid, _RC)
