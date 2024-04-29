@@ -198,14 +198,14 @@ contains
       integer :: status
       type(LonAxis) :: lon_axis
       type(LatAxis) :: lat_axis
-      character(:), allocatable :: geom_schema
+      character(:), allocatable :: geom_class
 
       ! Mandatory entry: "class: latlon"
-      supports = ESMF_HConfigIsDefined(hconfig, keystring='schema', _RC)
+      supports = ESMF_HConfigIsDefined(hconfig, keystring='class', _RC)
       _RETURN_UNLESS(supports)
 
-      geom_schema = ESMF_HConfigAsString(hconfig, keyString='schema', _RC)
-      supports = (geom_schema == 'latlon')
+      geom_class = ESMF_HConfigAsString(hconfig, keyString='class', _RC)
+      supports = (geom_class == 'latlon')
       _RETURN_UNLESS(supports)
       
       supports = lon_axis%supports(hconfig, _RC)
