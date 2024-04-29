@@ -27,7 +27,7 @@ module MAPL_CapGridCompMod
   use MAPL_ExternalGridFactoryMod
   use MAPL_GridManagerMod
   use pFIO
-  use gFTL_StringVector
+  use gFTL2_StringVector
   use pflogger, only: logging, Logger
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   use MAPL_ExternalGCStorage
@@ -737,10 +737,10 @@ contains
     if (cap_exports_vec%size() /= 0) then
        iter = cap_exports_vec%begin()
        do while(iter /= cap_exports_vec%end())
-          component_name = iter%get()
+          component_name = iter%of()
           component_name = trim(component_name(index(component_name, ",")+1:))
 
-          field_name = iter%get()
+          field_name = iter%of()
           field_name = trim(field_name(1:index(field_name, ",")-1))
 
           call MAPL_ExportStateGet([cap%child_exports(cap%root_id)], component_name, &
@@ -1104,7 +1104,7 @@ contains
 
     if (vector%size() /= 0) then
        do while (iter /= vector%end())
-          if (trim(string) == iter%get()) then
+          if (trim(string) == iter%of()) then
              vector_contains_str = .true.
              return
           end if

@@ -68,7 +68,7 @@ contains
       call setup(outer_gc, config, status)
       @assert_that('DSO problem', status, is(0))
 
-      call ESMF_GridCompRun(outer_gc, userRC=userRC, phase=1, rc=status)
+      call ESMF_GridCompRun(outer_gc, userRC=userRC, phase=GENERIC_RUN_USER, rc=status)
       @assert_that(status, is(0))
       @assert_that(userRC, is(0))
       @assertEqual("wasRun_A", log)
@@ -98,7 +98,7 @@ contains
       call setup(outer_gc, config, status)
       @assert_that(status, is(0))
 
-      call ESMF_GridCompRun(outer_gc, phase=2, rc=status)
+      call ESMF_GridCompRun(outer_gc, phase=3, rc=status)
       @assert_that(status, is(0))
       @assertEqual("wasRun_extra_A", log)
 
