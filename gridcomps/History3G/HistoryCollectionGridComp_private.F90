@@ -6,7 +6,6 @@ module mapl3g_HistoryCollectionGridComp_private
    use esmf
    use Mapl_ErrorHandling
    use gFTL2_StringVector
-   use gFTL_StringVector, StringVectorV1 => StringVector, StringVectorIteratorV1 => StringVectorIterator
    use mapl3g_geom_mgr
    use MAPL_NewArthParserMod, only: parser_variables_in_expression
 
@@ -20,12 +19,6 @@ module mapl3g_HistoryCollectionGridComp_private
       module procedure :: parse_item_simple
    end interface parse_item
 
-   interface replace_delimiter
-      module procedure :: replace_delimiter_simple
-   end interface replace_delimiter
-
-   character(len=*), parameter :: VARIABLE_DELIMITER = '.'
-   character(len=*), parameter :: DELIMITER_REPLACEMENT = '/'
    character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
 
 contains
@@ -77,7 +70,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: var_list
       character(len=:), allocatable :: alias, short_name
@@ -109,25 +101,8 @@ contains
       character(len=:), allocatable, intent(out) :: item_name
       type(StringVector), intent(out) :: var_names
       integer, optional, intent(out) :: rc
-      ! common code
-      character(len=*), parameter :: EXPRESSION_KEY = 'expr'
-      integer :: status
-      logical :: asOK, isScalar, isMap
-      type(ESMF_HConfig) :: value
-      character(len=:), allocatable :: expression
 
-      isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
-      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
-      isMap = ESMF_HConfigIsMapMapVal(item, _RC)
-      _ASSERT(isMap, 'Variable list item does not have a map value.')
-
-      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
-      _ASSERT(asOK, 'Name could not be processed as a String.')
-
-      value = ESMF_HConfigCreateAtMapVal(item, _RC)
-      expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
-      ! end common code
-
+      call parse_item_common(item, item_name, expression, _RC)
       var_names = get_expression_variables(expression, _RC) 
 
       _RETURN(_SUCCESS)
@@ -138,25 +113,8 @@ contains
       character(len=:), allocatable, intent(out) :: item_name
       character(len=:), allocatable, intent(out) :: var_name
       integer, optional, intent(out) :: rc
-      ! common code
-      character(len=*), parameter :: EXPRESSION_KEY = 'expr'
-      integer :: status
-      logical :: asOK, isScalar, isMap
-      type(ESMF_HConfig) :: value
-      character(len=:), allocatable :: expression
 
-      isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
-      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
-      isMap = ESMF_HConfigIsMapMapVal(item, _RC)
-      _ASSERT(isMap, 'Variable list item does not have a map value.')
-
-      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
-      _ASSERT(asOK, 'Name could not be processed as a String.')
-
-      value = ESMF_HConfigCreateAtMapVal(item, _RC)
-      expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
-      ! end common code
-
+      call parse_item_common(item, item_name, expression, _RC)
       var_name = replace_delimiter(expression)
 
       _RETURN(_SUCCESS)
@@ -183,6 +141,7 @@ contains
       value = ESMF_HConfigCreateAtMapVal(item, _RC)
       expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
 
+      _RETURN(_SUCCESS)
    end subroutine parse_item_common
 
    subroutine add_specs(gridcomp, names, rc)
@@ -204,42 +163,9 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-
    end subroutine add_specs
 
-   function replace_delimiter_expression(string, delimiter, replacement) result(replaced)
-      character(len=:), allocatable :: replaced
-      character(len=*), intent(in) :: string
-      character(len=*), optional, intent(in) :: delimiter
-      character(len=*), optional, intent(in) :: replacement
-      character(len=:), allocatable :: del, rep
-      integer :: delwidth
-
-      del = VARIABLE_DELIMITER
-      if(present(delimiter)) del = delimiter
-      rep = DELIMITER_REPLACEMENT
-      if(present(replacement)) rep = replacement
-
-      delwidth = len(del)
-      replaced = inner(string)
-
-   contains
-
-      recursive function inner(s_in) result(s_out)
-         character(len=:), allocatable :: s_out
-         character(len=*), intent(in) :: s_in
-         integer :: i
-
-         s_out = trim(s_in)
-         i = index(s_out, del)
-         if(i == 0) return
-         s_out = s_out(:(i-1)) // rep // inner(s_in((i+delwidth):))
-
-      end function inner
-
-   end function replace_delimiter_expression
-
-   function replace_delimiter_simple(string, delimiter, replacement) result(replaced)
+   function replace_delimiter(string, delimiter, replacement) result(replaced)
       character(len=:), allocatable :: replaced
       character(len=*), intent(in) :: string
       character(len=*), optional, intent(in) :: delimiter
@@ -247,16 +173,17 @@ contains
       character(len=:), allocatable :: del, rep
       integer :: i
 
-      del = VARIABLE_DELIMITER
+      del = '.'
       if(present(delimiter)) del = delimiter
-      rep = DELIMITER_REPLACEMENT
+      rep = '/'
       if(present(replacement)) rep = replacement
 
       replaced = trim(string)
       i = index(replaced, del)
       if(i > 0) replaced = replaced(:(i-1))// rep // replaced((i+len(del)):)
 
-   end function replace_delimiter_simple
+      _RETURN(_SUCCESS)
+   end function replace_delimiter
 
    function get_expression_variables(expression, rc) result(variables)
       type(StringVector) :: variables
@@ -265,16 +192,83 @@ contains
       integer :: status
       type(StringVector) :: raw_vars
       type(StringVectorIterator) :: iter
-      character(len=:), allocatable :: varname
 
       raw_vars = parser_variables_in_expression(expression, _RC)
       iter = raw_vars%begin()
       do while(iter /= raw_vars%end())
-        varname = replace_delimiter(iter%of())
-        call variables%push_back(varname) 
+        call variables%push_back(replace_delimiter(iter%of())) 
         call iter%next()
       end do
 
+      _RETURN(_SUCCESS)
    end function get_expression_variables
 
 end module mapl3g_HistoryCollectionGridComp_private
+      ! common code
+!      character(len=*), parameter :: EXPRESSION_KEY = 'expr'
+!      integer :: status
+!      logical :: asOK, isScalar, isMap
+!      type(ESMF_HConfig) :: value
+!      character(len=:), allocatable :: expression
+!
+!      isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
+!      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
+!      isMap = ESMF_HConfigIsMapMapVal(item, _RC)
+!      _ASSERT(isMap, 'Variable list item does not have a map value.')
+!
+!      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
+!      _ASSERT(asOK, 'Name could not be processed as a String.')
+!
+!      value = ESMF_HConfigCreateAtMapVal(item, _RC)
+!      expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
+      ! end common code
+      ! common code
+!      character(len=*), parameter :: EXPRESSION_KEY = 'expr'
+!      integer :: status
+!      logical :: asOK, isScalar, isMap
+!      type(ESMF_HConfig) :: value
+!      character(len=:), allocatable :: expression
+!
+!      isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
+!      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
+!      isMap = ESMF_HConfigIsMapMapVal(item, _RC)
+!      _ASSERT(isMap, 'Variable list item does not have a map value.')
+!
+!      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
+!      _ASSERT(asOK, 'Name could not be processed as a String.')
+!
+!      value = ESMF_HConfigCreateAtMapVal(item, _RC)
+!      expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
+      ! end common code
+!
+!   function replace_delimiter_expression(string, delimiter, replacement) result(replaced)
+!      character(len=:), allocatable :: replaced
+!      character(len=*), intent(in) :: string
+!      character(len=*), optional, intent(in) :: delimiter
+!      character(len=*), optional, intent(in) :: replacement
+!      character(len=:), allocatable :: del, rep
+!      integer :: delwidth
+!
+!      del = VARIABLE_DELIMITER
+!      if(present(delimiter)) del = delimiter
+!      rep = DELIMITER_REPLACEMENT
+!      if(present(replacement)) rep = replacement
+!
+!      delwidth = len(del)
+!      replaced = inner(string)
+!
+!   contains
+!
+!      recursive function inner(s_in) result(s_out)
+!         character(len=:), allocatable :: s_out
+!         character(len=*), intent(in) :: s_in
+!         integer :: i
+!
+!         s_out = trim(s_in)
+!         i = index(s_out, del)
+!         if(i == 0) return
+!         s_out = s_out(:(i-1)) // rep // inner(s_in((i+delwidth):))
+!
+!      end function inner
+!
+!   end function replace_delimiter_expression
