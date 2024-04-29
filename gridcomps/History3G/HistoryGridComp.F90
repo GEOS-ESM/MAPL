@@ -81,7 +81,7 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
- 
+
       call MAPL_RunChildren(gridcomp, phase_name='run', _RC)
 
       _RETURN(_SUCCESS)
