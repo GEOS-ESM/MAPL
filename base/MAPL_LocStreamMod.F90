@@ -1548,8 +1548,8 @@ contains
     IM_WORLD = DIMS(1)
     JM_WORLD = DIMS(2)
    
-    _ASSERT(IM_WORLD==TILING%IM,'needs informative message')
-    _ASSERT(JM_WORLD==TILING%JM,'needs informative message')
+    _ASSERT(IM_WORLD==TILING%IM,'IM_WORLD does not match expected IM')
+    _ASSERT(JM_WORLD==TILING%JM,'JM_WORLD does not match expected JM')
     
 ! Find out which tiles are in local PE
 !-------------------------------------
