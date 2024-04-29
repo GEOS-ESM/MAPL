@@ -41,6 +41,7 @@ workflows:
           run_unit_tests: true
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
           persist_workspace: true # Needed for MAPL tutorials
+          resource_class: xlarge
 
       # Builds MAPL like UFS does (no FLAP and pFlogger, static)
       - ci/build:
@@ -58,6 +59,7 @@ workflows:
           extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
           run_unit_tests: true
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
+          resource_class: xlarge
 
       # Run MAPL Tutorials
       - ci/run_mapl_tutorial:
@@ -78,6 +80,7 @@ workflows:
           requires:
             - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
+          resource_class: xlarge
 
   build-and-run-GEOSgcm:
     jobs:
@@ -95,6 +98,7 @@ workflows:
           mepodevelop: true
           checkout_mapl_branch: true
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
+          resource_class: xlarge
 
       # Run GCM (1 hour, no ExtData)
       - ci/run_gcm:
@@ -109,6 +113,7 @@ workflows:
           repo: GEOSgcm
           baselibs_version: *baselibs_version
           bcs_version: *bcs_version
+          resource_class: xlarge
 
       # Run Coupled GCM (1 hour, no ExtData)
       - ci/run_gcm:
@@ -125,6 +130,7 @@ workflows:
           bcs_version: *bcs_version
           gcm_ocean_type: MOM6
           change_layout: false
+          resource_class: xlarge
 
   build-GEOSldas:
     jobs:
@@ -142,6 +148,7 @@ workflows:
           checkout_fixture: true
           fixture_branch: develop
           checkout_mapl_branch: true
+          resource_class: xlarge
 
   build-GEOSadas:
     jobs:
