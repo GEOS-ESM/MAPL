@@ -6,6 +6,7 @@ module mapl3g_HistoryCollectionGridComp
    use mapl3g_esmf_utilities
    use mapl3g_HistoryCollectionGridComp_private
    use esmf
+   use mapl3g_BundleWriter
    implicit none
    private
 
@@ -15,6 +16,8 @@ module mapl3g_HistoryCollectionGridComp
    type :: HistoryCollectionGridComp
 !#      class(Client), pointer :: client
       type(ESMF_FieldBundle) :: output_bundle
+      type(ESMF_Alarm) :: write_alarm
+      type(ESMF_Time) :: start_stop_times(2)
    end type HistoryCollectionGridComp
 
 
@@ -60,6 +63,8 @@ contains
       character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       type(ESMF_HConfig) :: hconfig
+      type(ESMF_Geom) :: geom
+      type(ESMF_Alarm) :: alarm
 
       ! To Do:
       ! - determine run frequencey and offset (save as alarm)
@@ -67,6 +72,11 @@ contains
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
       collection_gridcomp%output_bundle = create_output_bundle(hconfig, importState, _RC)
+
+      call MAPL_GridCompGet(gridcomp, geom=geom, _RC)
+
+      collection_gridcomp%write_alarm = create_output_alarm(clock, hconfig, _RC)
+      collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine init
@@ -98,7 +108,10 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
+      type(HistoryCollectionGridComp), pointer :: collection_gridcomp
+      character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
 
+      _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
       _RETURN(_SUCCESS)
    end subroutine run
 

@@ -6,11 +6,17 @@ module mapl3g_HistoryCollectionGridComp_private
    use esmf
    use Mapl_ErrorHandling
    use mapl3g_geom_mgr
+   use MAPL_TimeStringConversion
+   use MAPL_BaseMod, only: MAPL_UnpackTime
 
    implicit none
    private
 
-   public :: make_geom, register_imports, create_output_bundle
+   public :: make_geom
+   public :: register_imports
+   public :: create_output_bundle
+   public :: create_output_alarm
+   public :: set_start_stop_time
 
    character(len=*), parameter :: VARIABLE_DELIMITER = '.'
    character(len=*), parameter :: DELIMITER_REPLACEMENT = '/'
@@ -136,5 +142,55 @@ contains
 
       _RETURN(_SUCCESS)
    end function create_output_bundle
+
+   function create_output_alarm(clock, hconfig, rc) result(alarm)
+      type(ESMF_Alarm) :: alarm
+      type(ESMF_Clock), intent(inout) :: clock
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: time_hconfig
+      type(ESMF_TimeInterval) :: time_interval
+      character(len=:), allocatable :: iso_time
+      type(ESMF_Time) :: first_ring_time, currTime
+      integer :: int_time, yy, mm, dd, m, h, s
+
+      call ESMF_ClockGet(clock, currTime=currTime, _RC)
+      time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
+      time_interval = hconfig_to_esmf_timeinterval(time_hconfig, 'frequency', _RC)
+      iso_time = ESMF_HConfigAsString(time_hconfig, keyString='ref_time', _RC)
+      int_time = string_to_integer_time(iso_time, _RC)
+      call MAPL_UnpackTime(int_time, h, m, s) 
+      call ESMF_TimeGet(currTime, yy=yy, mm=mm, dd=dd, _RC)
+      call ESMF_TimeSet(first_ring_time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+      alarm = ESMF_AlarmCreate(clock=clock, RingInterval=time_interval, RingTIme=first_ring_time, _RC)
+
+      _RETURN(_SUCCESS)
+   end function create_output_alarm
+
+   function set_start_stop_time(clock, hconfig, rc) result(start_stop_time)
+      type(ESMF_Time) :: start_stop_time(2)
+      type(ESMF_Clock), intent(inout) :: clock
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      logical :: has_start, has_stop
+      character(len=:), allocatable :: time_string
+
+      call ESMF_ClockGet(clock, startTime=start_stop_time(1), stopTime=start_stop_time(2), _RC)
+      has_start = ESMF_HConfigIsDefined(hconfig, keyString='start', _RC)
+      has_stop = ESMF_HConfigIsDefined(hconfig, keyString='stop', _RC)
+      if (has_start) then
+         time_string = ESMF_HConfigAsString(hconfig, keyString='start', _RC) 
+         call ESMF_TimeSet(start_stop_time(1), timeString=time_string, _RC)
+      end if
+      if (has_stop) then
+         time_string = ESMF_HConfigAsString(hconfig, keyString='stop', _RC) 
+         call ESMF_TimeSet(start_stop_time(2), timeString=time_string, _RC)
+      end if
+      _RETURN(_SUCCESS)
+   end function set_start_stop_time
 
 end module mapl3g_HistoryCollectionGridComp_private
