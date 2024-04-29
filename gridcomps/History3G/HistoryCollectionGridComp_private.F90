@@ -101,6 +101,8 @@ contains
       character(len=:), allocatable, intent(out) :: item_name
       type(StringVector), intent(out) :: var_names
       integer, optional, intent(out) :: rc
+      character(len=:), allocatable :: expression
+      integer :: status
 
       call parse_item_common(item, item_name, expression, _RC)
       var_names = get_expression_variables(expression, _RC) 
@@ -113,6 +115,8 @@ contains
       character(len=:), allocatable, intent(out) :: item_name
       character(len=:), allocatable, intent(out) :: var_name
       integer, optional, intent(out) :: rc
+      character(len=:), allocatable :: expression
+      integer :: status
 
       call parse_item_common(item, item_name, expression, _RC)
       var_name = replace_delimiter(expression)
@@ -182,7 +186,6 @@ contains
       i = index(replaced, del)
       if(i > 0) replaced = replaced(:(i-1))// rep // replaced((i+len(del)):)
 
-      _RETURN(_SUCCESS)
    end function replace_delimiter
 
    function get_expression_variables(expression, rc) result(variables)
