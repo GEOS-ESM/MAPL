@@ -6,7 +6,6 @@ module mapl3g_HistoryCollectionGridComp
    use mapl3g_esmf_utilities
    use mapl3g_HistoryCollectionGridComp_private
    use esmf
-   use mapl3g_BundleWriter
    implicit none
    private
 
