@@ -159,7 +159,6 @@ contains
       logical :: has_ref_time, has_frequency
 
       call ESMF_ClockGet(clock, currTime=currTime, timeStep=time_interval, startTime = startTime, _RC)
-      int_time = 0 
 
       time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
 
@@ -168,6 +167,7 @@ contains
          time_interval = hconfig_to_esmf_timeinterval(time_hconfig, 'frequency', _RC)
       end if
     
+      int_time = 0 
       has_ref_time = ESMF_HConfigIsDefined(time_hconfig, keyString='ref_time', _RC) 
       if (has_ref_time) then
          iso_time = ESMF_HConfigAsString(time_hconfig, keyString='ref_time', _RC)
