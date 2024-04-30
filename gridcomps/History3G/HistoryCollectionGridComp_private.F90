@@ -153,18 +153,37 @@ contains
       type(ESMF_HConfig) :: time_hconfig
       type(ESMF_TimeInterval) :: time_interval
       character(len=:), allocatable :: iso_time
-      type(ESMF_Time) :: first_ring_time, currTime
+      type(ESMF_Time) :: first_ring_time, currTime, startTime
       integer :: int_time, yy, mm, dd, m, h, s
+      logical :: has_ref_time, has_frequency
 
-      call ESMF_ClockGet(clock, currTime=currTime, _RC)
+      call ESMF_ClockGet(clock, currTime=currTime, timeStep=time_interval, startTime = startTime, _RC)
+      int_time = 0 
+
       time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
-      time_interval = hconfig_to_esmf_timeinterval(time_hconfig, 'frequency', _RC)
-      iso_time = ESMF_HConfigAsString(time_hconfig, keyString='ref_time', _RC)
-      int_time = string_to_integer_time(iso_time, _RC)
+
+      has_frequency = ESMF_HConfigIsDefined(time_hconfig, keyString='frequency', _RC)
+      if (has_frequency) then
+         time_interval = hconfig_to_esmf_timeinterval(time_hconfig, 'frequency', _RC)
+      end if
+    
+      has_ref_time = ESMF_HConfigIsDefined(time_hconfig, keyString='ref_time', _RC) 
+      if (has_ref_time) then
+         iso_time = ESMF_HConfigAsString(time_hconfig, keyString='ref_time', _RC)
+         int_time = string_to_integer_time(iso_time, _RC)
+      end if
+      
       call MAPL_UnpackTime(int_time, h, m, s) 
       call ESMF_TimeGet(currTime, yy=yy, mm=mm, dd=dd, _RC)
       call ESMF_TimeSet(first_ring_time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
-      alarm = ESMF_AlarmCreate(clock=clock, RingInterval=time_interval, RingTIme=first_ring_time, _RC)
+     
+      ! These 2 lines are borrowed from old History. Unforunately until ESMF alarms
+      ! get fixed kluges like this are neccessary so alarms will acutally ring
+      if (first_ring_time == startTime) first_ring_time = first_ring_time + time_interval
+      if (first_ring_time < currTime) &
+           first_ring_time = first_ring_time +(INT((currTime - first_ring_time)/time_interval)+1)*time_interval 
+
+      alarm = ESMF_AlarmCreate(clock=clock, RingInterval=time_interval, RingTime=first_ring_time, sticky=.false.,  _RC)
 
       _RETURN(_SUCCESS)
    end function create_output_alarm
@@ -176,18 +195,20 @@ contains
       integer, intent(out), optional :: rc
 
       integer :: status
-      logical :: has_start, has_stop
+      logical :: has_start, has_stop, has_timespec
       character(len=:), allocatable :: time_string
+      type(ESMF_HConfig) :: time_hconfig
 
+      time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
       call ESMF_ClockGet(clock, startTime=start_stop_time(1), stopTime=start_stop_time(2), _RC)
-      has_start = ESMF_HConfigIsDefined(hconfig, keyString='start', _RC)
-      has_stop = ESMF_HConfigIsDefined(hconfig, keyString='stop', _RC)
+      has_start = ESMF_HConfigIsDefined(time_hconfig, keyString='start', _RC)
+      has_stop = ESMF_HConfigIsDefined(time_hconfig, keyString='stop', _RC)
       if (has_start) then
-         time_string = ESMF_HConfigAsString(hconfig, keyString='start', _RC) 
+         time_string = ESMF_HConfigAsString(time_hconfig, keyString='start', _RC) 
          call ESMF_TimeSet(start_stop_time(1), timeString=time_string, _RC)
       end if
       if (has_stop) then
-         time_string = ESMF_HConfigAsString(hconfig, keyString='stop', _RC) 
+         time_string = ESMF_HConfigAsString(time_hconfig, keyString='stop', _RC) 
          call ESMF_TimeSet(start_stop_time(2), timeString=time_string, _RC)
       end if
       _RETURN(_SUCCESS)

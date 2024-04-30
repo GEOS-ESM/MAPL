@@ -77,4 +77,71 @@ contains
 
    end subroutine test_create_output_bundle
 
+   @Test
+   subroutine test_set_start_stop_time()
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Time) :: time,start_stop_time(2)
+      integer :: status
+      type(ESMF_Time) :: start_time, stop_time
+      type(ESMF_TimeInterval) :: dt
+      type(ESMF_Clock) :: clock
+
+      call ESMF_TimeIntervalSet(dt, h=1, _RC)
+      call ESMF_TimeSet(start_time, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(stop_time, timeString="2000-04-22T21:00:00", _RC)
+      clock = ESMF_ClockCreate(timeStep=dt, startTime=start_time, stopTime=stop_time, _RC)
+
+      hconfig = ESMF_HConfigCreate(content = &
+        "{time_spec: {frequency: PT3H}}", _RC)
+
+      start_stop_time = set_start_stop_time(clock, hconfig, _RC)
+      @assert_that(start_time == start_stop_time(1), is(true()))
+      @assert_that(stop_time == start_stop_time(2), is(true()))
+ 
+      hconfig = ESMF_HConfigCreate(content = &
+        "{time_spec: {start: 2000-04-14T21:00:00, stop: 2000-04-15T21:00:00}}", _RC)
+      call ESMF_TimeSet(start_time, timeString="2000-04-14T21:00:00", _RC)
+      call ESMF_TimeSet(stop_time, timeString="2000-04-15T21:00:00", _RC)
+
+      start_stop_time = set_start_stop_time(clock, hconfig, _RC)
+      @assert_that(start_time == start_stop_time(1), is(true()))
+      @assert_that(stop_time == start_stop_time(2), is(true()))
+
+   end subroutine test_set_start_stop_time
+
+   @Test
+   subroutine test_create_output_alarm()
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Time) :: time,start_stop_time(2)
+      integer :: status
+      type(ESMF_Time) :: start_time, stop_time
+      type(ESMF_TimeInterval) :: dt
+      type(ESMF_Clock) :: clock
+      type(ESMF_Alarm) :: alarm
+      logical :: is_ringing
+      type(ESMF_Time) currTime
+
+      call ESMF_TimeIntervalSet(dt, h=1, _RC)
+      call ESMF_TimeSet(start_time, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(stop_time, timeString="2000-04-22T21:00:00", _RC)
+      clock = ESMF_ClockCreate(timeStep=dt, startTime=start_time, stopTime=stop_time, _RC)
+      hconfig = ESMF_HConfigCreate(content = &
+        "{time_spec: {frequency: PT3H}}", _RC)
+
+      alarm = create_output_alarm(clock, hconfig, _RC)
+     
+      call ESMF_ClockAdvance(clock, _RC)
+      is_ringing = ESMF_AlarmIsRinging(alarm, _RC) 
+      @assert_that(is_ringing, is(false()))
+
+      call ESMF_ClockAdvance(clock, _RC)
+      is_ringing = ESMF_AlarmIsRinging(alarm, _RC) 
+      @assert_that(is_ringing, is(false()))
+
+      call ESMF_ClockAdvance(clock, _RC) 
+      is_ringing = ESMF_AlarmIsRinging(alarm, _RC) 
+      @assert_that(is_ringing, is(true()))
+ 
+   end subroutine test_create_output_alarm
+
 end module Test_HistoryCollectionGridComp

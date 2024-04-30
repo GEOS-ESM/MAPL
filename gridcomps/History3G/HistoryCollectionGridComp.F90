@@ -110,9 +110,19 @@ contains
       integer :: status
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
-
+      logical :: time_to_write, run_collection
+      type(ESMF_Time) :: current_time
+    
+      call ESMF_ClockGet(clock, currTime=current_time, _RC) 
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
+      time_to_write = ESMF_AlarmIsRinging(collection_gridcomp%write_alarm, _RC)
+      run_collection = (current_time >= collection_gridcomp%start_stop_times(1)) .and. &
+                           (current_time <= collection_gridcomp%start_stop_times(2))
+
+      _RETURN_UNLESS(run_collection .and. time_to_write)
+
       _RETURN(_SUCCESS)
+
    end subroutine run
 
 end module mapl3g_HistoryCollectionGridComp
