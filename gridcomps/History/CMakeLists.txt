@@ -1,7 +1,29 @@
 esma_set_this (OVERRIDE MAPL.history)
 
+#add_subdirectory(History)
+
 set (srcs
      MAPL_HistoryCollection.F90
+     history/checkIfStateHasField.F90
+     history/CopyStateItems.F90
+     history/get_acc_offset.F90
+     history/get_DateStamp.F90
+     history/Get_Tdim.F90 
+     history/GradsCtlWrite.F90
+     history/regen_rcx_for_obs_platform.F90
+     history/RegridTransformT2G2G.F90
+     history/RegridTransformT2G.F90
+     history/RunExpression.F90
+     history/SetExpression.F90
+     history/shavebits.F90
+     history/StateDestroy.F90
+     history/StateGet.F90
+     history/RegridTransform.F90
+     history/record_restart.F90
+     history/init.F90
+     history/run.F90
+     history/final.F90
+     history/setservices.F90
      MAPL_HistoryGridComp.F90
      Sampler/MAPL_EpochSwathMod.F90
      Sampler/MAPL_GeosatMaskMod.F90

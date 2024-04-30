@@ -1,0 +1,3072 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
+#include "MAPL_Generic.h"
+#include "unused_dummy.H"
+!
+!>
+!### MODULE: `MAPL_HistoryGridCompMod`
+!
+! Author: GMAO SI-Team
+!
+! `MAPL_HistoryGridCompMod` contains the `Initialize`, `Run` and `Finalize` methods for `History`.
+! The three methods are called at the level of CAP.
+!
+  SUBMODULE (MAPL_HistoryGridCompMod) init_smod
+!
+! !USES:
+!
+  CONTAINS
+!>
+! Initialize initializes MAPL History Lists for Diagnostic Output.
+! Diagnostics have the following attributes:
+!
+!1. Diagnostics may be `instantaneous` or `time-averaged`
+!2. Diagnostics have a `frequency` and an associated `ref_date` and `ref_time`
+!    from which the frequency is based. An `end_date` and `end_time` may also be
+!    used to turn off diagnostics after a given date and time.
+!3. Time-Averaged Diagnostics have an associated accumulation interval,
+!    `acc_interval`, which may be <= to the diagnostic `frequency`
+!4. Diagnostics are `time-stamped` with the center of the time-averaged period.
+!5. The default `acc_interval` is the diagnostic `frequency`
+!6. The default `ref_date` is the beginning date of the experiment
+!7. The default `ref_time` is 0z
+!8.  The default `end_date` and `end_time` is disabled
+!
+! Through the use of History Lists, the user may define the type of diagnostic output desired.
+! History Lists contain the following attributes:
+!
+!- **filename**:     Character string defining the filename of a particular diagnostic output stream.
+!- **template**:     Character string defining the time stamping template following GrADS convensions.
+!    The default value depends on the duration of the file.
+!- **format**:       Character string defining file format ("flat" or "CFIO"). Default = "flat".
+!- **mode**:         Character string equal to "instantaneous" or "time-averaged". Default = "instantaneous".
+!- **descr**:        Character string equal to the list description. Defaults to "expdsc".
+!- **commment**:     Character string defining a comment.
+!                     Defaults to "NetCDF-4". Can be globally set for all collections with "COMMENT:"
+!- **contact**:      Character string defining a contact.
+!    Defaults to "http://gmao.gsfc.nasa.gov". Can be globally set for all collections with "CONTACT:"
+!- **conventions**:  Character string defining the conventions.
+!    Defaults to "CF". Can be globally set for all collections with "CONVENTIONS:"
+!- **institution**:  Character string defining an institution.
+!    Defaults to "NASA Global Modeling and Assimilation Office". Can be globally set for all collections with "INSTITUTION:"
+!- **references**:   Character string defining references.
+!    Defaults to "see MAPL documentation". Can be globally set for all collections with "REFERENCES:"
+!- **source**:       Character string defining source.
+!    Defaults to "unknown". Can be globally set for all collections with "SOURCE:"
+!- **frequency**:    Integer (HHMMSS) for the frequency of output.  Default = 060000.
+!- **acc_interval**: Integer (HHMMSS) for the acculation interval (<= frequency) for time-averaged diagnostics.
+!    Default = Diagnostic Frequency.
+!- **ref_date**:     Integer (YYYYMMDD) reference date from which the frequency is based.
+!    Default is the Experiment beginning date.
+!- **ref_time**:     Integer (HHMMSS) reference time from which the frequency is based.
+!    Default is 000000.
+!- **end_date**:     Integer (YYYYMMDD) ending date to stop diagnostic output.  Default is disabled.
+!- **end_time**:     Integer (HHMMSS) ending time to stop diagnostic output. Default is disabled.
+!- **duration**:     Integer (HHMMSS) for the duration of each file.  Default = frequency (1 time-record per file).
+!- **fields**:       Paired character strings for the diagnostic Name and its associated Gridded Component.
+!- **subset**:       Optional subset (lonMin lonMax latMin latMax) for the output
+!- **xyoffset**:     Optional Flag for Grid Staggering (0:DcPc, 1:DePc, 2:DcPe, 3:DePe)
+!- **levels**:       Optional list of output levels (Default is all levels on Native Grid).
+!- **vvars**:        Optional Field (and Transform) to use for Vertical Interpolation (eg., 'log(PLE)' , 'DYN' ).
+!- **vunit**:        Optional Units to use for Vertical Index of Output File.
+!- **vscale**:       Optional Scaling to use between Output Unit and VVARS unit.
+!
+  MODULE SUBROUTINE Initialize ( gc, import, dumexport, clock, rc )
+
+   intrinsic :: size
+
+    type(ESMF_GridComp), intent(inout)    :: gc        !! composite gridded component
+    type(ESMF_State),       intent(inout) :: import    !! import state
+    type(ESMF_State),       intent(inout) :: dumexport !! export state
+    type(ESMF_Clock),       intent(inout) :: clock     !! the clock
+    integer, intent(out), OPTIONAL        :: rc        !! Error code:
+
+    integer                         :: status
+
+    logical                         :: errorFound
+    logical                         :: found
+    type(HistoryCollection), pointer     :: list(:)
+    type(HISTORY_wrap)              :: wrap
+    type (HISTORY_STATE), pointer   :: IntState
+    type(HISTORY_ExchangeListWrap)  :: lswrap
+
+    type(ESMF_State), pointer      :: export (:) => null()
+    type(ESMF_State), pointer      :: exptmp (:)
+    type(ESMF_State)               :: expsrc, expdst
+    type(ESMF_Time)                :: StartTime
+    type(ESMF_Time)                :: CurrTime
+    type(ESMF_Time)                ::  RingTime
+    type(ESMF_Time)                ::   RefTime
+    type(ESMF_Time)                :: StartOfThisMonth
+    type(ESMF_Time)                :: nextMonth
+    type(ESMF_TimeInterval)        :: oneMonth, dur
+    type(ESMF_TimeInterval)        :: Frequency
+    type(ESMF_Array)               :: array
+    type(ESMF_Field)               :: field,f_extra
+    type(ESMF_Calendar)            ::  cal
+    type(ESMF_Config)              :: config
+    type(ESMF_DELayout)            :: layout
+    type(MAPL_MetaComp), pointer   :: GENSTATE
+
+    character(len=ESMF_MAXSTR)     :: string
+    character(len=ESMF_MAXSTR)     :: tmpstring
+    character(len=ESMF_MAXSTR)     :: tilefile
+    character(len=ESMF_MAXSTR)     :: gridname
+    character(len=MAPL_TileNameLength), pointer :: gnames(:)
+    integer                        :: L, LM
+    integer                        :: NG
+    integer                        :: NGRIDS
+    integer                        :: COUNTS(ESMF_MAXDIM)
+    integer                        :: I1,J1
+    integer                        :: dimCount
+    real, pointer                  :: levels(:)
+    integer                        :: DIMS
+    integer                        :: VLOCATION
+    integer                        :: FIELD_TYPE
+    integer                        :: avgint
+    integer                        :: REFRESH
+    character(ESMF_MAXSTR)         :: SHORT_NAME
+    character(ESMF_MAXSTR)         :: LONG_NAME
+    character(ESMF_MAXSTR)         :: UNITS
+    character(ESMF_MAXSTR), pointer:: VVARn(:)
+    character(ESMF_MAXSTR)         :: VVAR
+    character(ESMF_MAXSTR), pointer:: fields (:,:)
+    character(ESMF_MAXSTR)         :: export_name
+    character(ESMF_MAXSTR)         :: component_name
+    character(ESMF_MAXSTR)         :: export_alias
+    character(ESMF_MAXSTR)         :: coupler_function_name
+    logical                        :: tend
+    character(len=ESMF_MAXSTR),allocatable :: statelist(:)
+    logical,                   allocatable :: statelistavail(:)
+    character(len=ESMF_MAXSTR),allocatable ::   tmplist(:)
+
+    integer :: nlist,unit,nstatelist
+    integer :: k,m,n,sec,rank,size0
+    integer :: year,month,day,hour,minute,second,nymd0,nhms0,nymdc,nhmsc
+    integer :: ref_time(6)
+    integer :: len, i, j, mype, npes, nx, ny
+
+    type (ESMF_Grid)                          :: grid
+    type (ESMF_Grid), pointer                 :: pgrid
+    type (ESMF_Grid)                          :: grid_attached
+    type (ESMF_DistGrid)                      :: distgrid
+    type (ESMF_Grid)                          :: grid_in, grid_out
+    type (MAPL_LocStream)                     :: exch
+    type (MAPL_LocStream)                     :: locstream
+    type (ESMF_VM)                            :: vm
+    type(ESMF_TypeKind_Flag)                  :: tk
+    logical                                   :: use_this_gridname
+    logical                                   :: ontiles
+    logical                                   :: disableSubVmChecks
+    character(len=ESMF_MAXSTR)                :: tmpstr, attachedName
+    integer                                   :: localStatus, globalStatus
+    integer, pointer :: allPes(:)
+    integer          :: localPe(1), nactual, minactual
+    integer(kind=INT64)                                 :: ADDR
+    integer(kind=INT64), pointer                        :: LSADDR_PTR(:) => null()
+    type(ESMF_State)                          :: state_out
+    integer                                   :: fieldRank, gridRank
+    integer                                   :: undist
+    integer, allocatable                      :: ungrd(:)
+    integer                                   :: ungridDims
+    integer                                   :: notGridded
+    logical                                   :: hasUngridDims
+    character(len=ESMF_MAXSTR)                :: ungridded_name, ungridded_unit
+    integer                                   :: ungrdSize
+    real,    allocatable                      :: ungridded_coord(:)
+    integer, allocatable                      :: gridToFieldMap(:)
+    integer, allocatable                      :: ungriddedLBound(:)
+    integer, allocatable                      :: ungriddedUBound(:)
+    type (ESMF_LocalArray), target            :: larrayList(1)
+    type (ESMF_LocalArray), pointer           :: larray
+    integer                                   :: c
+    logical                                   :: isFileName
+    logical                                   :: fileExists
+    logical                                   :: isPresent,hasNX,hasNY
+    real                                      :: lvl
+
+    integer                                   :: mntly
+    integer                                   :: spltFld
+    integer                                   :: useRegex
+    integer                                   :: unitr, unitw
+    integer                                   :: tm,resolution(2)
+    logical                                   :: match, contLine, con3
+    character(len=2048)                       :: line
+    type(ESMF_Config)                         :: cfg
+    character(len=ESMF_MAXSTR)                :: HIST_CF
+    character(len=ESMF_MAXSTR)                :: BLANK=""
+
+!   Parser Variables
+    logical          :: DoCopy
+    type(ESMF_State) :: parser_state
+    type(ESMF_Field) :: parser_field
+
+!   Single colum flag used to set different defalut for TM
+    integer                        :: snglcol
+    integer                        :: tm_default
+
+!   variable for vector handling
+    integer                        :: idx
+    character(len=ESMF_MAXSTR)     :: f1copy, f3copy
+
+!   variables for "backwards" mode
+    integer                        :: reverse
+
+!   variables for "newFormat" mode
+    integer                        :: newFormat
+    integer                        :: cubeFormat
+
+!   variables for proper counting the number of slices to include tile-grids
+    type (ESMF_Grid)     :: bgrid
+    type (ESMF_DistGrid) :: bdistgrid
+    integer              :: nslices
+    integer              :: distRank
+
+    type(ESMF_Field)     :: r4field
+
+    integer              :: chnksz
+    logical :: table_end
+    logical :: old_fields_style
+
+!   variables for counting table
+    integer :: nline, ncol
+    integer :: swath_count
+
+    type(HistoryCollection) :: collection
+    character(len=ESMF_MAXSTR) :: cFileOrder
+    type(FieldSet), pointer :: field_set
+    type(FieldSet), pointer :: fld_set
+    type(FieldSet), pointer :: newFieldSet => null()
+    character(len=:), pointer :: key
+    type(StringFieldSetMapIterator) :: field_set_iter
+    character(ESMF_MAXSTR) :: field_set_name
+    integer :: collection_id, regrid_hints
+    logical, allocatable :: needSplit(:)
+    type(ESMF_Field), allocatable :: fldList(:)
+    character(len=ESMF_MAXSTR), allocatable :: regexList(:)
+    type(StringStringMap) :: global_attributes
+    character(len=ESMF_MAXSTR) :: name,regrid_method
+    logical :: has_conservative_keyword, has_regrid_keyword
+    integer :: create_mode
+    character(len=:), allocatable :: uppercase_algorithm
+
+! Begin
+!------
+
+    _UNUSED_DUMMY(dumexport)
+
+    call MAPL_GetObjectFromGC ( gc, GENSTATE, _RC)
+
+! Retrieve the pointer to the state
+    call ESMF_GridCompGetInternalState(gc, wrap, status)
+    IntState => wrap%ptr
+
+    call ESMF_UserCompGetInternalState(GC, 'MAPL_LocStreamList', &
+        lswrap, STATUS)
+    if (status == ESMF_SUCCESS) then
+       lsaddr_ptr => lswrap%ptr%lsaddr_ptr
+    end if
+
+    call ESMF_GridCompGet(gc, vm=vm, _RC)
+
+    call ESMF_VMGetCurrent(vm, _RC)
+    call ESMF_VMGet       (VM, localpet=MYPE, petcount=NPES,  _RC)
+
+    IntState%mype = mype
+    IntState%npes = npes
+
+
+! Get Clock StartTime for Default ref_date, ref_time
+! --------------------------------------------------
+    call ESMF_ClockGet ( clock,     calendar=cal,       _RC )
+    call ESMF_ClockGet ( clock,     currTime=CurrTime,  _RC )
+    call ESMF_ClockGet ( clock,     StartTime=StartTime,_RC )
+    call ESMF_TimeGet  ( StartTime, TimeString=string  ,_RC )
+
+    read(string( 1: 4),'(i4.4)') year
+    read(string( 6: 7),'(i2.2)') month
+    read(string( 9:10),'(i2.2)') day
+    read(string(12:13),'(i2.2)') hour
+    read(string(15:16),'(i2.2)') minute
+    read(string(18:18),'(i2.2)') second
+
+    nymd0 =  year*10000 +  month*100 + day
+    nhms0 =  hour*10000 + minute*100 + second
+
+    call ESMF_TimeGet  ( CurrTime, TimeString=string  ,_RC )
+
+    read(string( 1: 4),'(i4.4)') year
+    read(string( 6: 7),'(i2.2)') month
+    read(string( 9:10),'(i2.2)') day
+    read(string(12:13),'(i2.2)') hour
+    read(string(15:16),'(i2.2)') minute
+    read(string(18:18),'(i2.2)') second
+
+    nymdc =  year*10000 +  month*100 + day
+    nhmsc =  hour*10000 + minute*100 + second
+
+    ! set up few variables to deal with monthly
+    startOfThisMonth = currTime
+    call ESMF_TimeSet(startOfThisMonth,dd=1,h=0,m=0,s=0,_RC)
+    call ESMF_TimeIntervalSet( oneMonth, MM=1, StartTime=StartTime, _RC)
+
+
+! Read User-Supplied History Lists from Config File
+! -------------------------------------------------
+    call ESMF_GridCompGet( gc, config=config, _RC )
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expsrc, &
+                                   label ='EXPSRC:', default='', _RC )
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expid, &
+                                   label ='EXPID:', default='', _RC )
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expdsc, &
+                                   label ='EXPDSC:', default='', _RC )
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%institution, &
+                                   label ='INSTITUTION:', default='NASA Global Modeling and Assimilation Office', _RC)
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%references, &
+                                   label ='REFERENCES:', default='see MAPL documentation', _RC)
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%contact, &
+                                   label ='CONTACT:', default='', _RC)
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%comment, &
+                                   label ='COMMENT:', default='NetCDF-4', _RC)
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%conventions, &
+                                   label ='CONVENTIONS:', default='CF', _RC)
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%source, &
+                                   label ='SOURCE:', &
+                                   default=trim(INTSTATE%expsrc) // ' experiment_id: ' // trim(INTSTATE%expid), _RC)
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%CoresPerNode, &
+                                   label ='CoresPerNode:', default=min(npes,8), _RC )
+    call ESMF_ConfigGetAttribute ( config, value=disableSubVmChecks, &
+                                   label ='DisableSubVmChecks:', default=.false., _RC )
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%AvoidRootNodeThreshold, &
+                                   label ='AvoidRootNodeThreshold:', default=1024, _RC )
+
+    call ESMF_ConfigGetAttribute(config, value=cFileOrder,         &
+                                         label='FileOrder:', default='ABC', _RC)
+    call ESMF_ConfigGetAttribute(config, value=intState%allow_overwrite,  &
+                                         label='Allow_Overwrite:', default=.false., _RC)
+    call ESMF_ConfigGetAttribute(config, value=intState%file_weights,  &
+                                         label='file_weights:', default=.false., _RC)
+    create_mode = PFIO_NOCLOBBER ! defaut no overwrite
+    if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
+
+    if (trim(cFileOrder) == 'ABC') then
+       intstate%fileOrderAlphabetical = .true.
+    else if (trim(cFileOrder) == 'AddOrder') then
+       intstate%fileOrderAlphabetical = .false.
+    else
+       _FAIL('needs informative message')
+    end if
+
+    call ESMF_ConfigGetAttribute(config, value=intstate%integer_time,label="IntegerTime:", default=.false.,_RC)
+
+    call ESMF_ConfigGetAttribute(config, value=IntState%collectionWriteSplit, &
+         label = 'CollectionWriteSplit:', default=0, _RC)
+    call ESMF_ConfigGetAttribute(config, value=IntState%serverSizeSplit, &
+         label = 'ServerSizeSplit:', default=0, _RC)
+    call o_Clients%split_server_pools(n_server_split = IntState%serverSizeSplit, &
+                                      n_hist_split   = IntState%collectionWriteSplit,_RC)
+
+    call ESMF_ConfigGetAttribute(config, value=snglcol,          &
+                                         label='SINGLE_COLUMN:', default=0, _RC)
+    call ESMF_ConfigGetAttribute(config, value=intstate%version,          &
+                                         label='VERSION:', default=0, _RC)
+    if( MAPL_AM_I_ROOT() ) then
+       print *
+       print *, 'EXPSRC:',trim(INTSTATE%expsrc)
+       print *, 'EXPID: ',trim(INTSTATE%expid)
+       print *, 'Descr: ',trim(INTSTATE%expdsc)
+       print *, 'DisableSubVmChecks:', disableSubVmChecks
+       print *
+    endif
+
+! Determine Number of Output Streams
+! ----------------------------------
+    if( MAPL_AM_I_ROOT() ) then
+       print *, 'Reading HISTORY RC Files:'
+       print *, '-------------------------'
+    endif
+
+    call ESMF_ConfigFindLabel ( config,'COLLECTIONS:',_RC )
+    tend  = .false.
+    nlist = 0
+    allocate(IntState%list(nlist), _STAT)
+    do while (.not.tend)
+          call ESMF_ConfigGetAttribute ( config,value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
+          if (tmpstring /= '')  then
+
+             collection%collection = tmpstring
+             collection%filename = tmpstring
+             call IntState%collections%push_back(collection)
+
+             nlist = nlist + 1
+             allocate( list(nlist), _STAT )
+             list(1:nlist-1)=IntState%list
+             list(nlist)%collection = tmpstring
+             list(nlist)%filename = list(nlist)%collection
+             deallocate(IntState%list)
+             IntState%list => list
+          end if
+          call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
+    enddo
+    if (nlist == 0) then
+       _RETURN(ESMF_SUCCESS)
+    end if
+
+    if (intstate%version >= 1) then
+       OUTPUT_GRIDS: block
+         type (ESMF_Grid) :: output_grid
+         type (StringGridMapIterator) :: iter
+         integer :: nl
+         character(len=60) :: grid_type
+
+         call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
+         tend  = .false.
+         do while (.not.tend)
+             call ESMF_ConfigGetAttribute ( config,value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
+             if (tmpstring /= '')  then
+                call IntState%output_grids%insert(trim(tmpString), output_grid)
+             end if
+             call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
+          enddo
+
+          swath_count = 0
+          iter = IntState%output_grids%begin()
+          do while (iter /= IntState%output_grids%end())
+             key => iter%key()
+             call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(key)//".GRID_TYPE:",_RC)
+             call  ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,_RC)
+             call  ESMF_ConfigFindLabel(config,trim(key)//".NY:",isPresent=hasNY,_RC)
+             if ((.not.hasNX) .and. (.not.hasNY)) then
+                if (trim(grid_type)=='Cubed-Sphere') then
+                   call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,_RC)
+                else
+                   call MAPL_MakeDecomposition(nx,ny,_RC)
+                end if
+                call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",_RC)
+                call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",_RC)
+             end if
+
+             if (trim(grid_type)/='Swath') then
+                output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
+             else
+                swath_count = swath_count + 1
+                !
+                ! Hsampler use the first config to setup epoch
+                !
+                if (swath_count == 1) then
+                   Hsampler = samplerHQ(clock, key, config, _RC)
+                end if
+                call Hsampler%config_accumulate(key, config, _RC)
+                output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
+             end if
+             call IntState%output_grids%set(key, output_grid)
+             call iter%next()
+          end do
+       end block OUTPUT_GRIDS
+    end if
+
+    if (intstate%version >= 2) then
+       call ESMF_ConfigFindLabel(config, 'FIELD_SETS:', _RC)
+       table_end = .false.
+       do while (.not. table_end)
+          call ESMF_ConfigGetAttribute ( config, value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
+          if (tmpstring /= '')  then
+             ! Add empty FieldSet to dictionary of field collections
+             allocate(field_set)
+             call intstate%field_sets%insert(trim(tmpString), field_set)
+             deallocate(field_set)
+          end if
+          call ESMF_ConfigNextLine     ( config,tableEnd=table_end,_RC )
+       enddo
+
+       field_set_iter = intState%field_sets%begin()
+       do while (field_set_iter /= intState%field_sets%end())
+          key => field_set_iter%key()
+          field_set => field_set_iter%value()
+          call parse_fields(config, key, field_set, _RC)
+          call field_set_iter%next()
+       end do
+
+    end if
+
+    allocate(IntState%Regrid(nlist), _STAT)
+    allocate(          Vvarn(nlist), _STAT)
+    allocate(INTSTATE%STAMPOFFSET(nlist), _STAT)
+
+! We are parsing HISTORY config file to split each collection into separate RC
+! ----------------------------------------------------------------------------
+
+    if( MAPL_AM_I_ROOT(vm) ) then
+       call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
+            label="HIST_CF:", default="HIST.rc", _RC )
+       unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
+!       for each collection
+       do n = 1, nlist
+         rewind(unitr)
+         string = trim( list(n)%collection ) // '.'
+         unitw = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
+         match = .false.
+         contLine = .false.
+         con3 = .false.
+
+         do while (.true.)
+            read(unitr, '(A)', end=1234) line
+            j = index( adjustl(line), trim(adjustl(string)) )
+            match = (j == 1)
+            if (match) then
+               j = index(line, trim(string)//'fields:')
+               contLine = (j > 0)
+               k = index(line, trim(string)//'obs_files:')
+               con3 = (k > 0)
+            end if
+            if (match .or. contLine .or. con3) then
+               write(unitw,'(A)') trim(line)
+            end if
+            if (contLine) then
+               if (adjustl(line) == '::') contLine = .false.
+            end if
+            if (con3) then
+               if (adjustl(line) == '::') con3 = .false.
+            endif
+         end do
+
+1234     continue
+         call free_file(unitw, _RC)
+      end do
+
+      call free_file(unitr, _RC)
+
+    end if
+
+! Overwrite the above process if HISTORY.rc encounters DEFINE_OBS_PLATFORM for OSSE
+! ----------------------------------------------------------------------------
+    if( MAPL_AM_I_ROOT(vm) ) then
+       call regen_rcx_for_obs_platform (config, nlist, list, _RC)
+    end if
+
+    call ESMF_VMbarrier(vm, _RC)
+
+! Initialize History Lists
+! ------------------------
+
+    LISTLOOP: do n=1,nlist
+
+       list(n)%unit = 0
+
+       string = trim( list(n)%collection ) // '.'
+
+       if (trim(list(n)%filename) == "/dev/null") then
+          list(n)%disabled = .true.
+       else
+          list(n)%disabled = .false.
+       end if
+
+       list(n)%monthly = .false.
+       list(n)%splitField = .false.
+       list(n)%regex = .false.
+
+       cfg = ESMF_ConfigCreate(_RC)
+
+       call ESMF_ConfigLoadFile(cfg, filename = trim(string)//'rcx', _RC)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%template, default="", &
+                                      label=trim(string) // 'template:' ,_RC )
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%format,default='flat', &
+                                      label=trim(string) // 'format:' ,_RC )
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%mode,default='instantaneous', &
+                                      label=trim(string) // 'mode:' ,_RC )
+
+       ! Fill the global attributes
+
+       ! filename is special as it does double duty, so we fill directly
+       ! from HistoryCollection object
+       list(n)%global_atts%filename = list(n)%filename
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%descr, &
+                                      default=INTSTATE%expdsc, &
+                                      label=trim(string) // 'descr:' ,_RC )
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%comment, &
+                                      default=INTSTATE%global_atts%comment, &
+                                      label=trim(string) // 'comment:' ,_RC)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%contact, &
+                                      default=INTSTATE%global_atts%contact, &
+                                      label=trim(string) // 'contact:' ,_RC)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%conventions, &
+                                      default=INTSTATE%global_atts%conventions, &
+                                      label=trim(string) // 'conventions:' ,_RC)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%institution, &
+                                      default=INTSTATE%global_atts%institution, &
+                                      label=trim(string) // 'institution:' ,_RC)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%references, &
+                                      default=INTSTATE%global_atts%references, &
+                                      label=trim(string) // 'references:' ,_RC)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%source, &
+                                      default=INTSTATE%global_atts%source, &
+                                      label=trim(string) // 'source:' ,_RC)
+
+       call ESMF_ConfigGetAttribute ( cfg, mntly, default=0, &
+                                      label=trim(string) // 'monthly:',_RC )
+       list(n)%monthly = (mntly /= 0)
+       call ESMF_ConfigGetAttribute ( cfg, spltFld, default=0, &
+                                      label=trim(string) // 'splitField:',_RC )
+       list(n)%splitField = (spltFld /= 0)
+       call ESMF_ConfigGetAttribute ( cfg, useRegex, default=0, &
+                                      label=trim(string) // 'UseRegex:',_RC )
+       list(n)%regex = (useRegex /= 0)
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%frequency, default=060000, &
+                                      label=trim(string) // 'frequency:',_RC )
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%acc_interval, default=list(n)%frequency, &
+                                      label=trim(string) // 'acc_interval:',_RC )
+
+       call ESMF_ConfigFindLabel(cfg,label= trim(string) // 'acc_ref_time',isPresent = isPresent, _RC)
+       if (isPresent) then
+          call ESMF_ConfigGetAttribute ( cfg, list(n)%acc_ref_time, default=000000, &
+                                         label=trim(string) // 'acc_ref_time:',_RC )
+          _ASSERT(is_valid_time(list(n)%ref_time),'Invalid acc_ref_time')
+          list(n)%acc_offset = get_acc_offset(currTime,list(n)%acc_ref_time,_RC)
+       else
+          list(n)%acc_offset = 0
+       end if
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%ref_date, default=nymdc, &
+                                      label=trim(string) // 'ref_date:',_RC )
+       _ASSERT(is_valid_date(list(n)%ref_date),'Invalid ref_date')
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%ref_time, default=000000, &
+                                      label=trim(string) // 'ref_time:',_RC )
+       _ASSERT(is_valid_time(list(n)%ref_time),'Invalid ref_time')
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_date, default=-999, &
+                                      label=trim(string) // 'end_date:',_RC )
+       if (list(n)%end_date /= -999) then
+          _ASSERT(is_valid_date(list(n)%end_date),'Invalid end_date')
+       end if
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_time, default=-999, &
+                                      label=trim(string) // 'end_time:',_RC )
+       if (list(n)%end_time /= -999) then
+          _ASSERT(is_valid_time(list(n)%end_time),'Invalid end_time')
+       end if
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%duration, default=list(n)%frequency, &
+                                      label=trim(string) // 'duration:'  ,_RC )
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%verbose, default=0, &
+                                      label=trim(string) // 'verbose:'  ,_RC )
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%vscale, default=1.0, &
+                                      label=trim(string) // 'vscale:'  ,_RC )
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%vunit, default="", &
+                                      label=trim(string) // 'vunit:'  ,_RC )
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%nbits_to_keep, default=MAPL_NBITS_NOT_SET, &
+                                      label=trim(string) // 'nbits:' ,_RC )
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%deflate, default=0, &
+                                      label=trim(string) // 'deflate:' ,_RC )
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_algorithm_string, default='NONE', &
+                                      label=trim(string) // 'quantize_algorithm:' ,_RC )
+
+       ! Uppercase the algorithm string just to allow for any case
+       uppercase_algorithm = ESMF_UtilStringUpperCase(list(n)%quantize_algorithm_string,_RC)
+       select case (trim(uppercase_algorithm))
+       case ('NONE')
+          list(n)%quantize_algorithm = MAPL_Quantize_Disabled
+       case ('BITGROOM')
+          list(n)%quantize_algorithm = MAPL_Quantize_BitGroom
+       case ('GRANULARBR')
+          list(n)%quantize_algorithm = MAPL_Quantize_GranularBR
+       case ('BITROUND')
+          list(n)%quantize_algorithm = MAPL_Quantize_BitRound
+       case default
+          _FAIL('Invalid quantize_algorithm. Allowed values are NONE, BitGroom, GranularBR, BitRound')
+       end select
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_level, default=0, &
+                                      label=trim(string) // 'quantize_level:' ,_RC )
+
+       ! If nbits_to_keep < MAPL_NBITS_UPPER_LIMIT (24) and quantize_algorithm greater than 0, then a user might be doing different
+       ! shaving algorithms. We do not allow this
+       _ASSERT( .not. ( (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) .and. (list(n)%quantize_algorithm > 0) ), 'nbits < 24 and quantize_algorithm > 0 is not allowed. Choose one bit grooming method.')
+
+       ! quantize_algorithm must be between 0 and 3 where 0 means not enabled
+       _ASSERT( (list(n)%quantize_algorithm >= 0) .and. (list(n)%quantize_algorithm <= 3), 'quantize_algorithm must be between 0 and 3, where 0 means not enabled')
+
+       ! Now we test in the case that a valid quantize algorithm is chosen
+       if (list(n)%quantize_algorithm == 0) then
+         ! If quantize_algorithm is 0, then quantize_level must be 0
+          _ASSERT( list(n)%quantize_level == 0, 'quantize_algorithm is 0, so quantize_level must be 0')
+       else
+         ! If quantize_algorithm is greater than 0, then quantize_level must be greater than or equal to 0
+         _ASSERT( list(n)%quantize_level >= 0, 'netCDF quantize has been enabled, so quantize_level must be greater than or equal to 0')
+       end if
+
+       tm_default = -1
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%tm, default=tm_default, &
+                                      label=trim(string) // 'tm:', _RC )
+
+       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'conservative:',isPresent=has_conservative_keyword,_RC)
+       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'regrid_method:',isPresent=has_regrid_keyword,_RC)
+       _ASSERT(.not.(has_conservative_keyword .and. has_regrid_keyword),trim(string)//" specified both conservative and regrid_method")
+
+       list(n)%regrid_method = REGRID_METHOD_BILINEAR
+       if (has_conservative_keyword) then
+          call ESMF_ConfigGetAttribute ( cfg, list(n)%regrid_method, default=0, &
+                                         label=trim(string) // 'conservative:'  ,_RC )
+          if (list(n)%regrid_method==0) then
+             list(n)%regrid_method=REGRID_METHOD_BILINEAR
+          else if (list(n)%regrid_method==1) then
+             list(n)%regrid_method=REGRID_METHOD_CONSERVE
+          end if
+       end if
+       if (has_regrid_keyword) then
+          call ESMF_ConfigGetAttribute ( cfg, regrid_method, label=trim(string) // 'regrid_method:'  ,_RC )
+           list(n)%regrid_method = regrid_method_string_to_int(trim(regrid_method))
+       end if
+
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%sampler_spec, default="", &
+            label=trim(string) // 'sampler_spec:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
+            label=trim(string) // 'station_id_file:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationSkipLine, default=0, &
+            label=trim(string) // 'station_skip_line:', _RC)
+
+! Get an optional file containing a 1-D track for the output
+       call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)  ! here donot check rc on purpose
+       if (list(n)%sampler_spec == 'trajectory') then
+          list(n)%timeseries_output = .true.
+       end if
+
+
+! Handle "backwards" mode: this is hidden (i.e. not documented) feature
+! Defaults to .false.
+       call ESMF_ConfigGetAttribute ( cfg, reverse, default=0, &
+                                      label=trim(string) // 'backwards:'  ,_RC )
+       list(n)%backwards = (reverse /= 0)
+
+!      Disable streams when frequencies, times are negative
+!      ----------------------------------------------------
+       if ( list(n)%frequency < 0 .OR. &
+            list(n)%ref_date  < 0 .OR. &
+            list(n)%ref_time  < 0 .OR. &
+            list(n)%duration  < 0      )   list(n)%disabled = .true.
+
+
+       old_fields_style = .true. ! unless
+       if (intstate%version >= 2) then
+          call ESMF_ConfigGetAttribute ( cfg, value=field_set_name, label=trim(string)//'field_set:', &
+               & default='', _RC)
+          if (field_set_name /= '') then  ! field names already parsed
+             old_fields_style = .false.
+             field_set => intstate%field_sets%at(trim(field_set_name))
+             _ASSERT(associated(field_set),'needs informative message')
+          end if
+       end if
+
+       if (old_fields_style) then
+          field_set_name = trim(string) // 'fields'
+          allocate(field_set)
+          call parse_fields(cfg, trim(field_set_name), field_set, collection_name = list(n)%collection, items = list(n)%items, _RC)
+       end if
+
+       list(n)%field_set => field_set
+
+! Decide on orientation of output
+! -------------------------------
+
+          call ESMF_ConfigFindLabel(cfg,trim(string)//'positive:',isPresent=isPresent,_RC)
+          if (isPresent) then
+             call ESMF_ConfigGetAttribute(cfg,value=list(n)%positive,_RC)
+             _ASSERT(list(n)%positive=='down'.or.list(n)%positive=='up',"positive value for collection must be down or up")
+          else
+             list(n)%positive = 'down'
+          end if
+
+! Get an optional list of output levels
+! -------------------------------------
+
+       list(n)%vvars = ""
+
+       len = ESMF_ConfigGetLen( cfg, label=trim(trim(string) // 'levels:'), rc = status )
+
+       LEVS: if( status == ESMF_SUCCESS ) then
+          call ESMF_ConfigFindLabel( cfg, label=trim(trim(string) // 'levels:'),_RC)
+             j = 0
+          do i = 1, len
+             call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
+             if( trim(tmpstring) == ',' )  cycle
+             j = j + 1
+
+             ! Allow for possibility that levels could point to a file
+             isFileName = .false.
+             if (j == 1) then
+                !ALT: only the first non-comma entry could be filename
+                tmpstring = trim(adjustl(tmpstring))
+                l = len_trim(tmpstring)
+                do k = 1,l
+                   c = ichar(tmpstring(k:k))
+                   if((c > 64 .and. c < 91) .or. (c>96 .and. c < 123)) then
+                      isFileName = .true.
+                      exit
+                   end if
+                end do
+
+                if (isFileName) then
+                   INQUIRE ( FILE=trim(tmpstring), EXIST=fileExists )
+                   _ASSERT(fileExists,'needs informative message')
+
+                   unit = GETFILE(trim(tmpstring), form='formatted', _RC)
+
+                   if (MAPL_Am_I_Root(vm)) then
+                      k=0
+                      do while (.true.)
+                         read(unit, *, end=987) lvl
+                         k = k+1
+                      end do
+987                   continue
+
+                   end if
+
+                   call MAPL_CommsBcast(vm, DATA=k, N=1, ROOT=MAPL_Root, _RC)
+
+                   allocate( list(n)%levels(k), stat = status )
+
+                   if (MAPL_Am_I_Root(vm)) then
+                      rewind(unit)
+                      do l=1,k
+                         read(unit, *) list(n)%levels(l)
+                      end do
+                   end if
+
+                   call MAPL_CommsBcast(vm, DATA=list(n)%levels, N=k, &
+                        ROOT=MAPL_Root, _RC)
+
+                   call FREE_FILE(UNIT)
+                end if
+             end if
+
+             if(isFileName) cycle
+
+             allocate( levels(j), stat = status )
+                     i1 = index(tmpstring(:),",")
+                 if( i1.eq.1 )  tmpstring = adjustl( tmpstring(2:)   )
+                     j1 = index(tmpstring(:),",")-1
+                 if( j1.gt.0 )  tmpstring = adjustl( tmpstring(1:j1) )
+             read(tmpstring,*)  levels(j)
+             if( j.eq.1 ) then
+                 allocate( list(n)%levels(j), stat = status )
+                 list(n)%levels(j) = levels(j)
+             else
+                 levels(1:j-1) = list(n)%levels(:)
+                 deallocate( list(n)%levels )
+                   allocate( list(n)%levels(j), stat = status )
+                   list(n)%levels(:) = levels(:)
+             endif
+             deallocate( levels )
+          enddo
+
+! Get an interpolating variable
+! -----------------------------
+
+          call ESMF_ConfigFindLabel ( cfg,trim(string) // 'vvars:',isPresent=isPresent,_RC )
+          VINTRP: if(isPresent) then
+
+             call ESMF_ConfigGetAttribute ( cfg,value=list(n)%vvars(1), _RC)
+             i = index(list(n)%vvars(1)(  1:),"'")
+             j = index(list(n)%vvars(1)(i+1:),"'")+i
+             if( i.ne.0 ) then
+                 list(n)%vvars(1) = adjustl( list(n)%vvars(1)(i+1:j-1) )
+             else
+                 list(n)%vvars(1) = adjustl( list(n)%vvars(1) )
+             endif
+
+             call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
+             if( trim(tmpstring) == ',' )  then
+                 call ESMF_ConfigGetAttribute ( cfg,value=list(n)%vvars(2),_RC)
+             else
+                 list(n)%vvars(2) = tmpstring
+             endif
+             i = index(list(n)%vvars(2)(  1:),"'")
+             j = index(list(n)%vvars(2)(i+1:),"'")+i
+             if( i.ne.0 ) then
+                 list(n)%vvars(2) = adjustl( list(n)%vvars(2)(i+1:j-1) )
+             else
+                 list(n)%vvars(2) = adjustl( list(n)%vvars(2) )
+             endif
+
+! Add Vertical Coordinate Variables to Field List (if not already present)
+! ------------------------------------------------------------------------
+
+             list(n)%vvars(1) = trim(adjustl(list(n)%vvars(1)))
+             vvar = adjustl(list(n)%vvars(1))
+             if(vvar/="") then
+                if    (Vvar(1:3)=='log') then
+                   Vvar  = adjustl(Vvar(index(vvar,'(')+1:index(vvar,')')-1))
+                elseif(Vvar(1:3)=='pow') then
+                   Vvar  = adjustl(Vvar(index(vvar,'(')+1:index(vvar,',')-1))
+                endif
+
+                do i=1,list(n)%field_set%nfields
+                   found = list(n)%field_set%fields(1,i).eq.vvar   .and. &
+                        list(n)%field_set%fields(2,i).eq.list(n)%vvars(2)
+                   if(found)exit
+                enddo
+
+                if( .not.found ) then
+                   list(n)%field_set%nfields = list(n)%field_set%nfields + 1
+                   allocate( fields(4,  list(n)%field_set%nfields), _STAT )
+                   fields(1,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(1,:)
+                   fields(2,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(2,:)
+                   fields(3,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(3,:)
+                   fields(4,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(4,:)
+                   fields(1,  list(n)%field_set%nfields  ) = Vvar
+                   fields(2,  list(n)%field_set%nfields  ) = list(n)%vvars (2)
+                   fields(3,  list(n)%field_set%nfields  ) = Vvar
+                   fields(4,  list(n)%field_set%nfields  ) = BLANK
+                   deallocate( list(n)%field_set%fields, _STAT )
+                   list(n)%field_set%fields => fields
+                endif
+             end if
+          endif VINTRP ! Vertical interp var
+
+       endif LEVS ! selected levels
+
+       vvarn(n) = vvar
+
+       cubeFormat = 1
+       list(n)%xyoffset = 0
+       ! Determine the file-side grid to use for the collection.
+       select case (intstate%version)
+       case(1:)
+          call ESMF_ConfigGetAttribute ( cfg, tmpString, default='' , &
+                                         label=trim(string) // 'grid_label:' ,_RC )
+          if (len_trim(tmpString) == 0) then
+             list(n)%output_grid_label=''
+          else
+             cubeFormat = 0
+             i1 = index(tmpstring(:),",")
+             if( i1.eq.1 )  tmpstring = adjustl( tmpstring(2:)   )
+             j1 = index(tmpstring(:),",")-1
+             if( j1.gt.0 )  tmpstring = adjustl( tmpstring(1:j1) )
+             pgrid => IntState%output_grids%at(trim(tmpString))
+             ! If user specifies a grid label, then it is required.
+             ! Do not default to native in this case
+             _ASSERT(associated(pgrid),'needs informative message')
+             list(n)%output_grid_label = trim(tmpString)
+          end if
+       case(0)
+          call ESMF_ConfigFindLabel( cfg, label=trim(trim(string) // 'resolution:'), rc = status )
+          if (status==ESMF_SUCCESS) then
+             cubeFormat = 0
+             j = 0
+             do i = 1,2
+                call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
+                if( trim(tmpstring) == ',' )  cycle
+                j = j + 1
+                _ASSERT(j<=2,'needs informative message')
+                        i1 = index(tmpstring(:),",")
+                    if( i1.eq.1 )  tmpstring = adjustl( tmpstring(2:)   )
+                        j1 = index(tmpstring(:),",")-1
+                    if( j1.gt.0 )  tmpstring = adjustl( tmpstring(1:j1) )
+                read(tmpstring,*)  resolution(j)
+             enddo
+             call list(n)%AddGrid(IntState%output_grids,resolution,_RC)
+          else
+             list(n)%output_grid_label=''
+          end if
+       end select
+
+! Handle "useNewFormat" mode: this is hidden (i.e. not documented) feature
+! Affects only "new" cubed-sphere native output
+! Defaults to .true.
+       newFormat = cubeFormat
+       if (cubeFormat /= 0) then
+          call ESMF_ConfigGetAttribute ( cfg, newFormat, default=cubeFormat, &
+                                         label=trim(string) // 'cubeFormat:'  ,_RC )
+       end if
+       list(n)%useNewFormat = (newFormat /= 0)
+
+! Force history so that time averaged collections are timestamped with write time
+       call ESMF_ConfigGetAttribute(cfg, list(n)%ForceOffsetZero, default=.false., &
+                                    label=trim(string)//'timestampEnd:', _RC)
+! Force history so that time averaged collections are timestamped at the begining of the accumulation interval
+       call ESMF_ConfigGetAttribute(cfg, list(n)%timeStampStart, default=.false., &
+                                    label=trim(string)//'timestampStart:', _RC)
+
+! Get an optional chunk size
+! --------------------------
+       len = ESMF_ConfigGetLen(cfg, label=trim(trim(string) // 'chunksize:'), rc = status)
+       if ( status == ESMF_SUCCESS ) then
+          call ESMF_ConfigFindLabel( cfg, label=trim(trim(string) // 'chunksize:'), _RC)
+          chnksz = 4
+          if (list(n)%useNewFormat) then
+             chnksz = 5
+          end if
+          allocate( list(n)%chunksize(chnksz), stat = status)
+          j=0
+          do i=1,len
+             call ESMF_ConfigGetAttribute( cfg,value=tmpstring, _RC)
+             if (trim(tmpstring) == ',' ) cycle
+             j = j + 1
+             _ASSERT(j<=6,'needs informative message')
+             i1 = index(tmpstring(:),",")
+             if (i1.eq.1) tmpstring = adjustl( tmpstring(2:)  )
+             j1 = index(tmpstring(:),",")-1
+             if (j1.gt.0) tmpstring = adjustl( tmpstring(1:j1) )
+             if (j<=chnksz) read(tmpstring,*) list(n)%chunksize(j)
+          enddo
+       end if
+
+! Get an optional tile file for regridding the output
+! ---------------------------------------------------
+       call ESMF_ConfigGetAttribute ( cfg, value=tilefile, default="", &
+                                      label=trim(string) // 'regrid_exch:' ,_RC )
+
+       call ESMF_ConfigGetAttribute ( cfg, value=gridname, default="", &
+                                      label=trim(string) // 'regrid_name:' ,_RC )
+
+       NULLIFY(IntState%Regrid(n)%PTR)
+       if (tilefile /= '' .OR. gridname /= '') then
+          allocate(IntState%Regrid(n)%PTR, _STAT)
+          IntState%Regrid(n)%PTR%tilefile = tilefile
+          IntState%Regrid(n)%PTR%gridname = gridname
+       end if
+
+! Set Alarms
+! ----------
+
+       if (list(n)%disabled) cycle
+
+! His and Seg Alarms based on Reference Date and Time
+! ---------------------------------------------------
+       REF_TIME(1) =     list(n)%ref_date/10000
+       REF_TIME(2) = mod(list(n)%ref_date,10000)/100
+       REF_TIME(3) = mod(list(n)%ref_date,100)
+       REF_TIME(4) =     list(n)%ref_time/10000
+       REF_TIME(5) = mod(list(n)%ref_time,10000)/100
+       REF_TIME(6) = mod(list(n)%ref_time,100)
+
+       !ALT if monthly, modify ref_time to midnight first of the month
+       if (list(n)%monthly) then
+          REF_TIME(3) = 1
+          REF_TIME(4:6) = 0
+          list(n)%ref_time = 0
+          list(n)%ref_date = 10000*REF_TIME(1) + 100*REF_TIME(2) + REF_TIME(3)
+       end if
+
+       call ESMF_TimeSet( RefTime, YY = REF_TIME(1), &
+                                   MM = REF_TIME(2), &
+                                   DD = REF_TIME(3), &
+                                   H  = REF_TIME(4), &
+                                   M  = REF_TIME(5), &
+                                   S  = REF_TIME(6), calendar=cal, rc=rc )
+
+       ! ALT if monthly, set interval "Frequncy" to 1 month
+       ! also in this case sec should be set to non-zero
+       !ALT if monthly overwrite duration and frequency
+       if (list(n)%monthly) then
+          list(n)%duration = 1 !ALT simply non-zero
+          sec = 1              !ALT simply non-zero
+          Frequency = oneMonth
+          RingTime = startOfThisMonth
+       else
+          sec = MAPL_nsecf( list(n)%frequency )
+          call ESMF_TimeIntervalSet( Frequency, S=sec, StartTime=StartTime, _RC )
+          RingTime = RefTime
+       end if
+
+! Added Logic to eliminate BEG_DATE = cap_restart date problem
+! ------------------------------------------------------------
+       if (RefTime == startTime) then
+           RingTime = RefTime + Frequency
+       end if
+!
+       if (RingTime < currTime .and. sec /= 0 ) then
+           RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
+       endif
+       if ( list(n)%backwards ) then
+          list(n)%his_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, _RC )
+       else
+          list(n)%his_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., _RC )
+       endif
+
+       if( list(n)%duration.ne.0 ) then
+          if (.not.list(n)%monthly) then
+             sec = MAPL_nsecf( list(n)%duration )
+             call ESMF_TimeIntervalSet( Frequency, S=sec, StartTime=StartTime, _RC )
+          else
+             Frequency = oneMonth
+             !ALT keep the values from above
+             ! and for debugging print
+             call WRITE_PARALLEL("DEBUG: monthly averaging is active for collection "//trim(list(n)%collection))
+          end if
+          RingTime = RefTime
+          if (RingTime < currTime) then
+              RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
+          endif
+          if ( list(n)%backwards ) then
+             list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, _RC )
+          else
+             list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., _RC )
+          endif
+          if (list(n)%monthly .and. (currTime == RingTime)) then
+             call ESMF_AlarmRingerOn( list(n)%his_alarm,_RC )
+          end if
+
+       else
+          ! this alarm should never ring, but it is checked if ringing
+          list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, enabled=.false., &
+               ringTime=currTime, name='historyNewSegment', _RC )
+       endif
+
+! Mon Alarm based on 1st of Month 00Z
+! -----------------------------------
+       REF_TIME(1) =     list(n)%ref_date/10000
+       REF_TIME(2) = mod(list(n)%ref_date,10000)/100
+       REF_TIME(3) = 1
+       REF_TIME(4) = 0
+       REF_TIME(5) = 0
+       REF_TIME(6) = 0
+
+       call ESMF_TimeSet( RefTime, YY = REF_TIME(1), &
+                                   MM = REF_TIME(2), &
+                                   DD = REF_TIME(3), &
+                                   H  = REF_TIME(4), &
+                                   M  = REF_TIME(5), &
+                                   S  = REF_TIME(6), calendar=cal, rc=rc )
+
+       call ESMF_TimeIntervalSet( Frequency, MM=1, calendar=cal, _RC )
+       RingTime = RefTime
+       do while ( RingTime < currTime )
+          RingTime = RingTime + Frequency
+       enddo
+       if ( list(n)%backwards ) then
+          list(n)%mon_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, _RC )
+       else
+          list(n)%mon_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., _RC )
+       endif
+       if(list(n)%monthly) then
+          !ALT this is temporary workaround. It has a memory leak
+          ! we need to at least destroy his_alarm before assignment
+          ! better yet, create it like this one in the first place
+          call ESMF_AlarmDestroy(list(n)%his_alarm)
+          list(n)%his_alarm = list(n)%mon_alarm
+          intState%stampOffset(n) = Frequency ! we go to the beginning of the month
+       end if
+
+! End Alarm based on end_date and end_time
+! ----------------------------------------
+       if( list(n)%end_date.ne.-999 .and. list(n)%end_time.ne.-999 ) then
+           REF_TIME(1) =     list(n)%end_date/10000
+           REF_TIME(2) = mod(list(n)%end_date,10000)/100
+           REF_TIME(3) = mod(list(n)%end_date,100)
+           REF_TIME(4) =     list(n)%end_time/10000
+           REF_TIME(5) = mod(list(n)%end_time,10000)/100
+           REF_TIME(6) = mod(list(n)%end_time,100) + 1 ! Add 1 second to make end_time inclusive
+
+           call ESMF_TimeSet( RingTime, YY = REF_TIME(1), &
+                                        MM = REF_TIME(2), &
+                                        DD = REF_TIME(3), &
+                                        H  = REF_TIME(4), &
+                                        M  = REF_TIME(5), &
+                                        S  = REF_TIME(6), calendar=cal, rc=rc )
+
+           if ( list(n)%backwards ) then
+              list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=RingTime, _RC )
+           else
+              list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=RingTime, sticky=.false., _RC )
+           endif
+        else
+           if ( list(n)%backwards ) then
+              list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=CurrTime, _RC )
+           else
+              list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=CurrTime, sticky=.false., _RC )
+           endif
+           call  ESMF_AlarmRingerOff(list(n)%end_alarm, _RC )
+       endif
+
+       call ESMF_ConfigDestroy(cfg, _RC)
+    enddo LISTLOOP
+
+    if( MAPL_AM_I_ROOT() ) print *
+
+! START OF PARSER STUFF
+    size0 = 1 !size( export )
+    nstatelist = 0
+    allocate( statelist(size0), _STAT )
+    statelist(1) = ''
+
+
+    do n=1,nlist
+       do m=1,list(n)%field_set%nfields
+          k=1
+          if (list(n)%regex .or. &
+              scan(trim(list(n)%field_set%fields(1,m)),'()^/*+-')==0)then
+             do while ( k.le.nstatelist )
+                if (statelist(k) == '') statelist(k) = list(n)%field_set%fields(2,m)
+                if( statelist(k).ne.list(n)%field_set%fields(2,m)) then
+                   k=k+1
+                else
+                   exit
+                end if
+             enddo
+             if(k.eq.nstatelist+1) then
+                allocate( tmplist (nstatelist), _STAT )
+                tmplist = statelist
+                nstatelist = k
+                deallocate( statelist )
+                allocate( statelist(nstatelist), _STAT )
+                if (k > 1) statelist(1:k-1) = tmplist
+                statelist(k)     = list(n)%field_set%fields(2,m)
+                deallocate(   tmplist )
+             endif
+          !else
+             !if (index(list(n)%field_set%fields(1,m),'%') /= 0) then
+                !call WRITE_PARALLEL('Can not do arithmetic expression with bundle item')
+                !_FAIL('needs informative message')
+             !end if
+          end if
+       enddo
+    enddo
+! Get Output Export States
+! ------------------------
+
+    allocate ( exptmp(size0), _STAT )
+    exptmp(1) = import
+    allocate ( export(nstatelist), _STAT )
+    errorFound = .false.
+    allocate ( stateListAvail(nstatelist), _STAT )
+    stateListAvail = .true.
+    if (disableSubVmChecks) then
+!ALT: setting disableSubVmChecks to .true. automatically assumes that subVm = .false.
+       do n=1,nstatelist
+          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),rc=status )
+          if( STATUS/= ESMF_SUCCESS ) then
+             call WRITE_PARALLEL('Cannot Find ' // trim(statelist(n)))
+             errorFound = .true.
+          endif
+       enddo
+    else
+       do n=1,nstatelist
+          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),_RC )
+          call ESMF_VMAllReduce(vm, sendData=status, recvData=globalStatus, &
+               reduceflag=ESMF_REDUCE_MAX, rc=localStatus)
+
+          if( STATUS/= ESMF_SUCCESS ) then
+             stateListAvail(n) = .false.
+          end if
+
+          if( globalSTATUS/= ESMF_SUCCESS ) then
+             call WRITE_PARALLEL('Cannot Find ' // trim(statelist(n)))
+             errorFound = .true.
+          endif
+
+       enddo
+    end if
+    _ASSERT(.not. errorFound,'needs informative message')
+    deallocate ( exptmp )
+
+! Associate Output Names with EXPORT State Index
+! ----------------------------------------------
+    list(:)%subVm = .false.
+    do n=1,nlist
+       allocate( list(n)%expSTATE(list(n)%field_set%nfields), _STAT )
+       do m=1,list(n)%field_set%nfields
+! when we allow regex; some syntax resembles math expressions
+        if (list(n)%regex .or. &
+            scan(trim(list(n)%field_set%fields(1,m)),'()^/*+-')==0)then
+          do k=1,nstatelist
+             if( trim(list(n)%field_set%fields(2,m)) .eq. trim(statelist(k)) ) then
+                if (.not. stateListAvail(k)) then
+                   list(n)%subVm = .true.
+                   cycle
+                end if
+                list(n)%expSTATE(m) = k
+             end if
+          enddo
+        endif
+       enddo
+    enddo
+
+    ! Important: the next modifies the field's list
+    ! first we check if any regex expressions need to expanded
+    !---------------------------------------------------------
+    call wildCardExpand(_RC)
+
+    do n=1,nlist
+       m=list(n)%field_set%nfields
+       allocate(list(n)%r4(m), list(n)%r8(m), list(n)%r8_to_r4(m), _STAT)
+    end do
+
+PARSER: do n=1,nlist
+
+       do m=1,list(n)%field_set%nfields
+          if (scan(trim(list(n)%field_set%fields(1,m)),'()^/*+-')==0)then
+             call MAPL_StateGet( export(list(n)%expSTATE(m)),trim(list(n)%field_set%fields(1,m)),field,rc=status )
+             IF (STATUS /= ESMF_SUCCESS) then
+                call WRITE_PARALLEL( "ERROR: cannot find output " // &
+                     trim(list(n)%field_set%fields(1,m)) // " in " // &
+                     trim(list(n)%field_set%fields(2,m)))
+                errorFound = .true.
+                status=ESMF_SUCCESS
+             endif
+         endif
+      enddo
+
+      allocate(list(n)%tmpfields(list(n)%field_set%nfields), _STAT)
+      allocate(list(n)%ReWrite(list(n)%field_set%nfields), _STAT)
+
+      list(n)%tmpfields=''
+      list(n)%ReWrite= .FALSE.
+
+      call MAPL_SetExpression(list(n)%field_set%nfields,list(n)%field_set%fields,list(n)%tmpfields,list(n)%rewrite,  &
+                              list(n)%nPExtraFields, &
+                              list(n)%PExtraFields, list(n)%PExtraGridComp, import,_RC)
+
+ENDDO PARSER
+
+    _ASSERT(.not. errorFound,'needs informative message')
+    deallocate(stateListAvail)
+    deallocate(export)
+    deallocate(statelist)
+    do n=1,nlist
+     deallocate(list(n)%expSTATE)
+    enddo
+
+! END OF PARSER STUFF
+
+! Extract List of Unique Export State Names
+! -----------------------------------------
+
+    size0 = 1 !size( export )
+    nstatelist = 0
+    allocate( statelist(size0), _STAT )
+    statelist(1) = ''
+
+
+    do n=1,nlist
+       do m=1,list(n)%field_set%nfields
+          k=1
+          do while ( k.le.nstatelist )
+             if (statelist(k) == '') statelist(k) = list(n)%field_set%fields(2,m)
+             if( statelist(k).ne.list(n)%field_set%fields(2,m)) then
+                k=k+1
+             else
+                exit
+             end if
+          enddo
+          if(k.eq.nstatelist+1) then
+             allocate( tmplist (nstatelist), _STAT )
+             tmplist = statelist
+             nstatelist = k
+             deallocate( statelist )
+             allocate( statelist(nstatelist), _STAT )
+             if (k > 1) statelist(1:k-1) = tmplist
+             statelist(k)     = list(n)%field_set%fields(2,m)
+             deallocate(   tmplist )
+          endif
+       enddo
+    enddo
+
+! Get Output Export States
+! ------------------------
+
+    allocate ( exptmp (size0), _STAT )
+    exptmp(1) = import
+!    deallocate ( export )
+    allocate ( export(nstatelist), _STAT )
+    errorFound = .false.
+    allocate ( stateListAvail(nstatelist), _STAT )
+    stateListAvail = .true.
+    if (disableSubVmChecks) then
+!ALT: setting disableSubVmChecks to .true. automatically assumes that subVm = .false.
+       do n=1,nstatelist
+          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),rc=status )
+          if( STATUS/= ESMF_SUCCESS ) then
+             call WRITE_PARALLEL('Cannot Find ' // trim(statelist(n)))
+             errorFound = .true.
+          endif
+       enddo
+    else
+       do n=1,nstatelist
+          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),rc=status )
+          call ESMF_VMAllReduce(vm, sendData=status, recvData=globalStatus, &
+               reduceflag=ESMF_REDUCE_MAX, rc=localStatus)
+          _VERIFY(localStatus)
+
+          if( STATUS/= ESMF_SUCCESS ) then
+             stateListAvail(n) = .false.
+          end if
+
+          if( globalSTATUS/= ESMF_SUCCESS ) then
+             call WRITE_PARALLEL('Cannot Find ' // trim(statelist(n)))
+             errorFound = .true.
+          endif
+
+       enddo
+    end if
+    _ASSERT(.not. errorFound,'needs informative message')
+    deallocate ( exptmp )
+
+! Create a copy of the original (i.e. gridded component's export) to
+! be able to modify if safely (for example by splitField)
+! ------------------------------------------------------------------
+    do n=1,nstatelist
+       expsrc = export(n)
+       call ESMF_StateGet(expsrc, name=name, _RC)
+       expdst = ESMF_StateCreate(name=name, _RC)
+       call CopyStateItems(src=expsrc, dst=expdst, _RC)
+       export(n) = expdst
+    end do
+
+! Associate Output Names with EXPORT State Index
+! ----------------------------------------------
+    list(:)%subVm = .false.
+    do n=1,nlist
+       allocate( list(n)%expSTATE(list(n)%field_set%nfields), _STAT )
+       do m=1,list(n)%field_set%nfields
+          do k=1,nstatelist
+             if( trim(list(n)%field_set%fields(2,m)) .eq. trim(statelist(k)) ) then
+                if (.not. stateListAvail(k)) then
+                   list(n)%subVm = .true.
+                   cycle
+                end if
+                list(n)%expSTATE(m) = k
+             end if
+          enddo
+       enddo
+    enddo
+
+! Ensure Diagnostic Output has been Allocated
+! -------------------------------------------
+    errorFound = .false.
+    do n=1,nlist
+       if (list(n)%disabled) cycle
+       if (list(n)%subVm) cycle
+       do m=1,list(n)%field_set%nfields
+          call MAPL_StateGet( export(list(n)%expSTATE(m)), &
+               trim(list(n)%field_set%fields(1,m)), Field, rc=status )
+          IF (STATUS /= ESMF_SUCCESS) then
+             call WRITE_PARALLEL( "ERROR: cannot find output " // &
+                  trim(list(n)%field_set%fields(1,m)) // " in " // &
+                  trim(list(n)%field_set%fields(2,m)))
+             errorFound = .true.
+          else
+             if (index(list(n)%field_set%fields(1,m),'%') ==0) then
+                call MAPL_AllocateCoupling(Field, _RC)
+             end if
+
+          end IF
+       enddo
+    enddo
+
+    _ASSERT(.not. errorFound,'needs informative message')
+
+
+    allocate(INTSTATE%AVERAGE    (nlist), _STAT)
+
+    IntState%average = .false.
+    do n=1, nlist
+       if (list(n)%disabled) cycle
+       if(list(n)%monthly) cycle
+       if(list(n)%mode == "instantaneous" .or. list(n)%ForceOffsetZero) then
+          sec = 0
+       else if (list(n)%timeStampStart) then
+          sec = MAPL_nsecf(list(n)%frequency)
+       else
+          sec = MAPL_nsecf(list(n)%frequency) / 2
+       endif
+       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+          call ESMF_TimeIntervalGet(Hsampler%Frequency_epoch, s=sec, _RC)
+       end if
+       if (list(n)%sampler_spec == 'station' .OR. list(n)%sampler_spec == 'mask') then
+          sec = MAPL_nsecf(list(n)%frequency)
+       end if
+       call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, _RC )
+    end do
+
+   nactual = npes
+   if (.not. disableSubVmChecks) then
+      allocate(allPes(npes), _STAT)
+      minactual = npes
+      do n=1, nlist
+         NULLIFY(list(n)%peAve)
+         if (list(n)%disabled) cycle
+         localPe(1) = mype
+         if (list(n)%subVm) localPe(1) = -1
+         call ESMF_VMAllGather(vm, sendData=localPe, recvData=allPEs, &
+              count=1, _RC)
+         nactual = count(allPEs >= 0)
+         minactual = min(minactual, nactual)
+         allocate(list(n)%peAve(nactual), _STAT)
+         list(n)%peAve = pack(allPEs, allPEs>=0)
+      end do
+
+      IntState%npes = minactual
+      deallocate(allPEs)
+   end if
+
+   allocate(INTSTATE%CCS(nlist), _STAT)
+   allocate(INTSTATE%GIM(nlist), _STAT)
+   allocate(INTSTATE%CIM(nlist), _STAT)
+   allocate(INTSTATE%SRCS(nlist), _STAT)
+   allocate(INTSTATE%DSTS(nlist), _STAT)
+!   allocate(INTSTATE%GEX(nlist), _STAT)
+!   allocate(INTSTATE%GCNameList(nlist), _STAT)
+
+! Initialize Logical for Grads Control File
+! -----------------------------------------
+
+   allocate( INTSTATE%LCTL(nlist), _STAT )
+   do n=1,nlist
+      if (list(n)%disabled) cycle
+      if( list(n)%format == 'flat' ) then
+         INTSTATE%LCTL(n) = .true.
+      else
+         INTSTATE%LCTL(n) = .false.
+      endif
+   enddo
+
+   do n=1, nlist
+      if (list(n)%disabled) cycle
+      if (list(n)%subVm) cycle
+
+      IntState%GIM(n) = ESMF_StateCreate ( name=trim(list(n)%filename), &
+           stateIntent = ESMF_STATEINTENT_IMPORT, &
+           _RC )
+
+      select case (list(n)%mode)
+      case ("instantaneous")
+         IntState%average(n) = .false.
+      case ("time-averaged")
+         IntState%average(n) = .true.
+         IntState%CIM(n) = ESMF_StateCreate ( name=trim(list(n)%filename), &
+              stateIntent = ESMF_STATEINTENT_IMPORT, _RC)
+         NULLIFY(INTSTATE%SRCS(n)%SPEC)
+         NULLIFY(INTSTATE%DSTS(n)%SPEC)
+      case default
+         _FAIL("Invalid mode ["//trim(list(n)%mode)//"] for collection ["//trim(list(n)%collection)//"]. Only 'instantaneous' and 'time-averaged' are supported")
+      end select
+
+      if (associated(IntState%Regrid(n)%PTR)) then
+         _ASSERT(.not. list(n)%subVm,'needs informative message') ! ALT: currently we are not supporting regridding on subVM
+! query a field from export (arbitrary first field in the stream) for grid_in
+         _ASSERT(size(export(list(n)%expSTATE)) > 0,'needs informative message')
+         call MAPL_StateGet( export(list(n)%expSTATE(1)), &
+                             trim(list(n)%field_set%fields(1,1)), field, _RC )
+         IntState%Regrid(n)%PTR%state_out = ESMF_StateCreate ( name=trim(list(n)%filename)//'regrid_in', &
+              stateIntent = ESMF_STATEINTENT_IMPORT, &
+              _RC )
+
+! get grid name, layout, dims
+         call ESMF_FieldGet(field, grid=grid_in, _RC)
+         call ESMF_GridGet(grid_in, name=gridname, distgrid=distgrid, _RC)
+         call ESMF_DistGridGet(distgrid, delayout=layout, _RC)
+
+         IntState%Regrid(n)%PTR%noxform = .false.
+
+!        Check if is is tile variable: we could go the same grid attached to LS
+!        and use T2G or go to the "other" grid in the LS. In the later case,
+!        we need to find then "other LS" from the list of available LS in
+!        History, and calculate Xform, then do T2T, followed by T2G
+
+
+         if (gridname(1:10) == 'tile_grid_') then
+
+            ontiles = .true.
+
+            _ASSERT(IntState%Regrid(n)%PTR%gridname /= '','needs informative message')
+
+!ALT:       here we are getting the address of LocStream from the TILEGRID
+!           as INTEGER(KIND=INT64) attribute and we are using a C routine to
+!           set the pointer to LocStream
+
+            call ESMF_AttributeGet(grid_in, name='TILEGRID_LOCSTREAM_ADDR', &
+                 value=ADDR, _RC)
+            call c_MAPL_LocStreamRestorePtr(exch, ADDR)
+
+!           Get the attached grid
+            call MAPL_LocStreamGet(EXCH, ATTACHEDGRID=GRID_ATTACHED, _RC)
+
+            call ESMF_GridGet(grid_attached, name=attachedName, _RC)
+
+            if (attachedName == IntState%Regrid(n)%PTR%gridname) then
+!              T2G
+               IntState%Regrid(n)%PTR%regridType = MAPL_T2G
+
+               IntState%Regrid(n)%PTR%locOut = exch
+
+               IntState%Regrid(n)%PTR%noxform = .true.
+               grid_out = grid_attached
+               use_this_gridname = .true.
+            else
+!              this is also T2G but the grid is not the attached grid
+!              done as T2T followed by T2G
+               IntState%Regrid(n)%PTR%locIn = exch
+               IntState%Regrid(n)%PTR%regridType = MAPL_T2G
+               IntState%Regrid(n)%PTR%noxform = .false.
+
+! find the "other" locstream
+               found = .false.
+               _ASSERT(associated(LSADDR_PTR),'needs informative message')
+               do i = 1, size(LSADDR_PTR)
+                  call c_MAPL_LocStreamRestorePtr(locStream, LSADDR_PTR(i))
+                  call MAPL_LocStreamGet(locStream, ATTACHEDGRID=GRID, _RC)
+                  call ESMF_GridGet(grid, name=tmpstr, _RC)
+                  if (tmpstr == IntState%Regrid(n)%PTR%gridname) then
+                     found = .true.
+                     exit
+                  end if
+               end do
+
+               if (found) then
+                  IntState%Regrid(n)%PTR%locOut = locStream
+                  grid_out = grid
+               else
+!ALT: added new logic by Max request: if not found
+! open tile file get gridnames, make sure that "output" grid and "attached" grid are 2
+! grids assoc with tile file, else ERROR
+! do T2G on "internal" locstream, followed by G2G (G2T on "output" LS(attached grid),
+! followed by T2T (Xform), and finally G2T on "output" LS("output" grid)
+
+                  IntState%Regrid(n)%PTR%regridType = MAPL_T2G2G
+                  _ASSERT(IntState%Regrid(n)%PTR%tilefile /= '','needs informative message')
+
+                  ontiles = .false. !ALT: this is needed to force execution of G2G part
+
+!>>>
+!           get gridnames from exch
+                  call MAPL_LocStreamGet(exch, GRIDNAMES = GNAMES, _RC)
+
+                  ngrids = size(gnames)
+                  _ASSERT(ngrids==2,'needs informative message')
+
+                  ! find "complement" of attached grid
+                  found = .false.
+                  DO I = 1, NGRIDS
+                     IF (GNAMES(I) == attachedNAME) THEN
+                        FOUND = .TRUE.
+                        exit
+                     ENDIF
+                  ENDDO
+                  _ASSERT(FOUND,'needs informative message')
+                  NG = 3-I
+
+                  ! find "complement" of exch
+                  found = .false.
+                  do i = 1, size(LSADDR_PTR)
+                     call c_MAPL_LocStreamRestorePtr(locStream, LSADDR_PTR(i))
+                     call MAPL_LocStreamGet(locStream, ATTACHEDGRID=GRID, _RC)
+                     call ESMF_GridGet(grid, name=tmpstr, _RC)
+                     if (tmpstr == gnames(NG)) then
+                        found = .true.
+                        exit
+                     end if
+                  end do
+                  _ASSERT(FOUND,'needs informative message')
+!<<<
+                  grid_in = grid                               ! grid_attached
+                  IntState%Regrid(n)%PTR%locNative = locStream ! exch
+!XFORM create exch+locStream; and store it!
+                  call MAPL_LocStreamCreateXform(XFORM=INTSTATE%Regrid(n)%PTR%XFORMntv, &
+                       LocStreamOut=locStream, &
+                       LocStreamIn=exch, &
+                       NAME='historyXFORMnative', &
+                       UseFCollect=.true., &
+                       _RC )
+
+                  ! get the name and layout of attached grid
+                  call ESMF_GridGet(grid_in, name=gridname, distgrid=distgrid, _RC)
+                  call ESMF_DistGridGet(distgrid, delayout=layout, _RC)
+
+                  call MAPL_LocStreamCreate(IntState%Regrid(n)%PTR%locIn, &
+                       layout, FILENAME=IntState%Regrid(n)%PTR%TILEFILE, &
+                       NAME='history_in', MASK=(/MAPL_Ocean/), grid=grid_in, _RC)
+               end if
+
+            end if
+
+         else
+!           this is G2G done as G2T followed by T2T and then T2G
+            IntState%Regrid(n)%PTR%regridType = MAPL_G2G
+            _ASSERT(IntState%Regrid(n)%PTR%tilefile /= '','needs informative message')
+
+            ontiles = .false.
+
+            call MAPL_LocStreamCreate(IntState%Regrid(n)%PTR%locIn, &
+                 layout, FILENAME=IntState%Regrid(n)%PTR%TILEFILE, &
+                 NAME='history_in', MASK=(/MAPL_Ocean/), grid=grid_in, _RC)
+
+         end if
+
+         IntState%Regrid(n)%PTR%ontiles = ontiles
+
+         if (.not. ontiles) then
+!           get gridnames from loc_in
+            call MAPL_LocStreamGet(IntState%Regrid(n)%PTR%locIn, &
+                 GRIDNAMES = GNAMES, _RC)
+! query loc_in for ngrids
+            ngrids = size(gnames)
+            _ASSERT(ngrids==2,'needs informative message')
+
+            use_this_gridname = .false.
+            IntState%Regrid(n)%PTR%noxform = .false.
+! validate that gridname_in is there
+            found = .false.
+            DO I = 1, NGRIDS
+               IF (GNAMES(I) == GRIDNAME) THEN
+                  FOUND = .TRUE.
+                  exit
+               ENDIF
+            ENDDO
+            _ASSERT(FOUND,'needs informative message')
+
+! pick gridname_out
+! we pick the "other" gridname. this works only when ngrids==2; 3-1=2;3-2=1
+            NG = 3 - I
+
+!@@            if (use_this_gridname) then
+!@@               NG = I
+!@@            else
+!@@               NG = 3 - I
+!@@            end if
+! create grid_out
+
+            pgrid => IntState%output_grids%at(trim(gnames(ng)))
+! create and attach loc_out to grid_out
+            grid_out=pgrid
+            call MAPL_LocStreamCreate(IntState%Regrid(n)%PTR%locOut, &
+                 layout, FILENAME=IntState%Regrid(n)%PTR%TILEFILE, &
+                 NAME='history_out', MASK=(/MAPL_Ocean/), Grid=grid_out, _RC)
+
+         endif
+
+! query ntiles
+         call MAPL_LocStreamGet(IntState%Regrid(n)%PTR%locOut, &
+              NT_LOCAL = IntState%Regrid(n)%PTR%ntiles_out, _RC)
+
+         if (.not.INTSTATE%Regrid(n)%PTR%noxform) then
+! query ntiles
+            call MAPL_LocStreamGet(IntState%Regrid(n)%PTR%locIn, &
+                 NT_LOCAL = IntState%Regrid(n)%PTR%ntiles_in, _RC)
+
+! create XFORM
+            call MAPL_LocStreamCreateXform ( XFORM=INTSTATE%Regrid(n)%PTR%XFORM, &
+                 LocStreamOut=INTSTATE%Regrid(n)%PTR%LocOut, &
+                 LocStreamIn=INTSTATE%Regrid(n)%PTR%LocIn, &
+                 NAME='historyXFORM', &
+                 UseFCollect=.true., &
+                 _RC )
+         end if
+
+      endif
+
+! Handle possible extra fields needed for the parser
+      if (list(n)%nPExtraFields > 0) then
+
+         allocate ( exptmp (1), _STAT )
+         exptmp(1) = import
+
+         do m=1,list(n)%nPExtraFields
+            call MAPL_ExportStateGet(exptmp,list(n)%PExtraGridComp(m),parser_state,_RC)
+            call MAPL_StateGet(parser_state,list(n)%PExtraFields(m),parser_field,_RC)
+            call MAPL_AllocateCoupling(parser_field, _RC)
+            f_extra = MAPL_FieldCreate(parser_field, name=list(n)%PExtraFields(m), _RC)
+            if (IntState%average(n)) then
+               call MAPL_StateAdd(IntState%CIM(N), f_extra, _RC)
+            else
+               call MAPL_StateAdd(IntState%GIM(N), f_extra, _RC)
+            end if
+         end do
+
+         deallocate(exptmp)
+
+      end if
+
+      block
+        type (ESMF_Field), pointer :: splitFields(:)
+        logical :: split
+        character(ESMF_MAXSTR) :: field_name, alias_name, special_name
+        integer :: m1, big, szf, szr
+        integer :: lungrd, trueUngridDims
+        logical, allocatable               :: tmp_r8_to_r4(:)
+        type(ESMF_FIELD), allocatable      :: tmp_r8(:)
+        type(ESMF_FIELD), allocatable      :: tmp_r4(:)
+
+      m1 = 0
+      do m=1,list(n)%field_set%nfields
+         field_name = list(n)%field_set%fields(1,m)
+         alias_name = list(n)%field_set%fields(3,m)
+         special_name = list(n)%field_set%fields(4,m)
+
+         call MAPL_StateGet( export(list(n)%expSTATE(m)), &
+                             trim(field_name), field, _RC )
+
+         if (list(n)%splitField) then
+            split = hasSplitField(field, _RC)
+         else
+            split = .false.
+         end if
+         ! check if split is needed
+         if (.not. split) then
+            allocate(splitFields(1), _STAT)
+            splitFields(1) = field
+         else
+            call MAPL_FieldSplit(field, splitFields, aliasName=alias_name, _RC)
+         endif
+
+         szf = size(splitFields)
+         big = m1 + szf
+         szr = size(list(n)%r4)
+         if (big > szr) then
+            ! grow
+            allocate(tmp_r4(big), tmp_r8(big), tmp_r8_to_r4(big), _STAT)
+            tmp_r4(1:szr) = list(n)%r4
+            tmp_r8(1:szr) = list(n)%r8
+            tmp_r8_to_r4(1:szr) = list(n)%r8_to_r4
+            call move_alloc(tmp_r4, list(n)%r4)
+            call move_alloc(tmp_r8, list(n)%r8)
+            call move_alloc(tmp_r8_to_r4, list(n)%r8_to_r4)
+         end if
+         do j=1,szf
+            m1 = m1 + 1
+            field = splitFields(j)
+            ! reset alias name when split
+            if (split) then
+               call ESMF_FieldGet(field, name=alias_name, _RC)
+            end if
+            call ESMF_FieldGet(FIELD, typekind=tk, _RC)
+            if (tk == ESMF_TypeKind_R8) then
+               list(n)%r8_to_r4(m1) = .true.
+               list(n)%r8(m1) = field
+               ! Create a new field with R4 precision
+               r4field = MAPL_FieldCreate(field,_RC)
+               field=r4field
+               list(n)%r4(m1) = field
+            else
+               list(n)%r8_to_r4(m1) = .false.
+            end if
+
+            if (.not.list(n)%rewrite(m) .or.special_name /= BLANK ) then
+               f_extra = MAPL_FieldCreate(field, name=alias_name, _RC)
+            else
+               DoCopy=.True.
+               f_extra = MAPL_FieldCreate(field, name=alias_name, DoCopy=DoCopy, _RC)
+            endif
+            if (special_name /= BLANK) then
+               if (special_name == 'MIN') then
+                  call ESMF_AttributeSet(f_extra, NAME='CPLFUNC', VALUE=MAPL_CplMin, _RC)
+               else if (special_name == 'MAX') then
+                  call ESMF_AttributeSet(f_extra, NAME='CPLFUNC', VALUE=MAPL_CplMax, _RC)
+               else if (special_name == 'ACCUMULATE') then
+                  call ESMF_AttributeSet(f_extra, NAME='CPLFUNC', VALUE=MAPL_CplAccumulate, _RC)
+               else
+                  call WRITE_PARALLEL("Functionality not supported yet")
+               end if
+            end if
+
+            if (IntState%average(n)) then
+               call MAPL_StateAdd(IntState%CIM(N), f_extra, _RC)
+
+               ! borrow SPEC from FIELD
+               ! modify SPEC to reflect accum/avg
+               call ESMF_FieldGet(f_extra, name=short_name, grid=grid, _RC)
+
+               call ESMF_AttributeGet(FIELD, NAME='DIMS', VALUE=DIMS, _RC)
+               call ESMF_AttributeGet(FIELD, NAME='VLOCATION', VALUE=VLOCATION, _RC)
+               call ESMF_AttributeGet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, _RC)
+               call ESMF_AttributeGet(FIELD, NAME='UNITS', VALUE=UNITS, _RC)
+               call ESMF_AttributeGet(FIELD, NAME='FIELD_TYPE', VALUE=FIELD_TYPE, _RC)
+
+               call ESMF_AttributeGet(FIELD, NAME='REFRESH_INTERVAL', VALUE=REFRESH, _RC)
+               call ESMF_AttributeGet(FIELD, NAME='AVERAGING_INTERVAL', VALUE=avgint, _RC)
+
+               call ESMF_FieldGet(FIELD, dimCount=fieldRank, _RC)
+               call ESMF_GridGet(GRID, dimCount=gridRank, _RC)
+               allocate(gridToFieldMap(gridRank), _STAT)
+               call ESMF_FieldGet(FIELD, gridToFieldMap=gridToFieldMap, _RC)
+
+               notGridded = count(gridToFieldMap==0)
+               unGridDims = fieldRank - gridRank + notGridded
+               trueUnGridDims = unGridDims
+
+               if (unGridDims > 0) then
+                  !ALT: special handling for 2d-MAPL grid (the vertical is treated as ungridded)
+                  lungrd = 1
+                  if ((gridRank == 2) .and. (DIMS == MAPL_DimsHorzVert)) then
+                     trueUnGridDims = trueUnGridDims - 1
+                     lungrd = 2
+                  end if
+               endif
+               hasUngridDims = .false.
+               if (trueUnGridDims > 0) hasUngridDims = .true.
+
+               if (hasUngridDims) then
+                  allocate(ungriddedLBound(unGridDims), &
+                       ungriddedUBound(unGridDims), &
+                       ungrd(trueUnGridDims),           &
+                       _STAT)
+
+                  call ESMF_FieldGet(field, Array=array, _RC)
+
+                  call ESMF_ArrayGet(array, rank=rank, dimCount=dimCount, _RC)
+                  undist = rank-dimCount
+                  _ASSERT(undist == ungridDims,'needs informative message')
+
+                  call ESMF_ArrayGet(array, undistLBound=ungriddedLBound, &
+                       undistUBound=ungriddedUBound, _RC)
+
+                  ungrd = ungriddedUBound(lungrd:) - ungriddedLBound(lungrd:) + 1
+                  call ESMF_AttributeGet(field,name="UNGRIDDED_UNIT",value=ungridded_unit,_RC)
+                  call ESMF_AttributeGet(field,name="UNGRIDDED_NAME",value=ungridded_name,_RC)
+                  call ESMF_AttributeGet(field,name="UNGRIDDED_COORDS",isPresent=isPresent,_RC)
+                  if (isPresent) then
+                     call ESMF_AttributeGet(field,name="UNGRIDDED_COORDS",itemcount=ungrdsize,_RC)
+                     if ( ungrdsize /= 0 ) then
+                        allocate(ungridded_coord(ungrdsize),_STAT)
+                        call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",valuelist=ungridded_coord,_RC)
+                     end if
+                  else
+                     ungrdsize = 0
+                  end if
+
+                  deallocate(ungriddedLBound,ungriddedUBound)
+
+                  if (ungrdsize > 0) then
+                     call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,   &
+                          SHORT_NAME = SHORT_NAME,                          &
+                          LONG_NAME  = LONG_NAME,                           &
+                          UNITS      = UNITS,                               &
+                          DIMS       = DIMS,                                &
+                          UNGRIDDED_DIMS = UNGRD,                           &
+                          UNGRIDDED_NAME = ungridded_name,                  &
+                          UNGRIDDED_UNIT = ungridded_unit,                  &
+                          UNGRIDDED_COORDS = ungridded_coord,               &
+                          ACCMLT_INTERVAL= avgint,                          &
+                          COUPLE_INTERVAL= REFRESH,                         &
+                          VLOCATION  = VLOCATION,                           &
+                          FIELD_TYPE = FIELD_TYPE,                          &
+                          _RC)
+
+                     call MAPL_VarSpecCreateInList(INTSTATE%DSTS(n)%SPEC,   &
+                          SHORT_NAME = alias_name,                          &
+                          LONG_NAME  = LONG_NAME,                           &
+                          UNITS      = UNITS,                               &
+                          DIMS       = DIMS,                                &
+                          UNGRIDDED_DIMS = UNGRD,                           &
+                          UNGRIDDED_NAME = ungridded_name,                  &
+                          UNGRIDDED_UNIT = ungridded_unit,                  &
+                          UNGRIDDED_COORDS = ungridded_coord,               &
+                          ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),&
+                          COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),&
+                          offset = list(n)%acc_offset, &
+                          VLOCATION  = VLOCATION,                           &
+                          GRID       = GRID,                                &
+                          FIELD_TYPE = FIELD_TYPE,                          &
+                          _RC)
+                  else
+
+                     call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,   &
+                          SHORT_NAME = SHORT_NAME,                          &
+                          LONG_NAME  = LONG_NAME,                           &
+                          UNITS      = UNITS,                               &
+                          DIMS       = DIMS,                                &
+                          UNGRIDDED_DIMS = UNGRD,                           &
+                          UNGRIDDED_NAME = ungridded_name,                  &
+                          UNGRIDDED_UNIT = ungridded_unit,                  &
+                          ACCMLT_INTERVAL= avgint,                          &
+                          COUPLE_INTERVAL= REFRESH,                         &
+                          VLOCATION  = VLOCATION,                           &
+                          FIELD_TYPE = FIELD_TYPE,                          &
+                          _RC)
+
+                     call MAPL_VarSpecCreateInList(INTSTATE%DSTS(n)%SPEC,   &
+                          SHORT_NAME = alias_name,                          &
+                          LONG_NAME  = LONG_NAME,                           &
+                          UNITS      = UNITS,                               &
+                          DIMS       = DIMS,                                &
+                          UNGRIDDED_DIMS = UNGRD,                           &
+                          UNGRIDDED_NAME = ungridded_name,                  &
+                          UNGRIDDED_UNIT = ungridded_unit,                  &
+                          ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),&
+                          COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),&
+                          offset = list(n)%acc_offset, &
+                          VLOCATION  = VLOCATION,                           &
+                          GRID       = GRID,                                &
+                          FIELD_TYPE = FIELD_TYPE,                          &
+                          _RC)
+                  end if
+                  deallocate(ungrd)
+                  if (allocated(ungridded_coord)) deallocate(ungridded_coord)
+
+               else
+                  call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,     &
+                       SHORT_NAME = SHORT_NAME,                            &
+                       LONG_NAME  = LONG_NAME,                             &
+                       UNITS      = UNITS,                                 &
+                       DIMS       = DIMS,                                  &
+                       ACCMLT_INTERVAL= avgint,                            &
+                       COUPLE_INTERVAL= REFRESH,                           &
+                       VLOCATION  = VLOCATION,                             &
+                       FIELD_TYPE = FIELD_TYPE,                            &
+                       _RC)
+
+                  call MAPL_VarSpecCreateInList(INTSTATE%DSTS(n)%SPEC,     &
+                       SHORT_NAME = alias_name,                            &
+                       LONG_NAME  = LONG_NAME,                             &
+                       UNITS      = UNITS,                                 &
+                       DIMS       = DIMS,                                  &
+                       ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),  &
+                       COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),  &
+                       offset = list(n)%acc_offset, &
+                       VLOCATION  = VLOCATION,                             &
+                       GRID       = GRID,                                  &
+                       FIELD_TYPE = FIELD_TYPE,                            &
+                       _RC)
+
+               endif ! has_ungrid
+               deallocate(gridToFieldMap)
+
+            else ! else for if averaged
+
+               REFRESH = MAPL_nsecf(list(n)%acc_interval)
+               AVGINT  = MAPL_nsecf( list(n)%frequency )
+               call ESMF_AttributeSet(F_extra, NAME='REFRESH_INTERVAL', VALUE=REFRESH, _RC)
+               call ESMF_AttributeSet(F_extra, NAME='AVERAGING_INTERVAL', VALUE=AVGINT, _RC)
+               call MAPL_StateAdd(IntState%GIM(N), f_extra, _RC)
+
+            endif
+
+            ! Handle possible regridding through user supplied exchange grid
+            !---------------------------------------------------------------
+            if (associated(IntState%Regrid(n)%PTR)) then
+               ! replace field with newly created fld on grid_out
+               field = MAPL_FieldCreate(f_extra, grid_out, _RC)
+               ! add field to state_out
+               call MAPL_StateAdd(IntState%Regrid(N)%PTR%state_out, &
+                    field, _RC)
+            endif
+         end do ! j-loop
+         if (split) then
+            do j=1,szf
+               call ESMF_FieldDestroy(splitFields(j), _RC)
+            end do
+         end if
+         deallocate(splitFields)
+      end do ! m-loop
+      end block
+
+      ! reset list(n)%field_set and list(n)%items, if split
+      !----------------------------------------------------
+      call splitUngriddedFields(_RC)
+
+   end do
+
+   do n=1, nlist
+      if (list(n)%disabled) cycle
+      if (IntState%average(n)) then
+
+         call MAPL_StateCreateFromSpec(IntState%GIM(n), &
+              IntState%DSTS(n)%SPEC,   &
+              _RC  )
+
+!         create CC
+         if (nactual == npes) then
+            IntState%CCS(n) = ESMF_CplCompCreate (                  &
+                 NAME       = list(n)%collection, &
+                 contextFlag = ESMF_CONTEXT_PARENT_VM,              &
+                 _RC )
+         else
+            IntState%CCS(n) = ESMF_CplCompCreate (                  &
+                 NAME       = list(n)%collection, &
+                 petList    = list(n)%peAve, &
+                 contextFlag = ESMF_CONTEXT_OWN_VM,              &
+                 _RC )
+         end if
+
+!         CCSetServ
+         call ESMF_CplCompSetServices (IntState%CCS(n), &
+                                       GenericCplSetServices, _RC )
+
+         call MAPL_CplCompSetVarSpecs(IntState%CCS(n), &
+                                      INTSTATE%SRCS(n)%SPEC,&
+                                      INTSTATE%DSTS(n)%SPEC,_RC)
+
+         if (list(n)%monthly) then
+            call MAPL_CplCompSetAlarm(IntState%CCS(n), &
+                 list(n)%his_alarm, _RC)
+         end if
+
+!         CCInitialize
+         call ESMF_CplCompInitialize (INTSTATE%CCS(n), &
+                                      importState=INTSTATE%CIM(n), &
+                                      exportState=INTSTATE%GIM(n), &
+                                      clock=CLOCK,           &
+                                      userRC=STATUS)
+         _VERIFY(STATUS)
+
+         if(list(n)%monthly) then
+            ! check if alarm is ringing
+            if (.not. ESMF_AlarmIsRinging ( list(n)%his_alarm )) then
+               call ESMF_CplCompReadRestart (INTSTATE%CCS(n), &
+                                             importState=INTSTATE%CIM(n), &
+                                             exportState=INTSTATE%GIM(n), &
+                                             clock=CLOCK,           &
+                                             userRC=STATUS)
+               if (status == ESMF_RC_FILE_READ) then
+                  list(n)%partial = .true.
+                  STATUS = ESMF_SUCCESS
+                  call WRITE_PARALLEL("DEBUG: no cpl restart found, producing partial month")
+               end if
+               _VERIFY(STATUS)
+            end if
+         end if
+      end if
+
+   end do
+
+    do n=1,nlist
+       if (list(n)%disabled) cycle
+       if (list(n)%subVm) list(n)%disabled = .true.
+    end do
+
+
+! CFIO
+    do n=1,nlist
+       if (list(n)%disabled) cycle
+
+!ALT do this all the time       if (list(n)%format == 'CFIO') then
+          write(string,'(a,i3.0)') 'STREAM',n
+
+          list(n)%bundle = ESMF_FieldBundleCreate(NAME=string, _RC)
+
+          if(associated(list(n)%levels)) then
+             LM = size(list(n)%levels)
+          else
+             call ESMF_StateGet(INTSTATE%GIM(n), &
+                  trim(list(n)%field_set%fields(3,1)), field, _RC )
+             call ESMF_FieldGet(field, grid=grid,   _RC )
+             call MAPL_GridGet(GRID, globalCellCountPerDim=COUNTS, _RC)
+             LM = counts(3)
+          endif
+
+          list(n)%slices = 0
+
+          if (associated(IntState%Regrid(n)%PTR)) then
+             state_out = INTSTATE%REGRID(n)%PTR%state_out
+          else
+             state_out = INTSTATE%GIM(n)
+          end if
+
+          do m=1,list(n)%field_set%nfields
+             call ESMF_StateGet( state_out, &
+                  trim(list(n)%field_set%fields(3,m)), field, _RC )
+
+             call MAPL_FieldBundleAdd( list(n)%bundle, field, _RC )
+
+             call ESMF_FieldGet(field, Array=array, grid=bgrid, _RC)
+             call ESMF_ArrayGet(array, rank=rank, _RC)
+             call ESMF_ArrayGet(array, localarrayList=larrayList, _RC)
+             larray => lArrayList(1) ! alias
+             call ESMF_GridGet(bgrid, distgrid=bdistgrid, _RC)
+             !ALT: we need the rank of the distributed grid
+             ! MAPL (and GEOS-5) grid are distributed along X-Y
+             ! tilegrids are distributed only along "tile" dimension
+             call ESMF_DistGridGet(bdistgrid, dimCount=distRank, _RC)
+             call ESMF_LocalArrayGet(larray, totalCount=counts, _RC)
+
+             if(list(n)%field_set%fields(3,m)/=vvarn(n)) then
+                nslices = 1
+                do k=distRank+1, rank
+                   nslices = nslices*counts(k)
+                end do
+                if(associated(list(n)%levels) .and. rank==3 .and. distRank==2) then
+                   list(n)%slices = list(n)%slices + LM
+                else
+                   list(n)%slices = list(n)%slices + nslices
+                end if
+             endif
+          end do
+
+!       endif
+    enddo
+
+    do n=1,nlist
+       if (associated(list(n)%peAve)) then
+          deallocate(list(n)%peAve)
+          NULLIFY(list(n)%peAve)
+       end if
+    end do
+    deallocate(Vvarn)
+    deallocate (export)
+
+    do n=1,nlist
+       if (list(n)%disabled) cycle
+       string = trim( list(n)%collection ) // '.'
+       cfg = ESMF_ConfigCreate(_RC)
+       call ESMF_ConfigLoadFile(cfg, filename = trim(string)//'rcx', _RC)
+       if (list(n)%format == 'CFIOasync') then
+          list(n)%format = 'CFIO'
+          if (mapl_am_i_root()) write(*,*)'Chose CFIOasync setting to CFIO, update your History.rc file'
+       end if
+       if (list(n)%format == 'CFIO') then
+          call Get_Tdim (list(n), clock, tm)
+          if (associated(list(n)%levels) .and. list(n)%vvars(1) /= "") then
+             list(n)%vdata = VerticalData(levels=list(n)%levels,vcoord=list(n)%vvars(1),vscale=list(n)%vscale,vunit=list(n)%vunit,_RC)
+          else if (associated(list(n)%levels) .and. list(n)%vvars(1) == "") then
+             list(n)%vdata = VerticalData(levels=list(n)%levels,_RC)
+          else
+             list(n)%vdata = VerticalData(positive=list(n)%positive,_RC)
+          end if
+          if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+             call list(n)%xsampler%set_param(deflation=list(n)%deflate,_RC)
+             call list(n)%xsampler%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
+             call list(n)%xsampler%set_param(quantize_level=list(n)%quantize_level,_RC)
+             call list(n)%xsampler%set_param(chunking=list(n)%chunkSize,_RC)
+             call list(n)%xsampler%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
+             call list(n)%xsampler%set_param(regrid_method=list(n)%regrid_method,_RC)
+             call list(n)%xsampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
+             call Hsampler%verify_epoch_equals_freq (list(n)%frequency, list(n)%output_grid_label, _RC)
+          endif
+
+          call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
+          call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
+          call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,_RC)
+          call list(n)%mGriddedIO%set_param(chunking=list(n)%chunkSize,_RC)
+          call list(n)%mGriddedIO%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
+          call list(n)%mGriddedIO%set_param(regrid_method=list(n)%regrid_method,_RC)
+          call list(n)%mGriddedIO%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
+          if (intState%file_weights) then
+             regrid_hints = 0
+             regrid_hints = IOR(regrid_hints,REGRID_HINT_FILE_WEIGHTS)
+             call list(n)%mGriddedIO%set_param(regrid_hints=regrid_hints,_RC)
+          end if
+
+          if (list(n)%monthly) then
+             nextMonth = currTime - oneMonth
+             dur = nextMonth - currTime
+             call ESMF_TimeIntervalGet(dur, s=sec, _RC)
+             list(n)%timeInfo = TimeData(clock,tm,sec,IntState%stampoffset(n),funits='days')
+          else
+             list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
+          end if
+          if (list(n)%timeseries_output) then
+             list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
+             call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
+          elseif (list(n)%sampler_spec == 'mask') then
+             list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,_RC)
+             call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+          elseif (list(n)%sampler_spec == 'station') then
+             list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, _RC)
+             call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+          else
+             global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
+             if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+                pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
+                call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,Hsampler%tunit,ogrid=pgrid,vdata=list(n)%vdata,_RC)
+             else
+                if (trim(list(n)%output_grid_label)/='') then
+                   pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
+                   call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+                else
+                   call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+                end if
+                collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
+                call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
+             endif
+          end if
+       end if
+       call ESMF_ConfigDestroy(cfg, _RC)
+   end do
+
+! Echo History List Data Structure
+! --------------------------------
+
+   if( MAPL_AM_I_ROOT() ) then
+
+      print *
+      print *, 'Independent Output Export States:'
+      print *, '---------------------------------'
+      do n=1,nstatelist
+         print *, n,trim(statelist(n))
+      enddo
+      print *
+
+      do n=1,nlist
+         if (list(n)%disabled) cycle
+         print *, 'Initializing Output Stream: ',  trim(list(n)%filename)
+         print *, '--------------------------- '
+         print *, '      Format: ',  trim(list(n)%format)
+         print *, '        Mode: ',  trim(list(n)%mode)
+         if (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
+            print *, '       Nbits: ',       list(n)%nbits_to_keep
+         end if
+         print *, '      Slices: ',       list(n)%Slices
+         print *, '     Deflate: ',       list(n)%deflate
+         if (list(n)%quantize_algorithm > 0) then
+            print *, 'Quantize Alg: ',       trim(list(n)%quantize_algorithm_string)
+            print *, 'Quantize Lvl: ',       list(n)%quantize_level
+         end if
+         if (associated(list(n)%chunksize)) then
+            print *, '   ChunkSize: ',       list(n)%chunksize
+         end if
+         if (list(n)%monthly) then
+            print *, '   Frequency: ',       'monthly'
+         else
+            print *, '   Frequency: ',       list(n)%frequency
+         end if
+         if(IntState%average(n) .and. .not. list(n)%monthly) &
+              print *, 'Acc_Interval: ',  list(n)%acc_interval
+         print *, '    Ref_Date: ',       list(n)%ref_date
+         print *, '    Ref_Time: ',       list(n)%ref_time
+         if (list(n)%monthly) then
+            print *, '    Duration: ',       'one month'
+         else
+            print *, '    Duration: ',       list(n)%duration
+         end if
+         if( list(n)%end_date.ne.-999 ) then
+         print *, '    End_Date: ',       list(n)%end_date
+         print *, '    End_Time: ',       list(n)%end_time
+         endif
+         if (trim(list(n)%output_grid_label)/='') then
+            print *, ' Regrid Mthd: ',       regrid_method_int_to_string(list(n)%regrid_method)
+         else
+            print *, ' Regrid Mthd: ',       'identity'
+         end if
+
+
+         block
+            integer :: im_world, jm_world,dims(3)
+            pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
+            if (associated(pgrid)) then
+               call MAPL_GridGet(pgrid,globalCellCountPerDim=dims,_RC)
+               print *, ' Output RSLV: ',dims(1),dims(2)
+            end if
+         end block
+
+         select case ( list(n)%xyoffset   )
+                case (0)
+                           print *, '   XY-offset: ',list(n)%xyoffset,'  (DcPc: Dateline Center, Pole Center)'
+                case (1)
+                           print *, '   XY-offset: ',list(n)%xyoffset,'  (DePc: Dateline Edge, Pole Center)'
+                case (2)
+                           print *, '   XY-offset: ',list(n)%xyoffset,'  (DcPe: Dateline Center, Pole Edge)'
+                case (3)
+                           print *, '   XY-offset: ',list(n)%xyoffset,'  (DePe: Dateline Edge, Pole Edge)'
+                case default
+                _FAIL('needs informative message')
+         end select
+
+         !print *, '      Fields: ',((trim(list(n)%field_set%fields(3,m)),' '),m=1,list(n)%field_set%nfields)
+         write (*,'(A)',ADVANCE='NO') '      Fields: '
+         do m=1,list(n)%field_set%nfields
+            if( trim(list(n)%field_set%fields(3,m)).ne.BLANK ) then
+               write (*,'(A,1X)',ADVANCE='NO') trim(list(n)%field_set%fields(3,m))
+            endif
+         enddo
+         ! Now advance the write
+         write (*,*)
+         do m=1,list(n)%field_set%nfields
+            if( trim(list(n)%field_set%fields(4,m)).ne.BLANK ) then
+                print *, '   CPLFUNC Variable: ',trim(list(n)%field_set%fields(3,m)),'  Function: ',trim(list(n)%field_set%fields(4,m))
+            endif
+         enddo
+
+         if( list(n)%vvars(1)/="" ) then
+                                           print *, '   Vert Interp  Var: ',  trim(list(n)%vvars(1))
+            if( trim(list(n)%vunit)/=""  ) print *, '   Vertical    Unit: ',  trim(list(n)%vunit)
+            if(      list(n)%vscale/=1.0 ) print *, '   Vertical Scaling: ',       list(n)%vscale
+                                           print *, '   Vertical  Levels: ',       list(n)%levels
+         elseif(associated(list(n)%levels)) then
+                                           print *, '   Vertical  Levels: ',  nint(list(n)%levels)
+         endif
+
+         print *
+         print *
+      enddo
+   endif
+
+    deallocate(stateListAvail)
+    deallocate( statelist )
+
+    call MAPL_GenericInitialize( gc, import, dumexport, clock, _RC )
+
+    _RETURN(ESMF_SUCCESS)
+
+  contains
+
+    subroutine wildCardExpand(rc)
+      integer, optional, intent(out) :: rc
+
+      ! local vars
+      integer :: status
+
+      integer, pointer :: newExpState(:) => null()
+      type(GriddedIOitemVectorIterator) :: iter
+      type(GriddedIOitem), pointer :: item
+      integer :: nfields
+      integer :: nregex
+      character(len=ESMF_MAXSTR), allocatable :: fieldNames(:)
+      type(ESMF_State) :: expState
+      type(GriddedIOItemVector), pointer  :: newItems
+      character(ESMF_MAXSTR) :: fldName, stateName
+      logical :: expand
+      integer :: k, i
+      integer :: n
+
+      ! Restrictions:
+      ! 1) we do not do wildcard expansion for vectors
+      ! 2) no use of aliases for wildcard-expanded-field name base
+      do n = 1, nlist
+         if (.not.list(n)%regex) cycle
+         fld_set => list(n)%field_set
+         nfields = fld_set%nfields
+
+         allocate(needSplit(nfields), regexList(nfields), _STAT)
+         regexList = ""
+
+         allocate(newItems, _STAT)
+
+         needSplit = .false.
+
+         iter = list(n)%items%begin()
+         m = 0 ! m is the "old" field-index
+         do while(iter /= list(n)%items%end())
+            item => iter%get()
+            if (item%itemType == ItemTypeScalar) then
+               expand = hasRegex(fldName=item%xname, _RC)
+               if (.not.expand) call newItems%push_back(item)
+            else if (item%itemType == ItemTypeVector) then
+               ! Lets' not allow regex expand for vectors
+               expand = hasRegex(fldName=item%xname, _RC)
+               expand = expand.or.hasRegex(fldName=item%yname, _RC)
+               if (.not.expand) call newItems%push_back(item)
+            end if
+
+            call iter%next()
+         end do
+
+         ! re-pack field_set
+         nregex = count(needSplit)
+
+         if (nregex /= 0) then
+            nfields = nfields - nregex
+            allocate(newExpState(nfields), _STAT)
+            allocate(newFieldSet, _STAT)
+            allocate(fields(4,nfields), _STAT)
+            do k = 1, size(fld_set%fields,1)
+               fields(k,:) = pack(fld_set%fields(k,:), mask=.not.needSplit)
+            end do
+            newFieldSet%fields => fields
+            newFieldSet%nfields = nfields
+
+            newExpState = pack(list(n)%expState, mask=.not.needSplit)
+
+            ! regex and add the expanded fields to the list
+
+            do k = 1, size(needSplit) ! loop over "old" fld_set
+               if (.not. needSplit(k)) cycle
+
+               stateName = fld_set%fields(2,k)
+               expState = export(list(n)%expSTATE(k))
+
+               call MAPL_WildCardExpand(state=expState, regexStr=regexList(k), &
+                    fieldNames=fieldNames, _RC)
+
+               do i=1,size(fieldNames)
+                  fldName = fieldNames(i)
+                  call appendFieldSet(newFieldSet, fldName, &
+                       stateName=stateName, &
+                       aliasName=fldName, &
+                       specialName='', _RC)
+
+                  ! append expState
+                  call appendArray(newExpState,idx=list(n)%expState(k),_RC)
+
+                  item%itemType = ItemTypeScalar
+                  item%xname = trim(fldName)
+                  item%yname = ''
+
+                  call newItems%push_back(item)
+
+               end do
+
+               deallocate(fieldNames)
+            end do
+
+            ! set nfields to ...
+
+            list(n)%field_set => newFieldSet
+            deallocate(list(n)%expState)
+            list(n)%expState => newExpState
+            list(n)%items = newItems
+         end if
+         ! clean-up
+         deallocate(needSplit, regexList)
+      enddo
+
+      _RETURN(ESMF_SUCCESS)
+    end subroutine wildCardExpand
+
+    function hasRegex(fldName, rc) result(haveIt)
+      logical :: haveIt
+      character(len=*),  intent(in)   :: fldName
+      integer, optional, intent(out) :: rc
+
+      ! local vars
+      integer :: k
+      integer :: status
+      character(len=ESMF_MAXSTR) :: tmpString
+      character(len=1), parameter :: BOR = "`"
+      character(len=1), parameter :: EOR = "`"
+
+      ! and these vars are declared in the caller
+      ! fld_set
+      ! m
+
+      haveIt = .false.
+
+      m = m + 1
+      _ASSERT(fldName == fld_set%fields(3,m), 'Incorrect order') ! we got "m" right
+
+      tmpString = adjustl(fldName)
+      _ASSERT(len_trim(tmpString) > 0, "Empty name not allowed")
+
+      ! begin-of-regex
+      haveIt = tmpString(1:1) == BOR
+
+      needSplit(m) = haveIt
+
+      if (haveIt) then
+         ! search for end-of-regex
+         k = index(tmpString(2:), EOR)
+         _ASSERT(k>1, "No EOR (end-of-regex)")
+         ! strip BOR and EOR
+         fld_set%fields(1,m) = tmpString(2:k)
+         fld_set%fields(3,m) = tmpString(2:k)
+         regexList(m) = tmpString(2:k)
+      end if
+
+
+      _RETURN(ESMF_SUCCESS)
+
+    end function hasRegex
+
+    subroutine MAPL_WildCardExpand(state, regexStr, fieldNames, rc)
+      type(ESMF_State), intent(in) :: state
+      character(len=*), intent(in) :: regexStr
+      character(len=*), allocatable, intent(inout) :: fieldNames(:)
+      integer, optional, intent(out) :: rc
+
+      ! local vars
+      integer :: nitems, i, count
+      integer :: status
+      character (len=ESMF_MAXSTR), allocatable  :: itemNameList(:)
+      type(ESMF_StateItem_Flag),   allocatable  :: itemtypeList(:)
+      type(regex_type) :: regex
+      logical :: match
+      integer :: nmatches(2, ESMF_MAXSTR)
+      character(len=ESMF_MAXSTR), allocatable :: tmpFldNames(:)
+
+      call ESMF_StateGet(state, itemcount=nitems,  _RC)
+
+      allocate(itemNameList(nitems), itemtypeList(nitems), _STAT)
+
+      call ESMF_StateGet(state,itemNameList=itemNameList,&
+                       itemTypeList=itemTypeList,_RC)
+      call regcomp(regex,trim(regexStr),'xmi',status=status)
+
+      if (.not.allocated(fieldNames)) then
+         allocate(fieldNames(0), _STAT)
+      end if
+      count = size(fieldNames)
+
+      do i=1,nitems
+         if (itemTypeList(i) /= ESMF_STATEITEM_FIELD) cycle
+
+         match = regexec(regex,trim(itemNameList(i)),nmatches,status=status)
+!non-zero indicate no match         _VERIFY(status)
+         if (match) then
+            ! debugging print
+            if (MAPL_AM_I_ROOT()) then
+               print *,'DEBUG:adding field to the list '//trim(itemNameList(i))
+            end if
+
+            count = count + 1
+            ! logic to grow the list
+            allocate(tmpFldNames(count), _STAT)
+            tmpFldNames(1:count-1) = fieldNames
+            call move_alloc(tmpFldNames, fieldNames)
+
+            fieldNames(count) = itemNameList(i)
+         end if
+
+      end do
+
+      call regfree(regex)
+      deallocate(itemNameList, itemtypeList)
+
+      _RETURN(ESMF_SUCCESS)
+    end subroutine MAPL_WildCardExpand
+
+    subroutine splitUngriddedFields(rc)
+      integer, optional, intent(out) :: rc
+
+      ! local vars
+      integer :: status
+
+      integer, pointer :: newExpState(:) => null()
+      type(GriddedIOitemVectorIterator) :: iter
+      type(GriddedIOitem), pointer :: item
+      integer :: nfields
+      integer :: nsplit
+      type(ESMF_Field), pointer :: splitFields(:) => null()
+      type(ESMF_State) :: expState
+      type(GriddedIOItemVector), pointer  :: newItems
+      character(ESMF_MAXSTR) :: fldName, stateName
+      character(ESMF_MAXSTR) :: aliasName, alias
+      logical :: split
+      integer :: k, i, idx
+      logical :: hasField
+
+      ! Restrictions:
+      ! 1) we do not split vectors
+!@@      do n = 1, nlist
+      if (.not.list(n)%splitField) then
+         _RETURN(ESMF_SUCCESS)
+      end if
+      fld_set => list(n)%field_set
+      nfields = fld_set%nfields
+      allocate(needSplit(nfields), fldList(nfields), _STAT)
+
+      allocate(newItems, _STAT)
+
+      needSplit = .false.
+
+      iter = list(n)%items%begin()
+      m = 0 ! m is the "old" field-index
+      do while(iter /= list(n)%items%end())
+         split = .false.
+         item => iter%get()
+         if (item%itemType == ItemTypeScalar) then
+            split = hasSplitableField(fldName=item%xname, _RC)
+            if (.not.split) call newItems%push_back(item)
+         else if (item%itemType == ItemTypeVector) then
+            ! Lets' not allow field split for vectors (at least for now);
+            ! it is easy to implement; just tedious
+
+            split = hasSplitableField(fldName=item%xname, _RC)
+            split = split.or.hasSplitableField(fldName=item%yname, _RC)
+            if (.not.split) call newItems%push_back(item)
+
+            _ASSERT(.not. split, 'split field vectors of not allowed yet')
+
+         end if
+
+         needSplit(m) = split
+         call iter%next()
+      end do
+
+      ! re-pack field_set
+      nsplit = count(needSplit)
+
+      if (nsplit /= 0) then
+         nfields = nfields - nsplit
+         allocate(newExpState(nfields), _STAT)
+
+         allocate(newFieldSet, _STAT)
+         allocate(fields(4,nfields), _STAT)
+         do k = 1, size(fld_set%fields,1) ! 4
+            fields(k,:) = pack(fld_set%fields(k,:), mask=.not.needSplit)
+         end do
+         newFieldSet%fields => fields
+         newFieldSet%nfields = nfields
+
+         newExpState = pack(list(n)%expState, mask=.not.needSplit)
+
+         ! split and add the splitted fields to the list
+
+         do k = 1, size(needSplit) ! loop over "old" fld_set
+            if (.not. needSplit(k)) cycle
+
+            stateName = fld_set%fields(2,k)
+            aliasName = fld_set%fields(3,k)
+
+            call MAPL_FieldSplit(fldList(k), splitFields, aliasName=aliasName, _RC)
+
+            expState = export(list(n)%expSTATE(k))
+
+            do i=1,size(splitFields)
+               call ESMF_FieldGet(splitFields(i), name=fldName, &
+                    _RC)
+
+               alias = fldName
+
+               call appendFieldSet(newFieldSet, fldName, &
+                    stateName=stateName, &
+                    aliasName=alias, &
+                    specialName='', _RC)
+
+               ! append expState
+               call appendArray(newExpState,idx=list(n)%expState(k),_RC)
+
+               item%itemType = ItemTypeScalar
+               item%xname = trim(alias)
+               item%yname = ''
+
+               call newItems%push_back(item)
+
+            end do
+
+            deallocate(splitFields)
+            NULLIFY(splitFields)
+         end do
+
+         ! set nfields to ...
+
+         list(n)%field_set => newFieldSet
+         deallocate(list(n)%expState)
+         list(n)%expState => newExpState
+         list(n)%items = newItems
+      end if
+      ! clean-up
+      deallocate(needSplit, fldList)
+
+      _RETURN(ESMF_SUCCESS)
+    end subroutine splitUngriddedFields
+
+    function hasSplitableField(fldName, rc) result(okToSplit)
+      logical :: okToSplit
+      character(len=*),  intent(in)   :: fldName
+      integer, optional, intent(out) :: rc
+
+      ! local vars
+      integer :: k
+      integer :: status
+      type(ESMF_State) :: exp_state
+      type(ESMF_Field) :: fld
+      character(ESMF_MAXSTR) :: baseName
+
+      ! and these vars are declared in the caller
+      ! fld_set
+      ! m
+
+      okToSplit = .false.
+
+      m = m + 1
+      _ASSERT(fldName == fld_set%fields(3,m), 'Incorrect order') ! we got "m" right
+
+      baseName = fld_set%fields(1,m)
+      k = list(n)%expSTATE(m)
+      exp_state = export(k)
+
+      call MAPL_StateGet(exp_state,baseName,fld,_RC)
+
+      okToSplit = hasSplitField(fld, _RC)
+
+      if (okToSplit) then
+         fldList(m) = fld
+      end if
+      needSplit(m) = okToSplit
+
+      _RETURN(ESMF_SUCCESS)
+    end function hasSplitableField
+
+    function hasSplitField(fld, rc) result(okToSplit)
+      logical :: okToSplit
+      type(ESMF_Field),  intent(inout)   :: fld
+      integer, optional, intent(out) :: rc
+
+      ! local vars
+      integer :: fldRank
+      integer :: dims
+      integer :: status
+      logical :: has_ungrd
+      type(ESMF_FieldStatus_Flag) :: fieldStatus
+
+      ! and these vars are declared in the caller
+      ! fld_set
+      ! m
+
+      okToSplit = .false.
+      fldRank = 0
+
+      call ESMF_FieldGet(fld, status=fieldStatus, _RC)
+
+      if (fieldStatus /= ESMF_FIELDSTATUS_COMPLETE) then
+         call MAPL_AllocateCoupling(fld, _RC)
+      end if
+
+      call ESMF_FieldGet(fld,dimCount=fldRank,_RC)
+
+      _ASSERT(fldRank < 5, "unsupported rank")
+
+      if (fldRank == 4) then
+         okToSplit = .true.
+      else if (fldRank == 3) then
+         ! split ONLY if X and Y are "gridded" and Z is "ungridded"
+         call ESMF_AttributeGet(fld, name='DIMS', value=dims, _RC)
+        if (dims == MAPL_DimsHorzOnly) then
+           call ESMF_AttributeGet(fld, name='UNGRIDDED_DIMS', &
+                isPresent=has_ungrd, _RC)
+            if (has_ungrd) then
+               okToSplit = .true.
+            end if
+         end if
+      end if
+
+      _RETURN(ESMF_SUCCESS)
+
+    end function hasSplitField
+
+    subroutine appendArray(array, idx, rc)
+      integer, pointer,  intent(inout)   :: array(:)
+      integer, intent(in) :: idx
+      integer, optional, intent(out) :: rc
+
+     ! local vars
+     integer :: n
+     integer :: k
+     integer :: status
+     integer, pointer :: tmp(:)
+
+     if (.not.associated(array)) then
+        _RETURN(ESMF_FAILURE)
+     end if
+
+     k = size(array)
+     n = k + 1
+     allocate(tmp(n), _STAT)
+     tmp(1:k) = array
+     tmp(n) = idx
+
+     deallocate(array)
+     array => tmp
+
+     _RETURN(ESMF_SUCCESS)
+
+   end subroutine appendArray
+
+   subroutine appendFieldSet(fldset, fldName, stateName, aliasName, specialName, rc)
+     type(FieldSet),  intent(inout)   :: fldset
+     character(len=*), intent(in) :: fldName, stateName
+     character(len=*), intent(in) :: aliasName, specialName
+     integer, optional, intent(out) :: rc
+
+     ! local vars
+     integer :: nn, mm
+     integer :: k
+     integer :: status
+     character(len=ESMF_MAXSTR), pointer :: flds(:,:) => null()
+
+    ! if (.not.associated(fldset%fields)) then
+    !    _RETURN(ESMF_FAILURE)
+    ! end if
+
+     mm = size(fldset%fields, 1)
+     _ASSERT(mm == 4, 'wrong size for fields')
+     k = size(fldset%fields, 2)
+     nn = k + 1
+     allocate(flds(mm,nn), _STAT)
+     flds(:,1:k) = fldset%fields
+     flds(1,nn) = fldName
+     flds(2,nn) = stateName
+     flds(3,nn) = aliasName
+     flds(4,nn) = specialName
+
+     deallocate( fldSet%fields, _STAT )
+     fldset%fields => flds
+
+     fldSet%nfields = nn
+
+     _RETURN(ESMF_SUCCESS)
+
+   end subroutine appendFieldSet
+
+    function extract_unquoted_item(string_list) result(item)
+       character(:), allocatable :: item
+       character(*), intent(in) :: string_list
+
+       integer :: i
+       integer :: j
+
+       character(1) :: QUOTE = "'"
+
+       i = index(string_list(  1:), QUOTE)
+       j = index(string_list(i+1:), QUOTE)+i
+       if( i.ne.0 ) then
+          item = adjustl( string_list(i+1:j-1) )
+       else
+          item = adjustl( string_list)
+       endif
+    end function extract_unquoted_item
+
+
+    subroutine parse_fields(cfg, label, field_set, collection_name, items, rc)
+       type(ESMF_Config), intent(inout) :: cfg
+       character(*), intent(in) :: label
+       type (FieldSet), intent(inout) :: field_set
+       character(*), intent(in), optional :: collection_name
+       type(GriddedIOitemVector), intent(inout), optional :: items
+       integer, optional, intent(out) :: rc
+       logical :: table_end
+       logical :: vectorDone,match_alias
+       integer :: m,i,j
+       character(ESMF_MAXSTR), pointer:: fields (:,:)
+
+       type(GriddedIOitem) :: item
+       integer :: status
+       character(len=:), allocatable :: usable_collection_name
+
+       if (present(collection_name)) then
+          usable_collection_name = trim(collection_name)
+       else
+          usable_collection_name = "unknown"
+       end if
+       call ESMF_ConfigFindLabel ( cfg, label=label//':', _RC)
+
+       table_end = .false.
+       m = 0
+       do while (.not.table_end)
+          m = m+1
+
+! Get EXPORT Name
+! ---------------
+          call ESMF_ConfigGetAttribute ( cfg,value=export_name,rc=STATUS)
+          if (status /= ESMF_SUCCESS)  then
+              if( MAPL_AM_I_ROOT(vm) ) then
+                  print *
+                  print *, '**************************************************************'
+                  print *, 'Attributes NOT set for Collection: ',trim( list(n)%collection )
+                  print *, '**************************************************************'
+                  print *
+              endif
+          endif
+          export_name = extract_unquoted_item(export_name)
+
+! Get GC Name
+! ------------
+          call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
+          if( trim(tmpstring) == ',' )  then
+              call ESMF_ConfigGetAttribute ( cfg,value=component_name,_RC)
+          else
+              component_name = tmpstring
+          endif
+
+          component_name = extract_unquoted_item(component_name)
+
+! Get Possible ALIAS Name
+! -----------------------
+          call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,rc=STATUS) ! MAT We don't check this status
+          if( trim(tmpstring) == ',' )  then
+              call ESMF_ConfigGetAttribute ( cfg,value=export_alias,default=export_name,rc=STATUS) ! MAT We don't check this status
+          else
+              if( trim(tmpstring) /= ' ' )  then
+                  export_alias = tmpstring
+              else
+                  export_alias = export_name
+              endif
+           endif
+
+           export_alias = extract_unquoted_item(export_alias)
+!         if this is a bundle and we did not provide alias, strip off bundle name
+          i = index(export_alias(1:),"%")
+          if (i.ne.0 .and. scan(trim(export_alias),'()^/*+-')==0 ) export_alias = adjustl( export_alias(i+1:) )
+
+! Get Possible COUPLER Function
+! -----------------------------
+          call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,rc=STATUS) ! MAT We don't check this status
+          if( trim(tmpstring) == ',' )  then
+              call ESMF_ConfigGetAttribute ( cfg,value=coupler_function_name,default=BLANK,rc=STATUS) ! MAT We don't check this status
+          else
+              if( trim(tmpstring) /= ' ' )  then
+                  coupler_function_name = tmpstring
+              else
+                  coupler_function_name = BLANK
+              endif
+          endif
+          coupler_function_name = extract_unquoted_item(coupler_function_name)
+! convert to uppercase
+          tmpstring = ESMF_UtilStringUpperCase(coupler_function_name,_RC)
+! -------------
+
+          call ESMF_ConfigNextLine  ( cfg,tableEnd=table_end,_RC )
+          vectorDone=.false.
+
+          idx = index(export_name,";")
+          if (idx ==0) then
+             item%itemType = ItemTypeScalar
+             item%xname = trim(export_alias)
+          else
+             item%itemType = ItemTypeVector
+          end if
+          VECTORPAIR: do while(.not.vectorDone)
+             allocate( fields(4,m), _STAT )
+
+             idx = index(export_name,";")
+             if (idx == 0) then
+                vectorDone=.true.
+             else
+                f1copy = export_name(idx+1:)
+                export_name = export_name(1:idx-1)
+                idx = index(export_alias,";")
+                _ASSERT(idx > 0,'needs informative message')
+                f3copy = export_alias(idx+1:)
+                export_alias = export_alias(1:idx-1)
+             end if
+
+             if( m==1 ) then
+                fields(1,m)     = export_name
+                fields(2,m)     = component_name
+                fields(3,m)     = export_alias
+                fields(4,m)     = coupler_function_name
+             else
+                fields(1,1:m-1) = field_set%fields(1,:)
+                fields(2,1:m-1) = field_set%fields(2,:)
+                fields(3,1:m-1) = field_set%fields(3,:)
+                fields(4,1:m-1) = field_set%fields(4,:)
+                fields(1,m)     = export_name
+                fields(2,m)     = component_name
+                fields(3,m)     = export_alias
+                fields(4,m)     = coupler_function_name
+                deallocate (field_set%fields)
+             endif
+             allocate( field_set%fields(4,m), _STAT)
+             field_set%fields = fields
+             deallocate (fields)
+             if (.not.vectorDone) then
+!ALT: next if-block builds a vectorList for proper processing of vectors
+!     by MAPL_HorzTransformRun done in MAPL_CFIO.
+!     The logic of construction the vectorList is somewhat flawed
+!     it works for vectors with two components (i.e. U;V),
+!     but ideally should be more general
+
+                item%xname = trim(export_alias)
+                item%yname = trim(f3copy)
+
+                export_name = f1copy
+                export_alias = f3copy
+                m = m + 1
+
+             end if
+          end do VECTORPAIR
+          if(present(items)) call items%push_back(item)
+       enddo
+       field_set%nfields = m
+!      check for duplicates
+       do i=1,field_set%nfields-1
+          do j=i+1,field_set%nfields
+
+             match_alias = field_set%fields(3,i) == field_set%fields(3,j)
+             if (match_alias) then
+                _FAIL("Caught collection "//usable_collection_name//" with this duplicate alias or shortname if no alias provided: "//trim(field_set%fields(3,i)))
+             end if
+
+          enddo
+       enddo
+
+       end subroutine parse_fields
+ end subroutine Initialize
+
+END SUBMODULE
+
