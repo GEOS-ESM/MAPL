@@ -16,7 +16,6 @@ module mapl3g_HistoryCollectionGridComp
    type :: HistoryCollectionGridComp
 !#      class(Client), pointer :: client
       type(ESMF_FieldBundle) :: output_bundle
-      type(ESMF_Alarm) :: write_alarm
       type(ESMF_Time) :: start_stop_times(2)
    end type HistoryCollectionGridComp
 
@@ -65,17 +64,19 @@ contains
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
       type(ESMF_Alarm) :: alarm
+      character(len=ESMF_MAXSTR) :: name
 
       ! To Do:
       ! - determine run frequencey and offset (save as alarm)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+      call ESMF_GridCompGet(gridcomp, name=name, _RC)
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
       collection_gridcomp%output_bundle = create_output_bundle(hconfig, importState, _RC)
 
       call MAPL_GridCompGet(gridcomp, geom=geom, _RC)
 
-      collection_gridcomp%write_alarm = create_output_alarm(clock, hconfig, _RC)
+      call create_output_alarm(clock, hconfig, trim(name), _RC)
       collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
 
       _RETURN(_SUCCESS)
@@ -112,10 +113,14 @@ contains
       character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
       logical :: time_to_write, run_collection
       type(ESMF_Time) :: current_time
-    
-      call ESMF_ClockGet(clock, currTime=current_time, _RC) 
+      type(ESMF_Alarm) :: write_alarm
+      character(len=ESMF_MAXSTR) :: name
+
+      call ESMF_GridCompGet(gridcomp, name=name, _RC)
+      call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      call ESMF_ClockGetAlarm(clock, trim(name)//"_write_alarm", write_alarm, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
-      time_to_write = ESMF_AlarmIsRinging(collection_gridcomp%write_alarm, _RC)
+      time_to_write = ESMF_AlarmIsRinging(write_alarm, _RC)
       run_collection = (current_time >= collection_gridcomp%start_stop_times(1)) .and. &
                            (current_time <= collection_gridcomp%start_stop_times(2))
 

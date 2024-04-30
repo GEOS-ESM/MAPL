@@ -143,12 +143,13 @@ contains
       _RETURN(_SUCCESS)
    end function create_output_bundle
 
-   function create_output_alarm(clock, hconfig, rc) result(alarm)
-      type(ESMF_Alarm) :: alarm
+   subroutine create_output_alarm(clock, hconfig, comp_name, rc) 
       type(ESMF_Clock), intent(inout) :: clock
       type(ESMF_HConfig), intent(in) :: hconfig
+      character(len=*), intent(in) :: comp_name
       integer, intent(out), optional :: rc
 
+      type(ESMF_Alarm) :: alarm
       integer :: status
       type(ESMF_HConfig) :: time_hconfig
       type(ESMF_TimeInterval) :: time_interval
@@ -183,10 +184,10 @@ contains
       if (first_ring_time < currTime) &
            first_ring_time = first_ring_time +(INT((currTime - first_ring_time)/time_interval)+1)*time_interval 
 
-      alarm = ESMF_AlarmCreate(clock=clock, RingInterval=time_interval, RingTime=first_ring_time, sticky=.false.,  _RC)
+      alarm = ESMF_AlarmCreate(clock=clock, RingInterval=time_interval, RingTime=first_ring_time, sticky=.false., name=comp_name//"_write_alarm",  _RC)
 
       _RETURN(_SUCCESS)
-   end function create_output_alarm
+   end subroutine create_output_alarm
 
    function set_start_stop_time(clock, hconfig, rc) result(start_stop_time)
       type(ESMF_Time) :: start_stop_time(2)

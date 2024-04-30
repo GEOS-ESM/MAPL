@@ -120,7 +120,9 @@ contains
       type(ESMF_Alarm) :: alarm
       logical :: is_ringing
       type(ESMF_Time) currTime
+      character(len=:), allocatable :: comp_name
 
+      comp_name = "coll1"
       call ESMF_TimeIntervalSet(dt, h=1, _RC)
       call ESMF_TimeSet(start_time, timeString="2000-04-03T21:00:00", _RC)
       call ESMF_TimeSet(stop_time, timeString="2000-04-22T21:00:00", _RC)
@@ -128,7 +130,8 @@ contains
       hconfig = ESMF_HConfigCreate(content = &
         "{time_spec: {frequency: PT3H}}", _RC)
 
-      alarm = create_output_alarm(clock, hconfig, _RC)
+      call create_output_alarm(clock, hconfig, comp_name, _RC)
+      call ESMF_ClockGetAlarm(clock, comp_name//"_write_alarm", alarm, _RC)
      
       call ESMF_ClockAdvance(clock, _RC)
       is_ringing = ESMF_AlarmIsRinging(alarm, _RC) 
