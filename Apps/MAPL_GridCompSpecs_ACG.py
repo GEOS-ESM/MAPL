@@ -1,6 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
-import sys
 import os
 import csv
 import pandas as pd
@@ -202,9 +201,8 @@ def read_specs(specs_filename):
     with open(specs_filename, 'r') as specs_file:
         specs_reader = csv.reader(specs_file, skipinitialspace=True,delimiter='|')
         gen = csv_record_reader(specs_reader)
-        schema_version = next(gen)[0].split(' ')[1]
-        component = next(gen)[0].split(' ')[1]
-#        print("Generating specification code for component: ",component)
+        #component = next(gen)[0].split(' ')[1]
+        #print("Generating specification code for component: ",component)
         while True:
             try:
                 gen = csv_record_reader(specs_reader)
