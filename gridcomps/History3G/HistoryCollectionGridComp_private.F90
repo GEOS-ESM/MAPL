@@ -8,12 +8,20 @@ module mapl3g_HistoryCollectionGridComp_private
    use gFTL2_StringVector
    use mapl3g_geom_mgr
    use MAPL_NewArthParserMod, only: parser_variables_in_expression
+   use MAPL_TimeStringConversion
+   use MAPL_BaseMod, only: MAPL_UnpackTime
 
    implicit none
    private
 
-   public :: make_geom, register_imports, create_output_bundle, replace_delimiter, get_expression_variables
-   public :: parse_item_common
+   public :: make_geom, register_imports, create_output_bundle
+   
+   public :: make_geom
+   public :: register_imports
+   public :: create_output_bundle
+   public :: create_output_alarm
+   public :: set_start_stop_time
+   public :: parse_item_common, replace_delimiter, get_expression_variables
 
    interface parse_item
       module procedure :: parse_item_expression
@@ -96,6 +104,78 @@ contains
 
       _RETURN(_SUCCESS)
    end function create_output_bundle
+
+   subroutine create_output_alarm(clock, hconfig, comp_name, rc) 
+      type(ESMF_Clock), intent(inout) :: clock
+      type(ESMF_HConfig), intent(in) :: hconfig
+      character(len=*), intent(in) :: comp_name
+      integer, intent(out), optional :: rc
+
+      type(ESMF_Alarm) :: alarm
+      integer :: status
+      type(ESMF_HConfig) :: time_hconfig
+      type(ESMF_TimeInterval) :: time_interval
+      character(len=:), allocatable :: iso_time
+      type(ESMF_Time) :: first_ring_time, currTime, startTime
+      integer :: int_time, yy, mm, dd, m, h, s
+      logical :: has_ref_time, has_frequency
+
+      call ESMF_ClockGet(clock, currTime=currTime, timeStep=time_interval, startTime = startTime, _RC)
+
+      time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
+
+      has_frequency = ESMF_HConfigIsDefined(time_hconfig, keyString='frequency', _RC)
+      if (has_frequency) then
+         time_interval = hconfig_to_esmf_timeinterval(time_hconfig, 'frequency', _RC)
+      end if
+    
+      int_time = 0 
+      has_ref_time = ESMF_HConfigIsDefined(time_hconfig, keyString='ref_time', _RC) 
+      if (has_ref_time) then
+         iso_time = ESMF_HConfigAsString(time_hconfig, keyString='ref_time', _RC)
+         int_time = string_to_integer_time(iso_time, _RC)
+      end if
+      
+      call MAPL_UnpackTime(int_time, h, m, s) 
+      call ESMF_TimeGet(currTime, yy=yy, mm=mm, dd=dd, _RC)
+      call ESMF_TimeSet(first_ring_time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+     
+      ! These 2 lines are borrowed from old History. Unforunately until ESMF alarms
+      ! get fixed kluges like this are neccessary so alarms will acutally ring
+      if (first_ring_time == startTime) first_ring_time = first_ring_time + time_interval
+      if (first_ring_time < currTime) &
+           first_ring_time = first_ring_time +(INT((currTime - first_ring_time)/time_interval)+1)*time_interval 
+
+      alarm = ESMF_AlarmCreate(clock=clock, RingInterval=time_interval, RingTime=first_ring_time, sticky=.false., name=comp_name//"_write_alarm",  _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine create_output_alarm
+
+   function set_start_stop_time(clock, hconfig, rc) result(start_stop_time)
+      type(ESMF_Time) :: start_stop_time(2)
+      type(ESMF_Clock), intent(inout) :: clock
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      logical :: has_start, has_stop, has_timespec
+      character(len=:), allocatable :: time_string
+      type(ESMF_HConfig) :: time_hconfig
+
+      time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
+      call ESMF_ClockGet(clock, startTime=start_stop_time(1), stopTime=start_stop_time(2), _RC)
+      has_start = ESMF_HConfigIsDefined(time_hconfig, keyString='start', _RC)
+      has_stop = ESMF_HConfigIsDefined(time_hconfig, keyString='stop', _RC)
+      if (has_start) then
+         time_string = ESMF_HConfigAsString(time_hconfig, keyString='start', _RC) 
+         call ESMF_TimeSet(start_stop_time(1), timeString=time_string, _RC)
+      end if
+      if (has_stop) then
+         time_string = ESMF_HConfigAsString(time_hconfig, keyString='stop', _RC) 
+         call ESMF_TimeSet(start_stop_time(2), timeString=time_string, _RC)
+      end if
+      _RETURN(_SUCCESS)
+   end function set_start_stop_time
 
    subroutine parse_item_expression(item, item_name, var_names, rc)
       type(ESMF_HConfigIter), intent(in) :: item 
@@ -213,71 +293,3 @@ contains
    end function get_expression_variables
 
 end module mapl3g_HistoryCollectionGridComp_private
-      ! common code
-!      character(len=*), parameter :: EXPRESSION_KEY = 'expr'
-!      integer :: status
-!      logical :: asOK, isScalar, isMap
-!      type(ESMF_HConfig) :: value
-!      character(len=:), allocatable :: expression
-!
-!      isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
-!      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
-!      isMap = ESMF_HConfigIsMapMapVal(item, _RC)
-!      _ASSERT(isMap, 'Variable list item does not have a map value.')
-!
-!      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
-!      _ASSERT(asOK, 'Name could not be processed as a String.')
-!
-!      value = ESMF_HConfigCreateAtMapVal(item, _RC)
-!      expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
-      ! end common code
-      ! common code
-!      character(len=*), parameter :: EXPRESSION_KEY = 'expr'
-!      integer :: status
-!      logical :: asOK, isScalar, isMap
-!      type(ESMF_HConfig) :: value
-!      character(len=:), allocatable :: expression
-!
-!      isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
-!      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
-!      isMap = ESMF_HConfigIsMapMapVal(item, _RC)
-!      _ASSERT(isMap, 'Variable list item does not have a map value.')
-!
-!      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
-!      _ASSERT(asOK, 'Name could not be processed as a String.')
-!
-!      value = ESMF_HConfigCreateAtMapVal(item, _RC)
-!      expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
-      ! end common code
-!
-!   function replace_delimiter_expression(string, delimiter, replacement) result(replaced)
-!      character(len=:), allocatable :: replaced
-!      character(len=*), intent(in) :: string
-!      character(len=*), optional, intent(in) :: delimiter
-!      character(len=*), optional, intent(in) :: replacement
-!      character(len=:), allocatable :: del, rep
-!      integer :: delwidth
-!
-!      del = VARIABLE_DELIMITER
-!      if(present(delimiter)) del = delimiter
-!      rep = DELIMITER_REPLACEMENT
-!      if(present(replacement)) rep = replacement
-!
-!      delwidth = len(del)
-!      replaced = inner(string)
-!
-!   contains
-!
-!      recursive function inner(s_in) result(s_out)
-!         character(len=:), allocatable :: s_out
-!         character(len=*), intent(in) :: s_in
-!         integer :: i
-!
-!         s_out = trim(s_in)
-!         i = index(s_out, del)
-!         if(i == 0) return
-!         s_out = s_out(:(i-1)) // rep // inner(s_in((i+delwidth):))
-!
-!      end function inner
-!
-!   end function replace_delimiter_expression
