@@ -8,6 +8,7 @@ module mapl3g_Cap
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandling
    use esmf
+   use MAPL_TimeStringConversion, only: hconfig_to_esmf_timeinterval
    implicit none
    private
 
@@ -76,8 +77,8 @@ contains
       call ESMF_TimePrint(startTime, options='string', prestring='start time set: ' ,_RC)
       call set_time(stopTime, 'stop', clock_config, _RC)
       call ESMF_TimePrint(stopTime, options='string', prestring='stop time set: ', _RC)
-      call set_time_interval(timeStep, 'dt', clock_config, _RC)
-      call set_time_interval(segment_duration, 'segment_duration', clock_config, _RC)
+      timeStep = hconfig_to_esmf_timeinterval(clock_config, 'dt', _RC)
+      segment_duration = hconfig_to_esmf_timeinterval(clock_config, 'segment_duration', _RC)
 
       end_of_segment = startTime + segment_duration
       if (end_of_segment < stopTime) stopTime = end_of_segment
@@ -86,83 +87,6 @@ contains
       
       _RETURN(_SUCCESS)
    end function create_clock
-
-   subroutine set_time_interval(interval, key, hconfig, rc)
-      type(ESMF_TimeInterval), intent(out) :: interval
-      character(*), intent(in) :: key
-      type(ESMF_HConfig), intent(in) :: hconfig
-      integer, optional, intent(out) :: rc
-      
-      integer :: status
-
-      integer :: strlen,ppos,cpos,lpos,tpos
-      integer year,month,day,hour,min,sec
-      character(len=:), allocatable :: date_string,time_string
-      character(:), allocatable :: iso_duration
-      
-      iso_duration = ESMF_HConfigAsString(hconfig, keystring=key, _RC)
-!#      call ESMF_TimeIntervalSet(interval, timeString=iso_duration, _RC)
-      year=0
-      month=0
-      day=0
-      hour=0
-      min=0
-      sec=0
-      strlen = len_trim(iso_duration)
-      tpos = index(iso_duration,'T')
-      ppos = index(iso_duration,'P')
-      _ASSERT(iso_duration(1:1) == 'P','Not valid time duration')
-
-      if (tpos /= 0) then
-         if (tpos /= ppos+1) then
-            date_string = iso_duration(ppos+1:tpos-1)
-         end if
-         time_string = iso_duration(tpos+1:strlen)
-      else
-         date_string = iso_duration(ppos+1:strlen)
-      end if
-
-      if (allocated(date_string)) then
-         strlen = len_trim(date_string)
-         lpos = 0
-         cpos = index(date_string,'Y')
-         if (cpos /= 0) then
-            read(date_string(lpos+1:cpos-1),*)year
-            lpos = cpos
-         end if
-         cpos = index(date_string,'M')
-         if (cpos /= 0) then
-            read(date_string(lpos+1:cpos-1),*)month
-            lpos = cpos
-         end if
-         cpos = index(date_string,'D')
-         if (cpos /= 0) then
-            read(date_string(lpos+1:cpos-1),*)day
-            lpos = cpos
-         end if
-      end if      
-      if (allocated(time_string)) then
-         strlen = len_trim(time_string)
-         lpos = 0
-         cpos = index(time_string,'H')
-         if (cpos /= 0) then
-            read(time_string(lpos+1:cpos-1),*)hour
-            lpos = cpos
-         end if
-         cpos = index(time_string,'M')
-         if (cpos /= 0) then
-            read(time_string(lpos+1:cpos-1),*)min
-            lpos = cpos
-         end if
-         cpos = index(time_string,'S')
-         if (cpos /= 0) then
-            read(time_string(lpos+1:cpos-1),*)sec
-            lpos = cpos
-         end if
-      end if
-      call ESMF_TimeIntervalSet(interval, yy=year, mm=month, d=day, h=hour, m=min, s=sec,_RC) 
-      _RETURN(_SUCCESS)
-   end subroutine set_time_interval
 
    subroutine set_time(time, key, hconfig, rc)
       type(ESMF_Time), intent(out) :: time

@@ -17,6 +17,7 @@ module mapl3g_HistoryCollectionGridComp
 !#      class(Client), pointer :: client
       type(ESMF_FieldBundle) :: output_bundle
       type(BundleWriter) :: writer
+      type(ESMF_Time) :: start_stop_times(2)
    end type HistoryCollectionGridComp
 
 
@@ -64,16 +65,22 @@ contains
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
       type(BundleWriter) :: writer
+      type(ESMF_Alarm) :: alarm
+      character(len=ESMF_MAXSTR) :: name
 
       ! To Do:
       ! - determine run frequencey and offset (save as alarm)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+      call ESMF_GridCompGet(gridcomp, name=name, _RC)
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
       collection_gridcomp%output_bundle = create_output_bundle(hconfig, importState, _RC)
 
       call MAPL_GridCompGet(gridcomp, geom=geom, _RC)
       call collection_gridcomp%writer%initialize(collection_gridcomp%output_bundle, geom, _RC)
+
+      call create_output_alarm(clock, hconfig, trim(name), _RC)
+      collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine init
@@ -107,10 +114,25 @@ contains
       integer :: status
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
+      logical :: time_to_write, run_collection
+      type(ESMF_Time) :: current_time
+      type(ESMF_Alarm) :: write_alarm
+      character(len=ESMF_MAXSTR) :: name
+
+      call ESMF_GridCompGet(gridcomp, name=name, _RC)
+      call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      call ESMF_ClockGetAlarm(clock, trim(name)//"_write_alarm", write_alarm, _RC)
+      _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
+      time_to_write = ESMF_AlarmIsRinging(write_alarm, _RC)
+      run_collection = (current_time >= collection_gridcomp%start_stop_times(1)) .and. &
+                           (current_time <= collection_gridcomp%start_stop_times(2))
+
+      _RETURN_UNLESS(run_collection .and. time_to_write)
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
       !call collection_gridcomp%writer%stage_data(collection_gridcomp%output_bundle, _RC)
       _RETURN(_SUCCESS)
+
    end subroutine run
 
 end module mapl3g_HistoryCollectionGridComp
