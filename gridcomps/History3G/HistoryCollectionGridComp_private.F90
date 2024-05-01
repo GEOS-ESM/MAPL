@@ -14,14 +14,15 @@ module mapl3g_HistoryCollectionGridComp_private
    implicit none
    private
 
-   public :: make_geom, register_imports, create_output_bundle
-   
    public :: make_geom
    public :: register_imports
    public :: create_output_bundle
    public :: create_output_alarm
    public :: set_start_stop_time
-   public :: parse_item_common, replace_delimiter, get_expression_variables
+   ! These are public for testing.
+   public :: parse_item_common
+   public :: replace_delimiter
+   public :: get_expression_variables
 
    interface parse_item
       module procedure :: parse_item_expression
