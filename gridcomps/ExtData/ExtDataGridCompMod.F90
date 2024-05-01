@@ -4701,6 +4701,7 @@ CONTAINS
 
      do n = 1, nfiles
         io_bundle => IOBundles%at(n)
+        call lgr%debug("prefetch loop: %i4 of %i4, %a",n, nfiles, trim(io_bundle%file_name))
         call io_bundle%cfio%request_data_from_file(io_bundle%file_name,io_bundle%time_index,rc=status)
         _VERIFY(status)
      enddo
