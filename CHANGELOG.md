@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add procedures for MAPL_GetResource from ESMF_HConfig.
 - Added GitHub Action to generate MAPL3 Ford Docs
 - Added capability for HistoryCollectionGridComp to extract field names from expressions
+- Added ability for HistoryCollectionGridComp to extract multiple field names from expressions
 
 ### Changed
 

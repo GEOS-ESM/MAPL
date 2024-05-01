@@ -12,7 +12,8 @@ module mapl3g_HistoryCollectionGridComp_private
    implicit none
    private
 
-   public :: make_geom, register_imports, create_output_bundle
+   public :: make_geom, register_imports, create_output_bundle, replace_delimiter, get_expression_variables
+   public :: parse_item_common
 
    interface parse_item
       module procedure :: parse_item_expression
@@ -177,12 +178,17 @@ contains
       character(len=:), allocatable :: del, rep
       integer :: i
 
+      replaced = string
+      if(len(string) == 0) return
+
       del = '.'
       if(present(delimiter)) del = delimiter
+      if(len(del) == 0) return
+
       rep = '/'
       if(present(replacement)) rep = replacement
+      if(len(rep) == 0) return
 
-      replaced = trim(string)
       i = index(replaced, del)
       if(i > 0) replaced = replaced(:(i-1))// rep // replaced((i+len(del)):)
 
