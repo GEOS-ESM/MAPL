@@ -3451,7 +3451,7 @@ ENDDO PARSER
   ! swath only
    epoch_swath_grid_case: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
-      call MAPL_TimerOn(GENSTATE,"SwathGen")
+      call MAPL_TimerOn(GENSTATE,"SwathRun")
       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
          call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
 
@@ -3478,7 +3478,7 @@ ENDDO PARSER
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
          endif
       end if
-      call MAPL_TimerOff(GENSTATE,"SwathGen")
+      call MAPL_TimerOff(GENSTATE,"SwathRun")
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    end do epoch_swath_grid_case
 
@@ -3537,12 +3537,15 @@ ENDDO PARSER
 
          lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
+            call MAPL_TimerOn(GENSTATE,"TrajectoryRun")
             if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
                call list(n)%trajectory%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
+            call MAPL_TimerOff(GENSTATE,"TrajectoryRun")
          elseif (list(n)%sampler_spec == 'station') then
+            call MAPL_TimerOn(GENSTATE,"StationRun")
             if (list(n)%unit.eq.0) then
                call lgr%debug('%a %a',&
                     "Station_data output to new file:",trim(filename(n)))
@@ -3551,7 +3554,9 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
+            call MAPL_TimerOff(GENSTATE,"StationRun")
          elseif (list(n)%sampler_spec == 'mask') then
+            call MAPL_TimerOn(GENSTATE,"MaskRun")
             if (list(n)%unit.eq.0) then
                call lgr%debug('%a %a',&
                     "Mask_data output to new file:",trim(filename(n)))
@@ -3560,6 +3565,7 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
+            call MAPL_TimerOff(GENSTATE,"MaskRun")
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
@@ -3645,6 +3651,7 @@ ENDDO PARSER
          if (.not.list(n)%timeseries_output .AND. &
               list(n)%sampler_spec /= 'station' .AND. &
               list(n)%sampler_spec /= 'mask') then
+
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
             else
@@ -3692,11 +3699,15 @@ ENDDO PARSER
          end if
 
          if (list(n)%sampler_spec == 'station') then
+            call MAPL_TimerOn(GENSTATE,"StationRun")
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call list(n)%station_sampler%append_file(current_time,_RC)
+            call MAPL_TimerOff(GENSTATE,"StationRun")
          elseif (list(n)%sampler_spec == 'mask') then
+            call MAPL_TimerOn(GENSTATE,"MaskRun")
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call list(n)%mask_sampler%append_file(current_time,_RC)
+            call MAPL_TimerOff(GENSTATE,"MaskRun")
          endif
 
       endif OUTTIME
@@ -3724,8 +3735,8 @@ ENDDO PARSER
   ! swath only
    epoch_swath_regen_grid: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
-      call MAPL_TimerOn(GENSTATE,"Swath regen")
       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+         call MAPL_TimerOn(GENSTATE,"SwathRun")
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) .and. .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
 
             key_grid_label = list(n)%output_grid_label
@@ -3736,8 +3747,8 @@ ENDDO PARSER
                  ogrid=pgrid,vdata=list(n)%vdata,_RC)
             if( MAPL_AM_I_ROOT() )  write(6,'(//)')
          endif
+         call MAPL_TimerOff(GENSTATE,"SwathRun")
       end if
-      call MAPL_TimerOff(GENSTATE,"Swath regen")
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    end do epoch_swath_regen_grid
 
@@ -3754,8 +3765,9 @@ ENDDO PARSER
    WRITELOOP: do n=1,nlist
 
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
-      call MAPL_TimerOn(GENSTATE,"Write Timeseries")
+
       if (list(n)%timeseries_output) then
+         call MAPL_TimerOn(GENSTATE,"TrajectoryRun")
          call list(n)%trajectory%regrid_accumulate(_RC)
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call list(n)%trajectory%append_file(current_time,_RC)
@@ -3764,6 +3776,7 @@ ENDDO PARSER
                call list(n)%trajectory%destroy_rh_regen_LS (_RC)
             end if
          end if
+         call MAPL_TimerOff(GENSTATE,"TrajectoryRun")
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then
@@ -3772,7 +3785,6 @@ ENDDO PARSER
 
       end if
 
-      call MAPL_TimerOff(GENSTATE,"Write Timeseries")
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    enddo WRITELOOP
 
