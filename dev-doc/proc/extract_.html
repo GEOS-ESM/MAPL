@@ -79,20 +79,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for procedures.">19 statements</a>
+                 title=" 0.0% of total for procedures.">22 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/ExtDataGridCompNG.F90"> Source File</a>
+              <a href="../src/ExtDataGridCompMod.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/extdatagridcompng.f90.html'>ExtDataGridCompNG.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/mapl_extdatagridcomp2g.html'>MAPL_ExtDataGridComp2G</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatagridcompmod.f90.html'>ExtDataGridCompMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatagridcompmod.html'>MAPL_ExtDataGridCompMod</a></li>
             <li class="breadcrumb-item active" aria-current="page">extract_</li>
           </ol>
         </nav>
@@ -163,7 +163,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-gc~6"></span>
+              <span class="anchor" id="variable-gc~5"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
             </td>
 <td>intent(inout)</td>
@@ -179,7 +179,7 @@
         <tr>
             <td>
               <span class="anchor" id="variable-self~5"></span>
-              type(<a href='../type/mapl_extdata_state~2.html'>MAPL_ExtData_State</a>),
+              type(<a href='../type/mapl_extdata_state.html'>MAPL_ExtData_State</a>),
             </td>
 <td></td>
               <td></td>            <td>
@@ -208,7 +208,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~212"></span>
+              <span class="anchor" id="variable-rc~67"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -367,18 +367,18 @@
 <path fill="none" stroke="#ff0000" d="M441.08,-54C453.29,-54 465.89,-54 477.08,-54"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="477.32,-57.5 487.32,-54 477.32,-50.5 477.32,-57.5"/>
 </g>
-<!-- proc~initialize~6 -->
+<!-- proc~initialize~14 -->
 <g id="proc~~extract_~~CallsGraph_node10" class="node">
-<title>proc~initialize~6</title>
-<g id="a_proc~~extract_~~CallsGraph_node10"><a xlink:href="../proc/initialize~6.html" xlink:title="initialize">
+<title>proc~initialize~14</title>
+<g id="a_proc~~extract_~~CallsGraph_node10"><a xlink:href="../proc/initialize~14.html" xlink:title="initialize">
 <polygon fill="#d9534f" stroke="#d9534f" points="543,-24 486,-24 486,0 543,0 543,-24"/>
 <text text-anchor="middle" x="514.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
 </a>
 </g>
 </g>
-<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~6 -->
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~14 -->
 <g id="proc~~extract_~~CallsGraph_edge10" class="edge">
-<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~6</title>
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~14</title>
 <path fill="none" stroke="#00ffff" d="M450.13,-12C458.88,-12 467.59,-12 475.63,-12"/>
 <polygon fill="#00ffff" stroke="#00ffff" points="475.77,-15.5 485.77,-12 475.77,-8.5 475.77,-15.5"/>
 </g>
@@ -641,13 +641,16 @@ large graphs.</div>
 <span class="c">!                            ---</span>
 
 <span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comp_name</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span>
 <span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
 
 <span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_ExtData_Wrap</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">wrap</span>
 
 <span class="c">!   Get my name and set-up traceback handle</span>
 <span class="c">!   ---------------------------------------</span>
+<span class="w">    </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;extract_&#39;</span>
 <span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="n">comp_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">COMP_NAME</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;::&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">Iam</span><span class="p">)</span>
 
 <span class="w">    </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w">  </span><span class="n">rc</span><span class="o">=</span><span class="n">ESMF_SUCCESS</span>
 
@@ -688,7 +691,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-05-02T18:26:22.973122             </p>
+ on 2024-05-02T18:34:27.323801             </p>
           </div>
         </div>
         <br>
