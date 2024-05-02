@@ -1,0 +1,1594 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ESMF_CFIOSdfVarRead3D_ &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>ESMF_CFIOSdfVarRead3D_
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">107 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ESMF_CFIOSdfMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmf_cfiosdfmod.f90.html'>ESMF_CFIOSdfMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmf_cfiosdfmod.html'>ESMF_CFIOSdfMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">ESMF_CFIOSdfVarRead3D_</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/esmf_cfiosdfvarread3d_.html#src">ESMF_CFIOSdfVarRead3D_</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine ESMF_CFIOSdfVarRead3D_(cfio, vName, field, date, curTime, kbeg, kount, xBeg, xCount, yBeg, yCount, timeString, rc)  
+</h2>
+    
+
+    <p><code>ESMF_CFIOSdfVarRead3D_</code> &ndash; Read a variable from an existing file.</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cfio~46"></span>
+              type(<a href='../type/esmf_cfio.html'>ESMF_CFIO</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cfio</strong></td>
+            <td>
+                <p>a CFIO obj</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vname~26"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vName</strong></td>
+            <td>
+                <p>variable name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field~115"></span>
+              real,
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>field</strong>(:,:,:)</td>
+            <td>
+                <p>array contains data</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-date~43"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>date</strong></td>
+            <td>
+                <p>yyyymmdd</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-curtime~29"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>curTime</strong></td>
+            <td>
+                <p>hhmmss</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kbeg~16"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kbeg</strong></td>
+            <td>
+                <p>first level to write</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kount~13"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kount</strong></td>
+            <td>
+                <p>number of levels to write</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xbeg~4"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>xBeg</strong></td>
+            <td>
+                <p>first point for lon</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xcount~4"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>xCount</strong></td>
+            <td>
+                <p>number of points to read</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ybeg~3"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>yBeg</strong></td>
+            <td>
+                <p>first point for lat</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ycount~3"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>yCount</strong></td>
+            <td>
+                <p>number of points to read</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timestring~16"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timeString</strong></td>
+            <td>
+                <p>string expression for date and time</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1551"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                <p>Error return code:
+0   all is well
+ rc = -2  time is inconsistent with increment
+ rc = -3  number of levels is incompatible with file
+ rc = -4  im is incompatible with file
+ rc = -5  jm is incompatible with file
+ rc = -6  time must fall on a minute boundary
+ rc = -7  error in diffdate
+ rc = -8  vname miss-match
+ rc = -12  error determining default precision
+ rc = -13  error determining variable type
+ rc = -19  unable to identify coordinate variable
+ rc = -38  error from NF90_VAR_PUT (dimension variable)
+ rc = -40  error from NF90_INQ_VARID
+ rc = -41  error from NF90_INQ_DIMID (lat or lon)
+ rc = -42  error from NF90_INQ_DIMID (lev)
+ rc = -43  error from NF90_INQ_VARID (time variable)
+ rc = -44  error from NF90_GET_ATT (time attribute)
+ rc = -46  error from NF90_GET_VAR
+ rc = -48  error from NF90_INQUIRE
+ rc = -52  error from NF90_INQUIRE_VARIABLE</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~esmf_cfiosdfvarread3d_~~CallsGraph Pages: 1 -->
+<svg id="procesmf_cfiosdfvarread3d_CallsGraph" width="603pt" height="998pt"
+ viewBox="0.00 0.00 603.00 998.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 994)">
+<title>proc~~esmf_cfiosdfvarread3d_~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-994 599,-994 599,4 -4,4"/>
+<!-- proc~esmf_cfiosdfvarread3d_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node1" class="node">
+<title>proc~esmf_cfiosdfvarread3d_</title>
+<polygon fill="none" stroke="black" points="153,-685 0,-685 0,-661 153,-661 153,-685"/>
+<text text-anchor="middle" x="76.5" y="-670.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_CFIOSdfVarRead3D_</text>
+</g>
+<!-- proc~cfio_getvar -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node2" class="node">
+<title>proc~cfio_getvar</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node2"><a xlink:href="../proc/cfio_getvar.html" xlink:title="CFIO_GetVar">
+<polygon fill="#d9534f" stroke="#d9534f" points="296.5,-738 217.5,-738 217.5,-714 296.5,-714 296.5,-738"/>
+<text text-anchor="middle" x="257" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_GetVar</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~cfio_getvar -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge1" class="edge">
+<title>proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~cfio_getvar</title>
+<path fill="none" stroke="#ff0000" d="M118,-685.03C144.69,-692.95 179.76,-703.36 207.86,-711.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="206.91,-715.07 217.49,-714.57 208.9,-708.36 206.91,-715.07"/>
+</g>
+<!-- proc~err -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node3" class="node">
+<title>proc~err</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node3"><a xlink:href="../proc/err.html" xlink:title="err">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="460,-864 406,-864 406,-840 460,-840 460,-864"/>
+<text text-anchor="middle" x="433" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">err</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~err -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge2" class="edge">
+<title>proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~err</title>
+<path fill="none" stroke="#ff0000" d="M94.44,-685.26C115.91,-700.56 154.32,-727.14 189,-747 262.82,-789.28 281.71,-800.16 361,-831 372.1,-835.32 384.46,-839.26 395.72,-842.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="395.11,-846 405.68,-845.34 397.01,-839.26 395.11,-846"/>
+</g>
+<!-- proc~esmf_cfiosdffileclose -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node4" class="node">
+<title>proc~esmf_cfiosdffileclose</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node4"><a xlink:href="../proc/esmf_cfiosdffileclose.html" xlink:title="ESMF_CFIOSdfFileClose">
+<polygon fill="#d9534f" stroke="#d9534f" points="325,-947 189,-947 189,-923 325,-923 325,-947"/>
+<text text-anchor="middle" x="257" y="-932.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfFileClose</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~esmf_cfiosdffileclose -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge3" class="edge">
+<title>proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~esmf_cfiosdffileclose</title>
+<path fill="none" stroke="#ff0000" d="M85.87,-685.29C114.15,-726.8 206.39,-862.18 241.89,-914.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="239.13,-916.45 247.65,-922.74 244.91,-912.51 239.13,-916.45"/>
+</g>
+<!-- proc~esmf_cfiosdffileopen -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node5" class="node">
+<title>proc~esmf_cfiosdffileopen</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node5"><a xlink:href="../proc/esmf_cfiosdffileopen.html" xlink:title="ESMF_CFIOSdfFileOpen">
+<polygon fill="#d9534f" stroke="#d9534f" points="324.5,-465 189.5,-465 189.5,-441 324.5,-441 324.5,-465"/>
+<text text-anchor="middle" x="257" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfFileOpen</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~esmf_cfiosdffileopen -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge4" class="edge">
+<title>proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~esmf_cfiosdffileopen</title>
+<path fill="none" stroke="#ff0000" d="M87.35,-660.86C116.67,-624.72 203.57,-517.62 239.83,-472.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="242.6,-475.07 246.18,-465.1 237.16,-470.66 242.6,-475.07"/>
+</g>
+<!-- proc~strtemplate_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node6" class="node">
+<title>proc~strtemplate_</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node6"><a xlink:href="../proc/strtemplate_.html" xlink:title="strTemplate_">
+<polygon fill="#d9534f" stroke="#d9534f" points="473,-528 393,-528 393,-504 473,-504 473,-528"/>
+<text text-anchor="middle" x="433" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">strTemplate_</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~strtemplate_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge5" class="edge">
+<title>proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~strtemplate_</title>
+<path fill="none" stroke="#ff0000" d="M99.74,-660.81C146.86,-635.34 260.64,-575.63 361,-537 368.09,-534.27 375.69,-531.68 383.19,-529.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="384.39,-532.61 392.93,-526.34 382.35,-525.91 384.39,-532.61"/>
+</g>
+<!-- proc~strtoint -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node7" class="node">
+<title>proc~strtoint</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node7"><a xlink:href="../proc/strtoint.html" xlink:title="strToInt">
+<polygon fill="#d9534f" stroke="#d9534f" points="284,-423 230,-423 230,-399 284,-399 284,-423"/>
+<text text-anchor="middle" x="257" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">strToInt</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~strtoint -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge6" class="edge">
+<title>proc~esmf_cfiosdfvarread3d_&#45;&gt;proc~strtoint</title>
+<path fill="none" stroke="#ff0000" d="M79.53,-660.92C86.76,-621.77 114.87,-497.1 189,-432 197.7,-424.36 209.16,-419.5 220.14,-416.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="221.09,-419.78 229.99,-414.04 219.45,-412.98 221.09,-419.78"/>
+</g>
+<!-- proc~cfio_getvar&#45;&gt;proc~err -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge15" class="edge">
+<title>proc~cfio_getvar&#45;&gt;proc~err</title>
+<path fill="none" stroke="#ff0000" d="M269.84,-738.23C296.32,-765.56 358.25,-829.35 361,-831 371.57,-837.35 384.18,-841.89 395.82,-845.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="395.18,-848.53 405.73,-847.56 396.88,-841.74 395.18,-848.53"/>
+</g>
+<!-- nf90_get_att -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node8" class="node">
+<title>nf90_get_att</title>
+<polygon fill="#777777" stroke="#777777" points="472.5,-570 393.5,-570 393.5,-546 472.5,-546 472.5,-570"/>
+<text text-anchor="middle" x="433" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_att</text>
+</g>
+<!-- proc~cfio_getvar&#45;&gt;nf90_get_att -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge7" class="edge">
+<title>proc~cfio_getvar&#45;&gt;nf90_get_att</title>
+<path fill="none" stroke="#ff0000" d="M263.18,-713.62C275.66,-685.34 310.15,-615.58 361,-579 367.75,-574.14 375.62,-570.4 383.62,-567.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="384.9,-570.78 393.37,-564.41 382.78,-564.11 384.9,-570.78"/>
+</g>
+<!-- nf90_get_var -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node9" class="node">
+<title>nf90_get_var</title>
+<polygon fill="#777777" stroke="#777777" points="474,-780 392,-780 392,-756 474,-756 474,-780"/>
+<text text-anchor="middle" x="433" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
+</g>
+<!-- proc~cfio_getvar&#45;&gt;nf90_get_var -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge8" class="edge">
+<title>proc~cfio_getvar&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#ff0000" d="M296.62,-735.32C321.85,-741.41 355.05,-749.43 382.26,-755.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="381.44,-759.4 391.98,-758.34 383.08,-752.59 381.44,-759.4"/>
+</g>
+<!-- nf90_inq_varid -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node11" class="node">
+<title>nf90_inq_varid</title>
+<polygon fill="#777777" stroke="#777777" points="478.5,-738 387.5,-738 387.5,-714 478.5,-714 478.5,-738"/>
+<text text-anchor="middle" x="433" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+</g>
+<!-- proc~cfio_getvar&#45;&gt;nf90_inq_varid -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge9" class="edge">
+<title>proc~cfio_getvar&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#ff0000" d="M296.62,-726C320.3,-726 351.01,-726 377.19,-726"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="377.35,-729.5 387.35,-726 377.35,-722.5 377.35,-729.5"/>
+</g>
+<!-- nf90_inquire -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node12" class="node">
+<title>nf90_inquire</title>
+<polygon fill="#777777" stroke="#777777" points="472.5,-696 393.5,-696 393.5,-672 472.5,-672 472.5,-696"/>
+<text text-anchor="middle" x="433" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire</text>
+</g>
+<!-- proc~cfio_getvar&#45;&gt;nf90_inquire -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge10" class="edge">
+<title>proc~cfio_getvar&#45;&gt;nf90_inquire</title>
+<path fill="none" stroke="#ff0000" d="M296.62,-716.68C322.3,-710.48 356.23,-702.29 383.69,-695.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="384.59,-699.04 393.49,-693.3 382.95,-692.24 384.59,-699.04"/>
+</g>
+<!-- nf90_inquire_dimension -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node14" class="node">
+<title>nf90_inquire_dimension</title>
+<polygon fill="#777777" stroke="#777777" points="502.5,-654 363.5,-654 363.5,-630 502.5,-630 502.5,-654"/>
+<text text-anchor="middle" x="433" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_dimension</text>
+</g>
+<!-- proc~cfio_getvar&#45;&gt;nf90_inquire_dimension -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge11" class="edge">
+<title>proc~cfio_getvar&#45;&gt;nf90_inquire_dimension</title>
+<path fill="none" stroke="#ff0000" d="M274.74,-713.86C294.52,-699.97 328.82,-677.3 361,-663 365.46,-661.02 370.17,-659.16 374.94,-657.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="376.44,-660.62 384.78,-654.08 374.19,-653.99 376.44,-660.62"/>
+</g>
+<!-- nf90_inquire_variable -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node15" class="node">
+<title>nf90_inquire_variable</title>
+<polygon fill="#777777" stroke="#777777" points="496.5,-612 369.5,-612 369.5,-588 496.5,-588 496.5,-612"/>
+<text text-anchor="middle" x="433" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_variable</text>
+</g>
+<!-- proc~cfio_getvar&#45;&gt;nf90_inquire_variable -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge12" class="edge">
+<title>proc~cfio_getvar&#45;&gt;nf90_inquire_variable</title>
+<path fill="none" stroke="#ff0000" d="M266.46,-713.99C282.44,-692.21 319.2,-646.13 361,-621 364.01,-619.19 367.19,-617.53 370.46,-616"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="372.01,-619.14 379.88,-612.05 369.31,-612.69 372.01,-619.14"/>
+</g>
+<!-- nf90_strerror -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node16" class="node">
+<title>nf90_strerror</title>
+<polygon fill="#777777" stroke="#777777" points="473.5,-948 392.5,-948 392.5,-924 473.5,-924 473.5,-948"/>
+<text text-anchor="middle" x="433" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+</g>
+<!-- proc~cfio_getvar&#45;&gt;nf90_strerror -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge13" class="edge">
+<title>proc~cfio_getvar&#45;&gt;nf90_strerror</title>
+<path fill="none" stroke="#ff0000" d="M261.13,-738.29C270.33,-771.91 300.55,-866.14 361,-915 367.33,-920.11 374.86,-923.98 382.62,-926.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="381.54,-930.24 392.14,-930.03 383.73,-923.59 381.54,-930.24"/>
+</g>
+<!-- proc~diffdate -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node26" class="node">
+<title>proc~diffdate</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node26"><a xlink:href="../proc/diffdate.html" xlink:title="DiffDate">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="461.5,-906 404.5,-906 404.5,-882 461.5,-882 461.5,-906"/>
+<text text-anchor="middle" x="433" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DiffDate</text>
+</a>
+</g>
+</g>
+<!-- proc~cfio_getvar&#45;&gt;proc~diffdate -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge14" class="edge">
+<title>proc~cfio_getvar&#45;&gt;proc~diffdate</title>
+<path fill="none" stroke="#ff0000" d="M263.18,-738.38C275.66,-766.66 310.15,-836.42 361,-873 370.85,-880.08 383.08,-884.8 394.6,-887.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="393.93,-891.36 404.47,-890.29 395.56,-884.56 393.93,-891.36"/>
+</g>
+<!-- proc~getdatetimevec -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node29" class="node">
+<title>proc~getdatetimevec</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node29"><a xlink:href="../proc/getdatetimevec.html" xlink:title="GetDateTimeVec">
+<polygon fill="#d9534f" stroke="#d9534f" points="484,-822 382,-822 382,-798 484,-798 484,-822"/>
+<text text-anchor="middle" x="433" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GetDateTimeVec</text>
+</a>
+</g>
+</g>
+<!-- proc~cfio_getvar&#45;&gt;proc~getdatetimevec -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge16" class="edge">
+<title>proc~cfio_getvar&#45;&gt;proc~getdatetimevec</title>
+<path fill="none" stroke="#ff0000" d="M274.74,-738.14C294.52,-752.03 328.82,-774.7 361,-789 365.46,-790.98 370.17,-792.84 374.94,-794.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="374.19,-798.01 384.78,-797.92 376.44,-791.38 374.19,-798.01"/>
+</g>
+<!-- proc~cfio_close -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node18" class="node">
+<title>proc~cfio_close</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node18"><a xlink:href="../proc/cfio_close.html" xlink:title="CFIO_Close">
+<polygon fill="#d9534f" stroke="#d9534f" points="469,-990 397,-990 397,-966 469,-966 469,-990"/>
+<text text-anchor="middle" x="433" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_Close</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileclose&#45;&gt;proc~cfio_close -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge17" class="edge">
+<title>proc~esmf_cfiosdffileclose&#45;&gt;proc~cfio_close</title>
+<path fill="none" stroke="#00ff00" d="M306.93,-947.09C332.11,-953.31 362.59,-960.85 387.15,-966.92"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="386.39,-970.33 396.94,-969.34 388.07,-963.54 386.39,-970.33"/>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~err -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge33" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~err</title>
+<path fill="none" stroke="#00ffff" d="M261.19,-465.03C278.21,-529.1 357.6,-827.53 361,-831 370.13,-840.33 383.19,-845.56 395.63,-848.48"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="395.35,-851.99 405.83,-850.43 396.66,-845.11 395.35,-851.99"/>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~strtemplate_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge37" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~strtemplate_</title>
+<path fill="none" stroke="#00ffff" d="M285.69,-465.17C306.26,-473.99 335.12,-485.92 361,-495 368.08,-497.49 375.63,-499.93 383.06,-502.22"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="382.13,-505.6 392.71,-505.14 384.15,-498.9 382.13,-505.6"/>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;nf90_get_att -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge18" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;nf90_get_att</title>
+<path fill="none" stroke="#00ffff" d="M269.53,-465.08C287.47,-483.21 323.86,-517.39 361,-537 368.03,-540.71 375.81,-543.86 383.57,-546.49"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="382.73,-549.9 393.32,-549.56 384.84,-543.22 382.73,-549.9"/>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;nf90_get_var -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge19" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#00ffff" d="M258.49,-465.14C260.95,-509.67 275.6,-665.72 361,-747 366.96,-752.67 374.37,-756.82 382.14,-759.85"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="381.13,-763.2 391.73,-763.02 383.33,-756.56 381.13,-763.2"/>
+</g>
+<!-- nf90_inq_attname -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node10" class="node">
+<title>nf90_inq_attname</title>
+<polygon fill="#777777" stroke="#777777" points="487.5,-486 378.5,-486 378.5,-462 487.5,-462 487.5,-486"/>
+<text text-anchor="middle" x="433" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_attname</text>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;nf90_inq_attname -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge20" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;nf90_inq_attname</title>
+<path fill="none" stroke="#00ffff" d="M324.78,-461.06C339.04,-462.78 354.08,-464.6 368.23,-466.3"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="368,-469.8 378.35,-467.53 368.84,-462.85 368,-469.8"/>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;nf90_inq_varid -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge21" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#00ffff" d="M259.28,-465.08C264.21,-505.42 285.63,-636.84 361,-705 365.82,-709.36 371.5,-712.81 377.52,-715.55"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="376.58,-718.94 387.17,-719.29 379.11,-712.42 376.58,-718.94"/>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;nf90_inquire -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge22" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;nf90_inquire</title>
+<path fill="none" stroke="#00ffff" d="M260.36,-465.06C268.01,-500.91 295.53,-607.72 361,-663 367.57,-668.54 375.54,-672.62 383.75,-675.63"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="382.82,-679 393.41,-678.68 384.93,-672.33 382.82,-679"/>
+</g>
+<!-- nf90_inquire_attribute -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node13" class="node">
+<title>nf90_inquire_attribute</title>
+<polygon fill="#777777" stroke="#777777" points="498,-444 368,-444 368,-420 498,-420 498,-444"/>
+<text text-anchor="middle" x="433" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_attribute</text>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;nf90_inquire_attribute -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge23" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;nf90_inquire_attribute</title>
+<path fill="none" stroke="#00ffff" d="M324.78,-444.94C335.63,-443.63 346.94,-442.27 357.96,-440.94"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="358.47,-444.4 367.98,-439.73 357.63,-437.45 358.47,-444.4"/>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;nf90_inquire_dimension -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge24" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;nf90_inquire_dimension</title>
+<path fill="none" stroke="#00ffff" d="M262.01,-465.26C272.78,-496.27 305.35,-578.32 361,-621 362.86,-622.43 364.83,-623.76 366.86,-625.01"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="365.68,-628.34 376.17,-629.89 368.94,-622.14 365.68,-628.34"/>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;nf90_inquire_variable -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge25" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;nf90_inquire_variable</title>
+<path fill="none" stroke="#00ffff" d="M264.5,-465.08C278.64,-490.19 314.64,-548.19 361,-579 363.54,-580.69 366.22,-582.24 368.99,-583.68"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="367.55,-586.87 378.1,-587.85 370.47,-580.5 367.55,-586.87"/>
+</g>
+<!-- proc~cfio_attinquire -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node17" class="node">
+<title>proc~cfio_attinquire</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node17"><a xlink:href="../proc/cfio_attinquire.html" xlink:title="CFIO_AttInquire">
+<polygon fill="#d9534f" stroke="#d9534f" points="480,-402 386,-402 386,-378 480,-378 480,-402"/>
+<text text-anchor="middle" x="433" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_AttInquire</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_attinquire -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge26" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_attinquire</title>
+<path fill="none" stroke="#00ffff" d="M301.42,-440.96C309.38,-438.31 317.53,-435.3 325,-432 341.94,-424.52 344,-418.35 361,-411 365.94,-408.87 371.17,-406.87 376.45,-405.02"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="377.59,-408.33 385.97,-401.85 375.38,-401.68 377.59,-408.33"/>
+</g>
+<!-- proc~cfio_diminquire -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node19" class="node">
+<title>proc~cfio_diminquire</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node19"><a xlink:href="../proc/cfio_diminquire.html" xlink:title="CFIO_DimInquire">
+<polygon fill="#d9534f" stroke="#d9534f" points="483.5,-360 382.5,-360 382.5,-336 483.5,-336 483.5,-360"/>
+<text text-anchor="middle" x="433" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_DimInquire</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_diminquire -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge27" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_diminquire</title>
+<path fill="none" stroke="#00ffff" d="M310.47,-440.89C315.67,-438.45 320.63,-435.52 325,-432 350.12,-411.78 335.71,-389.02 361,-369 364.61,-366.14 368.61,-363.67 372.8,-361.54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="374.5,-364.61 382.24,-357.38 371.68,-358.21 374.5,-364.61"/>
+</g>
+<!-- proc~cfio_getattnames -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node20" class="node">
+<title>proc~cfio_getattnames</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node20"><a xlink:href="../proc/cfio_getattnames.html" xlink:title="CFIO_GetAttNames">
+<polygon fill="#d9534f" stroke="#d9534f" points="489,-318 377,-318 377,-294 489,-294 489,-318"/>
+<text text-anchor="middle" x="433" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_GetAttNames</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_getattnames -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge28" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_getattnames</title>
+<path fill="none" stroke="#00ffff" d="M312.49,-441C317.06,-438.54 321.33,-435.57 325,-432 360.34,-397.58 325.38,-361.13 361,-327 363.13,-324.96 365.45,-323.11 367.91,-321.45"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="369.76,-324.42 376.73,-316.44 366.3,-318.33 369.76,-324.42"/>
+</g>
+<!-- proc~cfio_getcharatt -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node21" class="node">
+<title>proc~cfio_getcharatt</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node21"><a xlink:href="../proc/cfio_getcharatt.html" xlink:title="CFIO_GetCharAtt">
+<polygon fill="#d9534f" stroke="#d9534f" points="483.5,-276 382.5,-276 382.5,-252 483.5,-252 483.5,-276"/>
+<text text-anchor="middle" x="433" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_GetCharAtt</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_getcharatt -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge29" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_getcharatt</title>
+<path fill="none" stroke="#00ffff" d="M313.48,-440.97C317.73,-438.51 321.66,-435.56 325,-432 371.03,-382.95 314.58,-333.68 361,-285 364.57,-281.26 368.77,-278.17 373.31,-275.63"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="374.82,-278.79 382.4,-271.39 371.86,-272.45 374.82,-278.79"/>
+</g>
+<!-- proc~cfio_getintatt -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node22" class="node">
+<title>proc~cfio_getintatt</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node22"><a xlink:href="../proc/cfio_getintatt.html" xlink:title="CFIO_GetIntAtt">
+<polygon fill="#d9534f" stroke="#d9534f" points="477.5,-234 388.5,-234 388.5,-210 477.5,-210 477.5,-234"/>
+<text text-anchor="middle" x="433" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_GetIntAtt</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_getintatt -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge30" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_getintatt</title>
+<path fill="none" stroke="#00ffff" d="M313.99,-440.97C318.08,-438.51 321.84,-435.55 325,-432 381.87,-368.15 303.61,-306.39 361,-243 365.92,-237.56 372.18,-233.51 378.93,-230.48"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="380.21,-233.74 388.36,-226.97 377.77,-227.18 380.21,-233.74"/>
+</g>
+<!-- proc~cfio_getrealatt -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node23" class="node">
+<title>proc~cfio_getrealatt</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node23"><a xlink:href="../proc/cfio_getrealatt.html" xlink:title="CFIO_GetRealAtt">
+<polygon fill="#d9534f" stroke="#d9534f" points="482.5,-192 383.5,-192 383.5,-168 482.5,-168 482.5,-192"/>
+<text text-anchor="middle" x="433" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_GetRealAtt</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_getrealatt -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge31" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_getrealatt</title>
+<path fill="none" stroke="#00ffff" d="M314.43,-440.89C318.38,-438.44 321.98,-435.51 325,-432 392.79,-353.26 292.57,-279.19 361,-201 364.7,-196.77 369.21,-193.37 374.15,-190.64"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="375.76,-193.76 383.41,-186.42 372.86,-187.39 375.76,-193.76"/>
+</g>
+<!-- proc~cfio_open -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node24" class="node">
+<title>proc~cfio_open</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node24"><a xlink:href="../proc/cfio_open.html" xlink:title="CFIO_Open">
+<polygon fill="#d9534f" stroke="#d9534f" points="468.5,-150 397.5,-150 397.5,-126 468.5,-126 468.5,-150"/>
+<text text-anchor="middle" x="433" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_Open</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_open -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge32" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_open</title>
+<path fill="none" stroke="#00ffff" d="M314.52,-440.96C318.45,-438.5 322.02,-435.55 325,-432 403.76,-338.32 281.49,-252.04 361,-159 367.76,-151.08 377.36,-146.08 387.31,-142.93"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="388.48,-146.24 397.29,-140.36 386.73,-139.46 388.48,-146.24"/>
+</g>
+<!-- proc~esmf_cfiovarinfocreate -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node27" class="node">
+<title>proc~esmf_cfiovarinfocreate</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node27"><a xlink:href="../proc/esmf_cfiovarinfocreate.html" xlink:title="ESMF_CFIOVarInfoCreate">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="505,-108 361,-108 361,-84 505,-84 505,-108"/>
+<text text-anchor="middle" x="433" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOVarInfoCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~esmf_cfiovarinfocreate -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge34" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~esmf_cfiovarinfocreate</title>
+<path fill="none" stroke="#00ffff" d="M314.9,-440.82C318.69,-438.39 322.13,-435.48 325,-432 414.74,-323.36 270.38,-224.91 361,-117 361.74,-116.11 362.52,-115.26 363.33,-114.45"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="365.77,-116.99 371.41,-108.02 361.41,-111.51 365.77,-116.99"/>
+</g>
+<!-- proc~getbegdatetime -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node28" class="node">
+<title>proc~getbegdatetime</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node28"><a xlink:href="../proc/getbegdatetime.html" xlink:title="GetBegDateTime">
+<polygon fill="#d9534f" stroke="#d9534f" points="485,-66 381,-66 381,-42 485,-42 485,-66"/>
+<text text-anchor="middle" x="433" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GetBegDateTime</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~getbegdatetime -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge35" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~getbegdatetime</title>
+<path fill="none" stroke="#00ffff" d="M314.95,-440.87C318.73,-438.42 322.15,-435.5 325,-432 425.74,-308.38 259.26,-197.8 361,-75 364.12,-71.24 367.87,-68.13 372.01,-65.57"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="373.62,-68.67 380.95,-61.03 370.45,-62.43 373.62,-68.67"/>
+</g>
+<!-- proc~identifydim -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node31" class="node">
+<title>proc~identifydim</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node31"><a xlink:href="../proc/identifydim.html" xlink:title="IdentifyDim">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="470,-24 396,-24 396,0 470,0 470,-24"/>
+<text text-anchor="middle" x="433" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IdentifyDim</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~identifydim -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge36" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~identifydim</title>
+<path fill="none" stroke="#00ffff" d="M314.99,-440.9C318.76,-438.45 322.17,-435.51 325,-432 380.88,-362.69 304.56,-101.85 361,-33 367.42,-25.17 376.6,-20.17 386.25,-17"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="387.21,-20.37 395.96,-14.4 385.4,-13.61 387.21,-20.37"/>
+</g>
+<!-- proc~die -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node25" class="node">
+<title>proc~die</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node25"><a xlink:href="../proc/die.html" xlink:title="die">
+<polygon fill="#d9534f" stroke="#d9534f" points="595,-549 541,-549 541,-525 595,-525 595,-549"/>
+<text text-anchor="middle" x="568" y="-534.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">die</text>
+</a>
+</g>
+</g>
+<!-- proc~strtemplate_&#45;&gt;proc~die -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge38" class="edge">
+<title>proc~strtemplate_&#45;&gt;proc~die</title>
+<path fill="none" stroke="#0000ff" d="M473.19,-522.19C491.38,-525.06 512.87,-528.45 530.69,-531.27"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="530.28,-534.75 540.7,-532.85 531.37,-527.83 530.28,-534.75"/>
+</g>
+<!-- proc~gx_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node30" class="node">
+<title>proc~gx_</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CallsGraph_node30"><a xlink:href="../proc/gx_.html" xlink:title="GX_">
+<polygon fill="#d9534f" stroke="#d9534f" points="595,-507 541,-507 541,-483 595,-483 595,-507"/>
+<text text-anchor="middle" x="568" y="-492.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GX_</text>
+</a>
+</g>
+</g>
+<!-- proc~strtemplate_&#45;&gt;proc~gx_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CallsGraph_edge39" class="edge">
+<title>proc~strtemplate_&#45;&gt;proc~gx_</title>
+<path fill="none" stroke="#0000ff" d="M473.19,-509.81C491.38,-506.94 512.87,-503.55 530.69,-500.73"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="531.37,-504.17 540.7,-499.15 530.28,-497.25 531.37,-504.17"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~esmf_cfiosdfvarread3d_~~CalledByGraph Pages: 1 -->
+<svg id="procesmf_cfiosdfvarread3d_CalledByGraph" width="641pt" height="239pt"
+ viewBox="0.00 0.00 641.00 239.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph" class="graph" transform="scale(1.42 1.42) rotate(0) translate(4 335.95)">
+<title>proc~~esmf_cfiosdfvarread3d_~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-335.95 907,-335.95 907,4 -4,4"/>
+<!-- proc~esmf_cfiosdfvarread3d_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node1" class="node">
+<title>proc~esmf_cfiosdfvarread3d_</title>
+<polygon fill="none" stroke="black" points="903,-215 750,-215 750,-191 903,-191 903,-215"/>
+<text text-anchor="middle" x="826.5" y="-200.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_CFIOSdfVarRead3D_</text>
+</g>
+<!-- interface~esmf_cfiosdfvarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node2" class="node">
+<title>interface~esmf_cfiosdfvarread</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node2"><a xlink:href="../interface/esmf_cfiosdfvarread.html" xlink:title="ESMF_CFIOSdfVarRead">
+<polygon fill="#a7506f" stroke="#a7506f" points="714,-215 581,-215 581,-191 714,-191 714,-215"/>
+<text text-anchor="middle" x="647.5" y="-200.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfVarRead</text>
+</a>
+</g>
+</g>
+<!-- interface~esmf_cfiosdfvarread&#45;&gt;proc~esmf_cfiosdfvarread3d_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge1" class="edge">
+<title>interface~esmf_cfiosdfvarread&#45;&gt;proc~esmf_cfiosdfvarread3d_</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M714.16,-203C722.5,-203 731.14,-203 739.74,-203"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="739.8,-206.5 749.8,-203 739.8,-199.5 739.8,-206.5"/>
+</g>
+<!-- proc~esmf_cfiosdfvarreadt2d__ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node3" class="node">
+<title>proc~esmf_cfiosdfvarreadt2d__</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node3"><a xlink:href="../proc/esmf_cfiosdfvarreadt2d__.html" xlink:title="ESMF_CFIOSdfVarReadT2D__">
+<polygon fill="#d9534f" stroke="#d9534f" points="545,-318 380,-318 380,-294 545,-294 545,-318"/>
+<text text-anchor="middle" x="462.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfVarReadT2D__</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdfvarreadt2d__&#45;&gt;interface~esmf_cfiosdfvarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge2" class="edge">
+<title>proc~esmf_cfiosdfvarreadt2d__&#45;&gt;interface~esmf_cfiosdfvarread</title>
+<path fill="none" stroke="#ff0000" d="M489.9,-293.86C506.02,-286.25 526.94,-276.01 545,-266 570.92,-251.64 599.52,-233.69 619.73,-220.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="621.65,-223.56 628.12,-215.18 617.83,-217.69 621.65,-223.56"/>
+</g>
+<!-- proc~esmf_cfiosdfvarreadt3d__ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node4" class="node">
+<title>proc~esmf_cfiosdfvarreadt3d__</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node4"><a xlink:href="../proc/esmf_cfiosdfvarreadt3d__.html" xlink:title="ESMF_CFIOSdfVarReadT3D__">
+<polygon fill="#d9534f" stroke="#d9534f" points="545,-257 380,-257 380,-233 545,-233 545,-257"/>
+<text text-anchor="middle" x="462.5" y="-242.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfVarReadT3D__</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdfvarreadt3d__&#45;&gt;interface~esmf_cfiosdfvarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge3" class="edge">
+<title>proc~esmf_cfiosdfvarreadt3d__&#45;&gt;interface~esmf_cfiosdfvarread</title>
+<path fill="none" stroke="#ff0000" d="M515.94,-232.96C537.19,-228.09 561.9,-222.42 584.07,-217.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="585.09,-220.69 594.05,-215.04 583.52,-213.86 585.09,-220.69"/>
+</g>
+<!-- proc~esmf_cfiovarread1d_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node5" class="node">
+<title>proc~esmf_cfiovarread1d_</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node5"><a xlink:href="../proc/esmf_cfiovarread1d_.html" xlink:title="ESMF_CFIOVarRead1D_">
+<polygon fill="#d9534f" stroke="#d9534f" points="530.5,-215 394.5,-215 394.5,-191 530.5,-191 530.5,-215"/>
+<text text-anchor="middle" x="462.5" y="-200.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOVarRead1D_</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiovarread1d_&#45;&gt;interface~esmf_cfiosdfvarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge4" class="edge">
+<title>proc~esmf_cfiovarread1d_&#45;&gt;interface~esmf_cfiosdfvarread</title>
+<path fill="none" stroke="#ff0000" d="M530.6,-203C543.69,-203 557.5,-203 570.84,-203"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="570.93,-206.5 580.93,-203 570.93,-199.5 570.93,-206.5"/>
+</g>
+<!-- proc~esmf_cfiovarread2d_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node6" class="node">
+<title>proc~esmf_cfiovarread2d_</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node6"><a xlink:href="../proc/esmf_cfiovarread2d_.html" xlink:title="ESMF_CFIOVarRead2D_">
+<polygon fill="#d9534f" stroke="#d9534f" points="530.5,-173 394.5,-173 394.5,-149 530.5,-149 530.5,-173"/>
+<text text-anchor="middle" x="462.5" y="-158.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOVarRead2D_</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiovarread2d_&#45;&gt;interface~esmf_cfiosdfvarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge5" class="edge">
+<title>proc~esmf_cfiovarread2d_&#45;&gt;interface~esmf_cfiosdfvarread</title>
+<path fill="none" stroke="#ff0000" d="M515.94,-173.04C537.19,-177.91 561.9,-183.58 584.07,-188.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="583.52,-192.14 594.05,-190.96 585.09,-185.31 583.52,-192.14"/>
+</g>
+<!-- proc~esmf_cfiovarread3d_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node7" class="node">
+<title>proc~esmf_cfiovarread3d_</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node7"><a xlink:href="../proc/esmf_cfiovarread3d_.html" xlink:title="ESMF_CFIOVarRead3D_">
+<polygon fill="#d9534f" stroke="#d9534f" points="530.5,-131 394.5,-131 394.5,-107 530.5,-107 530.5,-131"/>
+<text text-anchor="middle" x="462.5" y="-116.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOVarRead3D_</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiovarread3d_&#45;&gt;interface~esmf_cfiosdfvarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge6" class="edge">
+<title>proc~esmf_cfiovarread3d_&#45;&gt;interface~esmf_cfiosdfvarread</title>
+<path fill="none" stroke="#ff0000" d="M519.49,-131.02C528.18,-133.57 536.94,-136.56 545,-140 573.08,-152 602.43,-171.03 622.3,-185.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="620.3,-187.91 630.47,-190.89 624.38,-182.22 620.3,-187.91"/>
+</g>
+<!-- interface~esmf_cfiosdfvarreadt -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node8" class="node">
+<title>interface~esmf_cfiosdfvarreadt</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node8"><a xlink:href="../interface/esmf_cfiosdfvarreadt.html" xlink:title="ESMF_CFIOSdfVarReadT">
+<polygon fill="#a7506f" stroke="#a7506f" points="143.5,-318 4.5,-318 4.5,-294 143.5,-294 143.5,-318"/>
+<text text-anchor="middle" x="74" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfVarReadT</text>
+</a>
+</g>
+</g>
+<!-- interface~esmf_cfiosdfvarreadt&#45;&gt;proc~esmf_cfiosdfvarreadt2d__ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge8" class="edge">
+<title>interface~esmf_cfiosdfvarreadt&#45;&gt;proc~esmf_cfiosdfvarreadt2d__</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M126.55,-318.02C144.61,-321.67 165.1,-325.2 184,-327 254.79,-333.76 273.17,-333.28 344,-327 360.84,-325.51 378.87,-322.83 395.64,-319.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="396.68,-323.25 405.89,-318.02 395.42,-316.37 396.68,-323.25"/>
+</g>
+<!-- interface~esmf_cfiosdfvarreadt&#45;&gt;proc~esmf_cfiosdfvarreadt3d__ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge10" class="edge">
+<title>interface~esmf_cfiosdfvarreadt&#45;&gt;proc~esmf_cfiosdfvarreadt3d__</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M134.59,-293.99C150.61,-290.91 167.94,-287.7 184,-285 245.91,-274.58 315.87,-264.51 370.06,-257.08"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="370.55,-260.54 379.99,-255.72 369.61,-253.61 370.55,-260.54"/>
+</g>
+<!-- proc~esmf_cfiosdfvarreadt2d_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node10" class="node">
+<title>proc~esmf_cfiosdfvarreadt2d_</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node10"><a xlink:href="../proc/esmf_cfiosdfvarreadt2d_.html" xlink:title="ESMF_CFIOSdfVarReadT2D_">
+<polygon fill="#d9534f" stroke="#d9534f" points="344,-318 184,-318 184,-294 344,-294 344,-318"/>
+<text text-anchor="middle" x="264" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfVarReadT2D_</text>
+</a>
+</g>
+</g>
+<!-- interface~esmf_cfiosdfvarreadt&#45;&gt;proc~esmf_cfiosdfvarreadt2d_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge21" class="edge">
+<title>interface~esmf_cfiosdfvarreadt&#45;&gt;proc~esmf_cfiosdfvarreadt2d_</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M143.67,-306C153.43,-306 163.57,-306 173.65,-306"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="173.69,-309.5 183.69,-306 173.69,-302.5 173.69,-309.5"/>
+</g>
+<!-- proc~esmf_cfiosdfvarreadt3d_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node11" class="node">
+<title>proc~esmf_cfiosdfvarreadt3d_</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node11"><a xlink:href="../proc/esmf_cfiosdfvarreadt3d_.html" xlink:title="ESMF_CFIOSdfVarReadT3D_">
+<polygon fill="#d9534f" stroke="#d9534f" points="344,-238 184,-238 184,-214 344,-214 344,-238"/>
+<text text-anchor="middle" x="264" y="-223.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfVarReadT3D_</text>
+</a>
+</g>
+</g>
+<!-- interface~esmf_cfiosdfvarreadt&#45;&gt;proc~esmf_cfiosdfvarreadt3d_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge22" class="edge">
+<title>interface~esmf_cfiosdfvarreadt&#45;&gt;proc~esmf_cfiosdfvarreadt3d_</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M128.02,-293.91C134.95,-291.43 141.79,-288.48 148,-285 166.93,-274.38 165.27,-262.97 184,-252 190.75,-248.05 198.17,-244.61 205.69,-241.63"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="207.04,-244.86 215.21,-238.12 204.62,-238.3 207.04,-244.86"/>
+</g>
+<!-- interface~esmf_cfiovarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node9" class="node">
+<title>interface~esmf_cfiovarread</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node9"><a xlink:href="../interface/esmf_cfiovarread.html" xlink:title="ESMF_CFIOVarRead">
+<polygon fill="#a7506f" stroke="#a7506f" points="321.5,-161 206.5,-161 206.5,-137 321.5,-137 321.5,-161"/>
+<text text-anchor="middle" x="264" y="-146.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOVarRead</text>
+</a>
+</g>
+</g>
+<!-- interface~esmf_cfiovarread&#45;&gt;proc~esmf_cfiovarread1d_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge11" class="edge">
+<title>interface~esmf_cfiovarread&#45;&gt;proc~esmf_cfiovarread1d_</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M305.91,-161.03C327.84,-167.41 355.35,-175.29 380,-182 387.72,-184.1 395.86,-186.26 403.9,-188.37"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="403.05,-191.76 413.61,-190.89 404.81,-184.99 403.05,-191.76"/>
+</g>
+<!-- interface~esmf_cfiovarread&#45;&gt;proc~esmf_cfiovarread2d_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge12" class="edge">
+<title>interface~esmf_cfiovarread&#45;&gt;proc~esmf_cfiovarread2d_</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M321.57,-152.45C341.06,-153.64 363.23,-155 384.09,-156.27"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="384.01,-159.77 394.21,-156.89 384.44,-152.79 384.01,-159.77"/>
+</g>
+<!-- interface~esmf_cfiovarread&#45;&gt;proc~esmf_cfiovarread3d_ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge13" class="edge">
+<title>interface~esmf_cfiovarread&#45;&gt;proc~esmf_cfiovarread3d_</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M321.57,-140.36C341.06,-137.39 363.23,-134 384.09,-130.82"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="384.85,-134.24 394.21,-129.27 383.79,-127.32 384.85,-134.24"/>
+</g>
+<!-- proc~esmf_cfiosdfvarreadt2d_&#45;&gt;proc~esmf_cfiosdfvarreadt2d__ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge7" class="edge">
+<title>proc~esmf_cfiosdfvarreadt2d_&#45;&gt;proc~esmf_cfiosdfvarreadt2d__</title>
+<path fill="none" stroke="#ff0000" d="M344.07,-306C352.51,-306 361.13,-306 369.7,-306"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="369.7,-309.5 379.7,-306 369.7,-302.5 369.7,-309.5"/>
+</g>
+<!-- proc~esmf_cfiosdfvarreadt3d_&#45;&gt;proc~esmf_cfiosdfvarreadt3d__ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge9" class="edge">
+<title>proc~esmf_cfiosdfvarreadt3d_&#45;&gt;proc~esmf_cfiosdfvarreadt3d__</title>
+<path fill="none" stroke="#cbff00" d="M344.07,-233.65C352.51,-234.46 361.13,-235.3 369.7,-236.12"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="369.41,-239.61 379.7,-237.09 370.08,-232.64 369.41,-239.61"/>
+</g>
+<!-- proc~esmf_cfiovarreadt2d__ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node12" class="node">
+<title>proc~esmf_cfiovarreadt2d__</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node12"><a xlink:href="../proc/esmf_cfiovarreadt2d__.html" xlink:title="ESMF_CFIOVarReadT2D__">
+<polygon fill="#d9534f" stroke="#d9534f" points="148,-276 0,-276 0,-252 148,-252 148,-276"/>
+<text text-anchor="middle" x="74" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOVarReadT2D__</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiovarreadt2d__&#45;&gt;interface~esmf_cfiovarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge14" class="edge">
+<title>proc~esmf_cfiovarreadt2d__&#45;&gt;interface~esmf_cfiovarread</title>
+<path fill="none" stroke="#7fff00" d="M129.41,-251.89C135.9,-249.43 142.25,-246.49 148,-243 167.88,-230.91 166.43,-220.24 184,-205 200.03,-191.09 219.46,-177.29 235.04,-166.86"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="237.29,-169.57 243.71,-161.14 233.44,-163.73 237.29,-169.57"/>
+</g>
+<!-- proc~esmf_cfiovarreadt3d__ -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node13" class="node">
+<title>proc~esmf_cfiovarreadt3d__</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node13"><a xlink:href="../proc/esmf_cfiovarreadt3d__.html" xlink:title="ESMF_CFIOVarReadT3D__">
+<polygon fill="#d9534f" stroke="#d9534f" points="148,-234 0,-234 0,-210 148,-210 148,-234"/>
+<text text-anchor="middle" x="74" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOVarReadT3D__</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiovarreadt3d__&#45;&gt;interface~esmf_cfiovarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge15" class="edge">
+<title>proc~esmf_cfiovarreadt3d__&#45;&gt;interface~esmf_cfiovarread</title>
+<path fill="none" stroke="#7fff00" d="M120.89,-209.9C129.95,-207.2 139.34,-204.19 148,-201 176.07,-190.68 206.9,-176.58 229.57,-165.67"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="231.29,-168.72 238.75,-161.2 228.23,-162.43 231.29,-168.72"/>
+</g>
+<!-- proc~mapl_cfioreadbundle -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node14" class="node">
+<title>proc~mapl_cfioreadbundle</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node14"><a xlink:href="../proc/mapl_cfioreadbundle.html" xlink:title="MAPL_CFIOReadBundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="142,-192 6,-192 6,-168 142,-168 142,-192"/>
+<text text-anchor="middle" x="74" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOReadBundle</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadbundle&#45;&gt;interface~esmf_cfiovarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge16" class="edge">
+<title>proc~mapl_cfioreadbundle&#45;&gt;interface~esmf_cfiovarread</title>
+<path fill="none" stroke="#7fff00" d="M142.08,-168.94C159.62,-166.05 178.53,-162.93 196.06,-160.04"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="196.91,-163.45 206.21,-158.37 195.77,-156.54 196.91,-163.45"/>
+</g>
+<!-- program~test~10 -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node15" class="node">
+<title>program~test~10</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node15"><a xlink:href="../program/test~10.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="101,-150 47,-150 47,-126 101,-126 101,-150"/>
+<text text-anchor="middle" x="74" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~10&#45;&gt;interface~esmf_cfiovarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge17" class="edge">
+<title>program~test~10&#45;&gt;interface~esmf_cfiovarread</title>
+<path fill="none" stroke="#7fff00" d="M101.14,-139.53C125.65,-140.96 163.32,-143.17 196.16,-145.09"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="195.99,-148.59 206.18,-145.68 196.4,-141.6 195.99,-148.59"/>
+</g>
+<!-- program~test~11 -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node16" class="node">
+<title>program~test~11</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node16"><a xlink:href="../program/test~11.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="101,-108 47,-108 47,-84 101,-84 101,-108"/>
+<text text-anchor="middle" x="74" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~11&#45;&gt;interface~esmf_cfiovarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge18" class="edge">
+<title>program~test~11&#45;&gt;interface~esmf_cfiovarread</title>
+<path fill="none" stroke="#7fff00" d="M101.14,-103.37C129.27,-111.3 174.75,-124.12 210.36,-134.16"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="209.54,-137.56 220.11,-136.91 211.44,-130.83 209.54,-137.56"/>
+</g>
+<!-- program~test~12 -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node17" class="node">
+<title>program~test~12</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node17"><a xlink:href="../program/test~12.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="101,-66 47,-66 47,-42 101,-42 101,-66"/>
+<text text-anchor="middle" x="74" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~12&#45;&gt;interface~esmf_cfiovarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge19" class="edge">
+<title>program~test~12&#45;&gt;interface~esmf_cfiovarread</title>
+<path fill="none" stroke="#7fff00" d="M101.33,-59.6C115.52,-63.11 133.11,-68.24 148,-75 181.59,-90.24 216.77,-114.24 239.24,-130.75"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="237.37,-133.73 247.48,-136.89 241.55,-128.11 237.37,-133.73"/>
+</g>
+<!-- program~test~6 -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node18" class="node">
+<title>program~test~6</title>
+<g id="a_proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_node18"><a xlink:href="../program/test~6.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="101,-24 47,-24 47,0 101,0 101,-24"/>
+<text text-anchor="middle" x="74" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~6&#45;&gt;interface~esmf_cfiovarread -->
+<g id="proc~~esmf_cfiosdfvarread3d_~~CalledByGraph_edge20" class="edge">
+<title>program~test~6&#45;&gt;interface~esmf_cfiovarread</title>
+<path fill="none" stroke="#7fff00" d="M101.3,-16.19C115.8,-19.31 133.7,-24.53 148,-33 190.52,-58.2 228.45,-102.86 248.33,-128.79"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="245.55,-130.93 254.36,-136.82 251.15,-126.72 245.55,-130.93"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocesmf_cfiosdfvarread3d_CalledByGraph = svgPanZoom('#procesmf_cfiosdfvarread3d_CalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">ESMF_CFIOSdfVarRead3D_</span><span class="p">(</span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="n">vName</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">date</span><span class="p">,</span><span class="w"> </span><span class="n">curTime</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                     </span><span class="n">kBeg</span><span class="p">,</span><span class="w"> </span><span class="n">kount</span><span class="p">,</span><span class="w"> </span><span class="n">xBeg</span><span class="p">,</span><span class="w"> </span><span class="n">xCount</span><span class="p">,</span><span class="w"> </span><span class="n">yBeg</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">                                     </span><span class="n">yCount</span><span class="p">,</span><span class="w"> </span><span class="n">timeString</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="c">!</span>
+<span class="c">! !INPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIO</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inOut</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cfio</span><span class="w">      </span><span class="c">!! a CFIO obj</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vName</span><span class="w">       </span><span class="c">!! variable name</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">date</span><span class="w">       </span><span class="c">!! yyyymmdd</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">curTime</span><span class="w">    </span><span class="c">!! hhmmss</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">kbeg</span><span class="w">       </span><span class="c">!! first level to write</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">kount</span><span class="w">      </span><span class="c">!! number of levels to write</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">xBeg</span><span class="w">       </span><span class="c">!! first point for lon</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">xCount</span><span class="w">     </span><span class="c">!! number of points to read</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">yBeg</span><span class="w">       </span><span class="c">!! first point for lat</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">yCount</span><span class="w">     </span><span class="c">!! number of points to read</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeString</span><span class="w"> </span><span class="c">!! string expression for date and time</span>
+<span class="c">!</span>
+<span class="c">! !OUTPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span><span class="p">(:,:,:)</span><span class="w">             </span><span class="c">!! array contains data</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">      </span><span class="c">!! Error return code:</span>
+<span class="w">                                                </span><span class="c">!! 0   all is well</span>
+<span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment</span>
+<span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file</span>
+<span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file</span>
+<span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file</span>
+<span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary</span>
+<span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate</span>
+<span class="w">                         </span><span class="c">!!  rc = -8  vname miss-match</span>
+<span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision</span>
+<span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type</span>
+<span class="w">                         </span><span class="c">!!  rc = -19  unable to identify coordinate variable</span>
+<span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_VAR_PUT (dimension variable)</span>
+<span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID</span>
+<span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID (lat or lon)</span>
+<span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID (lev)</span>
+<span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)</span>
+<span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)</span>
+<span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR</span>
+<span class="w">                         </span><span class="c">!!  rc = -48  error from NF90_INQUIRE</span>
+<span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE</span>
+<span class="c">!</span>
+<span class="c">!------------------------------------------------------------------------------</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">myKbeg</span><span class="p">,</span><span class="w"> </span><span class="n">myKount</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">myXbeg</span><span class="p">,</span><span class="w"> </span><span class="n">myXount</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">myYbeg</span><span class="p">,</span><span class="w"> </span><span class="n">myYount</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">myDate</span><span class="p">,</span><span class="w"> </span><span class="n">myCurTime</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmp</span><span class="p">(:,:,:)</span><span class="w">          </span><span class="c">! array contains data</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fNameTmp</span><span class="w">     </span><span class="c">! file name</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">useFaceDim</span>
+
+<span class="w">      </span><span class="n">fNameTmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">date</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">myDate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">date</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">curTime</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">myCurTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curTime</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">timeString</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">strToInt</span><span class="p">(</span><span class="n">timeString</span><span class="p">,</span><span class="n">myDate</span><span class="p">,</span><span class="n">myCurTime</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fNameTmplt</span><span class="p">))</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">strTemplate_</span><span class="p">(</span><span class="n">fNameTmp</span><span class="p">,</span><span class="n">cfio</span><span class="p">%</span><span class="n">fNameTmplt</span><span class="p">,</span><span class="n">xid</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">expid</span><span class="p">,</span><span class="n">nymd</span><span class="o">=</span><span class="n">MYdate</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                           </span><span class="n">nhms</span><span class="o">=</span><span class="n">MYcurTime</span><span class="p">,</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">fNameTmp</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fName</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">ESMF_CFIOSdfFileClose</span><span class="p">(</span><span class="n">cfio</span><span class="p">)</span>
+<span class="w">            </span><span class="n">cfio</span><span class="p">%</span><span class="n">fName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fNameTmp</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">expid</span><span class="p">))</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">ESMF_CFIOSdfFileOpen</span><span class="p">(</span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">expid</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">expid</span><span class="p">,</span><span class="w"> </span><span class="n">cyclic</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">isCyclic</span><span class="p">)</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               call </span><span class="n">ESMF_CFIOSdfFileOpen</span><span class="p">(</span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cyclic</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">isCyclic</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">         end if</span>
+<span class="k">      end if</span>
+
+<span class="c">!     make sure user provides the right variable name</span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">mVars</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">vName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">vName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">exit</span>
+<span class="k">      end do</span>
+
+<span class="c">!     make sure we match something</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">mVars</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">vName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)%</span><span class="n">vName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            print</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;ESMF_CFIOSdfVarRead3D: Variable name mismatch for &#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">vName</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39; in file &#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fName</span><span class="p">)</span>
+<span class="w">            </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">8</span>
+<span class="w">            </span><span class="k">return</span>
+<span class="k">         endif</span>
+<span class="k">      endif</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">formatVersion</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">2.0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">useFaceDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">useFaceDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">myKbeg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="n">myKount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+
+<span class="c">!     read 3D variable</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">grid</span><span class="p">%</span><span class="n">km</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w">                          </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">twoDimVar</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">         </span><span class="n">myKbeg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">         </span><span class="n">myKount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">grid</span><span class="p">%</span><span class="n">km</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">kbeg</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">myKbeg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kbeg</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">kount</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">myKount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kount</span>
+
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">tmp</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">grid</span><span class="p">%</span><span class="n">im</span><span class="p">,</span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">grid</span><span class="p">%</span><span class="n">jm</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">myKount</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rtcode</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cannot allocate tmp in ESMF_CFIOSdfVarRead3D&quot;</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">CFIO_GetVar</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="n">vName</span><span class="p">,</span><span class="n">mydate</span><span class="p">,</span><span class="n">mycurTime</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">grid</span><span class="p">%</span><span class="n">im</span><span class="p">,</span><span class="w">                          </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">grid</span><span class="p">%</span><span class="n">jm</span><span class="p">,</span><span class="n">myKbeg</span><span class="p">,</span><span class="n">myKount</span><span class="p">,</span><span class="w">           </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">cfio</span><span class="p">%</span><span class="n">tSteps</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">isCyclic</span><span class="p">,</span><span class="w"> </span><span class="n">useFaceDim</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rtcode</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">            </span><span class="k">return</span>
+<span class="k">         end if</span>
+<span class="c">!     read 2D variable</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         allocate</span><span class="p">(</span><span class="n">tmp</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">grid</span><span class="p">%</span><span class="n">im</span><span class="p">,</span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">grid</span><span class="p">%</span><span class="n">jm</span><span class="p">,</span><span class="mi">1</span><span class="p">),&amp;</span>
+<span class="w">                  </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rtcode</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cannot allocate tmp in ESMF_CFIOSdfVarRead3D&quot;</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">CFIO_GetVar</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="n">vName</span><span class="p">,</span><span class="n">mydate</span><span class="p">,</span><span class="n">MYcurTime</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">grid</span><span class="p">%</span><span class="n">im</span><span class="p">,</span><span class="w">                          </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">grid</span><span class="p">%</span><span class="n">jm</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">tSteps</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">cfio</span><span class="p">%</span><span class="n">isCyclic</span><span class="p">,</span><span class="w"> </span><span class="n">useFaceDim</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;CFIO_GetVar FAILED&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="n">rtcode</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">           </span><span class="k">return</span>
+<span class="k">        end if</span>
+<span class="k">      end if</span>
+
+<span class="k">      </span><span class="n">myXbeg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="n">myXount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">grid</span><span class="p">%</span><span class="n">im</span>
+<span class="w">      </span><span class="n">myYbeg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="n">myYount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">grid</span><span class="p">%</span><span class="n">jm</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">xBeg</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">myXbeg</span><span class="o">=</span><span class="n">xBeg</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">yBeg</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">myYbeg</span><span class="o">=</span><span class="n">yBeg</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">xCount</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">myXount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xCount</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">yCount</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">myYount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">yCount</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">field</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">myXount</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">myYount</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">myKount</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Field is not Large Enough in VarRead3D&quot;</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">myXount</span><span class="p">)</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">4</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">myXount</span><span class="p">)</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">5</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">myKount</span><span class="p">)</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">3</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">            </span><span class="k">return</span>
+<span class="k">         end if</span>
+<span class="k">      else</span>
+<span class="k">         allocate</span><span class="p">(</span><span class="n">field</span><span class="p">(</span><span class="n">myXount</span><span class="p">,</span><span class="n">myYount</span><span class="p">,</span><span class="n">myKount</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="c">!      allocate(field(myXount,myYount,myKount), stat=rtcode)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rtcode</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cannot allocate field in ESMF_CFIOSdfVarRead3D_&quot;</span>
+<span class="w">      </span><span class="k">do </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">myKount</span>
+<span class="w">         </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">myYount</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">myXount</span>
+<span class="w">              </span><span class="n">field</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp</span><span class="p">(</span><span class="n">myXbeg</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">myYbeg</span><span class="o">+</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end do</span>
+<span class="k">         end do</span>
+<span class="k">      end do</span>
+
+<span class="k">      deallocate</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">ESMF_CFIOSdfVarRead3D_</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-02T18:26:22.973122             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

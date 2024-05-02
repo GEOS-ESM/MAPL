@@ -1,0 +1,903 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_EQsatSET &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_EQsatSET
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">47 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_SatVapor.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_satvapor.f90.html'>MAPL_SatVapor.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_satvapormod.html'>MAPL_SatVaporMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_EQsatSET</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_eqsatset.html#src">MAPL_EQsatSET</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_EQsatSET(UseTable, Formulation, Subdivisions, MixingRatio)  
+</h2>
+    
+
+    <p>The subroutine <code>MAPL_EQsatSET</code> set behavior of MAPL_EQsat.
+ <code>MAPL_EQsatSet</code> can be used to set three parameters that control
+ the behavior of the working routine, MAPL_EQsat.</p>
+<p>If <strong>UseTable</strong> is true, tabled values of the saturation vapor pressures are used,
+ instead of the <code>exact</code> calculations.
+ These tables are automatically generated at a 0.01K resolution for whatever
+ vapor pressure formulation is being used. If never set, MAPL_EQsat will use the tables.
+ If not specified, the table behavior is left unmodified.</p>
+<p><strong>Formulation</strong> sets the saturation vapor pressure function to use
+ to use in generating tables or for <code>exact</code> calculations.
+ Three formulations of saturation vapor pressure are supported:
+- the Starr code, as was used in NSIPP-1 (MAPL_UseStarrQsat), 
+- the Goff-Gratch formulation, as used in CAM (MAPL_UseGoffGratchQsat), and 
+- Murphy and Koop (2005, QJRMS) (MAPL_UseMurphyKoopQsat).</p>
+<p>If it has not been set, the formulation is Starr (MAPL_UseStarrQsat).
+ If not specified, the formulation is left unmodified.</p>
+<p><strong>Subdivisions</strong> sets the number of subdivisions per degree in the saturation
+ vapor pressure tables. If never set, it is 100; if not specified, it is left unmodified.</p>
+<p><strong>MixingRatio</strong> sets whether MAPL_EQsat will return saturation mixing ratio (true)
+ or saturation specific humidity (false) when the pressure is present
+ (see MAPL_EQsat documentation). If never set, it is false; 
+ if not specified, it is left unmodified.</p>
+<p>MAPL_EQsatSET also initializes the tables. If MAPL_EQsatSET is
+ not called and tables are required, they will be initialized the first time
+ one of the  MAPL_EQsat functions is called. The tables are reset with every call
+ to MAPL_EQsatSET.</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-usetable"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>UseTable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-formulation"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Formulation</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-subdivisions"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Subdivisions</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mixingratio"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>MixingRatio</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_eqsatset~~CallsGraph Pages: 1 -->
+<svg id="procmapl_eqsatsetCallsGraph" width="196pt" height="50pt"
+ viewBox="0.00 0.00 196.00 50.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_eqsatset~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 46)">
+<title>proc~~mapl_eqsatset~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-46 192,-46 192,4 -4,4"/>
+<!-- proc~mapl_eqsatset -->
+<g id="proc~~mapl_eqsatset~~CallsGraph_node1" class="node">
+<title>proc~mapl_eqsatset</title>
+<polygon fill="none" stroke="black" points="97,-24 0,-24 0,0 97,0 97,-24"/>
+<text text-anchor="middle" x="48.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_EQsatSET</text>
+</g>
+<!-- proc~qsatd0 -->
+<g id="proc~~mapl_eqsatset~~CallsGraph_node2" class="node">
+<title>proc~qsatd0</title>
+<g id="a_proc~~mapl_eqsatset~~CallsGraph_node2"><a xlink:href="../proc/qsatd0.html" xlink:title="QSATD0">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="188,-24 133,-24 133,0 188,0 188,-24"/>
+<text text-anchor="middle" x="160.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">QSATD0</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_eqsatset&#45;&gt;proc~qsatd0 -->
+<g id="proc~~mapl_eqsatset~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_eqsatset&#45;&gt;proc~qsatd0</title>
+<path fill="none" stroke="#ff0000" d="M97.11,-5.3C105.68,-5.18 114.5,-5.27 122.71,-5.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="122.54,-9.09 132.71,-6.11 122.91,-2.1 122.54,-9.09"/>
+</g>
+<!-- proc~qsatd0&#45;&gt;proc~mapl_eqsatset -->
+<g id="proc~~mapl_eqsatset~~CallsGraph_edge2" class="edge">
+<title>proc~qsatd0&#45;&gt;proc~mapl_eqsatset</title>
+<path fill="none" stroke="#ff0000" d="M132.71,-17.89C124.92,-18.41 116.09,-18.7 107.17,-18.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="107.12,-15.24 97.11,-18.7 107.09,-22.24 107.12,-15.24"/>
+</g>
+<!-- proc~qsatd0&#45;&gt;proc~qsatd0 -->
+<g id="proc~~mapl_eqsatset~~CallsGraph_edge3" class="edge">
+<title>proc~qsatd0&#45;&gt;proc~qsatd0</title>
+<path fill="none" stroke="#ff0000" d="M141.98,-24.01C135.51,-32.97 141.69,-42 160.5,-42 171.96,-42 178.73,-38.65 180.81,-34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="184.23,-33.24 179.02,-24.01 177.34,-34.47 184.23,-33.24"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_eqsatset~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_eqsatsetCalledByGraph" width="580pt" height="337pt"
+ viewBox="0.00 0.00 580.00 336.87" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_eqsatset~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 332.87)">
+<title>proc~~mapl_eqsatset~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-332.87 576,-332.87 576,4 -4,4"/>
+<!-- proc~mapl_eqsatset -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_node1" class="node">
+<title>proc~mapl_eqsatset</title>
+<polygon fill="none" stroke="black" points="481,-187.46 384,-187.46 384,-163.46 481,-163.46 481,-187.46"/>
+<text text-anchor="middle" x="432.5" y="-173.06" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_EQsatSET</text>
+</g>
+<!-- proc~qsatd0 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_node6" class="node">
+<title>proc~qsatd0</title>
+<g id="a_proc~~mapl_eqsatset~~CalledByGraph_node6"><a xlink:href="../proc/qsatd0.html" xlink:title="QSATD0">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="572,-207.46 517,-207.46 517,-183.46 572,-183.46 572,-207.46"/>
+<text text-anchor="middle" x="544.5" y="-193.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">QSATD0</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_eqsatset&#45;&gt;proc~qsatd0 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge18" class="edge">
+<title>proc~mapl_eqsatset&#45;&gt;proc~qsatd0</title>
+<path fill="none" stroke="#00ffa9" d="M481.11,-177.42C489.68,-178.85 498.5,-180.55 506.71,-182.36"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="506.18,-185.83 516.71,-184.7 507.77,-179.01 506.18,-185.83"/>
+</g>
+<!-- proc~qsat0 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_node2" class="node">
+<title>proc~qsat0</title>
+<g id="a_proc~~mapl_eqsatset~~CalledByGraph_node2"><a xlink:href="../proc/qsat0.html" xlink:title="QSAT0">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="347.5,-172.46 293.5,-172.46 293.5,-148.46 347.5,-148.46 347.5,-172.46"/>
+<text text-anchor="middle" x="320.5" y="-158.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">QSAT0</text>
+</a>
+</g>
+</g>
+<!-- proc~qsat0&#45;&gt;proc~mapl_eqsatset -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge1" class="edge">
+<title>proc~qsat0&#45;&gt;proc~mapl_eqsatset</title>
+<path fill="none" stroke="#ff0000" d="M347.57,-164.01C355.5,-165.1 364.55,-166.33 373.71,-167.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="373.26,-171.05 383.64,-168.93 374.2,-164.11 373.26,-171.05"/>
+</g>
+<!-- proc~qsat0&#45;&gt;proc~qsat0 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge10" class="edge">
+<title>proc~qsat0&#45;&gt;proc~qsat0</title>
+<path fill="none" stroke="#ff0000" d="M305.62,-172.47C300.42,-181.43 305.38,-190.46 320.5,-190.46 329.71,-190.46 335.15,-187.11 336.82,-182.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="340.27,-181.87 335.38,-172.47 333.34,-182.87 340.27,-181.87"/>
+</g>
+<!-- proc~qsat1 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_node3" class="node">
+<title>proc~qsat1</title>
+<g id="a_proc~~mapl_eqsatset~~CalledByGraph_node3"><a xlink:href="../proc/qsat1.html" xlink:title="QSAT1">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="257,-141.46 203,-141.46 203,-117.46 257,-117.46 257,-141.46"/>
+<text text-anchor="middle" x="230" y="-127.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">QSAT1</text>
+</a>
+</g>
+</g>
+<!-- proc~qsat1&#45;&gt;proc~mapl_eqsatset -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge2" class="edge">
+<title>proc~qsat1&#45;&gt;proc~mapl_eqsatset</title>
+<path fill="none" stroke="#ff0000" d="M257.42,-129.31C281.4,-129.74 317.55,-131.81 348,-139.46 365.75,-143.92 384.55,-151.72 399.81,-158.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="398.28,-162.08 408.81,-163.3 401.34,-155.78 398.28,-162.08"/>
+</g>
+<!-- proc~qsat1&#45;&gt;proc~qsat0 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge11" class="edge">
+<title>proc~qsat1&#45;&gt;proc~qsat0</title>
+<path fill="none" stroke="#ff0000" d="M257.07,-138.59C265.46,-141.53 274.9,-144.84 283.86,-147.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="282.71,-151.28 293.31,-151.28 285.03,-144.68 282.71,-151.28"/>
+</g>
+<!-- proc~qsat2 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_node4" class="node">
+<title>proc~qsat2</title>
+<g id="a_proc~~mapl_eqsatset~~CalledByGraph_node4"><a xlink:href="../proc/qsat2.html" xlink:title="QSAT2">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="257,-99.46 203,-99.46 203,-75.46 257,-75.46 257,-99.46"/>
+<text text-anchor="middle" x="230" y="-85.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">QSAT2</text>
+</a>
+</g>
+</g>
+<!-- proc~qsat2&#45;&gt;proc~mapl_eqsatset -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge3" class="edge">
+<title>proc~qsat2&#45;&gt;proc~mapl_eqsatset</title>
+<path fill="none" stroke="#ff0000" d="M257.15,-94.47C281.26,-101.34 317.78,-112.74 348,-126.46 367.7,-135.41 388.7,-147.74 404.72,-157.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="403.21,-160.99 413.52,-163.42 406.97,-155.09 403.21,-160.99"/>
+</g>
+<!-- proc~qsat2&#45;&gt;proc~qsat0 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge12" class="edge">
+<title>proc~qsat2&#45;&gt;proc~qsat0</title>
+<path fill="none" stroke="#ff0000" d="M246.15,-99.64C249.72,-102.52 253.5,-105.59 257,-108.46 270.48,-119.51 285.5,-132 297.44,-141.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="295.23,-144.69 305.15,-148.42 299.72,-139.32 295.23,-144.69"/>
+</g>
+<!-- proc~qsat3 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_node5" class="node">
+<title>proc~qsat3</title>
+<g id="a_proc~~mapl_eqsatset~~CalledByGraph_node5"><a xlink:href="../proc/qsat3.html" xlink:title="QSAT3">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="257,-221.46 203,-221.46 203,-197.46 257,-197.46 257,-221.46"/>
+<text text-anchor="middle" x="230" y="-207.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">QSAT3</text>
+</a>
+</g>
+</g>
+<!-- proc~qsat3&#45;&gt;proc~mapl_eqsatset -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge4" class="edge">
+<title>proc~qsat3&#45;&gt;proc~mapl_eqsatset</title>
+<path fill="none" stroke="#ff0000" d="M257.22,-208.68C281.06,-207.62 317.13,-205.16 348,-199.46 360.28,-197.19 373.36,-193.88 385.43,-190.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="386.68,-193.71 395.29,-187.53 384.7,-187 386.68,-193.71"/>
+</g>
+<!-- proc~qsat3&#45;&gt;proc~qsat0 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge13" class="edge">
+<title>proc~qsat3&#45;&gt;proc~qsat0</title>
+<path fill="none" stroke="#ff0000" d="M252.88,-197.35C263.62,-191.4 276.75,-184.13 288.51,-177.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="290.52,-180.51 297.57,-172.6 287.12,-174.38 290.52,-180.51"/>
+</g>
+<!-- proc~qsatd0&#45;&gt;proc~mapl_eqsatset -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge5" class="edge">
+<title>proc~qsatd0&#45;&gt;proc~mapl_eqsatset</title>
+<path fill="none" stroke="#ff0000" d="M516.73,-196.48C504.33,-195.06 489.3,-192.55 475.44,-189.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="476.13,-186.23 465.61,-187.5 474.63,-193.07 476.13,-186.23"/>
+</g>
+<!-- proc~qsatd0&#45;&gt;proc~qsatd0 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge19" class="edge">
+<title>proc~qsatd0&#45;&gt;proc~qsatd0</title>
+<path fill="none" stroke="#00ffa9" d="M525.98,-207.47C519.51,-216.43 525.69,-225.46 544.5,-225.46 555.96,-225.46 562.73,-222.11 564.81,-217.46"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="568.23,-216.7 563.02,-207.47 561.34,-217.93 568.23,-216.7"/>
+</g>
+<!-- proc~qsatd1 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_node7" class="node">
+<title>proc~qsatd1</title>
+<g id="a_proc~~mapl_eqsatset~~CalledByGraph_node7"><a xlink:href="../proc/qsatd1.html" xlink:title="QSATD1">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="348,-54.46 293,-54.46 293,-30.46 348,-30.46 348,-54.46"/>
+<text text-anchor="middle" x="320.5" y="-40.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">QSATD1</text>
+</a>
+</g>
+</g>
+<!-- proc~qsatd1&#45;&gt;proc~mapl_eqsatset -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge6" class="edge">
+<title>proc~qsatd1&#45;&gt;proc~mapl_eqsatset</title>
+<path fill="none" stroke="#ff0000" d="M334.52,-54.56C338.92,-58.83 343.79,-63.75 348,-68.46 373.65,-97.2 400.59,-132.86 416.72,-154.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="414.02,-157.14 422.73,-163.17 419.68,-153.02 414.02,-157.14"/>
+</g>
+<!-- proc~qsatd1&#45;&gt;proc~qsatd0 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge20" class="edge">
+<title>proc~qsatd1&#45;&gt;proc~qsatd0</title>
+<path fill="none" stroke="#00ffa9" d="M338.92,-54.47C377.73,-81.21 471.48,-145.83 517.35,-177.44"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="515.63,-180.5 525.85,-183.3 519.61,-174.74 515.63,-180.5"/>
+</g>
+<!-- proc~qsatd2 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_node8" class="node">
+<title>proc~qsatd2</title>
+<g id="a_proc~~mapl_eqsatset~~CalledByGraph_node8"><a xlink:href="../proc/qsatd2.html" xlink:title="QSATD2">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="348,-312.46 293,-312.46 293,-288.46 348,-288.46 348,-312.46"/>
+<text text-anchor="middle" x="320.5" y="-298.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">QSATD2</text>
+</a>
+</g>
+</g>
+<!-- proc~qsatd2&#45;&gt;proc~mapl_eqsatset -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge7" class="edge">
+<title>proc~qsatd2&#45;&gt;proc~mapl_eqsatset</title>
+<path fill="none" stroke="#ff0000" d="M337.97,-288.35C341.4,-285.57 344.92,-282.52 348,-279.46 374.85,-252.78 401.46,-217.76 417.19,-195.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="420.08,-197.9 423.04,-187.73 414.38,-193.84 420.08,-197.9"/>
+</g>
+<!-- proc~qsatd2&#45;&gt;proc~qsatd0 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge21" class="edge">
+<title>proc~qsatd2&#45;&gt;proc~qsatd0</title>
+<path fill="none" stroke="#00ffa9" d="M348.11,-292.82C380.55,-282.99 436.54,-264.28 481,-240.46 494.9,-233.01 509.26,-222.88 520.7,-214.11"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="523.12,-216.66 528.83,-207.74 518.8,-211.15 523.12,-216.66"/>
+</g>
+<!-- proc~qsatd3 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_node9" class="node">
+<title>proc~qsatd3</title>
+<g id="a_proc~~mapl_eqsatset~~CalledByGraph_node9"><a xlink:href="../proc/qsatd3.html" xlink:title="QSATD3">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="348,-270.46 293,-270.46 293,-246.46 348,-246.46 348,-270.46"/>
+<text text-anchor="middle" x="320.5" y="-256.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">QSATD3</text>
+</a>
+</g>
+</g>
+<!-- proc~qsatd3&#45;&gt;proc~mapl_eqsatset -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge8" class="edge">
+<title>proc~qsatd3&#45;&gt;proc~mapl_eqsatset</title>
+<path fill="none" stroke="#ff0000" d="M337.73,-246.21C356.11,-232.34 386.26,-209.6 407.39,-193.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="409.69,-196.3 415.56,-187.49 405.47,-190.72 409.69,-196.3"/>
+</g>
+<!-- proc~qsatd3&#45;&gt;proc~qsatd0 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge22" class="edge">
+<title>proc~qsatd3&#45;&gt;proc~qsatd0</title>
+<path fill="none" stroke="#00ffa9" d="M348.28,-250.86C387.97,-239.6 462.52,-218.44 507.12,-205.78"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="508.31,-209.08 516.97,-202.99 506.4,-202.35 508.31,-209.08"/>
+</g>
+<!-- program~tstqsat -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_node10" class="node">
+<title>program~tstqsat</title>
+<g id="a_proc~~mapl_eqsatset~~CalledByGraph_node10"><a xlink:href="../program/tstqsat.html" xlink:title="tstqsat">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-102.46 0,-102.46 0,-78.46 54,-78.46 54,-102.46"/>
+<text text-anchor="middle" x="27" y="-88.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tstqsat</text>
+</a>
+</g>
+</g>
+<!-- program~tstqsat&#45;&gt;proc~mapl_eqsatset -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge9" class="edge">
+<title>program~tstqsat&#45;&gt;proc~mapl_eqsatset</title>
+<path fill="none" stroke="#ff0000" d="M45.71,-78.43C96.53,-45.54 245.69,39.45 348,-21.46 396.55,-50.36 418.61,-118.42 427.06,-153.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="423.65,-154.37 429.26,-163.36 430.48,-152.83 423.65,-154.37"/>
+</g>
+<!-- interface~mapl_eqsat -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_node11" class="node">
+<title>interface~mapl_eqsat</title>
+<g id="a_proc~~mapl_eqsatset~~CalledByGraph_node11"><a xlink:href="../interface/mapl_eqsat.html" xlink:title="MAPL_EQsat">
+<polygon fill="#a7506f" stroke="#a7506f" points="167,-181.46 90,-181.46 90,-157.46 167,-157.46 167,-181.46"/>
+<text text-anchor="middle" x="128.5" y="-167.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_EQsat</text>
+</a>
+</g>
+</g>
+<!-- program~tstqsat&#45;&gt;interface~mapl_eqsat -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge27" class="edge">
+<title>program~tstqsat&#45;&gt;interface~mapl_eqsat</title>
+<path fill="none" stroke="#ff0000" d="M43.55,-102.8C59.76,-115.67 85.36,-136 104.03,-150.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="102.05,-153.73 112.06,-157.2 106.41,-148.24 102.05,-153.73"/>
+</g>
+<!-- interface~mapl_eqsat&#45;&gt;proc~qsat0 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge14" class="edge">
+<title>interface~mapl_eqsat&#45;&gt;proc~qsat0</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M167.04,-167.68C200.71,-166.09 249.8,-163.76 283.11,-162.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="283.51,-165.67 293.33,-161.7 283.17,-158.68 283.51,-165.67"/>
+</g>
+<!-- interface~mapl_eqsat&#45;&gt;proc~qsat1 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge15" class="edge">
+<title>interface~mapl_eqsat&#45;&gt;proc~qsat1</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M159.35,-157.46C170.07,-153.15 182.26,-148.25 193.41,-143.77"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="194.91,-146.94 202.88,-139.96 192.3,-140.44 194.91,-146.94"/>
+</g>
+<!-- interface~mapl_eqsat&#45;&gt;proc~qsat2 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge16" class="edge">
+<title>interface~mapl_eqsat&#45;&gt;proc~qsat2</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M144.1,-157.25C158.89,-144.89 182.47,-125.27 203,-108.46 203.98,-107.65 204.99,-106.83 206.01,-106"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="208.29,-108.66 213.85,-99.64 203.88,-103.22 208.29,-108.66"/>
+</g>
+<!-- interface~mapl_eqsat&#45;&gt;proc~qsat3 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge17" class="edge">
+<title>interface~mapl_eqsat&#45;&gt;proc~qsat3</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M159.35,-181.46C170.07,-185.77 182.26,-190.67 193.41,-195.15"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="192.3,-198.48 202.88,-198.96 194.91,-191.98 192.3,-198.48"/>
+</g>
+<!-- interface~mapl_eqsat&#45;&gt;proc~qsatd0 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge23" class="edge">
+<title>interface~mapl_eqsat&#45;&gt;proc~qsatd0</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M134.82,-181.75C145.04,-204.11 169.43,-251.8 203,-280.46 236.43,-309 250.05,-312.14 293,-321.46 377.27,-339.75 410.86,-323.62 481,-273.46 502.32,-258.21 520.24,-233.81 531.35,-216.36"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="534.55,-217.83 536.8,-207.48 528.58,-214.17 534.55,-217.83"/>
+</g>
+<!-- interface~mapl_eqsat&#45;&gt;proc~qsatd1 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge24" class="edge">
+<title>interface~mapl_eqsat&#45;&gt;proc~qsatd1</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M134.51,-157.34C144.23,-135.42 167.84,-89.35 203,-66.46 226.67,-51.05 258.3,-45.26 282.63,-43.2"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="283.15,-46.67 292.9,-42.52 282.69,-39.69 283.15,-46.67"/>
+</g>
+<!-- interface~mapl_eqsat&#45;&gt;proc~qsatd2 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge25" class="edge">
+<title>interface~mapl_eqsat&#45;&gt;proc~qsatd2</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M137.37,-181.63C149.5,-199.57 174.41,-233.15 203,-253.46 227.27,-270.7 258.78,-282.92 282.91,-290.57"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="282.17,-294 292.75,-293.57 284.21,-287.31 282.17,-294"/>
+</g>
+<!-- interface~mapl_eqsat&#45;&gt;proc~qsatd3 -->
+<g id="proc~~mapl_eqsatset~~CalledByGraph_edge26" class="edge">
+<title>interface~mapl_eqsat&#45;&gt;proc~qsatd3</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M140.75,-181.71C154.22,-195.61 178.09,-217.98 203,-230.46 228.11,-243.04 259.14,-250.14 282.86,-254.04"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="282.46,-257.51 292.87,-255.57 283.51,-250.6 282.46,-257.51"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_EQsatSET</span><span class="p">(</span><span class="n">UseTable</span><span class="p">,</span><span class="n">Formulation</span><span class="p">,</span><span class="n">Subdivisions</span><span class="p">,</span><span class="n">MixingRatio</span><span class="p">)</span>
+
+<span class="c">! !ARGUMENTS:</span>
+
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">UseTable</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Formulation</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Subdivisions</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MixingRatio</span>
+
+<span class="c">! Set the global flags</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">UseTable</span><span class="w">   </span><span class="p">))</span><span class="w"> </span><span class="n">UTBL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UseTable</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">Formulation</span><span class="p">))</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Formulation</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">MixingRatio</span><span class="p">))</span><span class="w"> </span><span class="n">MXRT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MixingRatio</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">SubDivisions</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">DEGSUBS</span><span class="w">    </span><span class="o">=</span><span class="w">  </span><span class="n">SubDivisions</span>
+<span class="w">       </span><span class="n">TABLESIZE</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="nb">nint</span><span class="p">(</span><span class="n">TMAXTBL</span><span class="o">-</span><span class="n">TMINTBL</span><span class="p">)</span><span class="o">*</span><span class="n">DEGSUBS</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">       </span><span class="n">DELTA_T</span><span class="w">    </span><span class="o">=</span><span class="w">  </span><span class="mf">1.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">DEGSUBS</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="k">TYPE</span><span class="o">/=</span><span class="n">Starr</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="k">TYPE</span><span class="o">/=</span><span class="n">GOFFGRATCH</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="k">TYPE</span><span class="o">/=</span><span class="n">MurphyKoop</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Bad argument to MAPL_EQsatSET: FORMULATION=&#39;</span><span class="p">,</span><span class="k">TYPE</span>
+<span class="k">       print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Must be one of: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">Starr</span><span class="p">,</span><span class="w"> </span><span class="n">GOFFGRATCH</span><span class="p">,</span><span class="w"> </span><span class="n">MurphyKoop</span>
+<span class="w">       </span><span class="k">stop </span><span class="mi">999</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="c">! Set the formulation dependent limits</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="k">TYPE</span><span class="o">==</span><span class="n">MurphyKoop</span><span class="p">)</span><span class="w">  </span><span class="k">then</span>
+<span class="k">       </span><span class="n">TMIN</span><span class="p">(</span><span class="n">ICE</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="nb">max</span><span class="p">(</span><span class="n">TMINTBL</span><span class="p">,</span><span class="mi">11</span><span class="mf">0._REAL64</span><span class="p">)</span>
+<span class="w">       </span><span class="n">TMIN</span><span class="p">(</span><span class="n">WATER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="nb">max</span><span class="p">(</span><span class="n">TMINTBL</span><span class="p">,</span><span class="mi">12</span><span class="mf">3._REAL64</span><span class="p">)</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">TMIN</span><span class="p">(</span><span class="n">WATER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">TMINLQU</span>
+<span class="w">       </span><span class="n">TMIN</span><span class="p">(</span><span class="n">ICE</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">TMINICE</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="c">! Initialize or reset the tables, even if not needed.</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">ESTBLE</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ESTBLE</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">ESTBLW</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ESTBLW</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">ESTBLE</span><span class="p">(</span><span class="n">TABLESIZE</span><span class="p">))</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">ESTBLW</span><span class="p">(</span><span class="n">TABLESIZE</span><span class="p">))</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESINIT</span>
+
+<span class="w">    </span><span class="k">return</span>
+
+<span class="k">  contains</span>
+<span class="c">!=======================================================================================</span>
+
+<span class="w">    </span><span class="k">subroutine </span><span class="n">ESINIT</span>
+
+<span class="c">! Saturation vapor pressure table initialization. This is invoked if UTBL is true </span>
+<span class="c">! on the first call to any qsat routine or whenever MAPL_QsatSet is called </span>
+<span class="c">! N.B.--Tables are in Pa</span>
+<span class="w"> </span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">T</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">UT</span>
+
+<span class="c">! Save the value of UTBL and temporarily set it to false to get the exact</span>
+<span class="c">! formulation.</span>
+
+<span class="w">      </span><span class="n">UT</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">UTBL</span>
+<span class="w">      </span><span class="n">UTBL</span><span class="w"> </span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+
+<span class="c">! The size of the table and its resolution are currently hardwired.</span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">TABLESIZE</span>
+<span class="w">       </span>
+<span class="w">         </span><span class="n">T</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">DELTA_T</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">TMINTBL</span>
+
+<span class="c">! The two standard tables. ESTBLW contains saturation vapor pressures over liquid</span>
+<span class="c">! for all temperatures. ESTBLE contains saturation vapor pressures over ice for </span>
+<span class="c">! temperatures below 0C and over water above 0C.</span>
+<span class="w">       </span>
+<span class="w">         </span><span class="n">ESTBLW</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QSATD0</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="n">OverIce</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span>
+<span class="w">         </span><span class="n">ESTBLE</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QSATD0</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="n">OverIce</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="c">! Reset UTBL to what it was on entry.</span>
+
+<span class="w">      </span><span class="n">UTBL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UT</span>
+
+<span class="c">! Mark table as initialized</span>
+
+<span class="w">      </span><span class="n">TableReady</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="k">end subroutine </span><span class="n">ESINIT</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_EQsatSET</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-02T18:26:22.973122             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
