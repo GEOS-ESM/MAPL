@@ -16,7 +16,7 @@ parameters:
 
 # Anchors to prevent forgetting to update a version
 os_version: &os_version ubuntu20
-baselibs_version: &baselibs_version v7.23.0
+baselibs_version: &baselibs_version v7.24.0
 bcs_version: &bcs_version v11.3.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
@@ -33,7 +33,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran,ifort]
+              compiler: [gfortran, ifort]
               cmake_generator: ['Unix Makefiles','Ninja']
           baselibs_version: *baselibs_version
           repo: MAPL
@@ -161,7 +161,6 @@ workflows:
           checkout_mapl_branch: true
           mepodevelop: false
           rebuild_procs: 1
-          extra_cmake_options: "-DBUILD_WITH_FLAP=ON"
 
   build-and-publish-docker:
     when:
