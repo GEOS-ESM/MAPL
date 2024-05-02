@@ -5,7 +5,9 @@ module mapl3g_HistoryCollectionGridComp_private
    use mapl3g_VariableSpec
    use esmf
    use Mapl_ErrorHandling
+   use gFTL2_StringVector
    use mapl3g_geom_mgr
+   use MAPL_NewArthParserMod, only: parser_variables_in_expression
    use MAPL_TimeStringConversion
    use MAPL_BaseMod, only: MAPL_UnpackTime
 
@@ -17,9 +19,17 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: create_output_bundle
    public :: create_output_alarm
    public :: set_start_stop_time
+   ! These are public for testing.
+   public :: parse_item_common
+   public :: replace_delimiter
+   public :: get_expression_variables
 
-   character(len=*), parameter :: VARIABLE_DELIMITER = '.'
-   character(len=*), parameter :: DELIMITER_REPLACEMENT = '/'
+   interface parse_item
+      module procedure :: parse_item_expression
+      module procedure :: parse_item_simple
+   end interface parse_item
+
+   character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
 
 contains
 
@@ -33,12 +43,11 @@ contains
       type(MaplGeom) :: mapl_geom
 
       geom_mgr => get_geom_manager()
-
       geom_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='geom', _RC)
       mapl_geom = geom_mgr%get_mapl_geom(geom_hconfig, _RC)
       geom = mapl_geom%get_geom()
-
       call ESMF_HConfigDestroy(geom_hconfig, _RC)
+
       _RETURN(_SUCCESS)
    end function make_geom
 
@@ -46,68 +55,23 @@ contains
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
-      character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: var_list
       character(len=:), allocatable :: item_name
-      character(len=:), allocatable :: short_name
-      type(VariableSpec) :: varspec
+      type(StringVector) :: variable_names
       integer :: status
 
       var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, _RC)
       iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
       iter_end = ESMF_HConfigIterEnd(var_list,_RC)
       iter = iter_begin
-
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
-         call parse_item(iter, item_name, short_name, _RC)
-         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, vertical_dim_spec=VERTICAL_DIM_MIRROR)
-         call MAPL_AddSpec(gridcomp, varspec, _RC)
+         call parse_item(iter, item_name, variable_names, _RC)
+         call add_specs(gridcomp, variable_names, _RC)
       end do
 
       _RETURN(_SUCCESS)
    end subroutine register_imports
-
-   subroutine parse_item(item, item_name, short_name, rc)
-      type(ESMF_HConfigIter), intent(in) :: item
-      character(len=:), allocatable, intent(out) :: item_name
-      character(len=:), allocatable, intent(out) :: short_name
-      integer, optional, intent(out) :: rc
-      character(len=*), parameter :: EXPRESSION_KEY = 'expr'
-      integer :: status
-      logical :: asOK, isScalar, isMap
-      type(ESMF_HConfig) :: value
-      type(ESMF_HConfigIter) :: iter, iterBegin, iterEnd
-      character(len=:), allocatable :: part_key, part_value
-
-      isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
-      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
-
-      isMap = ESMF_HConfigIsMapMapVal(item, _RC)
-      _ASSERT(isMap, 'Variable list item does not have a map value.')
-
-      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
-      _ASSERT(asOK, 'Name could not be processed as a String.')
-
-      value = ESMF_HConfigCreateAtMapVal(item, _RC)
-      short_name = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
-      short_name = replace_delimiter(short_name, VARIABLE_DELIMITER, DELIMITER_REPLACEMENT)
-
-      _RETURN(_SUCCESS)
-   end subroutine parse_item
-
-   function replace_delimiter(string, delimiter, replacement) result(replaced)
-      character(len=:), allocatable :: replaced
-      character(len=*), intent(in) :: string
-      character(len=*), intent(in) :: delimiter
-      character(len=*), intent(in) :: replacement
-      integer :: i
-
-      replaced = trim(string)
-      i = index(replaced, delimiter)
-      if(i > 0) replaced = replaced(:(i-1))// replacement // replaced((i+len(delimiter)):)
-
-   end function replace_delimiter
 
    function create_output_bundle(hconfig, import_state, rc) result(bundle)
       type(ESMF_FieldBundle) :: bundle
@@ -116,7 +80,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: var_list
       character(len=:), allocatable :: alias, short_name
@@ -214,5 +177,120 @@ contains
       end if
       _RETURN(_SUCCESS)
    end function set_start_stop_time
+
+   subroutine parse_item_expression(item, item_name, var_names, rc)
+      type(ESMF_HConfigIter), intent(in) :: item 
+      character(len=:), allocatable, intent(out) :: item_name
+      type(StringVector), intent(out) :: var_names
+      integer, optional, intent(out) :: rc
+      character(len=:), allocatable :: expression
+      integer :: status
+
+      call parse_item_common(item, item_name, expression, _RC)
+      var_names = get_expression_variables(expression, _RC) 
+
+      _RETURN(_SUCCESS)
+   end subroutine parse_item_expression
+
+   subroutine parse_item_simple(item, item_name, var_name, rc)
+      type(ESMF_HConfigIter), intent(in) :: item 
+      character(len=:), allocatable, intent(out) :: item_name
+      character(len=:), allocatable, intent(out) :: var_name
+      integer, optional, intent(out) :: rc
+      character(len=:), allocatable :: expression
+      integer :: status
+
+      call parse_item_common(item, item_name, expression, _RC)
+      var_name = replace_delimiter(expression)
+
+      _RETURN(_SUCCESS)
+   end subroutine parse_item_simple
+
+   subroutine parse_item_common(item, item_name, expression, rc)
+      type(ESMF_HConfigIter), intent(in) :: item 
+      character(len=:), allocatable, intent(out) :: item_name
+      character(len=:), allocatable, intent(out) :: expression
+      integer, optional, intent(out) :: rc
+      character(len=*), parameter :: EXPRESSION_KEY = 'expr'
+      integer :: status
+      logical :: asOK, isScalar, isMap
+      type(ESMF_HConfig) :: value
+
+      isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
+      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
+      isMap = ESMF_HConfigIsMapMapVal(item, _RC)
+      _ASSERT(isMap, 'Variable list item does not have a map value.')
+
+      item_name = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
+      _ASSERT(asOK, 'Item name could not be processed as a String.')
+
+      value = ESMF_HConfigCreateAtMapVal(item, _RC)
+      expression = ESMF_HConfigAsString(value, keyString=EXPRESSION_KEY, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine parse_item_common
+
+   subroutine add_specs(gridcomp, names, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(StringVector), intent(in) :: names
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(StringVectorIterator) :: ftn_iter, ftn_end
+      type(VariableSpec) :: varspec
+      character(len=:), allocatable :: short_name
+
+      ftn_end = names%ftn_end()
+      ftn_iter = names%ftn_begin()
+      do while (ftn_iter /= ftn_end)
+         call ftn_iter%next()
+         short_name = ftn_iter%of()
+         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, vertical_dim_spec=VERTICAL_DIM_MIRROR)
+         call MAPL_AddSpec(gridcomp, varspec, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine add_specs
+
+   function replace_delimiter(string, delimiter, replacement) result(replaced)
+      character(len=:), allocatable :: replaced
+      character(len=*), intent(in) :: string
+      character(len=*), optional, intent(in) :: delimiter
+      character(len=*), optional, intent(in) :: replacement
+      character(len=:), allocatable :: del, rep
+      integer :: i
+
+      replaced = string
+      if(len(string) == 0) return
+
+      del = '.'
+      if(present(delimiter)) del = delimiter
+      if(len(del) == 0) return
+
+      rep = '/'
+      if(present(replacement)) rep = replacement
+      if(len(rep) == 0) return
+
+      i = index(replaced, del)
+      if(i > 0) replaced = replaced(:(i-1))// rep // replaced((i+len(del)):)
+
+   end function replace_delimiter
+
+   function get_expression_variables(expression, rc) result(variables)
+      type(StringVector) :: variables
+      character(len=*), intent(in) :: expression
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(StringVector) :: raw_vars
+      type(StringVectorIterator) :: iter
+
+      raw_vars = parser_variables_in_expression(expression, _RC)
+      iter = raw_vars%begin()
+      do while(iter /= raw_vars%end())
+        call variables%push_back(replace_delimiter(iter%of())) 
+        call iter%next()
+      end do
+
+      _RETURN(_SUCCESS)
+   end function get_expression_variables
 
 end module mapl3g_HistoryCollectionGridComp_private
