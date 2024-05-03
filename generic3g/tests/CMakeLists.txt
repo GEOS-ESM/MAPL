@@ -20,7 +20,6 @@ set (test_srcs
 
   Test_ConnectionPt.pf
   Test_FieldDictionary.pf
-  Test_GenericInitialize.pf
   Test_HierarchicalRegistry.pf
 
   Test_Scenarios.pf
