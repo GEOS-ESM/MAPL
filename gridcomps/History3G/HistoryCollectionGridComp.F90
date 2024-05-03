@@ -7,6 +7,7 @@ module mapl3g_HistoryCollectionGridComp
    use mapl3g_HistoryCollectionGridComp_private
    use esmf
    use mapl3g_BundleWriter
+   use mapl_StringTemplate
    implicit none
    private
 
@@ -14,12 +15,14 @@ module mapl3g_HistoryCollectionGridComp
 
    ! Private state
    type :: HistoryCollectionGridComp
-!#      class(Client), pointer :: client
       type(ESMF_FieldBundle) :: output_bundle
       type(BundleWriter) :: writer
       type(ESMF_Time) :: start_stop_times(2)
+      character(len=:), allocatable :: template
+      character(len=:), allocatable :: current_file
    end type HistoryCollectionGridComp
 
+   character(len=*), parameter :: null_file = 'null_file'
 
 contains
 
@@ -82,6 +85,10 @@ contains
       call create_output_alarm(clock, hconfig, trim(name), _RC)
       collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
 
+      collection_gridcomp%current_file = null_file
+      collection_gridcomp%template = ESMF_HConfigAsString(hconfig, keyString='template', _RC)
+      
+
       _RETURN(_SUCCESS)
    end subroutine init
 
@@ -118,6 +125,7 @@ contains
       type(ESMF_Time) :: current_time
       type(ESMF_Alarm) :: write_alarm
       character(len=ESMF_MAXSTR) :: name
+      character(len=:), allocatable :: current_file
 
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
@@ -130,7 +138,14 @@ contains
       _RETURN_UNLESS(run_collection .and. time_to_write)
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
-      !call collection_gridcomp%writer%stage_data(collection_gridcomp%output_bundle, _RC)
+
+      call fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=current_time, _RC)
+      if (current_file /= collection_gridcomp%current_file) then
+         collection_gridcomp%current_file = current_file
+         call collection_gridcomp%writer%update_time_on_server(current_time, _RC)
+      end if
+
+      call collection_gridcomp%writer%send_field_data(collection_gridcomp%output_bundle, collection_gridcomp%current_file, 1, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine run

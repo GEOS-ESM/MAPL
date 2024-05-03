@@ -11,6 +11,7 @@ private
 
 public fill_grads_template
 public StrTemplate
+public fill_grads_template_esmf  
 
 character(len=2), parameter :: valid_tokens(15) = ["y4","y2","m1","m2","mc","Mc","MC","d1","d2","h1","h2","h3","n2","S2","D3"]
 character(len=3),parameter :: mon_lc(12) = [&
@@ -19,12 +20,13 @@ character(len=3),parameter :: mon_lc(12) = [&
 integer, parameter :: uninit_time = -999999
 
 contains
-   subroutine StrTemplate(str, tmpl, class, xid, nymd, nhms, stat, preserve)
+   subroutine StrTemplate(str, tmpl, class, xid, collection_id, nymd, nhms, stat, preserve)
       character(len=*), intent(out) :: str
       character(len=*), intent(in ) :: tmpl
 
       character(len=*), optional, intent(in ) :: class
       character(len=*), optional, intent(in ) :: xid
+      character(len=*), optional, intent(in ) :: collection_id
       integer,          optional, intent(in ) :: nymd
       integer,          optional, intent(in ) :: nhms
       integer,          optional, intent(out) :: stat
@@ -33,14 +35,40 @@ contains
       _UNUSED_DUMMY(class)
 
       call fill_grads_template(str, tmpl, &
-            experiment_id=xid, nymd=nymd, nhms=nhms,preserve=preserve, rc=stat)
+            experiment_id=xid, collection_id = collection_id, nymd=nymd, nhms=nhms,preserve=preserve, rc=stat)
    end subroutine StrTemplate
 
-   subroutine fill_grads_template(output_string,template,unusable,experiment_id,nymd,nhms,time,preserve,rc)
+   subroutine fill_grads_template_esmf(str, tmpl, unusable, xid, collection_id, time, preserve, rc)
+      character(len=*), intent(out) :: str
+      character(len=*), intent(in ) :: tmpl
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in ) :: xid
+      character(len=*), optional, intent(in ) :: collection_id
+      type(ESMF_Time),  optional, intent(in ) :: time
+      logical,          optional, intent(in ) :: preserve
+      integer,          optional, intent(out) :: rc
+
+      integer :: nhms, nymd, year, month, day, hour, minute, sec, status
+
+      _UNUSED_DUMMY(unusable)
+      call ESMF_TimeGet(time, yy=year, mm=month, dd=day, m=minute, h=hour, s=sec, _RC)
+      nymd = year*10000 + month*100 + day
+      nhms = hour*10000 + minute*100 + sec
+
+      _UNUSED_DUMMY(unusable)
+
+      call fill_grads_template(str, tmpl, &
+            experiment_id=xid, collection_id = collection_id, nymd=nymd, nhms=nhms,preserve=preserve, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine fill_grads_template_esmf 
+
+   subroutine fill_grads_template(output_string,template,unusable,experiment_id,collection_id,nymd,nhms,time,preserve,rc)
       character(len=*), intent(out) :: output_string
       character(len=*), intent(in)  :: template
       class(keywordEnforcer), optional, intent(in) :: unusable
       character(len=*), intent(in), optional :: experiment_id
+      character(len=*), intent(in), optional :: collection_id
       integer, intent(in), optional :: nymd
       integer, intent(in), optional :: nhms
       type(ESMF_Time), intent(in), optional :: time
@@ -103,6 +131,19 @@ contains
             case("s")
                if (present(experiment_id)) then
                   istp=2
+                  m=min(k+len_trim(experiment_id)-1,output_length)
+                  output_string(k:m)=experiment_id
+                  k=m+1
+                  cycle
+               else if (preserve_) then
+                  output_string(k:k+1)="%s"
+                  k=k+1
+               else
+                  _FAIL("Using %s token with no experiment id")
+               end if
+            case("col")
+               if (present(experiment_id)) then
+                  istp=4
                   m=min(k+len_trim(experiment_id)-1,output_length)
                   output_string(k:m)=experiment_id
                   k=m+1
