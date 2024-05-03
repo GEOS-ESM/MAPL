@@ -260,7 +260,7 @@ contains
          _ASSERT(found, "run phase: <"//phase_name//"> not found.")
       end if
 
-      call child%run(phase_idx=phase_idx+size(GENERIC_RUN_PHASES), _RC)
+      call child%run(phase_idx=phase_idx, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine run_child_by_name
@@ -760,6 +760,9 @@ contains
       integer :: status
       type(GriddedComponentDriverMapIterator) :: iter
       type(GriddedComponentDriver), pointer :: child
+      type(StringVector), pointer :: run_phases
+      logical :: found
+      integer :: phase
 
       associate(e => this%children%ftn_end())
         iter = this%children%ftn_begin()
@@ -771,6 +774,13 @@ contains
       end associate
 
       call this%user_gc_driver%clock_advance(_RC)
+
+      run_phases => this%get_phases(ESMF_METHOD_RUN)
+      phase = get_phase_index(run_phases, phase_name='GENERIC::RUN_CLOCK_ADVANCE', found=found)
+      if (found) then
+         call this%user_gc_driver%run(phase_idx=phase, _RC)
+      end if
+
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run_clock_advance

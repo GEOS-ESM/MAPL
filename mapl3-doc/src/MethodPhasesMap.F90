@@ -65,8 +65,9 @@ end module mapl3g_MethodPhasesMap_private
 module mapl3g_MethodPhasesMapUtils
    use mapl3g_MethodPhasesMap_private
    use mapl_ErrorHandling
+   use :: mapl3g_GenericPhases, only: GENERIC_RUN_OFFSET
    use :: mapl_KeywordEnforcer
-   use :: esmf, only: ESMF_Method_Flag
+   use :: esmf, only: ESMF_Method_Flag, operator(==)
    use :: esmf, only: ESMF_METHOD_INITIALIZE
    use :: esmf, only: ESMF_METHOD_RUN
    use :: esmf, only: ESMF_METHOD_FINALIZE
@@ -106,7 +107,13 @@ contains
 
       phase_names => phases_map%of(method_flag)
       _ASSERT(find(phase_names%begin(), phase_names%end(), phase_name) == phase_names%end(), "duplicate phase name: " // phase_name)
+
+      if (method_flag == ESMF_METHOD_RUN) then
+         _ASSERT(phase_names%size() < GENERIC_RUN_OFFSET, 'Exhausted allow user run phases.  Increase GENERIC_RUN_OFFSET in GenericPhases.F90')
+      end if
+
       call phase_names%push_back(phase_name)
+
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
