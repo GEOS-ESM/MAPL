@@ -1,0 +1,522 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MeterNodeStack.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MeterNodeStack.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.5% of total for source files.">1292 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MeterNodeStack.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">MeterNodeStack.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_meternodestack.html">mapl_MeterNodeStack</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/meternodestack.f90.html#src">MeterNodeStack.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~meternodestack.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilemeternodestackf90EfferentGraph" width="592pt" height="32pt"
+ viewBox="0.00 0.00 592.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~meternodestack.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>sourcefile~~meternodestack.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 588,-28 588,4 -4,4"/>
+<!-- sourcefile~meternodestack.f90 -->
+<g id="sourcefile~~meternodestack.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~meternodestack.f90</title>
+<polygon fill="none" stroke="black" points="584,-24 461,-24 461,0 584,0 584,-24"/>
+<text text-anchor="middle" x="522.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MeterNodeStack.F90</text>
+</g>
+<!-- sourcefile~meternodeptr.f90 -->
+<g id="sourcefile~~meternodestack.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~meternodeptr.f90</title>
+<g id="a_sourcefile~~meternodestack.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/meternodeptr.f90.html" xlink:title="MeterNodePtr.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="425,-24 319,-24 319,0 425,0 425,-24"/>
+<text text-anchor="middle" x="372" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MeterNodePtr.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~meternodestack.f90&#45;&gt;sourcefile~meternodeptr.f90 -->
+<g id="sourcefile~~meternodestack.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~meternodestack.f90&#45;&gt;sourcefile~meternodeptr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M460.67,-12C452.36,-12 443.81,-12 435.47,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="435.42,-8.5 425.42,-12 435.42,-15.5 435.42,-8.5"/>
+</g>
+<!-- sourcefile~abstractmeternode.f90 -->
+<g id="sourcefile~~meternodestack.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~abstractmeternode.f90</title>
+<g id="a_sourcefile~~meternodestack.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/abstractmeternode.f90.html" xlink:title="AbstractMeterNode.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="283,-24 145,-24 145,0 283,0 283,-24"/>
+<text text-anchor="middle" x="214" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractMeterNode.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~meternodeptr.f90&#45;&gt;sourcefile~abstractmeternode.f90 -->
+<g id="sourcefile~~meternodestack.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~meternodeptr.f90&#45;&gt;sourcefile~abstractmeternode.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M318.62,-12C310.41,-12 301.78,-12 293.15,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="293.03,-8.5 283.03,-12 293.03,-15.5 293.03,-8.5"/>
+</g>
+<!-- sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~meternodestack.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~abstractmeter.f90</title>
+<g id="a_sourcefile~~meternodestack.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/abstractmeter.f90.html" xlink:title="AbstractMeter.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="109,-24 0,-24 0,0 109,0 109,-24"/>
+<text text-anchor="middle" x="54.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractMeter.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractmeternode.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~meternodestack.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~abstractmeternode.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M144.83,-12C136.32,-12 127.64,-12 119.2,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="119.06,-8.5 109.06,-12 119.06,-15.5 119.06,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~meternodestack.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilemeternodestackf90AfferentGraph" width="430pt" height="242pt"
+ viewBox="0.00 0.00 430.00 242.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 238)">
+<title>sourcefile~~meternodestack.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 426,-238 426,4 -4,4"/>
+<!-- sourcefile~meternodestack.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~meternodestack.f90</title>
+<polygon fill="none" stroke="black" points="123,-129 0,-129 0,-105 123,-105 123,-129"/>
+<text text-anchor="middle" x="61.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">MeterNodeStack.F90</text>
+</g>
+<!-- sourcefile~baseprofiler.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~baseprofiler.f90</title>
+<g id="a_sourcefile~~meternodestack.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/baseprofiler.f90.html" xlink:title="BaseProfiler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="256,-129 159,-129 159,-105 256,-105 256,-129"/>
+<text text-anchor="middle" x="207.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseProfiler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseprofiler.f90&#45;&gt;sourcefile~meternodestack.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~baseprofiler.f90&#45;&gt;sourcefile~meternodestack.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M158.95,-117C150.71,-117 141.98,-117 133.27,-117"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="133.1,-113.5 123.1,-117 133.1,-120.5 133.1,-113.5"/>
+</g>
+<!-- sourcefile~distributedprofiler.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~distributedprofiler.f90</title>
+<g id="a_sourcefile~~meternodestack.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/distributedprofiler.f90.html" xlink:title="DistributedProfiler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="422,-234 292,-234 292,-210 422,-210 422,-234"/>
+<text text-anchor="middle" x="357" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DistributedProfiler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~distributedprofiler.f90&#45;&gt;sourcefile~baseprofiler.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~distributedprofiler.f90&#45;&gt;sourcefile~baseprofiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M310.05,-209.87C303.77,-207.38 297.57,-204.44 292,-201 264.38,-183.96 239.08,-156 223.73,-137.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="226.36,-134.75 217.41,-129.07 220.87,-139.09 226.36,-134.75"/>
+</g>
+<!-- sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~mapl_profiler.f90</title>
+<g id="a_sourcefile~~meternodestack.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/mapl_profiler.f90.html" xlink:title="MAPL_Profiler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="409.5,-192 304.5,-192 304.5,-168 409.5,-168 409.5,-192"/>
+<text text-anchor="middle" x="357" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Profiler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_profiler.f90&#45;&gt;sourcefile~baseprofiler.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~mapl_profiler.f90&#45;&gt;sourcefile~baseprofiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M316.06,-167.91C308.01,-165.19 299.67,-162.17 292,-159 274.24,-151.67 255.04,-142.13 239.54,-134"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="240.88,-130.75 230.41,-129.15 237.6,-136.93 240.88,-130.75"/>
+</g>
+<!-- sourcefile~memoryprofiler.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~memoryprofiler.f90</title>
+<g id="a_sourcefile~~meternodestack.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/memoryprofiler.f90.html" xlink:title="MemoryProfiler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="414.5,-150 299.5,-150 299.5,-126 414.5,-126 414.5,-150"/>
+<text text-anchor="middle" x="357" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MemoryProfiler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~memoryprofiler.f90&#45;&gt;sourcefile~baseprofiler.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~memoryprofiler.f90&#45;&gt;sourcefile~baseprofiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M299.39,-129.94C288.45,-128.38 276.97,-126.75 265.99,-125.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="266.48,-121.72 256.08,-123.77 265.49,-128.65 266.48,-121.72"/>
+</g>
+<!-- sourcefile~profilereporter.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~profilereporter.f90</title>
+<g id="a_sourcefile~~meternodestack.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/profilereporter.f90.html" xlink:title="ProfileReporter.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="413.5,-108 300.5,-108 300.5,-84 413.5,-84 413.5,-108"/>
+<text text-anchor="middle" x="357" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProfileReporter.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~profilereporter.f90&#45;&gt;sourcefile~baseprofiler.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~profilereporter.f90&#45;&gt;sourcefile~baseprofiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M300.24,-103.94C289.12,-105.52 277.42,-107.19 266.24,-108.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="265.55,-105.34 256.14,-110.22 266.54,-112.27 265.55,-105.34"/>
+</g>
+<!-- sourcefile~stubprofiler.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~stubprofiler.f90</title>
+<g id="a_sourcefile~~meternodestack.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/stubprofiler.f90.html" xlink:title="StubProfiler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="404.5,-66 309.5,-66 309.5,-42 404.5,-42 404.5,-66"/>
+<text text-anchor="middle" x="357" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StubProfiler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~stubprofiler.f90&#45;&gt;sourcefile~baseprofiler.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~stubprofiler.f90&#45;&gt;sourcefile~baseprofiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M316.06,-66.09C308.01,-68.81 299.67,-71.83 292,-75 274.24,-82.33 255.04,-91.87 239.54,-100"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="237.6,-97.07 230.41,-104.85 240.88,-103.25 237.6,-97.07"/>
+</g>
+<!-- sourcefile~timeprofiler.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~timeprofiler.f90</title>
+<g id="a_sourcefile~~meternodestack.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/timeprofiler.f90.html" xlink:title="TimeProfiler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="405.5,-24 308.5,-24 308.5,0 405.5,0 405.5,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TimeProfiler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~timeprofiler.f90&#45;&gt;sourcefile~baseprofiler.f90 -->
+<g id="sourcefile~~meternodestack.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~timeprofiler.f90&#45;&gt;sourcefile~baseprofiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M310.05,-24.13C303.77,-26.62 297.57,-29.56 292,-33 264.38,-50.04 239.08,-78 223.73,-96.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="220.87,-94.91 217.41,-104.93 226.36,-99.25 220.87,-94.91"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">mapl_MeterNodeStack</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_MeterNodePtr</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a>
+<a id="ln-4" name="ln-4" href="#ln-4"></a>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="cp">#define T MeterNodePtr</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="cp">#define Vector MeterNodeStack</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="cp">#define VectorIterator MeterNodeStackIterator</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="cp">#include &quot;vector/template.inc&quot;</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="cp">#undef VectorIterator</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="cp">#undef Vector</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="cp">#undef T</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="k">end module </span><span class="n">mapl_MeterNodeStack</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-03T18:18:58.197976             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

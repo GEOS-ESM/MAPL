@@ -1,0 +1,743 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_SunGetLocalSolarHourAngle &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_SunGetLocalSolarHourAngle
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">74 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_sun_uc.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_sun_uc.f90.html'>MAPL_sun_uc.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_sunmod.html'>MAPL_SunMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_SunGetLocalSolarHourAngle</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_sungetlocalsolarhourangle.html#src">MAPL_SunGetLocalSolarHourAngle</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_SunGetLocalSolarHourAngle(ORBIT, LONS, LSHA, TIME, CLOCK, FORCE_MLSHA, RC)  
+</h2>
+    
+
+    <p>Returns the local solar hour angle (in radians) at the single time and
+ multiple longitudes specified. In order of preference, time is taken
+ from TIME, if present, or else the CURRTIME of CLOCK, if present, or
+ else the CURRTIME of the ORBIT&rsquo;s associated clock.</p>
+<p>NB: For accurate results, namely to receive the TRUE local solar hour
+ angle, ensure the ORBIT has the EOT flag set true. Conversely, to get
+ only the MEAN local solar hour angle, use the optional argument
+ FORCE_MLSHA=.TRUE.. This will turn off the Equation of Time correction
+ (for this LSHA calculation only) even if the ORBIT includes it. For
+ example, in the local noon detection in the EXAMPLE below, this will
+ give mean local noons that are exactly 24 hours apart at a particular
+ location. But they will no longer exactly be the solar culmination
+ times (the TRUE local noon) in that case. TRUE local noons are not
+ exactly 24h apart because of orbital variations in length of day
+ throughout the year, as described by the Equation of Time.</p>
+<p>@note Note
+     <code>Example of use:</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="nx">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="o">::</span><span class="w"> </span><span class="nx">NOW</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="nx">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="o">::</span><span class="w"> </span><span class="nx">DELT</span>
+<span class="w">     </span><span class="nx">real</span><span class="p">,</span><span class="w">    </span><span class="nx">dimension</span><span class="p">(</span><span class="nx">size</span><span class="p">(</span><span class="nx">LONS</span><span class="p">))</span><span class="w"> </span><span class="o">::</span><span class="w"> </span><span class="nx">LSHA0</span><span class="p">,</span><span class="w"> </span><span class="nx">LSHA1</span>
+<span class="w">     </span><span class="nx">logical</span><span class="p">,</span><span class="w"> </span><span class="nx">dimension</span><span class="p">(</span><span class="nx">size</span><span class="p">(</span><span class="nx">LONS</span><span class="p">))</span><span class="w"> </span><span class="o">::</span><span class="w"> </span><span class="nx">isNoon</span>
+<span class="w">     </span><span class="nx">call</span><span class="w"> </span><span class="nx">ESMF_ClockGet</span><span class="w"> </span><span class="p">(</span><span class="nx">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="nx">CURRTIME</span><span class="p">=</span><span class="nx">NOW</span><span class="p">,</span><span class="w"> </span><span class="nx">TIMESTEP</span><span class="p">=</span><span class="nx">DELT</span><span class="p">,</span><span class="w"> </span><span class="nx">__RC__</span><span class="p">)</span>
+<span class="w">     </span><span class="nx">call</span><span class="w"> </span><span class="nx">MAPL_SunGetLocalSolarHourAngle</span><span class="w"> </span><span class="p">(</span><span class="nx">ORBIT</span><span class="p">,</span><span class="w"> </span><span class="nx">LONS</span><span class="p">,</span><span class="w"> </span><span class="nx">LSHA0</span><span class="p">,</span><span class="w"> </span><span class="nx">TIME</span><span class="p">=</span><span class="nx">NOW</span><span class="p">,</span><span class="w">      </span><span class="nx">__RC__</span><span class="p">)</span>
+<span class="w">     </span><span class="nx">call</span><span class="w"> </span><span class="nx">MAPL_SunGetLocalSolarHourAngle</span><span class="w"> </span><span class="p">(</span><span class="nx">ORBIT</span><span class="p">,</span><span class="w"> </span><span class="nx">LONS</span><span class="p">,</span><span class="w"> </span><span class="nx">LSHA1</span><span class="p">,</span><span class="w"> </span><span class="nx">TIME</span><span class="p">=</span><span class="nx">NOW</span><span class="o">+</span><span class="nx">DELT</span><span class="p">,</span><span class="w"> </span><span class="nx">__RC__</span><span class="p">)</span>
+<span class="w">     </span><span class="nx">isnoon</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="nx">LSHA0</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="w"> </span><span class="p">.</span><span class="k">and</span><span class="p">.</span><span class="w"> </span><span class="nx">LSHA1</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">.)</span>
+</code></pre></div>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orbit~16"></span>
+              type(<a href='../type/mapl_sunorbit.html'>MAPL_SunOrbit</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORBIT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lons~11"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:)
+            </td>
+            <td>::</td>
+            <td><strong>LONS</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lsha"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(:)
+            </td>
+            <td>::</td>
+            <td><strong>LSHA</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time~20"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TIME</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~55"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLOCK</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-force_mlsha"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>FORCE_MLSHA</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~382"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_sungetlocalsolarhourangle~~CallsGraph Pages: 1 -->
+<svg id="procmapl_sungetlocalsolarhourangleCallsGraph" width="641pt" height="268pt"
+ viewBox="0.00 0.00 641.00 267.97" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph" class="graph" transform="scale(1.04 1.04) rotate(0) translate(4 274)">
+<title>proc~~mapl_sungetlocalsolarhourangle~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-274 661,-274 661,4 -4,4"/>
+<!-- proc~mapl_sungetlocalsolarhourangle -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node1" class="node">
+<title>proc~mapl_sungetlocalsolarhourangle</title>
+<polygon fill="none" stroke="black" points="199,-144 0,-144 0,-120 199,-120 199,-144"/>
+<text text-anchor="middle" x="99.5" y="-129.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SunGetLocalSolarHourAngle</text>
+</g>
+<!-- ESMF_ClockGet -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node2" class="node">
+<title>ESMF_ClockGet</title>
+<g id="a_proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockget.html" xlink:title="ESMF_ClockGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="349.5,-270 255.5,-270 255.5,-246 349.5,-246 349.5,-270"/>
+<text text-anchor="middle" x="302.5" y="-255.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sungetlocalsolarhourangle&#45;&gt;ESMF_ClockGet -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_sungetlocalsolarhourangle&#45;&gt;ESMF_ClockGet</title>
+<path fill="none" stroke="#ff0000" d="M112.78,-144.11C135.23,-165.65 185.19,-210.79 235,-237 238.68,-238.93 242.56,-240.73 246.53,-242.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="245.31,-245.66 255.9,-245.99 247.83,-239.13 245.31,-245.66"/>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node3" class="node">
+<title>ESMF_TimeGet</title>
+<g id="a_proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html" xlink:title="ESMF_TimeGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="348,-228 257,-228 257,-204 348,-204 348,-228"/>
+<text text-anchor="middle" x="302.5" y="-213.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sungetlocalsolarhourangle&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_sungetlocalsolarhourangle&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#ff0000" d="M123.9,-144.12C150.41,-157.57 195.12,-179.44 235,-195 240.08,-196.98 245.42,-198.91 250.79,-200.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="249.81,-204.12 260.41,-203.96 252.03,-197.48 249.81,-204.12"/>
+</g>
+<!-- ESMF_TimeIntervalGet -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node4" class="node">
+<title>ESMF_TimeIntervalGet</title>
+<g id="a_proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalget.html" xlink:title="ESMF_TimeIntervalGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="368.5,-186 236.5,-186 236.5,-162 368.5,-162 368.5,-186"/>
+<text text-anchor="middle" x="302.5" y="-171.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sungetlocalsolarhourangle&#45;&gt;ESMF_TimeIntervalGet -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_sungetlocalsolarhourangle&#45;&gt;ESMF_TimeIntervalGet</title>
+<path fill="none" stroke="#ff0000" d="M158.1,-144.04C181.75,-148.98 209.31,-154.74 233.91,-159.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.39,-163.34 243.89,-161.96 234.82,-156.49 233.39,-163.34"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node5" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node5"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="342,-144 263,-144 263,-120 342,-120 342,-144"/>
+<text text-anchor="middle" x="302.5" y="-129.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sungetlocalsolarhourangle&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_sungetlocalsolarhourangle&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M199.23,-132C217.8,-132 236.45,-132 252.64,-132"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="252.91,-135.5 262.91,-132 252.9,-128.5 252.91,-135.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node6" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node6"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="488,-66 406,-66 406,-42 488,-42 488,-66"/>
+<text text-anchor="middle" x="447" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sungetlocalsolarhourangle&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_sungetlocalsolarhourangle&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M157.65,-120C212.28,-108.41 296.9,-90.13 370,-73 378.38,-71.04 387.25,-68.88 395.87,-66.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="396.96,-70.09 405.82,-64.28 395.27,-63.3 396.96,-70.09"/>
+</g>
+<!-- proc~mapl_sunorbitcreated -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node7" class="node">
+<title>proc~mapl_sunorbitcreated</title>
+<g id="a_proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node7"><a xlink:href="../proc/mapl_sunorbitcreated.html" xlink:title="MAPL_SunOrbitCreated">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="370,-64 235,-64 235,-40 370,-40 370,-64"/>
+<text text-anchor="middle" x="302.5" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunOrbitCreated</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sungetlocalsolarhourangle&#45;&gt;proc~mapl_sunorbitcreated -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_sungetlocalsolarhourangle&#45;&gt;proc~mapl_sunorbitcreated</title>
+<path fill="none" stroke="#ff0000" d="M130.38,-119.91C157.62,-108.92 198.97,-92.27 235,-78 243.37,-74.68 252.35,-71.15 260.91,-67.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="262.31,-71.01 270.35,-64.11 259.76,-64.49 262.31,-71.01"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="485,-24 409,-24 409,0 485,0 485,-24"/>
+<text text-anchor="middle" x="447" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sungetlocalsolarhourangle&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_sungetlocalsolarhourangle&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M111.7,-119.99C133.18,-97.87 182.67,-51.12 235,-31 288.4,-10.48 354.79,-7.88 398.69,-9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="398.68,-12.5 408.79,-9.33 398.91,-5.5 398.68,-12.5"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node9" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="617.5,-108 563.5,-108 563.5,-84 617.5,-84 617.5,-108"/>
+<text text-anchor="middle" x="590.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#0091ff" d="M488.17,-65.92C508.72,-72.02 533.53,-79.39 553.46,-85.3"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="552.51,-88.67 563.1,-88.16 554.51,-81.96 552.51,-88.67"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node10" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="617.5,-66 563.5,-66 563.5,-42 617.5,-42 617.5,-66"/>
+<text text-anchor="middle" x="590.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#0091ff" d="M488.17,-54C508.53,-54 533.08,-54 552.91,-54"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="553.1,-57.5 563.1,-54 553.1,-50.5 553.1,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_node11"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="657,-24 524,-24 524,0 657,0 657,-24"/>
+<text text-anchor="middle" x="590.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0091ff" d="M488.17,-42.08C504.02,-37.37 522.4,-31.92 539.12,-26.95"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="540.15,-30.3 548.74,-24.1 538.16,-23.59 540.15,-30.3"/>
+</g>
+<!-- proc~mapl_sunorbitcreated&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_sunorbitcreated&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#4800ff" d="M370.16,-52.94C378.72,-53.06 387.36,-53.18 395.6,-53.29"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="395.73,-56.79 405.78,-53.44 395.83,-49.8 395.73,-56.79"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_sungetlocalsolarhourangle~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M485.18,-12C493.99,-12 503.71,-12 513.56,-12"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="513.84,-15.5 523.84,-12 513.84,-8.5 513.84,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_sungetlocalsolarhourangleCallsGraph = svgPanZoom('#procmapl_sungetlocalsolarhourangleCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">MAPL_SunGetLocalSolarHourAngle</span><span class="w"> </span><span class="p">(</span><span class="n">ORBIT</span><span class="p">,</span><span class="n">LONS</span><span class="p">,</span><span class="n">LSHA</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">      </span><span class="nb">TIME</span><span class="p">,</span><span class="n">CLOCK</span><span class="p">,</span><span class="n">FORCE_MLSHA</span><span class="p">,</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="c">! !ARGUMENTS:</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_SunOrbit</span><span class="p">),</span><span class="w">            </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORBIT</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w">    </span><span class="k">dimension</span><span class="p">(:),</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LONS</span><span class="w">   </span><span class="c">! [radians]</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w">    </span><span class="k">dimension</span><span class="p">(:),</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LSHA</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w">      </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">TIME</span>
+<span class="nb">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w">     </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w">               </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FORCE_MLSHA</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">               </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="c">!EOPI</span>
+
+<span class="c">!     Locals</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;MAPL_SunGetLocalSolarHourAngle&quot;</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">T</span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">days</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">YEAR</span><span class="p">,</span><span class="w"> </span><span class="n">SEC_OF_DAY</span><span class="p">,</span><span class="w"> </span><span class="n">DAY_OF_YEAR</span><span class="p">,</span><span class="w"> </span><span class="n">IDAY</span><span class="p">,</span><span class="w"> </span><span class="n">IDAYP1</span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DFRAC</span><span class="p">,</span><span class="w"> </span><span class="n">GSHA</span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ECC</span><span class="p">,</span><span class="w"> </span><span class="n">OBQ</span><span class="p">,</span><span class="w"> </span><span class="n">LAMBDAP</span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">OMECC</span><span class="p">,</span><span class="w"> </span><span class="n">OPECC</span><span class="p">,</span><span class="w"> </span><span class="n">OMSQECC</span><span class="p">,</span><span class="w"> </span><span class="n">EAFAC</span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MA</span><span class="p">,</span><span class="w"> </span><span class="n">EA</span><span class="p">,</span><span class="w"> </span><span class="n">dE</span><span class="p">,</span><span class="w"> </span><span class="n">TA</span><span class="p">,</span><span class="w"> </span><span class="n">LAMBDA</span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RT</span><span class="p">,</span><span class="w"> </span><span class="n">RM</span><span class="p">,</span><span class="w"> </span><span class="n">ET</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">nits</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">do_EOT</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_SunOrbitCreated</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">),</span><span class="s1">&#39;MAPL_SunOrbit not yet created!&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Which time?</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="nb">TIME</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">T</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">TIME</span>
+<span class="nb">      </span><span class="k">else</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">CLOCK</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">ESMF_ClockGet</span><span class="w"> </span><span class="p">(</span><span class="w">      </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">CURRTIME</span><span class="o">=</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">else</span>
+<span class="k">            call </span><span class="n">ESMF_ClockGet</span><span class="w"> </span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">CURRTIME</span><span class="o">=</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end if</span>
+
+<span class="w">      </span><span class="c">! NB: include YY and dayOfYear here so that S is seconds WITHIN a day.</span>
+<span class="w">      </span><span class="c">! YEAR and DAY_OF_YEAR are used within the non-ANAL2B branch anyway.</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="w"> </span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">YY</span><span class="o">=</span><span class="n">YEAR</span><span class="p">,</span><span class="w"> </span><span class="n">dayOfYear</span><span class="o">=</span><span class="n">DAY_OF_YEAR</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="o">=</span><span class="n">SEC_OF_DAY</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! fraction of day (0 at midnight)</span>
+<span class="w">      </span><span class="n">DFRAC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="n">SEC_OF_DAY</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">8640</span><span class="mf">0.</span>
+
+<span class="w">      </span><span class="c">! Greenwich MEAN solar hour angle (zero at noon)</span>
+<span class="w">      </span><span class="n">GSHA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MAPL_PI</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">DFRAC</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Apply equation of time correction?</span>
+<span class="w">      </span><span class="n">do_EOT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">EOT</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">FORCE_MLSHA</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">FORCE_MLSHA</span><span class="p">)</span><span class="w"> </span><span class="n">do_EOT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">do_EOT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ANAL2B</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="w">            </span><span class="c">! include time variation in orbit from reference time</span>
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="w"> </span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_TIME_REF</span><span class="p">,</span><span class="w"> </span><span class="n">d_r8</span><span class="o">=</span><span class="n">days</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="n">ECC</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_ECC_REF</span><span class="w">     </span><span class="o">+</span><span class="w"> </span><span class="n">days</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_ECC_RATE</span>
+<span class="w">            </span><span class="n">OBQ</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_OBQ_REF</span><span class="w">     </span><span class="o">+</span><span class="w"> </span><span class="n">days</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_OBQ_RATE</span>
+<span class="w">            </span><span class="n">LAMBDAP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_LAMBDAP_REF</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">days</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_LAMBDAP_RATE</span>
+<span class="w">            </span><span class="c">! derived quantities</span>
+<span class="w">            </span><span class="n">OMECC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ECC</span>
+<span class="w">            </span><span class="n">OPECC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ECC</span>
+<span class="w">            </span><span class="n">OMSQECC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OMECC</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">OPECC</span>
+<span class="w">            </span><span class="n">EAFAC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="n">OMECC</span><span class="o">/</span><span class="n">OPECC</span><span class="p">)</span>
+<span class="w">            </span><span class="c">! time interval since perhelion in days</span>
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="w"> </span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_TIME_PERI</span><span class="p">,</span><span class="w"> </span><span class="n">d_r8</span><span class="o">=</span><span class="n">days</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="c">! mean anomaly</span>
+<span class="w">            </span><span class="n">MA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_OMG0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">days</span>
+<span class="w">            </span><span class="c">! eccentric anomaly</span>
+<span class="w">            </span><span class="k">call </span><span class="n">invert_Keplers_Newton</span><span class="w"> </span><span class="p">(</span><span class="n">MA</span><span class="p">,</span><span class="n">ECC</span><span class="p">,</span><span class="n">EA</span><span class="p">,</span><span class="n">dE</span><span class="p">,</span><span class="n">nits</span><span class="p">)</span>
+<span class="w">            </span><span class="c">! true anomaly</span>
+<span class="w">            </span><span class="n">TA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calcTAfromEA</span><span class="w"> </span><span class="p">(</span><span class="n">EA</span><span class="p">,</span><span class="n">EAFAC</span><span class="p">)</span>
+<span class="w">            </span><span class="c">! celestial longitude</span>
+<span class="w">            </span><span class="n">LAMBDA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TA</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">LAMBDAP</span>
+<span class="w">            </span><span class="c">! solar right ascension (true and mean)</span>
+<span class="w">            </span><span class="n">RT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atan2</span><span class="p">(</span><span class="nb">sin</span><span class="p">(</span><span class="n">LAMBDA</span><span class="p">)</span><span class="o">*</span><span class="nb">cos</span><span class="p">(</span><span class="n">OBQ</span><span class="p">),</span><span class="nb">cos</span><span class="p">(</span><span class="n">LAMBDA</span><span class="p">))</span>
+<span class="w">            </span><span class="n">RM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MA</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">LAMBDAP</span>
+<span class="w">            </span><span class="c">! equation of time</span>
+<span class="w">            </span><span class="n">ET</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RECT_PMPI</span><span class="w"> </span><span class="p">(</span><span class="n">RM</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">RT</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">else</span>
+
+<span class="w">            </span><span class="c">! get equation of time by table interpolation</span>
+<span class="w">            </span><span class="n">YEAR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">YEAR</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">YEARS_PER_CYCLE</span><span class="p">)</span>
+<span class="w">            </span><span class="n">IDAY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">YEAR</span><span class="o">*</span><span class="nb">int</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">YEARLEN</span><span class="p">)</span><span class="o">+</span><span class="n">DAY_OF_YEAR</span>
+<span class="w">            </span><span class="n">IDAYP1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">IDAY</span><span class="p">,</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">DAYS_PER_CYCLE</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="n">ET</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ET</span><span class="p">(</span><span class="n">IDAYP1</span><span class="p">)</span><span class="o">*</span><span class="n">DFRAC</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ET</span><span class="p">(</span><span class="n">IDAY</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">DFRAC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">endif</span>
+
+<span class="w">         </span><span class="c">! Gives Greenwich TRUE solar hour angle</span>
+<span class="w">         </span><span class="n">GSHA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GSHA</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ET</span>
+
+<span class="w">      </span><span class="k">end if</span><span class="w">  </span><span class="c">! EOT correction</span>
+
+<span class="w">      </span><span class="c">! LOCAL solar hour angle</span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">LONS</span><span class="p">)</span>
+<span class="w">         </span><span class="n">LSHA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RECT_PMPI</span><span class="w"> </span><span class="p">(</span><span class="n">GSHA</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">LONS</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_SunGetLocalSolarHourAngle</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-03T18:18:58.197976             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
