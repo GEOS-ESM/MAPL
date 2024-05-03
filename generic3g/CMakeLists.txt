@@ -11,7 +11,6 @@ set(srcs
   GenericGrid.F90
 
   ComponentSpecParser.F90
-  ComponentBuilder.F90
 
   ESMF_Interfaces.F90
   UserSetServices.F90
