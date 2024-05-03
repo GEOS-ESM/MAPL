@@ -16,7 +16,7 @@
 ! The three methods are called at the level of CAP.
 !
 !=====================================================================
-SUBMODULE (MAPL_HistoryGridCompMod) setservices_smod
+SUBMODULE (MAPL_HistoryGridCompMod) SetServices_smod
 
   CONTAINS
 !>

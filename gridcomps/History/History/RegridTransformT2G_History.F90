@@ -15,7 +15,7 @@
 ! `MAPL_HistoryGridCompMod` contains the `Initialize`, `Run` and `Finalize` methods for `History`.
 ! The three methods are called at the level of CAP.
 !
-  SUBMODULE (MAPL_HistoryGridCompMod) RegridTransformT2G2G
+  SUBMODULE (MAPL_HistoryGridCompMod) RegridTransformT2G_smod
 !
 ! !USES:
 !
@@ -24,29 +24,24 @@
 contains
 
 
-  MODULE SUBROUTINE RegridTransformT2G2G(STATE_IN, XFORM, XFORMntv, STATE_OUT, LS_IN, LS_OUT, LS_NTV, NTILES_IN, NTILES_OUT, RC)
+  MODULE SUBROUTINE RegridTransformT2G(STATE_IN, XFORM, STATE_OUT, LS_OUT, NTILES_OUT, RC)
 
    intrinsic :: size
 
     type (ESMF_State)        , intent(IN   ) :: STATE_IN
     type (ESMF_State)        , intent(INOUT) :: STATE_OUT
-    type(MAPL_LocStreamXform), intent(IN   ) :: XFORM, XFORMntv
-    type(MAPL_LocStream)     , intent(IN   ) :: LS_IN, LS_OUT, LS_NTV
-    integer                  , intent(IN   ) :: NTILES_IN, NTILES_OUT
+    type(MAPL_LocStreamXform), optional, intent(IN   ) :: XFORM
+    type(MAPL_LocStream)     , intent(IN   ) :: LS_OUT
+    integer                  , intent(IN   ) :: NTILES_OUT
     integer, optional        , intent(  OUT) :: RC
 
     integer                    :: STATUS
 
-    integer                         :: L, LM, K, KM
-    integer                         :: I
+    integer                         :: I, L, K, LM, KM
     integer                         :: rank_in
     integer                         :: rank_out
     integer                         :: itemcount, itemcount_in, itemcount_out
-    integer                         :: sizett
-    real, pointer                   :: tile1d(:) => null()
-    real, pointer                   :: tt(:)
-    real, pointer                   :: tt_in(:)
-    real, pointer                   :: G2d_in(:,:)
+    real, pointer                   :: tile_in(:), tile_out(:)
     real, pointer                   :: ptr1d_in(:)
     real, pointer                   :: ptr2d_in(:,:)
     real, pointer                   :: ptr3d_in(:,:,:)
@@ -56,21 +51,18 @@ contains
     real, pointer                   :: ptr2d_out(:,:)
     real, pointer                   :: ptr3d_out(:,:,:)
     real, pointer                   :: ptr4d_out(:,:,:,:)
-    real, pointer                   :: tile_in(:)
-    real, pointer                   :: tile_out(:)
     real, pointer                   :: out2d(:,:)
+    real, pointer                   :: tile1d(:) => null()
     type(ESMF_Array)                :: array_in
     type(ESMF_Array)                :: array_out
     type(ESMF_Field)                :: field
-    type(ESMF_Grid)                 :: grid
-    type(ESMF_TypeKind_Flag)        :: tk
-    integer                         :: counts(3)
-    type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES_IN(:), ITEMTYPES_OUT(:)
+    type (ESMF_TypeKind_Flag)       :: tk
+    type (ESMF_StateItem_Flag),  pointer :: ITEMTYPES_IN(:), ITEMTYPES_OUT(:)
     character(len=ESMF_MAXSTR ), pointer :: ITEMNAMES_IN(:), ITEMNAMES_OUT(:)
 
-    allocate(tt_in (ntiles_in ), _STAT)
-    allocate(tile_out(ntiles_out), _STAT)
-
+    if (present(XFORM)) then
+       allocate(tile_out(ntiles_out), _STAT)
+    end if
 
     call ESMF_StateGet(STATE_IN,  ITEMCOUNT=ITEMCOUNT_IN,  _RC)
     call ESMF_StateGet(STATE_OUT, ITEMCOUNT=ITEMCOUNT_OUT, _RC)
@@ -92,13 +84,6 @@ contains
     call ESMF_StateGet(STATE_OUT, ITEMNAMELIST=ITEMNAMES_OUT, &
                        ITEMTYPELIST=ITEMTYPES_OUT, _RC)
 
-    call MAPL_LocStreamGet(LS_NTV, ATTACHEDGRID=GRID, _RC)
-    call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
-    allocate(G2d_in(COUNTS(1),COUNTS(2)), _STAT)
-
-    call MAPL_LocStreamGet(LS_ntv, NT_LOCAL = sizett, _RC)
-    allocate(tt(sizett), _STAT)
-
     DO I=1, ITEMCOUNT
        _ASSERT(ITEMTYPES_IN (I) == ESMF_StateItem_Field,'needs informative message')
        _ASSERT(ITEMTYPES_OUT(I) == ESMF_StateItem_Field,'needs informative message')
@@ -110,10 +95,7 @@ contains
 
        call ESMF_ArrayGet(array_in , rank=rank_in , typekind=tk, _RC)
        call ESMF_ArrayGet(array_out, rank=rank_out, _RC)
-
-       _ASSERT(rank_in+1 == rank_out,'needs informative message')
-       _ASSERT(rank_in >=1, 'Rank is less than 1')
-       _ASSERT(rank_in <= 3,'Rank is greater than 3')
+       _ASSERT(rank_out == rank_in + 1,'needs informative message')
 
        KM = 1
        if (rank_in == 1) then
@@ -181,34 +163,29 @@ contains
                 out2d    => ptr4d_out(:,:,L,K)
              end if
 
-             ! T2T
-             call MAPL_LocStreamTransform( tt, XFORMntv, tile_in, _RC )
-             ! T2G
-             call MAPL_LocStreamTransform(LS_NTV, G2d_IN, tt, _RC)
+             if (present(XFORM)) then
+                call MAPL_LocStreamTransform( tile_out, XFORM, tile_in, _RC )
+             else
+                tile_out => tile_in
+             endif
 
-             ! G2T
-             call MAPL_LocStreamTransform(LS_IN, TT_IN, G2d_IN, _RC)
-             ! T2T
-             call MAPL_LocStreamTransform( tile_out, XFORM, tt_in, _RC )
-             ! T2G
-             call MAPL_LocStreamTransform(LS_OUT, PTR2d_OUT, TILE_OUT, _RC)
+             call MAPL_LocStreamTransform(LS_OUT, OUT2d, TILE_OUT, _RC)
 
-          ENDDO
+          END DO
        END DO
 
     ENDDO
 
-    deallocate(G2d_in)
     deallocate(itemtypes_out)
     deallocate(itemnames_out)
     deallocate(itemtypes_in)
     deallocate(itemnames_in)
-    deallocate(tile_out)
-    deallocate(tt_in )
-    deallocate(tt )
+    if (present(XFORM)) then
+       deallocate(tile_out)
+    end if
     if (associated(tile1d)) deallocate(tile1d)
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine RegridTransformT2G2G
+  end subroutine RegridTransformT2G
 
 END SUBMODULE

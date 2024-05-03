@@ -4,26 +4,26 @@ esma_set_this (OVERRIDE MAPL.history)
 
 set (srcs
      MAPL_HistoryCollection.F90
-     history/checkIfStateHasField.F90
-     history/CopyStateItems.F90
-     history/get_acc_offset.F90
-     history/get_DateStamp.F90
-     history/Get_Tdim.F90 
-     history/GradsCtlWrite.F90
-     history/regen_rcx_for_obs_platform.F90
-     history/RegridTransformT2G2G.F90
-     history/RegridTransformT2G.F90
-     history/RunExpression.F90
-     history/SetExpression.F90
-     history/shavebits.F90
-     history/StateDestroy.F90
-     history/StateGet.F90
-     history/RegridTransform.F90
-     history/record_restart.F90
-     history/init.F90
-     history/run.F90
-     history/final.F90
-     history/setservices.F90
+     History/checkIfStateHasField_History.F90
+     History/CopyStateItems_History.F90
+     History/get_acc_offset_History.F90
+     History/get_DateStamp_History.F90
+     History/Get_Tdim_History.F90 
+     History/GradsCtlWrite_History.F90
+     History/regen_rcx_for_obs_platform_History.F90
+     History/RegridTransformT2G2G_History.F90
+     History/RegridTransformT2G_History.F90
+     History/RunExpression_History.F90
+     History/SetExpression_History.F90
+     History/shavebits_History.F90
+     History/StateDestroy_History.F90
+     History/StateGet_History.F90
+     History/RegridTransform_History.F90
+     History/record_restart_History.F90
+     History/Initialize_History.F90
+     History/Run_History.F90
+     History/Finalize_History.F90
+     History/SetServices_History.F90
      MAPL_HistoryGridComp.F90
      Sampler/MAPL_EpochSwathMod.F90
      Sampler/MAPL_GeosatMaskMod.F90

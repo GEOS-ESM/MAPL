@@ -8,14 +8,14 @@
 #include "unused_dummy.H"
 !
 !>
-!### MODULE: `MAPL_HistoryGridCompMod`
+!### subMODULE: `StateGet_smod`
 !
 ! Author: GMAO SI-Team
 !
 ! `MAPL_HistoryGridCompMod` contains the `Initialize`, `Run` and `Finalize` methods for `History`.
 ! The three methods are called at the level of CAP.
 !
-  SUBMODULE (MAPL_HistoryGridCompMod) StateGet
+  SUBMODULE (MAPL_HistoryGridCompMod) StateGet_smod
 !
 ! !USES:
 !

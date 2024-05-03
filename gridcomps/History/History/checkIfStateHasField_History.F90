@@ -15,7 +15,7 @@
 ! `MAPL_HistoryGridCompMod` contains the `Initialize`, `Run` and `Finalize` methods for `History`.
 ! The three methods are called at the level of CAP.
 !
-  SUBMODULE (MAPL_HistoryGridCompMod) checkIfStateHasField
+  SUBMODULE (MAPL_HistoryGridCompMod) checkIfStateHasField_smod
 !
 ! !USES:
 !

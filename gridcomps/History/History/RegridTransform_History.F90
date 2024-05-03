@@ -15,7 +15,7 @@
 ! `MAPL_HistoryGridCompMod` contains the `Initialize`, `Run` and `Finalize` methods for `History`.
 ! The three methods are called at the level of CAP.
 !
-  SUBMODULE (MAPL_HistoryGridCompMod) RegridTransform
+  SUBMODULE (MAPL_HistoryGridCompMod) RegridTransform_smod
 !
 ! !USES:
 !
