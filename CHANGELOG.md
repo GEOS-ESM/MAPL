@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- pFIO Clients don't send "Done" message when there is no request
+
 ### Fixed
 
 ### Removed
