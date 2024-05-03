@@ -1,0 +1,834 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CollectiveStageDataMessage.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>CollectiveStageDataMessage.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">34 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/CollectiveStageDataMessage.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">CollectiveStageDataMessage.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/pfio_collectivestagedatamessagemod.html">pFIO_CollectiveStageDataMessageMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/collectivestagedatamessage.f90.html#src">CollectiveStageDataMessage.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~collectivestagedatamessage.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilecollectivestagedatamessagef90EfferentGraph" width="641pt" height="117pt"
+ viewBox="0.00 0.00 641.00 116.75" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph" class="graph" transform="scale(2.31 2.31) rotate(0) translate(4 265.37)">
+<title>sourcefile~~collectivestagedatamessage.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-265.37 1475,-265.37 1475,4 -4,4"/>
+<!-- sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~collectivestagedatamessage.f90</title>
+<polygon fill="none" stroke="black" points="1471,-103 1281,-103 1281,-79 1471,-79 1471,-103"/>
+<text text-anchor="middle" x="1376" y="-88.6" font-family="Helvetica,sans-Serif" font-size="10.50">CollectiveStageDataMessage.F90</text>
+</g>
+<!-- sourcefile~abstractcollectivedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~abstractcollectivedatamessage.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/abstractcollectivedatamessage.f90.html" xlink:title="AbstractCollectiveDataMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1245,-103 1041,-103 1041,-79 1245,-79 1245,-103"/>
+<text text-anchor="middle" x="1143" y="-88.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractCollectiveDataMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~collectivestagedatamessage.f90&#45;&gt;sourcefile~abstractcollectivedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~collectivestagedatamessage.f90&#45;&gt;sourcefile~abstractcollectivedatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1280.71,-91C1272.28,-91 1263.7,-91 1255.14,-91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1255.13,-87.5 1245.13,-91 1255.13,-94.5 1255.13,-87.5"/>
+</g>
+<!-- sourcefile~abstractdatareference.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~abstractdatareference.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/abstractdatareference.f90.html" xlink:title="AbstractDataReference.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="818,-222 659,-222 659,-198 818,-198 818,-222"/>
+<text text-anchor="middle" x="738.5" y="-207.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractDataReference.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~collectivestagedatamessage.f90&#45;&gt;sourcefile~abstractdatareference.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~collectivestagedatamessage.f90&#45;&gt;sourcefile~abstractdatareference.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1357.18,-103.17C1298.58,-141.89 1105.65,-259.15 930.5,-250"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M928.5,-250C902.68,-251.34 839.4,-236.55 793.15,-224.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="793.83,-221.14 783.27,-222 792.06,-227.91 793.83,-221.14"/>
+</g>
+<!-- sourcefile~abstractmessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~abstractmessage.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/abstractmessage.f90.html" xlink:title="AbstractMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="801.5,-24 675.5,-24 675.5,0 801.5,0 801.5,-24"/>
+<text text-anchor="middle" x="738.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~collectivestagedatamessage.f90&#45;&gt;sourcefile~abstractmessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~collectivestagedatamessage.f90&#45;&gt;sourcefile~abstractmessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1314.93,-78.93C1268.45,-70 1202.37,-58.18 1144,-51"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1142,-51C1047.21,-39.34 1025.13,-25.88 930.5,-13"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M928.5,-13C890.33,-7.81 847.41,-7.17 812.14,-7.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="811.82,-4.5 801.93,-8.28 812.02,-11.5 811.82,-4.5"/>
+</g>
+<!-- sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~mapl_keywordenforcer.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/mapl_keywordenforcer.f90.html" xlink:title="MAPL_KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="817,-104 660,-104 660,-80 817,-80 817,-104"/>
+<text text-anchor="middle" x="738.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~collectivestagedatamessage.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~collectivestagedatamessage.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1142,-51C1019.68,-35.08 875.77,-60.3 797.45,-77.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="796.29,-74.38 787.31,-80 797.83,-81.21 796.29,-74.38"/>
+</g>
+<!-- sourcefile~pfio_utilities.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~pfio_utilities.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/pfio_utilities.f90.html" xlink:title="pFIO_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="623,-182 520,-182 520,-158 623,-158 623,-182"/>
+<text text-anchor="middle" x="571.5" y="-167.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~collectivestagedatamessage.f90&#45;&gt;sourcefile~pfio_utilities.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~collectivestagedatamessage.f90&#45;&gt;sourcefile~pfio_utilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M928.5,-250C808.59,-256.21 768.6,-280.05 659,-231 638.63,-221.88 641.12,-209.03 623,-196 618.5,-192.76 613.53,-189.69 608.53,-186.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="610.04,-183.71 599.57,-182.08 606.74,-189.88 610.04,-183.71"/>
+</g>
+<!-- sourcefile~abstractcollectivedatamessage.f90&#45;&gt;sourcefile~abstractdatareference.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~abstractcollectivedatamessage.f90&#45;&gt;sourcefile~abstractdatareference.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M928.5,-170C889.24,-179.17 845.18,-188.54 809.49,-195.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="808.74,-192.49 799.65,-197.94 810.15,-199.35 808.74,-192.49"/>
+</g>
+<!-- sourcefile~abstractcollectivedatamessage.f90&#45;&gt;sourcefile~abstractmessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~abstractcollectivedatamessage.f90&#45;&gt;sourcefile~abstractmessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1087.44,-78.95C1072.23,-75.05 1055.82,-70.34 1041,-65 989.94,-46.6 984.28,-20.32 930.5,-13"/>
+</g>
+<!-- sourcefile~abstractcollectivedatamessage.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~abstractcollectivedatamessage.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M928.5,-89C895.52,-87.38 859.27,-87.5 827.42,-88.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="827.15,-84.74 817.24,-88.5 827.33,-91.74 827.15,-84.74"/>
+</g>
+<!-- sourcefile~abstractcollectivedatamessage.f90&#45;&gt;sourcefile~pfio_utilities.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~abstractcollectivedatamessage.f90&#45;&gt;sourcefile~pfio_utilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1116.93,-103.1C1089.78,-115.89 1044.99,-136.1 1005,-150 972.62,-161.25 963.89,-162.21 930.5,-170"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M928.5,-170C827.11,-193.67 704.99,-186.19 633.34,-178.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="633.48,-174.8 623.14,-177.14 632.68,-181.75 633.48,-174.8"/>
+</g>
+<!-- sourcefile~abstractdatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~abstractdatamessage.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/abstractdatamessage.f90.html" xlink:title="AbstractDataMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1005,-141 854,-141 854,-117 1005,-117 1005,-141"/>
+<text text-anchor="middle" x="929.5" y="-126.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractDataMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractcollectivedatamessage.f90&#45;&gt;sourcefile~abstractdatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~abstractcollectivedatamessage.f90&#45;&gt;sourcefile~abstractdatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1075.08,-103.02C1053.57,-106.89 1029.56,-111.2 1007.39,-115.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1006.57,-111.78 997.35,-116.99 1007.81,-118.67 1006.57,-111.78"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="484,-180 315,-180 315,-156 484,-156 484,-180"/>
+<text text-anchor="middle" x="399.5" y="-165.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractcollectivedatamessage.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~abstractcollectivedatamessage.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1040.83,-91.67C1005.86,-91.47 966.44,-90.77 930.5,-89"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M928.5,-89C878.8,-86.56 867.6,-75.01 818,-71 747.56,-65.3 729.21,-62.99 659,-71 619.8,-75.47 610.35,-79.84 572.5,-91"/>
+</g>
+<!-- sourcefile~abstractdatareference.f90&#45;&gt;sourcefile~pfio_utilities.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~abstractdatareference.f90&#45;&gt;sourcefile~pfio_utilities.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M687.99,-198C670.37,-193.73 650.35,-188.87 631.98,-184.42"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="632.8,-181.02 622.26,-182.06 631.15,-187.82 632.8,-181.02"/>
+</g>
+<!-- sourcefile~abstractdatareference.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~abstractdatareference.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M658.97,-211.95C631.58,-212.11 600.66,-211.71 572.5,-210"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M570.5,-210C567.57,-209.82 506.36,-194.59 458.22,-182.52"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="459.04,-179.11 448.48,-180.08 457.33,-185.9 459.04,-179.11"/>
+</g>
+<!-- sourcefile~pfio_constants.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~pfio_constants.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/pfio_constants.f90.html" xlink:title="pFIO_Constants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="458,-222 341,-222 341,-198 458,-198 458,-222"/>
+<text text-anchor="middle" x="399.5" y="-207.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_Constants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractdatareference.f90&#45;&gt;sourcefile~pfio_constants.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~abstractdatareference.f90&#45;&gt;sourcefile~pfio_constants.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M570.5,-210C537.02,-207.96 499.76,-207.74 468.68,-208.11"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="468.33,-204.62 458.39,-208.26 468.44,-211.61 468.33,-204.62"/>
+</g>
+<!-- sourcefile~abstractmessage.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~abstractmessage.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M695.25,-24.02C683.31,-27.94 670.46,-32.68 659,-38 618.11,-56.99 615.75,-78.25 572.5,-91"/>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M570.5,-91C519.73,-105.97 464.52,-133.19 431.22,-150.93"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="429.17,-148.06 422.02,-155.89 432.49,-154.23 429.17,-148.06"/>
+</g>
+<!-- sourcefile~pfio_utilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~pfio_utilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M519.95,-169.41C511.86,-169.31 503.27,-169.21 494.55,-169.11"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="494.32,-165.6 484.28,-168.99 494.24,-172.6 494.32,-165.6"/>
+</g>
+<!-- sourcefile~pfio_utilities.f90&#45;&gt;sourcefile~pfio_constants.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~pfio_utilities.f90&#45;&gt;sourcefile~pfio_constants.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M519.95,-181.89C501.62,-186.21 480.71,-191.13 461.56,-195.63"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="460.67,-192.25 451.73,-197.95 462.27,-199.06 460.67,-192.25"/>
+</g>
+<!-- sourcefile~abstractdatamessage.f90&#45;&gt;sourcefile~abstractdatareference.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~abstractdatamessage.f90&#45;&gt;sourcefile~abstractdatareference.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M893,-141.11C880.57,-145.55 866.58,-150.77 854,-156 826.12,-167.6 795.19,-182.3 772.51,-193.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="770.75,-190.4 763.33,-197.96 773.85,-196.67 770.75,-190.4"/>
+</g>
+<!-- sourcefile~abstractdatamessage.f90&#45;&gt;sourcefile~abstractmessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~abstractdatamessage.f90&#45;&gt;sourcefile~abstractmessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M884.68,-116.9C874.27,-113.17 863.45,-108.55 854,-103 835.54,-92.16 834.57,-84.55 818,-71 800.52,-56.7 780.11,-41.4 764.48,-29.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="766.49,-27.1 756.34,-24.04 762.37,-32.76 766.49,-27.1"/>
+</g>
+<!-- sourcefile~abstractdatamessage.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~abstractdatamessage.f90&#45;&gt;sourcefile~mapl_keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M867.14,-116.99C849.14,-113.46 829.3,-109.58 810.74,-105.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="811.36,-102.5 800.88,-104.02 810.02,-109.37 811.36,-102.5"/>
+</g>
+<!-- sourcefile~abstractdatamessage.f90&#45;&gt;sourcefile~pfio_utilities.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~abstractdatamessage.f90&#45;&gt;sourcefile~pfio_utilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M737.5,-132C695.01,-132.14 647.9,-144.24 614.93,-154.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="613.59,-151.5 605.17,-157.94 615.77,-158.15 613.59,-151.5"/>
+</g>
+<!-- sourcefile~abstractdatamessage.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~abstractdatamessage.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M854,-130.61C819.21,-131.25 777.24,-131.87 739.5,-132"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M737.5,-132C701.6,-132.12 693.84,-121.65 659,-113 620.5,-103.45 610.55,-79.78 572.5,-91"/>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~mapl_errorhandling.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/mapl_errorhandling.f90.html" xlink:title="MAPL_ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="279,-160 136,-160 136,-136 279,-136 279,-160"/>
+<text text-anchor="middle" x="207.5" y="-145.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M314.89,-159.2C306.3,-158.29 297.59,-157.38 289.03,-156.48"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="289.4,-153 279.08,-155.43 288.66,-159.96 289.4,-153"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-180 0,-180 0,-156 100,-156 100,-180"/>
+<text text-anchor="middle" x="50" y="-165.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M314.93,-168.79C302.87,-168.88 290.62,-168.95 279,-169 215.45,-169.27 199.55,-169.37 136,-169 127.82,-168.95 119.19,-168.88 110.7,-168.79"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="110.48,-165.29 100.44,-168.68 110.4,-172.29 110.48,-165.29"/>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M135.58,-157.12C127.03,-158.22 118.38,-159.33 110.03,-160.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="109.5,-156.95 100.03,-161.69 110.4,-163.89 109.5,-156.95"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilecollectivestagedatamessagef90EfferentGraph = svgPanZoom('#sourcefilecollectivestagedatamessagef90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~collectivestagedatamessage.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilecollectivestagedatamessagef90AfferentGraph" width="365pt" height="494pt"
+ viewBox="0.00 0.00 365.00 494.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 490)">
+<title>sourcefile~~collectivestagedatamessage.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-490 361,-490 361,4 -4,4"/>
+<!-- sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~collectivestagedatamessage.f90</title>
+<polygon fill="none" stroke="black" points="190,-255 0,-255 0,-231 190,-231 190,-255"/>
+<text text-anchor="middle" x="95" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50">CollectiveStageDataMessage.F90</text>
+</g>
+<!-- sourcefile~abstractserver.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~abstractserver.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/abstractserver.f90.html" xlink:title="AbstractServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="348,-486 235,-486 235,-462 348,-462 348,-486"/>
+<text text-anchor="middle" x="291.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractserver.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~abstractserver.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M240.76,-461.85C235.49,-459.41 230.45,-456.49 226,-453 160.4,-401.49 119.43,-307.02 103.54,-264.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="106.76,-263.2 100.04,-255.01 100.18,-265.6 106.76,-263.2"/>
+</g>
+<!-- sourcefile~baseserver.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~baseserver.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/baseserver.f90.html" xlink:title="BaseServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="339,-444 244,-444 244,-420 339,-420 339,-444"/>
+<text text-anchor="middle" x="291.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M243.78,-420.53C237.51,-417.94 231.39,-414.8 226,-411 169.5,-371.21 126.06,-299.66 106.83,-264.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="109.84,-262.36 102.06,-255.16 103.65,-265.64 109.84,-262.36"/>
+</g>
+<!-- sourcefile~clientthread.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~clientthread.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/clientthread.f90.html" xlink:title="ClientThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="343,-402 240,-402 240,-378 343,-378 343,-402"/>
+<text text-anchor="middle" x="291.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~clientthread.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~clientthread.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M244.59,-377.94C238.14,-375.43 231.75,-372.46 226,-369 178.18,-340.19 134.13,-290.7 111.65,-263.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.37,-260.89 105.38,-255.28 108.91,-265.27 114.37,-260.89"/>
+</g>
+<!-- sourcefile~fastclientthread.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~fastclientthread.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/fastclientthread.f90.html" xlink:title="FastClientThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="353.5,-360 229.5,-360 229.5,-336 353.5,-336 353.5,-360"/>
+<text text-anchor="middle" x="291.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FastClientThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fastclientthread.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~fastclientthread.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M248.25,-335.99C240.7,-333.35 233.02,-330.34 226,-327 186.72,-308.3 145.12,-279.66 119.85,-261.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="121.75,-258.17 111.63,-255.02 117.58,-263.79 121.75,-258.17"/>
+</g>
+<!-- sourcefile~messagevector.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~messagevector.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/messagevector.f90.html" xlink:title="MessageVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="348.5,-318 234.5,-318 234.5,-294 348.5,-294 348.5,-318"/>
+<text text-anchor="middle" x="291.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~messagevector.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~messagevector.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M253,-293.85C221.55,-283.67 176.49,-269.07 142.71,-258.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="143.65,-254.75 133.06,-255 141.49,-261.41 143.65,-254.75"/>
+</g>
+<!-- sourcefile~messagevisitor.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~messagevisitor.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/messagevisitor.f90.html" xlink:title="MessageVisitor.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="348,-276 235,-276 235,-252 348,-252 348,-276"/>
+<text text-anchor="middle" x="291.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVisitor.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~messagevisitor.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~messagevisitor.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M234.76,-257.98C223.89,-256.81 212.16,-255.54 200.29,-254.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="200.63,-250.78 190.31,-253.18 199.87,-257.74 200.63,-250.78"/>
+</g>
+<!-- sourcefile~mockclientthread.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~mockclientthread.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/mockclientthread.f90.html" xlink:title="MockClientThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="357,-234 226,-234 226,-210 357,-210 357,-234"/>
+<text text-anchor="middle" x="291.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockClientThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockclientthread.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~mockclientthread.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M225.73,-228.99C217.55,-229.88 209.03,-230.8 200.42,-231.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="199.87,-228.26 190.31,-232.82 200.62,-235.22 199.87,-228.26"/>
+</g>
+<!-- sourcefile~multicommserver.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~multicommserver.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/multicommserver.f90.html" xlink:title="MultiCommServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="356.5,-192 226.5,-192 226.5,-168 356.5,-168 356.5,-192"/>
+<text text-anchor="middle" x="291.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiCommServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multicommserver.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~multicommserver.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M253,-192.15C221.55,-202.33 176.49,-216.93 142.71,-227.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="141.49,-224.59 133.06,-231 143.65,-231.25 141.49,-224.59"/>
+</g>
+<!-- sourcefile~multigroupserver.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~multigroupserver.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/multigroupserver.f90.html" xlink:title="MultiGroupServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="355,-150 228,-150 228,-126 355,-126 355,-150"/>
+<text text-anchor="middle" x="291.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiGroupServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multigroupserver.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~multigroupserver.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M248.25,-150.01C240.7,-152.65 233.02,-155.66 226,-159 186.72,-177.7 145.12,-206.34 119.85,-224.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="117.58,-222.21 111.63,-230.98 121.75,-227.83 117.58,-222.21"/>
+</g>
+<!-- sourcefile~multilayerserver.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~multilayerserver.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/multilayerserver.f90.html" xlink:title="MultiLayerServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="353.5,-108 229.5,-108 229.5,-84 353.5,-84 353.5,-108"/>
+<text text-anchor="middle" x="291.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiLayerServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multilayerserver.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~multilayerserver.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M244.59,-108.06C238.14,-110.57 231.75,-113.54 226,-117 178.18,-145.81 134.13,-195.3 111.65,-222.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="108.91,-220.73 105.38,-230.72 114.37,-225.11 108.91,-220.73"/>
+</g>
+<!-- sourcefile~protocolparser.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~protocolparser.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/protocolparser.f90.html" xlink:title="ProtocolParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="346.5,-66 236.5,-66 236.5,-42 346.5,-42 346.5,-66"/>
+<text text-anchor="middle" x="291.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProtocolParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protocolparser.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~protocolparser.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M242.44,-66.04C236.64,-68.51 231.01,-71.47 226,-75 169.5,-114.79 126.06,-186.34 106.83,-221.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="103.65,-220.36 102.06,-230.84 109.84,-223.64 103.65,-220.36"/>
+</g>
+<!-- sourcefile~serverthread.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~serverthread.f90</title>
+<g id="a_sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/serverthread.f90.html" xlink:title="ServerThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="345.5,-24 237.5,-24 237.5,0 345.5,0 345.5,-24"/>
+<text text-anchor="middle" x="291.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~serverthread.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~collectivestagedatamessage.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~serverthread.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M240.76,-24.15C235.49,-26.59 230.45,-29.51 226,-33 160.4,-84.51 119.43,-178.98 103.54,-221.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.18,-220.4 100.04,-230.99 106.76,-222.8 100.18,-220.4"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">pFIO_CollectiveStageDataMessageMod</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractMessageMod</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractCollectiveDataMessageMod</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_UtilitiesMod</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractDataReferenceMod</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_KeywordEnforcerMod</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="k">   private</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CollectiveStageDataMessage</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">AbstractCollectiveDataMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CollectiveStageDataMessage</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="k">      procedure</span><span class="p">,</span><span class="w"> </span><span class="k">nopass</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_type_id</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">end type </span><span class="n">CollectiveStageDataMessage</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">interface </span><span class="n">CollectiveStageDataMessage</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_CollectiveStageDataMessage</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">end interface </span><span class="n">CollectiveStageDataMessage</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="k">contains</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a>
+<a id="ln-23" name="ln-23" href="#ln-23"></a>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="k">   function </span><span class="n">new_CollectiveStageDataMessage</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">        </span><span class="p">&amp;</span><span class="w"> </span><span class="n">request_id</span><span class="p">,</span><span class="w"> </span><span class="n">collection_id</span><span class="p">,</span><span class="w"> </span><span class="n">file_name</span><span class="p">,</span><span class="w"> </span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">        </span><span class="p">&amp;</span><span class="w"> </span><span class="n">data_reference</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="n">global_start</span><span class="p">,</span><span class="n">global_count</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">CollectiveStageDataMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">message</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">request_id</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">collection_id</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_name</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractDataReference</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">data_reference</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">start</span><span class="p">(:)</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">global_start</span><span class="p">(:)</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">global_count</span><span class="p">(:)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="k">call </span><span class="n">message</span><span class="p">%</span><span class="n">initCollective</span><span class="p">(</span><span class="n">request_id</span><span class="p">,</span><span class="n">collection_id</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">          </span><span class="n">file_name</span><span class="p">,</span><span class="n">var_name</span><span class="p">,</span><span class="n">data_reference</span><span class="p">,</span><span class="n">unusable</span><span class="o">=</span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">          </span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span><span class="n">global_start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">global_start</span><span class="p">,</span><span class="n">global_count</span><span class="o">=</span><span class="n">global_count</span><span class="p">)</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_CollectiveStageDataMessage</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">   </span><span class="kt">integer </span><span class="k">function </span><span class="n">get_type_id</span><span class="p">()</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">type_id</span><span class="p">)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="n">type_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CollectiveStageData_ID</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_type_id</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="k">end module </span><span class="n">pFIO_CollectiveStageDataMessageMod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-03T18:18:32.344363             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

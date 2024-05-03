@@ -1,0 +1,830 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_eta_r4 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_eta_r4
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">29 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_EtaHybridVerticalCoordinate.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_etahybridverticalcoordinate.f90.html'>MAPL_EtaHybridVerticalCoordinate.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_etahybridverticalcoordinatemod.html'>MAPL_EtaHybridVerticalCoordinateMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">get_eta_r4</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_eta_r4.html#src">get_eta_r4</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine get_eta_r4(this, ptop, pint, ak, bk, unusable, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/etahybridverticalcoordinate.html'>EtaHybridVerticalCoordinate</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~5359"></span>
+              class(<a href='../type/etahybridverticalcoordinate.html'>EtaHybridVerticalCoordinate</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ptop~10"></span>
+              real(kind=REAL32),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ptop</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pint~2"></span>
+              real(kind=REAL32),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>pint</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ak~16"></span>
+              real(kind=REAL32),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ak</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bk~16"></span>
+              real(kind=REAL32),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bk</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~393"></span>
+              class(<a href='../type/keywordenforcer~56.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2193"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_eta_r4~~CallsGraph Pages: 1 -->
+<svg id="procget_eta_r4CallsGraph" width="641pt" height="88pt"
+ viewBox="0.00 0.00 641.00 88.14" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_eta_r4~~CallsGraph" class="graph" transform="scale(1.79 1.79) rotate(0) translate(4 154)">
+<title>proc~~get_eta_r4~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 1145,-154 1145,4 -4,4"/>
+<!-- proc~get_eta_r4 -->
+<g id="proc~~get_eta_r4~~CallsGraph_node1" class="node">
+<title>proc~get_eta_r4</title>
+<polygon fill="none" stroke="black" points="230,-106 0,-106 0,-82 230,-82 230,-106"/>
+<text text-anchor="middle" x="115" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50">EtaHybridVerticalCoordinate%get_eta_r4</text>
+</g>
+<!-- none~get_eta -->
+<g id="proc~~get_eta_r4~~CallsGraph_node2" class="node">
+<title>none~get_eta</title>
+<g id="a_proc~~get_eta_r4~~CallsGraph_node2"><a xlink:href="../type/etahybridverticalcoordinate.html#boundprocedure-get_eta" xlink:title="EtaHybridVerticalCoordinate%get_eta">
+<polygon fill="#a7506f" stroke="#a7506f" points="480,-106 266,-106 266,-82 480,-82 480,-106"/>
+<text text-anchor="middle" x="373" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EtaHybridVerticalCoordinate%get_eta</text>
+</a>
+</g>
+</g>
+<!-- proc~get_eta_r4&#45;&gt;none~get_eta -->
+<g id="proc~~get_eta_r4~~CallsGraph_edge1" class="edge">
+<title>proc~get_eta_r4&#45;&gt;none~get_eta</title>
+<path fill="none" stroke="#ff0000" d="M230.15,-87.29C238.59,-87.24 247.1,-87.24 255.55,-87.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="255.8,-90.78 265.82,-87.34 255.84,-83.78 255.8,-90.78"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~get_eta_r4~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~get_eta_r4~~CallsGraph_node3"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="864,-66 782,-66 782,-42 864,-42 864,-66"/>
+<text text-anchor="middle" x="823" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~get_eta_r4&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_eta_r4~~CallsGraph_edge2" class="edge">
+<title>proc~get_eta_r4&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M190.6,-81.98C214.61,-78.54 241.37,-75.14 266,-73 451.91,-56.85 673.9,-54.26 771.62,-53.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="771.8,-57.45 781.79,-53.93 771.79,-50.45 771.8,-57.45"/>
+</g>
+<!-- none~get_eta&#45;&gt;proc~get_eta_r4 -->
+<g id="proc~~get_eta_r4~~CallsGraph_edge3" class="edge">
+<title>none~get_eta&#45;&gt;proc~get_eta_r4</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M265.82,-100.66C257.35,-100.73 248.76,-100.76 240.19,-100.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="240.16,-97.25 230.15,-100.71 240.14,-104.25 240.16,-97.25"/>
+</g>
+<!-- proc~get_eta_r8 -->
+<g id="proc~~get_eta_r4~~CallsGraph_node5" class="node">
+<title>proc~get_eta_r8</title>
+<g id="a_proc~~get_eta_r4~~CallsGraph_node5"><a xlink:href="../proc/get_eta_r8.html" xlink:title="EtaHybridVerticalCoordinate%get_eta_r8">
+<polygon fill="#d9534f" stroke="#d9534f" points="746,-106 516,-106 516,-82 746,-82 746,-106"/>
+<text text-anchor="middle" x="631" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EtaHybridVerticalCoordinate%get_eta_r8</text>
+</a>
+</g>
+</g>
+<!-- none~get_eta&#45;&gt;proc~get_eta_r8 -->
+<g id="proc~~get_eta_r4~~CallsGraph_edge4" class="edge">
+<title>none~get_eta&#45;&gt;proc~get_eta_r8</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M480.34,-94C488.64,-94 497.07,-94 505.48,-94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="505.71,-97.5 515.71,-94 505.71,-90.5 505.71,-97.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~get_eta_r4~~CallsGraph_node4" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~get_eta_r4~~CallsGraph_node4"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1031.5,-66 916.5,-66 916.5,-42 1031.5,-42 1031.5,-66"/>
+<text text-anchor="middle" x="974" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_eta_r4~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M864.32,-54C877.22,-54 891.87,-54 906.13,-54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="906.43,-57.5 916.43,-54 906.43,-50.5 906.43,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~get_eta_r4~~CallsGraph_node6" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~get_eta_r4~~CallsGraph_node6"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1040.5,-24 907.5,-24 907.5,0 1040.5,0 1040.5,-24"/>
+<text text-anchor="middle" x="974" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_eta_r4~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M864.32,-42.63C881.64,-37.75 902.09,-31.99 920.56,-26.78"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="921.62,-30.12 930.3,-24.04 919.73,-23.38 921.62,-30.12"/>
+</g>
+<!-- at -->
+<g id="proc~~get_eta_r4~~CallsGraph_node7" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1139.5,-66 1085.5,-66 1085.5,-42 1139.5,-42 1139.5,-66"/>
+<text text-anchor="middle" x="1112.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~get_eta_r4~~CallsGraph_edge7" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M1031.7,-54C1046.38,-54 1061.8,-54 1075.12,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1075.31,-57.5 1085.31,-54 1075.31,-50.5 1075.31,-57.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~get_eta_r4~~CallsGraph_node8" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1139.5,-108 1085.5,-108 1085.5,-84 1139.5,-84 1139.5,-108"/>
+<text text-anchor="middle" x="1112.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~get_eta_r4~~CallsGraph_edge8" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M1017.93,-66.05C1027.83,-68.91 1038.3,-72 1048,-75 1057.04,-77.79 1066.77,-80.94 1075.82,-83.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1074.72,-87.25 1085.31,-87.08 1076.93,-80.61 1074.72,-87.25"/>
+</g>
+<!-- proc~get_eta_r8&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_eta_r4~~CallsGraph_edge10" class="edge">
+<title>proc~get_eta_r8&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff00" d="M689.01,-82C715.45,-76.43 746.59,-69.88 772.09,-64.51"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="772.86,-67.92 781.92,-62.44 771.41,-61.07 772.86,-67.92"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~get_eta_r4~~CallsGraph_node9" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~get_eta_r4~~CallsGraph_node9"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="862.5,-108 783.5,-108 783.5,-84 862.5,-84 862.5,-108"/>
+<text text-anchor="middle" x="823" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~get_eta_r8&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_eta_r4~~CallsGraph_edge9" class="edge">
+<title>proc~get_eta_r8&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff00" d="M746.09,-95.2C755.5,-95.3 764.65,-95.4 773.15,-95.49"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="773.14,-98.99 783.17,-95.59 773.21,-91.99 773.14,-98.99"/>
+</g>
+<!-- proc~initialize~6 -->
+<g id="proc~~get_eta_r4~~CallsGraph_node10" class="node">
+<title>proc~initialize~6</title>
+<g id="a_proc~~get_eta_r4~~CallsGraph_node10"><a xlink:href="../proc/initialize~6.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1141,-24 1084,-24 1084,0 1141,0 1141,-24"/>
+<text text-anchor="middle" x="1112.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~6 -->
+<g id="proc~~get_eta_r4~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~6</title>
+<path fill="none" stroke="#0000ff" d="M1040.85,-12C1052.08,-12 1063.4,-12 1073.59,-12"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1073.75,-15.5 1083.75,-12 1073.75,-8.5 1073.75,-15.5"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~get_eta_r4~~CallsGraph_node11" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~get_eta_r4~~CallsGraph_node11"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1041,-150 907,-150 907,-126 1041,-126 1041,-150"/>
+<text text-anchor="middle" x="974" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~get_eta_r4~~CallsGraph_edge12" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M862.76,-106.93C880.38,-111.89 901.5,-117.85 920.52,-123.21"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="919.67,-126.6 930.24,-125.95 921.56,-119.87 919.67,-126.6"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~get_eta_r4~~CallsGraph_node12" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~get_eta_r4~~CallsGraph_node12"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1048,-108 900,-108 900,-84 1048,-84 1048,-108"/>
+<text text-anchor="middle" x="974" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~get_eta_r4~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M862.76,-96C871.12,-96 880.26,-96 889.6,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="889.77,-99.5 899.77,-96 889.77,-92.5 889.77,-99.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_eta_r4CallsGraph = svgPanZoom('#procget_eta_r4CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_eta_r4~~CalledByGraph Pages: 1 -->
+<svg id="procget_eta_r4CalledByGraph" width="578pt" height="116pt"
+ viewBox="0.00 0.00 578.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_eta_r4~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+<title>proc~~get_eta_r4~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 574,-112 574,4 -4,4"/>
+<!-- proc~get_eta_r4 -->
+<g id="proc~~get_eta_r4~~CalledByGraph_node1" class="node">
+<title>proc~get_eta_r4</title>
+<polygon fill="none" stroke="black" points="320,-108 90,-108 90,-84 320,-84 320,-108"/>
+<text text-anchor="middle" x="205" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">EtaHybridVerticalCoordinate%get_eta_r4</text>
+</g>
+<!-- none~get_eta -->
+<g id="proc~~get_eta_r4~~CalledByGraph_node2" class="node">
+<title>none~get_eta</title>
+<g id="a_proc~~get_eta_r4~~CalledByGraph_node2"><a xlink:href="../type/etahybridverticalcoordinate.html#boundprocedure-get_eta" xlink:title="EtaHybridVerticalCoordinate%get_eta">
+<polygon fill="#a7506f" stroke="#a7506f" points="570,-87 356,-87 356,-63 570,-63 570,-87"/>
+<text text-anchor="middle" x="463" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EtaHybridVerticalCoordinate%get_eta</text>
+</a>
+</g>
+</g>
+<!-- proc~get_eta_r4&#45;&gt;none~get_eta -->
+<g id="proc~~get_eta_r4~~CalledByGraph_edge4" class="edge">
+<title>proc~get_eta_r4&#45;&gt;none~get_eta</title>
+<path fill="none" stroke="#ff0000" d="M277.65,-83.99C298.78,-81.76 322.47,-79.62 345.65,-77.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="346.19,-81.29 355.9,-77.04 345.66,-74.31 346.19,-81.29"/>
+</g>
+<!-- none~get_eta&#45;&gt;proc~get_eta_r4 -->
+<g id="proc~~get_eta_r4~~CalledByGraph_edge1" class="edge">
+<title>none~get_eta&#45;&gt;proc~get_eta_r4</title>
+<path fill="none" stroke="#ff0000" d="M390.33,-87.01C371.6,-88.99 350.86,-90.89 330.25,-92.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="329.84,-89.08 320.15,-93.35 330.39,-96.05 329.84,-89.08"/>
+</g>
+<!-- proc~get_eta_onestep_r4 -->
+<g id="proc~~get_eta_r4~~CalledByGraph_node3" class="node">
+<title>proc~get_eta_onestep_r4</title>
+<g id="a_proc~~get_eta_r4~~CalledByGraph_node3"><a xlink:href="../proc/get_eta_onestep_r4.html" xlink:title="get_eta_onestep_r4">
+<polygon fill="#d9534f" stroke="#d9534f" points="263.5,-66 146.5,-66 146.5,-42 263.5,-42 263.5,-66"/>
+<text text-anchor="middle" x="205" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_eta_onestep_r4</text>
+</a>
+</g>
+</g>
+<!-- proc~get_eta_onestep_r4&#45;&gt;none~get_eta -->
+<g id="proc~~get_eta_r4~~CalledByGraph_edge2" class="edge">
+<title>proc~get_eta_onestep_r4&#45;&gt;none~get_eta</title>
+<path fill="none" stroke="#ff0000" d="M263.77,-58.74C288.11,-60.74 317.35,-63.13 345.81,-65.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="345.59,-68.96 355.84,-66.29 346.16,-61.99 345.59,-68.96"/>
+</g>
+<!-- proc~get_eta_onestep_r8 -->
+<g id="proc~~get_eta_r4~~CalledByGraph_node4" class="node">
+<title>proc~get_eta_onestep_r8</title>
+<g id="a_proc~~get_eta_r4~~CalledByGraph_node4"><a xlink:href="../proc/get_eta_onestep_r8.html" xlink:title="get_eta_onestep_r8">
+<polygon fill="#d9534f" stroke="#d9534f" points="263.5,-24 146.5,-24 146.5,0 263.5,0 263.5,-24"/>
+<text text-anchor="middle" x="205" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_eta_onestep_r8</text>
+</a>
+</g>
+</g>
+<!-- proc~get_eta_onestep_r8&#45;&gt;none~get_eta -->
+<g id="proc~~get_eta_r4~~CalledByGraph_edge3" class="edge">
+<title>proc~get_eta_onestep_r8&#45;&gt;none~get_eta</title>
+<path fill="none" stroke="#ff0000" d="M263.66,-21.4C281.78,-24.68 301.8,-28.64 320,-33 352.18,-40.7 387.89,-51.27 415.45,-59.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="414.62,-63.29 425.21,-62.96 416.73,-56.62 414.62,-63.29"/>
+</g>
+<!-- interface~get_eta -->
+<g id="proc~~get_eta_r4~~CalledByGraph_node5" class="node">
+<title>interface~get_eta</title>
+<g id="a_proc~~get_eta_r4~~CalledByGraph_node5"><a xlink:href="../interface/get_eta.html" xlink:title="get_eta">
+<polygon fill="#a7506f" stroke="#a7506f" points="54,-45 0,-45 0,-21 54,-21 54,-45"/>
+<text text-anchor="middle" x="27" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_eta</text>
+</a>
+</g>
+</g>
+<!-- interface~get_eta&#45;&gt;proc~get_eta_onestep_r4 -->
+<g id="proc~~get_eta_r4~~CalledByGraph_edge5" class="edge">
+<title>interface~get_eta&#45;&gt;proc~get_eta_onestep_r4</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M54.35,-36.14C76.05,-38.73 107.81,-42.52 136.49,-45.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="136.14,-49.43 146.48,-47.14 136.97,-42.48 136.14,-49.43"/>
+</g>
+<!-- interface~get_eta&#45;&gt;proc~get_eta_onestep_r8 -->
+<g id="proc~~get_eta_r4~~CalledByGraph_edge6" class="edge">
+<title>interface~get_eta&#45;&gt;proc~get_eta_onestep_r8</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M54.35,-29.86C76.05,-27.27 107.81,-23.48 136.49,-20.06"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="136.97,-23.52 146.48,-18.86 136.14,-16.57 136.97,-23.52"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">get_eta_r4</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">ptop</span><span class="p">,</span><span class="w"> </span><span class="n">pint</span><span class="p">,</span><span class="w"> </span><span class="n">ak</span><span class="p">,</span><span class="w"> </span><span class="n">bk</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">EtaHybridVerticalCoordinate</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ak</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bk</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ptop</span><span class="w"> </span><span class="c">! model top (Pa)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pint</span><span class="w"> </span><span class="c">! transition to p (Pa)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ak8</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bk8</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ptop8</span><span class="w"> </span><span class="c">! model top (Pa)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pint8</span><span class="w"> </span><span class="c">! transition to p (Pa)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_levels</span><span class="w">     </span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">      </span><span class="n">num_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">num_levels</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">ak8</span><span class="p">(</span><span class="n">num_levels</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">bk8</span><span class="p">(</span><span class="n">num_levels</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_eta</span><span class="p">(</span><span class="n">ptop8</span><span class="p">,</span><span class="w"> </span><span class="n">pint8</span><span class="p">,</span><span class="w"> </span><span class="n">ak8</span><span class="p">,</span><span class="w"> </span><span class="n">bk8</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">ak</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="n">ak8</span><span class="p">,</span><span class="w"> </span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">)</span>
+<span class="w">      </span><span class="n">bk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="n">bk8</span><span class="p">,</span><span class="w"> </span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">)</span>
+<span class="w">     </span>
+<span class="w">      </span><span class="n">ptop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptop8</span>
+<span class="w">      </span><span class="n">pint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pint8</span>
+
+<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ak8</span><span class="p">,</span><span class="n">bk8</span><span class="p">)</span>
+
+<span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">get_eta_r4</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-03T18:18:32.344363             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
