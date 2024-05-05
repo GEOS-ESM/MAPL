@@ -16,9 +16,7 @@ module mapl3g_MaplFramework
    use pfio_AbstractDirectoryServiceMod, only: PortInfo
    use pflogger, only: logging
    use pflogger, only: Logger
-   use esmf, only: ESMF_IsInitialized
-   use esmf, only: ESMF_VM, ESMF_VMGetCurrent, ESMF_VMGet
-   use esmf, only: ESMF_HConfig, ESMF_HConfigIsDefined, Esmf_HconfigAsString
+   use esmf
    implicit none
    private
 
@@ -29,16 +27,20 @@ module mapl3g_MaplFramework
 
    type :: MaplFramework
       private
-      logical :: initialized = .false.
+      logical :: mapl_initialized = .false.
+      logical :: esmf_internally_initialized = .false.
+      type(ESMF_HConfig) :: mapl_hconfig
       type(DirectoryService) :: directory_service
       type(MpiServer), pointer :: o_server => null()
       type(DistributedProfiler) :: time_profiler
    contains
       procedure :: initialize
+      procedure :: initialize_esmf
+      procedure :: initialize_mapl
+      procedure :: initialize_simple_oserver
+      procedure :: finalize
       procedure :: get
       procedure :: is_initialized
-      procedure :: finalize
-      procedure :: initialize_simple_oserver
    end type MaplFramework
 
    ! Private singleton object.  Used 
@@ -49,37 +51,86 @@ module mapl3g_MaplFramework
       procedure :: mapl_get_mapl
    end interface MAPL_Get
 
+   interface MAPL_Initialize
+      procedure :: mapl_initialize
+   end interface MAPL_Initialize
+
 contains
 
    ! Type-bound procedures
 
-   subroutine initialize(this, unusable, mapl_hconfig, rc)
-      class(MaplFramework), target, intent(inout) :: this
+   ! Note: HConfig is an output if ESMF is not already initialized.  Otherwise it is an input.
+   subroutine initialize(this, hconfig, unusable, mpiCommunicator, rc)
+      class(MaplFramework), intent(inout) :: this
+      type(ESMF_HConfig), intent(inout) :: hconfig
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_HConfig), optional, intent(in) :: mapl_hconfig
+      integer, optional, intent(in) :: mpiCommunicator
       integer, optional, intent(out) :: rc
 
-      logical :: has_pflogger_cfg_file
-      character(:), allocatable :: pflogger_cfg_file
-      logical :: esmf_is_initialized
-      integer :: comm_world
-      type(ESMF_VM) :: mapl_vm
       integer :: status
 
-      esmf_is_initialized = ESMF_IsInitialized(_RC)
-      _ASSERT(esmf_is_initialized, "ESMF must be initialized prior to initializing MAPL.")
+      _ASSERT(.not. this%mapl_initialized, "MaplFramework object is already initialized")
+      this%mapl_hconfig = hconfig
 
-      _ASSERT(.not. this%initialized, "MaplFramework object is already initialized")
+      call this%initialize_esmf(hconfig, mpiCommunicator=mpiCommunicator, _RC)
+
+      call this%initialize_mapl(_RC)
+      this%mapl_initialized = .true.
+
+      _RETURN(_SUCCESS)
+   end subroutine initialize
+
+   subroutine initialize_esmf(this, hconfig, unusable, mpiCommunicator, rc)
+      class(MaplFramework), intent(inout) :: this
+      type(ESMF_HConfig), intent(inout) :: hconfig
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: mpiCommunicator
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      type(ESMF_Config) :: config
+      logical :: esmf_is_initialized
+      logical :: has_mapl_section
+
+      esmf_is_initialized = ESMF_IsInitialized(_RC)
+      _RETURN_IF(esmf_is_initialized)
+
+      this%esmf_internally_initialized = .true.
+      call ESMF_Initialize(configFilenameFromArgNum=1, configKey=['esmf'], config=config, mpiCommunicator=mpiCommunicator, _RC)
+
+      ! If ESMF is externally initialized, then we expect the mapl hconfig to be passed in.   Otherwise, it
+      ! must be extracted from the top level ESMF Config.
+      
+      call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
+      has_mapl_section = ESMF_HConfigIsDefined(hconfig, keystring='mapl', _RC)
+      if (has_mapl_section) then
+         this%mapl_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='mapl', _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      this%mapl_hconfig = ESMF_HConfigCreate(content='{}', _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine initialize_esmf
+
+   subroutine initialize_mapl(this, unusable, rc)
+      class(MaplFramework), intent(inout) :: this
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: comm_world
+      type(ESMF_VM) :: mapl_vm
+      logical :: has_pflogger_cfg_file
+      character(:), allocatable :: pflogger_cfg_file
 
       call ESMF_VMGetCurrent(mapl_vm, _RC)
       call ESMF_VMGet(mapl_vm, mpiCommunicator=comm_world, _RC)
 
 #ifdef BUILD_WITH_PFLOGGER
-      if (present(mapl_hconfig)) then
-         has_pflogger_cfg_file = ESMF_HConfigIsDefined(mapl_hconfig, keystring="pflogger_cfg_file", _RC)
-         if (has_pflogger_cfg_file) then
-            pflogger_cfg_file = ESMF_HConfigAsString(mapl_hconfig, keystring="pflogger_cfg_file", _RC)
-         end if
+      has_pflogger_cfg_file = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring="pflogger_cfg_file", _RC)
+      if (has_pflogger_cfg_file) then
+         pflogger_cfg_file = ESMF_HConfigAsString(this%mapl_hconfig, keystring="pflogger_cfg_file", _RC)
       end if
       call initialize_pflogger(pflogger_cfg_file=pflogger_cfg_file, comm_world=comm_world, _RC)
 #endif
@@ -87,12 +138,10 @@ contains
 
       call this%initialize_simple_oserver(_RC)
 
-      this%initialized = .true.
-
       _RETURN(_SUCCESS)
-   end subroutine initialize
+   end subroutine initialize_mapl
 
-   subroutine initialize_simple_oserver(this, unusable, rc)
+  subroutine initialize_simple_oserver(this, unusable, rc)
       class(MaplFramework), target, intent(inout) :: this
       class(KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
@@ -106,7 +155,7 @@ contains
 
       this%directory_service = DirectoryService(comm_world)
       call init_IO_ClientManager(comm_world, _RC)
-      allocate(this%o_server, source = MpiServer(comm_world, 'o_server', rc=status), stat=stat_alloc)
+      allocate(this%o_server, source=MpiServer(comm_world, 'o_server', rc=status), stat=stat_alloc)
       _VERIFY(status)
       _VERIFY(stat_alloc)
       call this%directory_service%publish(PortInfo('o_server', this%o_server), this%o_server)
@@ -133,7 +182,7 @@ contains
 
    logical function is_initialized(this)
       class(MaplFramework), intent(in) :: this
-      is_initialized = this%initialized
+      is_initialized = this%mapl_initialized
    end function is_initialized
 
    subroutine finalize(this, rc)
@@ -145,6 +194,11 @@ contains
 !#      call finalize_profiler(_RC)
       call logging%free()
       call this%directory_service%free_directory_resources()
+
+      if (this%esmf_internally_initialized) then
+         call ESMF_HConfigDestroy(this%mapl_hconfig, _RC)
+         call ESMF_Finalize(_RC)
+      end if
       
       _RETURN(_SUCCESS)
    end subroutine finalize
@@ -169,15 +223,16 @@ contains
    end subroutine mapl_get_mapl
 
 
-  subroutine mapl_initialize(unusable, mapl_hconfig, rc)
+  subroutine mapl_initialize(hconfig, unusable, mpiCommunicator, rc)
       use mapl_KeywordEnforcerMod
+      type(ESMF_HConfig), intent(inout) :: hconfig
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_HConfig), optional, intent(in) :: mapl_hconfig
+      integer, optional, intent(in) :: mpiCommunicator
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      call the_mapl_object%initialize(unusable, mapl_hconfig=mapl_hconfig, _RC)
+      call the_mapl_object%initialize(hconfig=hconfig, mpiCommunicator=mpiCommunicator, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine mapl_initialize
