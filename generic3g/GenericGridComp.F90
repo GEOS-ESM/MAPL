@@ -70,7 +70,7 @@ contains
 
          associate (phases => outer_meta%get_phases(ESMF_METHOD_RUN))
            do phase_idx = 1, phases%size()
-              call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase=phase_idx+size(GENERIC_RUN_PHASES), _RC)
+              call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase=phase_idx, _RC)
            end do
          end associate
 
@@ -200,7 +200,7 @@ contains
          call outer_meta%run_clock_advance(_RC)
       case default ! user-defined run phase
          phases => outer_meta%get_phases(ESMF_METHOD_RUN)
-         phase_name => phases%of(phase_idx-size(GENERIC_RUN_PHASES))
+         phase_name => phases%of(phase_idx)
          call outer_meta%run_user(phase_name=phase_name, _RC)
       end select
 

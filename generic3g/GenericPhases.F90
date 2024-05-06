@@ -13,7 +13,7 @@ module mapl3g_GenericPhases
    public :: GENERIC_INIT_USER
 
    ! Run phases
-   public :: GENERIC_RUN_PHASES
+   public :: GENERIC_RUN_OFFSET
    public :: GENERIC_RUN_CLOCK_ADVANCE
    public :: GENERIC_RUN_USER
 
@@ -30,9 +30,13 @@ module mapl3g_GenericPhases
       enumerator :: GENERIC_INIT_REALIZE
    end enum
 
+   ! We start the generic run phases at a high index to allow for
+   ! multiple user run phases.  And we want to avoid computing
+   ! offests.
+   integer, parameter :: GENERIC_RUN_OFFSET = 1000
    enum, bind(c)
-      enumerator :: GENERIC_RUN_CLOCK_ADVANCE = 1
-      enumerator :: GENERIC_RUN_USER
+      enumerator :: GENERIC_RUN_USER = 1
+      enumerator :: GENERIC_RUN_CLOCK_ADVANCE = GENERIC_RUN_OFFSET + 1
    end enum
 
    enum, bind(c)
@@ -49,15 +53,5 @@ module mapl3g_GenericPhases
         GENERIC_INIT_REALIZE, &
         GENERIC_INIT_USER &
         ]
-
-
-   ! Probably will only ever have one phase here,
-   ! but still useful to count offset for user phases.
-   ! See GenericGridComp.
-   integer, parameter :: GENERIC_RUN_PHASES(*) = &
-        [ &
-        GENERIC_RUN_CLOCK_ADVANCE &
-        ]
-
 
 end module mapl3g_GenericPhases

@@ -64,11 +64,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update `components.yaml`
+  - ESMA_cmake v3.45.1
+    - Fix bug in meson detection
+
 ### Fixed
 
 ### Removed
 
 ### Deprecated
+
+## [2.46.0] - 2024-05-02
+
+### Added
+
+- Update `FindESMF.cmake` to match that in ESMF 8.6.1
+
+### Changed
+
+- Set required version of ESMF to 8.6.1
+- Update `components.yaml`
+  - ESMA_cmake v3.45.0
+    - `BUILT_ON_SLES15` set to `FALSE` on NCCS if not built on SLES15
+    - Update `FindESMF.cmake` to match that in ESMF 8.6.1
+    - Suppress remarks in Intel Fortran Classic 2021.12
+  - ESMA_env v4.29.0 (Baselibs 7.24.0)
+    - Update to ESMF 8.6.1b04
+    - NCO 5.2.4
+    - curl 8.7.1
+
+### Fixed
+
+- Fixed non-Baselibs build using `ESMF::ESMF` target
 
 ## [2.45.0] - 2024-04-25
 
