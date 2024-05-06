@@ -125,7 +125,8 @@ contains
       type(ESMF_Time) :: current_time
       type(ESMF_Alarm) :: write_alarm
       character(len=ESMF_MAXSTR) :: name
-      character(len=:), allocatable :: current_file
+      !character(len=:), allocatable :: current_file
+      character(len=128) :: current_file
 
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
@@ -140,7 +141,7 @@ contains
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
 
       call fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=current_time, _RC)
-      if (current_file /= collection_gridcomp%current_file) then
+      if (trim(current_file) /= collection_gridcomp%current_file) then
          collection_gridcomp%current_file = current_file
          call collection_gridcomp%writer%update_time_on_server(current_time, _RC)
       end if
