@@ -34,7 +34,20 @@ set(srcs
   IntegerMaplGeomMap.F90
 
   VectorBasis.F90
-  VectorBasis_smod.F90
+  VectorBasis/create_fields_VectorBasis.F90
+  VectorBasis/destroy_fields_VectorBasis.F90
+  VectorBasis/get_unit_vector_VectorBasis.F90
+  VectorBasis/grid_get_centers_VectorBasis.F90
+  VectorBasis/grid_get_coords_1d_VectorBasis.F90
+  VectorBasis/grid_get_coords_2d_VectorBasis.F90
+  VectorBasis/grid_get_corners_VectorBasis.F90
+  VectorBasis/latlon2xyz_VectorBasis.F90
+  VectorBasis/MAPL_GeomGetCoords_VectorBasis.F90
+  VectorBasis/mid_pt_sphere_VectorBasis.F90
+  VectorBasis/new_GridVectorBasis_VectorBasis.F90
+  VectorBasis/new_NS_Basis_VectorBasis.F90
+  VectorBasis/xyz2latlon_VectorBasis.F90
+  #VectorBasis_smod.F90
   )
 
 esma_add_library(${this}
