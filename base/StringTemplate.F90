@@ -13,7 +13,7 @@ public fill_grads_template
 public StrTemplate
 public fill_grads_template_esmf  
 
-character(len=2), parameter :: valid_tokens(15) = ["y4","y2","m1","m2","mc","Mc","MC","d1","d2","h1","h2","h3","n2","S2","D3"]
+character(len=2), parameter :: valid_tokens(16) = ["y4","y2","m1","m2","mc","Mc","MC","d1","d2","h1","h2","h3","n2","S2","D3","C2"]
 character(len=3),parameter :: mon_lc(12) = [&
    'jan','feb','mar','apr','may','jun',   &
    'jul','aug','sep','oct','nov','dec']
@@ -141,11 +141,11 @@ contains
                else
                   _FAIL("Using %s token with no experiment id")
                end if
-            case("col")
-               if (present(experiment_id)) then
-                  istp=4
-                  m=min(k+len_trim(experiment_id)-1,output_length)
-                  output_string(k:m)=experiment_id
+            case("c")
+               if (present(collection_id)) then
+                  istp=2
+                  m=min(k+len_trim(collection_id)-1,output_length)
+                  output_string(k:m)=collection_id
                   k=m+1
                   cycle
                else if (preserve_) then
