@@ -16,8 +16,9 @@ module mapl3g_GeomPFIO
       type(MaplGeom), pointer :: mapl_geom
    contains
       procedure(I_stage_data_to_file), deferred :: stage_data_to_file
-      procedure :: update_time_on_server
       procedure :: initialize
+      procedure :: update_time_on_server
+      procedure :: stage_time_to_file
       procedure, non_overridable :: get_collection_id
 
    end type GeomPFIO
@@ -54,6 +55,20 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine update_time_on_server
+
+   subroutine stage_time_to_file(this,filename, times, rc)
+      class(GeomPFIO), intent(inout) :: this
+      character(len=*), intent(in) :: filename
+      real, intent(in) :: times
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ArrayReference) :: ref
+
+      ref = ArrayReference(times)
+      call o_Clients%stage_nondistributed_data(this%collection_id, filename, 'time', ref)
+
+   end subroutine
 
    subroutine initialize(this, metadata, mapl_geom,  rc)
       class(GeomPFIO), intent(inout) :: this

@@ -44,12 +44,12 @@ contains
          call ESMF_FieldBundleGet(bundle, field_names(i), field=field, _RC)
          ! all this logic needs to be generalized
          call ESMF_FieldGet(field, farrayPtr=ptr2d, _RC)
-         allocate(global_start, source=[1,1])
+         allocate(global_start, source=[1,1,time_index])
          call ESMF_FieldGet(field, grid=grid, _RC)
          call MAPL_GridGet(grid, globalCellCountPerDim=global_dim, _RC)
-         allocate(global_count, source=[global_dim(1),global_dim(2)])
+         allocate(global_count, source=[global_dim(1),global_dim(2),1])
          call MAPL_GridGetInterior(grid, i1, in, j1, jn)
-         allocate(local_start, source=[i1, j1])
+         allocate(local_start, source=[i1, j1,1])
          ref = ArrayReference(ptr2d)
          ! end generalization
          call o_clients%collective_stage_data(collection_id,filename, trim(field_names(i)), &
