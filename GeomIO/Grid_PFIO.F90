@@ -23,7 +23,7 @@ contains
       class(GridPFIO), intent(inout) :: this
       type(ESMF_FieldBundle), intent(in) :: bundle
       character(len=*), intent(in) :: filename
-      integer, intent(in), optional :: time_index
+      integer, intent(in) :: time_index
       integer, intent(out), optional :: rc
 
       integer :: status, num_fields, i, collection_id

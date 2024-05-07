@@ -31,7 +31,7 @@ module mapl3g_GeomPFIO
         class(GeomPFIO), intent(inout) :: this
         type(ESMF_FieldBundle), intent(in) :: bundle
         character(len=*), intent(in) :: filename
-        integer, intent(in), optional :: time_index
+        integer, intent(in) :: time_index
         integer, intent(out), optional :: rc
      end subroutine I_stage_data_to_file
 
