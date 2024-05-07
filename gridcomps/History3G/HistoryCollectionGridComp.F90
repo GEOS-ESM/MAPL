@@ -6,8 +6,11 @@ module mapl3g_HistoryCollectionGridComp
    use mapl3g_esmf_utilities
    use mapl3g_HistoryCollectionGridComp_private
    use esmf
-   use mapl3g_BundleWriter
+   use mapl3g_geomio
+   use mapl3g_geom_mgr
    use mapl_StringTemplate
+   use pfio
+   
    implicit none
    private
 
@@ -16,7 +19,7 @@ module mapl3g_HistoryCollectionGridComp
    ! Private state
    type :: HistoryCollectionGridComp
       type(ESMF_FieldBundle) :: output_bundle
-      type(BundleWriter) :: writer
+      class(GeomPFIO), allocatable :: writer
       type(ESMF_Time) :: start_stop_times(2)
       character(len=:), allocatable :: template
       character(len=:), allocatable :: current_file
@@ -67,9 +70,10 @@ contains
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
-      type(BundleWriter) :: writer
       type(ESMF_Alarm) :: alarm
       character(len=ESMF_MAXSTR) :: name
+      type(FileMetadata) :: metadata
+      type(MaplGeom), pointer :: mapl_geom
 
       ! To Do:
       ! - determine run frequencey and offset (save as alarm)
@@ -80,7 +84,10 @@ contains
       collection_gridcomp%output_bundle = create_output_bundle(hconfig, importState, _RC)
 
       call MAPL_GridCompGet(gridcomp, geom=geom, _RC)
-      call collection_gridcomp%writer%initialize(collection_gridcomp%output_bundle, geom, _RC)
+      metadata = bundle_to_metadata(collection_gridcomp%output_bundle, geom, _RC)
+      mapl_geom => get_mapl_geom(geom, _RC)
+      collection_gridcomp%writer = make_geom_pfio(metadata, _RC)
+      call collection_gridcomp%writer%initialize(metadata, mapl_geom, _RC)
 
       call create_output_alarm(clock, hconfig, trim(name), _RC)
       collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
@@ -146,7 +153,7 @@ contains
          call collection_gridcomp%writer%update_time_on_server(current_time, _RC)
       end if
 
-      call collection_gridcomp%writer%send_field_data(collection_gridcomp%output_bundle, collection_gridcomp%current_file, 1, _RC)
+      call collection_gridcomp%writer%stage_data_to_file(collection_gridcomp%output_bundle, collection_gridcomp%current_file, 1, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine run

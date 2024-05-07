@@ -5,14 +5,13 @@ set(srcs
  HistoryGridComp.F90
  HistoryCollectionGridComp.F90
  HistoryCollectionGridComp_private.F90
- BundleWriter.F90
   )
 
 find_package (MPI REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.generic3g PFLOGGER::pflogger TYPE SHARED)
+  DEPENDENCIES MAPL.generic3g MAPL.GeomIO PFLOGGER::pflogger TYPE SHARED)
 
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
