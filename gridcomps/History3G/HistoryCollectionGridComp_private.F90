@@ -178,6 +178,24 @@ contains
       _RETURN(_SUCCESS)
    end function set_start_stop_time
 
+   function get_output_bundle_info(bundle, rc) result(info)
+      type(OutputBundleInfoSet) :: info
+      type(ESMF_FieldBundle) :: bundle
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Field) :: field_list(:), this_field
+      integer :: i
+      type(ESMF_GeomType_Flag) :: geomtype
+
+      call ESMF_FieldBundleGet(bundle, fieldList=field_list, _RC)
+      do i = 1:size(fieldList)
+         this_field = fieldList(i)
+         call ESMF_FieldGet(this_field, geomtype=geomtype, _RC)
+         
+      end do
+
+   end function get_output_bundle_info
+
    subroutine parse_item_expression(item, item_name, var_names, rc)
       type(ESMF_HConfigIter), intent(in) :: item 
       character(len=:), allocatable, intent(out) :: item_name
