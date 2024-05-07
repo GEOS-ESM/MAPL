@@ -7,12 +7,29 @@ set(srcs
   GeomSpec.F90
   NullGeomSpec.F90
   MaplGeom.F90
-  MaplGeom_smod.F90
+  MaplGeom/new_MaplGeom_MaplGeom.F90
+  MaplGeom/set_id_MaplGeom.F90
+  MaplGeom/get_spec_MaplGeom.F90
+  MaplGeom/get_geom_MaplGeom.F90
+  MaplGeom/get_factory_MaplGeom.F90
+  MaplGeom/get_file_metadata_MaplGeom.F90
+  MaplGeom/get_gridded_dims_MaplGeom.F90
+  MaplGeom/get_basis_MaplGeom.F90
+  #MaplGeom_smod.F90
 
   GeomFactory.F90
 
   CoordinateAxis.F90
-  CoordinateAxis_smod.F90
+  #CoordinateAxis_smod.F90
+  CoordinateAxis/new_CoordinateAxis_CoordinateAxis.F90
+  CoordinateAxis/equal_to_CoordinateAxis.F90
+  CoordinateAxis/not_equal_to_CoordinateAxis.F90
+  CoordinateAxis/get_extent_CoordinateAxis.F90
+  CoordinateAxis/get_centers_CoordinateAxis.F90
+  CoordinateAxis/get_corners_CoordinateAxis.F90
+  CoordinateAxis/is_periodic_CoordinateAxis.F90
+  CoordinateAxis/get_dim_name_CoordinateAxis.F90
+  CoordinateAxis/get_coordinates_dim_CoordinateAxis.F90
 
   latlon/LonAxis.F90
   latlon/LonAxis_smod.F90
@@ -26,7 +43,20 @@ set(srcs
   latlon/LatLonGeomFactory_smod.F90
 
   GeomManager.F90
-  GeomManager_smod.F90
+  GeomManager/new_GeomManager_GeomManager.F90
+  GeomManager/initialize_GeomManager.F90
+  GeomManager/add_factory_GeomManager.F90
+  GeomManager/delete_mapl_geom_GeomManager.F90
+  GeomManager/get_mapl_geom_from_hconfig_GeomManager.F90
+  GeomManager/get_mapl_geom_from_metadata_GeomManager.F90
+  GeomManager/get_mapl_geom_from_id_GeomManager.F90
+  GeomManager/get_mapl_geom_from_spec_GeomManager.F90
+  GeomManager/add_mapl_geom_GeomManager.F90
+  GeomManager/make_geom_spec_from_metadata_GeomManager.F90
+  GeomManager/make_geom_spec_from_hconfig_GeomManager.F90
+  GeomManager/make_mapl_geom_from_spec_GeomManager.F90
+  GeomManager/get_geom_from_id_GeomManager.F90
+  #GeomManager_smod.F90
 
 # gFTL containers
   GeomFactoryVector.F90
