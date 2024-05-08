@@ -32,6 +32,7 @@ module mapl3g_MaplFramework
       logical :: mapl_initialized = .false.
       logical :: esmf_internally_initialized = .false.
       type(ESMF_VM) :: mapl_vm
+      integer :: model_comm
 
       type(ESMF_HConfig) :: mapl_hconfig
       type(DirectoryService) :: directory_service
@@ -205,7 +206,7 @@ contains
       logical :: has_server_section
       integer :: model_petcount
       integer :: world_group, model_group, server_group, model_server_group
-      integer :: world_comm, model_comm, server_comm, model_server_comm
+      integer :: world_comm, server_comm, model_server_comm
       integer :: ssiCount ! total number of nodes participating
       integer, allocatable :: ssiMap(:)
       integer, allocatable :: model_pets(:), server_pets(:)
@@ -220,16 +221,20 @@ contains
       integer :: ignore ! workaround for ESMF bug in  v8.6.0
 
       call ESMF_VMGet(this%mapl_vm, ssiMap=ssiMap, ssiCount=ssiCount, mpiCommunicator=world_comm, petCount=ignore, _RC)
-      !      do something with this line
+      call MPI_Comm_group(world_comm, world_group, _IERROR)
+      model_petCount = get_model_petcount(this%mapl_hconfig, _RC)
 
       has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
       if (.not. has_server_section) then
-         this%directory_service = DirectoryService(world_comm)
+         ! Should only run on model PETs
+         call MPI_Group_range_incl(world_group, 1, [0, model_petCount-1, 1], model_group, _IERROR)
+         call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
+         call MPI_Group_free(model_group, _IERROR)
+         this%directory_service = DirectoryService(this%model_comm)
          call this%initialize_simple_oserver(_RC)
          _RETURN(_SUCCESS)
       end if
 
-      model_petCount = get_model_petcount(this%mapl_hconfig, _RC)
       num_model_ssis = get_num_ssis(model_petCount, ssiCount, ssiMap, ssiOffset=0, _RC)
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
@@ -243,13 +248,12 @@ contains
          call lgr%warning("Unused nodes.  Required %i0 nodes, but %i0 available.", required_ssis, ssicount)
       end if
 
-      call MPI_Comm_group(world_comm, world_group, _IERROR)
 
       model_pets = pack([(n, n = 0, size(ssiMap))], ssiMap <= num_model_ssis)
       call MPI_Group_incl(world_group, model_petCount, model_pets, model_group, _IERROR)
       is_model_pet = (model_group /= MPI_GROUP_NULL)
 
-      call MPI_Comm_create_group(world_comm, model_group, 0, model_comm, _IERROR)
+      call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
 
       ssi_0 = num_model_ssis
       do i_server = 1, size(server_hconfigs)
@@ -265,7 +269,7 @@ contains
          call MPI_Group_Free(server_group, _IERROR)
          call MPI_Group_Free(model_server_group, _IERROR)
 
-         server_drivers(i_server) = ServerDriver(server_hconfigs(i_server), model_server_comm, model_comm, server_comm)
+         server_drivers(i_server) = ServerDriver(server_hconfigs(i_server), model_server_comm, this%model_comm, server_comm)
 
          ssi_0 = ssi_1
       end do
@@ -345,17 +349,15 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, stat_alloc
-      integer :: model_comm
       type(ClientThread), pointer :: clientPtr
 
-      call ESMF_VMGet(this%mapl_vm, mpiCommunicator=model_comm, _RC)
-      call init_IO_ClientManager(model_comm, _RC)
-      allocate(this%o_server, source=MpiServer(model_comm, 'o_server', rc=status), stat=stat_alloc)
+      call init_IO_ClientManager(this%model_comm, _RC)
+      allocate(this%o_server, source=MpiServer(this%model_comm, 'o_server', rc=status), stat=stat_alloc)
       _VERIFY(status)
       _VERIFY(stat_alloc)
       call this%directory_service%publish(PortInfo('o_server', this%o_server), this%o_server)
       clientPtr => o_Clients%current()
-      call this%directory_service%connect_to_server('o_server', clientPtr, model_comm)
+      call this%directory_service%connect_to_server('o_server', clientPtr, this%model_comm)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -450,6 +452,7 @@ contains
 
       _RETURN_UNLESS(this%esmf_internally_initialized)
 
+      call MPI_Comm_free(this%model_comm, _IERROR)
       call ESMF_HConfigDestroy(this%mapl_hconfig, _RC)
       call ESMF_Finalize(_RC)
 
