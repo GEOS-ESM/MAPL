@@ -85,7 +85,8 @@ contains
       call MAPL_GridCompGet(gridcomp, geom=geom, _RC)
       metadata = bundle_to_metadata(collection_gridcomp%output_bundle, geom, _RC)
       mapl_geom => get_mapl_geom(geom, _RC)
-      collection_gridcomp%writer = make_geom_pfio(metadata, _RC)
+      allocate(collection_gridcomp%writer, source=make_geom_pfio(metadata, rc=status))
+      _VERIFY(STATUS)
       call collection_gridcomp%writer%initialize(metadata, mapl_geom, _RC)
 
       call create_output_alarm(clock, hconfig, trim(name), _RC)
