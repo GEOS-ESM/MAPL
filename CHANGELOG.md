@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `components.yaml`
   - ESMA_cmake v3.45.1
     - Fix bug in meson detection
+- Updated `checkpoint_simulator` to not create and close file if not writing
 
 ### Fixed
 
