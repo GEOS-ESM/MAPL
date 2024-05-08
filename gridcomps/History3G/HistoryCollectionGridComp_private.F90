@@ -66,6 +66,7 @@ contains
       iter_end = ESMF_HConfigIterEnd(var_list,_RC)
       iter = iter_begin
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
+         _VERIFY(status)
          call parse_item(iter, item_name, variable_names, _RC)
          call add_specs(gridcomp, variable_names, _RC)
       end do

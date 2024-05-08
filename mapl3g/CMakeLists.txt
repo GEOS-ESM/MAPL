@@ -2,7 +2,7 @@ esma_set_this()
 
 
 esma_add_library (${this}
-  SRCS mapl3g.F90 MaplFramework.F90
+  SRCS mapl3g.F90 MaplFramework.F90 ServerDriver.F90
   DEPENDENCIES MAPL.generic3g MAPL.pfio MAPL.cap3g MAPL.gridcomps MAPL.griddedio MAPL.field_utils ${EXTDATA_TARGET}
                ESMF::ESMF NetCDF::NetCDF_Fortran MPI::MPI_Fortran PFLOGGER::pflogger
   TYPE ${MAPL_LIBRARY_TYPE}

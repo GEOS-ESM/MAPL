@@ -8,9 +8,12 @@ program geos
 
    integer :: status
    type(ESMF_HConfig) :: hconfig
+   logical :: is_model_pet
 
-   call MAPL_Initialize(hconfig, _RC)
-   call run_geos(hconfig, _RC)
+   call MAPL_Initialize(hconfig, is_model_pet=is_model_pet, _RC)
+   if (is_model_pet) then
+      call run_geos(hconfig, _RC)
+   end if
    call MAPL_Finalize(_RC)
 
 contains
@@ -29,7 +32,9 @@ contains
       has_cap_hconfig = ESMF_HConfigIsDefined(hconfig, keystring='cap', _RC)
       _ASSERT(has_cap_hconfig, 'No cap section found in configuration file')
       cap_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='cap', _RC)
+
       call MAPL_run_driver(cap_hconfig, _RC)
+
       call ESMF_HConfigDestroy(cap_hconfig, _RC)
 
       _RETURN(_SUCCESS)
