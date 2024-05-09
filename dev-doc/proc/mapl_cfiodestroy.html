@@ -1,0 +1,932 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_CFIODestroy &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_CFIODestroy
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">33 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_CFIO.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_cfio.f90.html'>MAPL_CFIO.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_cfiomod.html'>MAPL_CFIOMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_CFIODestroy</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_cfiodestroy.html#src">MAPL_CFIODestroy</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_CFIODestroy(MCFIO, RC)  
+</h2>
+    
+
+    <p>The subroutine <code>MAPL_CFIODestroy</code>
+destroys a MAPL CFIO object. It closes any file associated with
+it and deallocates memory.</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mcfio~10"></span>
+              type(<a href='../type/mapl_cfio.html'>MAPL_CFIO</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>MCFIO</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~21"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_cfiodestroy~~CallsGraph Pages: 1 -->
+<svg id="procmapl_cfiodestroyCallsGraph" width="641pt" height="341pt"
+ viewBox="0.00 0.00 641.00 340.56" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_cfiodestroy~~CallsGraph" class="graph" transform="scale(1.12 1.12) rotate(0) translate(4 378)">
+<title>proc~~mapl_cfiodestroy~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-378 715,-378 715,4 -4,4"/>
+<!-- proc~mapl_cfiodestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node1" class="node">
+<title>proc~mapl_cfiodestroy</title>
+<polygon fill="none" stroke="black" points="112,-108 0,-108 0,-84 112,-84 112,-108"/>
+<text text-anchor="middle" x="56" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CFIODestroy</text>
+</g>
+<!-- proc~esmf_cfiodestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node2" class="node">
+<title>proc~esmf_cfiodestroy</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node2"><a xlink:href="../proc/esmf_cfiodestroy.html" xlink:title="ESMF_CFIODestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="263,-230 151,-230 151,-206 263,-206 263,-230"/>
+<text text-anchor="middle" x="207" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIODestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiodestroy&#45;&gt;proc~esmf_cfiodestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_cfiodestroy&#45;&gt;proc~esmf_cfiodestroy</title>
+<path fill="none" stroke="#ff0000" d="M71.83,-108.14C97.94,-129.52 152.25,-173.99 183.17,-199.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="181.27,-202.28 191.23,-205.91 185.71,-196.86 181.27,-202.28"/>
+</g>
+<!-- proc~esmf_cfiofileclose -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node3" class="node">
+<title>proc~esmf_cfiofileclose</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node3"><a xlink:href="../proc/esmf_cfiofileclose.html" xlink:title="ESMF_CFIOFileClose">
+<polygon fill="#d9534f" stroke="#d9534f" points="266,-129 148,-129 148,-105 266,-105 266,-129"/>
+<text text-anchor="middle" x="207" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOFileClose</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiodestroy&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_cfiodestroy&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M112.06,-103.76C120.46,-104.94 129.22,-106.18 137.86,-107.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="137.53,-110.88 147.92,-108.81 138.51,-103.95 137.53,-110.88"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="248,-87 166,-87 166,-63 248,-63 248,-87"/>
+<text text-anchor="middle" x="207" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiodestroy&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_cfiodestroy&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M112.06,-88.24C126.33,-86.23 141.63,-84.07 155.65,-82.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="156.19,-85.55 165.6,-80.69 155.21,-78.62 156.19,-85.55"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="245,-45 169,-45 169,-21 245,-21 245,-45"/>
+<text text-anchor="middle" x="207" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiodestroy&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_cfiodestroy&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M81.85,-83.83C100.01,-75.12 125.31,-63.33 148,-54 152.41,-52.19 157.04,-50.37 161.68,-48.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="163.01,-51.84 171.16,-45.07 160.57,-45.29 163.01,-51.84"/>
+</g>
+<!-- proc~cfio_close -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node6" class="node">
+<title>proc~cfio_close</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node6"><a xlink:href="../proc/cfio_close.html" xlink:title="CFIO_Close">
+<polygon fill="#d9534f" stroke="#d9534f" points="590,-189 518,-189 518,-165 590,-165 590,-189"/>
+<text text-anchor="middle" x="554" y="-174.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_Close</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiodestroy&#45;&gt;proc~cfio_close -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge5" class="edge">
+<title>proc~esmf_cfiodestroy&#45;&gt;proc~cfio_close</title>
+<path fill="none" stroke="#ff0000" d="M263.05,-211.46C330.81,-203.41 444.61,-189.88 507.6,-182.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="508.12,-185.86 517.63,-181.2 507.29,-178.91 508.12,-185.86"/>
+</g>
+<!-- proc~esmf_cfiogriddestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node8" class="node">
+<title>proc~esmf_cfiogriddestroy</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node8"><a xlink:href="../proc/esmf_cfiogriddestroy.html" xlink:title="ESMF_CFIOGridDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="621,-248 487,-248 487,-224 621,-224 621,-248"/>
+<text text-anchor="middle" x="554" y="-233.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOGridDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiodestroy&#45;&gt;proc~esmf_cfiogriddestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge6" class="edge">
+<title>proc~esmf_cfiodestroy&#45;&gt;proc~esmf_cfiogriddestroy</title>
+<path fill="none" stroke="#ff0000" d="M263.05,-220.87C320.83,-223.89 412.11,-228.65 476.8,-232.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="476.77,-235.53 486.94,-232.55 477.14,-228.54 476.77,-235.53"/>
+</g>
+<!-- proc~esmf_cfiovarinfodestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node10" class="node">
+<title>proc~esmf_cfiovarinfodestroy</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node10"><a xlink:href="../proc/esmf_cfiovarinfodestroy.html" xlink:title="ESMF_CFIOVarInfoDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="451,-290 302,-290 302,-266 451,-266 451,-290"/>
+<text text-anchor="middle" x="376.5" y="-275.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOVarInfoDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiodestroy&#45;&gt;proc~esmf_cfiovarinfodestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge7" class="edge">
+<title>proc~esmf_cfiodestroy&#45;&gt;proc~esmf_cfiovarinfodestroy</title>
+<path fill="none" stroke="#ff0000" d="M241.9,-230.14C267.98,-239.48 304.2,-252.46 332.35,-262.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="331.35,-265.9 341.94,-265.98 333.71,-259.31 331.35,-265.9"/>
+</g>
+<!-- proc~esmf_cfioget -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node7" class="node">
+<title>proc~esmf_cfioget</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node7"><a xlink:href="../proc/esmf_cfioget.html" xlink:title="ESMF_CFIOGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="421.5,-129 331.5,-129 331.5,-105 421.5,-105 421.5,-129"/>
+<text text-anchor="middle" x="376.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOGet</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiofileclose&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge8" class="edge">
+<title>proc~esmf_cfiofileclose&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#7fff00" d="M266.11,-117C284.04,-117 303.71,-117 321.36,-117"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="321.49,-120.5 331.49,-117 321.49,-113.5 321.49,-120.5"/>
+</g>
+<!-- proc~esmf_cfiosdffileclose -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node9" class="node">
+<title>proc~esmf_cfiosdffileclose</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node9"><a xlink:href="../proc/esmf_cfiosdffileclose.html" xlink:title="ESMF_CFIOSdfFileClose">
+<polygon fill="#d9534f" stroke="#d9534f" points="444.5,-171 308.5,-171 308.5,-147 444.5,-147 444.5,-171"/>
+<text text-anchor="middle" x="376.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfFileClose</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiofileclose&#45;&gt;proc~esmf_cfiosdffileclose -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge9" class="edge">
+<title>proc~esmf_cfiofileclose&#45;&gt;proc~esmf_cfiosdffileclose</title>
+<path fill="none" stroke="#7fff00" d="M256,-129.04C275.19,-133.85 297.45,-139.43 317.53,-144.46"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="316.94,-147.93 327.49,-146.96 318.65,-141.14 316.94,-147.93"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node11" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node11"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="434,-87 319,-87 319,-63 434,-63 434,-87"/>
+<text text-anchor="middle" x="376.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M248.12,-75C266.25,-75 288.17,-75 308.68,-75"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="308.92,-78.5 318.92,-75 308.92,-71.5 308.92,-78.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node12" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node12"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="443,-45 310,-45 310,-21 443,-21 443,-45"/>
+<text text-anchor="middle" x="376.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M248.12,-64.94C268.86,-59.74 294.55,-53.3 317.42,-47.56"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="318.51,-50.9 327.36,-45.07 316.81,-44.11 318.51,-50.9"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M245.17,-33C261.27,-33 280.73,-33 299.64,-33"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="299.77,-36.5 309.77,-33 299.77,-29.5 299.77,-36.5"/>
+</g>
+<!-- ncclos -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node15" class="node">
+<title>ncclos</title>
+<polygon fill="#777777" stroke="#777777" points="711,-190 657,-190 657,-166 711,-166 711,-190"/>
+<text text-anchor="middle" x="684" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ncclos</text>
+</g>
+<!-- proc~cfio_close&#45;&gt;ncclos -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge13" class="edge">
+<title>proc~cfio_close&#45;&gt;ncclos</title>
+<path fill="none" stroke="#ff0000" d="M590.32,-177.28C607.72,-177.41 628.69,-177.58 646.28,-177.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="646.71,-181.22 656.73,-177.79 646.76,-174.22 646.71,-181.22"/>
+</g>
+<!-- proc~err -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node17" class="node">
+<title>proc~err</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node17"><a xlink:href="../proc/err.html" xlink:title="err">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="711,-148 657,-148 657,-124 711,-124 711,-148"/>
+<text text-anchor="middle" x="684" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">err</text>
+</a>
+</g>
+</g>
+<!-- proc~cfio_close&#45;&gt;proc~err -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge14" class="edge">
+<title>proc~cfio_close&#45;&gt;proc~err</title>
+<path fill="none" stroke="#ff0000" d="M590.32,-165.69C607.88,-160.06 629.09,-153.27 646.78,-147.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="648.28,-150.8 656.73,-144.41 646.14,-144.13 648.28,-150.8"/>
+</g>
+<!-- proc~esmf_cfioget&#45;&gt;proc~err -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge15" class="edge">
+<title>proc~esmf_cfioget&#45;&gt;proc~err</title>
+<path fill="none" stroke="#ffda00" d="M421.6,-119.74C482.29,-123.52 590.45,-130.24 646.72,-133.74"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="646.73,-137.25 656.93,-134.38 647.16,-130.26 646.73,-137.25"/>
+</g>
+<!-- proc~esmf_cfiosdffileclose&#45;&gt;proc~cfio_close -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge16" class="edge">
+<title>proc~esmf_cfiosdffileclose&#45;&gt;proc~cfio_close</title>
+<path fill="none" stroke="#00ff91" d="M444.6,-165.88C465.76,-168.05 488.62,-170.4 507.87,-172.37"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="507.56,-175.86 517.87,-173.4 508.28,-168.89 507.56,-175.86"/>
+</g>
+<!-- proc~esmf_cfiovarinfodestroy&#45;&gt;proc~esmf_cfiogriddestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge18" class="edge">
+<title>proc~esmf_cfiovarinfodestroy&#45;&gt;proc~esmf_cfiogriddestroy</title>
+<path fill="none" stroke="#0091ff" d="M427.79,-265.96C448.08,-261.11 471.65,-255.47 492.84,-250.4"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="493.79,-253.77 502.7,-248.04 492.16,-246.96 493.79,-253.77"/>
+</g>
+<!-- proc~cnodedestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node16" class="node">
+<title>proc~cnodedestroy</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node16"><a xlink:href="../proc/cnodedestroy.html" xlink:title="cNodeDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="597.5,-374 510.5,-374 510.5,-350 597.5,-350 597.5,-374"/>
+<text text-anchor="middle" x="554" y="-359.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cNodeDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiovarinfodestroy&#45;&gt;proc~cnodedestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge17" class="edge">
+<title>proc~esmf_cfiovarinfodestroy&#45;&gt;proc~cnodedestroy</title>
+<path fill="none" stroke="#0091ff" d="M395.85,-290.19C417.1,-303.92 453.48,-326.23 487,-341 491.44,-342.96 496.13,-344.82 500.86,-346.57"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="500.01,-349.98 510.6,-349.99 502.33,-343.37 500.01,-349.98"/>
+</g>
+<!-- proc~inodedestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node19" class="node">
+<title>proc~inodedestroy</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node19"><a xlink:href="../proc/inodedestroy.html" xlink:title="iNodeDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="596,-332 512,-332 512,-308 596,-308 596,-332"/>
+<text text-anchor="middle" x="554" y="-317.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iNodeDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiovarinfodestroy&#45;&gt;proc~inodedestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge19" class="edge">
+<title>proc~esmf_cfiovarinfodestroy&#45;&gt;proc~inodedestroy</title>
+<path fill="none" stroke="#0091ff" d="M427.79,-290.04C451.1,-295.61 478.75,-302.23 502.13,-307.83"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="501.32,-311.23 511.86,-310.16 502.95,-304.42 501.32,-311.23"/>
+</g>
+<!-- proc~rnodedestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node20" class="node">
+<title>proc~rnodedestroy</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node20"><a xlink:href="../proc/rnodedestroy.html" xlink:title="rNodeDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="596.5,-290 511.5,-290 511.5,-266 596.5,-266 596.5,-290"/>
+<text text-anchor="middle" x="554" y="-275.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">rNodeDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiovarinfodestroy&#45;&gt;proc~rnodedestroy -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge20" class="edge">
+<title>proc~esmf_cfiovarinfodestroy&#45;&gt;proc~rnodedestroy</title>
+<path fill="none" stroke="#0091ff" d="M451.16,-278C467.78,-278 485.09,-278 500.62,-278"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="501.06,-281.5 511.06,-278 501.06,-274.5 501.06,-281.5"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node13" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="581,-66 527,-66 527,-42 581,-42 581,-66"/>
+<text text-anchor="middle" x="554" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge21" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#4800ff" d="M434.48,-68.18C461.51,-64.95 492.99,-61.18 516.72,-58.34"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="517.19,-61.81 526.7,-57.15 516.36,-54.86 517.19,-61.81"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node14" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="581,-108 527,-108 527,-84 581,-84 581,-108"/>
+<text text-anchor="middle" x="554" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge22" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#4800ff" d="M434.48,-81.82C461.51,-85.05 492.99,-88.82 516.72,-91.66"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="516.36,-95.14 526.7,-92.85 517.19,-88.19 516.36,-95.14"/>
+</g>
+<!-- proc~initialize~11 -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_node18" class="node">
+<title>proc~initialize~11</title>
+<g id="a_proc~~mapl_cfiodestroy~~CallsGraph_node18"><a xlink:href="../proc/initialize~11.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="582.5,-24 525.5,-24 525.5,0 582.5,0 582.5,-24"/>
+<text text-anchor="middle" x="554" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~11 -->
+<g id="proc~~mapl_cfiodestroy~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~11</title>
+<path fill="none" stroke="#ff00da" d="M443.35,-25.12C467.65,-22.21 494.33,-19.02 515.3,-16.51"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="515.88,-19.97 525.39,-15.3 515.05,-13.02 515.88,-19.97"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_cfiodestroyCallsGraph = svgPanZoom('#procmapl_cfiodestroyCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_cfiodestroy~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_cfiodestroyCalledByGraph" width="585pt" height="158pt"
+ viewBox="0.00 0.00 585.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154)">
+<title>proc~~mapl_cfiodestroy~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 581,-154 581,4 -4,4"/>
+<!-- proc~mapl_cfiodestroy -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_node1" class="node">
+<title>proc~mapl_cfiodestroy</title>
+<polygon fill="none" stroke="black" points="577,-87 465,-87 465,-63 577,-63 577,-87"/>
+<text text-anchor="middle" x="521" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CFIODestroy</text>
+</g>
+<!-- interface~esmf_iodestroy -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_node2" class="node">
+<title>interface~esmf_iodestroy</title>
+<g id="a_proc~~mapl_cfiodestroy~~CalledByGraph_node2"><a xlink:href="../interface/esmf_iodestroy.html" xlink:title="ESMF_ioDestroy">
+<polygon fill="#a7506f" stroke="#a7506f" points="400,-150 303,-150 303,-126 400,-126 400,-150"/>
+<text text-anchor="middle" x="351.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ioDestroy</text>
+</a>
+</g>
+</g>
+<!-- interface~esmf_iodestroy&#45;&gt;proc~mapl_cfiodestroy -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_edge4" class="edge">
+<title>interface~esmf_iodestroy&#45;&gt;proc~mapl_cfiodestroy</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M400.22,-126.21C409.84,-123.46 419.81,-120.35 429,-117 448.86,-109.75 470.36,-99.92 487.48,-91.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="489.08,-94.71 496.5,-87.15 485.98,-88.43 489.08,-94.71"/>
+</g>
+<!-- proc~finalize -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_node3" class="node">
+<title>proc~finalize</title>
+<g id="a_proc~~mapl_cfiodestroy~~CalledByGraph_node3"><a xlink:href="../proc/finalize.html" xlink:title="Finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="378.5,-108 324.5,-108 324.5,-84 378.5,-84 378.5,-108"/>
+<text text-anchor="middle" x="351.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize&#45;&gt;proc~mapl_cfiodestroy -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_edge1" class="edge">
+<title>proc~finalize&#45;&gt;proc~mapl_cfiodestroy</title>
+<path fill="none" stroke="#ff0000" d="M378.67,-92.72C399.07,-90.16 428.3,-86.5 454.89,-83.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="455.44,-86.62 464.92,-81.91 454.56,-79.68 455.44,-86.62"/>
+</g>
+<!-- proc~mapl_simplebundlewrite1 -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_node4" class="node">
+<title>proc~mapl_simplebundlewrite1</title>
+<g id="a_proc~~mapl_cfiodestroy~~CalledByGraph_node4"><a xlink:href="../proc/mapl_simplebundlewrite1.html" xlink:title="MAPL_SimpleBundleWrite1">
+<polygon fill="#d9534f" stroke="#d9534f" points="429,-66 274,-66 274,-42 429,-42 429,-66"/>
+<text text-anchor="middle" x="351.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SimpleBundleWrite1</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_simplebundlewrite1&#45;&gt;proc~mapl_cfiodestroy -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_simplebundlewrite1&#45;&gt;proc~mapl_cfiodestroy</title>
+<path fill="none" stroke="#ff0000" d="M429.39,-63.64C437.82,-64.7 446.36,-65.77 454.63,-66.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="454.23,-70.28 464.58,-68.05 455.1,-63.34 454.23,-70.28"/>
+</g>
+<!-- proc~mapl_simplebundlewrite2 -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_node5" class="node">
+<title>proc~mapl_simplebundlewrite2</title>
+<g id="a_proc~~mapl_cfiodestroy~~CalledByGraph_node5"><a xlink:href="../proc/mapl_simplebundlewrite2.html" xlink:title="MAPL_SimpleBundleWrite2">
+<polygon fill="#d9534f" stroke="#d9534f" points="429,-24 274,-24 274,0 429,0 429,-24"/>
+<text text-anchor="middle" x="351.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SimpleBundleWrite2</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_simplebundlewrite2&#45;&gt;proc~mapl_cfiodestroy -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_edge3" class="edge">
+<title>proc~mapl_simplebundlewrite2&#45;&gt;proc~mapl_cfiodestroy</title>
+<path fill="none" stroke="#ff0000" d="M401.03,-24.03C410.4,-26.71 420.07,-29.74 429,-33 448.86,-40.25 470.36,-50.08 487.48,-58.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="485.98,-61.57 496.5,-62.85 489.08,-55.29 485.98,-61.57"/>
+</g>
+<!-- interface~mapl_simplebundlewrite -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_node6" class="node">
+<title>interface~mapl_simplebundlewrite</title>
+<g id="a_proc~~mapl_cfiodestroy~~CalledByGraph_node6"><a xlink:href="../interface/mapl_simplebundlewrite.html" xlink:title="MAPL_SimpleBundleWrite">
+<polygon fill="#a7506f" stroke="#a7506f" points="238,-45 90,-45 90,-21 238,-21 238,-45"/>
+<text text-anchor="middle" x="164" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SimpleBundleWrite</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_simplebundlewrite&#45;&gt;proc~mapl_simplebundlewrite1 -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_edge6" class="edge">
+<title>interface~mapl_simplebundlewrite&#45;&gt;proc~mapl_simplebundlewrite1</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M238.05,-41.27C246.5,-42.23 255.18,-43.21 263.8,-44.18"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="263.53,-47.68 273.86,-45.32 264.31,-40.72 263.53,-47.68"/>
+</g>
+<!-- interface~mapl_simplebundlewrite&#45;&gt;proc~mapl_simplebundlewrite2 -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_edge7" class="edge">
+<title>interface~mapl_simplebundlewrite&#45;&gt;proc~mapl_simplebundlewrite2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M238.05,-24.73C246.5,-23.77 255.18,-22.79 263.8,-21.82"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="264.31,-25.28 273.86,-20.68 263.53,-18.32 264.31,-25.28"/>
+</g>
+<!-- proc~test_main~3 -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_node7" class="node">
+<title>proc~test_main~3</title>
+<g id="a_proc~~mapl_cfiodestroy~~CalledByGraph_node7"><a xlink:href="../proc/test_main~3.html" xlink:title="test_main">
+<polygon fill="#d9534f" stroke="#d9534f" points="196,-150 132,-150 132,-126 196,-126 196,-150"/>
+<text text-anchor="middle" x="164" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_main</text>
+</a>
+</g>
+</g>
+<!-- proc~test_main~3&#45;&gt;interface~esmf_iodestroy -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_edge5" class="edge">
+<title>proc~test_main~3&#45;&gt;interface~esmf_iodestroy</title>
+<path fill="none" stroke="#ff0000" d="M196.05,-138C222.39,-138 260.87,-138 292.84,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="292.96,-141.5 302.96,-138 292.96,-134.5 292.96,-141.5"/>
+</g>
+<!-- program~utcfio~2 -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_node8" class="node">
+<title>program~utcfio~2</title>
+<g id="a_proc~~mapl_cfiodestroy~~CalledByGraph_node8"><a xlink:href="../program/utcfio~2.html" xlink:title="utCFIO">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-150 0,-150 0,-126 54,-126 54,-150"/>
+<text text-anchor="middle" x="27" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO</text>
+</a>
+</g>
+</g>
+<!-- program~utcfio~2&#45;&gt;proc~test_main~3 -->
+<g id="proc~~mapl_cfiodestroy~~CalledByGraph_edge8" class="edge">
+<title>program~utcfio~2&#45;&gt;proc~test_main~3</title>
+<path fill="none" stroke="#00ffff" d="M54.03,-138C73.21,-138 99.69,-138 121.74,-138"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="121.84,-141.5 131.84,-138 121.84,-134.5 121.84,-141.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_CFIODestroy</span><span class="p">(</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+<span class="c">!</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_CFIO</span><span class="p">),</span><span class="w">             </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MCFIO</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+<span class="c">!</span>
+<span class="w">  </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">Krank</span><span class="w">     </span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">Krank</span><span class="w">     </span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">reqs</span><span class="w">      </span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">reqs</span><span class="w">      </span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">varname</span><span class="w">   </span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">varname</span><span class="w">   </span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">vardims</span><span class="w">   </span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">vardims</span><span class="w">   </span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">Levs</span><span class="w">      </span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">Levs</span><span class="w">      </span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">vartype</span><span class="w">   </span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">vartype</span><span class="w">   </span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">needvar</span><span class="w">   </span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">needvar</span><span class="w">   </span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">pairList</span><span class="w">  </span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">pairList</span><span class="w">  </span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">buffer</span><span class="w">    </span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">buffer</span><span class="w">  </span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">varid</span><span class="w">     </span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">varid</span><span class="w">  </span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">nullify</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">Krank</span><span class="w">     </span><span class="p">)</span>
+<span class="w">  </span><span class="k">nullify</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">reqs</span><span class="w">      </span><span class="p">)</span>
+<span class="w">  </span><span class="k">nullify</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">varname</span><span class="w">   </span><span class="p">)</span>
+<span class="w">  </span><span class="k">nullify</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">vardims</span><span class="w">   </span><span class="p">)</span>
+<span class="w">  </span><span class="k">nullify</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">Levs</span><span class="w">      </span><span class="p">)</span>
+<span class="w">  </span><span class="k">nullify</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">varid</span><span class="w">     </span><span class="p">)</span>
+<span class="w">  </span><span class="k">nullify</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">buffer</span><span class="w">    </span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">Root</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">     if</span><span class="w"> </span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">myPE</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">RootRank</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">ESMF_CFIOFileClose</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">CFIO</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">     </span><span class="k">end if</span>
+<span class="k">  end if</span>
+
+<span class="k">  call </span><span class="n">ESMF_CFIODestroy</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">CFIO</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">created</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+
+<span class="w">  </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_CFIODestroy</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-09T17:01:38.579652             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
