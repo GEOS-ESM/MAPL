@@ -662,7 +662,7 @@ program checkpoint_tester
    call support%set_parameters("checkpoint_benchmark.rc")
    call MPI_Barrier(MPI_COMM_WORLD,status)
 
-   if (support%do_writes) call support%create_arrays()
+   call support%create_arrays()
    call MPI_Barrier(MPI_COMM_WORLD,status)
 
    call support%create_communicators()
