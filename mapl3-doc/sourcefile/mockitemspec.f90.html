@@ -1,0 +1,1069 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MockItemSpec.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MockItemSpec.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">209 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MockItemSpec.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">MockItemSpec.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mockitemspecmod.html">MockItemSpecMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/mockitemspec.f90.html#src">MockItemSpec.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mockitemspec.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilemockitemspecf90EfferentGraph" width="641pt" height="571pt"
+ viewBox="0.00 0.00 641.00 570.85" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph" class="graph" transform="scale(1.53 1.53) rotate(0) translate(4 870.53)">
+<title>sourcefile~~mockitemspec.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-870.53 978,-870.53 978,4 -4,4"/>
+<!-- sourcefile~mockitemspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~mockitemspec.f90</title>
+<polygon fill="none" stroke="black" points="974,-605.62 861,-605.62 861,-581.62 974,-581.62 974,-605.62"/>
+<text text-anchor="middle" x="917.5" y="-591.22" font-family="Helvetica,sans-Serif" font-size="10.50">MockItemSpec.F90</text>
+</g>
+<!-- sourcefile~abstractactionspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~abstractactionspec.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/abstractactionspec.f90.html" xlink:title="AbstractActionSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="825,-827.62 686,-827.62 686,-803.62 825,-803.62 825,-827.62"/>
+<text text-anchor="middle" x="755.5" y="-813.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractActionSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockitemspec.f90&#45;&gt;sourcefile~abstractactionspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~mockitemspec.f90&#45;&gt;sourcefile~abstractactionspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M914.09,-606.1C906.87,-640.29 882.24,-736.46 825,-789.62 821.19,-793.15 816.86,-796.22 812.26,-798.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="810.49,-795.85 803.17,-803.51 813.67,-802.09 810.49,-795.85"/>
+</g>
+<!-- sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~actualconnectionpt.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/actualconnectionpt.f90.html" xlink:title="ActualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="315,-135.62 176,-135.62 176,-111.62 315,-111.62 315,-135.62"/>
+<text text-anchor="middle" x="245.5" y="-121.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockitemspec.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~mockitemspec.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M915.1,-581.55C906.54,-514.02 854.6,-181.68 650,-62.62 526.64,9.17 347.56,-69.8 276.85,-106.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="275.18,-103.63 267.99,-111.41 278.47,-109.81 275.18,-103.63"/>
+</g>
+<!-- sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~actualptvector.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/actualptvector.f90.html" xlink:title="ActualPtVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="466,-661.62 356,-661.62 356,-637.62 466,-637.62 466,-661.62"/>
+<text text-anchor="middle" x="411" y="-647.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualPtVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockitemspec.f90&#45;&gt;sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~mockitemspec.f90&#45;&gt;sourcefile~actualptvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M910.93,-605.71C893.91,-640.88 838.74,-742.77 756.5,-775.62"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M754.5,-775.62C695.09,-799.35 708,-703.62 650,-676.62 595.27,-651.14 526.08,-645.87 476.42,-646.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="476.09,-642.59 466.14,-646.21 476.18,-649.59 476.09,-642.59"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465.5,-787.62 356.5,-787.62 356.5,-763.62 465.5,-763.62 465.5,-787.62"/>
+<text text-anchor="middle" x="411" y="-773.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockitemspec.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~mockitemspec.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M577.5,-775.62C544.01,-773.52 506.63,-773.34 475.88,-773.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="475.66,-770.26 465.72,-773.92 475.77,-777.26 475.66,-770.26"/>
+</g>
+<!-- sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~extensionaction.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/extensionaction.f90.html" xlink:title="ExtensionAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="471,-745.62 351,-745.62 351,-721.62 471,-721.62 471,-745.62"/>
+<text text-anchor="middle" x="411" y="-731.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockitemspec.f90&#45;&gt;sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~mockitemspec.f90&#45;&gt;sourcefile~extensionaction.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M754.5,-775.62C682.34,-804.63 657.13,-780.46 579.5,-775.62"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M577.5,-775.62C534.6,-772.94 487.2,-759.82 454.17,-748.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="454.99,-745.53 444.39,-745.66 452.76,-752.16 454.99,-745.53"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="132,-621.62 8,-621.62 8,-597.62 132,-597.62 132,-621.62"/>
+<text text-anchor="middle" x="70" y="-607.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockitemspec.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~mockitemspec.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M754.5,-775.62C725.19,-787.4 712.66,-777.66 686,-794.62 665.25,-807.81 671.86,-825.37 650,-836.62 555.57,-885.19 518.15,-860.51 412,-857.62"/>
+</g>
+<!-- sourcefile~multistate.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~multistate.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/multistate.f90.html" xlink:title="MultiState.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="622.5,-827.62 534.5,-827.62 534.5,-803.62 622.5,-803.62 622.5,-827.62"/>
+<text text-anchor="middle" x="578.5" y="-813.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiState.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockitemspec.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~mockitemspec.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M754.5,-775.62C732.66,-784.34 675.76,-796.68 632.73,-805.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="631.79,-801.95 622.67,-807.34 633.16,-808.82 631.79,-801.95"/>
+</g>
+<!-- sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~stateitemspec.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/stateitemspec.f90.html" xlink:title="StateItemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="635,-709.62 522,-709.62 522,-685.62 635,-685.62 635,-709.62"/>
+<text text-anchor="middle" x="578.5" y="-695.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockitemspec.f90&#45;&gt;sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~mockitemspec.f90&#45;&gt;sourcefile~stateitemspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M754.5,-775.62C696.98,-798.59 630.54,-746.87 598.6,-716.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="600.88,-714.3 591.25,-709.89 596.02,-719.35 600.88,-714.3"/>
+</g>
+<!-- sourcefile~variablespec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~variablespec.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/variablespec.f90.html" xlink:title="VariableSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="808,-403.62 703,-403.62 703,-379.62 808,-379.62 808,-403.62"/>
+<text text-anchor="middle" x="755.5" y="-389.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockitemspec.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~mockitemspec.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M906.97,-581.58C880.47,-548.12 805.66,-453.68 772.58,-411.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="775.13,-409.51 766.18,-403.84 769.65,-413.85 775.13,-409.51"/>
+</g>
+<!-- sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M240.21,-135.63C217.24,-199.97 108.7,-504.01 78.7,-588.05"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="75.36,-586.99 75.29,-597.59 81.95,-589.35 75.36,-586.99"/>
+</g>
+<!-- sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node24" class="node">
+<title>sourcefile~virtualconnectionpt.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node24"><a xlink:href="../sourcefile/virtualconnectionpt.f90.html" xlink:title="VirtualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="140,-95.62 0,-95.62 0,-71.62 140,-71.62 140,-95.62"/>
+<text text-anchor="middle" x="70" y="-81.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M192.44,-111.61C173.83,-107.32 152.66,-102.44 133.27,-97.97"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="133.85,-94.51 123.32,-95.68 132.28,-101.34 133.85,-94.51"/>
+</g>
+<!-- sourcefile~actualptvector.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~actualptvector.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M406.2,-637.39C384.96,-569.06 280.92,-234.36 253.26,-145.38"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="256.59,-144.29 250.28,-135.78 249.91,-146.36 256.59,-144.29"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="295.5,-787.62 195.5,-787.62 195.5,-763.62 295.5,-763.62 295.5,-787.62"/>
+<text text-anchor="middle" x="245.5" y="-773.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M356.46,-775.62C340.27,-775.62 322.39,-775.62 305.84,-775.62"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="305.73,-772.12 295.73,-775.62 305.73,-779.12 305.73,-772.12"/>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M534.45,-805.21C515.35,-800.6 492.56,-795.09 471.85,-790.08"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="472.42,-786.62 461.87,-787.67 470.77,-793.42 472.42,-786.62"/>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M545.11,-827.66C512.15,-838.99 459.34,-854.66 412,-857.62"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M410,-857.62C302.73,-864.31 261.1,-862.26 176,-796.62 119.83,-753.28 89.11,-670.87 77.07,-631.55"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="80.4,-630.49 74.22,-621.88 73.69,-632.47 80.4,-630.49"/>
+</g>
+<!-- sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~esmf_utilities.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/esmf_utilities.f90.html" xlink:title="ESMF_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-829.62 357,-829.62 357,-805.62 465,-805.62 465,-829.62"/>
+<text text-anchor="middle" x="411" y="-815.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~esmf_utilities.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M534.45,-816.14C516.42,-816.35 495.11,-816.61 475.35,-816.85"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="475.15,-813.35 465.19,-816.97 475.23,-820.35 475.15,-813.35"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~actualptvector.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M535.74,-685.5C513.7,-679.11 486.48,-671.22 463.18,-664.46"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="464.04,-661.07 453.46,-661.64 462.09,-667.79 464.04,-661.07"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M537.21,-709.66C527.02,-713.46 516.33,-718.12 507,-723.62 488.8,-734.33 489.26,-744.01 471,-754.62 467.99,-756.36 464.82,-758 461.57,-759.53"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="460.05,-756.37 452.25,-763.55 462.82,-762.8 460.05,-756.37"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~extensionaction.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M521.93,-709.7C507.66,-712.81 492.18,-716.17 477.47,-719.38"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="476.45,-716.01 467.42,-721.56 477.94,-722.85 476.45,-716.01"/>
+</g>
+<!-- sourcefile~nullaction.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~nullaction.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/nullaction.f90.html" xlink:title="NullAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="455,-703.62 367,-703.62 367,-679.62 455,-679.62 455,-703.62"/>
+<text text-anchor="middle" x="411" y="-689.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NullAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~nullaction.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~nullaction.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M521.93,-695.6C503.63,-694.94 483.34,-694.2 465.22,-693.55"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="465.25,-690.04 455.13,-693.18 464.99,-697.04 465.25,-690.04"/>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M753.72,-379.53C750.33,-338.02 732.99,-200.65 650,-142.62 599.39,-107.22 427.41,-111.54 325.03,-117.68"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="324.81,-114.18 315.04,-118.29 325.24,-121.17 324.81,-114.18"/>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~actualptvector.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M718.35,-379.57C666.47,-364.71 570.24,-346.46 507,-390.62 427.62,-446.05 414.37,-575.46 412.3,-627.43"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="408.8,-627.46 412.01,-637.56 415.8,-627.66 408.8,-627.46"/>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M754.58,-403.9C754.2,-452.03 746.09,-629.41 650,-718.62 637.13,-730.56 541.69,-750.84 475.65,-763.71"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="474.88,-760.3 465.73,-765.63 476.21,-767.17 474.88,-760.3"/>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M752.79,-403.69C746.8,-441.01 722.98,-554.73 650,-600.62 608.08,-626.98 287.74,-618.09 142.36,-612.6"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="142.33,-609.1 132.2,-612.21 142.06,-616.09 142.33,-609.1"/>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~stateitemspec.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M751.23,-403.87C740.9,-441.06 706.29,-554.88 650,-633.62 637.46,-651.15 619.4,-667.43 604.7,-679.18"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="602.25,-676.65 596.5,-685.55 606.55,-682.18 602.25,-676.65"/>
+</g>
+<!-- sourcefile~bracketspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~bracketspec.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/bracketspec.f90.html" xlink:title="BracketSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="630,-343.62 527,-343.62 527,-319.62 630,-319.62 630,-343.62"/>
+<text text-anchor="middle" x="578.5" y="-329.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BracketSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~bracketspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~bracketspec.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M719.09,-379.47C691.72,-370.09 653.66,-357.04 624.2,-346.94"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="625.16,-343.57 614.56,-343.64 622.89,-350.19 625.16,-343.57"/>
+</g>
+<!-- sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~fieldspec.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/fieldspec.f90.html" xlink:title="FieldSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="621.5,-301.62 535.5,-301.62 535.5,-277.62 621.5,-277.62 621.5,-301.62"/>
+<text text-anchor="middle" x="578.5" y="-287.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M742.06,-379.43C723.49,-361.87 686.75,-329.49 650,-310.62 644.05,-307.56 637.58,-304.87 631.05,-302.53"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="632.1,-299.19 621.5,-299.35 629.88,-305.84 632.1,-299.19"/>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~hierarchicalregistry.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/hierarchicalregistry.f90.html" xlink:title="HierarchicalRegistry.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="649,-259.62 508,-259.62 508,-235.62 649,-235.62 649,-259.62"/>
+<text text-anchor="middle" x="578.5" y="-245.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HierarchicalRegistry.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M747.55,-379.46C732.82,-354.78 696,-298.62 650,-268.62 647.41,-266.93 644.68,-265.37 641.86,-263.93"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="643.15,-260.67 632.59,-259.75 640.27,-267.05 643.15,-260.67"/>
+</g>
+<!-- sourcefile~horizontaldimsspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~horizontaldimsspec.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/horizontaldimsspec.f90.html" xlink:title="HorizontalDimsSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="650,-217.62 507,-217.62 507,-193.62 650,-193.62 650,-217.62"/>
+<text text-anchor="middle" x="578.5" y="-203.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HorizontalDimsSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~horizontaldimsspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~horizontaldimsspec.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M750.31,-379.57C739.09,-349.14 705.43,-268.56 650,-226.62 647.95,-225.06 645.79,-223.63 643.54,-222.3"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="645.03,-219.12 634.53,-217.67 641.83,-225.35 645.03,-219.12"/>
+</g>
+<!-- sourcefile~invalidspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~invalidspec.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/invalidspec.f90.html" xlink:title="InvalidSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="627,-175.62 530,-175.62 530,-151.62 627,-151.62 627,-175.62"/>
+<text text-anchor="middle" x="578.5" y="-161.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InvalidSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~invalidspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~invalidspec.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M751.93,-379.47C743.76,-343.9 715.01,-238.97 650,-184.62 646,-181.27 641.48,-178.46 636.71,-176.1"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="637.88,-172.79 627.31,-172.08 635.13,-179.22 637.88,-172.79"/>
+</g>
+<!-- sourcefile~servicespec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~servicespec.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/servicespec.f90.html" xlink:title="ServiceSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="629,-95.62 528,-95.62 528,-71.62 629,-71.62 629,-95.62"/>
+<text text-anchor="middle" x="578.5" y="-81.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServiceSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~servicespec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~servicespec.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M753.55,-379.55C749.51,-336.63 730.18,-189.67 650,-109.62 646.49,-106.11 642.47,-103.08 638.17,-100.45"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="639.49,-97.19 629.01,-95.6 636.21,-103.37 639.49,-97.19"/>
+</g>
+<!-- sourcefile~stateitem.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~stateitem.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/stateitem.f90.html" xlink:title="StateItem.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="622,-591.62 535,-591.62 535,-567.62 622,-567.62 622,-591.62"/>
+<text text-anchor="middle" x="578.5" y="-577.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItem.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~stateitem.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~stateitem.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M750.35,-403.8C739.24,-434.61 705.79,-516.15 650,-558.62 644.54,-562.77 638.26,-566.11 631.75,-568.79"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="630.34,-565.58 622.12,-572.26 632.72,-572.16 630.34,-565.58"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="637.5,-549.62 519.5,-549.62 519.5,-525.62 637.5,-525.62 637.5,-549.62"/>
+<text text-anchor="middle" x="578.5" y="-535.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M747.6,-403.97C732.97,-429.06 696.31,-486.14 650,-516.62 647.42,-518.32 644.69,-519.88 641.87,-521.33"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="640.28,-518.2 632.62,-525.52 643.17,-524.58 640.28,-518.2"/>
+</g>
+<!-- sourcefile~verticaldimspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~verticaldimspec.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node22"><a xlink:href="../sourcefile/verticaldimspec.f90.html" xlink:title="VerticalDimSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="640,-507.62 517,-507.62 517,-483.62 640,-483.62 640,-507.62"/>
+<text text-anchor="middle" x="578.5" y="-493.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalDimSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~verticaldimspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~verticaldimspec.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M742.42,-403.82C724.03,-421.77 687.19,-455.24 650,-474.62 646.3,-476.54 642.41,-478.32 638.42,-479.95"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="637.12,-476.7 628.99,-483.5 639.59,-483.25 637.12,-476.7"/>
+</g>
+<!-- sourcefile~verticalgeom.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node23" class="node">
+<title>sourcefile~verticalgeom.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node23"><a xlink:href="../sourcefile/verticalgeom.f90.html" xlink:title="VerticalGeom.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="632,-465.62 525,-465.62 525,-441.62 632,-441.62 632,-465.62"/>
+<text text-anchor="middle" x="578.5" y="-451.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalGeom.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~verticalgeom.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~verticalgeom.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M725.47,-403.77C704.63,-412.3 675.8,-423.73 650,-432.62 644.14,-434.64 637.96,-436.64 631.8,-438.57"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="630.71,-435.25 622.18,-441.53 632.77,-441.94 630.71,-435.25"/>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~virtualconnectionpt.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M752.55,-379.34C743.55,-324.41 704.17,-102.25 650,-62.62 482.26,60.1 208.12,-28.95 108.6,-67.88"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="107.25,-64.64 99.24,-71.59 109.83,-71.15 107.25,-64.64"/>
+</g>
+<!-- sourcefile~wildcardspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_node25" class="node">
+<title>sourcefile~wildcardspec.f90</title>
+<g id="a_sourcefile~~mockitemspec.f90~~EfferentGraph_node25"><a xlink:href="../sourcefile/wildcardspec.f90.html" xlink:title="WildcardSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="633,-423.62 524,-423.62 524,-399.62 633,-399.62 633,-423.62"/>
+<text text-anchor="middle" x="578.5" y="-409.22" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WildcardSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~wildcardspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~wildcardspec.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M702.94,-397.51C684.22,-399.65 662.85,-402.09 643.21,-404.33"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="642.66,-400.87 633.12,-405.49 643.45,-407.83 642.66,-400.87"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilemockitemspecf90EfferentGraph = svgPanZoom('#sourcefilemockitemspecf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mockitemspec.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilemockitemspecf90AfferentGraph" width="314pt" height="32pt"
+ viewBox="0.00 0.00 314.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mockitemspec.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>sourcefile~~mockitemspec.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 310,-28 310,4 -4,4"/>
+<!-- sourcefile~mockitemspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~mockitemspec.f90</title>
+<polygon fill="none" stroke="black" points="113,-24 0,-24 0,0 113,0 113,-24"/>
+<text text-anchor="middle" x="56.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MockItemSpec.F90</text>
+</g>
+<!-- sourcefile~test_hierarchicalregistry.pf -->
+<g id="sourcefile~~mockitemspec.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~test_hierarchicalregistry.pf</title>
+<g id="a_sourcefile~~mockitemspec.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/test_hierarchicalregistry.pf.html" xlink:title="Test_HierarchicalRegistry.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="306,-24 149,-24 149,0 306,0 306,-24"/>
+<text text-anchor="middle" x="227.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_HierarchicalRegistry.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_hierarchicalregistry.pf&#45;&gt;sourcefile~mockitemspec.f90 -->
+<g id="sourcefile~~mockitemspec.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~test_hierarchicalregistry.pf&#45;&gt;sourcefile~mockitemspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M148.92,-12C140.41,-12 131.8,-12 123.45,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="123.41,-8.5 113.41,-12 123.41,-15.5 123.41,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">MockItemSpecMod</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_StateItemSpec</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_AbstractActionSpec</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_VariableSpec</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_MultiState</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ActualConnectionPt</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ActualPtVector</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ExtensionAction</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandling</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_KeywordEnforcer</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="k">   private</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MockItemSpec</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MockAction</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="c">! Note - this leaks memory</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MockItemSpec</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">subtype</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">create</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">destroy</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">allocate</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">connect_to</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">can_connect_to</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_extension</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_extension_typesafe</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">extension_cost</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_to_state</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_to_bundle</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_action</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">   </span><span class="k">end type </span><span class="n">MockItemSpec</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">ExtensionAction</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MockAction</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">details</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">mock_run</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">   </span><span class="k">end type </span><span class="n">MockAction</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">   </span><span class="k">interface </span><span class="n">MockItemSpec</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_MockItemSpec</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">   </span><span class="k">end interface </span><span class="n">MockItemSpec</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">   </span><span class="k">interface </span><span class="n">MockAction</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_MockAction</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">   </span><span class="k">end interface </span><span class="n">MockAction</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="k">contains</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="k">   function </span><span class="n">new_MockItemSpec</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">subtype</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">subtype</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="n">spec</span><span class="p">%</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">subtype</span><span class="p">))</span><span class="w"> </span><span class="n">spec</span><span class="p">%</span><span class="n">subtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">subtype</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_MockItemSpec</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">create</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">create</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a>
+<a id="ln-73" name="ln-73" href="#ln-73"></a>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">destroy</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">destroy</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a>
+<a id="ln-81" name="ln-81" href="#ln-81"></a>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">   </span><span class="c">! Tile / Grid   X  or X, Y</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">   </span><span class="k">subroutine allocate</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">   </span><span class="k">end subroutine allocate</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="k">   subroutine </span><span class="n">connect_to</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">src_spec</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_spec</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_pt</span><span class="w"> </span><span class="c">! unused</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">can_connect</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="n">can_connect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">src_spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">can_connect</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;illegal connection&#39;</span><span class="p">)</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">src_spec</span><span class="p">)</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">)</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">         </span><span class="c">! ok</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">src_spec</span><span class="p">%</span><span class="n">name</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">src_spec</span><span class="p">%</span><span class="n">subtype</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="k">            </span><span class="n">this</span><span class="p">%</span><span class="n">subtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">src_spec</span><span class="p">%</span><span class="n">subtype</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="k">      class </span><span class="n">default</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Cannot connect field spec to non field spec.&#39;</span><span class="p">)</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">actual_pt</span><span class="p">)</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">connect_to</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a>
+<a id="ln-117" name="ln-117" href="#ln-117"></a>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">src_spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_spec</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">      </span><span class="k">select type</span><span class="p">(</span><span class="n">src_spec</span><span class="p">)</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">)</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">         </span><span class="n">can_connect_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span><span class="k">class </span><span class="n">default</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">         </span><span class="n">can_connect_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">   </span><span class="k">end function </span><span class="n">can_connect_to</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a>
+<a id="ln-133" name="ln-133" href="#ln-133"></a>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">add_to_state</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">multi_state</span><span class="p">,</span><span class="w"> </span><span class="n">actual_pt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MultiState</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">multi_state</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_pt</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">      </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;unimplemented&#39;</span><span class="p">)</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">add_to_state</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">add_to_bundle</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">      </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;unimplemented&#39;</span><span class="p">)</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">add_to_bundle</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">   </span><span class="k">function </span><span class="n">new_MockAction</span><span class="p">(</span><span class="n">src_spec</span><span class="p">,</span><span class="w"> </span><span class="n">dst_spec</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MockAction</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">action</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_spec</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst_spec</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">src_spec</span><span class="p">%</span><span class="n">subtype</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">dst_spec</span><span class="p">%</span><span class="n">subtype</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="k">         </span><span class="n">action</span><span class="p">%</span><span class="n">details</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">src_spec</span><span class="p">%</span><span class="n">subtype</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39; ==&gt; &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">dst_spec</span><span class="p">%</span><span class="n">subtype</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">      </span><span class="k">else</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="k">         </span><span class="n">action</span><span class="p">%</span><span class="n">details</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;no subtype&#39;</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="k">   end function </span><span class="n">new_MockAction</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">   </span><span class="k">function </span><span class="n">make_action</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">dst_spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="k">use </span><span class="n">mapl3g_ExtensionAction</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtensionAction</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">action</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst_spec</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">dst_spec</span><span class="p">)</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">Mockitemspec</span><span class="p">)</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">         </span><span class="n">action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockAction</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">dst_spec</span><span class="p">)</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">      </span><span class="k">class </span><span class="n">default</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;unsupported subclass&#39;</span><span class="p">)</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_action</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">mock_run</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MockAction</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">mock_run</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">   </span><span class="k">function </span><span class="n">make_extension</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">dst_spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">extension</span><span class="p">)</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">extension</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst_spec</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmp</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">      </span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="w">      </span><span class="k">select type</span><span class="p">(</span><span class="n">dst_spec</span><span class="p">)</span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">)</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">         </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">make_extension_typesafe</span><span class="p">(</span><span class="n">dst_spec</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">extension</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">tmp</span><span class="p">)</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">      </span><span class="k">class </span><span class="n">default</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;incompatible spec&#39;</span><span class="p">)</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_extension</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">   </span><span class="k">function </span><span class="n">make_extension_typesafe</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">src_spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">extension</span><span class="p">)</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">extension</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_spec</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-214" name="ln-214" href="#ln-214"></a>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a>
+<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">name</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">src_spec</span><span class="p">%</span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="k">         </span><span class="n">extension</span><span class="p">%</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">src_spec</span><span class="p">%</span><span class="n">name</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">src_spec</span><span class="p">%</span><span class="n">subtype</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">subtype</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">subtype</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">src_spec</span><span class="p">%</span><span class="n">subtype</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a><span class="k">            </span><span class="n">extension</span><span class="p">%</span><span class="n">subtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">src_spec</span><span class="p">%</span><span class="n">subtype</span>
+<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="w">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="k">      end if</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_extension_typesafe</span>
+<a id="ln-231" name="ln-231" href="#ln-231"></a>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="w">   </span><span class="kt">integer </span><span class="k">function </span><span class="n">extension_cost</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">src_spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">cost</span><span class="p">)</span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_spec</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-236" name="ln-236" href="#ln-236"></a>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-238" name="ln-238" href="#ln-238"></a>
+<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">      </span><span class="n">cost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">      </span><span class="k">select type</span><span class="p">(</span><span class="n">src_spec</span><span class="p">)</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">MockItemSpec</span><span class="p">)</span>
+<a id="ln-242" name="ln-242" href="#ln-242"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">name</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">src_spec</span><span class="p">%</span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="n">cost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cost</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">src_spec</span><span class="p">%</span><span class="n">subtype</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">subtype</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-244" name="ln-244" href="#ln-244"></a><span class="k">            if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">subtype</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">src_spec</span><span class="p">%</span><span class="n">subtype</span><span class="p">)</span><span class="w"> </span><span class="n">cost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cost</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-246" name="ln-246" href="#ln-246"></a><span class="k">      class </span><span class="n">default</span>
+<a id="ln-247" name="ln-247" href="#ln-247"></a><span class="w">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;incompatible spec&#39;</span><span class="p">)</span>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="w">   </span><span class="k">end function </span><span class="n">extension_cost</span>
+<a id="ln-252" name="ln-252" href="#ln-252"></a>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="k">end module </span><span class="n">MockItemSpecMod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-09T17:03:35.987948             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
