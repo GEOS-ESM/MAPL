@@ -17,28 +17,33 @@ module mapl3g_Cap
 contains
 
 
-   subroutine MAPL_run_driver(hconfig, unusable, rc)
+   subroutine MAPL_run_driver(hconfig, is_model_pet, unusable, rc)
       USE MAPL_ApplicationSupport
       type(ESMF_HConfig), intent(inout) :: hconfig
+      logical, intent(in) :: is_model_pet
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       type(GriddedComponentDriver) :: driver
       integer :: status
 
-      driver = make_driver(hconfig, _RC)
+      driver = make_driver(hconfig, is_model_pet, _RC)
 
-      call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
-      call integrate(driver, _RC)
-      call driver%finalize(_RC)
+      if (is_model_pet) then
+         call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+         call integrate(driver, _RC)
+         call driver%finalize(_RC)
+      end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine MAPL_run_driver
 
-   function make_driver(hconfig, rc) result(driver)
+   function make_driver(hconfig, is_model_pet, rc) result(driver)
       use mapl3g_GenericGridComp, only: generic_SetServices => setServices
       type(GriddedComponentDriver) :: driver
       type(ESMF_HConfig), intent(inout) :: hconfig
+      logical, intent(in) :: is_model_pet
       integer, optional, intent(out) :: rc
 
       type(ESMF_GridComp) :: cap_gridcomp
@@ -46,12 +51,15 @@ contains
       character(:), allocatable :: cap_name
       integer :: status, user_status
       type(ESMF_HConfig) :: cap_gc_hconfig
+      integer, allocatable :: petList(:)
 
       cap_name = ESMF_HConfigAsString(hconfig, keystring='name', _RC)
-      ! TODO:  Rename to MAPL_CreateGridComp() ?
       clock = create_clock(hconfig, _RC)
+
       cap_gc_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='cap_gc', _RC)
-      cap_gridcomp = create_grid_comp(cap_name, user_setservices(cap_setservices), cap_gc_hconfig, clock, _RC)
+      petList = get_model_pets(is_model_pet, _RC)
+      cap_gridcomp = create_grid_comp(cap_name, user_setservices(cap_setservices), cap_gc_hconfig, clock, petList=petList, _RC)
+
       call ESMF_GridCompSetServices(cap_gridcomp, generic_setServices, userRC=user_status, _RC)
       _VERIFY(user_status)
 
@@ -59,6 +67,29 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_driver
+
+   ! Create function that accepts a logical flag returns list of mpi processes that have .true..
+   function get_model_pets(flag, rc) result(petList)
+      use mpi
+      integer, allocatable :: petList(:)
+      logical, intent(in) :: flag
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_VM) :: vm
+      logical, allocatable, target :: flags(:)
+      integer :: world_comm
+      integer :: i, petCount
+      
+      call ESMF_VMGetCurrent(vm, _RC)
+      call ESMF_VMGet(vm, petCount=petCount, mpiCommunicator=world_comm, _RC)
+      allocate(flags(petCount))
+      call MPI_Allgather(flag, 1, MPI_LOGICAL, flags, 1, MPI_LOGICAL, world_comm, status)
+      _VERIFY(status)
+      petList = pack([(i, i=0,petCount-1)], flags)
+
+      _RETURN(_SUCCESS)
+   end function get_model_pets
 
    function create_clock(hconfig, rc) result(clock)
       type(ESMF_Clock) :: clock

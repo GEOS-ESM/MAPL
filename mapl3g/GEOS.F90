@@ -11,9 +11,7 @@ program geos
    logical :: is_model_pet
 
    call MAPL_Initialize(hconfig, is_model_pet=is_model_pet, _RC)
-   if (is_model_pet) then
-      call run_geos(hconfig, _RC)
-   end if
+   call run_geos(hconfig, is_model_pet=is_model_pet, _RC)
    call MAPL_Finalize(_RC)
 
 contains
@@ -21,8 +19,9 @@ contains
 #undef I_AM_MAIN
 #include "MAPL_Generic.h"
 
-   subroutine run_geos(hconfig, rc)
+   subroutine run_geos(hconfig, is_model_pet, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig
+      logical, intent(in) :: is_model_pet
       integer, optional, intent(out) :: rc
 
       logical :: has_cap_hconfig
@@ -33,8 +32,7 @@ contains
       _ASSERT(has_cap_hconfig, 'No cap section found in configuration file')
       cap_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='cap', _RC)
 
-      call MAPL_run_driver(cap_hconfig, _RC)
-
+      call MAPL_run_driver(cap_hconfig, is_model_pet=is_model_pet, _RC)
       call ESMF_HConfigDestroy(cap_hconfig, _RC)
 
       _RETURN(_SUCCESS)
