@@ -230,6 +230,10 @@ contains
          call MPI_Group_range_incl(world_group, 1, [0, model_petCount-1, 1], model_group, _IERROR)
          call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
          call MPI_Group_free(model_group, _IERROR)
+         if (present(is_model_pet)) then
+            is_model_pet = (this%model_comm /= MPI_COMM_NULL)
+         end if
+         _RETURN_IF(this%model_comm == MPI_COMM_NULL)
          this%directory_service = DirectoryService(this%model_comm)
          call this%initialize_simple_oserver(_RC)
          _RETURN(_SUCCESS)
@@ -248,12 +252,10 @@ contains
          call lgr%warning("Unused nodes.  Required %i0 nodes, but %i0 available.", required_ssis, ssicount)
       end if
 
-
       model_pets = pack([(n, n = 0, size(ssiMap))], ssiMap <= num_model_ssis)
       call MPI_Group_incl(world_group, model_petCount, model_pets, model_group, _IERROR)
-      is_model_pet = (model_group /= MPI_GROUP_NULL)
-
       call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
+      is_model_pet = (this%model_comm /= MPI_COMM_NULL)
 
       ssi_0 = num_model_ssis
       do i_server = 1, size(server_hconfigs)
@@ -266,6 +268,7 @@ contains
          call MPI_Comm_create_group(world_comm, server_group, 0, server_comm, _IERROR)
          call MPI_Comm_create_group(world_comm, model_server_group, 0, model_server_comm, _IERROR)
 
+         call MPI_Group_Free(model_group, _IERROR)
          call MPI_Group_Free(server_group, _IERROR)
          call MPI_Group_Free(model_server_group, _IERROR)
 
@@ -351,6 +354,7 @@ contains
       integer :: status, stat_alloc
       type(ClientThread), pointer :: clientPtr
 
+
       call init_IO_ClientManager(this%model_comm, _RC)
       allocate(this%o_server, source=MpiServer(this%model_comm, 'o_server', rc=status), stat=stat_alloc)
       _VERIFY(status)
@@ -358,7 +362,7 @@ contains
       call this%directory_service%publish(PortInfo('o_server', this%o_server), this%o_server)
       clientPtr => o_Clients%current()
       call this%directory_service%connect_to_server('o_server', clientPtr, this%model_comm)
-
+      
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_simple_oserver
@@ -388,7 +392,10 @@ contains
 
       integer :: status
 
-      call this%directory_service%free_directory_resources()
+      if (this%model_comm /= MPI_COMM_NULL) then
+         call this%directory_service%free_directory_resources()
+         call MPI_Comm_free(this%model_comm, _IERROR)
+      end if
       call this%finalize_servers(_RC)
 !#         call server_comm%free_comms(_RC)
 !#         if (server_comm /= MPI_COMM_NULL) then
@@ -452,7 +459,6 @@ contains
 
       _RETURN_UNLESS(this%esmf_internally_initialized)
 
-      call MPI_Comm_free(this%model_comm, _IERROR)
       call ESMF_HConfigDestroy(this%mapl_hconfig, _RC)
       call ESMF_Finalize(_RC)
 
@@ -582,5 +588,4 @@ contains
    end function get_num_ssis
 
 end module mapl3g_MaplFramework
-
 
