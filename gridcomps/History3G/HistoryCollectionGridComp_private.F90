@@ -10,6 +10,8 @@ module mapl3g_HistoryCollectionGridComp_private
    use MAPL_NewArthParserMod, only: parser_variables_in_expression
    use MAPL_TimeStringConversion
    use MAPL_BaseMod, only: MAPL_UnpackTime
+   use mapl3g_OutputInfo
+   use mapl3g_OutputInfoSet
 
    implicit none
    private
@@ -19,6 +21,8 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: create_output_bundle
    public :: create_output_alarm
    public :: set_start_stop_time
+   public :: get_output_bundle_info
+
    ! These are public for testing.
    public :: parse_item_common
    public :: replace_delimiter
@@ -61,7 +65,10 @@ contains
       type(StringVector) :: variable_names
       integer :: status
 
-      var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, _RC)
+      var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, rc=status)
+      if(status==ESMF_RC_NOT_FOUND) _FAIL(VAR_LIST_KEY // ' was not found.')
+      _VERIFY(status==_SUCCESS)
+
       iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
       iter_end = ESMF_HConfigIterEnd(var_list,_RC)
       iter = iter_begin
@@ -178,20 +185,23 @@ contains
       _RETURN(_SUCCESS)
    end function set_start_stop_time
 
-   function get_output_bundle_info(bundle, rc) result(info)
-      type(OutputBundleInfoSet) :: info
+   function get_output_bundle_info(bundle, rc) result(output_info)
+      type(OutputBundleInfoSet) :: output_info
       type(ESMF_FieldBundle) :: bundle
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Field) :: field_list(:), this_field
       integer :: i
-      type(ESMF_GeomType_Flag) :: geomtype
+      type(OutputBundleInfo) :: item
+      logical :: is_new
+      type(ESMF_Info) :: info
 
       call ESMF_FieldBundleGet(bundle, fieldList=field_list, _RC)
       do i = 1:size(fieldList)
          this_field = fieldList(i)
-         call ESMF_FieldGet(this_field, geomtype=geomtype, _RC)
-         
+         call ESMF_InfoGetFromHost(field, info, _RC)
+         item = OutputBundleInfo(info, _RC)
+         call output_info%insert(item, is_new=is_new, _RC)
       end do
 
    end function get_output_bundle_info
