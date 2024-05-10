@@ -79,20 +79,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.1% of total for procedures.">204 statements</a>
+                 title=" 0.0% of total for procedures.">22 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/ServerManager.F90"> Source File</a>
+              <a href="../src/ESMF_TestCase.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/servermanager.f90.html'>ServerManager.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/mapl_servermanager.html'>MAPL_ServerManager</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/esmf_testcase.f90.html'>ESMF_TestCase.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmf_testcase_mod.html'>ESMF_TestCase_mod</a></li>
             <li class="breadcrumb-item active" aria-current="page">initialize</li>
           </ol>
         </nav>
@@ -144,13 +144,11 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private  subroutine initialize(this, comm, unusable, application_size, nodes_input_server, nodes_output_server, npes_input_server, npes_output_server, oserver_type, npes_backend_pernode, isolate_nodes, fast_oclient, with_profiler, rc)  
+    <h2>private  subroutine initialize(comp, importState, exportState, clock, rc)  
 </h2>
     
 
 
-    <h3>Type Bound</h3>
-    <p><a href='../type/servermanager.html'>ServerManager</a></p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -165,206 +163,71 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~2980"></span>
-              class(<a href='../type/servermanager.html'>ServerManager</a>),
+              <span class="anchor" id="variable-comp~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>)
             </td>
-<td>intent(inout)</td>
+<td></td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>this</strong></td>
+            <td><strong>comp</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~130"></span>
-              integer,
+              <span class="anchor" id="variable-importstate"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
             </td>
-<td>intent(in)</td>
+<td></td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>comm</strong></td>
+            <td><strong>importState</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-unusable~226"></span>
-              class(<a href='../type/keywordenforcer~56.html'>KeywordEnforcer</a>),
+              <span class="anchor" id="variable-exportstate"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
             </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
+<td></td>
+              <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>unusable</strong></td>
+            <td><strong>exportState</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-application_size"></span>
+              <span class="anchor" id="variable-clock~35"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clock</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~868"></span>
               integer,
             </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>application_size</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-nodes_input_server"></span>
-              integer,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>nodes_input_server</strong>(:)</td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-nodes_output_server"></span>
-              integer,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>nodes_output_server</strong>(:)</td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-npes_input_server"></span>
-              integer,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>npes_input_server</strong>(:)</td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-npes_output_server"></span>
-              integer,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>npes_output_server</strong>(:)</td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-oserver_type"></span>
-              character(len=*),
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>oserver_type</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-npes_backend_pernode"></span>
-              integer,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>npes_backend_pernode</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-isolate_nodes~5"></span>
-              logical,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>isolate_nodes</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-fast_oclient"></span>
-              logical,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>fast_oclient</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-with_profiler~3"></span>
-              logical,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>with_profiler</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-rc~1021"></span>
-              integer,
-            </td>
-<td>intent(out),</td>
-              <td>optional</td>            <td>
+<td>intent(out)</td>
+              <td></td>            <td>
               
             </td>
             <td>::</td>
@@ -388,304 +251,43 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~initialize~8~~CallsGraph Pages: 1 -->
-<svg id="procinitialize8CallsGraph" width="437pt" height="830pt"
- viewBox="0.00 0.00 437.00 830.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~initialize~8~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 826)">
+<svg id="procinitialize8CallsGraph" width="289pt" height="74pt"
+ viewBox="0.00 0.00 289.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~initialize~8~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
 <title>proc~~initialize~8~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-826 433,-826 433,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 285,-70 285,4 -4,4"/>
 <!-- proc~initialize~8 -->
 <g id="proc~~initialize~8~~CallsGraph_node1" class="node">
 <title>proc~initialize~8</title>
-<polygon fill="none" stroke="black" points="149,-423 0,-423 0,-399 149,-399 149,-423"/>
-<text text-anchor="middle" x="74.5" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50">ServerManager%initialize</text>
+<polygon fill="none" stroke="black" points="57,-45 0,-45 0,-21 57,-21 57,-45"/>
+<text text-anchor="middle" x="28.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">initialize</text>
 </g>
-<!-- interface~init_io_clientmanager -->
+<!-- ESMF_GridCompGetInternalState -->
 <g id="proc~~initialize~8~~CallsGraph_node2" class="node">
-<title>interface~init_io_clientmanager</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node2"><a xlink:href="../interface/init_io_clientmanager.html" xlink:title="init_IO_ClientManager">
-<polygon fill="#a7506f" stroke="#a7506f" points="371.5,-822 242.5,-822 242.5,-798 371.5,-798 371.5,-822"/>
-<text text-anchor="middle" x="307" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">init_IO_ClientManager</text>
+<title>ESMF_GridCompGetInternalState</title>
+<g id="a_proc~~initialize~8~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridcompgetinternalstate.html" xlink:title="ESMF_GridCompGetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="281,-66 93,-66 93,-42 281,-42 281,-66"/>
+<text text-anchor="middle" x="187" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompGetInternalState</text>
 </a>
 </g>
 </g>
-<!-- proc~initialize~8&#45;&gt;interface~init_io_clientmanager -->
+<!-- proc~initialize~8&#45;&gt;ESMF_GridCompGetInternalState -->
 <g id="proc~~initialize~8~~CallsGraph_edge1" class="edge">
-<title>proc~initialize~8&#45;&gt;interface~init_io_clientmanager</title>
-<path fill="none" stroke="#ff0000" d="M77.29,-423.23C86.18,-482.33 127.49,-737.49 185,-789 198.01,-800.65 215.09,-807 232.29,-810.24"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="231.99,-813.73 242.41,-811.81 233.06,-806.82 231.99,-813.73"/>
+<title>proc~initialize~8&#45;&gt;ESMF_GridCompGetInternalState</title>
+<path fill="none" stroke="#ff0000" d="M57.12,-36.71C65.79,-37.87 75.9,-39.23 86.59,-40.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="86.17,-44.14 96.54,-42 87.1,-37.2 86.17,-44.14"/>
 </g>
-<!-- interface~mapl_assert -->
+<!-- setup -->
 <g id="proc~~initialize~8~~CallsGraph_node3" class="node">
-<title>interface~mapl_assert</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node3"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
-<polygon fill="#a7506f" stroke="#a7506f" points="346.5,-780 267.5,-780 267.5,-756 346.5,-756 346.5,-780"/>
-<text text-anchor="middle" x="307" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
-</a>
+<title>setup</title>
+<polygon fill="#777777" stroke="#777777" points="214,-24 160,-24 160,0 214,0 214,-24"/>
+<text text-anchor="middle" x="187" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setup</text>
 </g>
-</g>
-<!-- proc~initialize~8&#45;&gt;interface~mapl_assert -->
+<!-- proc~initialize~8&#45;&gt;setup -->
 <g id="proc~~initialize~8~~CallsGraph_edge2" class="edge">
-<title>proc~initialize~8&#45;&gt;interface~mapl_assert</title>
-<path fill="none" stroke="#ff0000" d="M75.33,-423.15C75.37,-472.32 82.51,-658.23 185,-747 204.6,-763.98 232.89,-769.56 257.19,-770.75"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="257.23,-774.25 267.32,-771.01 257.41,-767.25 257.23,-774.25"/>
-</g>
-<!-- mpi_barrier -->
-<g id="proc~~initialize~8~~CallsGraph_node4" class="node">
-<title>mpi_barrier</title>
-<polygon fill="#777777" stroke="#777777" points="344.5,-738 269.5,-738 269.5,-714 344.5,-714 344.5,-738"/>
-<text text-anchor="middle" x="307" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_barrier</text>
-</g>
-<!-- proc~initialize~8&#45;&gt;mpi_barrier -->
-<g id="proc~~initialize~8~~CallsGraph_edge3" class="edge">
-<title>proc~initialize~8&#45;&gt;mpi_barrier</title>
-<path fill="none" stroke="#ff0000" d="M75.97,-423.18C78.41,-468.55 93.45,-628.97 185,-705 205.38,-721.93 234.48,-727.37 259.04,-728.49"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="259.16,-731.99 269.24,-728.72 259.33,-724.99 259.16,-731.99"/>
-</g>
-<!-- mpi_comm_rank -->
-<g id="proc~~initialize~8~~CallsGraph_node5" class="node">
-<title>mpi_comm_rank</title>
-<polygon fill="#777777" stroke="#777777" points="357.5,-696 256.5,-696 256.5,-672 357.5,-672 357.5,-696"/>
-<text text-anchor="middle" x="307" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
-</g>
-<!-- proc~initialize~8&#45;&gt;mpi_comm_rank -->
-<g id="proc~~initialize~8~~CallsGraph_edge4" class="edge">
-<title>proc~initialize~8&#45;&gt;mpi_comm_rank</title>
-<path fill="none" stroke="#ff0000" d="M76.79,-423.15C81.84,-464.32 104.19,-599.46 185,-663 202.14,-676.48 224.89,-682.54 246.04,-684.96"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="245.99,-688.47 256.27,-685.87 246.62,-681.49 245.99,-688.47"/>
-</g>
-<!-- mpi_comm_size -->
-<g id="proc~~initialize~8~~CallsGraph_node6" class="node">
-<title>mpi_comm_size</title>
-<polygon fill="#777777" stroke="#777777" points="355.5,-654 258.5,-654 258.5,-630 355.5,-630 355.5,-654"/>
-<text text-anchor="middle" x="307" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
-</g>
-<!-- proc~initialize~8&#45;&gt;mpi_comm_size -->
-<g id="proc~~initialize~8~~CallsGraph_edge5" class="edge">
-<title>proc~initialize~8&#45;&gt;mpi_comm_size</title>
-<path fill="none" stroke="#ff0000" d="M77.91,-423.18C85.85,-459.83 114.78,-569.7 185,-621 203.06,-634.19 226.63,-640.1 248.17,-642.48"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="247.95,-645.97 258.22,-643.36 248.56,-639 247.95,-645.97"/>
-</g>
-<!-- none~add_group -->
-<g id="proc~~initialize~8~~CallsGraph_node7" class="node">
-<title>none~add_group</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node7"><a xlink:href="../type/simplecommsplitter.html#boundprocedure-add_group" xlink:title="SimpleCommSplitter%add_group">
-<polygon fill="#a7506f" stroke="#a7506f" points="401.5,-612 212.5,-612 212.5,-588 401.5,-588 401.5,-612"/>
-<text text-anchor="middle" x="307" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleCommSplitter%add_group</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;none~add_group -->
-<g id="proc~~initialize~8~~CallsGraph_edge6" class="edge">
-<title>proc~initialize~8&#45;&gt;none~add_group</title>
-<path fill="none" stroke="#ff0000" d="M79.55,-423.21C90.7,-454.8 125.11,-539.55 185,-579 190.62,-582.7 196.7,-585.81 203.03,-588.42"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="201.88,-591.72 212.47,-591.89 204.29,-585.15 201.88,-591.72"/>
-</g>
-<!-- proc~connect_to_client -->
-<g id="proc~~initialize~8~~CallsGraph_node8" class="node">
-<title>proc~connect_to_client</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node8"><a xlink:href="../proc/connect_to_client.html" xlink:title="DirectoryService%connect_to_client">
-<polygon fill="#d9534f" stroke="#d9534f" points="409,-570 205,-570 205,-546 409,-546 409,-570"/>
-<text text-anchor="middle" x="307" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DirectoryService%connect_to_client</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;proc~connect_to_client -->
-<g id="proc~~initialize~8~~CallsGraph_edge7" class="edge">
-<title>proc~initialize~8&#45;&gt;proc~connect_to_client</title>
-<path fill="none" stroke="#ff0000" d="M82.12,-423.13C96.85,-448.85 135.02,-508.81 185,-537 188.3,-538.86 191.74,-540.57 195.26,-542.13"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="194.19,-545.47 204.77,-545.94 196.79,-538.97 194.19,-545.47"/>
-</g>
-<!-- proc~connect_to_server -->
-<g id="proc~~initialize~8~~CallsGraph_node9" class="node">
-<title>proc~connect_to_server</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node9"><a xlink:href="../proc/connect_to_server.html" xlink:title="DirectoryService%connect_to_server">
-<polygon fill="#d9534f" stroke="#d9534f" points="411,-528 203,-528 203,-504 411,-504 411,-528"/>
-<text text-anchor="middle" x="307" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DirectoryService%connect_to_server</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;proc~connect_to_server -->
-<g id="proc~~initialize~8~~CallsGraph_edge8" class="edge">
-<title>proc~initialize~8&#45;&gt;proc~connect_to_server</title>
-<path fill="none" stroke="#ff0000" d="M87.34,-423.3C106.14,-442.04 144.84,-477.4 185,-495 190.06,-497.22 195.35,-499.21 200.75,-500.98"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="199.99,-504.41 210.58,-503.96 202.02,-497.71 199.99,-504.41"/>
-</g>
-<!-- proc~current -->
-<g id="proc~~initialize~8~~CallsGraph_node10" class="node">
-<title>proc~current</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node10"><a xlink:href="../proc/current.html" xlink:title="ClientManager%current">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="376.5,-486 237.5,-486 237.5,-462 376.5,-462 376.5,-486"/>
-<text text-anchor="middle" x="307" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientManager%current</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;proc~current -->
-<g id="proc~~initialize~8~~CallsGraph_edge9" class="edge">
-<title>proc~initialize~8&#45;&gt;proc~current</title>
-<path fill="none" stroke="#ff0000" d="M102.46,-423.03C124.32,-432.38 156.15,-445.04 185,-453 198.48,-456.72 212.99,-459.91 227.13,-462.6"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="226.87,-466.11 237.33,-464.47 228.13,-459.22 226.87,-466.11"/>
-</g>
-<!-- proc~get_name~4 -->
-<g id="proc~~initialize~8~~CallsGraph_node11" class="node">
-<title>proc~get_name~4</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node11"><a xlink:href="../proc/get_name~4.html" xlink:title="SplitCommunicator%get_name">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="396,-444 218,-444 218,-420 396,-420 396,-444"/>
-<text text-anchor="middle" x="307" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SplitCommunicator%get_name</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;proc~get_name~4 -->
-<g id="proc~~initialize~8~~CallsGraph_edge10" class="edge">
-<title>proc~initialize~8&#45;&gt;proc~get_name~4</title>
-<path fill="none" stroke="#ff0000" d="M149.07,-417.7C167.69,-419.4 187.99,-421.25 207.63,-423.04"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="207.55,-426.54 217.82,-423.97 208.18,-419.57 207.55,-426.54"/>
-</g>
-<!-- proc~get_subcommunicator -->
-<g id="proc~~initialize~8~~CallsGraph_node12" class="node">
-<title>proc~get_subcommunicator</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node12"><a xlink:href="../proc/get_subcommunicator.html" xlink:title="SplitCommunicator%get_subcommunicator">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="429,-402 185,-402 185,-378 429,-378 429,-402"/>
-<text text-anchor="middle" x="307" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SplitCommunicator%get_subcommunicator</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;proc~get_subcommunicator -->
-<g id="proc~~initialize~8~~CallsGraph_edge11" class="edge">
-<title>proc~initialize~8&#45;&gt;proc~get_subcommunicator</title>
-<path fill="none" stroke="#ff0000" d="M149.07,-404.3C157.39,-403.54 166.06,-402.75 174.85,-401.95"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="175.17,-405.43 184.81,-401.04 174.54,-398.46 175.17,-405.43"/>
-</g>
-<!-- proc~i_to_string -->
-<g id="proc~~initialize~8~~CallsGraph_node13" class="node">
-<title>proc~i_to_string</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node13"><a xlink:href="../proc/i_to_string.html" xlink:title="i_to_string">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="340.5,-360 273.5,-360 273.5,-336 340.5,-336 340.5,-360"/>
-<text text-anchor="middle" x="307" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">i_to_string</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;proc~i_to_string -->
-<g id="proc~~initialize~8~~CallsGraph_edge12" class="edge">
-<title>proc~initialize~8&#45;&gt;proc~i_to_string</title>
-<path fill="none" stroke="#ff0000" d="M102.46,-398.97C124.32,-389.62 156.15,-376.96 185,-369 210.6,-361.94 239.94,-356.78 263.31,-353.34"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="263.86,-356.8 273.27,-351.93 262.87,-349.87 263.86,-356.8"/>
-</g>
-<!-- proc~mapl_return -->
-<g id="proc~~initialize~8~~CallsGraph_node14" class="node">
-<title>proc~mapl_return</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node14"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
-<polygon fill="#d9534f" stroke="#d9534f" points="348,-318 266,-318 266,-294 348,-294 348,-318"/>
-<text text-anchor="middle" x="307" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;proc~mapl_return -->
-<g id="proc~~initialize~8~~CallsGraph_edge13" class="edge">
-<title>proc~initialize~8&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#ff0000" d="M87.34,-398.7C106.14,-379.96 144.84,-344.6 185,-327 207.18,-317.28 233.51,-312.05 255.93,-309.24"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="256.38,-312.71 265.92,-308.11 255.59,-305.75 256.38,-312.71"/>
-</g>
-<!-- proc~mapl_verify -->
-<g id="proc~~initialize~8~~CallsGraph_node15" class="node">
-<title>proc~mapl_verify</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node15"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="345,-276 269,-276 269,-252 345,-252 345,-276"/>
-<text text-anchor="middle" x="307" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;proc~mapl_verify -->
-<g id="proc~~initialize~8~~CallsGraph_edge14" class="edge">
-<title>proc~initialize~8&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#ff0000" d="M82.12,-398.87C96.85,-373.15 135.02,-313.19 185,-285 207.32,-272.41 235.36,-267.01 258.83,-264.83"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="259.21,-268.31 268.91,-264.06 258.67,-261.33 259.21,-268.31"/>
-</g>
-<!-- proc~next_ -->
-<g id="proc~~initialize~8~~CallsGraph_node16" class="node">
-<title>proc~next_</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node16"><a xlink:href="../proc/next_.html" xlink:title="ClientManager%next_">
-<polygon fill="#d9534f" stroke="#d9534f" points="371,-234 243,-234 243,-210 371,-210 371,-234"/>
-<text text-anchor="middle" x="307" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientManager%next_</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;proc~next_ -->
-<g id="proc~~initialize~8~~CallsGraph_edge15" class="edge">
-<title>proc~initialize~8&#45;&gt;proc~next_</title>
-<path fill="none" stroke="#ff0000" d="M79.55,-398.79C90.7,-367.2 125.11,-282.45 185,-243 199.01,-233.77 215.83,-228.23 232.42,-224.99"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="233.42,-228.37 242.69,-223.25 232.25,-221.47 233.42,-228.37"/>
-</g>
-<!-- proc~publish -->
-<g id="proc~~initialize~8~~CallsGraph_node17" class="node">
-<title>proc~publish</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node17"><a xlink:href="../proc/publish.html" xlink:title="DirectoryService%publish">
-<polygon fill="#d9534f" stroke="#d9534f" points="381.5,-192 232.5,-192 232.5,-168 381.5,-168 381.5,-192"/>
-<text text-anchor="middle" x="307" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DirectoryService%publish</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;proc~publish -->
-<g id="proc~~initialize~8~~CallsGraph_edge16" class="edge">
-<title>proc~initialize~8&#45;&gt;proc~publish</title>
-<path fill="none" stroke="#ff0000" d="M77.91,-398.82C85.85,-362.17 114.78,-252.3 185,-201 196.01,-192.95 209.08,-187.62 222.48,-184.14"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="223.3,-187.54 232.28,-181.92 221.75,-180.72 223.3,-187.54"/>
-</g>
-<!-- proc~set_current -->
-<g id="proc~~initialize~8~~CallsGraph_node18" class="node">
-<title>proc~set_current</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node18"><a xlink:href="../proc/set_current.html" xlink:title="ClientManager%set_current">
-<polygon fill="#d9534f" stroke="#d9534f" points="387,-150 227,-150 227,-126 387,-126 387,-150"/>
-<text text-anchor="middle" x="307" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientManager%set_current</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;proc~set_current -->
-<g id="proc~~initialize~8~~CallsGraph_edge17" class="edge">
-<title>proc~initialize~8&#45;&gt;proc~set_current</title>
-<path fill="none" stroke="#ff0000" d="M76.79,-398.85C81.84,-357.68 104.19,-222.54 185,-159 194.36,-151.64 205.4,-146.49 216.94,-142.94"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="217.96,-146.29 226.72,-140.32 216.15,-139.52 217.96,-146.29"/>
-</g>
-<!-- proc~set_server_size -->
-<g id="proc~~initialize~8~~CallsGraph_node19" class="node">
-<title>proc~set_server_size</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node19"><a xlink:href="../proc/set_server_size.html" xlink:title="ClientManager%set_server_size">
-<polygon fill="#d9534f" stroke="#d9534f" points="397.5,-108 216.5,-108 216.5,-84 397.5,-84 397.5,-108"/>
-<text text-anchor="middle" x="307" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientManager%set_server_size</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;proc~set_server_size -->
-<g id="proc~~initialize~8~~CallsGraph_edge18" class="edge">
-<title>proc~initialize~8&#45;&gt;proc~set_server_size</title>
-<path fill="none" stroke="#ff0000" d="M75.97,-398.82C78.41,-353.45 93.45,-193.03 185,-117 191.54,-111.57 198.98,-107.32 206.89,-104.01"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="208.16,-107.27 216.35,-100.55 205.75,-100.7 208.16,-107.27"/>
-</g>
-<!-- proc~split -->
-<g id="proc~~initialize~8~~CallsGraph_node20" class="node">
-<title>proc~split</title>
-<g id="a_proc~~initialize~8~~CallsGraph_node20"><a xlink:href="../proc/split.html" xlink:title="SimpleCommSplitter%split">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="384,-66 230,-66 230,-42 384,-42 384,-66"/>
-<text text-anchor="middle" x="307" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleCommSplitter%split</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize~8&#45;&gt;proc~split -->
-<g id="proc~~initialize~8~~CallsGraph_edge19" class="edge">
-<title>proc~initialize~8&#45;&gt;proc~split</title>
-<path fill="none" stroke="#ff0000" d="M75.33,-398.85C75.37,-349.68 82.51,-163.77 185,-75 194.95,-66.38 207.15,-60.7 219.92,-57.03"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="220.9,-60.4 229.77,-54.61 219.22,-53.6 220.9,-60.4"/>
-</g>
-<!-- start -->
-<g id="proc~~initialize~8~~CallsGraph_node21" class="node">
-<title>start</title>
-<polygon fill="#777777" stroke="#777777" points="334,-24 280,-24 280,0 334,0 334,-24"/>
-<text text-anchor="middle" x="307" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">start</text>
-</g>
-<!-- proc~initialize~8&#45;&gt;start -->
-<g id="proc~~initialize~8~~CallsGraph_edge20" class="edge">
-<title>proc~initialize~8&#45;&gt;start</title>
-<path fill="none" stroke="#ff0000" d="M77.29,-398.77C86.18,-339.67 127.49,-84.51 185,-33 207.86,-12.53 243.25,-8.44 269.86,-8.78"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="269.83,-12.28 279.95,-9.12 270.07,-5.28 269.83,-12.28"/>
+<title>proc~initialize~8&#45;&gt;setup</title>
+<path fill="none" stroke="#ff0000" d="M57.12,-29.29C82.87,-25.84 121.45,-20.66 149.69,-16.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="150.51,-20.29 159.96,-15.49 149.58,-13.36 150.51,-20.29"/>
 </g>
 </g>
 </svg>
@@ -693,310 +295,6 @@
             <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
           </div>
           <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-<p>Nodes of different colours represent the following: </p>
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: Graph Key Pages: 1 -->
-<svg width="641pt" height="28pt"
- viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
-<title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
-<!-- Subroutine -->
-<g id="node1" class="node">
-<title>Subroutine</title>
-<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
-<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
-</g>
-<!-- Function -->
-<g id="node2" class="node">
-<title>Function</title>
-<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
-<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
-</g>
-<!-- Interface -->
-<g id="node3" class="node">
-<title>Interface</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
-<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
-</g>
-<!-- Type Bound Procedure -->
-<g id="node4" class="node">
-<title>Type Bound Procedure</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
-<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
-</g>
-<!-- Unknown Procedure Type -->
-<g id="node5" class="node">
-<title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
-<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
-</g>
-<!-- Program -->
-<g id="node6" class="node">
-<title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
-<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
-</g>
-<!-- This Page&#39;s Entity -->
-<g id="node7" class="node">
-<title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
-<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
-</g>
-</g>
-</svg>
-
-<p>Solid arrows point from a procedure to one which it calls. Dashed 
-arrows point from an interface to procedures which implement that interface.
-This could include the module procedures in a generic interface or the
-implementation in a submodule of an interface in a parent module.
-</p>
- Where possible, edges connecting nodes are
-given different colours to make them easier to distinguish in
-large graphs.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header">
-  <h3 class="card-title">Called by</h3>
-      </div>
-      <div class="card-body">
-  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: proc~~initialize~8~~CalledByGraph Pages: 1 -->
-<svg id="procinitialize8CalledByGraph" width="641pt" height="241pt"
- viewBox="0.00 0.00 641.00 241.44" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~initialize~8~~CalledByGraph" class="graph" transform="scale(1.18 1.18) rotate(0) translate(4 280)">
-<title>proc~~initialize~8~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-280 750,-280 750,4 -4,4"/>
-<!-- proc~initialize~8 -->
-<g id="proc~~initialize~8~~CalledByGraph_node1" class="node">
-<title>proc~initialize~8</title>
-<polygon fill="none" stroke="black" points="746,-129 597,-129 597,-105 746,-105 746,-129"/>
-<text text-anchor="middle" x="671.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">ServerManager%initialize</text>
-</g>
-<!-- proc~initialize_io_clients_servers -->
-<g id="proc~~initialize~8~~CalledByGraph_node2" class="node">
-<title>proc~initialize_io_clients_servers</title>
-<g id="a_proc~~initialize~8~~CalledByGraph_node2"><a xlink:href="../proc/initialize_io_clients_servers.html" xlink:title="ExtDataDriver%initialize_io_clients_servers">
-<polygon fill="#d9534f" stroke="#d9534f" points="561,-255 320,-255 320,-231 561,-231 561,-255"/>
-<text text-anchor="middle" x="440.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver%initialize_io_clients_servers</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize_io_clients_servers&#45;&gt;proc~initialize~8 -->
-<g id="proc~~initialize~8~~CalledByGraph_edge1" class="edge">
-<title>proc~initialize_io_clients_servers&#45;&gt;proc~initialize~8</title>
-<path fill="none" stroke="#ff0000" d="M486.34,-230.94C509.39,-223.83 537.5,-213.72 561,-201 594.67,-182.77 628.97,-154.57 649.99,-135.95"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="652.53,-138.38 657.63,-129.09 647.85,-133.17 652.53,-138.38"/>
-</g>
-<!-- proc~initialize_io_clients_servers~2 -->
-<g id="proc~~initialize~8~~CalledByGraph_node3" class="node">
-<title>proc~initialize_io_clients_servers~2</title>
-<g id="a_proc~~initialize~8~~CalledByGraph_node3"><a xlink:href="../proc/initialize_io_clients_servers~2.html" xlink:title="MAPL_Cap%initialize_io_clients_servers">
-<polygon fill="#d9534f" stroke="#d9534f" points="550.5,-192 330.5,-192 330.5,-168 550.5,-168 550.5,-192"/>
-<text text-anchor="middle" x="440.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap%initialize_io_clients_servers</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize_io_clients_servers~2&#45;&gt;proc~initialize~8 -->
-<g id="proc~~initialize~8~~CalledByGraph_edge2" class="edge">
-<title>proc~initialize_io_clients_servers~2&#45;&gt;proc~initialize~8</title>
-<path fill="none" stroke="#ff0000" d="M522.32,-167.98C535.35,-165.42 548.62,-162.43 561,-159 585.9,-152.11 613.02,-141.73 634.04,-133.01"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="635.68,-136.12 643.54,-129.01 632.96,-129.67 635.68,-136.12"/>
-</g>
-<!-- proc~initialize_ioserver -->
-<g id="proc~~initialize~8~~CalledByGraph_node4" class="node">
-<title>proc~initialize_ioserver</title>
-<g id="a_proc~~initialize~8~~CalledByGraph_node4"><a xlink:href="../proc/initialize_ioserver.html" xlink:title="initialize_ioserver">
-<polygon fill="#d9534f" stroke="#d9534f" points="493.5,-150 387.5,-150 387.5,-126 493.5,-126 493.5,-150"/>
-<text text-anchor="middle" x="440.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_ioserver</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize_ioserver&#45;&gt;proc~initialize~8 -->
-<g id="proc~~initialize~8~~CalledByGraph_edge3" class="edge">
-<title>proc~initialize_ioserver&#45;&gt;proc~initialize~8</title>
-<path fill="none" stroke="#ff0000" d="M493.75,-133.21C521.27,-130.69 555.67,-127.53 586.8,-124.68"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="587.14,-128.16 596.78,-123.76 586.5,-121.19 587.14,-128.16"/>
-</g>
-<!-- proc~main~2 -->
-<g id="proc~~initialize~8~~CalledByGraph_node5" class="node">
-<title>proc~main~2</title>
-<g id="a_proc~~initialize~8~~CalledByGraph_node5"><a xlink:href="../proc/main~2.html" xlink:title="main">
-<polygon fill="#d9534f" stroke="#d9534f" points="467.5,-108 413.5,-108 413.5,-84 467.5,-84 467.5,-108"/>
-<text text-anchor="middle" x="440.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
-</a>
-</g>
-</g>
-<!-- proc~main~2&#45;&gt;proc~initialize~8 -->
-<g id="proc~~initialize~8~~CalledByGraph_edge4" class="edge">
-<title>proc~main~2&#45;&gt;proc~initialize~8</title>
-<path fill="none" stroke="#ff0000" d="M467.77,-98.41C496.7,-101.06 544.7,-105.46 586.73,-109.32"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="586.44,-112.81 596.71,-110.23 587.07,-105.83 586.44,-112.81"/>
-</g>
-<!-- program~time_ave -->
-<g id="proc~~initialize~8~~CalledByGraph_node6" class="node">
-<title>program~time_ave</title>
-<g id="a_proc~~initialize~8~~CalledByGraph_node6"><a xlink:href="../program/time_ave.html" xlink:title="time_ave">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="471,-66 410,-66 410,-42 471,-42 471,-66"/>
-<text text-anchor="middle" x="440.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
-</a>
-</g>
-</g>
-<!-- program~time_ave&#45;&gt;proc~initialize~8 -->
-<g id="proc~~initialize~8~~CalledByGraph_edge5" class="edge">
-<title>program~time_ave&#45;&gt;proc~initialize~8</title>
-<path fill="none" stroke="#ff0000" d="M471.32,-57.62C495.71,-60.96 530.95,-66.68 561,-75 585.9,-81.89 613.02,-92.27 634.04,-100.99"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="632.96,-104.33 643.54,-104.99 635.68,-97.88 632.96,-104.33"/>
-</g>
-<!-- program~ut_regridding -->
-<g id="proc~~initialize~8~~CalledByGraph_node7" class="node">
-<title>program~ut_regridding</title>
-<g id="a_proc~~initialize~8~~CalledByGraph_node7"><a xlink:href="../program/ut_regridding.html" xlink:title="ut_ReGridding">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="484.5,-24 396.5,-24 396.5,0 484.5,0 484.5,-24"/>
-<text text-anchor="middle" x="440.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ReGridding</text>
-</a>
-</g>
-</g>
-<!-- program~ut_regridding&#45;&gt;proc~initialize~8 -->
-<g id="proc~~initialize~8~~CalledByGraph_edge6" class="edge">
-<title>program~ut_regridding&#45;&gt;proc~initialize~8</title>
-<path fill="none" stroke="#ff0000" d="M484.7,-14.58C508.07,-17.19 536.99,-22.45 561,-33 596.44,-48.58 630.75,-77.95 651.25,-97.5"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="649.05,-100.24 658.66,-104.71 653.94,-95.22 649.05,-100.24"/>
-</g>
-<!-- proc~initialize_p0 -->
-<g id="proc~~initialize~8~~CalledByGraph_node8" class="node">
-<title>proc~initialize_p0</title>
-<g id="a_proc~~initialize~8~~CalledByGraph_node8"><a xlink:href="../proc/initialize_p0.html" xlink:title="initialize_p0">
-<polygon fill="#d9534f" stroke="#d9534f" points="245.5,-234 169.5,-234 169.5,-210 245.5,-210 245.5,-234"/>
-<text text-anchor="middle" x="207.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_p0</text>
-</a>
-</g>
-</g>
-<!-- proc~initialize_p0&#45;&gt;proc~initialize_io_clients_servers~2 -->
-<g id="proc~~initialize~8~~CalledByGraph_edge8" class="edge">
-<title>proc~initialize_p0&#45;&gt;proc~initialize_io_clients_servers~2</title>
-<path fill="none" stroke="#ffff00" d="M245.61,-215.25C277.24,-209.5 323.71,-201.05 363.23,-193.87"/>
-<polygon fill="#ffff00" stroke="#ffff00" points="363.91,-197.3 373.12,-192.07 362.65,-190.41 363.91,-197.3"/>
-</g>
-<!-- proc~run_ensemble -->
-<g id="proc~~initialize~8~~CalledByGraph_node9" class="node">
-<title>proc~run_ensemble</title>
-<g id="a_proc~~initialize~8~~CalledByGraph_node9"><a xlink:href="../proc/run_ensemble.html" xlink:title="MAPL_Cap%run_ensemble">
-<polygon fill="#d9534f" stroke="#d9534f" points="284,-192 131,-192 131,-168 284,-168 284,-192"/>
-<text text-anchor="middle" x="207.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap%run_ensemble</text>
-</a>
-</g>
-</g>
-<!-- proc~run_ensemble&#45;&gt;proc~initialize_io_clients_servers~2 -->
-<g id="proc~~initialize~8~~CalledByGraph_edge9" class="edge">
-<title>proc~run_ensemble&#45;&gt;proc~initialize_io_clients_servers~2</title>
-<path fill="none" stroke="#ffff00" d="M284.14,-180C295.65,-180 307.77,-180 319.94,-180"/>
-<polygon fill="#ffff00" stroke="#ffff00" points="320.17,-183.5 330.17,-180 320.17,-176.5 320.17,-183.5"/>
-</g>
-<!-- proc~run~7 -->
-<g id="proc~~initialize~8~~CalledByGraph_node10" class="node">
-<title>proc~run~7</title>
-<g id="a_proc~~initialize~8~~CalledByGraph_node10"><a xlink:href="../proc/run~7.html" xlink:title="ExtDataDriver%run">
-<polygon fill="#d9534f" stroke="#d9534f" points="265,-276 150,-276 150,-252 265,-252 265,-276"/>
-<text text-anchor="middle" x="207.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver%run</text>
-</a>
-</g>
-</g>
-<!-- proc~run~7&#45;&gt;proc~initialize_io_clients_servers -->
-<g id="proc~~initialize~8~~CalledByGraph_edge7" class="edge">
-<title>proc~run~7&#45;&gt;proc~initialize_io_clients_servers</title>
-<path fill="none" stroke="#ff0000" d="M265.01,-258.86C278.7,-257.62 293.91,-256.24 309.48,-254.82"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="310.11,-258.28 319.75,-253.89 309.47,-251.31 310.11,-258.28"/>
-</g>
-<!-- program~main~17 -->
-<g id="proc~~initialize~8~~CalledByGraph_node11" class="node">
-<title>program~main~17</title>
-<g id="a_proc~~initialize~8~~CalledByGraph_node11"><a xlink:href="../program/main~17.html" xlink:title="main">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="234.5,-150 180.5,-150 180.5,-126 234.5,-126 234.5,-150"/>
-<text text-anchor="middle" x="207.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
-</a>
-</g>
-</g>
-<!-- program~main~17&#45;&gt;proc~initialize_ioserver -->
-<g id="proc~~initialize~8~~CalledByGraph_edge10" class="edge">
-<title>program~main~17&#45;&gt;proc~initialize_ioserver</title>
-<path fill="none" stroke="#00ff00" d="M234.55,-138C268.96,-138 330.65,-138 377.39,-138"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="377.42,-141.5 387.42,-138 377.42,-134.5 377.42,-141.5"/>
-</g>
-<!-- program~regrid_util -->
-<g id="proc~~initialize~8~~CalledByGraph_node12" class="node">
-<title>program~regrid_util</title>
-<g id="a_proc~~initialize~8~~CalledByGraph_node12"><a xlink:href="../program/regrid_util.html" xlink:title="Regrid_Util">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="242.5,-108 172.5,-108 172.5,-84 242.5,-84 242.5,-108"/>
-<text text-anchor="middle" x="207.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util</text>
-</a>
-</g>
-</g>
-<!-- program~regrid_util&#45;&gt;proc~main~2 -->
-<g id="proc~~initialize~8~~CalledByGraph_edge11" class="edge">
-<title>program~regrid_util&#45;&gt;proc~main~2</title>
-<path fill="none" stroke="#00ffff" d="M242.58,-96C285.48,-96 358.87,-96 402.91,-96"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="403.18,-99.5 413.18,-96 403.18,-92.5 403.18,-99.5"/>
-</g>
-<!-- proc~run~16 -->
-<g id="proc~~initialize~8~~CalledByGraph_node13" class="node">
-<title>proc~run~16</title>
-<g id="a_proc~~initialize~8~~CalledByGraph_node13"><a xlink:href="../proc/run~16.html" xlink:title="MAPL_Cap%run">
-<polygon fill="#d9534f" stroke="#d9534f" points="95,-192 0,-192 0,-168 95,-168 95,-192"/>
-<text text-anchor="middle" x="47.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap%run</text>
-</a>
-</g>
-</g>
-<!-- proc~run~16&#45;&gt;proc~run_ensemble -->
-<g id="proc~~initialize~8~~CalledByGraph_edge12" class="edge">
-<title>proc~run~16&#45;&gt;proc~run_ensemble</title>
-<path fill="none" stroke="#cbff00" d="M95.05,-180C103.25,-180 112.02,-180 120.9,-180"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="120.94,-183.5 130.94,-180 120.94,-176.5 120.94,-183.5"/>
-</g>
-<!-- program~extdata_driver -->
-<g id="proc~~initialize~8~~CalledByGraph_node14" class="node">
-<title>program~extdata_driver</title>
-<g id="a_proc~~initialize~8~~CalledByGraph_node14"><a xlink:href="../program/extdata_driver.html" xlink:title="ExtData_Driver">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="94,-276 1,-276 1,-252 94,-252 94,-276"/>
-<text text-anchor="middle" x="47.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_Driver</text>
-</a>
-</g>
-</g>
-<!-- program~extdata_driver&#45;&gt;proc~run~7 -->
-<g id="proc~~initialize~8~~CalledByGraph_edge13" class="edge">
-<title>program~extdata_driver&#45;&gt;proc~run~7</title>
-<path fill="none" stroke="#00ff66" d="M94.2,-264C108.48,-264 124.54,-264 139.94,-264"/>
-<polygon fill="#00ff66" stroke="#00ff66" points="139.95,-267.5 149.95,-264 139.95,-260.5 139.95,-267.5"/>
-</g>
-</g>
-</svg>
-</div>                <script>
-                  var panprocinitialize8CalledByGraph = svgPanZoom('#procinitialize8CalledByGraph',
-                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
-                  );
-                </script>          <div>
-            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
-          </div>
-          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -1088,250 +386,37 @@ large graphs.</div>
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">application_size</span><span class="p">,</span><span class="w"> </span><span class="n">nodes_input_server</span><span class="p">,</span><span class="w"> </span><span class="n">nodes_output_server</span><span class="p">,&amp;</span>
-<span class="w">                         </span><span class="n">npes_input_server</span><span class="p">,</span><span class="n">npes_output_server</span><span class="p">,</span><span class="w"> </span><span class="n">oserver_type</span><span class="p">,</span><span class="w"> </span><span class="n">npes_backend_pernode</span><span class="p">,</span><span class="w"> </span><span class="n">isolate_nodes</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                         </span><span class="n">fast_oclient</span><span class="p">,</span><span class="w"> </span><span class="n">with_profiler</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ServerManager</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w">  </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">application_size</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nodes_input_server</span><span class="p">(:),</span><span class="n">nodes_output_server</span><span class="p">(:)</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npes_input_server</span><span class="p">(:),</span><span class="n">npes_output_server</span><span class="p">(:)</span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">oserver_type</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npes_backend_pernode</span>
-<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isolate_nodes</span>
-<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fast_oclient</span>
-<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">with_profiler</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comp</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span><span class="w">            </span><span class="c">! must not be optional</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">exportState</span><span class="w">            </span><span class="c">! must not be optional</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span><span class="w">                  </span><span class="c">! must not be optional</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">                </span><span class="c">! must not be optional</span>
 
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npes_in</span><span class="p">(:),</span><span class="n">npes_out</span><span class="p">(:),</span><span class="n">nodes_in</span><span class="p">(:),</span><span class="n">nodes_out</span><span class="p">(:)</span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npes_out_backend</span><span class="p">,</span><span class="w"> </span><span class="n">server_size</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">InternalState</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wrap</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_TestCase</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">testPtr</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">finalrc</span>
 
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">client_comm</span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">stat_alloc</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="n">npes_model</span><span class="p">,</span><span class="n">n_oserver_group</span><span class="p">,</span><span class="w"> </span><span class="n">n_iserver_group</span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="n">profiler_name</span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">oserver_type_</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ClientThread</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clientPtr</span>
-<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isolated_</span>
+<span class="w">      </span><span class="c">! To prevent &quot;unused variable&quot; warnings, we do something useless here.</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">importState</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">exportState</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">clock</span><span class="p">)</span>
 
-<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
-
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">application_size</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">npes_model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">application_size</span>
+<span class="w">      </span><span class="c">! Get Internal State</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompGetInternalState</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span><span class="w"> </span><span class="n">wrap</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">finalrc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FAILURE</span>
 <span class="w">      </span><span class="k">else</span>
-<span class="k">         call </span><span class="n">MPI_COMM_Size</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">npes_model</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
-<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-<span class="w">      </span><span class="k">end if</span>
-<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">npes_input_server</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">npes_in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">npes_input_server</span>
-<span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">npes_in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">         </span><span class="n">finalrc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_SUCCESS</span>
 <span class="w">      </span><span class="k">end if</span>
 
-<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">npes_output_server</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">npes_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">npes_output_server</span>
-<span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">npes_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="w">      </span><span class="k">end if</span>
+<span class="w">      </span><span class="c">! Access private data block and verify data</span>
+<span class="w">      </span><span class="n">testPtr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">wrap</span><span class="p">%</span><span class="n">wrapped</span><span class="p">%</span><span class="n">testPtr</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="k">call </span><span class="n">testPtr</span><span class="p">%</span><span class="n">setUp</span><span class="p">()</span>
+<span class="w">   </span>
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">finalrc</span>
 
-<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">nodes_input_server</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">nodes_in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nodes_input_server</span>
-<span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">nodes_in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="w">      </span><span class="k">end if</span>
-
-<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">nodes_output_server</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">nodes_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nodes_output_server</span>
-<span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">nodes_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="w">      </span><span class="k">end if</span>
-
-<span class="k">      </span><span class="n">oserver_type_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;single&#39;</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">oserver_type</span><span class="p">))</span><span class="w"> </span><span class="n">oserver_type_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">oserver_type</span>
-
-<span class="w">      </span><span class="n">npes_out_backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">npes_backend_pernode</span><span class="p">))</span><span class="w"> </span><span class="n">npes_out_backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">npes_backend_pernode</span>
-
-<span class="w">      </span><span class="n">isolated_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">isolate_nodes</span><span class="p">))</span><span class="w"> </span><span class="n">isolated_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">isolate_nodes</span>
-
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">oserver_type_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;multilayer&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">oserver_type_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;multigroup&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">nodes_out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">npes_out_backend</span><span class="w"> </span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;captain-soldier needs at least two backend&quot;</span><span class="p">)</span>
-<span class="w">         </span><span class="k">else</span>
-<span class="k">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">nodes_out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">npes_out_backend</span><span class="w"> </span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;captain-soldier needs at least two backend&quot;</span><span class="p">)</span>
-<span class="w">         </span><span class="k">endif</span>
-<span class="k">      endif</span>
-<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">oserver_type_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;multicomm&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">npes_out_backend</span><span class="w"> </span><span class="o">&gt;=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;needs at least one backend for multicomm server&quot;</span><span class="p">)</span>
-<span class="w">      </span><span class="k">endif</span>
-
-
-<span class="k">     </span><span class="n">n_iserver_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">npes_in</span><span class="p">),</span><span class="n">size</span><span class="p">(</span><span class="n">nodes_in</span><span class="p">))</span>
-<span class="w">     </span><span class="n">n_oserver_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">npes_out</span><span class="p">),</span><span class="n">size</span><span class="p">(</span><span class="n">nodes_out</span><span class="p">))</span>
-<span class="w">     </span><span class="n">this</span><span class="p">%</span><span class="n">directory_service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DirectoryService</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
-<span class="w">     </span><span class="n">this</span><span class="p">%</span><span class="n">splitter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SimpleCommSplitter</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span>
-<span class="w">     </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">splitter</span><span class="p">%</span><span class="n">add_group</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="n">npes_model</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">isolate_nodes</span><span class="o">=</span><span class="n">isolated_</span><span class="p">)</span>
-
-<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">npes_in</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">        do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">npes_in</span><span class="p">)</span>
-<span class="w">           </span><span class="n">s_name</span><span class="w"> </span><span class="o">=</span><span class="s1">&#39;i_server&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
-<span class="w">           </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">splitter</span><span class="p">%</span><span class="n">add_group</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="n">npes_in</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="n">isolate_nodes</span><span class="o">=</span><span class="n">isolated_</span><span class="p">)</span>
-<span class="w">        </span><span class="k">enddo</span>
-<span class="k">     elseif</span><span class="w"> </span><span class="p">(</span><span class="n">nodes_in</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">        do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">nodes_in</span><span class="p">)</span>
-<span class="w">           </span><span class="n">s_name</span><span class="w"> </span><span class="o">=</span><span class="s1">&#39;i_server&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
-<span class="w">           </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">splitter</span><span class="p">%</span><span class="n">add_group</span><span class="p">(</span><span class="n">nnodes</span><span class="o">=</span><span class="n">nodes_in</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="n">isolate_nodes</span><span class="o">=</span><span class="n">isolated_</span><span class="p">)</span>
-<span class="w">        </span><span class="k">enddo</span>
-<span class="k">     end if</span>
-
-<span class="k">     if</span><span class="w"> </span><span class="p">(</span><span class="n">npes_out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">        do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">npes_out</span><span class="p">)</span>
-<span class="w">          </span><span class="n">s_name</span><span class="w"> </span><span class="o">=</span><span class="s1">&#39;o_server&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
-<span class="w">          </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">splitter</span><span class="p">%</span><span class="n">add_group</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="n">npes_out</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="n">isolate_nodes</span><span class="o">=</span><span class="n">isolated_</span><span class="p">)</span>
-<span class="w">        </span><span class="k">enddo</span>
-<span class="k">     else if</span><span class="p">(</span><span class="n">nodes_out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">        do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">nodes_out</span><span class="p">)</span>
-<span class="w">          </span><span class="n">s_name</span><span class="w"> </span><span class="o">=</span><span class="s1">&#39;o_server&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
-<span class="w">          </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">splitter</span><span class="p">%</span><span class="n">add_group</span><span class="p">(</span><span class="n">nnodes</span><span class="o">=</span><span class="n">nodes_out</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="n">isolate_nodes</span><span class="o">=</span><span class="n">isolated_</span><span class="p">)</span>
-<span class="w">        </span><span class="k">enddo</span>
-<span class="k">     endif</span>
-
-<span class="k">     </span><span class="n">this</span><span class="p">%</span><span class="n">split_comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">splitter</span><span class="p">%</span><span class="n">split</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">);</span><span class="w"> </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-
-<span class="w">     </span><span class="n">s_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">split_comm</span><span class="p">%</span><span class="n">get_name</span><span class="p">()</span>
-
-<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;model&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">        </span><span class="n">client_comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">split_comm</span><span class="p">%</span><span class="n">get_subcommunicator</span><span class="p">()</span>
-<span class="w">        </span><span class="k">call </span><span class="n">MPI_Comm_Rank</span><span class="p">(</span><span class="n">client_comm</span><span class="p">,</span><span class="n">rank</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">npes_in</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">nodes_in</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">profiler_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;i_server_client&quot;</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">npes_out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">nodes_out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">profiler_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;o_server_client&quot;</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">npes_out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">nodes_out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">            </span><span class="n">npes_in</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">nodes_in</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">profiler_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;io_server_client&quot;</span>
-
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">npes_in</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">nodes_in</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">           allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">i_server</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MpiServer</span><span class="p">(</span><span class="n">client_comm</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;i_server&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span><span class="n">profiler_name</span><span class="o">=</span><span class="n">profiler_name</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                                                      </span><span class="n">with_profiler</span><span class="o">=</span><span class="n">with_profiler</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">stat_alloc</span><span class="p">)</span>
-<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">stat_alloc</span><span class="p">)</span>
-<span class="w">           </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">directory_service</span><span class="p">%</span><span class="n">publish</span><span class="p">(</span><span class="n">PortInfo</span><span class="p">(</span><span class="s1">&#39;i_server&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">i_server</span><span class="p">),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">i_server</span><span class="p">)</span>
-<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">              write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(A,I0,A)&#39;</span><span class="p">)</span><span class="s2">&quot; Starting pFIO input server on Clients&quot;</span>
-<span class="w">           </span><span class="k">endif</span>
-<span class="k">        end if</span>
-<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="n">npes_out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">nodes_out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">           allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">o_server</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MpiServer</span><span class="p">(</span><span class="n">client_comm</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;o_server&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span><span class="n">profiler_name</span><span class="o">=</span><span class="n">profiler_name</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                                                      </span><span class="n">with_profiler</span><span class="o">=</span><span class="n">with_profiler</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">stat_alloc</span><span class="p">)</span>
-<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">stat_alloc</span><span class="p">)</span>
-
-<span class="w">           </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">directory_service</span><span class="p">%</span><span class="n">publish</span><span class="p">(</span><span class="n">PortInfo</span><span class="p">(</span><span class="s1">&#39;o_server&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">o_server</span><span class="p">),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">o_server</span><span class="p">)</span>
-<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">              write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(A,I0,A)&#39;</span><span class="p">)</span><span class="s2">&quot; Starting pFIO output server on Clients&quot;</span>
-<span class="w">           </span><span class="k">endif</span>
-<span class="k">        end if</span>
-<span class="k">        call </span><span class="n">init_IO_ClientManager</span><span class="p">(</span><span class="n">client_comm</span><span class="p">,</span><span class="w"> </span><span class="n">n_i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n_iserver_group</span><span class="p">,</span><span class="w"> </span><span class="n">n_o</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n_oserver_group</span><span class="p">,</span><span class="w"> </span><span class="n">fast_oclient</span><span class="o">=</span><span class="n">fast_oclient</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
-<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-<span class="w">     </span><span class="k">endif</span>
-
-<span class="w">     </span><span class="c">! establish i_server group one by one</span>
-<span class="w">     </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n_iserver_group</span>
-
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">s_name</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="s1">&#39;i_server&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">           allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">i_server</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MpiServer</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">split_comm</span><span class="p">%</span><span class="n">get_subcommunicator</span><span class="p">(),</span><span class="w"> </span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="n">with_profiler</span><span class="o">=</span><span class="n">with_profiler</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">stat_alloc</span><span class="p">)</span>
-<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">stat_alloc</span><span class="p">)</span>
-
-<span class="w">           </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">directory_service</span><span class="p">%</span><span class="n">publish</span><span class="p">(</span><span class="n">PortInfo</span><span class="p">(</span><span class="n">s_name</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">i_server</span><span class="p">),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">i_server</span><span class="p">)</span>
-<span class="w">           </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">directory_service</span><span class="p">%</span><span class="n">connect_to_client</span><span class="p">(</span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">i_server</span><span class="p">)</span>
-<span class="w">           </span><span class="k">call </span><span class="n">MPI_Comm_Rank</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">split_comm</span><span class="p">%</span><span class="n">get_subcommunicator</span><span class="p">(),</span><span class="n">rank</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
-<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">nodes_in</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">              write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(A,I0,A)&#39;</span><span class="p">)</span><span class="s2">&quot;Starting pFIO input server on &quot;</span><span class="p">,</span><span class="n">nodes_in</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="s2">&quot; nodes&quot;</span>
-<span class="w">           </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">npes_in</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">              write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(A,I0,A)&#39;</span><span class="p">)</span><span class="s2">&quot;Starting pFIO input server on &quot;</span><span class="p">,</span><span class="n">npes_in</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="s2">&quot; pes&quot;</span>
-<span class="w">           </span><span class="k">end if</span>
-<span class="k">        endif</span>
-
-<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;model&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">           </span><span class="n">clientPtr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">i_Clients</span><span class="p">%</span><span class="n">current</span><span class="p">()</span>
-<span class="w">           </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">directory_service</span><span class="p">%</span><span class="n">connect_to_server</span><span class="p">(</span><span class="s1">&#39;i_server&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="w"> </span><span class="n">clientPtr</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                              </span><span class="n">this</span><span class="p">%</span><span class="n">split_comm</span><span class="p">%</span><span class="n">get_subcommunicator</span><span class="p">(),</span><span class="w"> </span><span class="n">server_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">server_size</span><span class="p">)</span>
-<span class="w">           </span><span class="k">call </span><span class="n">i_Clients</span><span class="p">%</span><span class="n">set_server_size</span><span class="p">(</span><span class="n">server_size</span><span class="p">)</span>
-<span class="w">           </span><span class="k">call </span><span class="n">i_Clients</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
-<span class="w">        </span><span class="k">endif</span>
-
-<span class="k">        call </span><span class="n">mpi_barrier</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
-
-<span class="w">     </span><span class="k">enddo</span>
-
-<span class="w">     </span><span class="c">! establish o_server group one by one</span>
-<span class="w">     </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n_oserver_group</span>
-
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">s_name</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="s1">&#39;o_server&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-
-<span class="k">           if</span><span class="w"> </span><span class="p">(</span><span class="n">oserver_type_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;multicomm&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-
-<span class="k">              allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">o_server</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MultiCommServer</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">split_comm</span><span class="p">%</span><span class="n">get_subcommunicator</span><span class="p">(),</span><span class="w"> </span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="n">npes_out_backend</span><span class="p">))</span>
-
-<span class="w">           </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">oserver_type_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;multilayer&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-
-<span class="k">              allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">o_server</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MultiLayerServer</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">split_comm</span><span class="p">%</span><span class="n">get_subcommunicator</span><span class="p">(),</span><span class="w"> </span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                       </span><span class="n">npes_out_backend</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;./pfio_writer.x&#39;</span><span class="p">))</span>
-
-<span class="w">           </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">oserver_type_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;multigroup&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k"> </span>
-<span class="k">              allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">o_server</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MultiGroupServer</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">split_comm</span><span class="p">%</span><span class="n">get_subcommunicator</span><span class="p">(),</span><span class="w"> </span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="n">npes_out_backend</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                                                                </span><span class="n">with_profiler</span><span class="o">=</span><span class="n">with_profiler</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">stat_alloc</span><span class="p">)</span>
-<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">stat_alloc</span><span class="p">)</span>
-<span class="w">              </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nodes_out</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">o_server</span><span class="p">%</span><span class="n">node_num</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">nodes_out</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">                 </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;Inconsistent output server number. &quot;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s2">&quot;The requested &quot;</span><span class="o">//</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">nodes_out</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="o">//</span><span class="s2">&quot; nodes for output server is different from available &quot;</span><span class="o">//</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">o_server</span><span class="p">%</span><span class="n">node_num</span><span class="p">)</span><span class="o">//</span><span class="w"> </span><span class="s2">&quot; nodes&quot;</span><span class="p">)</span>
-<span class="w">              </span><span class="k">endif</span>
-<span class="k">           else</span>
-
-<span class="k">              allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">o_server</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MpiServer</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">split_comm</span><span class="p">%</span><span class="n">get_subcommunicator</span><span class="p">(),</span><span class="w"> </span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="n">with_profiler</span><span class="o">=</span><span class="n">with_profiler</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">stat_alloc</span><span class="p">)</span>
-<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">stat_alloc</span><span class="p">)</span>
-
-<span class="w">           </span><span class="k">endif</span>
-<span class="k">           call </span><span class="n">this</span><span class="p">%</span><span class="n">directory_service</span><span class="p">%</span><span class="n">publish</span><span class="p">(</span><span class="n">PortInfo</span><span class="p">(</span><span class="n">s_name</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">o_server</span><span class="p">),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">o_server</span><span class="p">)</span>
-<span class="w">           </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">directory_service</span><span class="p">%</span><span class="n">connect_to_client</span><span class="p">(</span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">o_server</span><span class="p">)</span>
-<span class="w">           </span><span class="k">call </span><span class="n">MPI_Comm_Rank</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">split_comm</span><span class="p">%</span><span class="n">get_subcommunicator</span><span class="p">(),</span><span class="n">rank</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
-<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">nodes_out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">              write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(A,I0,A)&#39;</span><span class="p">)</span><span class="s2">&quot;Starting pFIO output server on &quot;</span><span class="p">,</span><span class="n">nodes_out</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="s2">&quot; nodes&quot;</span>
-<span class="w">           </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">npes_out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">              write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(A,I0,A)&#39;</span><span class="p">)</span><span class="s2">&quot;Starting pFIO output server on &quot;</span><span class="p">,</span><span class="n">npes_out</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="s2">&quot; pes&quot;</span>
-<span class="w">           </span><span class="k">end if</span>
-<span class="k">        endif</span>
-
-<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;model&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">           </span><span class="n">clientPtr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">o_Clients</span><span class="p">%</span><span class="n">current</span><span class="p">()</span>
-<span class="w">           </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">directory_service</span><span class="p">%</span><span class="n">connect_to_server</span><span class="p">(</span><span class="s1">&#39;o_server&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="w"> </span><span class="n">clientPtr</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                       </span><span class="n">this</span><span class="p">%</span><span class="n">split_comm</span><span class="p">%</span><span class="n">get_subcommunicator</span><span class="p">(),</span><span class="w"> </span><span class="n">server_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">server_size</span><span class="p">)</span>
-<span class="w">           </span><span class="k">call </span><span class="n">o_Clients</span><span class="p">%</span><span class="n">set_server_size</span><span class="p">(</span><span class="n">server_size</span><span class="p">)</span>
-<span class="w">           </span><span class="k">call </span><span class="n">o_Clients</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
-<span class="w">        </span><span class="k">endif</span>
-
-<span class="k">        call </span><span class="n">mpi_barrier</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
-
-<span class="w">     </span><span class="k">enddo</span>
-
-<span class="k">     if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;o_server&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">        call </span><span class="n">this</span><span class="p">%</span><span class="n">o_server</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">     </span><span class="k">endif</span>
-
-<span class="k">     if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;i_server&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">        call </span><span class="n">this</span><span class="p">%</span><span class="n">i_server</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">     </span><span class="k">endif</span>
-
-<span class="k">     if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">s_name</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;model&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">        call </span><span class="n">i_Clients</span><span class="p">%</span><span class="n">set_current</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="c">! set current to be the first</span>
-<span class="w">        </span><span class="k">call </span><span class="n">o_Clients</span><span class="p">%</span><span class="n">set_current</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="c">! set current to be the first</span>
-<span class="w">     </span><span class="k">end if</span>
-
-<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
-<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize</span>
 </pre></div>
 
@@ -1356,7 +441,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-05-10T13:36:20.183352             </p>
+ on 2024-05-10T13:40:39.649797             </p>
           </div>
         </div>
         <br>
