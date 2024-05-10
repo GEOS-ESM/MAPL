@@ -1,0 +1,670 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>regrid_scalar_2d_real32 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>regrid_scalar_2d_real32
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">23 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_TilingRegridder.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_tilingregridder.f90.html'>MAPL_TilingRegridder.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_tilingregriddermod.html'>MAPL_TilingRegridderMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">regrid_scalar_2d_real32</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/regrid_scalar_2d_real32.html#src">regrid_scalar_2d_real32</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine regrid_scalar_2d_real32(this, q_in, q_out, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/tilingregridder.html'>TilingRegridder</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1473"></span>
+              class(<a href='../type/tilingregridder.html'>TilingRegridder</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q_in~4"></span>
+              real(kind=REAL32),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>q_in</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q_out~4"></span>
+              real(kind=REAL32),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>q_out</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~533"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~regrid_scalar_2d_real32~~CallsGraph Pages: 1 -->
+<svg id="procregrid_scalar_2d_real32CallsGraph" width="641pt" height="223pt"
+ viewBox="0.00 0.00 641.00 223.11" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph" class="graph" transform="scale(1.45 1.45) rotate(0) translate(4 319)">
+<title>proc~~regrid_scalar_2d_real32~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-319 924,-319 924,4 -4,4"/>
+<!-- proc~regrid_scalar_2d_real32 -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node1" class="node">
+<title>proc~regrid_scalar_2d_real32</title>
+<polygon fill="none" stroke="black" points="230,-150 0,-150 0,-126 230,-126 230,-150"/>
+<text text-anchor="middle" x="115" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50">TilingRegridder%regrid_scalar_2d_real32</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~regrid_scalar_2d_real32~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="409.5,-273 330.5,-273 330.5,-249 409.5,-249 409.5,-273"/>
+<text text-anchor="middle" x="370" y="-258.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_scalar_2d_real32&#45;&gt;interface~mapl_assert -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge1" class="edge">
+<title>proc~regrid_scalar_2d_real32&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M131.27,-150.11C157.41,-170.27 213.04,-210.8 266,-234 283.13,-241.5 302.8,-247.29 320.33,-251.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="319.84,-255.03 330.37,-253.88 321.42,-248.21 319.84,-255.03"/>
+</g>
+<!-- proc~final_regrid -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node3" class="node">
+<title>proc~final_regrid</title>
+<g id="a_proc~~regrid_scalar_2d_real32~~CallsGraph_node3"><a xlink:href="../proc/final_regrid.html" xlink:title="TilingRegridder%final_regrid">
+<polygon fill="#d9534f" stroke="#d9534f" points="451.5,-192 288.5,-192 288.5,-168 451.5,-168 451.5,-192"/>
+<text text-anchor="middle" x="370" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TilingRegridder%final_regrid</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_scalar_2d_real32&#45;&gt;proc~final_regrid -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge2" class="edge">
+<title>proc~regrid_scalar_2d_real32&#45;&gt;proc~final_regrid</title>
+<path fill="none" stroke="#ff0000" d="M188.5,-150.04C219.07,-155.11 254.81,-161.04 286.39,-166.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="286.05,-169.78 296.49,-167.96 287.2,-162.87 286.05,-169.78"/>
+</g>
+<!-- proc~get_spec~2 -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node4" class="node">
+<title>proc~get_spec~2</title>
+<g id="a_proc~~regrid_scalar_2d_real32~~CallsGraph_node4"><a xlink:href="../proc/get_spec~2.html" xlink:title="AbstractRegridder%get_spec">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="453,-150 287,-150 287,-126 453,-126 453,-150"/>
+<text text-anchor="middle" x="370" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractRegridder%get_spec</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_scalar_2d_real32&#45;&gt;proc~get_spec~2 -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge3" class="edge">
+<title>proc~regrid_scalar_2d_real32&#45;&gt;proc~get_spec~2</title>
+<path fill="none" stroke="#ff0000" d="M230.29,-138C245.71,-138 261.39,-138 276.37,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="276.63,-141.5 286.63,-138 276.63,-134.5 276.63,-141.5"/>
+</g>
+<!-- proc~has_undef_value -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node5" class="node">
+<title>proc~has_undef_value</title>
+<g id="a_proc~~regrid_scalar_2d_real32~~CallsGraph_node5"><a xlink:href="../proc/has_undef_value.html" xlink:title="AbstractRegridder%has_undef_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="474,-108 266,-108 266,-84 474,-84 474,-108"/>
+<text text-anchor="middle" x="370" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractRegridder%has_undef_value</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_scalar_2d_real32&#45;&gt;proc~has_undef_value -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge4" class="edge">
+<title>proc~regrid_scalar_2d_real32&#45;&gt;proc~has_undef_value</title>
+<path fill="none" stroke="#ff0000" d="M188.5,-125.96C219.07,-120.89 254.81,-114.96 286.39,-109.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="287.2,-113.13 296.49,-108.04 286.05,-106.22 287.2,-113.13"/>
+</g>
+<!-- proc~init_regrid -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node6" class="node">
+<title>proc~init_regrid</title>
+<g id="a_proc~~regrid_scalar_2d_real32~~CallsGraph_node6"><a xlink:href="../proc/init_regrid.html" xlink:title="TilingRegridder%init_regrid">
+<polygon fill="#d9534f" stroke="#d9534f" points="448.5,-66 291.5,-66 291.5,-42 448.5,-42 448.5,-66"/>
+<text text-anchor="middle" x="370" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TilingRegridder%init_regrid</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_scalar_2d_real32&#45;&gt;proc~init_regrid -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge5" class="edge">
+<title>proc~regrid_scalar_2d_real32&#45;&gt;proc~init_regrid</title>
+<path fill="none" stroke="#ff0000" d="M140.39,-125.99C169.63,-112.02 220.39,-89.08 266,-75 273.9,-72.56 282.22,-70.33 290.58,-68.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="291.43,-71.7 300.38,-66.03 289.84,-64.88 291.43,-71.7"/>
+</g>
+<!-- proc~loop_over_tiles -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node7" class="node">
+<title>proc~loop_over_tiles</title>
+<g id="a_proc~~regrid_scalar_2d_real32~~CallsGraph_node7"><a xlink:href="../proc/loop_over_tiles.html" xlink:title="TilingRegridder%loop_over_tiles">
+<polygon fill="#d9534f" stroke="#d9534f" points="461.5,-24 278.5,-24 278.5,0 461.5,0 461.5,-24"/>
+<text text-anchor="middle" x="370" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TilingRegridder%loop_over_tiles</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_scalar_2d_real32&#45;&gt;proc~loop_over_tiles -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge6" class="edge">
+<title>proc~regrid_scalar_2d_real32&#45;&gt;proc~loop_over_tiles</title>
+<path fill="none" stroke="#ff0000" d="M129.31,-125.77C154.18,-103.62 210.22,-56.97 266,-33 271.13,-30.79 276.52,-28.81 282.01,-27.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="283.41,-30.27 291.99,-24.06 281.41,-23.57 283.41,-30.27"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~regrid_scalar_2d_real32~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="625,-231 543,-231 543,-207 625,-207 625,-231"/>
+<text text-anchor="middle" x="584" y="-216.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_scalar_2d_real32&#45;&gt;proc~mapl_return -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge7" class="edge">
+<title>proc~regrid_scalar_2d_real32&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M138.07,-150.1C166.63,-165.09 218.39,-189.99 266,-201 358.34,-222.35 469.63,-223.14 532.77,-221.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="532.97,-224.85 542.85,-221.04 532.75,-217.86 532.97,-224.85"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node11" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~regrid_scalar_2d_real32~~CallsGraph_node11"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="651,-315 517,-315 517,-291 651,-291 651,-315"/>
+<text text-anchor="middle" x="584" y="-300.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M409.88,-268.7C438.5,-274.37 478.2,-282.24 512.36,-289.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="511.81,-292.46 522.3,-290.97 513.17,-285.6 511.81,-292.46"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node12" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~regrid_scalar_2d_real32~~CallsGraph_node12"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="658,-273 510,-273 510,-249 658,-249 658,-273"/>
+<text text-anchor="middle" x="584" y="-258.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M409.88,-261C434.91,-261 468.41,-261 499.27,-261"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="499.62,-264.5 509.62,-261 499.62,-257.5 499.62,-264.5"/>
+</g>
+<!-- add_contribution -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node9" class="node">
+<title>add_contribution</title>
+<polygon fill="#777777" stroke="#777777" points="635.5,-24 532.5,-24 532.5,0 635.5,0 635.5,-24"/>
+<text text-anchor="middle" x="584" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">add_contribution</text>
+</g>
+<!-- proc~loop_over_tiles&#45;&gt;add_contribution -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge10" class="edge">
+<title>proc~loop_over_tiles&#45;&gt;add_contribution</title>
+<path fill="none" stroke="#4800ff" d="M461.52,-12C481.94,-12 503.14,-12 522,-12"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="522.22,-15.5 532.22,-12 522.22,-8.5 522.22,-15.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node10" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~regrid_scalar_2d_real32~~CallsGraph_node10"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="818,-231 703,-231 703,-207 818,-207 818,-231"/>
+<text text-anchor="middle" x="760.5" y="-216.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00da" d="M625.03,-219C645.02,-219 669.73,-219 692.49,-219"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="692.79,-222.5 702.79,-219 692.79,-215.5 692.79,-222.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node13" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~regrid_scalar_2d_real32~~CallsGraph_node13"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="827,-273 694,-273 694,-249 827,-249 827,-273"/>
+<text text-anchor="middle" x="760.5" y="-258.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M625.03,-228.64C647.05,-233.94 674.82,-240.62 699.39,-246.53"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="698.8,-249.99 709.34,-248.93 700.44,-243.18 698.8,-249.99"/>
+</g>
+<!-- at -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node14" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="918.5,-189 864.5,-189 864.5,-165 918.5,-165 918.5,-189"/>
+<text text-anchor="middle" x="891.5" y="-174.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge13" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#cbff00" d="M798.47,-206.96C816.02,-201.25 836.92,-194.45 854.36,-188.77"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="855.75,-191.99 864.18,-185.57 853.59,-185.34 855.75,-191.99"/>
+</g>
+<!-- insert -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node15" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="918.5,-231 864.5,-231 864.5,-207 918.5,-207 918.5,-231"/>
+<text text-anchor="middle" x="891.5" y="-216.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge14" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#cbff00" d="M818.08,-219C830.29,-219 842.89,-219 854.08,-219"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="854.32,-222.5 864.32,-219 854.32,-215.5 854.32,-222.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff66" d="M635,-290.96C655.18,-286.11 678.62,-280.47 699.68,-275.4"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="700.58,-278.78 709.49,-273.04 698.95,-271.97 700.58,-278.78"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0066ff" d="M635,-248.96C655.18,-244.11 678.62,-238.47 699.68,-233.4"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="700.58,-236.78 709.49,-231.04 698.95,-229.97 700.58,-236.78"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M658.25,-261C666.67,-261 675.27,-261 683.72,-261"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="683.94,-264.5 693.94,-261 683.94,-257.5 683.94,-264.5"/>
+</g>
+<!-- proc~initialize~14 -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_node16" class="node">
+<title>proc~initialize~14</title>
+<g id="a_proc~~regrid_scalar_2d_real32~~CallsGraph_node16"><a xlink:href="../proc/initialize~14.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="920,-273 863,-273 863,-249 920,-249 920,-273"/>
+<text text-anchor="middle" x="891.5" y="-258.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~14 -->
+<g id="proc~~regrid_scalar_2d_real32~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~14</title>
+<path fill="none" stroke="#cc00ff" d="M827.13,-261C835.88,-261 844.59,-261 852.63,-261"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="852.77,-264.5 862.77,-261 852.77,-257.5 852.77,-264.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocregrid_scalar_2d_real32CallsGraph = svgPanZoom('#procregrid_scalar_2d_real32CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">regrid_scalar_2d_real32</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">q_in</span><span class="p">,</span><span class="w"> </span><span class="n">q_out</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">TilingRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">q_in</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">q_out</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;regrid_2d_real32&#39;</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">fraction</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">has_undef_value</span><span class="p">(),</span><span class="w"> </span><span class="s1">&#39;undefined value&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">init_regrid</span><span class="p">(</span><span class="n">q_out</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="nb">fraction</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">q_out</span><span class="p">)</span>
+<span class="w">      </span><span class="nb">fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+
+<span class="w">      </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_spec</span><span class="p">()</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="nb">shape</span><span class="p">(</span><span class="n">q_out</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">out_shape</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">this</span><span class="p">%</span><span class="n">loop_over_tiles</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">global_x_tiles</span><span class="p">,</span><span class="w"> </span><span class="n">q_in</span><span class="p">,</span><span class="w"> </span><span class="n">q_out</span><span class="p">,</span><span class="w"> </span><span class="nb">fraction</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">iand</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">hints</span><span class="p">,</span><span class="w"> </span><span class="n">REGRID_HINT_LOCAL</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;bad hint&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">loop_over_tiles</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">local_x_tiles</span><span class="p">,</span><span class="w"> </span><span class="n">q_in</span><span class="p">,</span><span class="w"> </span><span class="n">q_out</span><span class="p">,</span><span class="w"> </span><span class="nb">fraction</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">this</span><span class="p">%</span><span class="n">final_regrid</span><span class="p">(</span><span class="n">q_out</span><span class="p">,</span><span class="w"> </span><span class="nb">fraction</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">regrid_scalar_2d_real32</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-10T13:36:20.183352             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

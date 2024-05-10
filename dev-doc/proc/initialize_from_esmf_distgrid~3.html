@@ -1,0 +1,1337 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>initialize_from_esmf_distGrid &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>initialize_from_esmf_distGrid
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">59 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_SwathGridFactory.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_swathgridfactory.f90.html'>MAPL_SwathGridFactory.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_swathgridfactorymod.html'>MAPL_SwathGridFactoryMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">initialize_from_esmf_distGrid</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/initialize_from_esmf_distgrid~3.html#src">initialize_from_esmf_distGrid</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine initialize_from_esmf_distGrid(this, dist_grid, lon_array, lat_array, unusable, rc)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/mapl_constants.html'>MAPL_Constants</a></li>
+                  <li class="list-inline-item"><a href='../module/mapl_configmod.html'>MAPL_ConfigMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~initialize_from_esmf_distgrid~3~~UsesGraph Pages: 1 -->
+<svg id="procinitialize_from_esmf_distgrid3UsesGraph" width="641pt" height="144pt"
+ viewBox="0.00 0.00 641.00 144.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph" class="graph" transform="scale(1.48 1.48) rotate(0) translate(4 210.23)">
+<title>proc~~initialize_from_esmf_distgrid~3~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-210.23 947,-210.23 947,4 -4,4"/>
+<!-- proc~initialize_from_esmf_distgrid~3 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node1" class="node">
+<title>proc~initialize_from_esmf_distgrid~3</title>
+<polygon fill="none" stroke="black" points="943,-144.23 675,-144.23 675,-120.23 943,-120.23 943,-144.23"/>
+<text text-anchor="middle" x="809" y="-129.83" font-family="Helvetica,sans-Serif" font-size="10.50">SwathGridFactory%initialize_from_esmf_distGrid</text>
+</g>
+<!-- module~mapl_configmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node2" class="node">
+<title>module~mapl_configmod</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node2"><a xlink:href="../module/mapl_configmod.html" xlink:title="MAPL_ConfigMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="639,-165.23 536,-165.23 536,-141.23 639,-141.23 639,-165.23"/>
+<text text-anchor="middle" x="587.5" y="-150.83" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ConfigMod</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_esmf_distgrid~3&#45;&gt;module~mapl_configmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge1" class="edge">
+<title>proc~initialize_from_esmf_distgrid~3&#45;&gt;module~mapl_configmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M682.54,-144.23C671.09,-145.33 659.87,-146.4 649.4,-147.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="648.81,-143.95 639.19,-148.38 649.48,-150.91 648.81,-143.95"/>
+</g>
+<!-- module~mapl_constants -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node3" class="node">
+<title>module~mapl_constants</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node3"><a xlink:href="../module/mapl_constants.html" xlink:title="MAPL_Constants">
+<polygon fill="#337ab7" stroke="#337ab7" points="637,-123.23 538,-123.23 538,-99.23 637,-99.23 637,-123.23"/>
+<text text-anchor="middle" x="587.5" y="-108.83" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Constants</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_esmf_distgrid~3&#45;&gt;module~mapl_constants -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge2" class="edge">
+<title>proc~initialize_from_esmf_distgrid~3&#45;&gt;module~mapl_constants</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M682.54,-120.23C670.46,-119.07 658.64,-117.94 647.68,-116.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="647.74,-113.38 637.46,-115.92 647.08,-120.35 647.74,-113.38"/>
+</g>
+<!-- ESMF -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node4" class="node">
+<title>ESMF</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="445,-206.23 391,-206.23 391,-182.23 445,-182.23 445,-206.23"/>
+<text text-anchor="middle" x="418" y="-191.83" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_configmod&#45;&gt;ESMF -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge3" class="edge">
+<title>module~mapl_configmod&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M537.15,-165.31C510.81,-171.76 478.96,-179.55 454.98,-185.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="454.1,-182.04 445.22,-187.81 455.76,-188.84 454.1,-182.04"/>
+</g>
+<!-- module~mapl_exceptionhandling -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node6" class="node">
+<title>module~mapl_exceptionhandling</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node6"><a xlink:href="../module/mapl_exceptionhandling.html" xlink:title="MAPL_ExceptionHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="491.5,-164.23 344.5,-164.23 344.5,-140.23 491.5,-140.23 491.5,-164.23"/>
+<text text-anchor="middle" x="418" y="-149.83" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_configmod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge4" class="edge">
+<title>module~mapl_configmod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M535.79,-152.93C525.07,-152.87 513.48,-152.8 501.92,-152.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="501.8,-149.23 491.78,-152.67 501.76,-156.23 501.8,-149.23"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node5" class="node">
+<title>iso_fortran_env</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node5"><a xlink:href="http://fortranwiki.org/fortran/show/iso_fortran_env" xlink:title="iso_fortran_env">
+<polygon fill="#337ab7" stroke="#337ab7" points="97.5,-63.23 3.5,-63.23 3.5,-39.23 97.5,-39.23 97.5,-63.23"/>
+<text text-anchor="middle" x="50.5" y="-48.83" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_constants&#45;&gt;iso_fortran_env -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge5" class="edge">
+<title>module~mapl_constants&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M417,-112.23C292.86,-100.08 257.47,-125.56 137,-93.23 116.84,-87.82 95.77,-77.54 79.59,-68.5"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="81.09,-65.32 70.68,-63.37 77.6,-71.39 81.09,-65.32"/>
+</g>
+<!-- module~mapl_internalconstantsmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node7" class="node">
+<title>module~mapl_internalconstantsmod</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node7"><a xlink:href="../module/mapl_internalconstantsmod.html" xlink:title="MAPL_InternalConstantsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="300,-84.23 137,-84.23 137,-60.23 300,-60.23 300,-84.23"/>
+<text text-anchor="middle" x="218.5" y="-69.83" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_InternalConstantsMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_constants&#45;&gt;module~mapl_internalconstantsmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge6" class="edge">
+<title>module~mapl_constants&#45;&gt;module~mapl_internalconstantsmod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M417,-112.23C368.64,-107.5 314.61,-96.12 275.3,-86.71"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="275.93,-83.26 265.39,-84.3 274.28,-90.06 275.93,-83.26"/>
+</g>
+<!-- module~mapl_mathconstantsmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node8" class="node">
+<title>module~mapl_mathconstantsmod</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node8"><a xlink:href="../module/mapl_mathconstantsmod.html" xlink:title="MAPL_MathConstantsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="292.5,-42.23 144.5,-42.23 144.5,-18.23 292.5,-18.23 292.5,-42.23"/>
+<text text-anchor="middle" x="218.5" y="-27.83" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MathConstantsMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_constants&#45;&gt;module~mapl_mathconstantsmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge7" class="edge">
+<title>module~mapl_constants&#45;&gt;module~mapl_mathconstantsmod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M537.64,-114.18C504.16,-115.55 458.8,-116.13 419,-112.23"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M417,-112.23C358.64,-106.52 354.72,-72.32 300,-51.23 294.47,-49.1 288.65,-47.12 282.77,-45.28"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="283.45,-41.83 272.87,-42.34 281.46,-48.54 283.45,-41.83"/>
+</g>
+<!-- module~mapl_physicalconstantsmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node9" class="node">
+<title>module~mapl_physicalconstantsmod</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node9"><a xlink:href="../module/mapl_physicalconstantsmod.html" xlink:title="MAPL_PhysicalConstantsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="500,-42.23 336,-42.23 336,-18.23 500,-18.23 500,-42.23"/>
+<text text-anchor="middle" x="418" y="-27.83" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_PhysicalConstantsMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_constants&#45;&gt;module~mapl_physicalconstantsmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge8" class="edge">
+<title>module~mapl_constants&#45;&gt;module~mapl_physicalconstantsmod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M561.42,-99.11C532.6,-85.17 485.14,-62.22 453.01,-46.68"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="454.5,-43.51 443.97,-42.31 451.45,-49.81 454.5,-43.51"/>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node10" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node10"><a xlink:href="../module/mapl_errorhandlingmod.html" xlink:title="MAPL_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="290,-164.23 147,-164.23 147,-140.23 290,-140.23 290,-164.23"/>
+<text text-anchor="middle" x="218.5" y="-149.83" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge9" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M344.3,-152.23C329.91,-152.23 314.73,-152.23 300.1,-152.23"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="300.07,-148.73 290.07,-152.23 300.07,-155.73 300.07,-148.73"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node11" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node11"><a xlink:href="../module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="101,-204.23 0,-204.23 0,-180.23 101,-180.23 101,-204.23"/>
+<text text-anchor="middle" x="50.5" y="-189.83" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge10" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M356.76,-164.25C338.58,-167.55 318.53,-170.87 300,-173.23 235.75,-181.43 161.68,-186.54 111.23,-189.37"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="110.95,-185.88 101.16,-189.92 111.33,-192.87 110.95,-185.88"/>
+</g>
+<!-- module~mapl_internalconstantsmod&#45;&gt;iso_fortran_env -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge11" class="edge">
+<title>module~mapl_internalconstantsmod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M136.93,-62.04C127.1,-60.8 117.23,-59.55 107.86,-58.36"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="108.28,-54.89 97.92,-57.1 107.41,-61.83 108.28,-54.89"/>
+</g>
+<!-- module~mapl_mathconstantsmod&#45;&gt;iso_fortran_env -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge12" class="edge">
+<title>module~mapl_mathconstantsmod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M144.21,-39.5C131.98,-41.05 119.47,-42.63 107.75,-44.12"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="107.17,-40.66 97.69,-45.39 108.05,-47.61 107.17,-40.66"/>
+</g>
+<!-- module~mapl_physicalconstantsmod&#45;&gt;iso_fortran_env -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge13" class="edge">
+<title>module~mapl_physicalconstantsmod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M369.77,-18.14C313.57,-5.71 217.25,9.41 137,-9.23 116.4,-14.02 95.04,-24.51 78.82,-33.8"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="76.73,-30.98 69.92,-39.09 80.3,-37 76.73,-30.98"/>
+</g>
+<!-- module~mapl_physicalconstantsmod&#45;&gt;module~mapl_mathconstantsmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge14" class="edge">
+<title>module~mapl_physicalconstantsmod&#45;&gt;module~mapl_mathconstantsmod</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M335.81,-30.23C325.01,-30.23 313.92,-30.23 303.07,-30.23"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="302.77,-26.73 292.77,-30.23 302.77,-33.73 302.77,-26.73"/>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge15" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M167.69,-164.23C149.89,-168.52 129.63,-173.4 111.08,-177.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.17,-174.49 101.27,-180.24 111.81,-181.3 110.17,-174.49"/>
+</g>
+<!-- mpi -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node12" class="node">
+<title>mpi</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~UsesGraph_node12"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-162.23 23.5,-162.23 23.5,-138.23 77.5,-138.23 77.5,-162.23"/>
+<text text-anchor="middle" x="50.5" y="-147.83" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;mpi -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~UsesGraph_edge16" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;mpi</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M146.62,-151.38C126.33,-151.13 105.06,-150.88 87.79,-150.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="87.63,-147.17 77.59,-150.55 87.55,-154.17 87.63,-147.17"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocinitialize_from_esmf_distgrid3UsesGraph = svgPanZoom('#procinitialize_from_esmf_distgrid3UsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/swathgridfactory.html'>SwathGridFactory</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1109"></span>
+              class(<a href='../type/swathgridfactory.html'>SwathGridFactory</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dist_grid~3"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_distgrid.html'>ESMF_DistGrid</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dist_grid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lon_array~3"></span>
+              type(ESMF_LocalArray),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lon_array</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lat_array~3"></span>
+              type(ESMF_LocalArray),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lat_array</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~64"></span>
+              class(<a href='../type/keywordenforcer~56.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~343"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~initialize_from_esmf_distgrid~3~~CallsGraph Pages: 1 -->
+<svg id="procinitialize_from_esmf_distgrid3CallsGraph" width="641pt" height="195pt"
+ viewBox="0.00 0.00 641.00 195.41" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph" class="graph" transform="scale(2.16 2.16) rotate(0) translate(4 418.21)">
+<title>proc~~initialize_from_esmf_distgrid~3~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-418.21 1381,-418.21 1381,4 -4,4"/>
+<!-- proc~initialize_from_esmf_distgrid~3 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node1" class="node">
+<title>proc~initialize_from_esmf_distgrid~3</title>
+<polygon fill="none" stroke="black" points="268,-244.21 0,-244.21 0,-220.21 268,-220.21 268,-244.21"/>
+<text text-anchor="middle" x="134" y="-229.81" font-family="Helvetica,sans-Serif" font-size="10.50">SwathGridFactory%initialize_from_esmf_distGrid</text>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node2" class="node">
+<title>ESMF_DistGridGet</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="438,-410.21 330,-410.21 330,-386.21 438,-386.21 438,-410.21"/>
+<text text-anchor="middle" x="384" y="-395.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_esmf_distgrid~3&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge1" class="edge">
+<title>proc~initialize_from_esmf_distgrid~3&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#ff0000" d="M145.53,-244.4C170.27,-272.27 235.24,-341.02 304,-377.21 309.15,-379.92 314.68,-382.3 320.33,-384.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="319.31,-387.74 329.91,-387.63 321.56,-381.11 319.31,-387.74"/>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node3" class="node">
+<title>ESMF_VMGet</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_vmget.html" xlink:title="ESMF_VMGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="425,-368.21 343,-368.21 343,-344.21 425,-344.21 425,-368.21"/>
+<text text-anchor="middle" x="384" y="-353.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGet</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_esmf_distgrid~3&#45;&gt;ESMF_VMGet -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge2" class="edge">
+<title>proc~initialize_from_esmf_distgrid~3&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#ff0000" d="M151.4,-244.44C180.62,-265.72 244.28,-309.71 304,-335.21 313.2,-339.14 323.33,-342.5 333.17,-345.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="332.3,-348.69 342.87,-347.92 334.13,-341.94 332.3,-348.69"/>
+</g>
+<!-- ESMF_VMGetCurrent -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node4" class="node">
+<title>ESMF_VMGetCurrent</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_vmgetcurrent.html" xlink:title="ESMF_VMGetCurrent">
+<polygon fill="#d9534f" stroke="#d9534f" points="444.5,-326.21 323.5,-326.21 323.5,-302.21 444.5,-302.21 444.5,-326.21"/>
+<text text-anchor="middle" x="384" y="-311.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGetCurrent</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_esmf_distgrid~3&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge3" class="edge">
+<title>proc~initialize_from_esmf_distgrid~3&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#ff0000" d="M165.87,-244.27C199.55,-257.2 255.18,-277.94 304,-293.21 310.8,-295.34 317.97,-297.44 325.1,-299.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="324.2,-302.82 334.77,-302.1 326.05,-296.07 324.2,-302.82"/>
+</g>
+<!-- esmf_localarrayget -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node5" class="node">
+<title>esmf_localarrayget</title>
+<polygon fill="#777777" stroke="#777777" points="441.5,-284.21 326.5,-284.21 326.5,-260.21 441.5,-260.21 441.5,-284.21"/>
+<text text-anchor="middle" x="384" y="-269.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_localarrayget</text>
+</g>
+<!-- proc~initialize_from_esmf_distgrid~3&#45;&gt;esmf_localarrayget -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge4" class="edge">
+<title>proc~initialize_from_esmf_distgrid~3&#45;&gt;esmf_localarrayget</title>
+<path fill="none" stroke="#ff0000" d="M209.41,-244.21C243.41,-249.7 283.38,-256.14 316.38,-261.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="315.96,-264.94 326.39,-263.08 317.07,-258.03 315.96,-264.94"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node6" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node6"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="898,-162.21 819,-162.21 819,-138.21 898,-138.21 898,-162.21"/>
+<text text-anchor="middle" x="858.5" y="-147.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_esmf_distgrid~3&#45;&gt;interface~mapl_assert -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge5" class="edge">
+<title>proc~initialize_from_esmf_distgrid~3&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M164.52,-220.18C197.94,-206.88 254.22,-185.46 304,-171.21 495.41,-116.43 551.83,-110.04 750,-129.21 769.48,-131.1 790.68,-134.86 809.06,-138.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="808.44,-142.14 818.95,-140.81 809.91,-135.29 808.44,-142.14"/>
+</g>
+<!-- interface~mapl_configsetattribute -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node7" class="node">
+<title>interface~mapl_configsetattribute</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node7"><a xlink:href="../interface/mapl_configsetattribute.html" xlink:title="MAPL_ConfigSetAttribute">
+<polygon fill="#a7506f" stroke="#a7506f" points="456,-204.21 312,-204.21 312,-180.21 456,-180.21 456,-204.21"/>
+<text text-anchor="middle" x="384" y="-189.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ConfigSetAttribute</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_esmf_distgrid~3&#45;&gt;interface~mapl_configsetattribute -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge6" class="edge">
+<title>proc~initialize_from_esmf_distgrid~3&#45;&gt;interface~mapl_configsetattribute</title>
+<path fill="none" stroke="#ff0000" d="M209.41,-220.21C238.51,-215.52 271.97,-210.12 301.7,-205.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="302.31,-208.77 311.62,-203.72 301.19,-201.86 302.31,-208.77"/>
+</g>
+<!-- none~initialize~23 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node8" class="node">
+<title>none~initialize~23</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node8"><a xlink:href="../type/swathgridfactory.html#boundprocedure-initialize~23" xlink:title="SwathGridFactory%initialize">
+<polygon fill="#a7506f" stroke="#a7506f" points="464,-82.21 304,-82.21 304,-58.21 464,-58.21 464,-82.21"/>
+<text text-anchor="middle" x="384" y="-67.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SwathGridFactory%initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_esmf_distgrid~3&#45;&gt;none~initialize~23 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge7" class="edge">
+<title>proc~initialize_from_esmf_distgrid~3&#45;&gt;none~initialize~23</title>
+<path fill="none" stroke="#ff0000" d="M147,-219.91C173.21,-193.7 238.48,-131.82 304,-96.21 311.39,-92.2 319.5,-88.66 327.62,-85.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="328.88,-88.87 337.13,-82.22 326.53,-82.28 328.88,-88.87"/>
+</g>
+<!-- proc~mapl_configcreate -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node9" class="node">
+<title>proc~mapl_configcreate</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node9"><a xlink:href="../proc/mapl_configcreate.html" xlink:title="MAPL_ConfigCreate">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="683,-414.21 567,-414.21 567,-390.21 683,-390.21 683,-414.21"/>
+<text text-anchor="middle" x="625" y="-399.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ConfigCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_esmf_distgrid~3&#45;&gt;proc~mapl_configcreate -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge8" class="edge">
+<title>proc~initialize_from_esmf_distgrid~3&#45;&gt;proc~mapl_configcreate</title>
+<path fill="none" stroke="#ff0000" d="M268.06,-224.63C345.76,-223.07 434.23,-227.18 464,-251.21 510.65,-288.87 455.49,-341.04 500,-381.21 515.32,-395.04 536.24,-401.52 556.52,-404.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="556.42,-407.7 566.72,-405.24 557.13,-400.74 556.42,-407.7"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node10" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node10"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="896.5,-120.21 820.5,-120.21 820.5,-96.21 896.5,-96.21 896.5,-120.21"/>
+<text text-anchor="middle" x="858.5" y="-105.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_esmf_distgrid~3&#45;&gt;proc~mapl_verify -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge9" class="edge">
+<title>proc~initialize_from_esmf_distgrid~3&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M141.35,-220.14C160.38,-185.44 220.8,-85.63 304,-49.21 485.59,30.27 557.99,0.02 750,-49.21 780.86,-57.12 812.37,-75.94 833.22,-90.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="831.28,-93.13 841.48,-96.01 835.3,-87.4 831.28,-93.13"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node14" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node14"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1108,-160.21 974,-160.21 974,-136.21 1108,-136.21 1108,-160.21"/>
+<text text-anchor="middle" x="1041" y="-145.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M898.22,-149.78C917.36,-149.57 941.14,-149.31 963.72,-149.06"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="964.03,-152.55 973.99,-148.94 963.95,-145.55 964.03,-152.55"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node15" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node15"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1115,-240.21 967,-240.21 967,-216.21 1115,-216.21 1115,-240.21"/>
+<text text-anchor="middle" x="1041" y="-225.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge11" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M887.31,-162.23C918.31,-175.63 968.6,-197.36 1002.93,-212.19"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="1001.59,-215.43 1012.16,-216.18 1004.37,-209 1001.59,-215.43"/>
+</g>
+<!-- proc~mapl_configsetattribute_int32 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node16" class="node">
+<title>proc~mapl_configsetattribute_int32</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node16"><a xlink:href="../proc/mapl_configsetattribute_int32.html" xlink:title="MAPL_ConfigSetAttribute_int32">
+<polygon fill="#d9534f" stroke="#d9534f" points="713,-288.21 537,-288.21 537,-264.21 713,-264.21 713,-288.21"/>
+<text text-anchor="middle" x="625" y="-273.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ConfigSetAttribute_int32</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_configsetattribute&#45;&gt;proc~mapl_configsetattribute_int32 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge12" class="edge">
+<title>interface~mapl_configsetattribute&#45;&gt;proc~mapl_configsetattribute_int32</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M433.86,-204.22C444.23,-207.86 454.82,-212.47 464,-218.21 483.46,-230.37 479.69,-244.55 500,-255.21 508.47,-259.66 517.66,-263.19 527.09,-266.01"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="526.42,-269.45 536.99,-268.68 528.25,-262.69 526.42,-269.45"/>
+</g>
+<!-- proc~mapl_configsetattribute_ints32 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node17" class="node">
+<title>proc~mapl_configsetattribute_ints32</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node17"><a xlink:href="../proc/mapl_configsetattribute_ints32.html" xlink:title="MAPL_ConfigSetAttribute_ints32">
+<polygon fill="#d9534f" stroke="#d9534f" points="715.5,-204.21 534.5,-204.21 534.5,-180.21 715.5,-180.21 715.5,-204.21"/>
+<text text-anchor="middle" x="625" y="-189.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ConfigSetAttribute_ints32</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_configsetattribute&#45;&gt;proc~mapl_configsetattribute_ints32 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_configsetattribute&#45;&gt;proc~mapl_configsetattribute_ints32</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M456.06,-185.98C477.4,-185.5 501.21,-185.35 524.05,-185.54"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="524.07,-189.04 534.11,-185.65 524.15,-182.04 524.07,-189.04"/>
+</g>
+<!-- proc~mapl_configsetattribute_real32 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node18" class="node">
+<title>proc~mapl_configsetattribute_real32</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node18"><a xlink:href="../proc/mapl_configsetattribute_real32.html" xlink:title="MAPL_ConfigSetAttribute_real32">
+<polygon fill="#d9534f" stroke="#d9534f" points="716.5,-246.21 533.5,-246.21 533.5,-222.21 716.5,-222.21 716.5,-246.21"/>
+<text text-anchor="middle" x="625" y="-231.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ConfigSetAttribute_real32</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_configsetattribute&#45;&gt;proc~mapl_configsetattribute_real32 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_configsetattribute&#45;&gt;proc~mapl_configsetattribute_real32</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M450.05,-204.24C466.35,-207.21 483.81,-210.36 500,-213.21 513.58,-215.6 528.01,-218.09 542.04,-220.48"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="541.73,-223.98 552.17,-222.21 542.9,-217.08 541.73,-223.98"/>
+</g>
+<!-- proc~mapl_configsetattribute_real64 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node19" class="node">
+<title>proc~mapl_configsetattribute_real64</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node19"><a xlink:href="../proc/mapl_configsetattribute_real64.html" xlink:title="MAPL_ConfigSetAttribute_real64">
+<polygon fill="#d9534f" stroke="#d9534f" points="716.5,-372.21 533.5,-372.21 533.5,-348.21 716.5,-348.21 716.5,-372.21"/>
+<text text-anchor="middle" x="625" y="-357.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ConfigSetAttribute_real64</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_configsetattribute&#45;&gt;proc~mapl_configsetattribute_real64 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_configsetattribute&#45;&gt;proc~mapl_configsetattribute_real64</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M443.6,-204.22C451.17,-207.75 458.26,-212.31 464,-218.21 503.1,-258.45 457.99,-302.02 500,-339.21 506.96,-345.38 515.04,-350.07 523.67,-353.61"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="522.63,-356.96 533.23,-357.02 524.98,-350.37 522.63,-356.96"/>
+</g>
+<!-- proc~mapl_configsetattribute_reals32 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node20" class="node">
+<title>proc~mapl_configsetattribute_reals32</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node20"><a xlink:href="../proc/mapl_configsetattribute_reals32.html" xlink:title="MAPL_ConfigSetAttribute_reals32">
+<polygon fill="#d9534f" stroke="#d9534f" points="719,-162.21 531,-162.21 531,-138.21 719,-138.21 719,-162.21"/>
+<text text-anchor="middle" x="625" y="-147.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ConfigSetAttribute_reals32</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_configsetattribute&#45;&gt;proc~mapl_configsetattribute_reals32 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_configsetattribute&#45;&gt;proc~mapl_configsetattribute_reals32</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M411.47,-180.16C434.77,-173.96 469.62,-167.56 500,-162.21 506.72,-161.03 513.64,-159.82 520.63,-158.63"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="521.6,-162.02 530.88,-156.9 520.43,-155.11 521.6,-162.02"/>
+</g>
+<!-- proc~mapl_configsetattribute_string -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node21" class="node">
+<title>proc~mapl_configsetattribute_string</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node21"><a xlink:href="../proc/mapl_configsetattribute_string.html" xlink:title="MAPL_ConfigSetAttribute_string">
+<polygon fill="#d9534f" stroke="#d9534f" points="714.5,-330.21 535.5,-330.21 535.5,-306.21 714.5,-306.21 714.5,-330.21"/>
+<text text-anchor="middle" x="625" y="-315.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ConfigSetAttribute_string</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_configsetattribute&#45;&gt;proc~mapl_configsetattribute_string -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge17" class="edge">
+<title>interface~mapl_configsetattribute&#45;&gt;proc~mapl_configsetattribute_string</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M441.26,-204.26C449.52,-207.78 457.44,-212.33 464,-218.21 492.74,-243.96 469.41,-273.69 500,-297.21 507.64,-303.09 516.34,-307.56 525.5,-310.94"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="524.59,-314.33 535.19,-314.08 526.75,-307.67 524.59,-314.33"/>
+</g>
+<!-- proc~initialize_from_esmf_distgrid~2 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node13" class="node">
+<title>proc~initialize_from_esmf_distgrid~2</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node13"><a xlink:href="../proc/initialize_from_esmf_distgrid~2.html" xlink:title="XYGridFactory%initialize_from_esmf_distGrid">
+<polygon fill="#d9534f" stroke="#d9534f" points="750,-82.21 500,-82.21 500,-58.21 750,-58.21 750,-82.21"/>
+<text text-anchor="middle" x="625" y="-67.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">XYGridFactory%initialize_from_esmf_distGrid</text>
+</a>
+</g>
+</g>
+<!-- none~initialize~23&#45;&gt;proc~initialize_from_esmf_distgrid~2 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge18" class="edge">
+<title>none~initialize~23&#45;&gt;proc~initialize_from_esmf_distgrid~2</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M464.25,-70.21C472.46,-70.21 480.95,-70.21 489.54,-70.21"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="489.67,-73.71 499.67,-70.21 489.67,-66.71 489.67,-73.71"/>
+</g>
+<!-- ESMF_ConfigCreate -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node11" class="node">
+<title>ESMF_ConfigCreate</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node11"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_configcreate.html" xlink:title="ESMF_ConfigCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="916.5,-414.21 800.5,-414.21 800.5,-390.21 916.5,-390.21 916.5,-414.21"/>
+<text text-anchor="middle" x="858.5" y="-399.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_configcreate&#45;&gt;ESMF_ConfigCreate -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_configcreate&#45;&gt;ESMF_ConfigCreate</title>
+<path fill="none" stroke="#aa00ff" d="M683.22,-402.21C715.5,-402.21 756.02,-402.21 789.86,-402.21"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="790.13,-405.71 800.13,-402.21 790.13,-398.71 790.13,-405.71"/>
+</g>
+<!-- buffer -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node12" class="node">
+<title>buffer</title>
+<polygon fill="#777777" stroke="#777777" points="885.5,-347.21 831.5,-347.21 831.5,-323.21 885.5,-323.21 885.5,-347.21"/>
+<text text-anchor="middle" x="858.5" y="-332.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">buffer</text>
+</g>
+<!-- proc~mapl_configcreate&#45;&gt;buffer -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_configcreate&#45;&gt;buffer</title>
+<path fill="none" stroke="#aa00ff" d="M683.12,-395.43C704.37,-392.15 728.53,-387.53 750,-381.21 775.84,-373.61 803.77,-361.53 824.68,-351.66"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="826.27,-354.78 833.77,-347.3 823.24,-348.47 826.27,-354.78"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node22" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node22"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="899.5,-263.21 817.5,-263.21 817.5,-239.21 899.5,-239.21 899.5,-263.21"/>
+<text text-anchor="middle" x="858.5" y="-248.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_configcreate&#45;&gt;proc~mapl_return -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_configcreate&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#aa00ff" d="M683.22,-404.78C706.33,-402.94 731.78,-396.86 750,-381.21 788.7,-347.96 749.33,-307.68 786,-272.21 792.02,-266.39 799.56,-262.17 807.47,-259.12"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="808.8,-262.36 817.23,-255.94 806.63,-255.71 808.8,-262.36"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node23" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node23"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1284,-185.21 1151,-185.21 1151,-161.21 1284,-161.21 1284,-185.21"/>
+<text text-anchor="middle" x="1217.5" y="-170.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00aa" d="M896.54,-106.95C946.83,-106.13 1039.15,-107.85 1115,-127.21 1140.13,-133.62 1166.78,-145.94 1186.46,-156.21"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="1185.05,-159.43 1195.52,-161.05 1188.35,-153.25 1185.05,-159.43"/>
+</g>
+<!-- proc~initialize_from_esmf_distgrid~2&#45;&gt;interface~mapl_assert -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge23" class="edge">
+<title>proc~initialize_from_esmf_distgrid~2&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ffeb00" d="M713.09,-82.26C725.86,-85.79 738.55,-90.33 750,-96.21 769.31,-106.12 767.1,-118.54 786,-129.21 793.13,-133.23 801.1,-136.55 809.07,-139.27"/>
+<polygon fill="#ffeb00" stroke="#ffeb00" points="808.13,-142.64 818.72,-142.29 810.22,-135.96 808.13,-142.64"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#9cff00" d="M1108.47,-157.73C1118.98,-159.24 1129.92,-160.81 1140.62,-162.34"/>
+<polygon fill="#9cff00" stroke="#9cff00" points="1140.4,-165.84 1150.79,-163.8 1141.39,-158.91 1140.4,-165.84"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#27ff00" d="M1080.29,-216.14C1106.21,-207.97 1140.64,-197.12 1168.4,-188.37"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="1169.81,-191.6 1178.29,-185.25 1167.7,-184.92 1169.81,-191.6"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node25" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node25"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1275,-255.21 1160,-255.21 1160,-231.21 1275,-231.21 1275,-255.21"/>
+<text text-anchor="middle" x="1217.5" y="-240.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#27ff00" d="M1115.25,-234.51C1126.67,-235.49 1138.43,-236.5 1149.7,-237.47"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="1149.63,-240.98 1159.89,-238.35 1150.23,-234 1149.63,-240.98"/>
+</g>
+<!-- proc~mapl_configsetattribute_int32&#45;&gt;buffer -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_configsetattribute_int32&#45;&gt;buffer</title>
+<path fill="none" stroke="#00ff4e" d="M713.1,-287.86C725.62,-290.42 738.23,-293.51 750,-297.21 766.88,-302.52 769.46,-307.92 786,-314.21 797.41,-318.55 810.12,-322.54 821.63,-325.86"/>
+<polygon fill="#00ff4e" stroke="#00ff4e" points="820.79,-329.26 831.36,-328.59 822.68,-322.52 820.79,-329.26"/>
+</g>
+<!-- proc~mapl_configsetattribute_int32&#45;&gt;proc~mapl_return -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_configsetattribute_int32&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff4e" d="M713.19,-266.8C744.9,-263.37 779.66,-259.62 807.12,-256.65"/>
+<polygon fill="#00ff4e" stroke="#00ff4e" points="807.69,-260.11 817.26,-255.56 806.94,-253.15 807.69,-260.11"/>
+</g>
+<!-- ESMF_ConfigGetAttribute -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node24" class="node">
+<title>ESMF_ConfigGetAttribute</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node24"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_configgetattribute.html" xlink:title="ESMF_ConfigGetAttribute">
+<polygon fill="#a7506f" stroke="#a7506f" points="931,-305.21 786,-305.21 786,-281.21 931,-281.21 931,-305.21"/>
+<text text-anchor="middle" x="858.5" y="-290.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigGetAttribute</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_configsetattribute_int32&#45;&gt;ESMF_ConfigGetAttribute -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_configsetattribute_int32&#45;&gt;ESMF_ConfigGetAttribute</title>
+<path fill="none" stroke="#00ff4e" d="M713.19,-282.61C733.69,-284.12 755.47,-285.72 775.73,-287.21"/>
+<polygon fill="#00ff4e" stroke="#00ff4e" points="775.62,-290.71 785.85,-287.95 776.13,-283.73 775.62,-290.71"/>
+</g>
+<!-- proc~mapl_configsetattribute_ints32&#45;&gt;interface~mapl_assert -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_configsetattribute_ints32&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ffc4" d="M698.83,-180.19C715.65,-177.33 733.46,-174.23 750,-171.21 769.34,-167.69 790.58,-163.58 809.04,-159.95"/>
+<polygon fill="#00ffc4" stroke="#00ffc4" points="809.85,-163.35 818.98,-157.98 808.49,-156.49 809.85,-163.35"/>
+</g>
+<!-- proc~mapl_configsetattribute_ints32&#45;&gt;interface~mapl_configsetattribute -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_configsetattribute_ints32&#45;&gt;interface~mapl_configsetattribute</title>
+<path fill="none" stroke="#00ffc4" d="M534.11,-198.77C511.84,-199.06 488.11,-199.02 466.28,-198.64"/>
+<polygon fill="#00ffc4" stroke="#00ffc4" points="466.13,-195.14 456.06,-198.44 465.99,-202.14 466.13,-195.14"/>
+</g>
+<!-- proc~mapl_configsetattribute_ints32&#45;&gt;proc~mapl_verify -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_configsetattribute_ints32&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffc4" d="M715.63,-184.73C727.65,-181.55 739.45,-177.18 750,-171.21 771.4,-159.1 765.35,-142.56 786,-129.21 793.5,-124.36 802.15,-120.6 810.79,-117.7"/>
+<polygon fill="#00ffc4" stroke="#00ffc4" points="811.92,-121.01 820.48,-114.76 809.89,-114.31 811.92,-121.01"/>
+</g>
+<!-- proc~mapl_configsetattribute_ints32&#45;&gt;proc~mapl_return -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_configsetattribute_ints32&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffc4" d="M709.13,-204.26C722.87,-206.83 736.9,-209.81 750,-213.21 773.05,-219.19 798.18,-227.94 818.34,-235.54"/>
+<polygon fill="#00ffc4" stroke="#00ffc4" points="817.22,-238.86 827.81,-239.16 819.72,-232.32 817.22,-238.86"/>
+</g>
+<!-- proc~mapl_configsetattribute_real32&#45;&gt;buffer -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge35" class="edge">
+<title>proc~mapl_configsetattribute_real32&#45;&gt;buffer</title>
+<path fill="none" stroke="#00c4ff" d="M716.58,-240.17C728.46,-243.58 739.97,-248.42 750,-255.21 775.43,-272.44 761.63,-295.52 786,-314.21 796.19,-322.02 809.22,-326.93 821.36,-330.02"/>
+<polygon fill="#00c4ff" stroke="#00c4ff" points="820.74,-333.47 831.26,-332.21 822.25,-326.63 820.74,-333.47"/>
+</g>
+<!-- proc~mapl_configsetattribute_real32&#45;&gt;proc~mapl_return -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_configsetattribute_real32&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00c4ff" d="M716.83,-240.88C747.58,-243.14 780.8,-245.58 807.23,-247.52"/>
+<polygon fill="#00c4ff" stroke="#00c4ff" points="807.14,-251.02 817.37,-248.26 807.66,-244.04 807.14,-251.02"/>
+</g>
+<!-- proc~mapl_configsetattribute_real32&#45;&gt;ESMF_ConfigGetAttribute -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_configsetattribute_real32&#45;&gt;ESMF_ConfigGetAttribute</title>
+<path fill="none" stroke="#00c4ff" d="M715.1,-246.27C726.95,-248.75 738.86,-251.71 750,-255.21 766.88,-260.52 769.46,-265.92 786,-272.21 791.42,-274.27 797.14,-276.26 802.88,-278.13"/>
+<polygon fill="#00c4ff" stroke="#00c4ff" points="801.93,-281.5 812.52,-281.16 804.03,-274.82 801.93,-281.5"/>
+</g>
+<!-- proc~mapl_configsetattribute_real64&#45;&gt;buffer -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_configsetattribute_real64&#45;&gt;buffer</title>
+<path fill="none" stroke="#004eff" d="M716.83,-350.4C753.34,-346.46 793.31,-342.14 821.29,-339.12"/>
+<polygon fill="#004eff" stroke="#004eff" points="821.82,-342.58 831.39,-338.03 821.07,-335.63 821.82,-342.58"/>
+</g>
+<!-- proc~mapl_configsetattribute_real64&#45;&gt;proc~mapl_return -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_configsetattribute_real64&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#004eff" d="M716.61,-354.85C728.55,-351.36 740.07,-346.34 750,-339.21 777.46,-319.49 759.75,-293.51 786,-272.21 792.36,-267.05 799.94,-263.16 807.75,-260.23"/>
+<polygon fill="#004eff" stroke="#004eff" points="808.91,-263.53 817.33,-257.1 806.74,-256.88 808.91,-263.53"/>
+</g>
+<!-- proc~mapl_configsetattribute_real64&#45;&gt;ESMF_ConfigGetAttribute -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_configsetattribute_real64&#45;&gt;ESMF_ConfigGetAttribute</title>
+<path fill="none" stroke="#004eff" d="M716.7,-349.63C728.13,-346.91 739.49,-343.5 750,-339.21 768.04,-331.85 768.43,-322.62 786,-314.21 790.12,-312.24 794.45,-310.42 798.88,-308.73"/>
+<polygon fill="#004eff" stroke="#004eff" points="800.38,-311.91 808.64,-305.27 798.04,-305.32 800.38,-311.91"/>
+</g>
+<!-- proc~mapl_configsetattribute_reals32&#45;&gt;interface~mapl_assert -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_configsetattribute_reals32&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#2700ff" d="M719.16,-150.21C749.75,-150.21 782.53,-150.21 808.49,-150.21"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="808.82,-153.71 818.82,-150.21 808.82,-146.71 808.82,-153.71"/>
+</g>
+<!-- proc~mapl_configsetattribute_reals32&#45;&gt;interface~mapl_configsetattribute -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge41" class="edge">
+<title>proc~mapl_configsetattribute_reals32&#45;&gt;interface~mapl_configsetattribute</title>
+<path fill="none" stroke="#2700ff" d="M594.67,-162.24C569.53,-168.26 532.36,-174.52 500,-180.21 489.02,-182.14 477.46,-184.21 466.08,-186.18"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="465.4,-182.75 456.14,-187.88 466.58,-189.65 465.4,-182.75"/>
+</g>
+<!-- proc~mapl_configsetattribute_reals32&#45;&gt;proc~mapl_verify -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge43" class="edge">
+<title>proc~mapl_configsetattribute_reals32&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#2700ff" d="M692.34,-138.18C730,-131.34 776.24,-122.95 810.21,-116.79"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="811.12,-120.18 820.33,-114.95 809.87,-113.3 811.12,-120.18"/>
+</g>
+<!-- proc~mapl_configsetattribute_reals32&#45;&gt;proc~mapl_return -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge42" class="edge">
+<title>proc~mapl_configsetattribute_reals32&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#2700ff" d="M719.14,-161.04C729.76,-163.71 740.26,-167.05 750,-171.21 784.37,-185.9 817.94,-213.66 838.18,-232.3"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="835.82,-234.89 845.51,-239.19 840.62,-229.79 835.82,-234.89"/>
+</g>
+<!-- proc~mapl_configsetattribute_string&#45;&gt;buffer -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge45" class="edge">
+<title>proc~mapl_configsetattribute_string&#45;&gt;buffer</title>
+<path fill="none" stroke="#9c00ff" d="M714.51,-324.71C751.52,-327.43 792.47,-330.44 821.03,-332.53"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="821.1,-336.05 831.33,-333.29 821.62,-329.07 821.1,-336.05"/>
+</g>
+<!-- proc~mapl_configsetattribute_string&#45;&gt;proc~mapl_return -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge46" class="edge">
+<title>proc~mapl_configsetattribute_string&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#9c00ff" d="M714.72,-308.09C726.82,-305.3 738.88,-301.75 750,-297.21 768.04,-289.85 768.43,-280.62 786,-272.21 792.74,-268.99 800.08,-266.15 807.4,-263.69"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="808.83,-266.9 817.32,-260.56 806.73,-260.23 808.83,-266.9"/>
+</g>
+<!-- proc~mapl_configsetattribute_string&#45;&gt;ESMF_ConfigGetAttribute -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge44" class="edge">
+<title>proc~mapl_configsetattribute_string&#45;&gt;ESMF_ConfigGetAttribute</title>
+<path fill="none" stroke="#9c00ff" d="M714.51,-308.65C734.71,-306.47 756.09,-304.16 775.98,-302.01"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="776.36,-305.49 785.92,-300.94 775.6,-298.54 776.36,-305.49"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge48" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00eb" d="M884.07,-239.06C905.47,-228.99 937.59,-215.1 967,-207.21 1024.28,-191.85 1090.91,-183.22 1140.9,-178.51"/>
+<polygon fill="#ff00eb" stroke="#ff00eb" points="1141.35,-181.98 1150.99,-177.59 1140.71,-175.01 1141.35,-181.98"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge47" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00eb" d="M899.78,-251.53C950.14,-251.79 1038.97,-251.75 1115,-249.21 1126.26,-248.83 1138.21,-248.27 1149.81,-247.64"/>
+<polygon fill="#ff00eb" stroke="#ff00eb" points="1150.1,-251.13 1159.89,-247.07 1149.7,-244.14 1150.1,-251.13"/>
+</g>
+<!-- proc~initialize~14 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node26" class="node">
+<title>proc~initialize~14</title>
+<g id="a_proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node26"><a xlink:href="../proc/initialize~14.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1377,-185.21 1320,-185.21 1320,-161.21 1377,-161.21 1377,-185.21"/>
+<text text-anchor="middle" x="1348.5" y="-170.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~14 -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge49" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~14</title>
+<path fill="none" stroke="#ff0075" d="M1284.13,-173.21C1292.88,-173.21 1301.59,-173.21 1309.63,-173.21"/>
+<polygon fill="#ff0075" stroke="#ff0075" points="1309.77,-176.71 1319.77,-173.21 1309.77,-169.71 1309.77,-176.71"/>
+</g>
+<!-- at -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node27" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1375.5,-246.21 1321.5,-246.21 1321.5,-222.21 1375.5,-222.21 1375.5,-246.21"/>
+<text text-anchor="middle" x="1348.5" y="-231.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge50" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ff00" d="M1275.08,-239.26C1287.29,-238.41 1299.89,-237.53 1311.08,-236.75"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1311.59,-240.23 1321.32,-236.04 1311.1,-233.24 1311.59,-240.23"/>
+</g>
+<!-- insert -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_node28" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1375.5,-288.21 1321.5,-288.21 1321.5,-264.21 1375.5,-264.21 1375.5,-288.21"/>
+<text text-anchor="middle" x="1348.5" y="-273.81" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~initialize_from_esmf_distgrid~3~~CallsGraph_edge51" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ff00" d="M1265.44,-255.22C1280.62,-259.1 1297.22,-263.35 1311.49,-267"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1310.86,-270.45 1321.41,-269.54 1312.59,-263.67 1310.86,-270.45"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocinitialize_from_esmf_distgrid3CallsGraph = svgPanZoom('#procinitialize_from_esmf_distgrid3CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize_from_esmf_distGrid</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">dist_grid</span><span class="p">,</span><span class="w"> </span><span class="n">lon_array</span><span class="p">,</span><span class="w"> </span><span class="n">lat_array</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">use </span><span class="n">MAPL_ConfigMod</span>
+<span class="w">      </span><span class="k">use </span><span class="n">MAPL_Constants</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">PI</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">MAPL_PI_R8</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">SwathGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_DistGrid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dist_grid</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_LocalArray</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lon_array</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_LocalArray</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lat_array</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dim_count</span><span class="p">,</span><span class="w"> </span><span class="n">tile_count</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">max_index</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pole</span><span class="w"> </span><span class="p">,</span><span class="n">dateline</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nPet</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lon</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lat</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx_guess</span><span class="p">,</span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">tiny</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.e-4</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">FAIL</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;stop: not implemented: subroutine initialize_from_esmf_distGrid&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_DistGridGet</span><span class="p">(</span><span class="n">dist_grid</span><span class="p">,</span><span class="w"> </span><span class="n">dimCount</span><span class="o">=</span><span class="n">dim_count</span><span class="p">,</span><span class="w"> </span><span class="n">tileCount</span><span class="o">=</span><span class="n">tile_count</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">max_index</span><span class="p">(</span><span class="n">dim_count</span><span class="p">,</span><span class="w"> </span><span class="n">tile_count</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_DistGridGet</span><span class="p">(</span><span class="n">dist_grid</span><span class="p">,</span><span class="w"> </span><span class="n">maxindexPTile</span><span class="o">=</span><span class="n">max_index</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_ConfigCreate</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">max_index</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;IM_WORLD:&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">max_index</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;JM_WORLD:&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">max_index</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;LM:&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">lon</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">      </span><span class="n">lat</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_LocalArrayGet</span><span class="p">(</span><span class="n">lon_array</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_LocalArrayGet</span><span class="p">(</span><span class="n">lat_array</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMGetCurrent</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">PETcount</span><span class="o">=</span><span class="n">nPet</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">nx_guess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nint</span><span class="p">(</span><span class="nb">sqrt</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">nPet</span><span class="p">)))</span>
+<span class="w">      </span><span class="k">do </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nx_guess</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">         </span><span class="n">ny</span><span class="o">=</span><span class="n">nPet</span><span class="o">/</span><span class="n">nx</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nx</span><span class="o">*</span><span class="n">ny</span><span class="o">==</span><span class="n">nPet</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;NX:&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;NY:&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">exit</span>
+<span class="k">         end if</span>
+<span class="k">      enddo</span>
+
+<span class="k">      call </span><span class="n">this</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize_from_esmf_distGrid</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-10T13:36:20.183352             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
