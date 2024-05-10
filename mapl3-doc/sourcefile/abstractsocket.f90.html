@@ -1,0 +1,715 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>AbstractSocket.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>AbstractSocket.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">56 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/AbstractSocket.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">AbstractSocket.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/pfio_abstractsocketmod.html">pFIO_AbstractSocketMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/abstractsocket.f90.html#src">AbstractSocket.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~abstractsocket.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefileabstractsocketf90AfferentGraph" width="327pt" height="998pt"
+ viewBox="0.00 0.00 327.00 998.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 994)">
+<title>sourcefile~~abstractsocket.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-994 323,-994 323,4 -4,4"/>
+<!-- sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~abstractsocket.f90</title>
+<polygon fill="none" stroke="black" points="115,-507 0,-507 0,-483 115,-483 115,-507"/>
+<text text-anchor="middle" x="57.5" y="-492.6" font-family="Helvetica,sans-Serif" font-size="10.50">AbstractSocket.F90</text>
+</g>
+<!-- sourcefile~abstractdirectoryservice.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~abstractdirectoryservice.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/abstractdirectoryservice.f90.html" xlink:title="AbstractDirectoryService.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="319,-990 151,-990 151,-966 319,-966 319,-990"/>
+<text text-anchor="middle" x="235" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractDirectoryService.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractdirectoryservice.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~abstractdirectoryservice.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.1,-965.82C158.03,-963.36 154.28,-960.45 151,-957 89.29,-892.11 65.48,-600.3 59.87,-517.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="63.36,-516.82 59.22,-507.07 56.37,-517.28 63.36,-516.82"/>
+</g>
+<!-- sourcefile~abstractsocketvector.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~abstractsocketvector.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/abstractsocketvector.f90.html" xlink:title="AbstractSocketVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="309,-948 161,-948 161,-924 309,-924 309,-948"/>
+<text text-anchor="middle" x="235" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractSocketVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractsocketvector.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~abstractsocketvector.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.55,-923.97C158.33,-921.48 154.41,-918.52 151,-915 94.66,-856.88 67.4,-595.89 60.38,-517.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="63.84,-516.85 59.49,-507.19 56.87,-517.46 63.84,-516.85"/>
+</g>
+<!-- sourcefile~baseserver.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~baseserver.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/baseserver.f90.html" xlink:title="BaseServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="282.5,-906 187.5,-906 187.5,-882 282.5,-882 282.5,-906"/>
+<text text-anchor="middle" x="235" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M187.31,-891.14C174.06,-888.15 160.63,-882.71 151,-873 99.96,-821.56 69.51,-590.89 60.98,-517.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="64.41,-516.66 59.8,-507.12 57.45,-517.46 64.41,-516.66"/>
+</g>
+<!-- sourcefile~basethread.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~basethread.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/basethread.f90.html" xlink:title="BaseThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="284.5,-864 185.5,-864 185.5,-840 284.5,-840 284.5,-864"/>
+<text text-anchor="middle" x="235" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~basethread.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~basethread.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M185.32,-848.46C172.78,-845.37 160.24,-840.05 151,-831 105.14,-786.09 71.75,-584.79 61.67,-517.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="65.12,-516.6 60.21,-507.21 58.19,-517.62 65.12,-516.6"/>
+</g>
+<!-- sourcefile~clientthread.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~clientthread.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/clientthread.f90.html" xlink:title="ClientThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="286.5,-822 183.5,-822 183.5,-798 286.5,-798 286.5,-822"/>
+<text text-anchor="middle" x="235" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~clientthread.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~clientthread.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M183.37,-805.68C171.56,-802.53 159.86,-797.37 151,-789 71.67,-714.06 60.03,-571.93 58.58,-517.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="62.08,-517.15 58.4,-507.22 55.08,-517.28 62.08,-517.15"/>
+</g>
+<!-- sourcefile~directoryservice.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~directoryservice.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/directoryservice.f90.html" xlink:title="DirectoryService.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="297,-780 173,-780 173,-756 297,-756 297,-780"/>
+<text text-anchor="middle" x="235" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DirectoryService.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~directoryservice.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~directoryservice.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M172.92,-759.94C164.9,-756.86 157.29,-752.67 151,-747 81.94,-684.77 64.34,-566.53 59.94,-517.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="63.41,-516.85 59.13,-507.16 56.43,-517.41 63.41,-516.85"/>
+</g>
+<!-- sourcefile~fastclientthread.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~fastclientthread.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/fastclientthread.f90.html" xlink:title="FastClientThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="297,-738 173,-738 173,-714 297,-714 297,-738"/>
+<text text-anchor="middle" x="235" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FastClientThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fastclientthread.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~fastclientthread.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M172.82,-717.42C164.9,-714.4 157.36,-710.37 151,-705 91.95,-655.07 69.27,-560.13 61.75,-517.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="65.19,-516.46 60.12,-507.15 58.28,-517.59 65.19,-516.46"/>
+</g>
+<!-- sourcefile~integersocketmap.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~integersocketmap.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/integersocketmap.f90.html" xlink:title="IntegerSocketMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="301,-696 169,-696 169,-672 301,-672 301,-696"/>
+<text text-anchor="middle" x="235" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IntegerSocketMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~integersocketmap.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~integersocketmap.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M168.58,-673.05C162.29,-670.39 156.29,-667.09 151,-663 102.04,-625.19 75.43,-553.78 64.51,-517.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="67.74,-516.02 61.62,-507.38 61.01,-517.96 67.74,-516.02"/>
+</g>
+<!-- sourcefile~mockclientthread.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~mockclientthread.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/mockclientthread.f90.html" xlink:title="MockClientThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="300.5,-654 169.5,-654 169.5,-630 300.5,-630 300.5,-654"/>
+<text text-anchor="middle" x="235" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockClientThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockclientthread.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~mockclientthread.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M169.1,-630.33C162.71,-627.81 156.55,-624.74 151,-621 111.33,-594.29 82.45,-544.65 68.29,-516.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="71.41,-514.71 63.91,-507.23 65.11,-517.76 71.41,-514.71"/>
+</g>
+<!-- sourcefile~mockserverthread.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~mockserverthread.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/mockserverthread.f90.html" xlink:title="MockServerThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="303,-612 167,-612 167,-588 303,-588 303,-612"/>
+<text text-anchor="middle" x="235" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockServerThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockserverthread.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~mockserverthread.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M171.98,-587.92C164.71,-585.46 157.55,-582.51 151,-579 120.39,-562.57 91.89,-533.83 74.83,-514.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="77.44,-512.28 68.24,-507.02 72.15,-516.86 77.44,-512.28"/>
+</g>
+<!-- sourcefile~mocksocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~mocksocket.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/mocksocket.f90.html" xlink:title="MockSocket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="284.5,-570 185.5,-570 185.5,-546 284.5,-546 284.5,-570"/>
+<text text-anchor="middle" x="235" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockSocket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mocksocket.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~mocksocket.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M185.29,-547.22C173.92,-544.28 161.94,-540.83 151,-537 130.64,-529.86 108.61,-519.96 91.16,-511.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="92.5,-508.31 81.98,-507.07 89.43,-514.6 92.5,-508.31"/>
+</g>
+<!-- sourcefile~mpiserver.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~mpiserver.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/mpiserver.f90.html" xlink:title="MpiServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="279,-528 191,-528 191,-504 279,-504 279,-528"/>
+<text text-anchor="middle" x="235" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MpiServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M190.62,-510.81C170.99,-508.46 147.34,-505.63 125.51,-503.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="125.64,-499.51 115.3,-501.8 124.81,-506.46 125.64,-499.51"/>
+</g>
+<!-- sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~mpisocket.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/mpisocket.f90.html" xlink:title="MpiSocket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="280,-486 190,-486 190,-462 280,-462 280,-486"/>
+<text text-anchor="middle" x="235" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MpiSocket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpisocket.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~mpisocket.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M189.71,-479.3C170.17,-481.64 146.77,-484.44 125.18,-487.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="124.59,-483.57 115.08,-488.23 125.42,-490.52 124.59,-483.57"/>
+</g>
+<!-- sourcefile~multicommserver.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~multicommserver.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/multicommserver.f90.html" xlink:title="MultiCommServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="300,-444 170,-444 170,-420 300,-420 300,-444"/>
+<text text-anchor="middle" x="235" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiCommServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multicommserver.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~multicommserver.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M180.45,-444.05C170.56,-446.7 160.4,-449.71 151,-453 130.64,-460.14 108.61,-470.04 91.16,-478.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="89.43,-475.4 81.98,-482.93 92.5,-481.69 89.43,-475.4"/>
+</g>
+<!-- sourcefile~multigroupserver.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~multigroupserver.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/multigroupserver.f90.html" xlink:title="MultiGroupServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="298.5,-402 171.5,-402 171.5,-378 298.5,-378 298.5,-402"/>
+<text text-anchor="middle" x="235" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiGroupServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multigroupserver.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~multigroupserver.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M171.98,-402.08C164.71,-404.54 157.55,-407.49 151,-411 120.39,-427.43 91.89,-456.17 74.83,-475.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="72.15,-473.14 68.24,-482.98 77.44,-477.72 72.15,-473.14"/>
+</g>
+<!-- sourcefile~multilayerserver.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~multilayerserver.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/multilayerserver.f90.html" xlink:title="MultiLayerServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="297,-360 173,-360 173,-336 297,-336 297,-360"/>
+<text text-anchor="middle" x="235" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiLayerServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multilayerserver.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~multilayerserver.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M172.96,-358.22C165.2,-360.99 157.66,-364.52 151,-369 111.33,-395.71 82.45,-445.35 68.29,-473.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="65.11,-472.24 63.91,-482.77 71.41,-475.29 65.11,-472.24"/>
+</g>
+<!-- sourcefile~openmpserver.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~openmpserver.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/openmpserver.f90.html" xlink:title="OpenMPServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="291,-318 179,-318 179,-294 291,-294 291,-318"/>
+<text text-anchor="middle" x="235" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OpenMPServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~openmpserver.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~openmpserver.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M178.83,-313.21C168.89,-316.32 159.12,-320.73 151,-327 102.04,-364.81 75.43,-436.22 64.51,-472.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="61.01,-472.04 61.62,-482.62 67.74,-473.98 61.01,-472.04"/>
+</g>
+<!-- sourcefile~pfio.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~pfio.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/pfio.f90.html" xlink:title="pFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="264,-276 206,-276 206,-252 264,-252 264,-276"/>
+<text text-anchor="middle" x="235" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pfio.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~pfio.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M205.78,-265C188.24,-266.99 166.21,-272.14 151,-285 91.95,-334.93 69.27,-429.87 61.75,-472.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="58.28,-472.41 60.12,-482.85 65.19,-473.54 58.28,-472.41"/>
+</g>
+<!-- sourcefile~serverthread.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~serverthread.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/serverthread.f90.html" xlink:title="ServerThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289,-234 181,-234 181,-210 289,-210 289,-234"/>
+<text text-anchor="middle" x="235" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~serverthread.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~serverthread.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M180.62,-227.46C169.83,-230.65 159.28,-235.54 151,-243 81.94,-305.23 64.34,-423.47 59.94,-472.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="56.43,-472.59 59.13,-482.84 63.41,-473.15 56.43,-472.59"/>
+</g>
+<!-- sourcefile~simplesocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~simplesocket.f90</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/simplesocket.f90.html" xlink:title="SimpleSocket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289,-192 181,-192 181,-168 289,-168 289,-192"/>
+<text text-anchor="middle" x="235" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleSocket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~simplesocket.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~simplesocket.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M180.78,-185.04C169.86,-188.24 159.21,-193.24 151,-201 71.67,-275.94 60.03,-418.07 58.58,-472.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="55.08,-472.72 58.4,-482.78 62.08,-472.85 55.08,-472.72"/>
+</g>
+<!-- sourcefile~test_client.pf -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~test_client.pf</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/test_client.pf.html" xlink:title="Test_Client.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="276,-150 194,-150 194,-126 276,-126 276,-150"/>
+<text text-anchor="middle" x="235" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_Client.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_client.pf&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~test_client.pf&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M193.93,-139.75C178.73,-142.38 162.36,-147.87 151,-159 105.14,-203.91 71.75,-405.21 61.67,-472.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="58.19,-472.38 60.21,-482.79 65.12,-473.4 58.19,-472.38"/>
+</g>
+<!-- sourcefile~test_directoryservice.pf -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~test_directoryservice.pf</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/test_directoryservice.pf.html" xlink:title="Test_DirectoryService.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="305,-108 165,-108 165,-84 305,-84 305,-108"/>
+<text text-anchor="middle" x="235" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_DirectoryService.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M164.99,-106.82C159.85,-109.54 155.08,-112.88 151,-117 99.96,-168.44 69.51,-399.11 60.98,-472.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="57.45,-472.54 59.8,-482.88 64.41,-473.34 57.45,-472.54"/>
+</g>
+<!-- sourcefile~test_serverthread.pf -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~test_serverthread.pf</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/test_serverthread.pf.html" xlink:title="Test_ServerThread.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="297,-66 173,-66 173,-42 297,-42 297,-66"/>
+<text text-anchor="middle" x="235" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ServerThread.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_serverthread.pf&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~test_serverthread.pf&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M172.62,-61.15C164.54,-64.35 157,-68.81 151,-75 94.66,-133.12 67.4,-394.11 60.38,-472.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="56.87,-472.54 59.49,-482.81 63.84,-473.15 56.87,-472.54"/>
+</g>
+<!-- sourcefile~test_simplesocket.pf -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~test_simplesocket.pf</title>
+<g id="a_sourcefile~~abstractsocket.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/test_simplesocket.pf.html" xlink:title="Test_SimpleSocket.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="297,-24 173,-24 173,0 297,0 297,-24"/>
+<text text-anchor="middle" x="235" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_SimpleSocket.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_simplesocket.pf&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~abstractsocket.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~test_simplesocket.pf&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M172.93,-18.88C164.71,-22.1 157.04,-26.65 151,-33 89.29,-97.89 65.48,-389.7 59.87,-472.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="56.37,-472.72 59.22,-482.93 63.36,-473.18 56.37,-472.72"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">pFIO_AbstractSocketMod</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">   private</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">AbstractSocket</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">AbstractSocket</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="k">      procedure</span><span class="w"> </span><span class="p">(</span><span class="n">receive</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">receive</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="p">(</span><span class="n">send</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">send</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="p">(</span><span class="n">put</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">put</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="p">(</span><span class="n">get</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="p">(</span><span class="n">to_string</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">to_string</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">end type </span><span class="n">AbstractSocket</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">abstract interface</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="k">      subroutine </span><span class="n">receive</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">         </span><span class="k">use </span><span class="n">pFIO_AbstractMessageMod</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">         </span><span class="k">import </span><span class="n">AbstractSocket</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">         </span><span class="k">implicit none</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="k">         class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMessage</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">message</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractSocket</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">receive</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">subroutine </span><span class="n">send</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">         </span><span class="k">use </span><span class="n">pFIO_AbstractMessageMod</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">         </span><span class="k">import </span><span class="n">AbstractSocket</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">         </span><span class="k">implicit none</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="k">         class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractSocket</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMessage</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">message</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">send</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a>
+<a id="ln-39" name="ln-39" href="#ln-39"></a>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="k">function </span><span class="n">put</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">request_id</span><span class="p">,</span><span class="w"> </span><span class="n">local_reference</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">         </span><span class="k">use </span><span class="n">pFIO_AbstractDataReferenceMod</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">         </span><span class="k">use </span><span class="n">pFIO_AbstractRequestHandleMod</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">         </span><span class="k">import </span><span class="n">AbstractSocket</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractRequestHandle</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">handle</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractSocket</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">request_id</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractDataReference</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">local_reference</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">end function </span><span class="n">put</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="k">function </span><span class="n">get</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">request_id</span><span class="p">,</span><span class="w"> </span><span class="n">local_reference</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">         </span><span class="k">use </span><span class="n">pFIO_AbstractDataReferenceMod</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">         </span><span class="k">use </span><span class="n">pFIO_AbstractRequestHandleMod</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">         </span><span class="k">import </span><span class="n">AbstractSocket</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractRequestHandle</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">handle</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractSocket</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">request_id</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractDataReference</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">local_reference</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">end function </span><span class="n">get</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">function </span><span class="n">to_string</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">         </span><span class="k">import </span><span class="n">AbstractSocket</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractSocket</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">string</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="k">end function </span><span class="n">to_string</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">   </span><span class="k">end interface</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="k">end module </span><span class="n">pFIO_AbstractSocketMod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-10T13:37:53.925626             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
