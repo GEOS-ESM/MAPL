@@ -60,6 +60,7 @@
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
   use MAPL_EpochSwathMod
+  use NonGridIOMod
 
   use pflogger, only: Logger, logging
   use mpi
@@ -148,7 +149,7 @@
   public HISTORY_ExchangeListWrap
 
   type(samplerHQ) :: Hsampler
-
+  integer :: counter = 0
 contains
 
 !=====================================================================
@@ -2446,6 +2447,9 @@ ENDDO PARSER
                 collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
                 call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
              endif
+             if (list(n)%sampler_spec == 'patch_random') then
+                list(n)%ngio = nongridio(list(n)%items,list(n)%bundle,_RC)
+             endif
           end if
        end if
        call ESMF_ConfigDestroy(cfg, _RC)
@@ -3286,6 +3290,7 @@ ENDDO PARSER
 !   variables for "backwards" mode
     logical                        :: fwd
     logical, allocatable           :: Ignore(:)
+    real                           :: x
 
 !   ErrLog vars
     integer                        :: status
@@ -3650,9 +3655,11 @@ ENDDO PARSER
 
          if (.not.list(n)%timeseries_output .AND. &
               list(n)%sampler_spec /= 'station' .AND. &
-              list(n)%sampler_spec /= 'mask') then
+              list(n)%sampler_spec /= 'mask' .AND. &
+              list(n)%sampler_spec /= 'patch_random') then
 
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
+               print*, __FILE__, __LINE__
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
             else
 
@@ -3708,6 +3715,18 @@ ENDDO PARSER
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call list(n)%mask_sampler%append_file(current_time,_RC)
             call MAPL_TimerOff(GENSTATE,"MaskRun")
+         elseif (list(n)%sampler_spec == 'patch_random') then
+            !
+            ! alternate 0/1
+            !
+!!            counter = mod(counter+1, 2)
+!!            call list(n)%nonbundlepost(list(n)%currentFile,_RC)
+            print*, 'bf call list(n)%ngio%create_metadata'
+            call list(n)%ngio%add_metadata(_RC)
+            call list(n)%ngio%append_file(current_time,_RC)           
+!            call nonbundlepost (counter, 
+!            call random_number(x)
+            
          endif
 
       endif OUTTIME
@@ -3717,7 +3736,7 @@ ENDDO PARSER
             call FREE_FILE( list(n)%unit )
          end if
          list(n)%unit = 0
-       endif
+      endif
 
       call MAPL_TimerOff(GENSTATE,"IO Post")
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))

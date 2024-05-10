@@ -13,6 +13,7 @@ module MAPL_HistoryCollectionMod
   use StationSamplerMod
   use gFTL_StringStringMap
   use MAPL_EpochSwathMod
+  use NonGridIOMod
   implicit none
 
   private
@@ -113,6 +114,7 @@ module MAPL_HistoryCollectionMod
      type(HistoryTrajectory)            :: trajectory
      type(MaskSamplerGeosat)            :: mask_sampler
      type(StationSampler)               :: station_sampler
+     type(NonGridIO)                    :: ngio
      character(len=ESMF_MAXSTR)         :: sampler_spec = ""
      character(len=ESMF_MAXSTR)         :: positive
      type(HistoryCollectionGlobalAttributes) :: global_atts
