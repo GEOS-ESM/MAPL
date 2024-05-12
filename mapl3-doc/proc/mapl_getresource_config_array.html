@@ -1,0 +1,1004 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_GetResource_config_array &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_GetResource_config_array
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.5% of total for procedures.">309 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Resource.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_resource.f90.html'>MAPL_Resource.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_resourcemod.html'>MAPL_ResourceMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_GetResource_config_array</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_getresource_config_array.html#src">MAPL_GetResource_config_array</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_GetResource_config_array(config, val, label, value_is_set, unusable, default, component_name, iunit, rc)  
+</h2>
+    
+
+    <p>Find value of array variable in config</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-config~17"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_config.html'>ESMF_Config</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>config</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-val~3"></span>
+              class(*),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>val</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-label~9"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>label</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value_is_set~2"></span>
+              logical,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value_is_set</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~46"></span>
+              class(<a href='../type/keywordenforcer~86.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-default~7"></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>default</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-component_name~4"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>component_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-iunit~2"></span>
+              character(len=*),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iunit</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~222"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_getresource_config_array~~CallsGraph Pages: 1 -->
+<svg id="procmapl_getresource_config_arrayCallsGraph" width="544pt" height="410pt"
+ viewBox="0.00 0.00 544.00 410.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_getresource_config_array~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 406)">
+<title>proc~~mapl_getresource_config_array~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-406 540,-406 540,4 -4,4"/>
+<!-- proc~mapl_getresource_config_array -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node1" class="node">
+<title>proc~mapl_getresource_config_array</title>
+<polygon fill="none" stroke="black" points="186,-213 0,-213 0,-189 186,-189 186,-213"/>
+<text text-anchor="middle" x="93" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GetResource_config_array</text>
+</g>
+<!-- ESMF_ConfigFindLabel -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node2" class="node">
+<title>ESMF_ConfigFindLabel</title>
+<g id="a_proc~~mapl_getresource_config_array~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_configfindlabel.html" xlink:title="ESMF_ConfigFindLabel">
+<polygon fill="#d9534f" stroke="#d9534f" points="360.5,-402 228.5,-402 228.5,-378 360.5,-378 360.5,-402"/>
+<text text-anchor="middle" x="294.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigFindLabel</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;ESMF_ConfigFindLabel -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;ESMF_ConfigFindLabel</title>
+<path fill="none" stroke="#ff0000" d="M99.84,-213.27C115.25,-244.29 160.08,-326.39 222,-369 224.4,-370.65 226.93,-372.17 229.55,-373.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="228.19,-376.81 238.73,-377.91 231.18,-370.48 228.19,-376.81"/>
+</g>
+<!-- ESMF_ConfigGetAttribute -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node3" class="node">
+<title>ESMF_ConfigGetAttribute</title>
+<g id="a_proc~~mapl_getresource_config_array~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_configgetattribute.html" xlink:title="ESMF_ConfigGetAttribute">
+<polygon fill="#a7506f" stroke="#a7506f" points="367,-360 222,-360 222,-336 367,-336 367,-360"/>
+<text text-anchor="middle" x="294.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigGetAttribute</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;ESMF_ConfigGetAttribute -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;ESMF_ConfigGetAttribute</title>
+<path fill="none" stroke="#ff0000" d="M102.82,-213.03C121.79,-238.03 169.05,-295.86 222,-327 225.05,-328.79 228.26,-330.44 231.57,-331.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="230.5,-335.3 241.07,-335.88 233.17,-328.83 230.5,-335.3"/>
+</g>
+<!-- begin -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node4" class="node">
+<title>begin</title>
+<polygon fill="#777777" stroke="#777777" points="321.5,-318 267.5,-318 267.5,-294 321.5,-294 321.5,-318"/>
+<text text-anchor="middle" x="294.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;begin -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;begin</title>
+<path fill="none" stroke="#ff0000" d="M109.28,-213.2C132.43,-231.18 178.33,-264.8 222,-285 233.17,-290.17 245.91,-294.39 257.52,-297.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.79,-301.09 267.35,-300.29 258.59,-294.33 256.79,-301.09"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node5" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_proc~~mapl_getresource_config_array~~CallsGraph_node5"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="345.5,-276 243.5,-276 243.5,-252 345.5,-252 345.5,-276"/>
+<text text-anchor="middle" x="294.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#ff0000" d="M129.77,-213.07C155.38,-221.63 190.73,-233.28 222,-243 228.39,-244.99 235.12,-247.03 241.79,-249.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="240.88,-252.4 251.47,-251.89 242.88,-245.69 240.88,-252.4"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node6" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_getresource_config_array~~CallsGraph_node6"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="334,-234 255,-234 255,-210 334,-210 334,-234"/>
+<text text-anchor="middle" x="294.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M186.16,-210.7C206.3,-212.82 226.86,-214.98 244.52,-216.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="244.25,-220.33 254.56,-217.9 244.98,-213.37 244.25,-220.33"/>
+</g>
+<!-- next -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node7" class="node">
+<title>next</title>
+<polygon fill="#777777" stroke="#777777" points="321.5,-192 267.5,-192 267.5,-168 321.5,-168 321.5,-192"/>
+<text text-anchor="middle" x="294.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">next</text>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;next -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;next</title>
+<path fill="none" stroke="#ff0000" d="M186.16,-191.3C211.26,-188.66 237,-185.95 256.98,-183.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="257.58,-187.3 267.16,-182.77 256.85,-180.34 257.58,-187.3"/>
+</g>
+<!-- of -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node8" class="node">
+<title>of</title>
+<polygon fill="#777777" stroke="#777777" points="321.5,-150 267.5,-150 267.5,-126 321.5,-126 321.5,-150"/>
+<text text-anchor="middle" x="294.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">of</text>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;of -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;of</title>
+<path fill="none" stroke="#ff0000" d="M129.77,-188.93C155.38,-180.37 190.73,-168.72 222,-159 233.56,-155.41 246.23,-151.63 257.64,-148.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="258.67,-151.64 267.29,-145.48 256.71,-144.92 258.67,-151.64"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node9" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_getresource_config_array~~CallsGraph_node9"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="335.5,-108 253.5,-108 253.5,-84 335.5,-84 335.5,-108"/>
+<text text-anchor="middle" x="294.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M109.28,-188.8C132.43,-170.82 178.33,-137.2 222,-117 228.78,-113.86 236.14,-111.07 243.47,-108.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="244.9,-111.85 253.4,-105.52 242.81,-105.17 244.9,-111.85"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node10" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_getresource_config_array~~CallsGraph_node10"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="332.5,-66 256.5,-66 256.5,-42 332.5,-42 332.5,-66"/>
+<text text-anchor="middle" x="294.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M102.82,-188.97C121.79,-163.97 169.05,-106.14 222,-75 229.62,-70.52 238.26,-66.94 246.84,-64.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="247.88,-67.43 256.43,-61.18 245.85,-60.73 247.88,-67.43"/>
+</g>
+<!-- push_back -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node11" class="node">
+<title>push_back</title>
+<polygon fill="#777777" stroke="#777777" points="329,-24 260,-24 260,0 329,0 329,-24"/>
+<text text-anchor="middle" x="294.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">push_back</text>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;push_back -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;push_back</title>
+<path fill="none" stroke="#ff0000" d="M99.84,-188.73C115.25,-157.71 160.08,-75.61 222,-33 230.39,-27.22 240.39,-23.02 250.21,-19.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="251.2,-23.31 259.9,-17.26 249.33,-16.57 251.2,-23.31"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node12" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="496.5,-150 442.5,-150 442.5,-126 496.5,-126 496.5,-150"/>
+<text text-anchor="middle" x="469.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#3200ff" d="M335.62,-105.74C364.87,-112.84 404.16,-122.38 432.42,-129.24"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="431.75,-132.68 442.3,-131.64 433.4,-125.88 431.75,-132.68"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node13" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="496.5,-108 442.5,-108 442.5,-84 496.5,-84 496.5,-108"/>
+<text text-anchor="middle" x="469.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#3200ff" d="M335.62,-96C364.74,-96 403.82,-96 432.05,-96"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="432.3,-99.5 442.3,-96 432.3,-92.5 432.3,-99.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_node14" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_getresource_config_array~~CallsGraph_node14"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="536,-66 403,-66 403,-42 536,-42 536,-66"/>
+<text text-anchor="middle" x="469.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#3200ff" d="M335.62,-86.26C357.47,-80.96 384.92,-74.29 409.18,-68.4"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="410.12,-71.77 419.01,-66.01 408.47,-64.97 410.12,-71.77"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getresource_config_array~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M332.61,-54C350.19,-54 371.86,-54 392.68,-54"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="392.82,-57.5 402.82,-54 392.82,-50.5 392.82,-57.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_getresource_config_array~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_getresource_config_arrayCalledByGraph" width="460pt" height="242pt"
+ viewBox="0.00 0.00 460.00 242.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 238)">
+<title>proc~~mapl_getresource_config_array~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 456,-238 456,4 -4,4"/>
+<!-- proc~mapl_getresource_config_array -->
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph_node1" class="node">
+<title>proc~mapl_getresource_config_array</title>
+<polygon fill="none" stroke="black" points="452,-129 266,-129 266,-105 452,-105 452,-129"/>
+<text text-anchor="middle" x="359" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GetResource_config_array</text>
+</g>
+<!-- proc~test_mapl_getresource_array_character -->
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph_node2" class="node">
+<title>proc~test_mapl_getresource_array_character</title>
+<g id="a_proc~~mapl_getresource_config_array~~CalledByGraph_node2"><a xlink:href="../proc/test_mapl_getresource_array_character.html" xlink:title="Test_MAPL_GetResource_array_character">
+<polygon fill="#d9534f" stroke="#d9534f" points="230,-234 0,-234 0,-210 230,-210 230,-234"/>
+<text text-anchor="middle" x="115" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_MAPL_GetResource_array_character</text>
+</a>
+</g>
+</g>
+<!-- proc~test_mapl_getresource_array_character&#45;&gt;proc~mapl_getresource_config_array -->
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph_edge1" class="edge">
+<title>proc~test_mapl_getresource_array_character&#45;&gt;proc~mapl_getresource_config_array</title>
+<path fill="none" stroke="#ff0000" d="M202.03,-209.98C211.62,-207.52 221.13,-204.56 230,-201 270.38,-184.8 311.46,-154.97 335.83,-135.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="338.15,-138.19 343.72,-129.18 333.75,-132.75 338.15,-138.19"/>
+</g>
+<!-- proc~test_mapl_getresource_array_int4 -->
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph_node3" class="node">
+<title>proc~test_mapl_getresource_array_int4</title>
+<g id="a_proc~~mapl_getresource_config_array~~CalledByGraph_node3"><a xlink:href="../proc/test_mapl_getresource_array_int4.html" xlink:title="Test_MAPL_GetResource_array_int4">
+<polygon fill="#d9534f" stroke="#d9534f" points="214.5,-192 15.5,-192 15.5,-168 214.5,-168 214.5,-192"/>
+<text text-anchor="middle" x="115" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_MAPL_GetResource_array_int4</text>
+</a>
+</g>
+</g>
+<!-- proc~test_mapl_getresource_array_int4&#45;&gt;proc~mapl_getresource_config_array -->
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph_edge2" class="edge">
+<title>proc~test_mapl_getresource_array_int4&#45;&gt;proc~mapl_getresource_config_array</title>
+<path fill="none" stroke="#ff0000" d="M189.6,-167.95C203.11,-165.31 217.03,-162.31 230,-159 259.11,-151.58 291.23,-141.03 316.02,-132.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="317.21,-135.65 325.47,-129.02 314.88,-129.05 317.21,-135.65"/>
+</g>
+<!-- proc~test_mapl_getresource_array_int8 -->
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph_node4" class="node">
+<title>proc~test_mapl_getresource_array_int8</title>
+<g id="a_proc~~mapl_getresource_config_array~~CalledByGraph_node4"><a xlink:href="../proc/test_mapl_getresource_array_int8.html" xlink:title="Test_MAPL_GetResource_array_int8">
+<polygon fill="#d9534f" stroke="#d9534f" points="214.5,-150 15.5,-150 15.5,-126 214.5,-126 214.5,-150"/>
+<text text-anchor="middle" x="115" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_MAPL_GetResource_array_int8</text>
+</a>
+</g>
+</g>
+<!-- proc~test_mapl_getresource_array_int8&#45;&gt;proc~mapl_getresource_config_array -->
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph_edge3" class="edge">
+<title>proc~test_mapl_getresource_array_int8&#45;&gt;proc~mapl_getresource_config_array</title>
+<path fill="none" stroke="#ff0000" d="M214.78,-129.43C228.21,-128.26 242.03,-127.06 255.53,-125.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.12,-129.35 265.78,-125 255.51,-122.38 256.12,-129.35"/>
+</g>
+<!-- proc~test_mapl_getresource_array_logical -->
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph_node5" class="node">
+<title>proc~test_mapl_getresource_array_logical</title>
+<g id="a_proc~~mapl_getresource_config_array~~CalledByGraph_node5"><a xlink:href="../proc/test_mapl_getresource_array_logical.html" xlink:title="Test_MAPL_GetResource_array_logical">
+<polygon fill="#d9534f" stroke="#d9534f" points="222,-108 8,-108 8,-84 222,-84 222,-108"/>
+<text text-anchor="middle" x="115" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_MAPL_GetResource_array_logical</text>
+</a>
+</g>
+</g>
+<!-- proc~test_mapl_getresource_array_logical&#45;&gt;proc~mapl_getresource_config_array -->
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph_edge4" class="edge">
+<title>proc~test_mapl_getresource_array_logical&#45;&gt;proc~mapl_getresource_config_array</title>
+<path fill="none" stroke="#ff0000" d="M222.14,-105.21C233.33,-106.18 244.68,-107.17 255.82,-108.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="255.7,-111.64 265.97,-109.01 256.31,-104.66 255.7,-111.64"/>
+</g>
+<!-- proc~test_mapl_getresource_array_real4 -->
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph_node6" class="node">
+<title>proc~test_mapl_getresource_array_real4</title>
+<g id="a_proc~~mapl_getresource_config_array~~CalledByGraph_node6"><a xlink:href="../proc/test_mapl_getresource_array_real4.html" xlink:title="Test_MAPL_GetResource_array_real4">
+<polygon fill="#d9534f" stroke="#d9534f" points="217.5,-66 12.5,-66 12.5,-42 217.5,-42 217.5,-66"/>
+<text text-anchor="middle" x="115" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_MAPL_GetResource_array_real4</text>
+</a>
+</g>
+</g>
+<!-- proc~test_mapl_getresource_array_real4&#45;&gt;proc~mapl_getresource_config_array -->
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph_edge5" class="edge">
+<title>proc~test_mapl_getresource_array_real4&#45;&gt;proc~mapl_getresource_config_array</title>
+<path fill="none" stroke="#ff0000" d="M189.6,-66.05C203.11,-68.69 217.03,-71.69 230,-75 259.11,-82.42 291.23,-92.97 316.02,-101.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="314.88,-104.95 325.47,-104.98 317.21,-98.35 314.88,-104.95"/>
+</g>
+<!-- proc~test_mapl_getresource_array_real8 -->
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph_node7" class="node">
+<title>proc~test_mapl_getresource_array_real8</title>
+<g id="a_proc~~mapl_getresource_config_array~~CalledByGraph_node7"><a xlink:href="../proc/test_mapl_getresource_array_real8.html" xlink:title="Test_MAPL_GetResource_array_real8">
+<polygon fill="#d9534f" stroke="#d9534f" points="217.5,-24 12.5,-24 12.5,0 217.5,0 217.5,-24"/>
+<text text-anchor="middle" x="115" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_MAPL_GetResource_array_real8</text>
+</a>
+</g>
+</g>
+<!-- proc~test_mapl_getresource_array_real8&#45;&gt;proc~mapl_getresource_config_array -->
+<g id="proc~~mapl_getresource_config_array~~CalledByGraph_edge6" class="edge">
+<title>proc~test_mapl_getresource_array_real8&#45;&gt;proc~mapl_getresource_config_array</title>
+<path fill="none" stroke="#ff0000" d="M202.03,-24.02C211.62,-26.48 221.13,-29.44 230,-33 270.38,-49.2 311.46,-79.03 335.83,-98.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="333.75,-101.25 343.72,-104.82 338.15,-95.81 333.75,-101.25"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">MAPL_GetResource_config_array</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">value_is_set</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="p">,</span><span class="w"> </span><span class="n">component_name</span><span class="p">,</span><span class="w"> </span><span class="n">iunit</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">val</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">label</span>
+
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">value_is_set</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">default</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">component_name</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iunit</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="c">! We assume we will never have more than 99 values, hence len=2</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_label</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">type_format</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">type_string</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAX_LINE_LENGTH</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">formatted_value</span>
+
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">default_is_present</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">label_is_present</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">print_nondefault_only</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">do_print</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">value_is_default</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">count</span>
+
+<span class="nb">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">io_stat</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="cp">#if defined(TYPE_)</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#endif</span>
+
+<span class="cp">#if defined(TYPENUM)</span>
+<span class="cp">#undef TYPENUM</span>
+<span class="cp">#endif</span>
+
+<span class="cp">#if defined(IS_ARRAY)</span>
+<span class="cp">#undef IS_ARRAY</span>
+<span class="cp">#endif</span>
+<span class="cp">#define IS_ARRAY</span>
+
+<span class="cp">#if defined(VALUE_)</span>
+<span class="cp">#undef VALUE_</span>
+<span class="cp">#endif</span>
+<span class="cp">#define VALUE_ val</span>
+
+<span class="cp">#if defined(MAX_CHAR_LEN)</span>
+<span class="cp">#undef MAX_CHAR_LEN</span>
+<span class="cp">#endif</span>
+
+<span class="w">      </span><span class="n">default_is_present</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! these need to be initialized explicitly</span>
+<span class="w">      </span><span class="n">value_is_set</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w">      </span><span class="n">label_is_present</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w">      </span><span class="n">print_nondefault_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w">      </span><span class="n">do_print</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w">      </span><span class="n">value_is_default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">default_is_present</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">same_type_as</span><span class="p">(</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;Value and default must have same type&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">get_actual_label</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">label_is_present</span><span class="p">,</span><span class="w"> </span><span class="n">actual_label</span><span class="p">,</span><span class="w"> </span><span class="n">component_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">component_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! label or default must be present</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">label_is_present</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">default_is_present</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">value_is_set</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w">         </span><span class="k">return</span>
+<span class="k">      end if</span>
+
+<span class="w">      </span><span class="c">! only print if root</span>
+<span class="w">      </span><span class="k">call </span><span class="n">get_print_settings</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">default_is_present</span><span class="p">,</span><span class="w"> </span><span class="n">do_print</span><span class="p">,</span><span class="w"> </span><span class="n">print_nondefault_only</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">select type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">TYPE_INTEGER4</span><span class="p">)</span>
+
+<span class="cp">#define TYPE_ TYPE_INTEGER4</span>
+<span class="cp">#define TYPENUM TYPENUM_INTEGER4</span>
+<span class="cp">#include &quot;MAPL_Resource_SetValue.h&quot;</span>
+<span class="cp">#include &quot;MAPL_Resource_MakeString.h&quot;</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#undef TYPENUM</span>
+
+
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">TYPE_INTEGER8</span><span class="p">)</span>
+
+<span class="cp">#define TYPE_ TYPE_INTEGER8</span>
+<span class="cp">#define TYPENUM TYPENUM_INTEGER8</span>
+<span class="cp">#include &quot;MAPL_Resource_SetValue.h&quot;</span>
+<span class="cp">#include &quot;MAPL_Resource_MakeString.h&quot;</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#undef TYPENUM</span>
+
+
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">TYPE_REAL4</span><span class="p">)</span>
+
+<span class="cp">#define TYPE_ TYPE_REAL4</span>
+<span class="cp">#define TYPENUM TYPENUM_REAL4</span>
+<span class="cp">#include &quot;MAPL_Resource_SetValue.h&quot;</span>
+<span class="cp">#include &quot;MAPL_Resource_MakeString.h&quot;</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#undef TYPENUM</span>
+
+
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">TYPE_REAL8</span><span class="p">)</span>
+
+<span class="cp">#define TYPE_ TYPE_REAL8</span>
+<span class="cp">#define TYPENUM TYPENUM_REAL8</span>
+<span class="cp">#include &quot;MAPL_Resource_SetValue.h&quot;</span>
+<span class="cp">#include &quot;MAPL_Resource_MakeString.h&quot;</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#undef TYPENUM</span>
+
+
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">TYPE_LOGICAL</span><span class="p">)</span>
+
+<span class="cp">#define TYPE_ TYPE_LOGICAL</span>
+<span class="cp">#define TYPENUM TYPENUM_LOGICAL</span>
+<span class="cp">#include &quot;MAPL_Resource_SetValue.h&quot;</span>
+<span class="cp">#include &quot;MAPL_Resource_MakeString.h&quot;</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#undef TYPENUM</span>
+
+
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">TYPE_CHARACTER</span><span class="p">)</span>
+
+<span class="cp">#define TYPE_ TYPE_CHARACTER</span>
+<span class="cp">#define TYPENUM TYPENUM_CHARACTER</span>
+<span class="cp">#include &quot;MAPL_Resource_SetValue.h&quot;</span>
+<span class="cp">#include &quot;MAPL_Resource_MakeString.h&quot;</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#undef TYPENUM</span>
+
+
+<span class="w">      </span><span class="k">class </span><span class="n">default</span>
+<span class="w">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;Unsupported type&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end select</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="n">do_print</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">print_resource</span><span class="p">(</span><span class="n">type_string</span><span class="p">,</span><span class="w"> </span><span class="n">actual_label</span><span class="p">,</span><span class="w"> </span><span class="n">formatted_value</span><span class="p">,</span><span class="w"> </span><span class="n">value_is_default</span><span class="p">,</span><span class="w"> </span><span class="n">iunit</span><span class="o">=</span><span class="n">iunit</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_GetResource_config_array</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-12T18:54:51.253272             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

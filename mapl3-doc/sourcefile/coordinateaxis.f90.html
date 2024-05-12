@@ -1,0 +1,931 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CoordinateAxis.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>CoordinateAxis.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">83 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/CoordinateAxis.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">CoordinateAxis.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_coordinateaxis.html">mapl3g_CoordinateAxis</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/coordinateaxis.f90.html#src">CoordinateAxis.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~coordinateaxis.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilecoordinateaxisf90EfferentGraph" width="263pt" height="74pt"
+ viewBox="0.00 0.00 263.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~coordinateaxis.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>sourcefile~~coordinateaxis.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 259,-70 259,4 -4,4"/>
+<!-- sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~coordinateaxis.f90</title>
+<polygon fill="none" stroke="black" points="255,-45 139,-45 139,-21 255,-21 255,-45"/>
+<text text-anchor="middle" x="197" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">CoordinateAxis.F90</text>
+</g>
+<!-- sourcefile~mapl_range.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~mapl_range.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/mapl_range.f90.html" xlink:title="MAPL_Range.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="103,-66 0,-66 0,-42 103,-42 103,-66"/>
+<text text-anchor="middle" x="51.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Range.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~coordinateaxis.f90&#45;&gt;sourcefile~mapl_range.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~coordinateaxis.f90&#45;&gt;sourcefile~mapl_range.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M138.87,-41.36C130.54,-42.58 121.93,-43.84 113.52,-45.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="112.78,-41.64 103.39,-46.55 113.8,-48.57 112.78,-41.64"/>
+</g>
+<!-- sourcefile~pfio.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~pfio.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/pfio.f90.html" xlink:title="pFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="80.5,-24 22.5,-24 22.5,0 80.5,0 80.5,-24"/>
+<text text-anchor="middle" x="51.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~coordinateaxis.f90&#45;&gt;sourcefile~pfio.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~coordinateaxis.f90&#45;&gt;sourcefile~pfio.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M138.87,-24.64C122.77,-22.28 105.65,-19.78 90.92,-17.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="91.08,-14.11 80.68,-16.12 90.07,-21.04 91.08,-14.11"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~coordinateaxis.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilecoordinateaxisf90AfferentGraph" width="641pt" height="324pt"
+ viewBox="0.00 0.00 641.00 323.91" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph" class="graph" transform="scale(1.76 1.76) rotate(0) translate(4 566)">
+<title>sourcefile~~coordinateaxis.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-566 1124,-566 1124,4 -4,4"/>
+<!-- sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~coordinateaxis.f90</title>
+<polygon fill="none" stroke="black" points="116,-310 0,-310 0,-286 116,-286 116,-310"/>
+<text text-anchor="middle" x="58" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50">CoordinateAxis.F90</text>
+</g>
+<!-- sourcefile~equal_to.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~equal_to.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/equal_to.f90.html" xlink:title="equal_to.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="265,-562 185,-562 185,-538 265,-538 265,-562"/>
+<text text-anchor="middle" x="225" y="-547.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">equal_to.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~equal_to.f90&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~equal_to.f90&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M184.89,-545.29C173.19,-542.23 161.07,-537.22 152,-529 88.94,-471.89 67.88,-366.1 61.5,-320.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="64.96,-319.6 60.21,-310.13 58.01,-320.49 64.96,-319.6"/>
+</g>
+<!-- sourcefile~get_centers.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~get_centers.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/get_centers.f90.html" xlink:title="get_centers.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="273.5,-520 176.5,-520 176.5,-496 273.5,-496 273.5,-520"/>
+<text text-anchor="middle" x="225" y="-505.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_centers.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~get_centers.f90&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~get_centers.f90&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M176.26,-500.14C167.52,-497.09 158.98,-492.86 152,-487 98.76,-442.28 73.31,-359.74 63.73,-320.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="67.1,-319.24 61.44,-310.28 60.27,-320.81 67.1,-319.24"/>
+</g>
+<!-- sourcefile~get_coordinates_dim.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~get_coordinates_dim.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/get_coordinates_dim.f90.html" xlink:title="get_coordinates_dim.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="298,-478 152,-478 152,-454 298,-454 298,-478"/>
+<text text-anchor="middle" x="225" y="-463.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_coordinates_dim.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~get_coordinates_dim.f90&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~get_coordinates_dim.f90&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M167.43,-453.9C161.94,-451.46 156.68,-448.52 152,-445 108.24,-412.06 79.8,-352.01 66.95,-319.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="70.18,-318.46 63.32,-310.39 63.65,-320.97 70.18,-318.46"/>
+</g>
+<!-- sourcefile~get_corners.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~get_corners.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/get_corners.f90.html" xlink:title="get_corners.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="274,-436 176,-436 176,-412 274,-412 274,-436"/>
+<text text-anchor="middle" x="225" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_corners.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~get_corners.f90&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~get_corners.f90&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M175.88,-414.07C167.56,-411.22 159.26,-407.6 152,-403 117.32,-381.02 87.98,-342.44 71.99,-318.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="74.75,-316.5 66.34,-310.05 68.9,-320.34 74.75,-316.5"/>
+</g>
+<!-- sourcefile~get_dim_name.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~get_dim_name.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/get_dim_name.f90.html" xlink:title="get_dim_name.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="282,-394 168,-394 168,-370 282,-370 282,-394"/>
+<text text-anchor="middle" x="225" y="-379.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_dim_name.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~get_dim_name.f90&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~get_dim_name.f90&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M174.83,-369.89C167.04,-367.34 159.19,-364.38 152,-361 126.37,-348.95 99.89,-330.29 81.77,-316.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="83.63,-313.42 73.59,-310.02 79.32,-318.93 83.63,-313.42"/>
+</g>
+<!-- sourcefile~get_extent.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~get_extent.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/get_extent.f90.html" xlink:title="get_extent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="270.5,-352 179.5,-352 179.5,-328 270.5,-328 270.5,-352"/>
+<text text-anchor="middle" x="225" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_extent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~get_extent.f90&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~get_extent.f90&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M179.35,-328.63C159.91,-323.69 136.89,-317.83 116.22,-312.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="116.84,-309.11 106.28,-310.04 115.11,-315.89 116.84,-309.11"/>
+</g>
+<!-- sourcefile~is_periodic.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~is_periodic.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/is_periodic.f90.html" xlink:title="is_periodic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="271,-310 179,-310 179,-286 271,-286 271,-310"/>
+<text text-anchor="middle" x="225" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_periodic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~is_periodic.f90&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~is_periodic.f90&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M178.91,-298C162.72,-298 144.09,-298 126.42,-298"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="126.14,-294.5 116.14,-298 126.14,-301.5 126.14,-294.5"/>
+</g>
+<!-- sourcefile~lataxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~lataxis.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/lataxis.f90.html" xlink:title="LatAxis.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="261.5,-268 188.5,-268 188.5,-244 261.5,-244 261.5,-268"/>
+<text text-anchor="middle" x="225" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatAxis.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~lataxis.f90&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~lataxis.f90&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M188.2,-265.11C167.12,-270.48 139.98,-277.39 116.02,-283.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="115.15,-280.09 106.33,-285.95 116.88,-286.88 115.15,-280.09"/>
+</g>
+<!-- sourcefile~latlongeomspec_smod.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~latlongeomspec_smod.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/latlongeomspec_smod.f90.html" xlink:title="LatLonGeomSpec_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="907,-226 743,-226 743,-202 907,-202 907,-226"/>
+<text text-anchor="middle" x="825" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomSpec_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~latlongeomspec_smod.f90&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~latlongeomspec_smod.f90&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M793.34,-201.83C734.64,-179.27 601.84,-131.71 485,-115 418.57,-105.5 400.8,-108.57 334,-115 285.33,-119.69 270.26,-115.21 226,-136"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M224,-136C154.36,-167.01 97.24,-241.16 72.39,-277.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="69.46,-275.47 66.78,-285.72 75.26,-279.38 69.46,-275.47"/>
+</g>
+<!-- sourcefile~latlongeomspec.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~latlongeomspec.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/latlongeomspec.f90.html" xlink:title="LatLonGeomSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="679,-266 549,-266 549,-242 679,-242 679,-266"/>
+<text text-anchor="middle" x="614" y="-251.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~latlongeomspec_smod.f90&#45;&gt;sourcefile~latlongeomspec.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~latlongeomspec_smod.f90&#45;&gt;sourcefile~latlongeomspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M761.29,-226C738.25,-230.41 711.97,-235.44 688.09,-240.01"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="687.19,-236.62 678.02,-241.94 688.5,-243.5 687.19,-236.62"/>
+</g>
+<!-- sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~lonaxis.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/lonaxis.f90.html" xlink:title="LonAxis.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="263,-226 187,-226 187,-202 263,-202 263,-226"/>
+<text text-anchor="middle" x="225" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LonAxis.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~lonaxis.f90&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~lonaxis.f90&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M186.93,-222.43C175.46,-225.67 162.96,-229.85 152,-235 126.37,-247.05 99.89,-265.71 81.77,-279.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.32,-277.07 73.59,-285.98 83.63,-282.58 79.32,-277.07"/>
+</g>
+<!-- sourcefile~new_coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~new_coordinateaxis.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/new_coordinateaxis.f90.html" xlink:title="new_CoordinateAxis.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="296.5,-108 153.5,-108 153.5,-84 296.5,-84 296.5,-108"/>
+<text text-anchor="middle" x="225" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">new_CoordinateAxis.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~new_coordinateaxis.f90&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~new_coordinateaxis.f90&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M175.2,-108.04C166.85,-111.59 158.72,-116.16 152,-122 103.1,-164.51 75.94,-239.16 64.91,-276.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="61.5,-275.25 62.11,-285.83 68.23,-277.18 61.5,-275.25"/>
+</g>
+<!-- sourcefile~not_equal_to.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~not_equal_to.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/not_equal_to.f90.html" xlink:title="not_equal_to.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="276.5,-66 173.5,-66 173.5,-42 276.5,-42 276.5,-66"/>
+<text text-anchor="middle" x="225" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">not_equal_to.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~not_equal_to.f90&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~not_equal_to.f90&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M173.36,-62.49C165.58,-65.48 158.11,-69.53 152,-75 90.9,-129.65 68.89,-230.83 61.89,-275.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="58.4,-275.36 60.42,-285.76 65.32,-276.36 58.4,-275.36"/>
+</g>
+<!-- sourcefile~test_coordinateaxis.pf -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~test_coordinateaxis.pf</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/test_coordinateaxis.pf.html" xlink:title="Test_CoordinateAxis.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="291.5,-24 158.5,-24 158.5,0 291.5,0 291.5,-24"/>
+<text text-anchor="middle" x="225" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_CoordinateAxis.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_coordinateaxis.pf&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~test_coordinateaxis.pf&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M164.45,-24.16C159.92,-26.59 155.69,-29.51 152,-33 80.93,-100.35 64.13,-225.1 60.19,-275.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="56.69,-275.7 59.5,-285.92 63.67,-276.18 56.69,-275.7"/>
+</g>
+<!-- sourcefile~test_lonaxis.pf -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~test_lonaxis.pf</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/test_lonaxis.pf.html" xlink:title="Test_LonAxis.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="456,-148 363,-148 363,-124 456,-124 456,-148"/>
+<text text-anchor="middle" x="409.5" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_LonAxis.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_lonaxis.pf&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~test_lonaxis.pf&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M362.67,-125.61C324.28,-119.27 269.02,-115.8 226,-136"/>
+</g>
+<!-- sourcefile~test_lonaxis.pf&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~test_lonaxis.pf&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M371.43,-148.01C359.39,-152.16 346.03,-157.03 334,-162 308.04,-172.74 279.42,-186.62 258.17,-197.33"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="256.58,-194.21 249.25,-201.86 259.75,-200.45 256.58,-194.21"/>
+</g>
+<!-- sourcefile~lataxis_smod.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~lataxis_smod.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/lataxis_smod.f90.html" xlink:title="LatAxis_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="463.5,-350 355.5,-350 355.5,-326 463.5,-326 463.5,-350"/>
+<text text-anchor="middle" x="409.5" y="-335.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatAxis_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~lataxis_smod.f90&#45;&gt;sourcefile~lataxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~lataxis_smod.f90&#45;&gt;sourcefile~lataxis.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M355.23,-326.99C347.81,-324.33 340.5,-321.05 334,-317 313.69,-304.37 318.25,-289.72 298,-277 289.98,-271.96 280.71,-268.1 271.55,-265.14"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="272.29,-261.71 261.71,-262.27 270.33,-268.43 272.29,-261.71"/>
+</g>
+<!-- sourcefile~latlondecomposition.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~latlondecomposition.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/latlondecomposition.f90.html" xlink:title="LatLonDecomposition.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="485,-308 334,-308 334,-284 485,-284 485,-308"/>
+<text text-anchor="middle" x="409.5" y="-293.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonDecomposition.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~latlondecomposition.f90&#45;&gt;sourcefile~lataxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~latlondecomposition.f90&#45;&gt;sourcefile~lataxis.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M353.74,-284C327.54,-278.25 296.52,-271.46 271.61,-266"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="272.21,-262.55 261.7,-263.82 270.71,-269.38 272.21,-262.55"/>
+</g>
+<!-- sourcefile~latlondecomposition.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~latlondecomposition.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M389.58,-283.86C368.08,-270.47 331.59,-248.97 298,-235 290.05,-231.69 281.4,-228.69 272.95,-226.06"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="273.75,-222.65 263.17,-223.15 271.75,-229.36 273.75,-222.65"/>
+</g>
+<!-- sourcefile~latlongeomfactory_smod.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~latlongeomfactory_smod.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/latlongeomfactory_smod.f90.html" xlink:title="LatLonGeomFactory_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1120,-289 943,-289 943,-265 1120,-265 1120,-289"/>
+<text text-anchor="middle" x="1031.5" y="-274.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomFactory_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~latlongeomfactory_smod.f90&#45;&gt;sourcefile~lataxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~latlongeomfactory_smod.f90&#45;&gt;sourcefile~lataxis.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M613,-378C489.32,-365.72 435.69,-430.46 334,-359 301.43,-336.12 327.91,-303.26 298,-277 290.52,-270.43 281.09,-265.92 271.53,-262.81"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="272.18,-259.36 261.61,-260.06 270.31,-266.1 272.18,-259.36"/>
+</g>
+<!-- sourcefile~latlongeomfactory_smod.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~latlongeomfactory_smod.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M958.11,-264.8C952.74,-262.37 947.62,-259.47 943,-256 917.2,-236.65 934.61,-209.66 907,-193 717.96,-78.92 631.29,-173.86 410.5,-176"/>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M408.5,-176C361.79,-177.68 309.7,-189.56 273.17,-199.59"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="271.97,-196.29 263.29,-202.36 273.87,-203.03 271.97,-196.29"/>
+</g>
+<!-- sourcefile~latlongeomfactory_smod.f90&#45;&gt;sourcefile~latlondecomposition.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~latlongeomfactory_smod.f90&#45;&gt;sourcefile~latlondecomposition.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M824,-378C731.44,-385.84 707.43,-387.17 615,-378"/>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M613,-378C571.45,-373.88 556.96,-380.21 521,-359 499.82,-346.51 505.72,-330.24 485,-317 482.23,-315.23 479.3,-313.6 476.28,-312.11"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="477.54,-308.84 466.97,-308.03 474.73,-315.25 477.54,-308.84"/>
+</g>
+<!-- sourcefile~latlongeomfactory_smod.f90&#45;&gt;sourcefile~latlongeomspec.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~latlongeomfactory_smod.f90&#45;&gt;sourcefile~latlongeomspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1015.8,-289.18C983.73,-314.58 904.12,-371.38 826,-378"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M824,-378C779.62,-381.76 775.37,-349.6 743,-319 724.64,-301.64 728.48,-288.31 707,-275 701.29,-271.46 695.05,-268.52 688.6,-266.07"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="689.63,-262.72 679.03,-262.83 687.38,-269.35 689.63,-262.72"/>
+</g>
+<!-- sourcefile~latlongeomfactory.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~latlongeomfactory.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/latlongeomfactory.f90.html" xlink:title="LatLonGeomFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="895.5,-268 754.5,-268 754.5,-244 895.5,-244 895.5,-268"/>
+<text text-anchor="middle" x="825" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~latlongeomfactory_smod.f90&#45;&gt;sourcefile~latlongeomfactory.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~latlongeomfactory_smod.f90&#45;&gt;sourcefile~latlongeomfactory.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M942.88,-268C930.52,-266.73 917.86,-265.43 905.66,-264.18"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="905.83,-260.68 895.53,-263.14 905.12,-267.64 905.83,-260.68"/>
+</g>
+<!-- sourcefile~latlongeomspec.f90&#45;&gt;sourcefile~lataxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~latlongeomspec.f90&#45;&gt;sourcefile~lataxis.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M548.66,-254.33C470.46,-254.74 340.47,-255.41 271.78,-255.76"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="271.69,-252.26 261.71,-255.82 271.72,-259.26 271.69,-252.26"/>
+</g>
+<!-- sourcefile~latlongeomspec.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~latlongeomspec.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M559.89,-241.93C546.74,-237.85 532.99,-232.6 521,-226 502.5,-215.82 503.73,-204.76 485,-195 454.7,-179.21 444.67,-175.67 410.5,-176"/>
+</g>
+<!-- sourcefile~latlongeomspec.f90&#45;&gt;sourcefile~latlondecomposition.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~latlongeomspec.f90&#45;&gt;sourcefile~latlondecomposition.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M554.97,-266.04C531.14,-270.98 503.38,-276.74 478.59,-281.88"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="477.62,-278.5 468.54,-283.96 479.04,-285.36 477.62,-278.5"/>
+</g>
+<!-- sourcefile~lonaxis_smod.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~lonaxis_smod.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/lonaxis_smod.f90.html" xlink:title="LonAxis_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-228 354,-228 354,-204 465,-204 465,-228"/>
+<text text-anchor="middle" x="409.5" y="-213.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LonAxis_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~lonaxis_smod.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~lonaxis_smod.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M353.74,-215.4C328.11,-215.12 297.88,-214.79 273.26,-214.52"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="273.13,-211.02 263.09,-214.41 273.05,-218.02 273.13,-211.02"/>
+</g>
+<!-- sourcefile~test_lataxis.pf -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~test_lataxis.pf</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/test_lataxis.pf.html" xlink:title="Test_LatAxis.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="454.5,-430 364.5,-430 364.5,-406 454.5,-406 454.5,-430"/>
+<text text-anchor="middle" x="409.5" y="-415.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_LatAxis.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_lataxis.pf&#45;&gt;sourcefile~lataxis.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~test_lataxis.pf&#45;&gt;sourcefile~lataxis.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M364.41,-410.03C353.29,-406.18 342.19,-400.46 334,-392 296.75,-353.52 336.24,-314.5 298,-277 290.75,-269.89 281.23,-265.16 271.5,-262.03"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="272.35,-258.63 261.78,-259.39 270.52,-265.38 272.35,-258.63"/>
+</g>
+<!-- sourcefile~latlondecomposition_smod.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~latlondecomposition_smod.f90</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/latlondecomposition_smod.f90.html" xlink:title="LatLonDecomposition_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="707,-308 521,-308 521,-284 707,-284 707,-308"/>
+<text text-anchor="middle" x="614" y="-293.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonDecomposition_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~latlondecomposition_smod.f90&#45;&gt;sourcefile~latlondecomposition.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~latlondecomposition_smod.f90&#45;&gt;sourcefile~latlondecomposition.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M520.93,-296C512.39,-296 503.76,-296 495.29,-296"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="495.05,-292.5 485.05,-296 495.05,-299.5 495.05,-292.5"/>
+</g>
+<!-- sourcefile~latlongeomfactory.f90&#45;&gt;sourcefile~latlongeomspec.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~latlongeomfactory.f90&#45;&gt;sourcefile~latlongeomspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M754.41,-255.33C733.49,-255.13 710.46,-254.91 689.25,-254.71"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="689.03,-251.21 679,-254.61 688.97,-258.21 689.03,-251.21"/>
+</g>
+<!-- sourcefile~test_latlondecomposition.pf -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~test_latlondecomposition.pf</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/test_latlondecomposition.pf.html" xlink:title="Test_LatLonDecomposition.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="698,-350 530,-350 530,-326 698,-326 698,-350"/>
+<text text-anchor="middle" x="614" y="-335.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_LatLonDecomposition.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_latlondecomposition.pf&#45;&gt;sourcefile~latlondecomposition.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~test_latlondecomposition.pf&#45;&gt;sourcefile~latlondecomposition.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M554.97,-325.96C531.14,-321.02 503.38,-315.26 478.59,-310.12"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="479.04,-306.64 468.54,-308.04 477.62,-313.5 479.04,-306.64"/>
+</g>
+<!-- sourcefile~test_latlongeomspec.pf -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~test_latlongeomspec.pf</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/test_latlongeomspec.pf.html" xlink:title="Test_LatLonGeomSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="898,-310 752,-310 752,-286 898,-286 898,-310"/>
+<text text-anchor="middle" x="825" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_LatLonGeomSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_latlongeomspec.pf&#45;&gt;sourcefile~latlongeomspec.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~test_latlongeomspec.pf&#45;&gt;sourcefile~latlongeomspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M766.89,-285.98C740.63,-280.45 709.29,-273.85 681.93,-268.09"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="682.55,-264.64 672.04,-266.01 681.11,-271.49 682.55,-264.64"/>
+</g>
+<!-- sourcefile~test_latlongeomfactory.pf -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~test_latlongeomfactory.pf</title>
+<g id="a_sourcefile~~coordinateaxis.f90~~AfferentGraph_node26"><a xlink:href="../sourcefile/test_latlongeomfactory.pf.html" xlink:title="Test_LatLonGeomFactory.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1110,-247 953,-247 953,-223 1110,-223 1110,-247"/>
+<text text-anchor="middle" x="1031.5" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_LatLonGeomFactory.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_latlongeomfactory.pf&#45;&gt;sourcefile~latlongeomfactory.f90 -->
+<g id="sourcefile~~coordinateaxis.f90~~AfferentGraph_edge34" class="edge">
+<title>sourcefile~test_latlongeomfactory.pf&#45;&gt;sourcefile~latlongeomfactory.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M952.9,-242.97C937.51,-244.55 921.33,-246.21 905.87,-247.8"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="905.42,-244.33 895.83,-248.83 906.14,-251.29 905.42,-244.33"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilecoordinateaxisf90AfferentGraph = svgPanZoom('#sourcefilecoordinateaxisf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">mapl3g_CoordinateAxis</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_RangeMod</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ESMF_KIND_R8</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">pfio</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="k">   private</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CoordinateAxis</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">operator</span><span class="p">(</span><span class="o">==</span><span class="p">)</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">operator</span><span class="p">(</span><span class="o">/=</span><span class="p">)</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_coordinates</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_dim_name</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">AxisRanges</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">R8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_KIND_R8</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">AxisRanges</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">center_min</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">center_max</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">corner_min</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">corner_max</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">end type </span><span class="n">AxisRanges</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CoordinateAxis</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="k">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">centers</span><span class="p">(:)</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">corners</span><span class="p">(:)</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_extent</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_centers</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_corners</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_periodic</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">   </span><span class="k">end type </span><span class="n">CoordinateAxis</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">   </span><span class="k">interface </span><span class="n">CoordinateAxis</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">procedure </span><span class="n">new_CoordinateAxis</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">   </span><span class="k">end interface </span><span class="n">CoordinateAxis</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">   </span><span class="k">interface </span><span class="n">operator</span><span class="p">(</span><span class="o">==</span><span class="p">)</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">equal_to</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">   </span><span class="k">end interface </span><span class="n">operator</span><span class="p">(</span><span class="o">==</span><span class="p">)</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">   </span><span class="k">interface </span><span class="n">operator</span><span class="p">(</span><span class="o">/=</span><span class="p">)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">not_equal_to</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">   </span><span class="k">end interface </span><span class="n">operator</span><span class="p">(</span><span class="o">/=</span><span class="p">)</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">   </span><span class="k">interface </span><span class="n">get_coordinates</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">procedure </span><span class="n">get_coordinates_dim</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">   </span><span class="k">end interface </span><span class="n">get_coordinates</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">   </span><span class="c">! Submodule</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">   </span><span class="k">interface</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="k">      pure module function </span><span class="n">new_CoordinateAxis</span><span class="p">(</span><span class="n">centers</span><span class="p">,</span><span class="w"> </span><span class="n">corners</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">CoordinateAxis</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">axis</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">centers</span><span class="p">(:)</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">corners</span><span class="p">(:)</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="k">end function </span><span class="n">new_CoordinateAxis</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">elemental </span><span class="kt">logical </span><span class="k">module function </span><span class="n">equal_to</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">CoordinateAxis</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="k">end function </span><span class="n">equal_to</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="k">elemental </span><span class="kt">logical </span><span class="k">module function </span><span class="n">not_equal_to</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">CoordinateAxis</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="k">end function </span><span class="n">not_equal_to</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">      </span><span class="c">! Accessors</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="c">!----------</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="c">! Note that size(this%corners) might be one larger for non-periodic</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">pure module function </span><span class="n">get_extent</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">extent</span><span class="p">)</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">CoordinateAxis</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">extent</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="k">end function </span><span class="n">get_extent</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="k">pure module function </span><span class="n">get_centers</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">centers</span><span class="p">)</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">centers</span><span class="p">(:)</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">CoordinateAxis</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="k">end function </span><span class="n">get_centers</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="k">pure module function </span><span class="n">get_corners</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">corners</span><span class="p">)</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">corners</span><span class="p">(:)</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">CoordinateAxis</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">      </span><span class="k">end function </span><span class="n">get_corners</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">      </span><span class="k">pure </span><span class="kt">logical </span><span class="k">module function </span><span class="n">is_periodic</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">CoordinateAxis</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="k">end function </span><span class="n">is_periodic</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="k">module function </span><span class="n">get_dim_name</span><span class="p">(</span><span class="n">file_metadata</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">dim_name</span><span class="p">)</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">         </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dim_name</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_metadata</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">units</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="k">end function </span><span class="n">get_dim_name</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="k">module function </span><span class="n">get_coordinates_dim</span><span class="p">(</span><span class="n">file_metadata</span><span class="p">,</span><span class="w"> </span><span class="n">dim_name</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">         </span><span class="k">use </span><span class="n">pfio</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">FileMetadata</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">),</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">coordinates</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_metadata</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dim_name</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">      </span><span class="k">end function </span><span class="n">get_coordinates_dim</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a>
+<a id="ln-106" name="ln-106" href="#ln-106"></a>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">   </span><span class="k">end interface</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="k">end module </span><span class="n">mapl3g_CoordinateAxis</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-12T18:54:51.253272             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

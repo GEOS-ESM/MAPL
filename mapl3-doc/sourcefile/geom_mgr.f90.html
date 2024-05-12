@@ -1,0 +1,590 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>geom_mgr.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>geom_mgr.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">7 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/geom_mgr.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">geom_mgr.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_geom_mgr.html">mapl3g_geom_mgr</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/geom_mgr.f90.html#src">geom_mgr.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~geom_mgr.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilegeom_mgrf90EfferentGraph" width="522pt" height="74pt"
+ viewBox="0.00 0.00 522.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~geom_mgr.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>sourcefile~~geom_mgr.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 518,-70 518,4 -4,4"/>
+<!-- sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~geom_mgr.f90</title>
+<polygon fill="none" stroke="black" points="514,-45 423,-45 423,-21 514,-21 514,-45"/>
+<text text-anchor="middle" x="468.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">geom_mgr.F90</text>
+</g>
+<!-- sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~geomspec.f90</title>
+<g id="a_sourcefile~~geom_mgr.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/geomspec.f90.html" xlink:title="GeomSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="381,-66 287,-66 287,-42 381,-42 381,-66"/>
+<text text-anchor="middle" x="334" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GeomSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geom_mgr.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~geom_mgr.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M422.64,-40.11C412.51,-41.71 401.64,-43.44 391.12,-45.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="390.5,-41.66 381.17,-46.68 391.59,-48.57 390.5,-41.66"/>
+</g>
+<!-- sourcefile~geomutilities.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~geomutilities.f90</title>
+<g id="a_sourcefile~~geom_mgr.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/geomutilities.f90.html" xlink:title="GeomUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="387,-24 281,-24 281,0 387,0 387,-24"/>
+<text text-anchor="middle" x="334" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GeomUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geom_mgr.f90&#45;&gt;sourcefile~geomutilities.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~geom_mgr.f90&#45;&gt;sourcefile~geomutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M422.64,-25.89C414.44,-24.59 405.75,-23.21 397.15,-21.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="397.55,-18.37 387.13,-20.26 396.46,-25.28 397.55,-18.37"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~geom_mgr.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="245,-24 136,-24 136,0 245,0 245,-24"/>
+<text text-anchor="middle" x="190.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geomutilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~geomutilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M280.71,-12C272.54,-12 264.02,-12 255.62,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="255.47,-8.5 245.47,-12 255.47,-15.5 255.47,-8.5"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~geom_mgr.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-24 0,-24 0,0 100,0 100,-24"/>
+<text text-anchor="middle" x="50" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M135.95,-12C127.62,-12 118.96,-12 110.51,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.33,-8.5 100.33,-12 110.33,-15.5 110.33,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~geom_mgr.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilegeom_mgrf90AfferentGraph" width="358pt" height="452pt"
+ viewBox="0.00 0.00 358.00 452.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 448)">
+<title>sourcefile~~geom_mgr.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-448 354,-448 354,4 -4,4"/>
+<!-- sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~geom_mgr.f90</title>
+<polygon fill="none" stroke="black" points="91,-234 0,-234 0,-210 91,-210 91,-234"/>
+<text text-anchor="middle" x="45.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50">geom_mgr.F90</text>
+</g>
+<!-- sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~componentspecparser.f90</title>
+<g id="a_sourcefile~~geom_mgr.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/componentspecparser.f90.html" xlink:title="ComponentSpecParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="316.5,-444 160.5,-444 160.5,-420 316.5,-420 316.5,-444"/>
+<text text-anchor="middle" x="238.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M160.41,-427.43C148.32,-423.99 136.66,-418.78 127,-411 73.93,-368.27 55.24,-284.06 49.17,-244.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="52.62,-243.47 47.77,-234.04 45.68,-244.43 52.62,-243.47"/>
+</g>
+<!-- sourcefile~fieldspec.f90~2 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~fieldspec.f90~2</title>
+<g id="a_sourcefile~~geom_mgr.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/fieldspec.f90~2.html" xlink:title="FieldSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="281.5,-402 195.5,-402 195.5,-378 281.5,-378 281.5,-402"/>
+<text text-anchor="middle" x="238.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M195.28,-390.37C173.12,-388.61 146.58,-383.24 127,-369 84.29,-337.94 61.68,-277.04 52.14,-244.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="55.42,-242.96 49.39,-234.25 48.67,-244.82 55.42,-242.96"/>
+</g>
+<!-- sourcefile~geometryspec.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~geometryspec.f90</title>
+<g id="a_sourcefile~~geom_mgr.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/geometryspec.f90.html" xlink:title="GeometrySpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="296,-360 181,-360 181,-336 296,-336 296,-360"/>
+<text text-anchor="middle" x="238.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GeometrySpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geometryspec.f90&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~geometryspec.f90&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M180.95,-345.21C162.69,-342.3 143.04,-336.89 127,-327 94,-306.67 69.53,-267.51 56.68,-243.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="59.69,-241.39 52.04,-234.07 53.45,-244.57 59.69,-241.39"/>
+</g>
+<!-- sourcefile~historycollectiongridcomp_private.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~historycollectiongridcomp_private.f90</title>
+<g id="a_sourcefile~~geom_mgr.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/historycollectiongridcomp_private.f90.html" xlink:title="HistoryCollectionGridComp_private.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="350,-318 127,-318 127,-294 350,-294 350,-318"/>
+<text text-anchor="middle" x="238.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionGridComp_private.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M151.77,-293.95C143.22,-291.5 134.82,-288.55 127,-285 103.47,-274.32 80.66,-255.41 65.37,-241.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="67.72,-238.49 58.09,-234.08 62.87,-243.53 67.72,-238.49"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~outermetacomponent.f90</title>
+<g id="a_sourcefile~~geom_mgr.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/outermetacomponent.f90.html" xlink:title="OuterMetaComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="315.5,-276 161.5,-276 161.5,-252 315.5,-252 315.5,-276"/>
+<text text-anchor="middle" x="238.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M170.15,-251.95C155.87,-249.18 140.91,-246.13 127,-243 118.4,-241.06 109.33,-238.86 100.49,-236.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="101.21,-233.19 90.66,-234.09 99.47,-239.97 101.21,-233.19"/>
+</g>
+<!-- sourcefile~regridderspec.f90~2 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~regridderspec.f90~2</title>
+<g id="a_sourcefile~~geom_mgr.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/regridderspec.f90~2.html" xlink:title="RegridderSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="295.5,-234 181.5,-234 181.5,-210 295.5,-210 295.5,-234"/>
+<text text-anchor="middle" x="238.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regridderspec.f90~2&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~regridderspec.f90~2&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M181.48,-222C156.23,-222 126.51,-222 101.4,-222"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="101.3,-218.5 91.3,-222 101.3,-225.5 101.3,-218.5"/>
+</g>
+<!-- sourcefile~routehandleparam.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~routehandleparam.f90</title>
+<g id="a_sourcefile~~geom_mgr.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/routehandleparam.f90.html" xlink:title="RoutehandleParam.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="307,-192 170,-192 170,-168 307,-168 307,-192"/>
+<text text-anchor="middle" x="238.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RoutehandleParam.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~routehandleparam.f90&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~routehandleparam.f90&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M170.15,-192.05C155.87,-194.82 140.91,-197.87 127,-201 118.4,-202.94 109.33,-205.14 100.49,-207.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="99.47,-204.03 90.66,-209.91 101.21,-210.81 99.47,-204.03"/>
+</g>
+<!-- sourcefile~routehandlespec.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~routehandlespec.f90</title>
+<g id="a_sourcefile~~geom_mgr.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/routehandlespec.f90.html" xlink:title="RoutehandleSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="303,-150 174,-150 174,-126 303,-126 303,-150"/>
+<text text-anchor="middle" x="238.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RoutehandleSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~routehandlespec.f90&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~routehandlespec.f90&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M173.96,-144.75C158.16,-147.85 141.58,-152.38 127,-159 103.47,-169.68 80.66,-188.59 65.37,-202.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="62.87,-200.47 58.09,-209.92 67.72,-205.51 62.87,-200.47"/>
+</g>
+<!-- sourcefile~test_geommanager.pf -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~test_geommanager.pf</title>
+<g id="a_sourcefile~~geom_mgr.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/test_geommanager.pf.html" xlink:title="Test_GeomManager.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="303.5,-108 173.5,-108 173.5,-84 303.5,-84 303.5,-108"/>
+<text text-anchor="middle" x="238.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_GeomManager.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_geommanager.pf&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~test_geommanager.pf&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M173.22,-100.16C157.26,-103.3 140.8,-108.5 127,-117 94,-137.33 69.53,-176.49 56.68,-200.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="53.45,-199.43 52.04,-209.93 59.69,-202.61 53.45,-199.43"/>
+</g>
+<!-- sourcefile~test_regriddermanager.pf -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~test_regriddermanager.pf</title>
+<g id="a_sourcefile~~geom_mgr.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/test_regriddermanager.pf.html" xlink:title="Test_RegridderManager.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="313.5,-66 163.5,-66 163.5,-42 313.5,-42 313.5,-66"/>
+<text text-anchor="middle" x="238.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_RegridderManager.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~test_regriddermanager.pf&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M163.33,-58.78C150.38,-62.12 137.66,-67.25 127,-75 84.29,-106.06 61.68,-166.96 52.14,-199.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="48.67,-199.18 49.39,-209.75 55.42,-201.04 48.67,-199.18"/>
+</g>
+<!-- sourcefile~test_routehandlemanager.pf -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~test_routehandlemanager.pf</title>
+<g id="a_sourcefile~~geom_mgr.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/test_routehandlemanager.pf.html" xlink:title="Test_RouteHandleManager.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="321.5,-24 155.5,-24 155.5,0 321.5,0 321.5,-24"/>
+<text text-anchor="middle" x="238.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_RouteHandleManager.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_routehandlemanager.pf&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geom_mgr.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~test_routehandlemanager.pf&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M155.3,-18.14C145.06,-21.54 135.29,-26.32 127,-33 73.93,-75.73 55.24,-159.94 49.17,-199.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="45.68,-199.57 47.77,-209.96 52.62,-200.53 45.68,-199.57"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">mapl3g_geom_mgr</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_MaplGeom</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_GeomSpec</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_GeomManager</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_GeomUtilities</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="k">   </span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="k">end module </span><span class="n">mapl3g_geom_mgr</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-12T18:54:51.253272             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
