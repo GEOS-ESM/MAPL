@@ -168,20 +168,10 @@ module mapl3g_GeomManager
          integer, intent(in) :: id
          integer, optional, intent(out) :: rc
       end function get_geom_from_id
+
+      module function get_geom_manager() result(geom_mgr)
+         type(GeomManager), pointer :: geom_mgr
+      end function get_geom_manager
    end interface
-
-contains
-   
-   function get_geom_manager() result(geom_mgr)
-      type(GeomManager), pointer :: geom_mgr
-      logical :: init = .false.
-
-      if (.not. init) then
-         call geom_manager%initialize()
-         init = .true.
-      end if
-
-      geom_mgr => geom_manager
-   end function get_geom_manager
 
 end module mapl3g_GeomManager
