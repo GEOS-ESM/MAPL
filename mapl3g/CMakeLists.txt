@@ -2,7 +2,7 @@ esma_set_this()
 
 set (srcs
   mapl3g.F90
-  MaplFramework
+  MaplFramework.F90
   )
 
 esma_add_library (${this}
