@@ -25,7 +25,7 @@ set(srcs
 esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.pfio MAPL.base MAPL.shared MAPL.field_utils MAPL.hconfig_utils GFTL::gftl-v2
-  TYPE ${MAPL_LIBRARY_TYPE}
+  TYPE SHARED
   )
 
 add_subdirectory(MaplGeom)

@@ -42,20 +42,20 @@ workflows:
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
           persist_workspace: true # Needed for MAPL tutorials
 
-      # Builds MAPL like UFS does (no pFlogger, static)
+      # Builds MAPL without PFLOGGER and FARGPARSE
       - ci/build:
-          name: build-UFS-MAPL-on-<< matrix.compiler >>
+          name: build-MAPL-without-pFlogger-and-fArgParse-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [ifort]
+              compiler: [gfortran, ifort]
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           remove_flap: true
           remove_pflogger: true
-          extra_cmake_options: "-DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
+          extra_cmake_options: "-DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF"
           run_unit_tests: true
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
 

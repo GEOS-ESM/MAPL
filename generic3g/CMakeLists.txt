@@ -57,7 +57,7 @@ endif ()
 esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.regridder_mgr MAPL.geom_mgr MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
-  TYPE ${MAPL_LIBRARY_TYPE}
+  TYPE SHARED
   )
 add_subdirectory(specs)
 add_subdirectory(registry)
