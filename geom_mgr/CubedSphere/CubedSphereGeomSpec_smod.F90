@@ -9,7 +9,7 @@ submodule (mapl3g_CubedSphereGeomSpec) CubedSphereGeomSpec_smod
    use mapl_ErrorHandling
    use esmf
    implicit none
-   real(ESMF_Kind_R8) :: undef_schmit = 1d15
+   real(ESMF_Kind_R8) :: undef_schmidt = 1d15
    
 contains
 
@@ -18,7 +18,7 @@ contains
    module function new_CubedSphereGeomSpec(im_world, schmidt_parameters, decomposition) result(spec)
       type(CubedSphereGeomSpec) :: spec
       integer, intent(in) :: im_world
-      type(ESMF_CubedSphereTransform_Args :: schmidt_parameters
+      type(ESMF_CubedSphereTransform_Args), intent(in) :: schmidt_parameters
       type(CubedSphereDecomposition), intent(in) :: decomposition
       
       spec%im_world = im_world
@@ -57,7 +57,7 @@ contains
 
       spec%im_world = ESMF_HConfigAsI4(hconfig, keyString='im_world', asOkay=found, _RC)
       _ASSERT(found, '"im_world" not found.') 
-      spec%decomposition = make_Decomposition(hconfig, cube_size=im_world, _RC)
+      spec%decomposition = make_Decomposition(hconfig, cube_size=spec%im_world, _RC)
       spec%schmidt_parameters = make_SchmidtParameters_from_hconfig(hconfig, _RC)
 
       _RETURN(_SUCCESS)
@@ -72,20 +72,20 @@ contains
       logical :: is_stretched
       is_stretched = ESMF_HConfigIsDefined(hconfig, keystring='stretch_factor', _RC)
       if (is_stretched) then
-         schmdit_parameters%stretch_factor = ESMF_HConfigAsR8(hconfig, keystring='stretch_factor' ,_RC)
+         schmidt_parameters%stretch_factor = ESMF_HConfigAsR8(hconfig, keystring='stretch_factor' ,_RC)
       end if
       is_stretched = ESMF_HConfigIsDefined(hconfig, keystring='target_lon', _RC)
       if (is_stretched) then
-         schmdit_parameters%target_lon = ESMF_HConfigAsR8(hconfig, keystring='target_lon' ,_RC)
+         schmidt_parameters%target_lon = ESMF_HConfigAsR8(hconfig, keystring='target_lon' ,_RC)
       end if
       is_stretched = ESMF_HConfigIsDefined(hconfig, keystring='target_lat', _RC)
       if (is_stretched) then
-         schmdit_parameters%target_lat = ESMF_HConfigAsR8(hconfig, keystring='target_lat' ,_RC)
+         schmidt_parameters%target_lat = ESMF_HConfigAsR8(hconfig, keystring='target_lat' ,_RC)
       end if
       if (.not. is_stretched) then
-         schmidt_parameters%stretch_factor = undef_schmit 
-         schmidt_parameters%target_lon= undef_schmit 
-         schmidt_parameters%target_lat= undef_schmit 
+         schmidt_parameters%stretch_factor = undef_schmidt 
+         schmidt_parameters%target_lon= undef_schmidt 
+         schmidt_parameters%target_lat= undef_schmidt 
       end if
       _RETURN(_SUCCESS)
 
@@ -177,8 +177,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(LonAxis) :: lon_axis
-      type(LatAxis) :: lat_axis
       character(:), allocatable :: geom_class
 
       ! Mandatory entry: "class: CubedSphere"
@@ -198,8 +196,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(LonAxis) :: lon_axis
-      type(LatAxis) :: lat_axis
 
       supports = .false.
 

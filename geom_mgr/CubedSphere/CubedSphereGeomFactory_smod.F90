@@ -13,7 +13,7 @@ submodule (mapl3g_CubedSphereGeomFactory) CubedSphereGeomFactory_smod
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    implicit none
-   real(kind=ESMF_Kind_R8) :: undef_schmit = 1d15
+   real(kind=ESMF_Kind_R8) :: undef_schmidt = 1d15
 
 contains
 
@@ -134,7 +134,7 @@ contains
       decomp = spec%get_decomposition()
       schmidt_parameters = spec%get_schmidt_parameters()
       im_world = spec%get_im_world()
-      not_stretched = All(schmidt_parameters = undef_schmit)
+      not_stretched = .not. is_stretched_cube(schmidt_parameters) 
       face_ims = decomp%get_x_distribution()
       face_jms = decomp%get_y_distribution()
       allocate(ims(ntiles,size(face_ims)))
@@ -230,7 +230,7 @@ contains
 
       im_world = geom_spec%get_im_world()
       schmidt_parameters = geom_spec%get_schmidt_parameters()
-      is_stretched = All(schmidt_parameters /= undef_schmit)
+      is_stretched = is_stretched_cube(schmidt_parameters)
       ! Grid dimensions
       call file_metadata%add_dimension('Xdim', im_world, _RC)
       call file_metadata%add_dimension('Ydim', im_world, _RC)
@@ -358,5 +358,14 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function typesafe_make_file_metadata
+
+   function is_stretched_cube(schmidt_parameters) result(is_stretched)
+      logical :: is_stretched
+      type(ESMF_CubedSphereTransform_Args), intent(in) :: schmidt_parameters
+
+      is_stretched = (schmidt_parameters%target_lat /= undef_schmidt) .and. &
+                          (schmidt_parameters%target_lon /= undef_schmidt) .and. &
+                          (schmidt_parameters%stretch_factor /= undef_schmidt) 
+   end function is_stretched_cube
 
 end submodule CubedSphereGeomFactory_smod
