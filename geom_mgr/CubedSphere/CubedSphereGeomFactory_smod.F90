@@ -134,7 +134,7 @@ contains
       decomp = spec%get_decomposition()
       schmidt_parameters = spec%get_schmidt_parameters
       im_world = spec%get_im_world
-      is_stretched = All(schmidt_parameters = undef_schmit)
+      not_stretched = All(schmidt_parameters = undef_schmit)
       face_ims = decomp%get_x_distribution()
       face_jms = decomp%get_y_distribution()
       allocate(ims(ntiles,size(face_ims)))
@@ -144,15 +144,15 @@ contains
          hms(:,i) = face_jms 
       enddo
 
-      if (is_stretched) then
-         grid = ESMF_GridCreateCubedSPhere(this%im_world,countsPerDEDim1PTile=ims, &
+      if (not_stretched) then
+         grid = ESMF_GridCreateCubedSPhere(im_world,countsPerDEDim1PTile=ims, &
+            countsPerDEDim2PTile=jms, &
+            staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
+      else
+         grid = ESMF_GridCreateCubedSPhere(im_world,countsPerDEDim1PTile=ims, &
             countsPerDEDim2PTile=jms  &
             staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, &
             transformArgs=schmidt_parameters, _RC)
-      else
-         grid = ESMF_GridCreateCubedSPhere(this%im_world,countsPerDEDim1PTile=ims, &
-            countsPerDEDim2PTile=jms, &
-            staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
       end if
 
       ! Allocate coords at default stagger location
@@ -172,8 +172,9 @@ contains
       gridded_dims = StringVector()
       select type (geom_spec)
       type is (CubedSphereGeomSpec)
-         call gridded_dims%push_back('lon')
-         call gridded_dims%push_back('lat')
+         call gridded_dims%push_back('Xdim')
+         call gridded_dims%push_back('Ydim')
+         call gridded_dims%push_back('nf')
       class default
          _FAIL('geom_spec is not of dynamic type CubedSphereGeomSpec.')
       end select
@@ -211,29 +212,148 @@ contains
       integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
 
-      type(LonAxis) :: lon_axis
-      type(LatAxis) :: lat_axis
-      type(Variable) :: v
+      integer :: im, im_world
+      type (Variable) :: v
+      integer, parameter :: MAXLEN=80
+      character(len=MAXLEN) :: gridspec_file_name
+      !!! character(len=5), allocatable :: cvar(:,:)
+      integer, allocatable :: ivar(:,:)
+      integer, allocatable :: ivar2(:,:,:)
 
-      lon_axis = geom_spec%get_lon_axis()
-      lat_axis = geom_spec%get_lat_axis()
-      
-      call file_metadata%add_dimension('lon', lon_axis%get_extent())
-      call file_metadata%add_dimension('lat', lat_axis%get_extent())
+      real(REAL64), allocatable :: temp_coords(:)
+
+      integer :: status
+      integer, parameter :: ncontact = 4
+      type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
+      integer, parameter :: nf = 6
+      logical :: is_stretched
+
+      im_world = geom_spec%get_im_world()
+      schmidt_parameters = geom_spec%get_schmidt_parameters()
+      is_stretched = All(schmidt_parameters /= undef_schmit)
+      ! Grid dimensions
+      call metadata%add_dimension('Xdim', im_world, _RC)
+      call metadata%add_dimension('Ydim', im_world, _RC)
+      call metadata%add_dimension('XCdim', im_world+1, _RC)
+      call metadata%add_dimension('YCdim', im_world+1, _RC)
+      call metadata%add_dimension('nf', nf, _RC)
+      call metadata%add_dimension('ncontact', ncontact, _RC)
+      call metadata%add_dimension('orientationStrLen', 5, _RC)
 
       ! Coordinate variables
-      v = Variable(type=PFIO_REAL64, dimensions='lon', chunksizes=chunksizes)
-      call v%add_attribute('long_name', 'longitude')
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim')
+      call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_east')
-      call v%add_const_value(UnlimitedEntity(lon_axis%get_centers()))
-      
-      call file_metadata%add_variable('lon', v)
+      temp_coords = this%get_fake_longitudes()
+      call metadata%add_variable('Xdim', CoordinateVariable(v, temp_coords))
+      deallocate(temp_coords)
 
-      v = Variable(type=PFIO_REAL64, dimensions='lat', chunksizes=chunksizes)
-      call v%add_attribute('long_name', 'latitude')
+      v = Variable(type=PFIO_REAL64, dimensions='Ydim')
+      call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_north')
-      call v%add_const_value(UnlimitedEntity(lat_axis%get_centers()))
-      call file_metadata%add_variable('lat', v)
+      temp_coords = this%get_fake_latitudes()
+      call metadata%add_variable('Ydim', CoordinateVariable(v, temp_coords))
+      deallocate(temp_coords)
+
+      v = Variable(type=PFIO_INT32, dimensions='nf')
+      call v%add_attribute('long_name','cubed-sphere face')
+      call v%add_attribute('axis','e')
+      call v%add_attribute('grads_dim','e')
+      call v%add_const_value(UnlimitedEntity([1,2,3,4,5,6]))
+      call metadata%add_variable('nf',v)
+
+      v = Variable(type=PFIO_INT32, dimensions='ncontact')
+      call v%add_attribute('long_name','number of contact points')
+      call v%add_const_value(UnlimitedEntity([1,2,3,4]))
+      call metadata%add_variable('ncontact',v)
+      ! Other variables
+      allocate(ivar(4,6))
+      ivar = reshape( [5, 3, 2, 6, &
+                       1, 3, 4, 6, &
+                       1, 5, 4, 2, &
+                       3, 5, 6, 2, &
+                       3, 1, 6, 4, &
+                       5, 1, 2, 4 ], [ncontact,nf])
+      v = Variable(type=PFIO_INT32, dimensions='ncontact,nf')
+      call v%add_attribute('long_name', 'adjacent face starting from left side going clockwise')
+      call v%add_const_value(UnlimitedEntity(ivar))
+      call metadata%add_variable('contacts', v)      !!! At present pfio does not seem to work with string variables
+      !!! allocate(cvar(4,6))
+      !!! cvar =reshape([" Y:-X", " X:-Y", " Y:Y ", " X:X ", &
+      !!!                " Y:Y ", " X:X ", " Y:-X", " X:-Y", &
+      !!!                " Y:-X", " X:-Y", " Y:Y ", " X:X ", &
+      !!!                " Y:Y ", " X:X ", " Y:-X", " X:-Y", &
+      !!!                " Y:-X", " X:-Y", " Y:Y ", " X:X ", &
+      !!!                " Y:Y ", " X:X ", " Y:-X", " X:-Y" ], [ncontact,nf])
+      !!! v = Variable(type=PFIO_STRING, dimensions='orientationStrLen,ncontact,nf')
+      !!! call v%add_attribute('long_name', 'orientation of boundary')
+      !!! call v%add_const_value(UnlimitedEntity(cvar))
+      !!! call metadata%add_variable('orientation', v)
+
+      im = im_world
+      allocate(ivar2(4,4,6))
+      ivar2 = reshape(            &
+               [[im, im,  1, im,  &
+                  1, im,  1,  1,  &
+                  1, im,  1,  1,  &
+                 im, im,  1, im], &
+                [im,  1, im, im,  &
+                  1,  1, im,  1,  &
+                  1,  1, im,  1,  &
+                 im,  1, im, im], &
+                [im, im,  1, im,  &
+                  1, im,  1,  1,  &
+                  1, im,  1,  1,  &
+                 im, im,  1, im], &
+                [im,  1, im, im,  &
+                  1,  1, im,  1,  &
+                  1,  1, im,  1,  &
+                 im,  1, im, im], &
+                [im, im,  1, im,  &
+                  1, im,  1,  1,  &
+                  1, im,  1,  1,  &
+                 im, im,  1, im], &
+                [im,  1, im, im,  &
+                  1,  1, im,  1,  &
+                  1,  1, im,  1,  &
+                 im,  1, im, im] ], [ncontact,ncontact,nf])
+      v = Variable(type=PFIO_INT32, dimensions='ncontact,ncontact,nf')
+      call v%add_attribute('long_name', 'anchor point')
+      call v%add_const_value(UnlimitedEntity(ivar2))
+      call metadata%add_variable('anchor', v)
+
+      call Metadata%add_attribute('grid_mapping_name', 'gnomonic cubed-sphere')
+      call Metadata%add_attribute('file_format_version', '2.92')
+      call Metadata%add_attribute('additional_vars', 'contacts,orientation,anchor')
+      write(gridspec_file_name,'("C",i0,"_gridspec.nc4")') im_world
+      call Metadata%add_attribute('gridspec_file', trim(gridspec_file_name))
+
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf')
+      call v%add_attribute('long_name','longitude')
+      call v%add_attribute('units','degrees_east')
+      call metadata%add_variable('lons',v)
+
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf')
+      call v%add_attribute('long_name','latitude')
+      call v%add_attribute('units','degrees_north')
+      call metadata%add_variable('lats',v)
+
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim,nf')
+      call v%add_attribute('long_name','longitude')
+      call v%add_attribute('units','degrees_east')
+      call metadata%add_variable('corner_lons',v)
+
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim,nf')
+      call v%add_attribute('long_name','latitude')
+      call v%add_attribute('units','degrees_north')
+      call metadata%add_variable('corner_lats',v)
+
+      if (is_stretched) then
+         call metadata%add_attribute('STRETCH_FACTOR',schmidt_parameters%stretch_factor)
+         call metadata%add_attribute('TARGET_LON',schmidt_parameters%target_lon_degrees)
+         call metadata%add_attribute('TARGET_LAT',schmidt_parameters%target_lat_degrees)
+      end if
+
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
