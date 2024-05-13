@@ -65,7 +65,7 @@ esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.oomph MAPL.shared MAPL.profiler MAPL.base
                PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared-v1  GFTL::gftl-v2 GFTL::gftl-v1
-  TYPE ${MAPL_LIBRARY_TYPE}
+  TYPE SHARED
   )
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

@@ -13,7 +13,7 @@ list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
 esma_add_library(${this}
   SRCS ${srcs}
-  TYPE ${MAPL_LIBRARY_TYPE}
+  TYPE SHARED
 )
 
 find_package(udunits REQUIRED)

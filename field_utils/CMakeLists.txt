@@ -25,7 +25,7 @@ endif ()
 esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.shared PFLOGGER::pflogger udunits2f
-  TYPE ${MAPL_LIBRARY_TYPE}
+  TYPE SHARED
   )
 
 #add_subdirectory(specs)
