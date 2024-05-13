@@ -40,7 +40,9 @@ module mapl3g_MaplFramework
    contains
       procedure :: initialize
       procedure :: initialize_esmf
+#ifdef BUILD_WITH_PFLOGGER
       procedure :: initialize_pflogger
+#endif
       procedure :: initialize_profilers
       procedure :: initialize_servers
       procedure :: initialize_simple_oserver
@@ -89,7 +91,9 @@ contains
       call this%initialize_esmf(hconfig, mpiCommunicator=mpiCommunicator, _RC)
       call ESMF_VMGetCurrent(this%mapl_vm, _RC)
 
+#ifdef BUILD_WITH_PFLOGGER
       call this%initialize_pflogger(_RC)
+#endif
       call this%initialize_profilers(_RC)
       call this%initialize_servers(is_model_pet=is_model_pet, servers=servers, _RC)
 
@@ -147,6 +151,7 @@ contains
 
    end subroutine initialize_esmf
 
+#ifdef BUILD_WITH_PFLOGGER
    subroutine initialize_pflogger(this, unusable, rc)
       use PFL_Formatter, only: get_sim_time
       use pflogger, only: pfl_initialize => initialize
@@ -161,7 +166,6 @@ contains
       logical :: has_pflogger_cfg_file
       character(:), allocatable :: pflogger_cfg_file
 
-#ifdef BUILD_WITH_PFLOGGER
       call pfl_initialize()
       get_sim_time => fill_time_dict
 
@@ -174,11 +178,11 @@ contains
 
       call ESMF_VMGet(this%mapl_vm, mpiCommunicator=world_comm, _RC)
       call default_initialize_pflogger(world_comm=world_comm, _RC)
-#endif
-
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_pflogger
+#endif
+
 
    subroutine initialize_profilers(this, unusable, rc)
       class(MaplFramework), target, intent(inout) :: this
