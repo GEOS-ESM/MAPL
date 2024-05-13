@@ -65,6 +65,7 @@ add_subdirectory(connection)
 add_subdirectory(actions)
 add_subdirectory(couplers)
 add_subdirectory(ComponentSpecParser)
+add_subdirectory(ESMF_HConfigUtilities)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
