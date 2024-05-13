@@ -13,7 +13,7 @@ submodule (mapl3g_CubedSphereGeomFactory) CubedSphereGeomFactory_smod
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    implicit none
-   real(ESMF_TypeKind_R8) :: undef_schmit = 1d15
+   real(kind=ESMF_Kind_R8) :: undef_schmit = 1d15
 
 contains
 
@@ -126,14 +126,14 @@ contains
       integer :: status, im_world, ntiles, i
       type(CubedSphereDecomposition) :: decomp
       type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
-      logical :: is_stretched
+      logical :: not_stretched
       integer, allocatable :: ims(:,:), jms(:,:), face_ims(:), face_jms(:)
 
       ntiles = 6
 
       decomp = spec%get_decomposition()
-      schmidt_parameters = spec%get_schmidt_parameters
-      im_world = spec%get_im_world
+      schmidt_parameters = spec%get_schmidt_parameters()
+      im_world = spec%get_im_world()
       not_stretched = All(schmidt_parameters = undef_schmit)
       face_ims = decomp%get_x_distribution()
       face_jms = decomp%get_y_distribution()
@@ -141,7 +141,7 @@ contains
       allocate(ims(ntiles,size(face_jms)))
       do i=1,ntiles
          ims(:,i) = face_ims 
-         hms(:,i) = face_jms 
+         jms(:,i) = face_jms 
       enddo
 
       if (not_stretched) then
@@ -150,7 +150,7 @@ contains
             staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
       else
          grid = ESMF_GridCreateCubedSPhere(im_world,countsPerDEDim1PTile=ims, &
-            countsPerDEDim2PTile=jms  &
+            countsPerDEDim2PTile=jms,  &
             staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, &
             transformArgs=schmidt_parameters, _RC)
       end if
@@ -232,27 +232,27 @@ contains
       schmidt_parameters = geom_spec%get_schmidt_parameters()
       is_stretched = All(schmidt_parameters /= undef_schmit)
       ! Grid dimensions
-      call metadata%add_dimension('Xdim', im_world, _RC)
-      call metadata%add_dimension('Ydim', im_world, _RC)
-      call metadata%add_dimension('XCdim', im_world+1, _RC)
-      call metadata%add_dimension('YCdim', im_world+1, _RC)
-      call metadata%add_dimension('nf', nf, _RC)
-      call metadata%add_dimension('ncontact', ncontact, _RC)
-      call metadata%add_dimension('orientationStrLen', 5, _RC)
+      call file_metadata%add_dimension('Xdim', im_world, _RC)
+      call file_metadata%add_dimension('Ydim', im_world, _RC)
+      call file_metadata%add_dimension('XCdim', im_world+1, _RC)
+      call file_metadata%add_dimension('YCdim', im_world+1, _RC)
+      call file_metadata%add_dimension('nf', nf, _RC)
+      call file_metadata%add_dimension('ncontact', ncontact, _RC)
+      call file_metadata%add_dimension('orientationStrLen', 5, _RC)
 
       ! Coordinate variables
       v = Variable(type=PFIO_REAL64, dimensions='Xdim')
       call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_east')
-      temp_coords = this%get_fake_longitudes()
-      call metadata%add_variable('Xdim', CoordinateVariable(v, temp_coords))
+      !temp_coords = this%get_fake_longitudes()
+      call file_metadata%add_variable('Xdim', CoordinateVariable(v, temp_coords))
       deallocate(temp_coords)
 
       v = Variable(type=PFIO_REAL64, dimensions='Ydim')
       call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_north')
-      temp_coords = this%get_fake_latitudes()
-      call metadata%add_variable('Ydim', CoordinateVariable(v, temp_coords))
+      !temp_coords = this%get_fake_latitudes()
+      call file_metadata%add_variable('Ydim', CoordinateVariable(v, temp_coords))
       deallocate(temp_coords)
 
       v = Variable(type=PFIO_INT32, dimensions='nf')
@@ -260,12 +260,12 @@ contains
       call v%add_attribute('axis','e')
       call v%add_attribute('grads_dim','e')
       call v%add_const_value(UnlimitedEntity([1,2,3,4,5,6]))
-      call metadata%add_variable('nf',v)
+      call file_metadata%add_variable('nf',v)
 
       v = Variable(type=PFIO_INT32, dimensions='ncontact')
       call v%add_attribute('long_name','number of contact points')
       call v%add_const_value(UnlimitedEntity([1,2,3,4]))
-      call metadata%add_variable('ncontact',v)
+      call file_metadata%add_variable('ncontact',v)
       ! Other variables
       allocate(ivar(4,6))
       ivar = reshape( [5, 3, 2, 6, &
@@ -277,7 +277,7 @@ contains
       v = Variable(type=PFIO_INT32, dimensions='ncontact,nf')
       call v%add_attribute('long_name', 'adjacent face starting from left side going clockwise')
       call v%add_const_value(UnlimitedEntity(ivar))
-      call metadata%add_variable('contacts', v)      !!! At present pfio does not seem to work with string variables
+      call file_metadata%add_variable('contacts', v)      !!! At present pfio does not seem to work with string variables
       !!! allocate(cvar(4,6))
       !!! cvar =reshape([" Y:-X", " X:-Y", " Y:Y ", " X:X ", &
       !!!                " Y:Y ", " X:X ", " Y:-X", " X:-Y", &
@@ -288,7 +288,7 @@ contains
       !!! v = Variable(type=PFIO_STRING, dimensions='orientationStrLen,ncontact,nf')
       !!! call v%add_attribute('long_name', 'orientation of boundary')
       !!! call v%add_const_value(UnlimitedEntity(cvar))
-      !!! call metadata%add_variable('orientation', v)
+      !!! call file_metadata%add_variable('orientation', v)
 
       im = im_world
       allocate(ivar2(4,4,6))
@@ -320,38 +320,38 @@ contains
       v = Variable(type=PFIO_INT32, dimensions='ncontact,ncontact,nf')
       call v%add_attribute('long_name', 'anchor point')
       call v%add_const_value(UnlimitedEntity(ivar2))
-      call metadata%add_variable('anchor', v)
+      call file_metadata%add_variable('anchor', v)
 
-      call Metadata%add_attribute('grid_mapping_name', 'gnomonic cubed-sphere')
-      call Metadata%add_attribute('file_format_version', '2.92')
-      call Metadata%add_attribute('additional_vars', 'contacts,orientation,anchor')
+      call file_metadata%add_attribute('grid_mapping_name', 'gnomonic cubed-sphere')
+      call file_metadata%add_attribute('file_format_version', '2.92')
+      call file_metadata%add_attribute('additional_vars', 'contacts,orientation,anchor')
       write(gridspec_file_name,'("C",i0,"_gridspec.nc4")') im_world
-      call Metadata%add_attribute('gridspec_file', trim(gridspec_file_name))
+      call file_metadata%add_attribute('gridspec_file', trim(gridspec_file_name))
 
       v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf')
       call v%add_attribute('long_name','longitude')
       call v%add_attribute('units','degrees_east')
-      call metadata%add_variable('lons',v)
+      call file_metadata%add_variable('lons',v)
 
       v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf')
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
-      call metadata%add_variable('lats',v)
+      call file_metadata%add_variable('lats',v)
 
       v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim,nf')
       call v%add_attribute('long_name','longitude')
       call v%add_attribute('units','degrees_east')
-      call metadata%add_variable('corner_lons',v)
+      call file_metadata%add_variable('corner_lons',v)
 
       v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim,nf')
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
-      call metadata%add_variable('corner_lats',v)
+      call file_metadata%add_variable('corner_lats',v)
 
       if (is_stretched) then
-         call metadata%add_attribute('STRETCH_FACTOR',schmidt_parameters%stretch_factor)
-         call metadata%add_attribute('TARGET_LON',schmidt_parameters%target_lon_degrees)
-         call metadata%add_attribute('TARGET_LAT',schmidt_parameters%target_lat_degrees)
+         call file_metadata%add_attribute('STRETCH_FACTOR',schmidt_parameters%stretch_factor)
+         call file_metadata%add_attribute('TARGET_LON',schmidt_parameters%target_lon)
+         call file_metadata%add_attribute('TARGET_LAT',schmidt_parameters%target_lat)
       end if
 
 
