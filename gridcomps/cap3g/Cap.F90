@@ -17,11 +17,12 @@ module mapl3g_Cap
 contains
 
 
-   subroutine MAPL_run_driver(hconfig, is_model_pet, unusable, rc)
+   subroutine MAPL_run_driver(hconfig, is_model_pet, unusable, servers, rc)
       USE MAPL_ApplicationSupport
       type(ESMF_HConfig), intent(inout) :: hconfig
       logical, intent(in) :: is_model_pet
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_GridComp), optional, intent(in) :: servers(:)
       integer, optional, intent(out) :: rc
 
       type(GriddedComponentDriver) :: driver
