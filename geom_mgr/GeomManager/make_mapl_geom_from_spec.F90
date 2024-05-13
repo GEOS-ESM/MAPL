@@ -1,0 +1,51 @@
+#include "MAPL_Generic.h"
+
+submodule (mapl3g_GeomManager) make_mapl_geom_from_spec_smod
+   use mapl3g_GeomSpec
+   use mapl3g_NullGeomSpec
+   use mapl3g_MaplGeom
+   use mapl3g_GeomFactory
+   use mapl3g_GeomFactoryVector
+   use mapl3g_GeomSpecVector
+   use mapl3g_IntegerMaplGeomMap
+   use mapl_ErrorHandlingMod
+   use pfio_FileMetadataMod
+   use esmf
+   use gftl2_IntegerVector
+   implicit none
+
+contains
+   
+   module function make_mapl_geom_from_spec(this, spec, rc) result(mapl_geom)
+      use gftl2_StringVector
+      type(MaplGeom) :: mapl_geom
+      class(GeomManager), target, intent(inout) :: this
+      class(GeomSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+
+      class(GeomFactory), pointer :: factory
+      integer :: status
+      integer :: i
+      type(ESMF_Geom) :: geom
+      type(FileMetadata) :: file_metadata
+      type(StringVector) :: gridded_dims
+      logical :: found
+
+      found = .false.
+      do i = 1, this%factories%size()
+         factory => this%factories%of(i)
+         if (.not. factory%supports(spec)) cycle
+         found = .true.
+         exit
+      end do
+      _ASSERT(found, 'No factory supports spec.')
+
+      geom = factory%make_geom(spec, _RC)
+      file_metadata = factory%make_file_metadata(spec, _RC)
+      gridded_dims = factory%make_gridded_dims(spec, _RC)
+      mapl_geom = MaplGeom(spec=spec, geom=geom, factory=factory, file_metadata=file_metadata, gridded_dims=gridded_dims)
+
+      _RETURN(_SUCCESS)
+   end function make_mapl_geom_from_spec
+
+end submodule make_mapl_geom_from_spec_smod
