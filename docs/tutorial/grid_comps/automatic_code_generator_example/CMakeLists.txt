@@ -4,7 +4,7 @@ set (srcs
     ACG_GridComp.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL TYPE SHARED)
 
 target_link_libraries(${this} PRIVATE ESMF::ESMF)
 
