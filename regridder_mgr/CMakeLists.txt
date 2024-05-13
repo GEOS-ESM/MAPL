@@ -30,7 +30,7 @@ set(srcs
 esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.geom_mgr MAPL.pfio MAPL.base MAPL.shared MAPL.field_utils GFTL::gftl-v2
-  TYPE ${MAPL_LIBRARY_TYPE}
+  TYPE SHARED
   )
 
 target_include_directories (${this} PUBLIC

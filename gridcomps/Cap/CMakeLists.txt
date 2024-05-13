@@ -12,7 +12,7 @@ endif()
 
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.profiler MAPL.history
-                  MAPL.ExtData ${EXTDATA2G_TARGET} TYPE ${MAPL_LIBRARY_TYPE})
+                  MAPL.ExtData ${EXTDATA2G_TARGET} TYPE SHARED)
 # We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
 # interfaces (e.g. MPI) that allow multiple types for the same argument (eg buffer).
 if (DUSTY)
