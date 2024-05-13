@@ -13,7 +13,7 @@ submodule (mapl3g_CubedSphereGeomFactory) CubedSphereGeomFactory_smod
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    implicit none
-
+   real(ESMF_TypeKind_R8) :: undef_schmit = 1d15
 
 contains
 
@@ -123,37 +123,36 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(LonAxis) :: lon_axis
-      type(LatAxis) :: lat_axis
+      integer :: status, im_world, ntiles, i
       type(CubedSphereDecomposition) :: decomp
+      type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
+      logical :: is_stretched
+      integer, allocatable :: ims(:,:), jms(:,:), face_ims(:), face_jms(:)
 
-      lon_axis = spec%get_lon_axis()
-      lat_axis = spec%get_lat_axis()
+      ntiles = 6
+
       decomp = spec%get_decomposition()
+      schmidt_parameters = spec%get_schmidt_parameters
+      im_world = spec%get_im_world
+      is_stretched = All(schmidt_parameters = undef_schmit)
+      face_ims = decomp%get_x_distribution()
+      face_jms = decomp%get_y_distribution()
+      allocate(ims(ntiles,size(face_ims)))
+      allocate(ims(ntiles,size(face_jms)))
+      do i=1,ntiles
+         ims(:,i) = face_ims 
+         hms(:,i) = face_jms 
+      enddo
 
-      if (lon_axis%is_periodic()) then
-         grid = ESMF_GridCreate1PeriDim( &
-              & countsPerDEDim1=decomp%get_lon_distribution(), &
-              & countsPerDEDim2=decomp%get_lat_distribution(), &
-              & indexFlag=ESMF_INDEX_DELOCAL, &
-              & gridEdgeLWidth=[0,0], &
-              & gridEdgeUWidth=[0,1], &
-              & coordDep1=[1,2], &
-              & coordDep2=[1,2], &
-              & coordSys=ESMF_COORDSYS_SPH_RAD, &
-              & _RC)
-       else
-         grid = ESMF_GridCreateNoPeriDim( &
-              & countsPerDEDim1=decomp%get_lon_distribution(), &
-              & countsPerDEDim2=decomp%get_lat_distribution(), &
-              & indexFlag=ESMF_INDEX_DELOCAL, &
-              & gridEdgeLWidth=[0,0], &
-              & gridEdgeUWidth=[1,1], &
-              & coordDep1=[1,2], &
-              & coordDep2=[1,2], &
-              & coordSys=ESMF_COORDSYS_SPH_RAD, &
-              & _RC)
+      if (is_stretched) then
+         grid = ESMF_GridCreateCubedSPhere(this%im_world,countsPerDEDim1PTile=ims, &
+            countsPerDEDim2PTile=jms  &
+            staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, &
+            transformArgs=schmidt_parameters, _RC)
+      else
+         grid = ESMF_GridCreateCubedSPhere(this%im_world,countsPerDEDim1PTile=ims, &
+            countsPerDEDim2PTile=jms, &
+            staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
       end if
 
       ! Allocate coords at default stagger location

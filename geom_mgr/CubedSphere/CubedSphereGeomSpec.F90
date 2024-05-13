@@ -3,10 +3,9 @@
 module mapl3g_CubedSphereGeomSpec
    use mapl3g_GeomSpec
    use mapl3g_CubedSphereDecomposition
-   use mapl3g_LonAxis
-   use mapl3g_LatAxis
-   use esmf, only: ESMF_KIND_R8
+   use esmf, only: ESMF_KIND_R8, ESMF_CubedSphereTransform_Args
    implicit none
+   real(kind=ESMF_Kind_R8) :: undef_schmit = 1d15
    private
 
    public :: CubedSphereGeomSpec
@@ -15,6 +14,8 @@ module mapl3g_CubedSphereGeomSpec
    type, extends(GeomSpec) :: CubedSphereGeomSpec
       private
       integer :: im_world
+      type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
+      type(CubedSphereDecomposition) :: decomposition  
       
    contains
       ! mandatory interface
@@ -26,6 +27,9 @@ module mapl3g_CubedSphereGeomSpec
       generic :: supports => supports_hconfig, supports_metadata
 
       ! Accessors
+      procedure :: get_decomposition
+      procedure :: get_im_world
+      procedure :: get_schmidt_parameters
    end type CubedSphereGeomSpec
 
    interface CubedSphereGeomSpec
@@ -37,19 +41,15 @@ module mapl3g_CubedSphereGeomSpec
       procedure make_CubedSphereGeomSpec_from_metadata
    end interface make_CubedSphereGeomSpec
 
-!#   interface get_coordinates
-!#      procedure get_coordinates_try
-!#   end interface get_coordinates
-!#
    integer, parameter :: R8 = ESMF_KIND_R8
 
 interface
 
       ! Basic constructor for CubedSphereGeomSpec
-      module function new_CubedSphereGeomSpec(lon_axis, lat_axis, decomposition) result(spec)
+      module function new_CubedSphereGeomSpec(im_world, schmidt_parameters, decomposition) result(spec)
          type(CubedSphereGeomSpec) :: spec
-         type(LonAxis), intent(in) :: lon_axis
-         type(LatAxis), intent(in) :: lat_axis
+         integer, intent(in) :: im_world
+         type(ESMF_CubedSphereTransform_Args), intent(in) :: schmidt_parameters
          type(CubedSpheredecomposition), intent(in) :: decomposition
       end function new_CubedSphereGeomSpec
 
@@ -94,6 +94,22 @@ interface
          type(FileMetadata), intent(in) :: file_metadata
          integer, optional, intent(out) :: rc
       end function supports_metadata_
+
+      ! Accessors
+      pure module function get_decomposition(spec) result(decomposition)
+         type(CubedSphereDecomposition) :: decomposition
+         class(CubedSphereGeomSpec), intent(in) :: spec
+      end function get_decomposition
+
+      pure module function get_im_world(spec) result(im_world)
+         integer :: im_world
+         class(CubedSphereGeomSpec), intent(in) :: spec
+      end function get_im_world
+
+      pure module function get_schmidt_parameters(spec) result(schmidt_parameters)
+         type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
+         class(CubedSphereGeomSpec), intent(in) :: spec
+      end function get_schmidt_parameters
 
    end interface
 

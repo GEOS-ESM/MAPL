@@ -33,6 +33,7 @@ add_subdirectory(CoordinateAxis)
 add_subdirectory(latlon)
 add_subdirectory(GeomManager)
 add_subdirectory(VectorBasis)
+add_subdirectory(CubedSphere)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

@@ -9,19 +9,20 @@ submodule (mapl3g_CubedSphereGeomSpec) CubedSphereGeomSpec_smod
    use mapl_ErrorHandling
    use esmf
    implicit none
+   real(ESMF_Kind_R8) :: undef_schmit = 1d15
    
 contains
 
 
    ! Basic constructor for CubedSphereGeomSpec
-   module function new_CubedSphereGeomSpec(lon_axis, lat_axis, decomposition) result(spec)
+   module function new_CubedSphereGeomSpec(im_world, schmidt_parameters, decomposition) result(spec)
       type(CubedSphereGeomSpec) :: spec
-      type(LonAxis), intent(in) :: lon_axis
-      type(LatAxis), intent(in) :: lat_axis
+      integer, intent(in) :: im_world
+      type(ESMF_CubedSphereTransform_Args :: schmidt_parameters
       type(CubedSphereDecomposition), intent(in) :: decomposition
       
-      spec%lon_axis = lon_axis
-      spec%lat_axis = lat_axis
+      spec%im_world = im_world
+      spec%schmidt_parameters = schmidt_parameters
       spec%decomposition = decomposition
       
    end function new_CubedSphereGeomSpec
@@ -33,9 +34,11 @@ contains
 
       select type (b)
       type is (CubedSphereGeomSpec)
-         equal_to = (a%lon_axis == b%lon_axis) .and. (a%lat_axis == b%lat_axis)
+         equal_to = (a%im_world== b%im_world)
          if (.not. equal_to) return
          equal_to = (a%decomposition == b%decomposition)
+         if (.not. equal_to) return
+         equal_to = (a%schmidt_parameters== b%schmidt_parameters)
       class default
          equal_to = .false.
       end select
@@ -49,22 +52,49 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
-      logical :: is_regional
       integer :: status
+      logical :: found
 
-      spec%lon_axis = make_LonAxis(hconfig, _RC)
-      spec%lat_axis = make_LatAxis(hconfig, _RC)
-      associate (im => spec%lon_axis%get_extent(), jm => spec%lat_axis%get_extent())
-        spec%decomposition = make_Decomposition(hconfig, dims=[im,jm], _RC)
-      end associate
+      spec%im_world = ESMF_HConfigAsI4(hconfig, keyString='im_world', asOkay=found, _RC)
+      _ASSERT(found, '"im_world" not found.') 
+      spec%decomposition = make_Decomposition(hconfig, cube_size=im_world, _RC)
+      spec%schmidt_parameters = make_SchmidtParameters_from_hconfig(hconfig, _RC)
 
       _RETURN(_SUCCESS)
    end function make_CubedSphereGeomSpec_from_hconfig
 
-   function make_decomposition(hconfig, dims, rc) result(decomp)
+   function make_SchmidtParameters_from_hconfig(hconfig, rc) result(schmidt_parameters)
+      type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      logical :: is_stretched
+      is_stretched = ESMF_HConfigIsDefined(hconfig, keystring='stretch_factor', _RC)
+      if (is_stretched) then
+         schmdit_parameters%stretch_factor = ESMF_HConfigAsR8(hconfig, keystring='stretch_factor' ,_RC)
+      end if
+      is_stretched = ESMF_HConfigIsDefined(hconfig, keystring='target_lon', _RC)
+      if (is_stretched) then
+         schmdit_parameters%target_lon = ESMF_HConfigAsR8(hconfig, keystring='target_lon' ,_RC)
+      end if
+      is_stretched = ESMF_HConfigIsDefined(hconfig, keystring='target_lat', _RC)
+      if (is_stretched) then
+         schmdit_parameters%target_lat = ESMF_HConfigAsR8(hconfig, keystring='target_lat' ,_RC)
+      end if
+      if (.not. is_stretched) then
+         schmidt_parameters%stretch_factor = undef_schmit 
+         schmidt_parameters%target_lon= undef_schmit 
+         schmidt_parameters%target_lat= undef_schmit 
+      end if
+      _RETURN(_SUCCESS)
+
+   end function make_SchmidtParameters_from_hconfig
+
+   function make_decomposition(hconfig, cube_size, rc) result(decomp)
       type(CubedSphereDecomposition) :: decomp
       type(ESMF_HConfig), intent(in) :: hconfig
-      integer, intent(in) :: dims(2)
+      integer, intent(in) :: cube_size
       integer, optional, intent(out) :: rc
       integer, allocatable :: ims(:), jms(:)
       integer :: nx, ny
@@ -90,7 +120,7 @@ contains
       if (has_nx) then
          nx = ESMF_HConfigAsI4(hconfig, keyString='nx', _RC)
          ny = ESMF_HConfigAsI4(hconfig, keyString='ny', _RC)
-         decomp = CubedSphereDecomposition(dims, topology=[nx, ny])
+         decomp = CubedSphereDecomposition([cube_size,cube_size], topology=[nx, ny])
          _RETURN(_SUCCESS)
       end if
 
@@ -100,39 +130,6 @@ contains
       _RETURN(_SUCCESS)
    end function make_decomposition
 
-!#   module function get_distribution(hconfig, m_world, key_npes, key_distribution, rc) result(distribution)
-!#      integer, allocatable :: distribution(:)
-!#      type(ESMF_HConfig), intent(in) :: hconfig
-!#      integer, intent(in) :: m_world
-!#      character(len=*), intent(in) :: key_npes
-!#      character(len=*), intent(in) :: key_distribution
-!#      integer, optional, intent(out) :: rc
-!#
-!#      integer :: status
-!#      integer :: nx
-!#      integer, allocatable :: ims(:)
-!#      logical :: has_distribution
-!#
-!#      call MAPL_GetResource(nx, hconfig, key_npes, _RC)
-!#      _ASSERT(nx > 0, key_npes // ' must be greater than 0.')
-!#
-!#      has_distribution = ESMF_HConfigIsDefined(hconfig, keystring=key_distribution, _RC)
-!#      if (has_distribution) then
-!#         call MAPL_GetResource(ims, hconfig, key_distribution, _RC)
-!#         _ASSERT(size(ims) == nx, 'inconsistent processor distribution')
-!#         _ASSERT(sum(ims) == m_world, 'Requested pe distribution inconsistent with grid resolution.')
-!#      else
-!#         allocate(ims(nx))
-!#         call MAPL_DecomposeDim(m_world, ims, nx, min_DE_extent=2)
-!#      end if
-!#
-!#      distribution = ims
-!#      
-!#      _RETURN(_SUCCESS)
-!#   end function get_distribution
-!#
-  
-   ! File metadata section
 
    ! Unfortunately, we cannot quite compute each axis (lat - lon) independently,
    ! as the optimal decomposition depends on the ratio of the extens along each
@@ -142,53 +139,37 @@ contains
       type(FileMetadata), intent(in) :: file_metadata
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(LonAxis) :: lon_axis
-      type(LatAxis) :: lat_axis
-      type(CubedSphereDecomposition) :: decomposition
+      integer :: status, im_world
+      type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
+      type(CubedSphereDecomposition) :: decomposition 
 
-      lon_axis = make_LonAxis(file_metadata, _RC)
-      lat_axis = make_LatAxis(file_metadata, _RC)
-
-      associate (im_world => lon_axis%get_extent(), jm_world => lat_axis%get_extent())
-        decomposition = make_CubedSphereDecomposition([im_world, jm_world], _RC)
-      end associate
-      spec = CubedSphereGeomSpec(lon_axis, lat_axis, decomposition)
+      _FAIL("not implemented")
+      spec = CubedSphereGeomSpec(im_world, schmidt_parameters, decomposition)
       
       _RETURN(_SUCCESS)
    end function make_CubedSphereGeomSpec_from_metadata
 
-   module function make_distribution(im, nx) result(distribution)
-      integer, allocatable :: distribution(:)
-      integer, intent(in) :: im, nx
-
-      allocate(distribution(nx))
-      call MAPL_DecomposeDim(im, distribution, nx, min_DE_extent=2)
-
-   end function make_distribution
-
-
-
    ! Accessors
-   pure module function get_lon_axis(spec) result(axis)
-      class(CubedSphereGeomSpec), intent(in) :: spec
-      type(LonAxis) :: axis
-      axis = spec%lon_axis
-   end function get_lon_axis
-
-   pure module function get_lat_axis(spec) result(axis)
-      class(CubedSphereGeomSpec), intent(in) :: spec
-      type(LatAxis) :: axis
-      axis = spec%lat_axis
-   end function get_lat_axis
-
-
    pure module function get_decomposition(spec) result(decomposition)
       type(CubedSphereDecomposition) :: decomposition
       class(CubedSphereGeomSpec), intent(in) :: spec
 
       decomposition = spec%decomposition
    end function get_decomposition
+
+   pure module function get_im_world(spec) result(im_world)
+      integer :: im_world
+      class(CubedSphereGeomSpec), intent(in) :: spec
+
+      im_world = spec%im_world
+   end function get_im_world
+
+   pure module function get_schmidt_parameters(spec) result(schmidt_parameters)
+      type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
+      class(CubedSphereGeomSpec), intent(in) :: spec
+
+      schmidt_parameters = spec%schmidt_parameters
+   end function get_schmidt_parameters
 
    logical module function supports_hconfig_(this, hconfig, rc) result(supports)
       class(CubedSphereGeomSpec), intent(in) :: this
@@ -208,12 +189,6 @@ contains
       supports = (geom_class == 'CubedSphere')
       _RETURN_UNLESS(supports)
       
-      supports = lon_axis%supports(hconfig, _RC)
-      _RETURN_UNLESS(supports)
-
-      supports = lat_axis%supports(hconfig, _RC)
-      _RETURN_UNLESS(supports)
-
       _RETURN(_SUCCESS)
    end function supports_hconfig_
 
@@ -228,11 +203,9 @@ contains
 
       supports = .false.
 
-      supports = lon_axis%supports(file_metadata, _RC)
-      _RETURN_UNLESS(supports)
+      !supports = lon_axis%supports(file_metadata, _RC)
+      !_RETURN_UNLESS(supports)
 
-      supports = lat_axis%supports(file_metadata, _RC)
-      _RETURN_UNLESS(supports)
 
       _RETURN(_SUCCESS)
    end function supports_metadata_
