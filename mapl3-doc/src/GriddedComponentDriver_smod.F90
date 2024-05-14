@@ -78,6 +78,8 @@ contains
 
       end associate
 
+      call ESMF_GridCompDestroy(this%gridcomp, _RC)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine finalize
@@ -145,6 +147,7 @@ contains
       end associate
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine run_export_couplers
 
    module subroutine clock_advance(this, rc)
