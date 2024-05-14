@@ -16,7 +16,7 @@ endif ()
 esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.shared PFLOGGER::pflogger
-  TYPE ${MAPL_LIBRARY_TYPE}
+  TYPE SHARED
   )
 
 target_include_directories (${this} PUBLIC

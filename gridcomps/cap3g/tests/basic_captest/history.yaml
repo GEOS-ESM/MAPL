@@ -17,14 +17,20 @@ active_collections:
   - coll1
   - coll2
 
+time_specs:
+  three_hour: &three_hour
+    frequency: PT3H
+
 collections:
   coll1:
+    template: "%c_%y4%m2$d2_%h2.nc4"
     geom: *geom1
-    time_spec: {}
+    time_spec: *three_hour
     var_list:
       E1: {expr: E_1}
   coll2:
+    template: "%c_%y4%m2$d2_%h2.nc4"
     geom: *geom2
-    time_spec: {}
+    time_spec: *three_hour
     var_list:
       E2: {expr: E_2}

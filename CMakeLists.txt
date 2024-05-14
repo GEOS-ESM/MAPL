@@ -61,14 +61,6 @@ endif ()
 # This tells cmake to assume MAPL's cmake directory is the first place to look
 list (PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-option (BUILD_SHARED_MAPL "Build shared MAPL libraries" ON)
-if (BUILD_SHARED_MAPL)
-  set (MAPL_LIBRARY_TYPE SHARED)
-else ()
-  set (MAPL_LIBRARY_TYPE STATIC)
-endif()
-message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
-
 # Some users of MAPL build GFE libraries inline with their application
 # using an add_subdirectory() call rather than as a pre-build library.
 # This would then populate the target already leading to find_package()
@@ -227,6 +219,7 @@ add_subdirectory (MAPL)
 add_subdirectory (mapl3g)
 add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
+add_subdirectory (GeomIO)
 if (BUILD_WITH_FARGPARSE)
    add_subdirectory (docs)
    add_subdirectory (benchmarks)
