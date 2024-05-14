@@ -137,8 +137,8 @@ contains
       not_stretched = .not. is_stretched_cube(schmidt_parameters) 
       face_ims = decomp%get_x_distribution()
       face_jms = decomp%get_y_distribution()
-      allocate(ims(ntiles,size(face_ims)))
-      allocate(ims(ntiles,size(face_jms)))
+      allocate(ims(size(face_ims),ntiles))
+      allocate(jms(size(face_jms),ntiles))
       do i=1,ntiles
          ims(:,i) = face_ims 
          jms(:,i) = face_jms 
@@ -154,10 +154,6 @@ contains
             staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, &
             transformArgs=schmidt_parameters, _RC)
       end if
-
-      ! Allocate coords at default stagger location
-      call ESMF_GridAddCoord(grid, _RC)
-      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
       
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -222,7 +218,7 @@ contains
 
       real(REAL64), allocatable :: temp_coords(:)
 
-      integer :: status
+      integer :: status, i
       integer, parameter :: ncontact = 4
       type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
       integer, parameter :: nf = 6
@@ -244,14 +240,14 @@ contains
       v = Variable(type=PFIO_REAL64, dimensions='Xdim')
       call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_east')
-      !temp_coords = this%get_fake_longitudes()
+      temp_coords = [(i,i=1,im_world)]
       call file_metadata%add_variable('Xdim', CoordinateVariable(v, temp_coords))
       deallocate(temp_coords)
 
       v = Variable(type=PFIO_REAL64, dimensions='Ydim')
       call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_north')
-      !temp_coords = this%get_fake_latitudes()
+      temp_coords = [(i,i=1,im_world)] 
       call file_metadata%add_variable('Ydim', CoordinateVariable(v, temp_coords))
       deallocate(temp_coords)
 

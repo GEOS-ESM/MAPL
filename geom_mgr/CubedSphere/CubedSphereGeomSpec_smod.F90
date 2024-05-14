@@ -38,10 +38,20 @@ contains
          if (.not. equal_to) return
          equal_to = (a%decomposition == b%decomposition)
          if (.not. equal_to) return
-         equal_to = (a%schmidt_parameters== b%schmidt_parameters)
+         equal_to = equal_schmidt(a%schmidt_parameters,b%schmidt_parameters)
       class default
          equal_to = .false.
       end select
+
+      contains
+      pure logical function equal_schmidt(a,b)
+         type(ESMF_CubedSphereTransform_Args), intent(in) :: a
+         type(ESMF_CubedSphereTransform_Args), intent(in) :: b
+
+         equal_schmidt = (a%target_lat /= b%target_lat) .and. &
+                        (a%target_lon /= b%target_lon) .and. &
+                        (a%stretch_factor /= b%stretch_factor)
+      end function equal_schmidt
 
    end function equal_to
 
@@ -125,7 +135,7 @@ contains
       end if
 
       ! Invent a decomposition
-      decomp = make_CubedSphereDecomposition(dims, _RC)
+      decomp = make_CubedSphereDecomposition([cube_size,cube_size], _RC)
       
       _RETURN(_SUCCESS)
    end function make_decomposition
