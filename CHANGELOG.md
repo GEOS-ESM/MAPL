@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removes backward compatibility for MAPL_FargparseCLI functions. Only accepts function usage in which the result is of
   MAPL_CapOptions type.
 - Remove FLAP support.
+- Remove `BUILD_SHARED_MAPL` CMake option. MAPL3 is now always built as a shared library.
 
 ### Added
 
@@ -42,9 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Now gives the name of the timer that has not been stopped when
   finalizing a profiler.
 - Changed all ESMF_AttributeGet and ESMF_AttributeSet to ESMF_InfoGet and ESMF_InfoSet respectively as old calls will be deprecated soon.
-- Updated `components.yaml`
-  - ESMA_env v4.0.0 (Baselibs 7, new yaFyaml interfaces)
-- Updated CI to use Baselibs 7
 - Update executables using FLAP to use fArgParse
 - Update `Findudunits.cmake` to link with libdl and look for the `udunits2.xml` file (as some MAPL tests require it)
 
@@ -62,17 +60,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-### Changed
+- Add GNU UFS-like CI test
 
-- Update `components.yaml`
-  - ESMA_cmake v3.45.1
-    - Fix bug in meson detection
+### Changed
 
 ### Fixed
 
 ### Removed
 
 ### Deprecated
+
+## [2.46.1] - 2024-05-10
+
+## Fixed
+
+- Update `components.yaml` to avoid f2py error with python 3.11
+  - ESMA_cmake v3.45.1
+    - Fix bug in meson detection
 
 ## [2.46.0] - 2024-05-02
 

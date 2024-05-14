@@ -57,13 +57,15 @@ endif ()
 esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.regridder_mgr MAPL.geom_mgr MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
-  TYPE ${MAPL_LIBRARY_TYPE}
+  TYPE SHARED
   )
 add_subdirectory(specs)
 add_subdirectory(registry)
 add_subdirectory(connection)
 add_subdirectory(actions)
 add_subdirectory(couplers)
+add_subdirectory(ComponentSpecParser)
+add_subdirectory(ESMF_HConfigUtilities)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

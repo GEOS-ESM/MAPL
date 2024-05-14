@@ -7,26 +7,12 @@ set(srcs
   GeomSpec.F90
   NullGeomSpec.F90
   MaplGeom.F90
-  MaplGeom_smod.F90
 
   GeomFactory.F90
 
   CoordinateAxis.F90
-  CoordinateAxis_smod.F90
-
-  latlon/LonAxis.F90
-  latlon/LonAxis_smod.F90
-  latlon/LatAxis.F90
-  latlon/LatAxis_smod.F90
-  latlon/LatLonDecomposition.F90
-  latlon/LatLonDecomposition_smod.F90
-  latlon/LatLonGeomSpec.F90
-  latlon/LatLonGeomSpec_smod.F90
-  latlon/LatLonGeomFactory.F90
-  latlon/LatLonGeomFactory_smod.F90
 
   GeomManager.F90
-  GeomManager_smod.F90
 
 # gFTL containers
   GeomFactoryVector.F90
@@ -34,14 +20,19 @@ set(srcs
   IntegerMaplGeomMap.F90
 
   VectorBasis.F90
-  VectorBasis_smod.F90
   )
 
 esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.pfio MAPL.base MAPL.shared MAPL.field_utils MAPL.hconfig_utils GFTL::gftl-v2
-  TYPE ${MAPL_LIBRARY_TYPE}
+  TYPE SHARED
   )
+
+add_subdirectory(MaplGeom)
+add_subdirectory(CoordinateAxis)
+add_subdirectory(latlon)
+add_subdirectory(GeomManager)
+add_subdirectory(VectorBasis)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

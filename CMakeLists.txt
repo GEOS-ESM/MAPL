@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.45.0
+  VERSION 2.46.1
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -60,14 +60,6 @@ endif ()
 
 # This tells cmake to assume MAPL's cmake directory is the first place to look
 list (PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-
-option (BUILD_SHARED_MAPL "Build shared MAPL libraries" ON)
-if (BUILD_SHARED_MAPL)
-  set (MAPL_LIBRARY_TYPE SHARED)
-else ()
-  set (MAPL_LIBRARY_TYPE STATIC)
-endif()
-message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 
 # Some users of MAPL build GFE libraries inline with their application
 # using an add_subdirectory() call rather than as a pre-build library.
