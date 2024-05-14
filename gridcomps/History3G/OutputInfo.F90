@@ -2,7 +2,7 @@
 module mapl3g_output_info
 
    use mapl3g_ungridded_dim_info
-   use esmf, only: ESMF_Info, ESMF_InfoGet, ESMF_InfoGetCharAlloc
+   use esmf, only: ESMF_Info, ESMF_InfoGet, ESMF_InfoGetCharAlloc, ESMF_InfoCreate, ESMF_InfoDestroy
    use Mapl_ErrorHandling
 
    implicit none
@@ -21,7 +21,7 @@ module mapl3g_output_info
    end type OutputInfo
 
    interface OutputInfo
-      module procedure :: construct_object
+      module procedure :: construct_output_info
    end interface OutputInfo
 
    interface operator(<)
@@ -33,33 +33,42 @@ module mapl3g_output_info
    end interface
 
    character(len=*), parameter :: PREFIX = 'MAPL/'
+   character(len=*), parameter :: KEY_UNGRID_DIM = PREFIX // 'ungridded_dims'
+   character(len=*), parameter :: KEY_VERT_DIM = PREFIX // 'vertical_dim'
+   character(len=*), parameter :: KEY_VERT_GEOM = PREFIX // 'vertical_geom'
+   character(len=*), parameter :: KEY_UNITS = PREFIX // 'units'
+   character(len=*), parameter :: KEY_VLOC = 'vloc'
+   character(len=*), parameter :: KEY_NUM_LEVELS = 'num_levels'
 
 contains
 
-   function construct_object(info, rc) result(obj)
+   function construct_output_info(info, rc) result(obj)
       type(OutputInfo) :: obj
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
       integer :: status
-      integer :: num_levels, num_ungridded
+      integer :: num_levels
       character(len=:), allocatable :: vloc
+      type(ESMF_Info) :: inner_info
 
-      call ESMF_InfoGet(info, PREFIX // 'num_levels', num_levels, _RC)
-      _HERE, 'num_levels = ', num_levels
-      call ESMF_InfoGetCharAlloc(info, PREFIX // 'vloc', vloc, _RC)
-      _HERE, 'vloc = ', vloc
-      call ESMF_InfoGet(info, PREFIX // 'num_ungridded', num_ungridded, _RC)
-      _HERE, 'num_ungridded = ', num_ungridded
+      inner_info = ESMF_InfoCreate(info, key=KEY_UNGRID_DIM, _RC)
+      obj%ungridded_dims = UngriddedDimsInfo(inner_info, _RC)
+      call ESMF_InfoDestroy(inner_info, _RC)
 
-      obj%num_levels = num_levels
+      inner_info = ESMF_InfoCreate(info, key=KEY_VERT_DIM, _RC)
+      call ESMF_InfoGetCharAlloc(inner_info, key=KEY_VLOC, value=vloc, _RC)
       obj%vloc = vloc
-      obj%ungridded_dims = UngriddedDimsInfo(info, _RC)
-      _ASSERT(size(obj%ungridded_dims) == num_ungridded, 'Size of ungridded_dims does not match num_ungridded info.')
+      call ESMF_InfoDestroy(inner_info, _RC)
 
-      _HERE, 'Exiting construct_object'
+      inner_info = ESMF_InfoCreate(info, key=KEY_VERT_GEOM, _RC)
+      call ESMF_InfoGet(inner_info, key=KEY_NUM_LEVELS, value=num_levels, _RC)
+      obj%num_levels = num_levels
+      call ESMF_InfoDestroy(inner_info, _RC)
+
+      _HERE, 'Exiting construct_output_info'
       _RETURN(_SUCCESS)
 
-   end function construct_object
+   end function construct_output_info
 
    integer function num_ungridded(this)
       class(OutputInfo), intent(in) :: this

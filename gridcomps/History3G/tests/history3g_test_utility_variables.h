@@ -1,5 +1,5 @@
 
-   character(len=*), parameter :: PREFIX = 'MAPL/G1/'
+   character(len=*), parameter :: PREFIX = 'MAPL/'
    integer, parameter :: NUM_LEVELS = 3
    character(len=*), parameter :: VLOC = 'VERTICAL_DIM_CENTER'
    integer, parameter :: NUM_UNGRIDDED = 3

@@ -14,7 +14,7 @@ contains
 
 #include "history3g_test_utility_procedures.h"
 
-   !@Test
+   @Test
    subroutine test_insert()
       type(ESMF_Info) :: info
       type(OutputInfo) :: outinfo1, outinfo2, outinfo3
@@ -22,7 +22,7 @@ contains
       integer :: status
 
       info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, PREFIX, NUM_LEVELS, VLOC, NUM_UNGRIDDED, _RC)
+      call make_esmf_info(info, NUM_LEVELS, VLOC, NUM_UNGRIDDED, _RC)
       outinfo1 = OutputInfo(info, _RC)
       call ESMF_InfoDestroy(info)
       outinfo_set = OutputInfoSet()
@@ -30,7 +30,7 @@ contains
       call outinfo_set%insert(outinfo1)
 
       info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, PREFIX, NUM_LEVELS+1, VLOC, NUM_UNGRIDDED, _RC)
+      call make_esmf_info(info, NUM_LEVELS+1, VLOC, NUM_UNGRIDDED, _RC)
       outinfo2 = OutputInfo(info, _RC)
       call ESMF_InfoDestroy(info)
       call outinfo_set%insert(outinfo2)
@@ -38,7 +38,7 @@ contains
       @assertEqual(2, outinfo_set%size(), 'Size of set should be 2.')
 
       info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, PREFIX, NUM_LEVELS, VLOC, NUM_UNGRIDDED, _RC)
+      call make_esmf_info(info, NUM_LEVELS, VLOC, NUM_UNGRIDDED, _RC)
       outinfo3 = OutputInfo(info, _RC)
       call ESMF_InfoDestroy(info)
       call outinfo_set%insert(outinfo3)

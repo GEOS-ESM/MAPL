@@ -13,8 +13,8 @@ contains
 
 #include "history3g_test_utility_procedures.h"
 
-   !@Test
-   subroutine test_construct_object()
+   @Test
+   subroutine test_construct_output_info()
       type(ESMF_Info) :: info
       type(OutputInfo) :: out_info
       type(UngriddedDimInfo) :: ungrid_info
@@ -23,7 +23,7 @@ contains
       integer :: status
 
       info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, PREFIX, NUM_LEVELS, VLOC, NUM_UNGRIDDED, _RC)
+      call make_esmf_info(info, NUM_LEVELS, VLOC, NUM_UNGRIDDED, _RC)
       out_info = OutputInfo(info, _RC)
       @assertEqual(out_info%num_levels, NUM_LEVELS, 'num_levels does not match.')
       @assertEqual(out_info%vloc, VLOC, 'vloc does not match.')
@@ -39,7 +39,7 @@ contains
 
       call ESMF_InfoDestroy(info)
 
-   end subroutine test_construct_object
+   end subroutine test_construct_output_info
 
    !@Test
    subroutine test_less()
@@ -49,13 +49,13 @@ contains
       integer :: status
 
       info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, PREFIX, NUM_LEVELS, VLOC, NUM_UNGRIDDED, _RC)
+      call make_esmf_info(info, NUM_LEVELS, VLOC, NUM_UNGRIDDED, _RC)
       out_info_1 = OutputInfo(info, _RC)
       call ESMF_InfoDestroy(info)
 
       names = [character(len=2) :: 'A2', 'A3', 'A4' ]
       info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, PREFIX, NUM_LEVELS, VLOC, NUM_UNGRIDDED, names=names, _RC)
+      call make_esmf_info(info, NUM_LEVELS, VLOC, NUM_UNGRIDDED, names=names, _RC)
       out_info_2 = OutputInfo(info, _RC)
       call ESMF_InfoDestroy(info)
       
@@ -63,28 +63,28 @@ contains
 
       units = [character(len=8) :: 'tons', 'volts', 'watts']
       info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, PREFIX, NUM_LEVELS, VLOC, NUM_UNGRIDDED, units_array=units, _RC)
+      call make_esmf_info(info, NUM_LEVELS, VLOC, NUM_UNGRIDDED, units_array=units, _RC)
       out_info_2 = OutputInfo(info, _RC)
       call ESMF_InfoDestroy(info)
 
       @assertTrue(out_info_1 < out_info_2, 'OutputInfo 1 units are smaller than OutputInfo2 units.')
 
       info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, PREFIX, NUM_LEVELS+1, VLOC, NUM_UNGRIDDED, _RC)
+      call make_esmf_info(info, NUM_LEVELS+1, VLOC, NUM_UNGRIDDED, _RC)
       out_info_2 = OutputInfo(info, _RC)
       call ESMF_InfoDestroy(info)
 
       @assertTrue(out_info_1 < out_info_2, 'OutputInfo 1 num_levels are smaller than OutputInfo2 num_levels.')
 
       info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, PREFIX, NUM_LEVELS, VLOC, NUM_UNGRIDDED+1, _RC)
+      call make_esmf_info(info, NUM_LEVELS, VLOC, NUM_UNGRIDDED+1, _RC)
       out_info_2 = OutputInfo(info, _RC)
       call ESMF_InfoDestroy(info)
 
       @assertTrue(out_info_1 < out_info_2, 'OutputInfo 1 ungridded are smaller than OutputInfo2 num_ungridded.')
 
       info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, PREFIX, NUM_LEVELS, 'VERTICAL_DIM_EDGE', NUM_UNGRIDDED, _RC)
+      call make_esmf_info(info, NUM_LEVELS, 'VERTICAL_DIM_EDGE', NUM_UNGRIDDED, _RC)
       out_info_2 = OutputInfo(info, _RC)
       call ESMF_InfoDestroy(info)
 

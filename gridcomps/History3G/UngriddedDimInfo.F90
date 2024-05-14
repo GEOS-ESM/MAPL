@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 module mapl3g_ungridded_dim_info
 
-   use esmf, only: ESMF_Info, ESMF_InfoGet, ESMF_InfoGetCharAlloc, ESMF_InfoGetAlloc
+   use esmf, only: ESMF_Info, ESMF_InfoGet, ESMF_InfoGetCharAlloc, ESMF_InfoCreate, ESMF_InfoDestroy
    use Mapl_ErrorHandling
 
    implicit none
@@ -22,7 +22,7 @@ module mapl3g_ungridded_dim_info
    end type UngriddedDimInfo
 
    interface UngriddedDimInfo
-      module procedure :: construct
+      module procedure :: construct_ungridded_dim_info
    end interface UngriddedDimInfo
 
    interface UngriddedDimsInfo
@@ -37,27 +37,36 @@ module mapl3g_ungridded_dim_info
       module procedure :: equal
    end interface
 
+   character(len=*), parameter :: KEY_NUM_UNGRID = 'num_ungridded_dimensions'
+   character(len=*), parameter :: KEYSTUB_DIM = 'dim_'
+   character(len=*), parameter :: KEY_NAME = 'name'
+   character(len=*), parameter :: KEY_UNITS = 'units'
+   character(len=*), parameter :: KEY_COORS = 'coordinates'
+
 contains
 
-   function construct(info_in, unit_prefix, rc) result(obj)
+   function construct_ungridded_dim_info(info_in, rc) result(obj)
       type(UngriddedDimInfo) :: obj
       type(ESMF_Info), intent(in) :: info_in
-      character(len=*), intent(in) :: unit_prefix
       integer, optional, intent(out) :: rc
       integer :: status
       character(len=:), allocatable :: name
       character(len=:), allocatable :: units
       real, allocatable :: coordinates(:)
+      integer :: sz
 
-      call ESMF_InfoGetCharAlloc(info_in, key=unit_prefix//'name', value=name, _RC)
-      call ESMF_InfoGetCharAlloc(info_in, unit_prefix//'units', units, _RC)
-      call ESMF_InfoGetAlloc(info_in, unit_prefix//'coordinates', coordinates, _RC)
+      call ESMF_InfoGetCharAlloc(info_in, key='name', value=name, _RC)
+      call ESMF_InfoGetCharAlloc(info_in, key='units', value=units, _RC)
+      call ESMF_InfoGet(info_in, key='coordinates', size=sz, _RC)
+      allocate(coordinates(sz))
+      call ESMF_InfoGet(info_in, key='coordinates', values=coordinates, _RC)
       obj%name = name
       obj%units = units
       obj%coordinates = coordinates
 
       _RETURN(_SUCCESS)
-   end function construct
+      
+   end function construct_ungridded_dim_info
  
    pure function name_units(this) result(nu)
       character(len=:), allocatable :: nu
@@ -76,17 +85,17 @@ contains
 
    end function coordinate_dims
 
-   function get_array(info_in, rc) result(array)
-      type(ESMF_Info), intent(in) :: info_in
+   function get_array(info, rc) result(array)
+      type(UngriddedDimInfo), allocatable :: array(:)
+      type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
-      character(len=*), parameter :: PREFIX = 'MAPL/'
       integer :: status
       integer :: num_ungridded
       integer :: i, ios
       character(len=32) :: stri
-      type(UngriddedDimInfo), allocatable :: array(:)
+      type(ESMF_Info) :: info_unit
 
-      call ESMF_InfoGet(info_in, PREFIX // 'num_ungridded', num_ungridded, _RC)
+      call ESMF_InfoGet(info, KEY_NUM_UNGRID, num_ungridded, _RC)
       _ASSERT(num_ungridded >= 0, 'num_ungridded must be nonnegative.')
       allocate(array(num_ungridded))
       if(num_ungridded == 0) then
@@ -95,7 +104,9 @@ contains
       do i= 1, num_ungridded
          write(stri, fmt='(I0)', iostat=ios) i
          _ASSERT(ios == 0, 'failed to create ith ungridded dim index string')
-         array(i) = UngriddedDimInfo(info_in, PREFIX // 'dim_' // trim(adjustl(stri)) // '/')
+         info_unit = ESMF_InfoCreate(info, key=KEYSTUB_DIM // trim(adjustl(stri)), _RC)
+         array(i) = UngriddedDimInfo(info_unit, _RC)
+         call ESMF_InfoDestroy(info_unit, _RC)
       end do
 
       _RETURN(_SUCCESS)

@@ -14,7 +14,7 @@ module Test_UngriddedDimInfo
    
 contains
 
-   !@Test
+   @Test
    subroutine test_construct()
       integer :: status
       type(ESMF_Info) :: info
@@ -22,15 +22,13 @@ contains
       real, allocatable :: coordinates(:)
       character(len=:), allocatable :: name
       character(len=:), allocatable :: units
-      character(len=:), allocatable :: unit_prefix
 
       name = 'G1'
       units = 'stones'
-      unit_prefix = 'IthComp'
       coordinates = [1.0, 2.0, 3.0, 4.0]
       info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, unit_prefix, name, units, coordinates, _RC)
-      obj = UngriddedDimInfo(info, unit_prefix, _RC)
+      call make_esmf_info(info, name, units, coordinates, _RC)
+      obj = UngriddedDimInfo(info, _RC)
       @assertEqual(name, obj%name, NAME_LABEL // ' does not match.')
       @assertEqual(units, obj%units, UNITS_LABEL // 'units does not match.')
       @assertEqual(coordinates, obj%coordinates, COORDINATES_LABEL // ' does not match.')
@@ -38,7 +36,7 @@ contains
 
    end subroutine test_construct
 
-   !@Test
+   @Test
    subroutine test_name_units()
       integer :: status
       type(ESMF_Info) :: info
@@ -46,23 +44,21 @@ contains
       real, allocatable :: coordinates(:)
       character(len=:), allocatable :: name
       character(len=:), allocatable :: units
-      character(len=:), allocatable :: unit_prefix
       character(len=:), allocatable :: NAME_UNITS
 
       name = 'G1'
       units = 'stones'
       NAME_UNITS = name // units
-      unit_prefix = 'IthComp'
       coordinates = [1.0, 2.0, 3.0, 4.0]
       info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, unit_prefix, name, units, coordinates, _RC)
-      obj = UngriddedDimInfo(info, unit_prefix, _RC)
+      call make_esmf_info(info, name, units, coordinates, _RC)
+      obj = UngriddedDimInfo(info, _RC)
       @assertEqual(NAME_UNITS, obj%name_units(), NAME_UNITS // '() does not match expected ' // NAME_UNITS // '.')
       call ESMF_InfoDestroy(info)
 
    end subroutine test_name_units
 
-   !@Test
+   @Test
    subroutine test_coordinate_dims()
       integer :: status, ios
       type(ESMF_Info) :: info
@@ -70,40 +66,37 @@ contains
       real, allocatable :: coordinates(:)
       character(len=:), allocatable :: name
       character(len=:), allocatable :: units
-      character(len=:), allocatable :: unit_prefix
       character(len=32) :: dims_string
 
       name = 'G1'
       units = 'stones'
-      unit_prefix = 'IthComp'
       coordinates = [1.0, 2.0, 3.0, 4.0]
       write(dims_string, fmt='(I0)', iostat=ios) size(coordinates)
       @assertEqual(0, ios, 'write to dims_string failed.')
       info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, unit_prefix, name, units, coordinates, _RC)
-      obj = UngriddedDimInfo(info, unit_prefix, _RC)
+      call make_esmf_info(info, name, units, coordinates, _RC)
+      obj = UngriddedDimInfo(info, _RC)
       @assertEqual(size(coordinates), obj%coordinate_dims(), 'coordinate_dims() does not match expected value ' // trim(dims_string) // '.')
       call ESMF_InfoDestroy(info)
 
    end subroutine test_coordinate_dims
 
-   !@Test
+   @Test
    subroutine test_less()
       integer :: status
       real, allocatable :: coordinates(:, :)
       real, allocatable :: coordinate_vector(:)
       type(ESMF_Info) :: info1, info2
       type(UngriddedDimInfo) :: obj1, obj2
-      character(len=*), parameter :: UNIT_PREFIX = 'IthComp'
 
       coordinate_vector = [1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0]
       coordinates = reshape(coordinate_vector, [4, 2])
       info1 = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info1, unit_prefix, 'G1', 'kg', coordinates(:, 1), _RC)
-      obj1 = UngriddedDimInfo(info1, unit_prefix, _RC)
+      call make_esmf_info(info1, 'G1', 'kg', coordinates(:, 1), _RC)
+      obj1 = UngriddedDimInfo(info1, _RC)
       info2 = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info2, unit_prefix, 'G1', 'kg', coordinates(:, 2), _RC)
-      obj2 = UngriddedDimInfo(info2, unit_prefix, _RC)
+      call make_esmf_info(info2, 'G1', 'kg', coordinates(:, 2), _RC)
+      obj2 = UngriddedDimInfo(info2, _RC)
 
       @assertFalse(obj1 < obj2, 'obj1 is not less than obj2.')
       @assertFalse(obj2 < obj1, 'obj2 is not less than obj1.')
@@ -112,8 +105,8 @@ contains
       info2 = ESMF_InfoCreate(_RC)
       coordinate_vector = [1.0, 2.0, 3.0, 4.0, 2.0, 2.0, 3.0, 4.0]
       coordinates = reshape(coordinate_vector, [4, 2])
-      call make_esmf_info(info2, unit_prefix, 'G1', 'kg', coordinates(:, 2), _RC)
-      obj2 = UngriddedDimInfo(info2, unit_prefix, _RC)
+      call make_esmf_info(info2, 'G1', 'kg', coordinates(:, 2), _RC)
+      obj2 = UngriddedDimInfo(info2, _RC)
 
       @assertTrue(obj1 < obj2, 'obj1 is less than obj2.')
 
@@ -121,8 +114,8 @@ contains
       info2 = ESMF_InfoCreate(_RC)
       coordinate_vector = [1.0, 2.0, 3.0, 4.0, 1.0, 3.0, 3.0, 4.0]
       coordinates = reshape(coordinate_vector, [4, 2])
-      call make_esmf_info(info2, unit_prefix, 'G1', 'kg', coordinates(:, 2), _RC)
-      obj2 = UngriddedDimInfo(info2, unit_prefix, _RC)
+      call make_esmf_info(info2, 'G1', 'kg', coordinates(:, 2), _RC)
+      obj2 = UngriddedDimInfo(info2, _RC)
 
       @assertTrue(obj1 < obj2, 'obj1 is less than obj2.')
 
@@ -130,8 +123,8 @@ contains
       info2 = ESMF_InfoCreate(_RC)
       coordinate_vector = [1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 4.0, 4.0]
       coordinates = reshape(coordinate_vector, [4, 2])
-      call make_esmf_info(info2, unit_prefix, 'G1', 'kg', coordinates(:, 2), _RC)
-      obj2 = UngriddedDimInfo(info2, unit_prefix, _RC)
+      call make_esmf_info(info2, 'G1', 'kg', coordinates(:, 2), _RC)
+      obj2 = UngriddedDimInfo(info2, _RC)
 
       @assertTrue(obj1 < obj2, 'obj1 is less than obj2.')
 
@@ -139,8 +132,8 @@ contains
       info2 = ESMF_InfoCreate(_RC)
       coordinate_vector = [1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 5.0]
       coordinates = reshape(coordinate_vector, [4, 2])
-      call make_esmf_info(info2, unit_prefix, 'g1', 'kg', coordinates(:, 2), _RC)
-      obj2 = UngriddedDimInfo(info2, unit_prefix, _RC)
+      call make_esmf_info(info2, 'g1', 'kg', coordinates(:, 2), _RC)
+      obj2 = UngriddedDimInfo(info2, _RC)
 
       @assertTrue(obj1 < obj2, 'obj1 is less than obj2.')
 
@@ -148,39 +141,38 @@ contains
       info2 = ESMF_InfoCreate(_RC)
       coordinate_vector = [1.0, 2.0, 3.0, 4.0, 1.0, 2.1, 2.0, 3.0]
       coordinates = reshape(coordinate_vector, [4, 2])
-      call make_esmf_info(info2, unit_prefix, 'G1', 'kg', coordinates(:, 2), _RC)
-      obj2 = UngriddedDimInfo(info2, unit_prefix, _RC)
+      call make_esmf_info(info2, 'G1', 'kg', coordinates(:, 2), _RC)
+      obj2 = UngriddedDimInfo(info2, _RC)
 
       @assertTrue(obj1 < obj2, 'obj1 is less than obj2.')
 
       call ESMF_InfoDestroy(info2)
       info2 = ESMF_InfoCreate(_RC)
       coordinate_vector = [1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0]
-      call make_esmf_info(info2, unit_prefix, 'H1', 'kg', coordinates(:, 2), _RC)
-      obj2 = UngriddedDimInfo(info2, unit_prefix, _RC)
+      call make_esmf_info(info2, 'H1', 'kg', coordinates(:, 2), _RC)
+      obj2 = UngriddedDimInfo(info2, _RC)
 
       @assertTrue(obj1 < obj2, 'obj1 is less than obj2.')
       call ESMF_InfoDestroy(info2)
       info2 = ESMF_InfoCreate(_RC)
       coordinate_vector = [1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0]
-      call make_esmf_info(info2, unit_prefix, 'G1', 'stone', coordinates(:, 2), _RC)
-      obj2 = UngriddedDimInfo(info2, unit_prefix, _RC)
+      call make_esmf_info(info2, 'G1', 'stone', coordinates(:, 2), _RC)
+      obj2 = UngriddedDimInfo(info2, _RC)
 
       @assertTrue(obj1 < obj2, 'obj1 is less than obj2.')
    end subroutine test_less
 
-   subroutine make_esmf_info(info, unit_prefix, name, units, coordinates, rc)
+   subroutine make_esmf_info(info, name, units, coordinates, rc)
       type(ESMF_Info), intent(inout) :: info
-      character(len=*), intent(in) :: unit_prefix
       character(len=*), intent(in) :: name
       character(len=*), intent(in) :: units
       real, intent(in) :: coordinates(:)
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call ESMF_InfoSet(info, unit_prefix // NAME_LABEL, name, _RC)
-      call ESMF_InfoSet(info, unit_prefix // UNITS_LABEL, units, _RC)
-      call ESMF_InfoSet(info, unit_prefix // COORDINATES_LABEL, coordinates, _RC)
+      call ESMF_InfoSet(info, NAME_LABEL, name, _RC)
+      call ESMF_InfoSet(info, UNITS_LABEL, units, _RC)
+      call ESMF_InfoSet(info, COORDINATES_LABEL, coordinates, _RC)
 
    end subroutine make_esmf_info
 
