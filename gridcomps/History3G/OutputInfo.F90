@@ -45,14 +45,18 @@ contains
       character(len=:), allocatable :: vloc
 
       call ESMF_InfoGet(info, PREFIX // 'num_levels', num_levels, _RC)
+      _HERE, 'num_levels = ', num_levels
       call ESMF_InfoGetCharAlloc(info, PREFIX // 'vloc', vloc, _RC)
+      _HERE, 'vloc = ', vloc
       call ESMF_InfoGet(info, PREFIX // 'num_ungridded', num_ungridded, _RC)
+      _HERE, 'num_ungridded = ', num_ungridded
 
       obj%num_levels = num_levels
       obj%vloc = vloc
       obj%ungridded_dims = UngriddedDimsInfo(info, _RC)
       _ASSERT(size(obj%ungridded_dims) == num_ungridded, 'Size of ungridded_dims does not match num_ungridded info.')
 
+      _HERE, 'Exiting construct_object'
       _RETURN(_SUCCESS)
 
    end function construct_object

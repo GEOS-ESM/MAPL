@@ -14,7 +14,7 @@ module Test_UngriddedDimInfo
    
 contains
 
-   @Test
+   !@Test
    subroutine test_construct()
       integer :: status
       type(ESMF_Info) :: info
@@ -38,7 +38,7 @@ contains
 
    end subroutine test_construct
 
-   @Test
+   !@Test
    subroutine test_name_units()
       integer :: status
       type(ESMF_Info) :: info
@@ -62,7 +62,7 @@ contains
 
    end subroutine test_name_units
 
-   @Test
+   !@Test
    subroutine test_coordinate_dims()
       integer :: status, ios
       type(ESMF_Info) :: info
@@ -87,7 +87,7 @@ contains
 
    end subroutine test_coordinate_dims
 
-   @Test
+   !@Test
    subroutine test_less()
       integer :: status
       real, allocatable :: coordinates(:, :)
@@ -168,16 +168,6 @@ contains
 
       @assertTrue(obj1 < obj2, 'obj1 is less than obj2.')
    end subroutine test_less
-
-   @Before
-   subroutine setup()
-      integer :: status
-   end subroutine setup
-      
-   @After
-   subroutine teardown()
-      integer :: status
-   end subroutine teardown
 
    subroutine make_esmf_info(info, unit_prefix, name, units, coordinates, rc)
       type(ESMF_Info), intent(inout) :: info

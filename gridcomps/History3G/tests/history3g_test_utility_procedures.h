@@ -1,3 +1,4 @@
+#define SET_RC if(present(rc)) rc = status
 
    subroutine make_esmf_info(info, prefix, num_levels, vloc, num_ungridded, names, units_array, rc)
       type(ESMF_Info), intent(inout) :: info
@@ -10,7 +11,7 @@
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: NUMLEV_LABEL = 'num_levels'
       character(len=*), parameter :: VLOC_LABEL = 'vloc'
-      character, parameter :: NUM_UNGRID_LABEL = 'num_ungridded'
+      character(len=*), parameter :: NUM_UNGRID_LABEL = 'num_ungridded'
       integer :: status
 
       call ESMF_InfoSet(info, prefix // NUMLEV_LABEL, num_levels, _RC)
@@ -80,3 +81,4 @@
 
    end function make_component_label
 
+! vim:ft=fortran

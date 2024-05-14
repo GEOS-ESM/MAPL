@@ -1,10 +1,50 @@
 #include "MAPL_TestErr.h"
 module Test_OutputInfoSet
+   use mapl3g_output_info_set
    use mapl3g_output_info
    use mapl3g_ungridded_dim_info
    use pfunit
    use esmf
 
    implicit none
+
+#include "history3g_test_utility_variables.h"
+
+contains
+
+#include "history3g_test_utility_procedures.h"
+
+   !@Test
+   subroutine test_insert()
+      type(ESMF_Info) :: info
+      type(OutputInfo) :: outinfo1, outinfo2, outinfo3
+      type(OutputInfoSet) :: outinfo_set
+      integer :: status
+
+      info = ESMF_InfoCreate(_RC)
+      call make_esmf_info(info, PREFIX, NUM_LEVELS, VLOC, NUM_UNGRIDDED, _RC)
+      outinfo1 = OutputInfo(info, _RC)
+      call ESMF_InfoDestroy(info)
+      outinfo_set = OutputInfoSet()
+      
+      call outinfo_set%insert(outinfo1)
+
+      info = ESMF_InfoCreate(_RC)
+      call make_esmf_info(info, PREFIX, NUM_LEVELS+1, VLOC, NUM_UNGRIDDED, _RC)
+      outinfo2 = OutputInfo(info, _RC)
+      call ESMF_InfoDestroy(info)
+      call outinfo_set%insert(outinfo2)
+
+      @assertEqual(2, outinfo_set%size(), 'Size of set should be 2.')
+
+      info = ESMF_InfoCreate(_RC)
+      call make_esmf_info(info, PREFIX, NUM_LEVELS, VLOC, NUM_UNGRIDDED, _RC)
+      outinfo3 = OutputInfo(info, _RC)
+      call ESMF_InfoDestroy(info)
+      call outinfo_set%insert(outinfo3)
+
+      @assertEqual(2, outinfo_set%size(), 'Size of set should still be 2.')
+
+   end subroutine test_insert
 
 end module Test_OutputInfoSet

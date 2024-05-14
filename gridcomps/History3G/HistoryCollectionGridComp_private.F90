@@ -193,17 +193,18 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Field), allocatable :: fields(:)
-      integer :: i
+      integer :: i, field_count
       type(OutputInfo) :: item
       type(ESMF_Info) :: info
 
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      allocate(fields(field_count))
       call ESMF_FieldBundleGet(bundle, fieldList=fields, _RC)
       do i = 1, size(fields)
          call ESMF_InfoGetFromHost(fields(i), info, _RC)
          item = OutputInfo(info, _RC)
          call out_set%insert(item)
       end do
-
    end function get_output_info_bundle
 
    subroutine parse_item_expression(item, item_name, var_names, rc)

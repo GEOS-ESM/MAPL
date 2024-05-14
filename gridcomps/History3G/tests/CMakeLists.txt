@@ -5,6 +5,7 @@ set (test_srcs
   Test_HistoryCollectionGridComp.pf
   Test_UngriddedDimInfo.pf
   Test_OutputInfo.pf
+  Test_OutputInfoSet.pf
   )
 
 add_pfunit_ctest(MAPL.history3g.tests
