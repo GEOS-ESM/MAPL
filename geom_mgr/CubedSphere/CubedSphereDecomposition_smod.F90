@@ -93,6 +93,8 @@ contains
       integer :: petCount
 
       call ESMF_VMGet(vm, petCount=petCount, _RC)
+      _ASSERT(mod(petCount,6)==0, "For cubed-sphere grid PET count must be multiple of 6")
+      petCount=petCount/6
       decomp = CubedSphereDecomposition(dims, petCount=petCount)
 
       _RETURN(_SUCCESS)
