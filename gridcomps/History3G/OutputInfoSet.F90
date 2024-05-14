@@ -1,5 +1,5 @@
-module mapl3g_OutputInfoSet_mod
-   use mapl3g_OutputInfo
+module mapl3g_output_info_set
+   use mapl3g_output_info
 
 #define T OutputInfo
 #define T_LT(A, B) (A) < (B)
@@ -13,4 +13,4 @@ module mapl3g_OutputInfoSet_mod
 #undef Set
 #undef SetIterator
 
-end module mapl3g_OutputInfoSet_mod
+end module mapl3g_output_info_set

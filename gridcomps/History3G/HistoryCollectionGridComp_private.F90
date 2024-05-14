@@ -10,8 +10,8 @@ module mapl3g_HistoryCollectionGridComp_private
    use MAPL_NewArthParserMod, only: parser_variables_in_expression
    use MAPL_TimeStringConversion
    use MAPL_BaseMod, only: MAPL_UnpackTime
-   use mapl3g_OutputInfo
-   use mapl3g_OutputInfoSet
+   use mapl3g_output_info
+   use mapl3g_output_info_set
 
    implicit none
    private
@@ -21,7 +21,7 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: create_output_bundle
    public :: create_output_alarm
    public :: set_start_stop_time
-   public :: get_output_bundle_info
+   public :: get_output_info_bundle
 
    ! These are public for testing.
    public :: parse_item_common
@@ -66,8 +66,10 @@ contains
       integer :: status
 
       var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, rc=status)
-      if(status==ESMF_RC_NOT_FOUND) _FAIL(VAR_LIST_KEY // ' was not found.')
-      _VERIFY(status==_SUCCESS)
+      if(status==ESMF_RC_NOT_FOUND) then
+         _FAIL(VAR_LIST_KEY // ' was not found.')
+      end if
+      _VERIFY(status)
 
       iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
       iter_end = ESMF_HConfigIterEnd(var_list,_RC)
@@ -185,26 +187,24 @@ contains
       _RETURN(_SUCCESS)
    end function set_start_stop_time
 
-   function get_output_bundle_info(bundle, rc) result(output_info)
-      type(OutputBundleInfoSet) :: output_info
+   function get_output_info_bundle(bundle, rc) result(out_set)
+      type(OutputInfoSet) :: out_set
       type(ESMF_FieldBundle) :: bundle
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_Field) :: field_list(:), this_field
+      type(ESMF_Field), allocatable :: fields(:)
       integer :: i
-      type(OutputBundleInfo) :: item
-      logical :: is_new
+      type(OutputInfo) :: item
       type(ESMF_Info) :: info
 
-      call ESMF_FieldBundleGet(bundle, fieldList=field_list, _RC)
-      do i = 1:size(fieldList)
-         this_field = fieldList(i)
-         call ESMF_InfoGetFromHost(field, info, _RC)
-         item = OutputBundleInfo(info, _RC)
-         call output_info%insert(item, is_new=is_new, _RC)
+      call ESMF_FieldBundleGet(bundle, fieldList=fields, _RC)
+      do i = 1, size(fields)
+         call ESMF_InfoGetFromHost(fields(i), info, _RC)
+         item = OutputInfo(info, _RC)
+         call out_set%insert(item)
       end do
 
-   end function get_output_bundle_info
+   end function get_output_info_bundle
 
    subroutine parse_item_expression(item, item_name, var_names, rc)
       type(ESMF_HConfigIter), intent(in) :: item 
