@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [2.8.0.10] - 2024-05-14
+
+### Changed
+
+- Backport Python3 changes for `Python/` code to 2.8
+- Change shebang in `Apps/MAPL_GridCompSpecs_ACG.py` to use `python3`
+
 ## [2.8.0.9] - 2022-08-04
 
 ### Added
