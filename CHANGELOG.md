@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Update `FindESMF.cmake` to match that in ESMF 8.6.1
+- If file path length exceeds ESMF_MAXSTR, add _FAIL in subroutine fglob
 
 ### Changed
 
