@@ -140,10 +140,6 @@ contains
       _RETURN(_SUCCESS)
    end function make_decomposition
 
-
-   ! Unfortunately, we cannot quite compute each axis (lat - lon) independently,
-   ! as the optimal decomposition depends on the ratio of the extens along each
-   ! dimension.
    module function make_CubedSphereGeomSpec_from_metadata(file_metadata, rc) result(spec)
       type(CubedSphereGeomSpec) :: spec
       type(FileMetadata), intent(in) :: file_metadata
@@ -209,7 +205,7 @@ contains
 
       supports = .false.
 
-      !supports = lon_axis%supports(file_metadata, _RC)
+      _FAIL("not yet implemented")
       !_RETURN_UNLESS(supports)
 
 
