@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Update `FindESMF.cmake` to match that in ESMF 8.6.1
-
+- Add timer to the sampler code
 ### Changed
 
 - Set required version of ESMF to 8.6.1
