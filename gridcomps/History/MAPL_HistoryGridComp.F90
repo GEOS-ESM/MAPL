@@ -2423,7 +2423,7 @@ ENDDO PARSER
           end if
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,genstate=GENSTATE,_RC)
-             !!list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)             
+             !!list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
@@ -3546,7 +3546,7 @@ ENDDO PARSER
             end if
             !!call MAPL_TimerOff(GENSTATE,"TrajectoryRun")
          elseif (list(n)%sampler_spec == 'station') then
-            call MAPL_TimerOn(GENSTATE,"StationRun")
+            call MAPL_TimerOn(GENSTATE,"Station_preRun")
             if (list(n)%unit.eq.0) then
                call lgr%debug('%a %a',&
                     "Station_data output to new file:",trim(filename(n)))
@@ -3555,7 +3555,7 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
-            call MAPL_TimerOff(GENSTATE,"StationRun")
+            call MAPL_TimerOff(GENSTATE,"Station_preRun")
          elseif (list(n)%sampler_spec == 'mask') then
             call MAPL_TimerOn(GENSTATE,"MaskRun")
             if (list(n)%unit.eq.0) then
@@ -3771,12 +3771,12 @@ ENDDO PARSER
          call MAPL_TimerOn(GENSTATE,"TrajectoryRun")
          call MAPL_TimerOn(GENSTATE,"regrid_accum")
          call list(n)%trajectory%regrid_accumulate(_RC)
-         call MAPL_TimerOff(GENSTATE,"regrid_accum")         
+         call MAPL_TimerOff(GENSTATE,"regrid_accum")
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call MAPL_TimerOn(GENSTATE,"append_close_handle")
             call list(n)%trajectory%append_file(current_time,_RC)
             call list(n)%trajectory%close_file_handle(_RC)
-            call MAPL_TimerOff(GENSTATE,"append_close_handle")            
+            call MAPL_TimerOff(GENSTATE,"append_close_handle")
             if ( .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
                call MAPL_TimerOn(GENSTATE,"destroy_reg_rh")
                call list(n)%trajectory%destroy_rh_regen_LS (_RC)

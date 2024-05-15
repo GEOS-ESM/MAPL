@@ -8,7 +8,7 @@ module HistoryTrajectoryMod
   use MAPL_LocstreamRegridderMod
   use MAPL_ObsUtilMod
   use MAPL_GenericMod, only : MAPL_MetaComp
-  
+
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
 
@@ -29,7 +29,7 @@ module HistoryTrajectoryMod
      integer,           allocatable :: obstype_id(:)
      integer,           allocatable :: location_index_ioda(:)   ! location index in its own ioda file
      type(MAPL_MetaComp), pointer   :: GENSTATE
-     
+
      type(ESMF_FieldBundle) :: bundle
      type(ESMF_FieldBundle) :: output_bundle
      type(ESMF_FieldBundle) :: acc_bundle
