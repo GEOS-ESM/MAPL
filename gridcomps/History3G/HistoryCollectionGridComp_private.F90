@@ -11,7 +11,7 @@ module mapl3g_HistoryCollectionGridComp_private
    use MAPL_TimeStringConversion
    use MAPL_BaseMod, only: MAPL_UnpackTime
    use mapl3g_output_info
-   use mapl3g_output_info_set
+   use gFTL2_StringSet
 
    implicit none
    private
@@ -188,25 +188,31 @@ contains
       _RETURN(_SUCCESS)
    end function set_start_stop_time
 
-   function get_output_info_bundle(bundle, rc) result(out_set)
-      type(OutputInfoSet) :: out_set
+   subroutine get_output_info_bundle(bundle, num_levels, vertical_dim_spec_names, ungridded_dims_info, rc) result(out_set)
       type(ESMF_FieldBundle) :: bundle
+      integer, optional, intent(out) :: num_levels
+      type(StringSet), optional, intent(out) :: vertical_dim_spec_names
+      type(UngriddedDimInfoSet), optional, intent(out) :: ungridded_dims_info
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_Field), allocatable :: fields(:)
-      integer :: i, field_count
-      type(OutputInfo) :: item
-      type(ESMF_Info) :: info
 
-      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
-      allocate(fields(field_count))
-      call ESMF_FieldBundleGet(bundle, fieldList=fields, _RC)
-      do i = 1, size(fields)
-         call ESMF_InfoGetFromHost(fields(i), info, _RC)
-         item = OutputInfo(info, _RC)
-         call out_set%insert(item)
-      end do
-   end function get_output_info_bundle
+      output_present = present(num_levels) .or. present(vertical_dim_spec_names) .or. present(ungridded_dims_info)
+      _ASSERT(, ERROR_MSG)
+
+      if(present(num_levels)) then
+         num_levels = get_num_levels(bundle, _RC)
+         _RETURN_UNLESS(present(vertical_dim_spec_names) .or. present(ungridded_dims_info))
+      end if
+
+      if(present(vertical_dim_spec_names)) then
+         vertical_dim_spec_names = get_vertical_dim_spec_names(bundle, _RC)
+         _RETURN_UNLESS(present(ungridded_dims_info))
+      endif
+
+      ungridded_dims_info = get_ungridded_dims_info(bundle, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine get_output_info_bundle
 
    subroutine parse_item_expression(item, item_name, var_names, rc)
       type(ESMF_HConfigIter), intent(in) :: item 

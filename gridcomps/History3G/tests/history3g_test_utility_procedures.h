@@ -2,9 +2,9 @@
 
    subroutine make_esmf_info(info, num_levels, vloc, num_ungridded, names, units_array, rc)
       type(ESMF_Info), intent(inout) :: info
-      integer, intent(in) :: num_levels
-      character(len=*), intent(in) :: vloc
-      integer, intent(in) :: num_ungridded
+      integer, optional, intent(in) :: num_levels
+      character(len=*), optional, intent(in) :: vloc
+      integer, optional, intent(in) :: num_ungridded
       character(len=*), optional, intent(in) :: names(:)
       character(len=*), optional, intent(in) :: units_array(:)
       integer, optional, intent(out) :: rc
@@ -13,20 +13,28 @@
       character(len=*), parameter :: VLOC_LABEL = 'vloc'
       character(len=*), parameter :: NUM_UNGRID_LABEL = 'num_ungridded'
       type(ESMF_Info) :: inner_info
+      integer :: num_levels_
+      character(len=:), allocatable :: vloc_
 
+      num_levels_ = NUM_LEVELS_DEFAULT
+      if(present(num_levels)) num_levels_ = num_levels
+      vloc_ = VLOC_DEFAULT
+      if(present(vloc)) vloc_ = vloc
+      num_ungridded_ = NUM_UNGRIDDED_DEFAULT
+      if(present(num_ungridded)) num_ungridded_ = num_ungridded
 
       inner_info = ESMF_InfoCreate(_RC)
-      call make_vertical_dim(inner_info, VLOC_LABEL, vloc, _RC)
+      call make_vertical_dim(inner_info, VLOC_LABEL, vloc_, _RC)
       call ESMF_InfoSet(info, PREFIX // 'vertical_dim', value=inner_info, _RC)
       call ESMF_InfoDestroy(inner_info, _RC)
       
       inner_info = ESMF_InfoCreate(_RC)
-      call make_vertical_geom(inner_info, NUMLEV_LABEL, num_levels, _RC)
+      call make_vertical_geom(inner_info, NUMLEV_LABEL, num_levels_, _RC)
       call ESMF_InfoSet(info, PREFIX // 'vertical_geom', value=inner_info, _RC)
       call ESMF_InfoDestroy(inner_info, _RC)
 
       inner_info = ESMF_InfoCreate(_RC)
-      call make_ungridded_dims_info(inner_info, num_ungridded, names, units_array, _RC)
+      call make_ungridded_dims_info(inner_info, num_ungridded_, names, units_array, _RC)
       call ESMF_InfoSet(info, PREFIX // 'ungridded_dims', value=inner_info, _RC)
       call ESMF_InfoDestroy(inner_info, _RC)
 
@@ -83,9 +91,9 @@
       end if
 
       do i=1, num_ungridded
-         name_ = NAME
+         name_ = NAME_DEFAULT
          if(present(names)) name_ = names(i)
-         units_ = UNITS
+         units_ = UNITS_DEFAULT
          if(present(units_array)) units_ = units_array(i)
          comp_info = ESMF_InfoCreate(_RC)
          call ESMF_InfoSet(comp_info, NAME_LABEL, name_, _RC)

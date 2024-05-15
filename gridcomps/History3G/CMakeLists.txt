@@ -6,8 +6,9 @@ set(srcs
  HistoryCollectionGridComp.F90
  HistoryCollectionGridComp_private.F90
  OutputInfo.F90
- OutputInfoSet.F90
  UngriddedDimInfo.F90
+ UngriddedDimInfoSet.F90
+ UngriddedDimsInfo.F90
  )
 
 find_package (MPI REQUIRED)
