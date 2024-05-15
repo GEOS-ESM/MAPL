@@ -2423,7 +2423,6 @@ ENDDO PARSER
           end if
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,genstate=GENSTATE,_RC)
-             !!list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
@@ -3526,7 +3525,7 @@ ENDDO PARSER
                ! it's tempting to use the variable "oneMonth" but it does not work
                ! instead we compute the differece between
                ! thisMonth and lastMonth and as a new timeInterval
-
+               !
                call ESMF_ClockGet(clock,currTime=current_time,_RC)
                call ESMF_TimeIntervalSet( oneMonth, MM=1, _RC)
                lastMonth = current_time - oneMonth
@@ -3538,13 +3537,11 @@ ENDDO PARSER
 
          lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
-            !!call MAPL_TimerOn(GENSTATE,"TrajectoryRun")
             if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
                call list(n)%trajectory%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
-            !!call MAPL_TimerOff(GENSTATE,"TrajectoryRun")
          elseif (list(n)%sampler_spec == 'station') then
             call MAPL_TimerOn(GENSTATE,"Station_preRun")
             if (list(n)%unit.eq.0) then
@@ -3557,7 +3554,6 @@ ENDDO PARSER
             end if
             call MAPL_TimerOff(GENSTATE,"Station_preRun")
          elseif (list(n)%sampler_spec == 'mask') then
-            call MAPL_TimerOn(GENSTATE,"MaskRun")
             if (list(n)%unit.eq.0) then
                call lgr%debug('%a %a',&
                     "Mask_data output to new file:",trim(filename(n)))
@@ -3566,7 +3562,6 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
-            call MAPL_TimerOff(GENSTATE,"MaskRun")
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
