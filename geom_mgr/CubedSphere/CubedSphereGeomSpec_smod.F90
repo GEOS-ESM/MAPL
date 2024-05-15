@@ -149,6 +149,7 @@ contains
       type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
       type(CubedSphereDecomposition) :: decomposition 
 
+      im_world = file_metadata%get_dimension("Xdim", _RC)
       _FAIL("not implemented")
       spec = CubedSphereGeomSpec(im_world, schmidt_parameters, decomposition)
       
