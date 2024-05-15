@@ -1,0 +1,34 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_CubedSphereGeomFactory
+   use pfunit
+   use mapl3g_GeomSpec
+   use mapl3g_CubedSphereGeomFactory
+   use esmf
+   implicit none
+
+contains
+
+   @test(npes=[6])
+   subroutine test_make_from_hconfig(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      type(CubedSphereGeomFactory) :: factory
+      class(GeomSpec), allocatable :: geom_spec
+      type(ESMF_Geom) :: geom
+
+      hconfig = ESMF_HConfigCreate(content="{im_world: 12, nx: 1, ny: 1, target_lon: 34.0}", rc=status)
+      @assert_that(status, is(0))
+
+      allocate(geom_spec, source=factory%make_spec(hconfig, rc=status))
+      @assert_that(status, is(0))
+
+      geom = factory%make_geom(geom_spec, rc=status)
+      @assert_that(status, is(0))
+   end subroutine test_make_from_hconfig
+
+
+end module Test_CubedSphereGeomFactory

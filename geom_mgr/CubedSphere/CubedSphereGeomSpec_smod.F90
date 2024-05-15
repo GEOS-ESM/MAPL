@@ -8,6 +8,7 @@ submodule (mapl3g_CubedSphereGeomSpec) CubedSphereGeomSpec_smod
    use MAPLBase_Mod
    use mapl_ErrorHandling
    use esmf
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none
    real(ESMF_Kind_R8) :: undef_schmidt = 1d15
    
@@ -78,20 +79,28 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, intent(out), optional :: rc
 
-      integer :: status
-      logical :: is_stretched
-      is_stretched = ESMF_HConfigIsDefined(hconfig, keystring='stretch_factor', _RC)
-      if (is_stretched) then
+      integer :: status, ifound
+      logical :: is_stretched, has_tlon, has_tlat, has_sfac, consistent
+  
+      ifound = 0 
+      has_sfac = ESMF_HConfigIsDefined(hconfig, keystring='stretch_factor', _RC)
+      if (has_sfac) then
          schmidt_parameters%stretch_factor = ESMF_HConfigAsR8(hconfig, keystring='stretch_factor' ,_RC)
+         ifound = ifound + 1
       end if
-      is_stretched = ESMF_HConfigIsDefined(hconfig, keystring='target_lon', _RC)
-      if (is_stretched) then
+      has_tlon = ESMF_HConfigIsDefined(hconfig, keystring='target_lon', _RC)
+      if (has_tlon) then
          schmidt_parameters%target_lon = ESMF_HConfigAsR8(hconfig, keystring='target_lon' ,_RC)
+         ifound = ifound + 1
       end if
-      is_stretched = ESMF_HConfigIsDefined(hconfig, keystring='target_lat', _RC)
-      if (is_stretched) then
+      has_tlat = ESMF_HConfigIsDefined(hconfig, keystring='target_lat', _RC)
+      if (has_tlat) then
          schmidt_parameters%target_lat = ESMF_HConfigAsR8(hconfig, keystring='target_lat' ,_RC)
+         ifound = ifound + 1
       end if
+      is_stretched = all([has_sfac, has_tlon, has_tlat])
+      consistent = (ifound .eq. 3) .or. (ifound .eq. 0)
+      _ASSERT(consistent, "specfied partial stretch parameters")
       if (.not. is_stretched) then
          schmidt_parameters%stretch_factor = undef_schmidt 
          schmidt_parameters%target_lon= undef_schmidt 
@@ -150,11 +159,73 @@ contains
       type(CubedSphereDecomposition) :: decomposition 
 
       im_world = file_metadata%get_dimension("Xdim", _RC)
-      _FAIL("not implemented")
+      decomposition = make_CubedSphereDecomposition([im_world,im_world], _RC)
+      schmidt_parameters = make_SchmidtParameters_from_metadata(file_metadata, _RC)
       spec = CubedSphereGeomSpec(im_world, schmidt_parameters, decomposition)
       
       _RETURN(_SUCCESS)
    end function make_CubedSphereGeomSpec_from_metadata
+
+   function make_SchmidtParameters_from_metadata(file_metadata, rc) result(schmidt_parameters)
+      type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
+      type(FileMetadata), intent(in) :: file_metadata
+      integer, intent(out), optional :: rc
+
+      integer :: status, ifound
+      logical :: is_stretched, has_tlon, has_tlat, has_sfac, consistent
+  
+      ifound = 0 
+      has_sfac = file_metadata%has_attribute('stretch_factor')
+      if (has_sfac) then
+         schmidt_parameters%stretch_factor = return_r8(file_metadata, 'stretch_factor', _RC)
+         ifound = ifound + 1
+      end if
+      has_tlon = file_metadata%has_attribute('target_lon')
+      if (has_tlon) then
+         schmidt_parameters%target_lon = return_r8(file_metadata, 'target_lon', _RC)
+         ifound = ifound + 1
+      end if
+      has_tlat = file_metadata%has_attribute('target_lat')
+      if (has_tlat) then
+         schmidt_parameters%target_lat = return_r8(file_metadata, 'target_lat', _RC)
+         ifound = ifound + 1
+      end if
+
+      is_stretched = all([has_sfac, has_tlon, has_tlat])
+      consistent = (ifound .eq. 3) .or. (ifound .eq. 0)
+      _ASSERT(consistent, "specfied partial stretch parameters")
+      if (.not. is_stretched) then
+         schmidt_parameters%stretch_factor = undef_schmidt 
+         schmidt_parameters%target_lon= undef_schmidt 
+         schmidt_parameters%target_lat= undef_schmidt 
+      end if
+      _RETURN(_SUCCESS)
+
+   end function make_SchmidtParameters_from_metadata
+
+   function return_r8(file_metadata, attr_name, rc) result(param)
+      real(kind=ESMF_KIND_R8) :: param
+      type(FileMetadata), intent(in) :: file_metadata
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+ 
+      integer :: status
+      class(*), pointer :: attr_val(:)
+      type(Attribute), pointer :: attr
+
+      attr => file_metadata%get_attribute(attr_name)
+      attr_val => attr%get_values()
+      select type(q=>attr_val)
+      type is (real(kind=REAL32))
+         param = q(1)
+      type is (real(kind=REAL64))
+         param = q(1)
+      class default
+         _FAIL('unsupported subclass for stretch parameters')
+      end select
+      _RETURN(_SUCCESS)
+   end function return_r8
+      
 
    ! Accessors
    pure module function get_decomposition(spec) result(decomposition)
@@ -204,11 +275,9 @@ contains
 
       integer :: status
 
-      supports = .false.
+      supports = file_metadata%has_dimension("Xdim", _RC)
 
-      _FAIL("not yet implemented")
-      !_RETURN_UNLESS(supports)
-
+      _RETURN_UNLESS(supports)
 
       _RETURN(_SUCCESS)
    end function supports_metadata_
