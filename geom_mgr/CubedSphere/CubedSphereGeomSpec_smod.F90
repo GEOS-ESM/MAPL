@@ -7,6 +7,7 @@ submodule (mapl3g_CubedSphereGeomSpec) CubedSphereGeomSpec_smod
    use MAPL_RangeMod
    use MAPLBase_Mod
    use mapl_ErrorHandling
+   use mapl_Constants
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none
@@ -91,11 +92,13 @@ contains
       has_tlon = ESMF_HConfigIsDefined(hconfig, keystring='target_lon', _RC)
       if (has_tlon) then
          schmidt_parameters%target_lon = ESMF_HConfigAsR8(hconfig, keystring='target_lon' ,_RC)
+         schmidt_parameters%target_lon = schmidt_parameters%target_lon * MAPL_DEGREES_TO_RADIANS_R8
          ifound = ifound + 1
       end if
       has_tlat = ESMF_HConfigIsDefined(hconfig, keystring='target_lat', _RC)
       if (has_tlat) then
          schmidt_parameters%target_lat = ESMF_HConfigAsR8(hconfig, keystring='target_lat' ,_RC)
+         schmidt_parameters%target_lat = schmidt_parameters%target_lat * MAPL_DEGREES_TO_RADIANS_R8
          ifound = ifound + 1
       end if
       is_stretched = all([has_sfac, has_tlon, has_tlat])
@@ -183,11 +186,13 @@ contains
       has_tlon = file_metadata%has_attribute('target_lon')
       if (has_tlon) then
          schmidt_parameters%target_lon = return_r8(file_metadata, 'target_lon', _RC)
+         schmidt_parameters%target_lon = schmidt_parameters%target_lon * MAPL_DEGREES_TO_RADIANS_R8
          ifound = ifound + 1
       end if
       has_tlat = file_metadata%has_attribute('target_lat')
       if (has_tlat) then
          schmidt_parameters%target_lat = return_r8(file_metadata, 'target_lat', _RC)
+         schmidt_parameters%target_lat = schmidt_parameters%target_lat * MAPL_DEGREES_TO_RADIANS_R8
          ifound = ifound + 1
       end if
 
