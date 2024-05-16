@@ -277,7 +277,7 @@ contains
 
       integer :: status
 
-      supports = file_metadata%has_dimension("Xdim", _RC)
+      supports = file_metadata%has_dimension("nf", _RC)
 
       _RETURN_UNLESS(supports)
 
