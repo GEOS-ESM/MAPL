@@ -175,8 +175,11 @@ contains
       integer, intent(out), optional :: rc
 
       integer :: status, ifound
-      logical :: is_stretched, has_tlon, has_tlat, has_sfac, consistent
+      logical :: has_tlon, has_tlat, has_sfac, consistent
   
+      schmidt_parameters%stretch_factor = undef_schmidt 
+      schmidt_parameters%target_lon= undef_schmidt 
+      schmidt_parameters%target_lat= undef_schmidt 
       ifound = 0 
       has_sfac = file_metadata%has_attribute('stretch_factor')
       if (has_sfac) then
@@ -196,14 +199,8 @@ contains
          ifound = ifound + 1
       end if
 
-      is_stretched = all([has_sfac, has_tlon, has_tlat])
       consistent = (ifound .eq. 3) .or. (ifound .eq. 0)
       _ASSERT(consistent, "specfied partial stretch parameters")
-      if (.not. is_stretched) then
-         schmidt_parameters%stretch_factor = undef_schmidt 
-         schmidt_parameters%target_lon= undef_schmidt 
-         schmidt_parameters%target_lat= undef_schmidt 
-      end if
       _RETURN(_SUCCESS)
 
    end function make_SchmidtParameters_from_metadata
