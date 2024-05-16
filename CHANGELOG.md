@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated `checkpoint_simulator` to not create and close file if not writing
+
 ### Fixed
 
 ### Removed
