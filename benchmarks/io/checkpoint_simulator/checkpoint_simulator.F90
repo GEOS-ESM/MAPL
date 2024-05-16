@@ -676,13 +676,13 @@ program checkpoint_tester
 
       call system_clock(count=start_write)
       call MPI_Barrier(MPI_COMM_WORLD,status)
-      call support%create_file()
+      if (support%do_writes) call support%create_file()
       call MPI_Barrier(MPI_COMM_WORLD,status)
 
       call support%write_file()
       call MPI_Barrier(MPI_COMM_WORLD,status)
 
-      call support%close_file()
+      if (support%do_writes) call support%close_file()
       call MPI_Barrier(MPI_COMM_WORLD,status)
 
       call system_clock(count=end_time)
