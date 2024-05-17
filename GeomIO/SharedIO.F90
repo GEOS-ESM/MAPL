@@ -122,13 +122,13 @@ module mapl3g_SharedIO
       ungr = sz - 2
       if (tile_count == 6) then
          tile = 1 + (j1-1)/global_dim(1)
+         local_start=1
          allocate(local_start(sz+1+tm))
          local_start(1:3) = [i1, j1-(tile-1)*global_dim(1),tile]
-         if (have_time) local_start(4:4+ungr) = 1
       else if (tile_count == 1) then
          allocate(local_start(sz+tm))
+         local_start=1
          local_start(1:2) = [i1,j1]
-         if (have_time) local_start(3:3+ungr) = 1 
       else 
          _FAIL("unsupported grid")
       end if
