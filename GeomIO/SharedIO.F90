@@ -49,7 +49,7 @@ module mapl3g_SharedIO
       integer, allocatable :: global_start(:)
       type(ESMF_Grid), intent(in) :: grid
       integer, intent(in) :: field_shape(:)
-      integer, intent(in) :: time_index
+      integer, optional,  intent(in) :: time_index
       integer, intent(out), optional :: rc
 
       integer :: status, sz, tile_count
@@ -71,28 +71,30 @@ module mapl3g_SharedIO
       _RETURN(_SUCCESS)
    end function create_global_start
 
-   function create_global_count(grid, field_shape, rc) result(global_count)
+   function create_global_count(grid, field_shape, have_time, rc) result(global_count)
       integer, allocatable :: global_count(:)
       type(ESMF_Grid), intent(in) :: grid
       integer, intent(in) :: field_shape(:)
+      logical, optional, intent(in) :: have_time
       integer, intent(out), optional :: rc
 
-      integer :: status, sz, ungr, tile_count, global_dim(3)
+      integer :: status, sz, ungr, tile_count, global_dim(3), tm
+      if (present(have_time)) tm=1
       call ESMF_GridGet(grid, tileCount=tile_count, _RC)
       call MAPL_GridGet(grid, globalCellCountPerDim=global_dim, _RC)
       sz = size(field_shape)
       ungr = sz - 2
 
       if (tile_count == 6) then
-         allocate(global_count(sz+2))
+         allocate(global_count(sz+1+tm))
          global_count(1:3) =[global_dim(1),global_dim(1),6]
          global_count(4:4+ungr-1) = field_shape(3:sz)
-         global_count(sz+2) = 1
+         if (have_time) global_count(sz+2) = 1
       else if (tile_count == 1) then
-         allocate(global_count(sz+1))
+         allocate(global_count(sz+tm))
          global_count(1:2) =[global_dim(1),global_dim(2)]
          global_count(3:3+ungr-1) = field_shape(3:sz)
-         global_count(sz+1) = 1
+         if (have_time) global_count(sz+1) = 1
       else 
          _FAIL("unsupported grid")
       end if
@@ -101,27 +103,30 @@ module mapl3g_SharedIO
       _RETURN(_SUCCESS)
    end function create_global_count
 
-   function create_local_start(grid, field_shape, rc) result(local_start)
+   function create_local_start(grid, field_shape, have_time, rc) result(local_start)
       integer, allocatable :: local_start(:)
       type(ESMF_Grid), intent(in) :: grid
       integer, intent(in) :: field_shape(:)
+      logical, optional, intent(in) :: have_time
       integer, intent(out), optional :: rc
 
-      integer :: status, sz, ungr, tile_count, i1, in, j1, jn, tile, global_dim(3)
+      integer :: status, sz, ungr, tile_count, i1, in, j1, jn, tile, global_dim(3), tm
       call ESMF_GridGet(grid, tileCount=tile_count, _RC)
       call MAPL_GridGetInterior(grid, i1,in, j1, jn)
       call MAPL_GridGet(grid, globalCellCountPerDim=global_dim, _RC)
+      tm=0
+      if (present(have_time)) tm=1
       sz = size(field_shape)
       ungr = sz - 2
       if (tile_count == 6) then
          tile = 1 + (j1-1)/global_dim(1)
-         allocate(local_start(sz+2))
+         allocate(local_start(sz+1+tm))
          local_start(1:3) = [i1, j1-(tile-1)*global_dim(1),tile]
-         local_start(4:4+ungr) = 1
+         if (have_time) local_start(4:4+ungr) = 1
       else if (tile_count == 1) then
-         allocate(local_start(sz+1))
+         allocate(local_start(sz+tm))
          local_start(1:2) = [i1,j1]
-         local_start(3:3+ungr) = 1 
+         if (have_time) local_start(3:3+ungr) = 1 
       else 
          _FAIL("unsupported grid")
       end if

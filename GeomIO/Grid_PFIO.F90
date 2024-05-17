@@ -48,13 +48,12 @@ contains
       do i=1,num_fields
          call ESMF_FieldBundleGet(bundle, field_names(i), field=field, _RC)
 
-         ! shape for server
          element_count = FieldGetLocalElementCount(field, _RC)
          call ESMF_FieldGet(field, grid=grid, typekind=tk,  _RC)
 
-         global_start = create_global_start(grid, element_count, time_index, _RC)
-         global_count = create_global_count(grid, element_count, _RC)
-         local_start = create_local_start(grid, element_count, _RC)
+         global_start = create_global_start(grid, element_count, time_index=time_index, _RC)
+         global_count = create_global_count(grid, element_count, have_time=.true., _RC)
+         local_start = create_local_start(grid, element_count, have_time=.true., _RC)
 
          ! generate array reference
          call FieldGetCptr(field, address, _RC)
