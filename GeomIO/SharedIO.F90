@@ -34,8 +34,8 @@ module mapl3g_SharedIO
       ungr = sz - 2
       if (tile_count == 6) then
          allocate(file_shape(sz+1))
-         file_shape(1:sz+1) = [field_shape(1), field_shape(2), 1]
-         file_shape(3:ungr) = [field_shape(2+ungr:sz)]
+         file_shape(1:3) = [field_shape(1), field_shape(2), 1]
+         file_shape(4:4+ungr-1) = [field_shape(2+ungr:sz)]
       else if (tile_count == 1) then
          file_shape = field_shape
       else 
