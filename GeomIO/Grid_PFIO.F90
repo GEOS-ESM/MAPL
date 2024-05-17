@@ -55,15 +55,11 @@ contains
          global_start = create_global_start(grid, element_count, time_index, _RC)
          global_count = create_global_count(grid, element_count, _RC)
          local_start = create_local_start(grid, element_count, _RC)
-         print*,'gs ',global_start
-         print*,'gc ',global_count
-         print*,'ls ',local_start
 
          ! generate array reference
          call FieldGetCptr(field, address, _RC)
          type_kind = esmf_to_pfio_type(tk, _RC)
          new_element_count = create_file_shape(grid, element_count, _RC) 
-         print*,'ne ',new_element_count
          ref = ArrayReference(address, type_kind, new_element_count)
 
          call o_clients%collective_stage_data(collection_id,filename, trim(field_names(i)), &
