@@ -52,18 +52,20 @@ module mapl3g_SharedIO
       integer, optional,  intent(in) :: time_index
       integer, intent(out), optional :: rc
 
-      integer :: status, sz, tile_count
+      integer :: status, sz, tile_count, tm
       call ESMF_GridGet(grid, tileCount=tile_count, _RC)
       sz = size(field_shape)
 
+      tm = 0
+      if (present(time_index)) tm=1
       if (tile_count == 6) then
-         allocate(global_start(sz+2))
+         allocate(global_start(sz+1+tm))
          global_start(1:sz+1) = 1
-         global_start(sz+2) = time_index
+         if (present(time_index)) global_start(sz+2) = time_index
       else if (tile_count == 1) then
-         allocate(global_start(sz+1))
+         allocate(global_start(sz+tm))
          global_start(1:sz) = 1
-         global_start(sz+1) = time_index
+         if (present(time_index)) global_start(sz+1) = time_index
       else 
          _FAIL("unsupported grid")
       end if
