@@ -5,6 +5,7 @@ module mapl3g_SharedIO
    use pfio
    use gFTL2_StringVector
    use mapl3g_geom_mgr
+   use MAPL_BaseMod
 
    implicit none
 
@@ -13,8 +14,120 @@ module mapl3g_SharedIO
    public get_mapl_geom
    public create_time_variable
    public bundle_to_metadata
+   public esmf_to_pfio_type
+   public create_local_start
+   public create_global_count
+   public create_global_start
+   public create_file_shape
 
    contains
+
+   function create_file_shape(grid, field_shape, rc) result(file_shape)
+      integer, allocatable :: file_shape(:)
+      type(ESMF_Grid), intent(in) :: grid
+      integer, intent(in) :: field_shape(:)
+      integer, intent(out), optional :: rc
+
+      integer :: status, sz, ungr, tile_count
+      call ESMF_GridGet(grid, tileCount=tile_count, _RC)
+      sz = size(field_shape)
+      ungr = sz - 2
+      if (tile_count == 6) then
+         allocate(file_shape(sz+1))
+         file_shape(1:sz+1) = [field_shape(1), field_shape(2), 1]
+         file_shape(3:ungr) = [field_shape(2+ungr:sz)]
+      else if (tile_count == 1) then
+         file_shape = field_shape
+      else 
+         _FAIL("unsupported grid")
+      end if
+
+      _RETURN(_SUCCESS)
+   end function create_file_shape
+
+   function create_global_start(grid, field_shape, time_index, rc) result(global_start)
+      integer, allocatable :: global_start(:)
+      type(ESMF_Grid), intent(in) :: grid
+      integer, intent(in) :: field_shape(:)
+      integer, intent(in) :: time_index
+      integer, intent(out), optional :: rc
+
+      integer :: status, sz, tile_count
+      call ESMF_GridGet(grid, tileCount=tile_count, _RC)
+      sz = size(field_shape)
+
+      if (tile_count == 6) then
+         allocate(global_start(sz+2))
+         global_start(1:sz+1) = 1
+         global_start(sz+2) = time_index
+      else if (tile_count == 1) then
+         allocate(global_start(sz+1))
+         global_start(1:sz) = 1
+         global_start(sz+1) = time_index
+      else 
+         _FAIL("unsupported grid")
+      end if
+
+      _RETURN(_SUCCESS)
+   end function create_global_start
+
+   function create_global_count(grid, field_shape, rc) result(global_count)
+      integer, allocatable :: global_count(:)
+      type(ESMF_Grid), intent(in) :: grid
+      integer, intent(in) :: field_shape(:)
+      integer, intent(out), optional :: rc
+
+      integer :: status, sz, ungr, tile_count, global_dim(3)
+      call ESMF_GridGet(grid, tileCount=tile_count, _RC)
+      call MAPL_GridGet(grid, globalCellCountPerDim=global_dim, _RC)
+      sz = size(field_shape)
+      ungr = sz - 2
+
+      if (tile_count == 6) then
+         allocate(global_count(sz+2))
+         global_count(1:3) =[global_dim(1),global_dim(1),6]
+         global_count(4:4+ungr-1) = field_shape(3:sz)
+         global_count(sz+2) = 1
+      else if (tile_count == 1) then
+         allocate(global_count(sz+1))
+         global_count(1:2) =[global_dim(1),global_dim(2)]
+         global_count(3:3+ungr-1) = field_shape(3:sz)
+         global_count(sz+1) = 1
+      else 
+         _FAIL("unsupported grid")
+      end if
+      
+
+      _RETURN(_SUCCESS)
+   end function create_global_count
+
+   function create_local_start(grid, field_shape, rc) result(local_start)
+      integer, allocatable :: local_start(:)
+      type(ESMF_Grid), intent(in) :: grid
+      integer, intent(in) :: field_shape(:)
+      integer, intent(out), optional :: rc
+
+      integer :: status, sz, ungr, tile_count, i1, in, j1, jn, tile, global_dim(3)
+      call ESMF_GridGet(grid, tileCount=tile_count, _RC)
+      call MAPL_GridGetInterior(grid, i1,in, j1, jn)
+      call MAPL_GridGet(grid, globalCellCountPerDim=global_dim, _RC)
+      sz = size(field_shape)
+      ungr = sz - 2
+      if (tile_count == 6) then
+         tile = 1 + (j1-1)/global_dim(1)
+         allocate(local_start(sz+2))
+         local_start(1:3) = [i1, j1-(tile-1)*global_dim(1),tile]
+         local_start(4:4+ungr) = 1
+      else if (tile_count == 1) then
+         allocate(local_start(sz+1))
+         local_start(1:2) = [i1,j1]
+         local_start(3:3+ungr) = 1 
+      else 
+         _FAIL("unsupported grid")
+      end if
+
+      _RETURN(_SUCCESS)
+   end function create_local_start
 
    function bundle_to_metadata(bundle, geom, rc) result(metadata)
       type(FileMetaData) :: metadata
@@ -86,7 +199,6 @@ module mapl3g_SharedIO
       mapl_geom => get_mapl_geom(esmfgeom, _RC)
       grid_variables = mapl_geom%get_gridded_dims()
       dims = string_vec_to_comma_sep(grid_variables)
-      dims = 'lon,lat'
       call ESMF_FieldGet(field, name=fname, typekind = typekind, _RC)
       ! add vertical dimension
 

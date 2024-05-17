@@ -3,7 +3,7 @@
 
 module pFIO_ArrayReferenceMod
    use, intrinsic :: iso_c_binding, only: C_NULL_PTR
-   use, intrinsic :: iso_c_binding, only: c_loc
+   use, intrinsic :: iso_c_binding, only: c_loc, c_ptr
    use, intrinsic :: iso_fortran_env, only: INT32
    use, intrinsic :: iso_fortran_env, only: INT64
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -25,6 +25,7 @@ module pFIO_ArrayReferenceMod
    end type ArrayReference
 
    interface ArrayReference
+      module procedure new_ArrayReference_from_param
       module procedure new_ArrayReference_0d
       module procedure new_ArrayReference_1d
       module procedure new_ArrayReference_2d
@@ -35,6 +36,15 @@ module pFIO_ArrayReferenceMod
 
 contains
 
+   function new_ArrayReference_from_param(in_c_loc, in_kind, in_shape) result(reference)
+      type (ArrayReference) :: reference
+      type(c_ptr), intent(in) :: in_c_loc
+      integer, intent(in) :: in_kind
+      integer, intent(in) :: in_shape(:)
+      reference%base_address = in_c_loc
+      reference%shape = in_shape
+      reference%type_kind = in_kind
+   end function
 
    function new_ArrayReference_0d(scalar, rc) result(reference)
       type (ArrayReference) :: reference
