@@ -489,7 +489,9 @@ contains
     integer :: recvcount
     integer :: is, ie, ierr
     integer :: M, N, ip
-         
+
+    type(GriddedIOitemVectorIterator) :: iter
+    type(GriddedIOitem), pointer :: item
     
     this%obs_written=this%obs_written+1
 
@@ -591,106 +593,90 @@ contains
           end if
           
        else if (rank==3) then
-          ! -- regrid
-          ! -- LS   ds->chunk
-          ! --      chunk->rt
-          !
-          call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
-          call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
-          call ESMF_FieldGet(acc_field,farrayptr=p_acc_3d,_RC)
-          if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-             allocate(p_new_lev(size(p_src_3d,1),size(p_src_3d,2),this%vdata%lm),_STAT)
-             call this%vdata%regrid_eta_to_pressure(p_src_3d,p_new_lev,_RC)
-             call this%regridder%regrid(p_new_lev,p_dst_3d,_RC)
-             if (is > 0 .AND. is <= ie ) then
-                p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
-             end if
-          else
-             call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
-             if (is > 0 .AND. is <= ie ) then
-                p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
-             end if
-          end if
-          
-          
-          call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
-          dst_field=ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4, &
-               gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-          src_field=ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4, &
-               gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-          
-          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,_RC)
-          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,_RC)
-          p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
-          call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
-          
-          if (this%level_by_level) then
-             ! p_dst (lm, nx)
-             allocate ( p_dst_t, source = reshape ( p_dst, [size(p_dst,2),size(p_dst,1)], order=[2,1] ) )
-             do k = 1, lm
-                call MPI_gatherv ( p_dst_t(1,k), nsend, MPI_REAL, &
-                     p_acc_rt_3d(1,k), recvcount, displs, MPI_REAL,&
-                     iroot, mpic, ierr )
-             end do
-             deallocate (p_dst_t)
-          else
-             call MPI_gatherv ( p_dst, nsend_v, MPI_REAL, &
-                  p_dst_rt, recvcount_v, displs_v, MPI_REAL,&
-                  iroot, mpic, ierr )
-             p_acc_rt_3d = reshape ( p_dst_rt, shape(p_acc_rt_3d), order=[2,1] )
-          end if
-          
-          call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
-          call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
-
-
-
-          call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-          if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
-             lb(1)=1
-             ub(1)=this%vdata%lm
-          end if
-          dst_field = ESMF_FieldCreate(this%LS_ds,name=xname,&
-               typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-          call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
-          call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
-
-          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,_RC)
-          p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
-          call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
-
-          if (mapl_am_i_root()) then
-             nx=size(p_dst_3d,1); nz=size(p_dst_3d,2); allocate(arr(nz, nx), _STAT)
-             arr=reshape(p_dst_3d,[nz,nx],order=[2,1])
-             call this%formatter%put_var(xname,arr,&
-                  start=[1,1,this%obs_written],count=[nz,nx,1],_RC)
-             !note:     lev,station,time
-             deallocate(arr)
-          end if
-          call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
-
+!!          ! -- regrid
+!!          ! -- LS   ds->chunk
+!!          ! --      chunk->rt
+!!          !
+!!          call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
+!!          call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
+!!          call ESMF_FieldGet(acc_field,farrayptr=p_acc_3d,_RC)
+!!          if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+!!             allocate(p_new_lev(size(p_src_3d,1),size(p_src_3d,2),this%vdata%lm),_STAT)
+!!             call this%vdata%regrid_eta_to_pressure(p_src_3d,p_new_lev,_RC)
+!!             call this%regridder%regrid(p_new_lev,p_dst_3d,_RC)
+!!             if (is > 0 .AND. is <= ie ) then
+!!                p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
+!!             end if
+!!          else
+!!             call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
+!!             if (is > 0 .AND. is <= ie ) then
+!!                p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
+!!             end if
+!!          end if
+!!          
+!!          
+!!          call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
+!!          dst_field=ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4, &
+!!               gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+!!          src_field=ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4, &
+!!               gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+!!          
+!!          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,_RC)
+!!          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,_RC)
+!!          p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
+!!          call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
+!!          
+!!          if (this%level_by_level) then
+!!             ! p_dst (lm, nx)
+!!             allocate ( p_dst_t, source = reshape ( p_dst, [size(p_dst,2),size(p_dst,1)], order=[2,1] ) )
+!!             do k = 1, lm
+!!                call MPI_gatherv ( p_dst_t(1,k), nsend, MPI_REAL, &
+!!                     p_acc_rt_3d(1,k), recvcount, displs, MPI_REAL,&
+!!                     iroot, mpic, ierr )
+!!             end do
+!!             deallocate (p_dst_t)
+!!          else
+!!             call MPI_gatherv ( p_dst, nsend_v, MPI_REAL, &
+!!                  p_dst_rt, recvcount_v, displs_v, MPI_REAL,&
+!!                  iroot, mpic, ierr )
+!!             p_acc_rt_3d = reshape ( p_dst_rt, shape(p_acc_rt_3d), order=[2,1] )
+!!          end if
+!!          
+!!          call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
+!!          call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
+!!
+!!
+!!
+!!          call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+!!          if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
+!!             lb(1)=1
+!!             ub(1)=this%vdata%lm
+!!          end if
+!!          dst_field = ESMF_FieldCreate(this%LS_ds,name=xname,&
+!!               typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+!!          call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
+!!          call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
+!!
+!!          call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,_RC)
+!!          p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
+!!          call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
+!!
+!!          if (mapl_am_i_root()) then
+!!             nx=size(p_dst_3d,1); nz=size(p_dst_3d,2); allocate(arr(nz, nx), _STAT)
+!!             arr=reshape(p_dst_3d,[nz,nx],order=[2,1])
+!!             call this%formatter%put_var(xname,arr,&
+!!                  start=[1,1,this%obs_written],count=[nz,nx,1],_RC)
+!!             !note:     lev,station,time
+!!             deallocate(arr)
+!!          end if
+!!          call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
+!!
 
        else
           _FAIL('grid2LS regridder: rank > 3 not implemented')
        end if
     end do
 
-    
-
-          call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
-          call ESMF_FieldGet(src_field,rank=rank,_RC)
-          if (rank==1) then
-             call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC )
-             call ESMF_FieldGet( acc_field_2d_chunk, localDE=0, farrayPtr=p_acc_chunk_2d, _RC )
-             call ESMF_FieldRedist( acc_field,  acc_field_2d_chunk, RH, _RC )
-             call MPI_gatherv ( p_acc_chunk_2d, nsend, MPI_REAL, &
-                  p_acc_rt_2d, recvcount, displs, MPI_REAL,&
-                  iroot, mpic, ierr )
-             
-             
-    
-
-    
     call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
     allocate (fieldNameList(fieldCount), _STAT)
     call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
