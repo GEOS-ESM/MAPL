@@ -192,11 +192,11 @@ contains
       end if
       do i=1, num_dims
          dim_key = make_dim_key(i, _RC)
-         call ESMF_InfoGetCharAlloc(info, key=dim_key // KEY_NAME, value=name, _RC)
-         call ESMF_InfoGetCharAlloc(info, key=dim_key // KEY_UNITS, value=units, _RC)
-         call ESMF_InfoGet(info, key=dim_key // KEY_COORD, size=num_coord, _RC)
+         call ESMF_InfoGetCharAlloc(info, key=dim_key // KEY_UNGRIDDED_NAME, value=name, _RC)
+         call ESMF_InfoGetCharAlloc(info, key=dim_key // KEY_UNGRIDDED_UNITS, value=units, _RC)
+         call ESMF_InfoGet(info, key=dim_key // KEY_UNGRIDDED_COORD, size=num_coord, _RC)
          allocate(coordinates(num_coord))
-         call ESMF_InfoGet(info, key=dim_key // KEY_COORD, values=coordinates, _RC)
+         call ESMF_InfoGet(info, key=dim_key // KEY_UNGRIDDED_COORD, values=coordinates, _RC)
          next = UngriddedDim(name, units, coordinates)
          vi = get_index_by_name(vec, name)
          if(vi > 0) then

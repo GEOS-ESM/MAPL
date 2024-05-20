@@ -239,43 +239,6 @@ contains
 
    !@Test
 !   subroutine test_get_output_info_bundle()
-!      type(ESMF_HConfig) :: hconfig_geom, hconfig_hist
-!      type(ESMF_Geom) :: geom
-!      type(ESMF_Grid) :: grid
-!      integer :: rank,fieldCount
-!      integer :: status
-!      logical :: found
-!      type(ESMF_State) :: state, substate
-!      type(ESMF_FieldBundle) :: bundle
-!      type(ESMF_Field) :: field
-!      type(OutputInfoSet) :: out_set
-!
-!      !call ESMF_Initialize(_RC)
-!      hconfig_geom = ESMF_HConfigCreate(content= &
-!         "{geom: {class: latlon, im_world: 14, jm_world: 13, pole: PC, " // &
-!         "dateline: DC, nx: 1, ny: 1}}", _RC)
-!      geom = make_geom(hconfig_geom, _RC)
-!      call ESMF_GeomGet(geom, grid=grid, _RC)
-!
-!      field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="E_1", _RC)
-!      substate = ESMF_StateCreate(fieldList=[field], name= "DYN", _RC)
-!      state = ESMF_Statecreate(nestedStateList=[substate],_RC)
-!
-!      hconfig_hist = ESMF_HConfigCreate(content= &
-!         "{var_list: {E1: {expr: DYN.E_1}}}", _RC)
-! 
-!      bundle = create_output_bundle(hconfig_hist, state, _RC)
-!      out_set = get_output_info_bundle(bundle, _RC)
-!      !@assertEqual(1, out_set%size(), 'There should be one element.')
-!      call ESMF_HConfigDestroy(hconfig_hist, _RC)
-!      !call ESMF_FieldBundleDestroy(bundle, nogarbage=.true. ,_RC)
-!      !call ESMF_FieldDestroy(field, nogarbage=.true., _RC)
-!      !call ESMF_StateDestroy(state, nogarbage=.true., _RC)
-!      !call ESMF_GridDestroy(grid, nogarbage=.true., _RC)
-!      !call ESMF_GeomDestroy(geom, _RC)
-!      !call ESMF_HConfigDestroy(hconfig_geom, _RC)
-!      !call ESMF_Finalize()
-!
 !   end subroutine test_get_output_info_bundle
 
 end module Test_HistoryCollectionGridComp
