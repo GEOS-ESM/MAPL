@@ -107,7 +107,7 @@ module mapl3g_pFIOServerBounds
 
       else
          _FAIL("unsupported grid")
-      end if
+      end select
 
       _RETURN(_SUCCESS)
 
