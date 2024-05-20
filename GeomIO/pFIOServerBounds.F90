@@ -61,7 +61,7 @@ module mapl3g_pFIOServerBounds
       integer, intent(out), optional :: rc
 
       integer :: status, tile_count, n_dims, ungrid_dims, tm, global_dim(3)
-      integer :: i1, in, j1, jn, tile
+      integer :: i1, in, j1, jn, tile, extra_file_dim
 
       call ESMF_GridGet(grid, tileCount=tile_count, _RC)
       call MAPL_GridGetInterior(grid, i1,in, j1, jn)
@@ -71,12 +71,15 @@ module mapl3g_pFIOServerBounds
       tm = 0
       if (present(time_index))  tm = 1
 
+      extra_file_dim = 0
+      if (tile_count == 6) extra_file_dim = 1
+      allocate(this%file_shape(n_dims+extra_file_dim))
+      allocate(this%global_start(n_dims+extra_file_dim+tm))
+      allocate(this%global_count(n_dims+extra_file_dim+tm))
+      allocate(this%local_start(n_dims+extra_file_dim+tm))
+
       if (tile_count == 6) then
          tile = 1 + (j1-1)/global_dim(1)
-         allocate(this%file_shape(n_dims+1))
-         allocate(this%global_start(n_dims+1+tm))
-         allocate(this%global_count(n_dims+1+tm))
-         allocate(this%local_start(n_dims+1+tm))
 
          this%file_shape(1:grid_dims+1) = [field_shape(1), field_shape(2) ,1]
          this%file_shape(grid_dims+2:grid_dims+ungrid_dims+1) = [field_shape(grid_dims+ungrid_dims:n_dims)]
@@ -93,9 +96,6 @@ module mapl3g_pFIOServerBounds
 
 
       else if (tile_count == 1) then
-         allocate(this%global_start(n_dims+tm))
-         allocate(this%global_count(n_dims+tm))
-         allocate(this%local_start(n_dims+tm))
          
          this%file_shape = field_shape
 
