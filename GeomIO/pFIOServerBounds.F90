@@ -103,7 +103,7 @@ module mapl3g_pFIOServerBounds
          if (present(time_index)) this%global_start(n_dims+1) = time_index
 
          this%global_count(1:grid_dims) = [global_dim(1), global_dim(2)]
-         this%global_count(grid_dims+1:grid_dims+ungrid_dims) = field_shape(grid_dims:n_dims)
+         this%global_count(grid_dims+1:grid_dims+ungrid_dims) = field_shape(grid_dims+1:n_dims)
          if (present(time_index)) this%global_count(n_dims+1) = 1
 
          this%local_start = 1
