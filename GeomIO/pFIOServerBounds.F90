@@ -60,58 +60,55 @@ module mapl3g_pFIOServerBounds
       integer, intent(in), optional :: time_index
       integer, intent(out), optional :: rc
 
-      integer :: status, tile_count, n_dims, ungrid_dims, tm, global_dim(3)
-      integer :: i1, in, j1, jn, tile, extra_file_dim
+      integer :: status, tile_count, n_dims, tm, global_dim(3)
+      integer :: i1, in, j1, jn, tile, extra_file_dim, file_dims, new_grid_dims
 
       call ESMF_GridGet(grid, tileCount=tile_count, _RC)
       call MAPL_GridGetInterior(grid, i1,in, j1, jn)
       call MAPL_GridGet(grid, globalCellCountPerDim=global_dim, _RC)
       n_dims = size(field_shape)
-      ungrid_dims = n_dims - grid_dims
+
       tm = 0
       if (present(time_index))  tm = 1
 
       extra_file_dim = 0
       if (tile_count == 6) extra_file_dim = 1
-      allocate(this%file_shape(n_dims+extra_file_dim))
-      allocate(this%global_start(n_dims+extra_file_dim+tm))
-      allocate(this%global_count(n_dims+extra_file_dim+tm))
-      allocate(this%local_start(n_dims+extra_file_dim+tm))
+
+      new_grid_dims = grid_dims + extra_file_dim
+      file_dims = n_dims + extra_file_dim
+
+      allocate(this%file_shape(file_dims))
+      allocate(this%global_start(file_dims+tm))
+      allocate(this%global_count(file_dims+tm))
+      allocate(this%local_start(file_dims+tm))
+
+      this%file_shape(new_grid_dims+1:file_dims) = [field_shape(grid_dims+1:n_dims)]
+
+      this%global_start(1:file_dims+1) = 1
+      if(present(time_index)) this%global_start(file_dims+1) = time_index
+
+      this%global_count(new_grid_dims+1:file_dims) = field_shape(grid_dims+1:n_dims)
+      if (present(time_index)) this%global_count(file_dims+1) = 1 
+
+      this%local_start = 1
 
       if (tile_count == 6) then
+
          tile = 1 + (j1-1)/global_dim(1)
-
-         this%file_shape(1:grid_dims+1) = [field_shape(1), field_shape(2) ,1]
-         this%file_shape(grid_dims+2:grid_dims+ungrid_dims+1) = [field_shape(grid_dims+ungrid_dims:n_dims)]
-
-         this%global_start(1:n_dims+1) = 1
-         if(present(time_index)) this%global_start(n_dims+2) = time_index
-
-         this%global_count(1:grid_dims+1) =[global_dim(1), global_dim(1), tile_count]
-         this%global_count(grid_dims+2:grid_dims+ungrid_dims+1) = field_shape(grid_dims+1:n_dims)
-         if (present(time_index)) this%global_count(n_dims+2) = 1 
-
-         this%local_start = 1
-         this%local_start(1:grid_dims+1) = [i1, j1-(tile-1)*global_dim(1), tile]
-
+         this%file_shape(1:new_grid_dims) = [field_shape(1), field_shape(2) ,1]
+         this%global_count(1:new_grid_dims) =[global_dim(1), global_dim(1), tile_count]
+         this%local_start(1:new_grid_dims) = [i1, j1-(tile-1)*global_dim(1), tile]
 
       else if (tile_count == 1) then
          
-         this%file_shape = field_shape
-
-         this%global_start(1:n_dims) = 1
-         if (present(time_index)) this%global_start(n_dims+1) = time_index
-
-         this%global_count(1:grid_dims) = [global_dim(1), global_dim(2)]
-         this%global_count(grid_dims+1:grid_dims+ungrid_dims) = field_shape(grid_dims+1:n_dims)
-         if (present(time_index)) this%global_count(n_dims+1) = 1
-
-         this%local_start = 1
-         this%local_start(1:grid_dims) = [i1,j1]
+         this%file_shape(1:new_grid_dims) = [field_shape(1), field_shape(2)]
+         this%global_count(1:new_grid_dims) = [global_dim(1), global_dim(2)]
+         this%local_start(1:new_grid_dims) = [i1,j1]
 
       else
          _FAIL("unsupported grid")
       end if
+
       _RETURN(_SUCCESS)
 
    end subroutine initialize
