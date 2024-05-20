@@ -2427,7 +2427,7 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-             list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
+             list(n)%trajectory = HistoryTrajectory(cfg,string,clock,genstate=GENSTATE,_RC)
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
@@ -3457,11 +3457,14 @@ ENDDO PARSER
   ! swath only
    epoch_swath_grid_case: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
-      call MAPL_TimerOn(GENSTATE,"SwathGen")
       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+         call MAPL_TimerOn(GENSTATE,"Swath")
+         call MAPL_TimerOn(GENSTATE,"RegridAccum")
          call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
+         call MAPL_TimerOff(GENSTATE,"RegridAccum")
 
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
+            call MAPL_TimerOn(GENSTATE,"RegenGriddedio")
             create_mode = PFIO_NOCLOBBER ! defaut no overwrite
             if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
             ! add time to items
@@ -3479,12 +3482,13 @@ ENDDO PARSER
             call list(n)%mGriddedIO%destroy(_RC)
             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
             call list(n)%items%pop_back()
-
             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
+            call MAPL_TimerOff(GENSTATE,"RegenGriddedio")
          endif
+         call MAPL_TimerOff(GENSTATE,"Swath")
       end if
-      call MAPL_TimerOff(GENSTATE,"SwathGen")
+
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    end do epoch_swath_grid_case
 
@@ -3531,7 +3535,7 @@ ENDDO PARSER
                ! it's tempting to use the variable "oneMonth" but it does not work
                ! instead we compute the differece between
                ! thisMonth and lastMonth and as a new timeInterval
-
+               !
                call ESMF_ClockGet(clock,currTime=current_time,_RC)
                call ESMF_TimeIntervalSet( oneMonth, MM=1, _RC)
                lastMonth = current_time - oneMonth
@@ -3651,6 +3655,7 @@ ENDDO PARSER
          if (.not.list(n)%timeseries_output .AND. &
               list(n)%sampler_spec /= 'station' .AND. &
               list(n)%sampler_spec /= 'mask') then
+
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
             else
@@ -3699,13 +3704,23 @@ ENDDO PARSER
             end if IOTYPE
          end if
 
+
          if (list(n)%sampler_spec == 'station') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
+            call MAPL_TimerOn(GENSTATE,"Station")
+            call MAPL_TimerOn(GENSTATE,"AppendFile")
             call list(n)%station_sampler%append_file(current_time,_RC)
+            call MAPL_TimerOff(GENSTATE,"AppendFile")
+            call MAPL_TimerOff(GENSTATE,"Station")
          elseif (list(n)%sampler_spec == 'mask') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
+            call MAPL_TimerOn(GENSTATE,"Mask")
+            call MAPL_TimerOn(GENSTATE,"AppendFile")
             call list(n)%mask_sampler%append_file(current_time,_RC)
+            call MAPL_TimerOff(GENSTATE,"AppendFile")
+            call MAPL_TimerOff(GENSTATE,"Mask")
          endif
+
 
       endif OUTTIME
 
@@ -3732,20 +3747,20 @@ ENDDO PARSER
   ! swath only
    epoch_swath_regen_grid: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
-      call MAPL_TimerOn(GENSTATE,"Swath regen")
       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+         call MAPL_TimerOn(GENSTATE,"Swath")
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) .and. .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
-
+            call MAPL_TimerOn(GENSTATE,"RegenGrid")
             key_grid_label = list(n)%output_grid_label
             call Hsampler%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler, _RC )
-
             pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
             call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,Hsampler%tunit, &
                  ogrid=pgrid,vdata=list(n)%vdata,_RC)
             if( MAPL_AM_I_ROOT() )  write(6,'(//)')
+            call MAPL_TimerOff(GENSTATE,"RegenGrid")
          endif
+         call MAPL_TimerOff(GENSTATE,"Swath")
       end if
-      call MAPL_TimerOff(GENSTATE,"Swath regen")
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    end do epoch_swath_regen_grid
 
@@ -3762,16 +3777,24 @@ ENDDO PARSER
    WRITELOOP: do n=1,nlist
 
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
-      call MAPL_TimerOn(GENSTATE,"Write Timeseries")
+
       if (list(n)%timeseries_output) then
+         call MAPL_TimerOn(GENSTATE,"Trajectory")
+         call MAPL_TimerOn(GENSTATE,"RegridAccum")
          call list(n)%trajectory%regrid_accumulate(_RC)
+         call MAPL_TimerOff(GENSTATE,"RegridAccum")
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
+            call MAPL_TimerOn(GENSTATE,"AppendFile")
             call list(n)%trajectory%append_file(current_time,_RC)
             call list(n)%trajectory%close_file_handle(_RC)
+            call MAPL_TimerOff(GENSTATE,"AppendFile")
             if ( .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
+               call MAPL_TimerOn(GENSTATE,"RegenLS")
                call list(n)%trajectory%destroy_rh_regen_LS (_RC)
+               call MAPL_TimerOff(GENSTATE,"RegenLS")
             end if
          end if
+         call MAPL_TimerOff(GENSTATE,"Trajectory")
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then
@@ -3780,7 +3803,6 @@ ENDDO PARSER
 
       end if
 
-      call MAPL_TimerOff(GENSTATE,"Write Timeseries")
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    enddo WRITELOOP
 

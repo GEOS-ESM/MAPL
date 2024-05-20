@@ -79,20 +79,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for procedures.">9 statements</a>
+                 title=" 0.0% of total for procedures.">8 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/test_MAPL_DateTime_Parsing.pf"> Source File</a>
+              <a href="../src/test_MAPL_ISO8601_DateTime.pf"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/test_mapl_datetime_parsing.pf.html'>test_MAPL_DateTime_Parsing.pf</a></li>
-                <li class="breadcrumb-item"><a href='../module/test_mapl_datetime_parsing.html'>test_MAPL_DateTime_Parsing</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/test_mapl_iso8601_datetime.pf.html'>test_MAPL_ISO8601_DateTime.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_mapl_iso8601_datetime.html'>test_MAPL_ISO8601_DateTime</a></li>
             <li class="breadcrumb-item active" aria-current="page">test_is_valid_timezone_offset</li>
           </ol>
         </nav>
@@ -200,15 +200,18 @@
 <path fill="none" stroke="#ff0000" d="M166.19,-54C187.93,-54 210.52,-54 229.23,-54"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="229.47,-57.5 239.47,-54 229.47,-50.5 229.47,-57.5"/>
 </g>
-<!-- is_valid_timezone_offset -->
+<!-- proc~is_valid_timezone_offset -->
 <g id="proc~~test_is_valid_timezone_offset~~CallsGraph_node4" class="node">
-<title>is_valid_timezone_offset</title>
-<polygon fill="#777777" stroke="#777777" points="344,-24 202,-24 202,0 344,0 344,-24"/>
+<title>proc~is_valid_timezone_offset</title>
+<g id="a_proc~~test_is_valid_timezone_offset~~CallsGraph_node4"><a xlink:href="../proc/is_valid_timezone_offset.html" xlink:title="is_valid_timezone_offset">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="344,-24 202,-24 202,0 344,0 344,-24"/>
 <text text-anchor="middle" x="273" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_valid_timezone_offset</text>
+</a>
 </g>
-<!-- proc~test_is_valid_timezone_offset&#45;&gt;is_valid_timezone_offset -->
+</g>
+<!-- proc~test_is_valid_timezone_offset&#45;&gt;proc~is_valid_timezone_offset -->
 <g id="proc~~test_is_valid_timezone_offset~~CallsGraph_edge3" class="edge">
-<title>proc~test_is_valid_timezone_offset&#45;&gt;is_valid_timezone_offset</title>
+<title>proc~test_is_valid_timezone_offset&#45;&gt;proc~is_valid_timezone_offset</title>
 <path fill="none" stroke="#ff0000" d="M137.87,-41.96C159.8,-37.07 185.32,-31.37 208.17,-26.26"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="209.12,-29.63 218.12,-24.04 207.6,-22.8 209.12,-29.63"/>
 </g>
@@ -313,10 +316,9 @@ large graphs.</div>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GOOD_TZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">BAD_TZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">60</span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">is_valid_timezone_offset</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">is_valid_timezone_offset</span><span class="p">(</span><span class="mi">60</span><span class="p">))</span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">is_valid_timezone_offset</span><span class="p">(</span><span class="o">-</span><span class="mi">60</span><span class="p">))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">is_valid_timezone_offset</span><span class="p">(</span><span class="mi">60</span><span class="p">))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">is_valid_timezone_offset</span><span class="p">(</span><span class="o">-</span><span class="mi">60</span><span class="p">))</span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">is_valid_timezone_offset</span><span class="p">(</span><span class="mi">4320</span><span class="p">))</span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">is_valid_timezone_offset</span><span class="p">(</span><span class="o">-</span><span class="mi">1441</span><span class="p">))</span>
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">test_is_valid_timezone_offset</span>
 </pre></div>
 
@@ -341,7 +343,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-05-17T15:10:27.649676             </p>
+ on 2024-05-20T19:15:09.088726             </p>
           </div>
         </div>
         <br>
