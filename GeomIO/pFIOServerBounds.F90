@@ -92,20 +92,21 @@ module mapl3g_pFIOServerBounds
 
       this%local_start = 1
 
-      if (tile_count == 6) then
+      select case (tile_count)
+      case (6) then ! Assume cubed-sphere
 
          tile = 1 + (j1-1)/global_dim(1)
          this%file_shape(1:new_grid_dims) = [field_shape(1), field_shape(2) ,1]
          this%global_count(1:new_grid_dims) =[global_dim(1), global_dim(1), tile_count]
          this%local_start(1:new_grid_dims) = [i1, j1-(tile-1)*global_dim(1), tile]
 
-      else if (tile_count == 1) then
+      case (1) then
          
          this%file_shape(1:new_grid_dims) = [field_shape(1), field_shape(2)]
          this%global_count(1:new_grid_dims) = [global_dim(1), global_dim(2)]
          this%local_start(1:new_grid_dims) = [i1,j1]
 
-      else
+      case default
          _FAIL("unsupported grid")
       end select
 
