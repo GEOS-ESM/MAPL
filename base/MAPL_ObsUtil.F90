@@ -941,11 +941,16 @@ contains
 
     character(kind=C_CHAR, len=:), allocatable :: c_search_name
     character(kind=C_CHAR, len=512) :: c_filename
-    integer slen
+    integer :: slen, lenmax
 
     c_search_name = trim(search_name)//C_NULL_CHAR
     rc = f_call_c_glob(c_search_name, c_filename, slen)
     filename=""
+    lenmax = len(filename)
+    if (lenmax < slen) then
+       if (MAPL_AM_I_ROOT())  write(6,*) 'pathlen vs filename_max_char_len: ', slen, lenmax
+       _FAIL ('PATHLEN is greater than filename_max_char_len')
+    end if
     if (slen>0) filename(1:slen)=c_filename(1:slen)
 
     return
