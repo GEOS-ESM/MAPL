@@ -8,6 +8,7 @@ module mapl3g_GridPFIO
    use PFIO
    use MAPL_BaseMod
    use MAPL_FieldPointerUtilities
+   use mapl3g_pFIOServerBounds
    use, intrinsic :: iso_c_binding, only: c_ptr
    implicit none
    private
@@ -40,6 +41,7 @@ contains
       integer, allocatable :: element_count(:), new_element_count(:) 
 
       type(ESMF_Grid) :: grid
+      type(pFIOServerBounds) :: server_bounds
 
       collection_id = this%get_collection_id()
       call ESMF_FieldBundleGet(bundle, fieldCount=num_fields, _RC)
@@ -51,14 +53,15 @@ contains
          element_count = FieldGetLocalElementCount(field, _RC)
          call ESMF_FieldGet(field, grid=grid, typekind=tk,  _RC)
 
-         global_start = create_global_start(grid, element_count, time_index=time_index, _RC)
-         global_count = create_global_count(grid, element_count, have_time=.true., _RC)
-         local_start = create_local_start(grid, element_count, have_time=.true., _RC)
-
+         call server_bounds%create_server_bounds(grid, element_count, time_index=time_index, _RC)
+         global_start = server_bounds%get_global_start()
+         global_count = server_bounds%get_global_count()
+         local_start = server_bounds%get_local_start()
+         
          ! generate array reference
          call FieldGetCptr(field, address, _RC)
          type_kind = esmf_to_pfio_type(tk, _RC)
-         new_element_count = create_file_shape(grid, element_count, _RC) 
+         new_element_count = server_bounds%get_file_shape()
          ref = ArrayReference(address, type_kind, new_element_count)
 
          call o_clients%collective_stage_data(collection_id,filename, trim(field_names(i)), &

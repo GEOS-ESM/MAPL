@@ -25,13 +25,13 @@ module pFIO_ArrayReferenceMod
    end type ArrayReference
 
    interface ArrayReference
-      module procedure new_ArrayReference_from_param
-      module procedure new_ArrayReference_0d
-      module procedure new_ArrayReference_1d
-      module procedure new_ArrayReference_2d
-      module procedure new_ArrayReference_3d
-      module procedure new_ArrayReference_4d
-      module procedure new_ArrayReference_5d
+      procedure new_ArrayReference_from_param
+      procedure new_ArrayReference_0d
+      procedure new_ArrayReference_1d
+      procedure new_ArrayReference_2d
+      procedure new_ArrayReference_3d
+      procedure new_ArrayReference_4d
+      procedure new_ArrayReference_5d
    end interface ArrayReference
 
 contains
