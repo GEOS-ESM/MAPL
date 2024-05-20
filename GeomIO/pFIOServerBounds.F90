@@ -20,7 +20,7 @@ module mapl3g_pFIOServerBounds
       integer, allocatable :: global_count(:)
       integer, allocatable :: file_shape(:)
    contains
-      procedure :: create_server_bounds
+      procedure :: initialize
       procedure :: get_local_start
       procedure :: get_global_start
       procedure :: get_global_count
@@ -53,7 +53,7 @@ module mapl3g_pFIOServerBounds
       file_shape =this%file_shape
    end function get_file_shape
 
-   subroutine create_server_bounds(this, grid, field_shape, time_index, rc)
+   subroutine initialize(this, grid, field_shape, time_index, rc)
       class(pFIOServerBounds), intent(inout) :: this
       type(ESMF_Grid), intent(in) :: grid
       integer, intent(in) :: field_shape(:)
@@ -114,7 +114,7 @@ module mapl3g_pFIOServerBounds
       end if
       _RETURN(_SUCCESS)
 
-   end subroutine create_server_bounds
+   end subroutine initialize
       
 end module mapl3g_pFIOServerBounds
 

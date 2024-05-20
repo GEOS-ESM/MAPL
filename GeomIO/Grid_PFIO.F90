@@ -53,7 +53,7 @@ contains
          element_count = FieldGetLocalElementCount(field, _RC)
          call ESMF_FieldGet(field, grid=grid, typekind=tk,  _RC)
 
-         call server_bounds%create_server_bounds(grid, element_count, time_index=time_index, _RC)
+         call server_bounds%initialize(grid, element_count, time_index=time_index, _RC)
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
