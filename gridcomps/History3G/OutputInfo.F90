@@ -1,37 +1,41 @@
 #include "MAPL_Generic.h"
 module mapl3g_output_info
 
-   use mapl3g_ungridded_dims_info
-   use esmf, only: ESMF_Field, ESMF_FieldBundle, ESMF_Info, ESMF_InfoGet, ESMF_InfoGetCharAlloc, ESMF_InfoCreate, ESMF_InfoDestroy
+   use mapl3g_ESMF_Info_Keys
+   use mapl3g_UngriddedDims
+   use mapl3g_UngriddedDim
+   use gFTL2_StringVector
+   use esmf, only: ESMF_Field, ESMF_FieldBundle
+   use esmf, only: ESMF_Info, ESMF_InfoCreate, ESMF_InfoDestroy
+   use esmf, only: ESMF_InfoGet, ESMF_InfoGetCharAlloc
    use Mapl_ErrorHandling
 
    implicit none
+
    private
 
    public :: get_num_levels
    public :: get_vertical_dim_spec_names
-   public :: get_ungridded_dims_info
-   public :: UngriddedDimInfoSet
+   public :: get_vertical_dim_spec_name
+   public :: get_ungridded_dims
 
    interface get_num_levels
       module procedure :: get_num_levels_bundle
+      module procedure :: get_num_levels_field
    end interface get_num_levels
 
    interface get_vertical_dim_spec_names
       module procedure :: get_vertical_dim_spec_names_bundle
    end interface get_vertical_dim_spec_names
 
-   interface get_ungridded_dims_info
-      module procedure ::get_ungridded_dims_info_bundle 
-   end interface get_ungridded_dims_info
+   interface get_ungridded_dims
+      module procedure :: get_ungridded_dim_bundle 
+      module procedure :: get_ungridded_dims_field
+   end interface get_ungridded_dims
 
-   character(len=*), parameter :: PREFIX = 'MAPL/'
-   character(len=*), parameter :: KEY_UNGRID_DIM = PREFIX // 'ungridded_dims'
-   character(len=*), parameter :: KEY_VERT_DIM = PREFIX // 'vertical_dim'
-   character(len=*), parameter :: KEY_VERT_GEOM = PREFIX // 'vertical_geom'
-   character(len=*), parameter :: KEY_UNITS = PREFIX // 'units'
-   character(len=*), parameter :: KEY_VLOC = 'vloc'
-   character(len=*), parameter :: KEY_NUM_LEVELS = 'num_levels'
+   interface get_vertical_dim_spec_name
+      module procedure :: get_vertical_dim_spec_name_field
+   end interface get_vertical_dim_spec_name
 
 contains
 
@@ -40,68 +44,69 @@ contains
       type(ESMF_FieldBundle), intent(in) :: bundle
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_Field), allocatable :: fields(:)
-      integer :: nums(:)
-      integer :: sz
+      integer :: i, n
+      type(ESMF_Info), allocatable :: info(:)
 
-      fields = get_bundle_fields(bundle, _RC)
-      sz = size(fields)
-      _ASSERT(sz > 0, 'Empty ESMF_FieldBundle')
-      num = get_num_levels_field(fields(1), _RC)
-      _RETURN_IF(sz == 1)
-      nums = get_num_levels_field(fields(2:sz), _RC)
-      _ASSERT(all(nums == num), 'All fields must have the same number of vertical levels.')
+      info = get_bundle_info(bundle, _RC)
+      num = get_num_levels_info(info(1), _RC)
+      do i=2, size(info)
+         n = get_num_levels_info(info(i), _RC)
+         _ASSERT(n == num, 'All fields must have the same number of vertical levels.')
+      end do
+      call destroy_info(info, _RC)
+      _RETURN(_SUCCESS)
 
    end function get_num_levels_bundle
 
-   elemental integer function get_num_levels_field(field, rc) result(n)
+   integer function get_num_levels_field(field, rc) result(num)
       type(ESMF_Field), intent(in) :: field
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Info) :: info
 
       call ESMF_InfoGetFromHost(field, info, _RC)
-      n = get_num_levels_info(info, _RC)
+      num = get_num_levels_info(info, _RC)
       call ESMF_InfoDestroy(info, _RC)
       _RETURN(_SUCCESS)
 
    end function get_num_levels_field
 
-   elemental integer function get_num_levels_info(info, rc) result(n)
+   integer function get_num_levels_info(info, rc) result(num)
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_Info) :: inner_info
+      logical :: key_present
 
-      inner_info = ESMF_InfoCreate(info, key=KEY_VERT_GEOM, _RC)
-      call ESMF_InfoGet(inner_info, key=KEY_NUM_LEVELS, value=n, _RC)
-      call ESMF_InfoDestroy(inner_info, _RC)
+      num = 0
+      key_present = ESMF_InfoIsPresent(info, key=KEY_NUM_LEVELS, _RC)
+      if(key_present) then
+         call ESMF_InfoGet(info, key=KEY_NUM_LEVELS, value=num, _RC)
+      end if
       _RETURN(_SUCCESS)
       
    end function get_num_levels_info
 
    function get_vertical_dim_spec_names_bundle(bundle, rc) result(names)
-      type(StringSet) :: names
+      type(StringVector) :: names
       type(ESMF_FieldBundle), intent(in) :: bundle
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_Field), allocatable :: fields(:)
-      integer :: sz, i
+      integer :: i
       character(len=:), allocatable :: name
+      type(ESMF_Info), allocatable :: info(:)
 
-      fields = get_bundle_fields(bundle, _RC)
-      sz = size(fields)
-      _ASSERT(sz > 0, 'Empty ESMF_FieldBundle')
-
-      names = StringSet()
-      do i=1, sz
-         name = get_vertical_dim_spec_name_field(field, _RC)
-         call names%insert(name)
+      info = get_bundle_info(bundle, _RC)
+      names = StringVector()
+      do i=1, size(info)
+         name = get_vertical_dim_spec_info(info(i), _RC)
+         if(names%get_index(name)==0) names%push_back(name)
       end do
+      call destroy_bundle_info(info, _RC)
+      _RETURN(_SUCCESS)
 
    end function get_vertical_dim_spec_names_bundle
 
-   elemental function get_vertical_dim_spec_name_field(field, rc) result(spec_name)
+   function get_vertical_dim_spec_name_field(field, rc) result(spec_name)
       character(len=:), allocatable :: spec_name
       type(ESMF_Field), intent(inout) :: field
       integer, optional, intent(out) :: rc
@@ -109,87 +114,149 @@ contains
       type(ESMF_Info) :: info
 
       call ESMF_InfoGetFromHost(field, info, _RC)
-      spec_name = get_vertical_dim_spec_name_info(info, _RC)
+      spec_name = get_vertical_dim_spec_info(info, _RC)
       call ESMF_InfoDestroy(info, _RC)
       _RETURN(_SUCCESS)
 
    end function get_vertical_dim_spec_name_field
 
-   elemental function get_vertical_dim_spec_name_info(info, rc) result(spec_name)
+   function get_vertical_dim_spec_info(info, rc) result(spec_name)
       character(len=:), allocatable :: spec_name
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_Info) :: inner_info
+      integer :: n
 
-      inner_info = ESMF_InfoCreate(info, key=KEY_VERT_DIM, _RC)
-      call ESMF_InfoGetCharAlloc(inner_info, key=KEY_VLOC, value=spec_name, _RC)
-      call ESMF_InfoDestroy(inner_info, _RC)
+      spec_name = ''
+      n = get_num_levels_info(info, _RC) 
+      _RETURN_UNLESS(n > 0)
+      call ESMF_InfoGetCharAlloc(info, key=KEY_VLOC, value=spec_name, _RC)
       _RETURN(_SUCCESS)
 
-   end function get_vertical_dim_spec_name_info
+   end function get_vertical_dim_spec_info
 
-   function get_ungridded_dims_info_bundle(bundle, rc) result(dim_info_set)
-      type(UngriddedDimInfoSet) :: dim_info_set
+   function get_ungridded_dim_bundle(bundle, rc) result(dims)
+      type(UngriddedDims) :: dims
       type(ESMF_FieldBundle), intent(in) :: bundle
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_Field), allocatable :: fields(:)
-      type(UngriddedDimsInfo), allocatable :: dims_info(:)
       integer :: i
+      type(ESMF_Info), allocatable :: info(:)
+      type(UngriddedDimVector) :: vec
 
-      fields = get_bundle_fields(bundle, _RC)
-      _ASSERT(size(fields) > 0, 'Empty ESMF_FieldBundle')
-
-      dims_info = get_ungridded_dims_info_field(fields, _RC)
-      do i=1, size(fields)
-         call dim_info_set%merge(dims_info(i)%as_set())
+      info = get_bundle_info(bundle, _RC)
+      vec = UngriddedDimVector()
+      do i=1, size(info)
+         call push_ungridded_dim_info(vec, info(i), _RC)
       end do
+      dims = UngriddedDims(vec)
+      call destroy_bundle_info(info, _RC)
       _RETURN(_SUCCESS)
 
-   end function get_ungridded_dims_info_bundle
+   end function get_ungridded_dim_bundle
 
-   elemental function get_ungridded_dims_info_field(field, rc) result(ungridded)
-      type(UngriddedDimsInfo) :: ungridded
+   function get_ungridded_dims_field(field, rc) result(ungridded)
+      type(UngriddedDims) :: ungridded
       type(ESMF_Field), intent(inout) :: field
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Info) :: info
+      type(UngriddedDimVector) :: vec
 
       call ESMF_InfoGetFromHost(field, info, _RC)
-      ungridded = get_ungridded_dims_info_info(info, _RC)
+      call push_ungridded_info(vec, info, _RC)
+      ungridded = UngriddedDims(vec)
       call ESMF_InfoDestroy(info, _RC)
       _RETURN(_SUCCESS)
 
-   end function get_ungridded_dims_info_field
+   end function get_ungridded_dims_field
 
-   elemental function get_ungridded_dims_info_info(info, rc) result(ungridded)
-      type(UngriddedDimsInfo) :: ungridded
+   subroutine push_ungridded_dim_info(vec, info, rc)
+      type(UngriddedDimVector), intent(inout) :: vec
       type(ESMF_Info), intent(in) :: info
-      integer, optional, intent(out) :: rc
+      integer, optional, intent(out) :: rc 
       integer :: status
-      type(ESMF_Info) :: inner_info
+      type(UngriddedDim) :: next
+      integer :: num_dims, i, vi
+      logical :: has_dims
+      integer :: num_coord
+      character(len=:), allocatable :: name
+      character(len=:), allocatable :: units
+      character(len=:), allocatable :: dim_key
+      real, allocatable :: coordinates(:)
 
-      inner_info = ESMF_InfoCreate(info, key=KEY_UNGRID_DIM, _rc)
-      ungridded = get_ungridded_dims_info(inner_info, _rc)
-      call ESMF_InfoDestroy(inner_info, _rc)
+      num_dims = 0
+      has_dims = ESMF_InfoIsPresent(info, key=KEY_NUM_UNGRID_DIMS, _RC)
+      if(has_dims) then
+         num_dims = ESMF_InfoGet(info, key=KEY_NUM_UNGRID_DIMS, _RC)
+      end if
+      do i=1, num_dims
+         dim_key = make_dim_key(i, _RC)
+         call ESMF_InfoGetCharAlloc(info, key=dim_key // KEY_NAME, value=name, _RC)
+         call ESMF_InfoGetCharAlloc(info, key=dim_key // KEY_UNITS, value=units, _RC)
+         call ESMF_InfoGet(info, key=dim_key // KEY_COORD, size=num_coord, _RC)
+         allocate(coordinates(num_coord))
+         call ESMF_InfoGet(info, key=dim_key // KEY_COORD, values=coordinates, _RC)
+         next = UngriddedDim(name, units, coordinates)
+         vi = get_index_by_name(vec, name)
+         if(vi > 0) then
+            _ASSERT(UngriddedDim(name, units, coordinates) == vec%at(vi), 'UngriddedDim mismatch.')
+         end if
+         call vec%push_back(UngriddedDim(name, units, coordinates))
+      end do
       _RETURN(_SUCCESS)
 
-   end function get_ungridded_dims_info_info
+   end subroutine push_ungridded_dim_info
+      
+   integer function get_index_by_name(vec, name) result(n)
+      integer :: n
+      type(UngriddedDimVector), intent(in) :: vec
+      character(len=*), intent(in) :: name
+      type(UngriddedDimVectorIterator) :: iter
 
-   function get_bundle_fields(bundle, rc) result(fields)
-      type(ESMF_Field), allocatable :: fields(:)
+      n = 1
+      iter = vec%begin()
+      do while(iter <= vec%end())
+         if(iter%of()%get_name() == name) return
+         n = n + 1
+         call iter%next()
+      end do
+      if(n > vec%size()) n = 0 
+
+   end function get_index_by_name
+
+   function get_bundle_info(bundle, rc) result(bundle_info)
+      type(ESMF_Info), allocatable :: bundle_info(:)
       type(ESMF_FieldBundle), intent(in) :: bundle
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: field_count
+      type(ESMF_Field), allocatable :: fields(:)
+      type(ESMF_Info) :: info
 
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      _ASSERT(field_count > 0, 'Empty bundle')
       allocate(fields(field_count))
       call ESMF_FieldBundleGet(bundle, fieldList=fields, _RC)
-
+      allocate(bundle_info(field_count))
+      do i=1, field_count
+         call ESMF_InfoGetFromHost(field, info, _RC)
+         bundle_info(i) = info
+      end do
       _RETURN(_SUCCESS)
 
-   end function get_bundle_fields
+   end function get_bundle_info
 
+   subroutine destroy_bundle_info(bundle_info, rc)
+      type(ESMF_Info), intent(inout) :: bundle_info(:)
+      integer, optional, intent(out) :: rc 
+      integer :: status, i
+
+      do i=1, size(bundle_info)
+         call ESMF_InfoDestroy(bundle_info(i), _RC)
+      end do
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy_bundle_info
+   
 end module mapl3g_output_info

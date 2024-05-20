@@ -49,9 +49,6 @@ contains
       real, allocatable :: coordinates(:)
       integer :: sz
 
-      call ESMF_InfoGetCharAlloc(info, key='name', value=name, _RC)
-      call ESMF_InfoGetCharAlloc(info, key='units', value=units, _RC)
-      call ESMF_InfoGet(info, key='coordinates', size=sz, _RC)
       allocate(coordinates(sz))
       call ESMF_InfoGet(info, key='coordinates', values=coordinates, _RC)
       ud_info%name = name

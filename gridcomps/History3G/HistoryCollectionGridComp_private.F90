@@ -196,9 +196,6 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      output_present = present(num_levels) .or. present(vertical_dim_spec_names) .or. present(ungridded_dims_info)
-      _ASSERT(, ERROR_MSG)
-
       if(present(num_levels)) then
          num_levels = get_num_levels(bundle, _RC)
          _RETURN_UNLESS(present(vertical_dim_spec_names) .or. present(ungridded_dims_info))

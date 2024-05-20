@@ -9,6 +9,9 @@ set(srcs
  UngriddedDimInfo.F90
  UngriddedDimInfoSet.F90
  UngriddedDimsInfo.F90
+ StringUngriddedDimMap.F90
+ UngriddedDimSet.F90
+ MAPL3G_ESMF_Info_Keys.F90 
  )
 
 find_package (MPI REQUIRED)
