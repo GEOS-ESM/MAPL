@@ -84,7 +84,7 @@ module mapl3g_pFIOServerBounds
 
       this%file_shape(new_grid_dims+1:file_dims) = [field_shape(grid_dims+1:n_dims)]
 
-      this%global_start(1:file_dims+1) = 1
+      this%global_start(1:file_dims) = 1
       if(present(time_index)) this%global_start(file_dims+1) = time_index
 
       this%global_count(new_grid_dims+1:file_dims) = field_shape(grid_dims+1:n_dims)
