@@ -5,6 +5,7 @@ module mapl3g_SharedIO
    use pfio
    use gFTL2_StringVector
    use mapl3g_geom_mgr
+   use MAPL_BaseMod
 
    implicit none
 
@@ -13,6 +14,7 @@ module mapl3g_SharedIO
    public get_mapl_geom
    public create_time_variable
    public bundle_to_metadata
+   public esmf_to_pfio_type
 
    contains
 
@@ -86,7 +88,6 @@ module mapl3g_SharedIO
       mapl_geom => get_mapl_geom(esmfgeom, _RC)
       grid_variables = mapl_geom%get_gridded_dims()
       dims = string_vec_to_comma_sep(grid_variables)
-      dims = 'lon,lat'
       call ESMF_FieldGet(field, name=fname, typekind = typekind, _RC)
       ! add vertical dimension
 
