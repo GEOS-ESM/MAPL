@@ -9,12 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add GNU UFS-like CI test
+
 ### Changed
 
 - pFIO Clients don't send "Done" message when there is no request
 - Update `components.yaml`
   - ESMA_cmake v3.45.1
     - Fix bug in meson detection
+- Updated `checkpoint_simulator` to not create and close file if not writing
 
 ### Fixed
 
@@ -22,12 +25,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.46.1] - 2024-05-10
+
+## Fixed
+
+- Update `components.yaml` to avoid f2py error with python 3.11
+  - ESMA_cmake v3.45.1
+    - Fix bug in meson detection
+
 ## [2.46.0] - 2024-05-02
 
 ### Added
 
 - Update `FindESMF.cmake` to match that in ESMF 8.6.1
-
+- Add timer to the sampler code
 ### Changed
 
 - Set required version of ESMF to 8.6.1
