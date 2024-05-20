@@ -82,7 +82,7 @@ module mapl3g_pFIOServerBounds
       allocate(this%global_count(file_dims+tm))
       allocate(this%local_start(file_dims+tm))
 
-      this%file_shape(new_grid_dims+1:file_dims) = [field_shape(grid_dims+1:n_dims)]
+      this%file_shape(new_grid_dims+1:file_dims) = field_shape(grid_dims+1:n_dims)
 
       this%global_start(1:file_dims) = 1
       if(present(time_index)) this%global_start(file_dims+1) = time_index
