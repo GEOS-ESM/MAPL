@@ -56,7 +56,7 @@ module mapl3g_MaplFramework
       procedure :: is_initialized
    end type MaplFramework
 
-   ! Private singleton object.  Used 
+   ! Private singleton object.  Used
    type(MaplFramework), target :: the_mapl_object
 
    interface MAPL_Get
@@ -114,7 +114,7 @@ contains
       integer :: status
       type(ESMF_Config) :: config
       logical :: esmf_is_initialized
- 
+
      esmf_is_initialized = ESMF_IsInitialized(_RC)
       _RETURN_IF(esmf_is_initialized)
 
@@ -138,13 +138,13 @@ contains
 
          integer :: status
          logical :: has_keystring
-         
+
          has_keystring = ESMF_HConfigIsDefined(hconfig, keystring=keystring, _RC)
          if (has_keystring) then
             subcfg = ESMF_HConfigCreateAt(hconfig, keystring='mapl', _RC)
             _RETURN(_SUCCESS)
          end if
-         
+
          subcfg = ESMF_HConfigCreate(content='{}', _RC)
          _RETURN(_SUCCESS)
       end function get_subconfig
@@ -231,7 +231,7 @@ contains
       has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
       if (.not. has_server_section) then
          ! Should only run on model PETs
-         call MPI_Group_range_incl(world_group, 1, [0, model_petCount-1, 1], model_group, _IERROR)
+         call MPI_Group_range_incl(world_group, 1, reshape([0, model_petCount-1, 1], [3,1]), model_group, _IERROR)
          call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
          call MPI_Group_free(model_group, _IERROR)
          if (present(is_model_pet)) then
@@ -246,7 +246,7 @@ contains
       if (.not. present(servers)) then
          _RETURN(_SUCCESS)
       end if
-      
+
       num_model_ssis = get_num_ssis(model_petCount, ssiCount, ssiMap, ssiOffset=0, _RC)
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
@@ -307,7 +307,7 @@ contains
       type(ESMF_HConfig) :: server_hconfig, comms_hconfig
       character(:), allocatable :: sharedObj
       character(:), allocatable :: userRoutine
-      
+
       server_hconfig = ESMF_HConfigCreateAt(hconfig, _RC)
       comms_hconfig = ESMF_HConfigCreate(content='{}', _RC)
       call ESMF_HConfigAdd(comms_hconfig, comms(1), addKeyString='world_comm', _RC)
@@ -335,7 +335,7 @@ contains
 
       integer :: n_servers, i_server
       type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
-      
+
       n_servers = ESMF_HConfigGetSize(servers_hconfig, _RC)
       allocate(server_hconfigs(n_servers))
 
@@ -400,7 +400,7 @@ contains
       call this%directory_service%publish(PortInfo('o_server', this%o_server), this%o_server)
       clientPtr => o_Clients%current()
       call this%directory_service%connect_to_server('o_server', clientPtr, this%model_comm)
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_simple_oserver

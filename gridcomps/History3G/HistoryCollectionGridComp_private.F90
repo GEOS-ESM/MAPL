@@ -22,7 +22,7 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: create_output_alarm
    public :: set_start_stop_time
    public :: get_output_info_bundle
-
+   public :: get_current_time_index
    ! These are public for testing.
    public :: parse_item_common
    public :: replace_delimiter
@@ -325,5 +325,20 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_expression_variables
+
+   function get_current_time_index(initial_time, current_time, frequency) result(time_index)
+      integer :: time_index
+      type(ESMF_Time), intent(in) :: initial_time
+      type(ESMF_Time), intent(in) :: current_time
+      type(ESMF_TimeInterval), intent(in) :: frequency
+
+      type(ESMF_Time) :: temp_time
+      time_index = 0
+      temp_time = initial_time
+      do while( temp_time <= current_time)
+         temp_time = temp_time + frequency
+         time_index = time_index + 1
+      enddo
+   end function get_current_time_index
 
 end module mapl3g_HistoryCollectionGridComp_private

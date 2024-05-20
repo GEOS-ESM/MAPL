@@ -7,6 +7,7 @@ module mapl3g_HistoryGridComp
    use mapl_ErrorHandling
    use pFlogger, only: logger
    use esmf
+   use pfio
    implicit none
    private
 
@@ -84,6 +85,8 @@ contains
 
       call MAPL_RunChildren(gridcomp, phase_name='run', _RC)
 
+      call o_Clients%done_collective_stage()
+      call o_Clients%post_wait()
       _RETURN(_SUCCESS)
    end subroutine run
 

@@ -78,6 +78,13 @@ module mapl3g_GeomManager
       procedure new_GeomManager
    end interface GeomManager
 
+   abstract interface
+      logical function I_FactoryPredicate(factory)
+         import GeomFactory
+         class(GeomFactory), intent(in) :: factory
+      end function I_FactoryPredicate
+   end interface
+
    interface
       module function new_GeomManager() result(mgr)
          type(GeomManager) :: mgr
@@ -172,6 +179,13 @@ module mapl3g_GeomManager
       module function get_geom_manager() result(geom_mgr)
          type(GeomManager), pointer :: geom_mgr
       end function get_geom_manager
+
+      module function find_factory(factories, predicate, rc) result(factory)
+         class(GeomFactory), pointer :: factory
+         type(GeomFactoryVector), pointer, intent(in) :: factories ! Force TARGET attr on actual
+         procedure(I_FactoryPredicate) :: predicate
+         integer, optional, intent(out) :: rc
+      end function find_factory
    end interface
 
 end module mapl3g_GeomManager
