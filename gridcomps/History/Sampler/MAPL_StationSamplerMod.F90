@@ -25,13 +25,13 @@ module StationSamplerMod
      type(LocStreamFactory)   :: LSF
      type(ESMF_LocStream)     :: LS_rt
      type(ESMF_LocStream)     :: LS_chunk
-     type(ESMF_LocStream)     :: LS_ds  
+     type(ESMF_LocStream)     :: LS_ds
      type(LocstreamRegridder) :: regridder
      type(ESMF_RouteHandle)   :: RH
      type(GriddedIOitemVector) :: items
      logical :: do_vertical_regrid
      logical :: level_by_level
-     
+
      integer                  :: nstation
      integer, allocatable :: station_id(:)
      character(len=ESMF_MAXSTR), allocatable :: station_name(:)
@@ -47,7 +47,7 @@ module StationSamplerMod
      type(TimeData)                 :: time_info
      character(LEN=ESMF_MAXPATHLEN) :: ofile
      integer                        :: obs_written
-     
+
    contains
      procedure                      :: add_metadata_route_handle
      procedure                      :: create_file_handle
@@ -82,10 +82,10 @@ contains
     integer :: M, N, ip
     integer :: arr(1)
     integer :: nx, nx2, nx_sum
-    
+
     real(REAL64), allocatable :: lons_chunk(:)
     real(REAL64), allocatable :: lats_chunk(:)
-    
+
     integer :: unit, ios, nstation, status
     integer :: i, j, k, ncount
     logical :: con1, con2
@@ -102,7 +102,7 @@ contains
     !
 
     lgr => logging%get_logger('HISTORY.sampler')
-    if ( MAPL_AM_I_ROOT() ) then       
+    if ( MAPL_AM_I_ROOT() ) then
        open(newunit=unit, file=trim(filename), form='formatted', &
             access='sequential', status='old', _IOSTAT)
        ios=0
@@ -222,7 +222,7 @@ contains
           end if
        end do
        close(unit)
-       
+
        write(6,*)  'nstation=', nstation
        write(6,*)  'sampler%station_name(1:2) : ', &
             trim(sampler%station_name(1)), trim(sampler%station_name(2))
@@ -232,7 +232,7 @@ contains
             sampler%lats(1:2)
     else
        nstation=0
-       sampler%nstation = 0 
+       sampler%nstation = 0
        allocate(sampler%station_id(nstation), _STAT)
        allocate(sampler%station_name(nstation), _STAT)
        allocate(sampler%station_fullname(nstation), _STAT)
@@ -241,7 +241,7 @@ contains
        allocate(sampler%elevs(nstation), _STAT)
     end if
     sampler%index_name_x = 'station_index'
-    
+
 
     !__ 2. create LocStreamFactory, then LS_rt including route_handle
     !
@@ -252,7 +252,7 @@ contains
     call ESMF_VMGetCurrent(vm,_RC)
     call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
     call MAPL_CommsBcast(vm, DATA=sampler%nstation, N=1, ROOT=MAPL_Root, _RC)
-        
+
     nx_sum = sampler%nstation
     ip = mypet    ! 0 to M-1
     N = nx_sum
@@ -299,13 +299,13 @@ contains
     ! -- distributed
     call ESMF_FieldBundleGet(bundle,grid=grid,_RC)
     sampler%LS_ds = sampler%LSF%create_locstream_on_proc(grid=grid,_RC)
-    
+
     !
     ! init ofile
     sampler%ofile=''
     sampler%obs_written=0
     sampler%level_by_level = .true.
-    
+
     _RETURN(_SUCCESS)
   end function new_StationSampler_readfile
 
@@ -339,7 +339,7 @@ contains
     type(ESMF_Field) :: src_field, chunk_field
     real(REAL32), pointer :: pt1(:), pt2(:)
 
-    
+
     !__ 1. filemetadata:
     !      add_dimension, add_variable for latlon, station
     !
@@ -404,7 +404,7 @@ contains
     this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
 
     !__ 4. route handle  LS_ds --> LS_chunk
-    !    
+    !
     src_field = ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
     chunk_field = ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
     call ESMF_FieldGet( src_field, localDE=0, farrayPtr=pt1, _RC )
@@ -414,7 +414,7 @@ contains
     call ESMF_FieldRedistStore(src_field,chunk_field,this%RH,_RC)
     call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
     call ESMF_FieldDestroy(chunk_field,noGarbage=.true.,_RC)
-    
+
     _RETURN(_SUCCESS)
   end subroutine add_metadata_route_handle
 
@@ -423,7 +423,7 @@ contains
     class(StationSampler), intent(inout) :: this
     character(len=*), intent(in)         :: vname
     integer, optional, intent(out)       :: rc
-        
+
     type(ESMF_Field) :: field
     type(variable) :: v
     logical :: is_present
@@ -432,7 +432,7 @@ contains
     integer :: rank,lb(1),ub(1)
     integer :: k, ig
 
-    
+
     call ESMF_FieldBundleGet(this%bundle,vname,field=field,_RC)
     call ESMF_FieldGet(field,name=var_name,rank=field_rank,_RC)
     call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
@@ -448,7 +448,7 @@ contains
        units = 'unknown'
     endif
 
-!    -- in future, replace keyword station by index_name_x as in trajectory sampler    
+!    -- in future, replace keyword station by index_name_x as in trajectory sampler
 !    if (field_rank==2) then
 !       vdims = this%index_name_x
 !    else if (field_rank==3) then
@@ -494,8 +494,8 @@ contains
     real(kind=REAL32), pointer :: p_rt_3d(:,:),p_rt_2d(:)          ! root LS
     real(kind=REAL32), pointer :: p_rt_3d_aux(:,:)
     real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
-    real(kind=REAL32), allocatable :: p_dst_t(:,:)    
-    
+    real(kind=REAL32), allocatable :: p_dst_t(:,:)
+
     real(kind=REAL32), allocatable :: arr(:,:)
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
     character(len=ESMF_MAXSTR) :: xname
@@ -511,8 +511,8 @@ contains
 
     type(ESMF_Field) :: field_ds_2d, field_ds_3d
     type(ESMF_Field) :: field_chunk_2d, field_chunk_3d
-    type(ESMF_Field) :: field_rt_2d, field_rt_3d        
-    
+    type(ESMF_Field) :: field_rt_2d, field_rt_3d
+
     integer :: sec
     integer, allocatable :: ix(:) !  counter for each obs(k)%nobs_epoch
     logical :: EX ! file
@@ -522,9 +522,9 @@ contains
     integer :: is, ie, ierr
     integer :: M, N, ip
 
-    
+
     this%obs_written=this%obs_written+1
-    
+
     !__ 1. put_var: time variable
     !
     !
@@ -539,14 +539,14 @@ contains
     !      ungridded_dim from src to dst [regrid]
     !
     lm = this%vdata%lm
-    field_ds_2d = ESMF_FieldCreate (this%LS_ds, name='field_2d_ds', typekind=ESMF_TYPEKIND_R4, _RC)    
+    field_ds_2d = ESMF_FieldCreate (this%LS_ds, name='field_2d_ds', typekind=ESMF_TYPEKIND_R4, _RC)
     field_chunk_2d = ESMF_FieldCreate (this%LS_chunk, name='field_2d_chunk', typekind=ESMF_TYPEKIND_R4, _RC)
     dst_field = ESMF_FieldCreate (this%LS_ds, name='dst_field', typekind=ESMF_TYPEKIND_R4, &
          gridToFieldMap=[1],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-    
-    
+
+
     !   caution about zero-sized array for MPI
-    !   redist 
+    !   redist
     nx_sum = this%nstation
     call ESMF_VMGetCurrent(vm,_RC)
     call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
@@ -584,7 +584,7 @@ contains
        allocate ( p_rt_3d_aux(nx_sum, lm) )
     else
        allocate ( p_rt_3d(lm, 1) )
-       allocate ( p_rt_3d_aux(1,lm) )       
+       allocate ( p_rt_3d_aux(1,lm) )
     end if
 
 
@@ -619,7 +619,7 @@ contains
 
           else if (rank==3) then
              ! -- CS-> LS_ds; ds->chunk; gather
-             !          
+             !
              call ESMF_FieldGet(src_field,localDE=0,farrayptr=p_src_3d,_RC)
              call ESMF_FieldGet(dst_field,localDE=0,farrayptr=p_dst_3d,_RC)
              call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
@@ -628,7 +628,7 @@ contains
                   gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
              field_chunk_3d = ESMF_FieldCreate (this%LS_chunk, name='field_3d_chunk', typekind=ESMF_TYPEKIND_R4, &
                   gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-             call ESMF_FieldGet(field_ds_3d,localDE=0,farrayPtr=p_ds_3d,_RC)          
+             call ESMF_FieldGet(field_ds_3d,localDE=0,farrayPtr=p_ds_3d,_RC)
              call ESMF_FieldGet(field_chunk_3d,localDE=0,farrayPtr=p_chunk_3d,_RC)
 
              ! p_ds_3d(lm, nx)
@@ -843,7 +843,7 @@ contains
     _RETURN(_SUCCESS)
   end subroutine get_file_start_time
 
-  
+
   ! TODO: delete and use system utilities when available
   Subroutine count_substring (str, t, ncount, rc)
     character (len=*), intent(in) :: str
