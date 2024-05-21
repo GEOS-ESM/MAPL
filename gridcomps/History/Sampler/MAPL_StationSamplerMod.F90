@@ -507,7 +507,7 @@ contains
     real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
 
     integer :: rank
-    integer :: i, nz, lm
+    integer :: i, j, nz, lm
 
     type(ESMF_VM) :: vm
     integer :: mypet, petcount, mpic, iroot
@@ -613,8 +613,14 @@ contains
                iroot, mpic, ierr )
 
           if (mapl_am_i_root()) then
-             call this%formatter%put_var(xname,p_rt_2d,&
-                  start=[1,this%obs_written],count=[this%nstation,1],_RC)
+             do j=1, nx_sum, 500000
+                write(6,*)  'p_rt_2d', p_rt_2d(j)
+             end do
+          end if
+
+          if (mapl_am_i_root()) then
+!             call this%formatter%put_var(xname,p_rt_2d,&
+!                  start=[1,this%obs_written],count=[this%nstation,1],_RC)
           end if
           
        else if (rank==3) then
