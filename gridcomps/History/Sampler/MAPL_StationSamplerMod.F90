@@ -387,7 +387,7 @@ contains
     iter = this%items%begin()
     do while (iter /= this%items%end())
        item => iter%get()
-       print*, 'list item%xname', trim(item%xname)
+       !!print*, 'list item%xname', trim(item%xname)
        if (item%itemType == ItemTypeScalar) then
           call this%create_variable(item%xname,_RC)
        else if (item%itemType == ItemTypeVector) then
@@ -643,6 +643,7 @@ contains
                         p_rt_3d_aux(1,k), recvcount, displs, MPI_REAL,&
                         iroot, mpic, ierr )
                 end do
+                deallocate(p_dst_t)
                 p_rt_3d = reshape(p_rt_3d_aux, shape(p_rt_3d), order=[2,1])
              else
                 call MPI_gatherv ( p_chunk_3d, nsend_v, MPI_REAL, &
