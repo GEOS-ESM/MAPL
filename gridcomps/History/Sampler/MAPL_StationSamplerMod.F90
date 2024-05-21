@@ -526,6 +526,9 @@ contains
     integer, allocatable :: recvcount_v(:), displs_v(:)
     integer :: is, ie, ierr
     integer :: M, N, ip
+
+    type(GriddedIOitemVectorIterator) :: iter
+    type(GriddedIOitem), pointer :: item
     
     this%obs_written=this%obs_written+1
     
