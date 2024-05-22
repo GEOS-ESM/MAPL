@@ -478,7 +478,7 @@ contains
       _ASSERT (this%lm /= MAPL_UNDEFINED_INTEGER, 'LM: is undefined in swath grid')
 
       call lgr%debug(' %a  %a', 'CurrTime =', trim(tmp))
-      call lgr%debug(' %a  %i5  %i5', 'nx, ny = ', this%nx, this%ny)
+
 
       if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
          call ESMF_TimeSet(currTime, timeString=tmp, _RC)
@@ -715,6 +715,7 @@ contains
       endif
       ! ims is set at here
       call this%check_and_fill_consistency(_RC)
+      call lgr%debug(' %a  %i5  %i5', 'nx, ny (check_and_fill_consistency) = ', this%nx, this%ny)
 
       _RETURN(_SUCCESS)
 
