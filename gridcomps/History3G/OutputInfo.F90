@@ -177,7 +177,6 @@ contains
       type(ESMF_FieldBundle), intent(in) :: bundle
       integer, optional, intent(out) :: rc
       integer :: status
-      integer :: i
       type(ESMF_Info), allocatable :: info(:)
       type(UngriddedDimVector) :: vec
 
