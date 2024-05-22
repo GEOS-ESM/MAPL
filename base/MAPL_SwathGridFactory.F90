@@ -169,11 +169,11 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  bf this%create_basic_grid'
+      if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  bf this%create_basic_grid'
       grid = this%create_basic_grid(_RC)
-      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%create_basic_grid'
+      if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%create_basic_grid'
       call this%add_horz_coordinates_from_file(grid,_RC)
-      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%add_horz_coordinates_from_file'
+      if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%add_horz_coordinates_from_file'
 
       _RETURN(_SUCCESS)
    end function make_new_grid
@@ -1173,44 +1173,50 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: n
-
+      integer :: pet_count
+      integer :: j, fac
+      
       _UNUSED_DUMMY(unusable)
 
+      pet_count = this%nx * this%ny
       n = this%im_world/this%nx
       if (n < 2) then
-         this%nx = generate_new_decomp(this%im_world,this%nx)
-         deallocate(this%ims)
-         allocate(this%ims(0:this%nx-1))
-         call MAPL_DecomposeDim(this%im_world, this%ims, this%nx)
+         do j = int(sqrt(real(this%im_world))), 1, -1
+            if ( mod(pet_count, j) == 0 .and. this%im_world/j >= 2 ) then
+               exit
+            end if
+         end do
+         this%nx = j
+         this%ny = pet_count/j
       end if
+      
       n = this%jm_world/this%ny
       if (n < 2) then
-         this%ny = generate_new_decomp(this%jm_world,this%ny)
-         deallocate(this%jms)
-         allocate(this%jms(0:this%ny-1))
-         call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny)
+         do j = int(sqrt(real(this%jm_world))), 1, -1
+            if ( mod(pet_count, j) == 0 .and. this%jm_world/j >=2 ) then
+               exit
+            end if
+         end do
+         this%ny = j
+         this%nx = pet_count/j
       end if
+
+      if ( this%im_world/this%nx < 2 .and. this%jm_world/this%ny < 2 ) then
+         _FAIL ('Algorithm failed')
+      end if
+
+      deallocate(this%ims)
+      allocate(this%ims(0:this%nx-1))
+      call MAPL_DecomposeDim(this%im_world, this%ims, this%nx)
+      deallocate(this%jms)
+      allocate(this%jms(0:this%ny-1))
+      call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny)      
 
       _RETURN(_SUCCESS)
 
    end subroutine generate_newnxy
 
-   function generate_new_decomp(im,nd) result(n)
-      integer, intent(in) :: im, nd
-      integer :: n
-      logical :: canNotDecomp
-
-      canNotDecomp = .true.
-      n = nd
-      do while(canNotDecomp)
-         if ( (im/n) < 2) then
-            n = n/2
-         else
-            canNotDecomp = .false.
-         end if
-      enddo
-   end function generate_new_decomp
-
+   
    subroutine init_halo(this, unusable, rc)
       class (SwathGridFactory), target, intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
