@@ -45,7 +45,7 @@ contains
       key = EMPTY_STRING
       _ASSERT(n >=0, "n must be positive")
 
-      write(raw, fmt=FMT_, iostat=status) n
+      write(raw, fmt='(I0)', iostat=status) n
       key = KEYSTUB_DIM // trim(adjustl(raw)) // '/'
       if(present(rc)) rc = status
       
