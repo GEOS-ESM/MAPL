@@ -10,7 +10,8 @@ module mapl3g_HistoryCollectionGridComp_private
    use MAPL_NewArthParserMod, only: parser_variables_in_expression
    use MAPL_TimeStringConversion
    use MAPL_BaseMod, only: MAPL_UnpackTime
-   use mapl3g_output_info
+   use mapl3g_output_info, only: get_num_levels, get_vertical_dim_spec_names
+   use mapl3g_output_info, only: get_vertical_dim_spec_name, get_ungridded_dims
    use gFTL2_StringSet
 
    implicit none
@@ -21,7 +22,6 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: create_output_bundle
    public :: create_output_alarm
    public :: set_start_stop_time
-   public :: get_output_info_bundle
    public :: get_current_time_index
    ! These are public for testing.
    public :: parse_item_common
@@ -187,29 +187,6 @@ contains
       end if
       _RETURN(_SUCCESS)
    end function set_start_stop_time
-
-   subroutine get_output_info_bundle(bundle, num_levels, vertical_dim_spec_names, ungridded_dims_info, rc) result(out_set)
-      type(ESMF_FieldBundle) :: bundle
-      integer, optional, intent(out) :: num_levels
-      type(StringSet), optional, intent(out) :: vertical_dim_spec_names
-      type(UngriddedDimInfoSet), optional, intent(out) :: ungridded_dims_info
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      if(present(num_levels)) then
-         num_levels = get_num_levels(bundle, _RC)
-         _RETURN_UNLESS(present(vertical_dim_spec_names) .or. present(ungridded_dims_info))
-      end if
-
-      if(present(vertical_dim_spec_names)) then
-         vertical_dim_spec_names = get_vertical_dim_spec_names(bundle, _RC)
-         _RETURN_UNLESS(present(ungridded_dims_info))
-      endif
-
-      ungridded_dims_info = get_ungridded_dims_info(bundle, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine get_output_info_bundle
 
    subroutine parse_item_expression(item, item_name, var_names, rc)
       type(ESMF_HConfigIter), intent(in) :: item 

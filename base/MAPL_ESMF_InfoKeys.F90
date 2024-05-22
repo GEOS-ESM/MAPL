@@ -3,7 +3,7 @@ module mapl3g_esmf_info_keys
    implicit none
 
    ! FieldSpec info keys
-   character(len=*), parameter :: PREFIX = 'MAPL/' ! Move to central location (same below)
+   character(len=*), parameter :: PREFIX = 'MAPL/'
    character(len=*), parameter :: KEY_UNGRIDDED_DIM = PREFIX // 'ungridded_dims/'
    character(len=*), parameter :: KEY_VERT_DIM = PREFIX // 'vertical_dim/'
    character(len=*), parameter :: KEY_VERT_GEOM = PREFIX // 'vertical_geom/'
@@ -26,7 +26,7 @@ module mapl3g_esmf_info_keys
    character(len=*), parameter :: KEY_UNGRIDDED_UNITS = 'units'
    character(len=*), parameter :: KEY_UNGRIDDED_COORD = 'coordinates'
 
-   private
+   private :: SUCCESS, FAILURE, EMPTY_STRING
 
    integer, parameter :: SUCCESS = 0
    integer, parameter :: FAILURE = SUCCESS - 1

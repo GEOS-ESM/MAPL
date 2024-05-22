@@ -1,53 +1,273 @@
 #include "MAPL_TestErr.h"
+
+#if defined(SUCCESS)
+#  undef SUCCESS
+#endif
+#define SUCCESS 0
+
+#if defined(FAILURE)
+#  undef FAILURE
+#endif
+#define FAILURE SUCCESS - 1
+
+#if defined(SET_RC)
+#  undef SET_RC
+#endif
+#define SET_RC(A) if(present(rc)) rc = A
+
+#if defined(SET_RC_)
+#  undef SET_RC_
+#endif
+#define SET_RC_ SET_RC(status)
+
+#if defined(_SET_RC_)
+#  undef _SET_RC_
+#endif
+#define _SET_RC_ status=SUCCESS; SET_RC(status)
+
 module Test_OutputInfo
    use mapl3g_output_info
+   use mapl3g_esmf_info_keys
+   use mapl3g_UngriddedDim
+   use mapl3g_UngriddedDimVector
    use pfunit
    use esmf
+   use gFTL2_StringVector
 
    implicit none
 
-#include "history3g_test_utility_variables.h"
+   integer, parameter :: NUM_FIELDS_DEFAULT = 2
+   integer, parameter :: NUM_LEVELS_DEFAULT = 3
+   character(len=*), parameter :: VLOC_DEFAULT = 'VERTICAL_DIM_CENTER'
+   integer, parameter :: NUM_UNGRIDDED_DEFAULT = 3
+   character(len=*), parameter :: NAME_DEFAULT = 'A1'
+   character(len=*), parameter :: UNITS_DEFAULT = 'stones'
+   real, parameter :: COORDINATES_DEFAULT(*) = [2.0, 2.4, 2.5]
+
+   type(ESMF_Info), allocatable :: bundle_info(:)
 
 contains
 
-#include "history3g_test_utility_procedures.h"
-
-   subroutine test_get_num_levels_info()
-      type(ESMF_Info) :: info
+   @Test
+   subroutine test_get_num_levels()
       integer :: status
       integer, parameter :: EXPECTED_NUM_LEVELS = 3
       integer :: num_levels
+      integer :: i
       
-      info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, num_levels=EXPECTED_NUM_LEVELS, _RC)
-      num_levels = get_num_levels_info(info, _RC)
+      call safe_dealloc(bundle_info)
+      allocate(bundle_info(2))
+      do i=1, size(bundle_info)
+         bundle_info(i) = make_esmf_info(num_levels=EXPECTED_NUM_LEVELS, _RC)
+      end do
+      num_levels = get_num_levels_bundle_info(bundle_info, _RC)
       @assertEqual(EXPECTED_NUM_LEVELS, num_levels, 'num_levels does not match.')
-      call ESMF_InfoDestroy(info)
+
+      call safe_dealloc(bundle_info)
 
    end subroutine test_get_num_levels
 
-   subroutine test_get_vertical_dim_spec_name_info()
-      type(ESMF_Info) :: info
+   @Test
+   subroutine test_get_vertical_dim_spec_names()
       integer :: status
-      character(len=*), parameter :: EXPECTED_NAME = 'VERTICAL_DIM_CENTER'
+      character(len=*), parameter :: EXPECTED_NAME_1 = 'VERTICAL_DIM_CENTER'
+      character(len=*), parameter :: EXPECTED_NAME_2 = 'VERTICAL_DIM_EDGE'
+      type(StringVector), allocatable :: names
+      integer :: sz
+
+      call safe_dealloc(bundle_info)
+      allocate(bundle_info(3))
+      bundle_info(1) = make_esmf_info(vloc=EXPECTED_NAME_1, _RC)
+      bundle_info(2) = make_esmf_info(vloc=EXPECTED_NAME_2, _RC)
+      bundle_info(3) = make_esmf_info(vloc=EXPECTED_NAME_1, _RC)
+      names = get_vertical_dim_spec_names_bundle_info(bundle_info, _RC)
+      sz = names%size()
+      @assertEqual(2, sz, 'There should only be two unique vertical_dim_spec names.')
+      @assertEqual(EXPECTED_NAME_1, names%at(1), 'vertical_dim_spec_name 1 does not match.')
+      @assertEqual(EXPECTED_NAME_2, names%at(2), 'vertical_dim_spec_name 2 does not match.')
+      call safe_dealloc(bundle_info)
+
+   end subroutine test_get_vertical_dim_spec_names
+
+   @Test
+   subroutine test_get_ungridded_dims()
+      integer :: status
+      integer :: i
+      integer, parameter :: N = 2
+      integer, parameter :: D = 3
+      character(len=*), parameter :: EXPECTED_NAMES(N) = ['color', 'phase']
+      character(len=*), parameter :: EXPECTED_UNITS(N) = ['K  ', 'rad']
+      real, parameter :: REAL_ARRAY(D) = [1.0, 2.0, 3.0]
+      real :: EXPECTED_COORDINATES(N, D)
       character(len=:), allocatable :: name
+      character(len=:), allocatable :: units
+      real, allocatable :: coordinates(:)
+      type(UngriddedDimVector) :: vec
+      type(UngriddedDim) :: undim
 
-      info = ESMF_InfoCreate(_RC)
-      call make_esmf_info(info, vloc=EXPECTED_NAME, _RC)
-      name = get_vertical_dim_spec_name_info(info, _RC)
-      @assertEqual(EXPECTED_NAME, name, 'vertical_dim_spec_name does not match.')
-      call ESMF_InfoDestroy(info)
+      call safe_dealloc(bundle_info)
 
-   end subroutine test_get_vertical_dim_spec_name_info
+      do i=1, N
+         EXPECTED_COORDINATES(i,:) = REAL_ARRAY
+      end do
 
-   subroutine test_get_ungridded_dims_info_info()
+      allocate(bundle_info(N))
+      do i=1, N
+         bundle_info(i) = make_esmf_info(names=EXPECTED_NAMES, units_array=EXPECTED_UNITS, coordinates=EXPECTED_COORDINATES, _RC)
+      end do
+      vec = get_ungridded_dims_bundle_info(bundle_info, _RC)
+      do i=1, N
+         undim = vec%at(i)
+         name = undim%get_name()
+         @assertEqual(EXPECTED_NAMES(i), name, 'ungridded dimension name does not match.')
+         units = undim%get_units()
+         @assertEqual(EXPECTED_UNITS(i), units, 'ungridded dimension units does not match.')
+         coordinates = undim%get_coordinates()
+         @assertEqual(EXPECTED_COORDINATES(i, :), coordinates, 0.01, 'ungridded dimensions coordinates does not match.')
+      end do
+      call safe_dealloc(bundle_info)
+
+   end subroutine test_get_ungridded_dims
+
+   function make_esmf_info(num_levels, vloc, num_ungridded, names, units_array, coordinates, rc) &
+         result(info)
       type(ESMF_Info) :: info
+      integer, optional, intent(in) :: num_levels
+      character(len=*), optional, intent(in) :: vloc
+      integer, optional, intent(in) :: num_ungridded
+      character(len=*), optional, intent(in) :: names(:)
+      character(len=*), optional, intent(in) :: units_array(:)
+      real, optional, intent(in) :: coordinates(:, :)
+      integer, optional, intent(out) :: rc
       integer :: status
-      type(UngriddedDimsInfo), parameter :: 
+      integer :: num_levels_, num_ungridded_
+      character(len=:), allocatable :: vloc_
 
+      num_ungridded_ = -1
+      num_levels_ = NUM_LEVELS_DEFAULT
+      if(present(num_levels)) num_levels_ = num_levels
+      vloc_ = VLOC_DEFAULT
+      if(present(vloc)) vloc_ = vloc
       info = ESMF_InfoCreate(_RC)
-      call ESMF_InfoDestroy(info)
+      call make_vertical_dim(info, vloc_, _RC)
+      call make_vertical_geom(info, num_levels_, _RC)
+      SET_RC(FAILURE)
+      if(present(names) .and. present(units_array)) then
+         if(size(names) /= size(units_array)) return
+         num_ungridded_ = size(names)
+      end if      
+      if(present(num_ungridded)) then
+         if((num_ungridded_ >= 0) .and. (num_ungridded /= num_ungridded)) return
+         num_ungridded_ = num_ungridded
+      end if
+      call make_ungridded_dims_info(info, num_ungridded_, names, units_array, coordinates, _RC)
+      _SET_RC_
 
-   end subroutine test_get_ungridded_dims_info_info
+   end function make_esmf_info
+
+   subroutine make_vertical_dim(info, vloc, rc)
+      type(ESMF_Info), intent(inout) :: info
+      character(len=*), intent(in) :: vloc
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call ESMF_InfoSet(info, KEY_VLOC, vloc, _RC)
+      _SET_RC_
+
+   end subroutine make_vertical_dim
+
+   subroutine make_vertical_geom(info, num_levels, rc)
+      type(ESMF_Info), intent(inout) :: info
+      integer, intent(in) :: num_levels
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call ESMF_InfoSet(info, KEY_NUM_LEVELS, num_levels, _RC)
+      _SET_RC_
+
+   end subroutine make_vertical_geom
+
+   subroutine make_ungridded_dims_info(info, num_ungridded, names, units_array, coordinates, rc)
+      type(ESMF_Info), intent(inout) :: info
+      integer, intent(in) :: num_ungridded
+      character(len=*), optional, intent(in) :: names(:)
+      character(len=*), optional, intent(in) :: units_array(:)
+      real, optional, intent(in) :: coordinates(:, :)
+      integer, optional, intent(out) :: rc
+      integer :: status, i
+      character(len=:), allocatable :: names_(:), units_(:)
+      real, allocatable :: coordinates_(:, :)
+      character(len=:), allocatable :: dim_key
+      character(len=:), allocatable :: name, units
+      real, allocatable :: coord(:)
+
+      status = -1
+
+      SET_RC(status)
+
+      allocate(character(len=len(NAME_DEFAULT)) :: names_(num_ungridded))
+      names_ = NAME_DEFAULT
+      if(present(names)) then
+         if(size(names) /= num_ungridded) return
+         names_ = names         
+      end if
+
+      allocate(character(len=len(UNITS_DEFAULT)) :: units_(num_ungridded))
+      units_ = UNITS_DEFAULT
+      if(present(units_array)) then
+         if(size(units_array) /= num_ungridded) return
+         units_ = units_array
+      end if
+
+      allocate(coordinates_(num_ungridded, size(COORDINATES_DEFAULT)))
+      do i=1, num_ungridded
+         coordinates_(i, :) = COORDINATES_DEFAULT
+      end do
+
+      SET_RC(FAILURE)
+      if(present(coordinates)) then
+         if(size(coordinates, 1) /= num_ungridded) return
+         if(allocated(coordinates_)) deallocate(coordinates_)
+         coordinates_ = coordinates
+      end if
+
+      call ESMF_InfoSet(info, KEY_NUM_UNGRID_DIMS, num_ungridded, _RC)
+
+      do i=1, num_ungridded
+         dim_key = make_dim_key(i, _RC)
+         name = names_(i)
+         units = units_(i)
+         coord = coordinates_(i, :)
+         call ESMF_InfoSet(info, dim_key // KEY_UNGRIDDED_NAME, name, _RC)
+         call ESMF_InfoSet(info, dim_key // KEY_UNGRIDDED_UNITS, units, _RC)
+         call ESMF_InfoSet(info, dim_key // KEY_UNGRIDDED_COORD, coord, _RC)
+      end do
+
+      _SET_RC_
+   end subroutine make_ungridded_dims_info
+
+   subroutine destroy_all(info)
+      type(ESMF_Info), allocatable, intent(inout) :: info(:)
+      integer :: i
+
+      do i = 1, size(info)
+         call ESMF_InfoDestroy(info(i))
+      end do
+
+   end subroutine destroy_all
+
+   subroutine deallocate_destroy(info)
+      type(ESMF_Info), allocatable, intent(inout) :: info(:)
+      integer :: i
+      
+      call destroy_all(info)
+      deallocate(info)
+
+   end subroutine deallocate_destroy
+
+   subroutine safe_dealloc(info)
+      type(ESMF_Info), allocatable, intent(inout) :: info(:)
+      if(allocated(info)) call deallocate_destroy(info)
+   end subroutine safe_dealloc
 
 end module Test_OutputInfo
