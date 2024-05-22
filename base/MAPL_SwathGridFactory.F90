@@ -1148,9 +1148,9 @@ contains
       pet_count = this%nx * this%ny
       n = this%im_world/this%nx
       if (n < 2) then
-         do j = int(sqrt(real(this%im_world))), 1, -1
+         do j = this%im_world/2, 1, -1
             if ( mod(pet_count, j) == 0 .and. this%im_world/j >= 2 ) then
-               exit
+               exit  ! found a decomposition
             end if
          end do
          this%nx = j
@@ -1159,23 +1159,23 @@ contains
 
       n = this%jm_world/this%ny
       if (n < 2) then
-         do j = int(sqrt(real(this%jm_world))), 1, -1
+         do j = this%jm_world/2, 1, -1
             if ( mod(pet_count, j) == 0 .and. this%jm_world/j >=2 ) then
-               exit
+               exit  ! found a decomposition
             end if
          end do
          this%ny = j
          this%nx = pet_count/j
       end if
 
-      if ( this%im_world/this%nx < 2 .and. this%jm_world/this%ny < 2 ) then
+      if ( this%im_world/this%nx < 2 .OR. this%jm_world/this%ny < 2 ) then
          _FAIL ('Algorithm failed')
       end if
 
-      deallocate(this%ims)
+      if (allocated(this%ims)) deallocate(this%ims)
       allocate(this%ims(0:this%nx-1))
       call MAPL_DecomposeDim(this%im_world, this%ims, this%nx)
-      deallocate(this%jms)
+      if (allocated(this%jms)) deallocate(this%jms)
       allocate(this%jms(0:this%ny-1))
       call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny)
 
