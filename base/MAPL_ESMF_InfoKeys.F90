@@ -42,11 +42,8 @@ contains
       character(len=*), parameter :: FMT_ = '(I0)'
       character(len=20) :: raw
 
-      if(n < 0) then
-         key = EMPTY_STRING
-         if(present(rc)) rc = FAILURE
-         return
-      end if
+      key = EMPTY_STRING
+      _ASSERT(n >=0, "n must be positive")
 
       write(raw, fmt=FMT_, iostat=status) n
       key = KEYSTUB_DIM // trim(adjustl(raw)) // '/'
