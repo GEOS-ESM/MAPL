@@ -431,38 +431,33 @@ contains
     character(len=ESMF_MAXSTR) :: var_name,long_name,units,vdims
     integer :: rank,lb(1),ub(1)
     integer :: k, ig
-
+    integer, allocatable :: chunksizes(:)
 
     call ESMF_FieldBundleGet(this%bundle,vname,field=field,_RC)
     call ESMF_FieldGet(field,name=var_name,rank=field_rank,_RC)
     call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
+    long_name = var_name
     if ( is_present ) then
        call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=long_name, _RC)
-    else
-       long_name = var_name
     endif
     call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
+    units = 'unknown'
     if ( is_present ) then
        call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, _RC)
-    else
-       units = 'unknown'
     endif
 
-!    -- in future, replace keyword station by index_name_x as in trajectory sampler
-!    if (field_rank==2) then
-!       vdims = this%index_name_x
-!    else if (field_rank==3) then
-!       vdims = trim(this%index_name_x)//",lev"
-!    end if
-
-    if (field_rank==2) then
-       vdims = "station_index,time"
-       v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=[this%nstation,1])
-    else if (field_rank==3) then
-       vdims = "lev,station_index,time"
+    vdims = "station_index,time"
+    select case (field_rank)
+    case(2)
+       chunksizes = [this%nstation,1]
+    case(3)
+       vdims = "lev,"//trim(vdims)
        call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-       v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=[ub(1)-lb(1)+1,1,1])
-    end if
+       chunksizes = [ub(1)-lb(1)+1,1,1]
+    case default
+       _FAIL('unsupported rank')
+    end select
+    v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=chunksizes)
 
     call v%add_attribute('units',trim(units))
     call v%add_attribute('long_name',trim(long_name))
@@ -595,7 +590,8 @@ contains
 
           call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
           call ESMF_FieldGet(src_field,rank=rank,_RC)
-          if (rank==2) then
+          select case (rank)
+          case(2)
              call ESMF_FieldGet(src_field,localDE=0,farrayptr=p_src_2d,_RC)
              call ESMF_FieldGet(field_ds_2d,localDE=0,farrayptr=p_ds_2d,_RC)
              call ESMF_FieldGet(field_chunk_2d,localDE=0,farrayPtr=p_chunk_2d,_RC)
@@ -617,7 +613,7 @@ contains
                      start=[1,this%obs_written],count=[this%nstation,1],_RC)
              end if
 
-          else if (rank==3) then
+          case(3)
              ! -- CS-> LS_ds; ds->chunk; gather
              !
              call ESMF_FieldGet(src_field,localDE=0,farrayptr=p_src_3d,_RC)
@@ -666,9 +662,11 @@ contains
                      start=[1,1,this%obs_written],count=[nz,nx,1],_RC)
                 !note:     lev,station,time
              end if
-          else
+          case default
              _FAIL('grid2LS regridder: rank > 3 not implemented')
-          end if
+          end select
+       else
+          _FAIL ('ItemType vector not supported')
        endif
 
        call iter%next()
