@@ -169,12 +169,8 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  bf this%create_basic_grid'
       grid = this%create_basic_grid(_RC)
-      if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%create_basic_grid'
       call this%add_horz_coordinates_from_file(grid,_RC)
-      if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%add_horz_coordinates_from_file'
-
       _RETURN(_SUCCESS)
    end function make_new_grid
 
@@ -482,7 +478,7 @@ contains
       _ASSERT (this%lm /= MAPL_UNDEFINED_INTEGER, 'LM: is undefined in swath grid')
 
       call lgr%debug(' %a  %a', 'CurrTime =', trim(tmp))
-      call lgr%debug(' %a  %i5 %i5', 'nx,ny =', this%nx, this%ny)
+      call lgr%debug(' %a  %i5  %i5', 'nx, ny = ', this%nx, this%ny)
 
       if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
          call ESMF_TimeSet(currTime, timeString=tmp, _RC)
@@ -717,13 +713,6 @@ contains
       else
          call get_multi_integer(this%jms, 'JMS:', _RC)
       endif
-
-      if (mapl_am_i_root()) then
-!         write(6,*) 'ims ', this%ims
-!         write(6,*) 'jms ', this%jms         
-      end if
-
-
       ! ims is set at here
       call this%check_and_fill_consistency(_RC)
 
@@ -866,33 +855,12 @@ contains
       call verify(this%nx, this%im_world, this%ims, rc=status)
       call verify(this%ny, this%jm_world, this%jms, rc=status)
 
-
-      if (mapl_am_i_root()) then
-         write(6,*) 'bf check fill consistency'
-         write(6,*) 'ims ', this%ims
-         write(6,*) 'jms ', this%jms
-         write(6,*) 'im_world ', this%im_world
-         write(6,*) 'jm_world ', this%jm_world
-      end if
-      
       if (.not.this%force_decomposition) then
          verify_decomp = this%check_decomposition(_RC)
          if ( (.not.verify_decomp) ) then
             call this%generate_newnxy(_RC)
-            write(6,*) 'af  this%generate_newnxy'
          end if
       end if
-
-
-      if (mapl_am_i_root()) then
-         write(6,*) 'af check fill consistency'
-         write(6,*) 'ims ', this%ims
-         write(6,*) 'jms ', this%jms
-         write(6,*) 'im_world ', this%im_world
-         write(6,*) 'jm_world ', this%jm_world
-      end if
-      
-
       _RETURN(_SUCCESS)
 
    contains
@@ -1173,9 +1141,8 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: n
-      integer :: pet_count
-      integer :: j, fac
-      
+      integer :: j, pet_count
+
       _UNUSED_DUMMY(unusable)
 
       pet_count = this%nx * this%ny
@@ -1189,7 +1156,7 @@ contains
          this%nx = j
          this%ny = pet_count/j
       end if
-      
+
       n = this%jm_world/this%ny
       if (n < 2) then
          do j = int(sqrt(real(this%jm_world))), 1, -1
@@ -1210,13 +1177,13 @@ contains
       call MAPL_DecomposeDim(this%im_world, this%ims, this%nx)
       deallocate(this%jms)
       allocate(this%jms(0:this%ny-1))
-      call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny)      
+      call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny)
 
       _RETURN(_SUCCESS)
 
    end subroutine generate_newnxy
 
-   
+
    subroutine init_halo(this, unusable, rc)
       class (SwathGridFactory), target, intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
