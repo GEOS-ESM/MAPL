@@ -9,7 +9,7 @@ module MAPL_HistoryCollectionMod
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
   use HistoryTrajectoryMod
-  use MaskSamplerGeosatMod  
+  use MaskSamplerGeosatMod
   use StationSamplerMod
   use gFTL_StringStringMap
   use MAPL_EpochSwathMod

@@ -62,10 +62,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- If file path length exceeds ESMF_MAXSTR, add _FAIL in subroutine fglob
 - Add GNU UFS-like CI test
 
 ### Changed
 
+- pFIO Clients don't send "Done" message when there is no request
+- Update `components.yaml`
+  - ESMA_cmake v3.45.1
+    - Fix bug in meson detection
 - Updated `checkpoint_simulator` to not create and close file if not writing
 
 ### Fixed
@@ -87,9 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Update `FindESMF.cmake` to match that in ESMF 8.6.1
-
-### Changed
-
+- Add timer to the sampler code
 - Set required version of ESMF to 8.6.1
 - Update `components.yaml`
   - ESMA_cmake v3.45.0

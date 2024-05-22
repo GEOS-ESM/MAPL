@@ -19,7 +19,6 @@ set(srcs
   ComponentDriver.F90
   ComponentDriverVector.F90
   GriddedComponentDriver.F90
-  GriddedComponentDriver_smod.F90
   GriddedComponentDriverMap.F90
 
   MultiState.F90
@@ -66,6 +65,7 @@ add_subdirectory(actions)
 add_subdirectory(couplers)
 add_subdirectory(ComponentSpecParser)
 add_subdirectory(ESMF_HConfigUtilities)
+add_subdirectory(GriddedComponentDriver)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
