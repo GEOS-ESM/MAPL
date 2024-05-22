@@ -58,7 +58,6 @@ contains
       type(ESMF_FieldBundle), intent(in) :: bundle
       integer, optional, intent(out) :: rc
       integer :: status
-      integer :: i, n
       type(ESMF_Info), allocatable :: info(:)
 
       info = get_bundle_info(bundle, _RC)
