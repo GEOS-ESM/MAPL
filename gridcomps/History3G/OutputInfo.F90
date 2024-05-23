@@ -239,8 +239,7 @@ contains
 
    end subroutine push_ungridded_dim
       
-   subroutine push_next(name, units, coordinates, vec, tol, rc) result(next)
-      type(UngriddedDim) :: next
+   subroutine push_next(name, units, coordinates, vec, tol, rc)
       character(len=*), intent(in) :: name
       character(len=*), intent(in) :: units
       real, intent(in) :: coordinates(:)
@@ -251,6 +250,7 @@ contains
       type(UngriddedDimVectorIterator) :: iter
       real :: tol_ = 1.0E-8
       logical :: below
+      type(UngriddedDim) :: ud
       
       if(present(tol)) tol_ = tol
       _ASSERT(tol_ >= 0, 'A negative relative tolerance is not valid.')
@@ -262,7 +262,7 @@ contains
          _ASSERT(ud%get_units() == units, 'units does not match.')
          _ASSERT(size(ud%get_coordinates()) == size(coordinates), 'coordinates has a different size.')
          below = check_difference(ud%get_coordinates(), coordinates, tol_, _RC)
-         _ASSERT(below, 'coordinates differ by more than the relative tolerance.')
+         _ASSERT(below, 'coordinates differs by more than the relative tolerance.')
       end do
       call vec%push_back(UngriddedDim(name, units, coordinates))
       _RETURN(_SUCCESS)
@@ -282,6 +282,7 @@ contains
       mean = 0.5 * (norm2(a) + norm2(b)) 
       distance = norm2(a - b)
       below = (distance <= tol * mean)
+      _RETURN(_SUCCESS)
 
    end function check_difference
 
