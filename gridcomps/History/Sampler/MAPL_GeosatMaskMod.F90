@@ -94,7 +94,7 @@ module MaskSamplerGeosatMod
      procedure :: add_metadata
      procedure :: create_file_handle
      procedure :: close_file_handle
-     procedure :: append_file =>  regrid_accumulate_append_file
+     procedure :: append_file =>  regrid_append_file
 !     procedure :: create_new_bundle
      procedure :: create_grid => create_Geosat_grid_find_mask
      procedure :: compute_time_for_current
@@ -153,11 +153,11 @@ module MaskSamplerGeosatMod
        integer, optional, intent(out)          :: rc
      end subroutine close_file_handle
 
-     module subroutine regrid_accumulate_append_file(this,current_time,rc)
+     module subroutine regrid_append_file(this,current_time,rc)
        class(MaskSamplerGeosat), intent(inout) :: this
        type(ESMF_Time), intent(inout)          :: current_time
        integer, optional, intent(out)          :: rc
-     end subroutine regrid_accumulate_append_file
+     end subroutine regrid_append_file
 
      module function compute_time_for_current(this,current_time,rc) result(rtime)
        class(MaskSamplerGeosat), intent(inout) :: this

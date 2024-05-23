@@ -326,7 +326,6 @@ contains
        obs_lats = lats_ds * MAPL_DEGREES_TO_RADIANS_R8
        nx = size ( lons_ds )
        allocate ( II(nx), JJ(nx), _STAT )
-       call MPI_Barrier(mpic, status)
        call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
        call ESMF_VMBarrier (vm, _RC)
 
@@ -547,7 +546,7 @@ module  procedure add_metadata
   end procedure add_metadata
 
 
-    module procedure regrid_accumulate_append_file
+    module procedure regrid_append_file
     !
     implicit none
     integer :: status
@@ -627,7 +626,6 @@ module  procedure add_metadata
                 iy = this%index_mask(2,j)
                 p_dst_2d(j) = p_src_2d(ix, iy)
              end do
-!!             call MPI_Barrier(mpic, status)
              nsend = nx
              call MPI_gatherv ( p_dst_2d, nsend, MPI_REAL, &
                   p_dst_2d_full, this%recvcounts, this%displs, MPI_REAL,&
@@ -651,7 +649,6 @@ module  procedure add_metadata
                    p_dst_3d(m) = p_src_3d(ix, iy, k)
                 end do
              end do
-!!             call MPI_Barrier(mpic, status)
              !! write(6,'(2x,a,2x,i5,3x,10f8.1)') 'pet, p_dst_3d(j)', mypet, p_dst_3d(::10)
              nsend = nx * nz
              call MPI_gatherv ( p_dst_3d, nsend, MPI_REAL, &
@@ -676,7 +673,7 @@ module  procedure add_metadata
     end do
 
     _RETURN(_SUCCESS)
-  end procedure regrid_accumulate_append_file
+  end procedure regrid_append_file
 
 
 
