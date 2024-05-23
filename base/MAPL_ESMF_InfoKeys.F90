@@ -1,4 +1,7 @@
+#include "include/MAPL_Exceptions.h"
 module mapl3g_esmf_info_keys
+
+   use MAPL_ErrorHandling
 
    implicit none
 
@@ -26,12 +29,6 @@ module mapl3g_esmf_info_keys
    character(len=*), parameter :: KEY_UNGRIDDED_UNITS = 'units'
    character(len=*), parameter :: KEY_UNGRIDDED_COORD = 'coordinates'
 
-   private :: SUCCESS, FAILURE, EMPTY_STRING
-
-   integer, parameter :: SUCCESS = 0
-   integer, parameter :: FAILURE = SUCCESS - 1
-   character(len=*), parameter :: EMPTY_STRING = ''
-
 contains
 
    function make_dim_key(n, rc) result(key)
@@ -39,15 +36,14 @@ contains
       integer, intent(in) :: n
       integer, optional, intent(out) :: rc
       integer :: status
-      character(len=*), parameter :: FMT_ = '(I0)'
+      character(len=*), parameter :: EMPTY_STRING = ''
       character(len=20) :: raw
 
       key = EMPTY_STRING
       _ASSERT(n >=0, "n must be positive")
-
       write(raw, fmt='(I0)', iostat=status) n
       key = KEYSTUB_DIM // trim(adjustl(raw)) // '/'
-      if(present(rc)) rc = status
+      _RETURN(status)
       
    end function make_dim_key
 

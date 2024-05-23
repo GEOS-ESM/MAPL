@@ -1,15 +1,4 @@
 #include "MAPL_Generic.h"
-
-#if defined(SAFE_DEALLOC)
-#  undef SAFE_DEALLOC
-#endif
-#define SAFE_DEALLOC(A) if(allocated(A)) deallocate(A)
-
-#if defined(SAFE_ALLOC1)
-#  undef SAFE_ALLOC1
-#endif
-#define SAFE_ALLOC1(A, S) SAFE_DEALLOC(A); allocate(A(S))
-
 module mapl3g_output_info
 
    use mapl3g_UngriddedDim
@@ -20,6 +9,7 @@ module mapl3g_output_info
    use esmf, only: ESMF_Field, ESMF_FieldBundle, ESMF_FieldBundleGet
    use esmf, only: ESMF_Info, ESMF_InfoDestroy, ESMF_InfoIsPresent
    use esmf, only: ESMF_InfoGet, ESMF_InfoGetCharAlloc, ESMF_InfoGetFromHost
+   use esmf, only: ESMF_InfoGetAlloc
    use Mapl_ErrorHandling
 
    implicit none
@@ -60,7 +50,7 @@ contains
       integer :: status
       type(ESMF_Info), allocatable :: info(:)
 
-      info = get_bundle_info(bundle, _RC)
+      info = create_bundle_info(bundle, _RC)
       num = get_num_levels_bundle_info(info, _RC)
       call destroy_bundle_info(info, _RC)
       _RETURN(_SUCCESS)
@@ -119,7 +109,7 @@ contains
       character(len=:), allocatable :: name
       type(ESMF_Info), allocatable :: info(:)
 
-      info = get_bundle_info(bundle, _RC)
+      info = create_bundle_info(bundle, _RC)
       names = get_vertical_dim_spec_names_bundle_info(info, _RC)
       call destroy_bundle_info(info, _RC)
       _RETURN(_SUCCESS)
@@ -180,7 +170,7 @@ contains
       type(ESMF_Info), allocatable :: info(:)
       type(UngriddedDimVector) :: vec
 
-      info = get_bundle_info(bundle, _RC)
+      info = create_bundle_info(bundle, _RC)
       vec = get_ungridded_dims_bundle_info(info, _RC)
       dims = UngriddedDims(vec)
       call destroy_bundle_info(info, _RC)
@@ -242,40 +232,60 @@ contains
          dim_key = make_dim_key(i, _RC)
          call ESMF_InfoGetCharAlloc(info, key=dim_key // KEY_UNGRIDDED_NAME, value=name, _RC)
          call ESMF_InfoGetCharAlloc(info, key=dim_key // KEY_UNGRIDDED_UNITS, value=units, _RC)
-         call ESMF_InfoGet(info, key=dim_key // KEY_UNGRIDDED_COORD, size=num_coord, _RC)
-         SAFE_ALLOC1(coordinates, num_coord)
-         call ESMF_InfoGet(info, key=dim_key // KEY_UNGRIDDED_COORD, values=coordinates, _RC)
-         next = UngriddedDim(name, units, coordinates)
-         vi = get_index_by_name(vec, name)
-         if(vi > 0) then
-            _ASSERT(next == vec%at(vi), 'UngriddedDim mismatch.')
-            cycle
-         end if
-         call vec%push_back(next)
+         call ESMF_InfoGetAlloc(info, key=dim_key // KEY_UNGRIDDED_COORD, values=coordinates, _RC)
+         call push_next(name, units, coordinates, vec, _RC)
       end do
       _RETURN(_SUCCESS)
 
    end subroutine push_ungridded_dim
       
-   integer function get_index_by_name(vec, name) result(i)
-      type(UngriddedDimVector), intent(in) :: vec
+   subroutine push_next(name, units, coordinates, vec, tol, rc) result(next)
+      type(UngriddedDim) :: next
       character(len=*), intent(in) :: name
-      type(UngriddedDim) :: ud
+      character(len=*), intent(in) :: units
+      real, intent(in) :: coordinates(:)
+      type(UngriddedDimVector), intent(inout) :: vec
+      real, optional, intent(in) :: tol
+      integer, optional, intent(out) :: rc 
+      integer :: status
       type(UngriddedDimVectorIterator) :: iter
-
-      i = 0
-      iter = vec%begin()
-      do while(iter < vec%end())
-         i = i + 1
-         ud = iter%of()
-         if(ud%get_name() == name) return
+      real :: tol_ = 1.0E-8
+      logical :: below
+      
+      if(present(tol)) tol_ = tol
+      _ASSERT(tol_ >= 0, 'A negative relative tolerance is not valid.')
+      iter = vec%ftn_begin()
+      do while(iter < vec%ftn_end())
          call iter%next()
+         ud = iter%of()
+         if(ud%get_name() /= name) cycle
+         _ASSERT(ud%get_units() == units, 'units does not match.')
+         _ASSERT(size(ud%get_coordinates()) == size(coordinates), 'coordinates has a different size.')
+         below = check_difference(ud%get_coordinates(), coordinates, tol_, _RC)
+         _ASSERT(below, 'coordinates differ by more than the relative tolerance.')
       end do
-      i = 0
+      call vec%push_back(UngriddedDim(name, units, coordinates))
+      _RETURN(_SUCCESS)
 
-   end function get_index_by_name
+   end subroutine push_next
 
-   function get_bundle_info(bundle, rc) result(bundle_info)
+   logical function check_difference(a, b, tol, rc) result(below)
+      real, intent(in) :: a(:)
+      real, intent(in) :: b(:)
+      real, intent(in) :: tol
+      integer, optional, intent(out) :: rc
+      integer :: status
+      real :: distance, mean
+
+      _ASSERT(size(a) == size(b), 'arrays have different length.')
+      _ASSERT(tol >= 0, 'tol must not be negative.')
+      mean = 0.5 * (norm2(a) + norm2(b)) 
+      distance = norm2(a - b)
+      below = (distance <= tol * mean)
+
+   end function check_difference
+
+   function create_bundle_info(bundle, rc) result(bundle_info)
       type(ESMF_Info), allocatable :: bundle_info(:)
       type(ESMF_FieldBundle), intent(in) :: bundle
       integer, optional, intent(out) :: rc
@@ -287,16 +297,16 @@ contains
 
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
       _ASSERT(field_count > 0, 'Empty bundle')
-      SAFE_ALLOC1(fields, field_count)
+      allocate(fields(field_count))
       call ESMF_FieldBundleGet(bundle, fieldList=fields, _RC)
-      SAFE_ALLOC1(bundle_info, field_count)
+      allocate(bundle_info(field_count))
       do i=1, field_count
          call ESMF_InfoGetFromHost(field, info, _RC)
          bundle_info(i) = info
       end do
       _RETURN(_SUCCESS)
 
-   end function get_bundle_info
+   end function create_bundle_info
 
    subroutine destroy_bundle_info(bundle_info, rc)
       type(ESMF_Info), intent(inout) :: bundle_info(:)
