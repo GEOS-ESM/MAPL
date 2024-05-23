@@ -82,6 +82,7 @@ contains
       real, allocatable :: coordinates(:)
       type(UngriddedDimVector) :: vec
       type(UngriddedDim) :: undim
+      real :: tol = 1E-8
 
       call safe_dealloc(bundle_info)
 
@@ -93,7 +94,7 @@ contains
       do i=1, N
          bundle_info(i) = make_esmf_info(names=EXPECTED_NAMES, units_array=EXPECTED_UNITS, coordinates=EXPECTED_COORDINATES, _RC)
       end do
-      vec = get_ungridded_dims_bundle_info(bundle_info, _RC)
+      vec = get_ungridded_dims_bundle_info(bundle_info, tol, _RC)
       do i=1, N
          undim = vec%at(i)
          name = undim%get_name()

@@ -38,7 +38,7 @@ module mapl3g_output_info
    end interface get_vertical_dim_spec_name
 
    interface get_ungridded_dims
-      module procedure :: get_ungridded_dims_bundle 
+      module procedure :: get_ungridded_dims_bundle
       module procedure :: get_ungridded_dims_field
    end interface get_ungridded_dims
 
@@ -162,56 +162,67 @@ contains
 
    end function get_vertical_dim_spec_info
 
-   function get_ungridded_dims_bundle(bundle, rc) result(dims)
+   function get_ungridded_dims_bundle(bundle, tol, rc) result(dims)
       type(UngriddedDims) :: dims
       type(ESMF_FieldBundle), intent(in) :: bundle
+      real, optional, intent(in) :: tol
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Info), allocatable :: info(:)
       type(UngriddedDimVector) :: vec
+      real :: tol_
 
+      tol_ = 1E-8
+      if(present(tol)) tol_ = tol
       info = create_bundle_info(bundle, _RC)
-      vec = get_ungridded_dims_bundle_info(info, _RC)
+      vec = get_ungridded_dims_bundle_info(info, tol_, _RC)
       dims = UngriddedDims(vec)
       call destroy_bundle_info(info, _RC)
       _RETURN(_SUCCESS)
 
    end function get_ungridded_dims_bundle
 
-   function get_ungridded_dims_bundle_info(info, rc) result(vec)
+   function get_ungridded_dims_bundle_info(info, tol, rc) result(vec)
       type(UngriddedDimVector) :: vec
       type(ESMF_Info), intent(in) :: info(:)
+      real, intent(in) :: tol
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
 
       vec = UngriddedDimVector()
       do i=1, size(info)
-         call push_ungridded_dim(vec, info(i), _RC)
+         call push_ungridded_dim(vec, info(i), tol, _RC)
       end do
       _RETURN(_SUCCESS)
 
    end function get_ungridded_dims_bundle_info
 
-   function get_ungridded_dims_field(field, rc) result(ungridded)
+   function get_ungridded_dims_field(field, tol, rc) result(ungridded)
       type(UngriddedDims) :: ungridded
       type(ESMF_Field), intent(inout) :: field
+      real, optional, intent(in) :: tol
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Info) :: info
       type(UngriddedDimVector) :: vec
+      real :: tol_
+
+      tol_ = 1E-8
+      if(present(tol)) tol_ = tol
 
       call ESMF_InfoGetFromHost(field, info, _RC)
-      call push_ungridded_dim(vec, info, _RC)
+      call push_ungridded_dim(vec, info, tol_, _RC)
       ungridded = UngriddedDims(vec)
       call ESMF_InfoDestroy(info, _RC)
       _RETURN(_SUCCESS)
 
    end function get_ungridded_dims_field
 
-   subroutine push_ungridded_dim(vec, info, rc)
+   subroutine push_ungridded_dim(vec, info, tol, rc)
       type(UngriddedDimVector), intent(inout) :: vec
       type(ESMF_Info), intent(in) :: info
+      real, intent(in) :: tol
       integer, optional, intent(out) :: rc 
       integer :: status
       type(UngriddedDim) :: next
@@ -233,27 +244,25 @@ contains
          call ESMF_InfoGetCharAlloc(info, key=dim_key // KEY_UNGRIDDED_NAME, value=name, _RC)
          call ESMF_InfoGetCharAlloc(info, key=dim_key // KEY_UNGRIDDED_UNITS, value=units, _RC)
          call ESMF_InfoGetAlloc(info, key=dim_key // KEY_UNGRIDDED_COORD, values=coordinates, _RC)
-         call push_next(name, units, coordinates, vec, _RC)
+         call push_next(name, units, coordinates, tol, vec, _RC)
       end do
       _RETURN(_SUCCESS)
 
    end subroutine push_ungridded_dim
       
-   subroutine push_next(name, units, coordinates, vec, tol, rc)
+   subroutine push_next(name, units, coordinates, tol, vec,rc)
       character(len=*), intent(in) :: name
       character(len=*), intent(in) :: units
       real, intent(in) :: coordinates(:)
+      real, intent(in) :: tol
       type(UngriddedDimVector), intent(inout) :: vec
-      real, optional, intent(in) :: tol
       integer, optional, intent(out) :: rc 
       integer :: status
       type(UngriddedDimVectorIterator) :: iter
-      real :: tol_ = 1.0E-8
       logical :: below
       type(UngriddedDim) :: ud
       
-      if(present(tol)) tol_ = tol
-      _ASSERT(tol_ >= 0, 'A negative relative tolerance is not valid.')
+      _ASSERT(tol >= 0, 'A negative relative tolerance is not valid.')
       iter = vec%ftn_begin()
       do while(iter < vec%ftn_end())
          call iter%next()
@@ -261,7 +270,7 @@ contains
          if(ud%get_name() /= name) cycle
          _ASSERT(ud%get_units() == units, 'units does not match.')
          _ASSERT(size(ud%get_coordinates()) == size(coordinates), 'coordinates has a different size.')
-         below = check_difference(ud%get_coordinates(), coordinates, tol_, _RC)
+         below = check_difference(ud%get_coordinates(), coordinates, tol, _RC)
          _ASSERT(below, 'coordinates differs by more than the relative tolerance.')
       end do
       call vec%push_back(UngriddedDim(name, units, coordinates))
