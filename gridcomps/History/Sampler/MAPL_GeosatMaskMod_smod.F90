@@ -356,7 +356,6 @@ contains
 
        call ESMF_FieldHaloStore (fieldI4, routehandle=RH_halo, _RC)
        call ESMF_FieldHalo (fieldI4, routehandle=RH_halo, _RC)
-       call ESMF_VMBarrier (vm, _RC)
 
        k=0
        do i=eLB(1), eUB(1)
@@ -413,7 +412,7 @@ contains
           lons(i) = lons_ptr (ix, jx)
           lats(i) = lats_ptr (ix, jx)
        end do
-       call ESMF_VMBarrier (vm, _RC)
+
 
        iroot=0
        if (mapl_am_i_root()) then
@@ -628,7 +627,7 @@ module  procedure add_metadata
                 iy = this%index_mask(2,j)
                 p_dst_2d(j) = p_src_2d(ix, iy)
              end do
-             call MPI_Barrier(mpic, status)
+!!             call MPI_Barrier(mpic, status)
              nsend = nx
              call MPI_gatherv ( p_dst_2d, nsend, MPI_REAL, &
                   p_dst_2d_full, this%recvcounts, this%displs, MPI_REAL,&
@@ -652,7 +651,7 @@ module  procedure add_metadata
                    p_dst_3d(m) = p_src_3d(ix, iy, k)
                 end do
              end do
-             call MPI_Barrier(mpic, status)
+!!             call MPI_Barrier(mpic, status)
              !! write(6,'(2x,a,2x,i5,3x,10f8.1)') 'pet, p_dst_3d(j)', mypet, p_dst_3d(::10)
              nsend = nx * nz
              call MPI_gatherv ( p_dst_3d, nsend, MPI_REAL, &
