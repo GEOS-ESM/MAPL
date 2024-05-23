@@ -1,30 +1,8 @@
-#include "MAPL_TestErr.h"
-
-#if defined(SUCCESS)
-#  undef SUCCESS
-#endif
-#define SUCCESS 0
-
-#if defined(FAILURE)
-#  undef FAILURE
-#endif
-#define FAILURE SUCCESS - 1
-
-#if defined(SET_RC)
+#if defined SET_RC
 #  undef SET_RC
 #endif
 #define SET_RC(A) if(present(rc)) rc = A
-
-#if defined(SET_RC_)
-#  undef SET_RC_
-#endif
-#define SET_RC_ SET_RC(status)
-
-#if defined(_SET_RC_)
-#  undef _SET_RC_
-#endif
-#define _SET_RC_ status=SUCCESS; SET_RC(status)
-
+#include "MAPL_TestErr.h"
 module Test_OutputInfo
    use mapl3g_output_info
    use mapl3g_esmf_info_keys
@@ -54,7 +32,7 @@ contains
       integer, parameter :: EXPECTED_NUM_LEVELS = 3
       integer :: num_levels
       integer :: i
-      
+
       call safe_dealloc(bundle_info)
       allocate(bundle_info(2))
       do i=1, size(bundle_info)
@@ -151,17 +129,19 @@ contains
       info = ESMF_InfoCreate(_RC)
       call make_vertical_dim(info, vloc_, _RC)
       call make_vertical_geom(info, num_levels_, _RC)
-      SET_RC(FAILURE)
+
+      SET_RC(status)
+
       if(present(names) .and. present(units_array)) then
          if(size(names) /= size(units_array)) return
          num_ungridded_ = size(names)
-      end if      
+      end if
       if(present(num_ungridded)) then
          if((num_ungridded_ >= 0) .and. (num_ungridded /= num_ungridded)) return
          num_ungridded_ = num_ungridded
       end if
       call make_ungridded_dims_info(info, num_ungridded_, names, units_array, coordinates, _RC)
-      _SET_RC_
+      SET_RC(status)
 
    end function make_esmf_info
 
@@ -172,7 +152,7 @@ contains
       integer :: status
 
       call ESMF_InfoSet(info, KEY_VLOC, vloc, _RC)
-      _SET_RC_
+      SET_RC(status)
 
    end subroutine make_vertical_dim
 
@@ -183,7 +163,7 @@ contains
       integer :: status
 
       call ESMF_InfoSet(info, KEY_NUM_LEVELS, num_levels, _RC)
-      _SET_RC_
+      SET_RC(status)
 
    end subroutine make_vertical_geom
 
@@ -201,15 +181,13 @@ contains
       character(len=:), allocatable :: name, units
       real, allocatable :: coord(:)
 
-      status = -1
-
-      SET_RC(status)
+      if(present(rc)) rc = -1
 
       allocate(character(len=len(NAME_DEFAULT)) :: names_(num_ungridded))
       names_ = NAME_DEFAULT
       if(present(names)) then
          if(size(names) /= num_ungridded) return
-         names_ = names         
+         names_ = names
       end if
 
       allocate(character(len=len(UNITS_DEFAULT)) :: units_(num_ungridded))
@@ -224,7 +202,7 @@ contains
          coordinates_(i, :) = COORDINATES_DEFAULT
       end do
 
-      SET_RC(FAILURE)
+      if(present(rc)) rc = -1
       if(present(coordinates)) then
          if(size(coordinates, 1) /= num_ungridded) return
          if(allocated(coordinates_)) deallocate(coordinates_)
@@ -243,7 +221,8 @@ contains
          call ESMF_InfoSet(info, dim_key // KEY_UNGRIDDED_COORD, coord, _RC)
       end do
 
-      _SET_RC_
+      SET_RC(status)
+
    end subroutine make_ungridded_dims_info
 
    subroutine destroy_all(info)
@@ -259,7 +238,7 @@ contains
    subroutine deallocate_destroy(info)
       type(ESMF_Info), allocatable, intent(inout) :: info(:)
       integer :: i
-      
+
       call destroy_all(info)
       deallocate(info)
 
