@@ -3,7 +3,7 @@
 module mapl3g_OuterMetaComponent
    use mapl3g_geom_mgr
    use mapl3g_UserSetServices
-   !use mapl3g_UserSetServices,   only: AbstractUserSetServices
+   use mapl3g_UserSetServices,   only: AbstractUserSetServices
    use mapl3g_VariableSpec
    use mapl3g_StateItem
    use mapl3g_MultiState
@@ -137,28 +137,6 @@ module mapl3g_OuterMetaComponent
    character(len=*), parameter :: OUTER_META_PRIVATE_STATE = "MAPL::OuterMetaComponent::private"
 
 
-   interface OuterMetaComponent
-      module procedure new_outer_meta
-   end interface OuterMetaComponent
-
-   abstract interface
-      subroutine I_child_op(this, child_meta, rc)
-         import OuterMetaComponent
-         class(OuterMetaComponent), target, intent(inout) :: this
-         type(OuterMetaComponent), target, intent(inout) :: child_meta
-         integer, optional, intent(out) :: rc
-      end subroutine I_child_Op
-   end interface
-
-   interface recurse
-      module procedure recurse_
-   end interface recurse
-
-   interface apply_to_children
-      module procedure apply_to_children_custom
-   end interface apply_to_children
-
-   integer, save :: counter = 0
 
    ! Submodule interfaces
    interface
@@ -166,7 +144,7 @@ module mapl3g_OuterMetaComponent
       recursive module subroutine SetServices_(this, rc)
          class(OuterMetaComponent), intent(inout) :: this
          integer, intent(out) ::rc
-      end subroutine SetServices_
+      end subroutine
 
       module recursive subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
          class(OuterMetaComponent), intent(inout) :: this
@@ -285,7 +263,7 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_realize
- 
+
       module recursive subroutine recurse_(this, phase_idx, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          integer :: phase_idx
@@ -377,18 +355,18 @@ module mapl3g_OuterMetaComponent
          class(OuterMetaComponent), intent(inout) :: this
          type(VerticalGeom), intent(in) :: verticaL_geom
       end subroutine set_vertical_geom
-
+ 
       module function get_registry(this) result(registry)
          type(HierarchicalRegistry), pointer :: registry
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_registry
-   
+
       module function get_component_spec(this) result(component_spec)
          type(ComponentSpec), pointer :: component_spec
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_component_spec
 
-      module function get_internal_state(this) result(internal_state)
+      module  function get_internal_state(this) result(internal_state)
          type(ESMF_State) :: internal_state
          class(OuterMetaComponent), intent(in) :: this
       end function get_internal_state
@@ -420,5 +398,29 @@ module mapl3g_OuterMetaComponent
       end subroutine set_entry_point
 
    end interface
+
+   interface OuterMetaComponent
+      module procedure new_outer_meta
+   end interface OuterMetaComponent
+
+
+   abstract interface
+      subroutine I_child_op(this, child_meta, rc)
+         import OuterMetaComponent
+         class(OuterMetaComponent), target, intent(inout) :: this
+         type(OuterMetaComponent), target, intent(inout) :: child_meta
+         integer, optional, intent(out) :: rc
+      end subroutine I_child_Op
+   end interface
+
+   interface recurse
+      module procedure recurse_
+   end interface recurse
+
+   interface apply_to_children
+      module procedure apply_to_children_custom
+   end interface apply_to_children
+
+   integer, save :: counter = 0
 
 end module mapl3g_OuterMetaComponent

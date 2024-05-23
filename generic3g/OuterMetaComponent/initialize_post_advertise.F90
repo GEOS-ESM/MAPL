@@ -23,9 +23,6 @@ contains
       user_states = this%user_gc_driver%get_states()
       call this%registry%add_to_states(user_states, mode='user', _RC)
 
-      user_states = this%user_gc_driver%get_states()
-      call this%registry%add_to_states(user_states, mode='user', _RC)
-
       outer_states = MultiState(importState=importState, exportState=exportState)
       call this%registry%add_to_states(outer_states, mode='outer', _RC)
 

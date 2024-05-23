@@ -1,6 +1,8 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) get_phases_smod
+   use :: esmf, only: ESMF_Method_Flag
+   use :: gFTL2_StringVector, only: StringVector
    implicit none
 
 contains
