@@ -24,7 +24,6 @@ set(srcs
   MultiState.F90
   InnerMetaComponent.F90
   OuterMetaComponent.F90
-  OuterMetaComponent_smod.F90
   GenericPhases.F90
   GenericGridComp.F90
 
@@ -66,6 +65,7 @@ add_subdirectory(couplers)
 add_subdirectory(ComponentSpecParser)
 add_subdirectory(ESMF_HConfigUtilities)
 add_subdirectory(GriddedComponentDriver)
+add_subdirectory(OuterMetaComponent)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
