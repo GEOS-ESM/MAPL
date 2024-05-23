@@ -529,11 +529,11 @@ module  procedure add_metadata
        endif
        if (field_rank==2) then
           vdims = "mask_index,time"
-          v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=[this%npt_mask_tot,1])
+          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
        else if (field_rank==3) then
           vdims = "lev,mask_index,time"
           call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-          v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=[ub(1)-lb(1)+1,1,1])
+          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
        end if
        call v%add_attribute('units',         trim(units))
        call v%add_attribute('long_name',     trim(long_name))
