@@ -20,6 +20,7 @@ module MaskSamplerGeosatMod
   use MPI
   use pFIO_FileMetadataMod, only : FileMetadata
   use pFIO_NetCDF4_FileFormatterMod, only : NetCDF4_FileFormatter
+  use MAPL_GenericMod, only : MAPL_MetaComp, MAPL_TimerOn, MAPL_TimerOff
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
   use pflogger, only: Logger, logging
@@ -76,6 +77,7 @@ module MaskSamplerGeosatMod
      real(kind=REAL64), allocatable :: lats(:)
      integer, allocatable :: recvcounts(:)
      integer, allocatable :: displs(:)
+     type(MAPL_MetaComp), pointer :: GENSTATE
 
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
      real(kind=ESMF_KIND_R8), allocatable:: t_alongtrack(:)
@@ -104,11 +106,12 @@ module MaskSamplerGeosatMod
 
 
   interface
-     module function MaskSamplerGeosat_from_config(config,string,clock,rc) result(mask)
+     module function MaskSamplerGeosat_from_config(config,string,clock,GENSTATE,rc) result(mask)
        type(MaskSamplerGeosat) :: mask
        type(ESMF_Config), intent(inout)        :: config
        character(len=*),  intent(in)           :: string
        type(ESMF_Clock),  intent(in)           :: clock
+       type(MAPL_MetaComp), pointer, intent(in), optional  :: GENSTATE
        integer, optional, intent(out)          :: rc
      end function MaskSamplerGeosat_from_config
 

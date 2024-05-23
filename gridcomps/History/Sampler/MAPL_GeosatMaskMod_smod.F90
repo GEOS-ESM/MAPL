@@ -27,6 +27,8 @@ contains
 
   mask%clock=clock
   mask%grid_file_name=''
+  if (present(GENSTATE)) mask%GENSTATE => GENSTATE
+  
   call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
   if (mapl_am_I_root()) write(6,*) 'string', string
 
@@ -631,10 +633,12 @@ module  procedure add_metadata
              call MPI_gatherv ( p_dst_2d, nsend, MPI_REAL, &
                   p_dst_2d_full, this%recvcounts, this%displs, MPI_REAL,&
                   iroot, mpic, ierr )
+             call MAPL_TimerOn(this%GENSTATE,"put2D")
              if (mapl_am_i_root()) then
                 call this%formatter%put_var(item%xname,p_dst_2d_full,&
                      start=[1,this%obs_written],count=[this%npt_mask_tot,1],_RC)
              end if
+             call MAPL_TimerOff(this%GENSTATE,"put2D")
           else if (rank==3) then
              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
              call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
@@ -654,6 +658,7 @@ module  procedure add_metadata
              call MPI_gatherv ( p_dst_3d, nsend, MPI_REAL, &
                   p_dst_3d_full, recvcounts_3d, displs_3d, MPI_REAL,&
                   iroot, mpic, ierr )
+             call MAPL_TimerOn(this%GENSTATE,"put3D")
              if (mapl_am_i_root()) then
                 allocate(arr(nz, this%npt_mask_tot), _STAT)
                 arr=reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])
@@ -662,6 +667,7 @@ module  procedure add_metadata
                 !note:     lev,station,time
                 deallocate(arr, _STAT)
              end if
+             call MAPL_TimerOff(this%GENSTATE,"put3D")
           else
              _FAIL('grid2LS regridder: rank > 3 not implemented')
           end if

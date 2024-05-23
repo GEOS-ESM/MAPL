@@ -11,6 +11,7 @@ module StationSamplerMod
   use MAPL_BaseMod
   use MAPL_CommsMod
   use MAPL_LocstreamRegridderMod
+  use MAPL_GenericMod, only : MAPL_MetaComp, MAPL_TimerOn, MAPL_TimerOff
   use MPI, only  :  MPI_INTEGER, MPI_REAL, MPI_REAL8
   use, intrinsic :: iso_fortran_env, only: INT64
   use, intrinsic :: iso_fortran_env, only: REAL32
@@ -31,6 +32,7 @@ module StationSamplerMod
      type(GriddedIOitemVector) :: items
      logical :: do_vertical_regrid
      logical :: level_by_level
+     type(MAPL_MetaComp), pointer   :: GENSTATE
 
      integer                  :: nstation
      integer, allocatable :: station_id(:)
@@ -64,13 +66,14 @@ module StationSamplerMod
 
 contains
 
-  function new_StationSampler_readfile (bundle, filename, nskip_line, rc) result(sampler)
+  function new_StationSampler_readfile (bundle, filename, nskip_line, GENSTATE, rc) result(sampler)
     use pflogger, only             :  Logger, logging
     implicit none
     type(StationSampler)           :: sampler
     type(ESMF_FieldBundle), intent(in) :: bundle
     character(len=*), intent(in)   :: filename
     integer, optional, intent(in)  :: nskip_line
+    type(MAPL_MetaComp), pointer, intent(in), optional  :: GENSTATE
     integer, optional, intent(out) :: rc
 
     type(ESMF_VM) :: vm
@@ -241,6 +244,7 @@ contains
        allocate(sampler%elevs(nstation), _STAT)
     end if
     sampler%index_name_x = 'station_index'
+    if (present(GENSTATE)) sampler%GENSTATE => GENSTATE
 
 
     !__ 2. create LocStreamFactory, then LS_rt including route_handle
@@ -457,7 +461,8 @@ contains
     case default
        _FAIL('unsupported rank')
     end select
-    v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=chunksizes)
+    !    v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=chunksizes)
+    v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
 
     call v%add_attribute('units',trim(units))
     call v%add_attribute('long_name',trim(long_name))
@@ -608,10 +613,12 @@ contains
 !                end do
 !             end if
 
+             call MAPL_TimerOn(this%GENSTATE,"put2D")
              if (mapl_am_i_root()) then
                 call this%formatter%put_var(trim(item%xname),p_rt_2d,&
                      start=[1,this%obs_written],count=[this%nstation,1],_RC)
              end if
+             call MAPL_TimerOff(this%GENSTATE,"put2D")
 
           case(3)
              ! -- CS-> LS_ds; ds->chunk; gather
@@ -656,12 +663,14 @@ contains
 !             end if
 !             if (mapl_am_i_root()) write(6,*) 'regrid + gatherV in 3D'
 
+             call MAPL_TimerOn(this%GENSTATE,"put3D")
              if (mapl_am_i_root()) then
                 nz=size(p_rt_3d,1); nx=size(p_rt_3d,2)
                 call this%formatter%put_var(trim(item%xname),p_rt_3d,&
                      start=[1,1,this%obs_written],count=[nz,nx,1],_RC)
                 !note:     lev,station,time
              end if
+             call MAPL_TimerOff(this%GENSTATE,"put3D")
           case default
              _FAIL('grid2LS regridder: rank > 3 not implemented')
           end select
