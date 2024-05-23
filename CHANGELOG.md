@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- fixed a bug in generate_newnxy in MAPL_SwathGridFactory.F90 (NX*NY=Ncore)
 - pFIO Clients don't send "Done" message when there is no request
 - Update `components.yaml`
   - ESMA_cmake v3.45.1
