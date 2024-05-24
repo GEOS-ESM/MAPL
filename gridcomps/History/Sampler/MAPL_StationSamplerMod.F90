@@ -335,7 +335,7 @@ contains
     integer          :: lb(ESMF_MAXDIM)
     logical          :: do_vertical_regrid
     integer          :: status
-    integer          :: i
+    integer          :: i, lm
 
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
     character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
@@ -509,9 +509,12 @@ contains
     integer :: n0, nx, nx2
     integer :: na, nb, nx_sum, nsend, nsend_v
 
-    type(ESMF_Field) :: field_ds_2d, field_ds_3d
-    type(ESMF_Field) :: field_chunk_2d, field_chunk_3d
-    type(ESMF_Field) :: field_rt_2d, field_rt_3d
+    ! intermediate fields as placeholder
+    type(ESMF_Field)               :: field_ds_2d
+    type(ESMF_Field)               :: field_ds_3d
+    type(ESMF_Field)               :: field_chunk_2d
+    type(ESMF_Field)               :: field_chunk_3d
+
 
     integer :: sec
     integer, allocatable :: ix(:) !  counter for each obs(k)%nobs_epoch
@@ -538,16 +541,10 @@ contains
     !__ 2. regrid + put_var:
     !      ungridded_dim from src to dst [regrid]
     !
-    lm = this%vdata%lm
-    field_ds_2d = ESMF_FieldCreate (this%LS_ds, name='field_2d_ds', typekind=ESMF_TYPEKIND_R4, _RC)
-    field_chunk_2d = ESMF_FieldCreate (this%LS_chunk, name='field_2d_chunk', typekind=ESMF_TYPEKIND_R4, _RC)
-    dst_field = ESMF_FieldCreate (this%LS_ds, name='dst_field', typekind=ESMF_TYPEKIND_R4, &
-         gridToFieldMap=[1],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-
-
     !   caution about zero-sized array for MPI
     !   redist
     nx_sum = this%nstation
+    lm = this%vdata%lm
     call ESMF_VMGetCurrent(vm,_RC)
     call ESMF_VMGet(vm, mpiCommunicator=mpic, petCount=petCount, localPet=mypet, _RC)
 
@@ -567,6 +564,7 @@ contains
     do i = 2, petCount
        displs(i) = displs(i-1) + recvcount(i-1)
     end do
+
 
     nsend_v = nsend * lm      ! vertical
     allocate (recvcount_v, source = recvcount * lm )
@@ -588,11 +586,24 @@ contains
     end if
 
 
+    !__  Aux. field
+    !
+    field_ds_2d = ESMF_FieldCreate (this%LS_ds, name='field_2d_ds', typekind=ESMF_TYPEKIND_R4, _RC)
+    field_chunk_2d = ESMF_FieldCreate (this%LS_chunk, name='field_2d_chunk', typekind=ESMF_TYPEKIND_R4, _RC)
+    dst_field = ESMF_FieldCreate (this%LS_ds, name='dst_field', typekind=ESMF_TYPEKIND_R4, &
+         gridToFieldMap=[1],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+
+    field_ds_3d = ESMF_FieldCreate (this%LS_ds, name='field_3d_ds', typekind=ESMF_TYPEKIND_R4, &
+         gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+    field_chunk_3d = ESMF_FieldCreate (this%LS_chunk, name='field_3d_chunk', typekind=ESMF_TYPEKIND_R4, &
+         gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+
+
     iter = this%items%begin()
     do while (iter /= this%items%end())
        item => iter%get()
        if (item%itemType == ItemTypeScalar) then
-
+!!          if (mapl_am_i_root()) write(6,*) 'item%xname=', trim(item%xname)
           call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
           call ESMF_FieldGet(src_field,rank=rank,_RC)
           select case (rank)
@@ -600,6 +611,7 @@ contains
              call ESMF_FieldGet(src_field,localDE=0,farrayptr=p_src_2d,_RC)
              call ESMF_FieldGet(field_ds_2d,localDE=0,farrayptr=p_ds_2d,_RC)
              call ESMF_FieldGet(field_chunk_2d,localDE=0,farrayPtr=p_chunk_2d,_RC)
+             p_ds_2d = 0.0
 
              call this%regridder%regrid(p_src_2d,p_ds_2d,_RC)
              call ESMF_FieldRedist(field_ds_2d, field_chunk_2d, this%RH, _RC )
@@ -625,18 +637,15 @@ contains
              !
              call ESMF_FieldGet(src_field,localDE=0,farrayptr=p_src_3d,_RC)
              call ESMF_FieldGet(dst_field,localDE=0,farrayptr=p_dst_3d,_RC)
+             p_dst_3d = 0.0
              call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
 
-             field_ds_3d = ESMF_FieldCreate (this%LS_ds, name='field_3d_ds', typekind=ESMF_TYPEKIND_R4, &
-                  gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-             field_chunk_3d = ESMF_FieldCreate (this%LS_chunk, name='field_3d_chunk', typekind=ESMF_TYPEKIND_R4, &
-                  gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
              call ESMF_FieldGet(field_ds_3d,localDE=0,farrayPtr=p_ds_3d,_RC)
              call ESMF_FieldGet(field_chunk_3d,localDE=0,farrayPtr=p_chunk_3d,_RC)
 
              ! p_ds_3d(lm, nx)
              p_ds_3d = reshape(p_dst_3d, shape(p_ds_3d), order=[2,1])
-             call ESMF_FieldRedist(field_ds_3d, field_chunk_3d, this%RH, _RC)
+             call ESMF_FieldRegrid(field_ds_3d, field_chunk_3d, this%RH, _RC)
 
              if (this%level_by_level) then
                 ! p_chunk_3d (lm, nx)
@@ -653,8 +662,6 @@ contains
                      p_rt_3d, recvcount_v, displs_v, MPI_REAL,&
                      iroot, mpic, ierr )
              end if
-             call ESMF_FieldDestroy(field_ds_3d,noGarbage=.true.,_RC)
-             call ESMF_FieldDestroy(field_chunk_3d,noGarbage=.true.,_RC)
 
 !             if (mapl_am_i_root()) then
 !                do j=1, nx_sum, 500
@@ -680,6 +687,12 @@ contains
 
        call iter%next()
     end do
+
+    call ESMF_FieldDestroy(field_ds_2d,    noGarbage=.true., _RC)
+    call ESMF_FieldDestroy(field_chunk_2d, noGarbage=.true., _RC)
+    call ESMF_FieldDestroy(field_ds_3d,    noGarbage=.true., _RC)
+    call ESMF_FieldDestroy(field_chunk_3d, noGarbage=.true., _RC)
+    call ESMF_FieldDestroy(dst_field,      noGarbage=.true., _RC)
 
     _RETURN(_SUCCESS)
   end subroutine append_file
