@@ -856,7 +856,7 @@ call t_prof%start('Write_AVE')
 2000 format(i2.2)
 4000 format(i6.6)
 
-   timeinc   = 060000
+   timeinc   = 21600
 
 ! Primary Fields
 ! --------------
