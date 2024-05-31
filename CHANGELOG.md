@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Remove extra print statement
+
 ### Deprecated
 
 ## [2.40.4] - 2023-09-14
