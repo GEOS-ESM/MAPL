@@ -2629,7 +2629,7 @@ contains
     call ESMF_AttributeGet(grid, name='GridType', value=grid_type, _RC)
     if(trim(grid_type) == "Cubed-Sphere") then
 
-      call MAPL_GetGlobalHorzIJIndex(npts, II, JJ, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, Grid=Grid, rc=rc)
+      call MAPL_GetGlobalHorzIJIndex(npts, II, JJ, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, Grid=Grid, _RC)
 
       call MAPL_Grid_Interior(Grid,i1,i2,j1,j2)
       ! convert index to local, if it is not in domain, set it to -1 just as the legacy code
@@ -2770,7 +2770,10 @@ contains
 
     ! make sure the grid can be used in this subroutine
     good_grid = grid_is_ok(grid)
-    _ASSERT( good_grid, "MAPL_GetGlobalHorzIJIndex cannot handle this grid")
+
+    if ( .not. good_grid ) then
+       _FAIL( "MAPL_GetGlobalHorzIJIndex cannot handle this grid")
+    endif
 
     allocate(lons(npts),lats(npts))
     if (present(lon) .and. present(lat)) then
