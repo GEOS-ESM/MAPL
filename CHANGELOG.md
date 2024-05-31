@@ -79,6 +79,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.46.2] - 2024-05-31
+
+### Removed
+
+- Remove excessive print statements in `generic/OpenMP_Support.F90`
+
 ## [2.46.1] - 2024-05-10
 
 ## Fixed

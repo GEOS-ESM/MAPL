@@ -572,8 +572,7 @@ module MAPL_OpenMP_Support
 
         call ESMF_GridCompGet(GridComp, config=CF, name=comp_name, _RC)
         call ESMF_InternalStateGet(GridComp, labelList=labels, _RC)
-        if(myPET==0) print*,__FILE__,__LINE__, 'internal states labels : <',trim(comp_name), (trim(labels(i)),i=1,size(labels)), '>'
-        print*,__FILE__,__LINE__, 'splitting component: <',trim(comp_name),'>'
+
         do i = 1, num_grids
           associate (gc => subgridcomps(i) )
             gc = ESMF_GridCompCreate(name=trim(comp_name), config=CF, petlist=[myPet], &
