@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- remove excessive print statement
+
 ### Deprecated
 
 ## [2.46.1] - 2024-05-10
