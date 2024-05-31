@@ -1,0 +1,928 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>request_data_from_file &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>request_data_from_file
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">93 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/GriddedIO.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/griddedio.f90.html'>GriddedIO.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_griddediomod.html'>MAPL_GriddedIOMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">request_data_from_file</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/request_data_from_file~2.html#src">request_data_from_file</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine request_data_from_file(this, filename, timeindex, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/mapl_griddedio.html'>MAPL_GriddedIO</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~836"></span>
+              class(<a href='../type/mapl_griddedio.html'>MAPL_GriddedIO</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-filename~21"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timeindex~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timeindex</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~408"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~request_data_from_file~2~~CallsGraph Pages: 1 -->
+<svg id="procrequest_data_from_file2CallsGraph" width="505pt" height="662pt"
+ viewBox="0.00 0.00 505.00 662.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~request_data_from_file~2~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 658)">
+<title>proc~~request_data_from_file~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-658 501,-658 501,4 -4,4"/>
+<!-- proc~request_data_from_file~2 -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node1" class="node">
+<title>proc~request_data_from_file~2</title>
+<polygon fill="none" stroke="black" points="231,-339 0,-339 0,-315 231,-315 231,-339"/>
+<text text-anchor="middle" x="115.5" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GriddedIO%request_data_from_file</text>
+</g>
+<!-- esmf_fieldbundlecreate -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node2" class="node">
+<title>esmf_fieldbundlecreate</title>
+<polygon fill="#777777" stroke="#777777" points="451,-654 313,-654 313,-630 451,-630 451,-654"/>
+<text text-anchor="middle" x="382" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundlecreate</text>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;esmf_fieldbundlecreate -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge1" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;esmf_fieldbundlecreate</title>
+<path fill="none" stroke="#ff0000" d="M118.77,-339.26C127.92,-384.91 166.5,-546.19 267,-621 277.55,-628.85 290.14,-634.06 303.04,-637.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="302.41,-640.92 312.94,-639.74 303.98,-634.1 302.41,-640.92"/>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node3" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="442.5,-612 321.5,-612 321.5,-588 442.5,-588 442.5,-612"/>
+<text text-anchor="middle" x="382" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge2" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#ff0000" d="M119.84,-339.22C131.82,-380.6 176.82,-516.33 267,-579 279.95,-588 295.65,-593.45 311.2,-596.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="310.91,-600.2 321.37,-598.52 312.14,-593.31 310.91,-600.2"/>
+</g>
+<!-- esmf_fieldcreate -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node4" class="node">
+<title>esmf_fieldcreate</title>
+<polygon fill="#777777" stroke="#777777" points="432.5,-570 331.5,-570 331.5,-546 432.5,-546 432.5,-570"/>
+<text text-anchor="middle" x="382" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldcreate</text>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;esmf_fieldcreate -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge3" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;esmf_fieldcreate</title>
+<path fill="none" stroke="#ff0000" d="M121.3,-339.22C136.43,-375.99 186.91,-486.16 267,-537 283.06,-547.19 302.79,-552.72 321.3,-555.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="321.05,-559.14 331.43,-557.01 321.99,-552.2 321.05,-559.14"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node5" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="424.5,-528 339.5,-528 339.5,-504 424.5,-504 424.5,-528"/>
+<text text-anchor="middle" x="382" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;esmf_fieldget -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge4" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M123.43,-339.21C142.07,-370.8 196.65,-455.53 267,-495 285.77,-505.53 308.75,-510.93 329.15,-513.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="328.9,-517.14 339.23,-514.8 329.7,-510.18 328.9,-517.14"/>
+</g>
+<!-- generate_file_bounds -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node6" class="node">
+<title>generate_file_bounds</title>
+<polygon fill="#777777" stroke="#777777" points="445.5,-486 318.5,-486 318.5,-462 445.5,-462 445.5,-486"/>
+<text text-anchor="middle" x="382" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">generate_file_bounds</text>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;generate_file_bounds -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge5" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;generate_file_bounds</title>
+<path fill="none" stroke="#ff0000" d="M126.77,-339.05C149.3,-364.62 205.94,-424.29 267,-453 279.75,-459 294.05,-463.28 308.1,-466.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="307.77,-469.85 318.26,-468.37 309.14,-462.98 307.77,-469.85"/>
+</g>
+<!-- generate_file_reference2D -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node7" class="node">
+<title>generate_file_reference2D</title>
+<polygon fill="#777777" stroke="#777777" points="459,-444 305,-444 305,-420 459,-420 459,-444"/>
+<text text-anchor="middle" x="382" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">generate_file_reference2D</text>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;generate_file_reference2D -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge6" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;generate_file_reference2D</title>
+<path fill="none" stroke="#ff0000" d="M133.67,-339.07C160.71,-357.5 215.48,-392.45 267,-411 275.92,-414.21 285.43,-416.95 294.99,-419.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="294.43,-422.75 304.96,-421.58 296,-415.93 294.43,-422.75"/>
+</g>
+<!-- generate_file_reference3D -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node8" class="node">
+<title>generate_file_reference3D</title>
+<polygon fill="#777777" stroke="#777777" points="459,-402 305,-402 305,-378 459,-378 459,-402"/>
+<text text-anchor="middle" x="382" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">generate_file_reference3D</text>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;generate_file_reference3D -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge7" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;generate_file_reference3D</title>
+<path fill="none" stroke="#ff0000" d="M155.86,-339.03C186.08,-348.01 228.94,-360.2 267,-369 277.77,-371.49 289.16,-373.88 300.42,-376.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="299.77,-379.53 310.25,-377.99 301.1,-372.66 299.77,-379.53"/>
+</g>
+<!-- none~at~307 -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node9" class="node">
+<title>none~at~307</title>
+<g id="a_proc~~request_data_from_file~2~~CallsGraph_node9"><a xlink:href="../type/maplcollectionvector.html#boundprocedure-at~307" xlink:title="MAPLCollectionVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="456,-360 308,-360 308,-336 456,-336 456,-360"/>
+<text text-anchor="middle" x="382" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPLCollectionVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;none~at~307 -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge8" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;none~at~307</title>
+<path fill="none" stroke="#ff0000" d="M231.36,-336.12C253.64,-337.89 276.6,-339.71 297.63,-341.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="297.55,-344.89 307.8,-342.19 298.1,-337.91 297.55,-344.89"/>
+</g>
+<!-- none~make_regridder~2 -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node10" class="node">
+<title>none~make_regridder~2</title>
+<g id="a_proc~~request_data_from_file~2~~CallsGraph_node10"><a xlink:href="../type/newregriddermanager.html#boundprocedure-make_regridder~2" xlink:title="NewRegridderManager%make_regridder">
+<polygon fill="#a7506f" stroke="#a7506f" points="496.5,-318 267.5,-318 267.5,-294 496.5,-294 496.5,-318"/>
+<text text-anchor="middle" x="382" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NewRegridderManager%make_regridder</text>
+</a>
+</g>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;none~make_regridder~2 -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge9" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;none~make_regridder~2</title>
+<path fill="none" stroke="#ff0000" d="M231.36,-317.88C239.88,-317.2 248.49,-316.52 257.06,-315.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="257.4,-319.32 267.09,-315.04 256.84,-312.35 257.4,-319.32"/>
+</g>
+<!-- proc~collective_prefetch_data~2 -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node11" class="node">
+<title>proc~collective_prefetch_data~2</title>
+<g id="a_proc~~request_data_from_file~2~~CallsGraph_node11"><a xlink:href="../proc/collective_prefetch_data~2.html" xlink:title="ClientManager%collective_prefetch_data">
+<polygon fill="#d9534f" stroke="#d9534f" points="497,-276 267,-276 267,-252 497,-252 497,-276"/>
+<text text-anchor="middle" x="382" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ClientManager%collective_prefetch_data</text>
+</a>
+</g>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;proc~collective_prefetch_data~2 -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge10" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;proc~collective_prefetch_data~2</title>
+<path fill="none" stroke="#ff0000" d="M155.86,-314.97C186.08,-305.99 228.94,-293.8 267,-285 277.77,-282.51 289.16,-280.12 300.42,-277.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="301.1,-281.34 310.25,-276.01 299.77,-274.47 301.1,-281.34"/>
+</g>
+<!-- proc~find~4 -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node12" class="node">
+<title>proc~find~4</title>
+<g id="a_proc~~request_data_from_file~2~~CallsGraph_node12"><a xlink:href="../proc/find~4.html" xlink:title="MAPLDataCollection%find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="457,-234 307,-234 307,-210 457,-210 457,-234"/>
+<text text-anchor="middle" x="382" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPLDataCollection%find</text>
+</a>
+</g>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;proc~find~4 -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge11" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;proc~find~4</title>
+<path fill="none" stroke="#ff0000" d="M133.67,-314.93C160.71,-296.5 215.48,-261.55 267,-243 276.54,-239.56 286.74,-236.67 296.98,-234.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="297.79,-237.64 306.78,-232.03 296.26,-230.81 297.79,-237.64"/>
+</g>
+<!-- proc~get_factory~2 -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node13" class="node">
+<title>proc~get_factory~2</title>
+<g id="a_proc~~request_data_from_file~2~~CallsGraph_node13"><a xlink:href="../proc/get_factory~2.html" xlink:title="get_factory">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="418.5,-192 345.5,-192 345.5,-168 418.5,-168 418.5,-192"/>
+<text text-anchor="middle" x="382" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_factory</text>
+</a>
+</g>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;proc~get_factory~2 -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge12" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;proc~get_factory~2</title>
+<path fill="none" stroke="#ff0000" d="M126.77,-314.95C149.3,-289.38 205.94,-229.71 267,-201 288.21,-191.03 313.71,-185.78 335.21,-183.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="335.87,-186.47 345.41,-181.86 335.07,-179.52 335.87,-186.47"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node14" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~request_data_from_file~2~~CallsGraph_node14"><a xlink:href="../proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="426,-150 338,-150 338,-126 426,-126 426,-150"/>
+<text text-anchor="middle" x="382" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge13" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M123.43,-314.79C142.07,-283.2 196.65,-198.47 267,-159 285.39,-148.68 307.83,-143.29 327.92,-140.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="328.36,-144 337.87,-139.34 327.52,-137.05 328.36,-144"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node15" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~request_data_from_file~2~~CallsGraph_node15"><a xlink:href="../proc/mapl_gridhasde.html" xlink:title="MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="434,-108 330,-108 330,-84 434,-84 434,-108"/>
+<text text-anchor="middle" x="382" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge14" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#ff0000" d="M121.3,-314.78C136.43,-278.01 186.91,-167.84 267,-117 282.63,-107.08 301.74,-101.58 319.81,-98.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="320.31,-102.06 329.72,-97.19 319.33,-95.13 320.31,-102.06"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node16" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~request_data_from_file~2~~CallsGraph_node16"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="423,-66 341,-66 341,-42 423,-42 423,-66"/>
+<text text-anchor="middle" x="382" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge15" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M119.84,-314.78C131.82,-273.4 176.82,-137.67 267,-75 285.46,-62.17 309.52,-56.54 330.78,-54.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="331.28,-57.74 340.95,-53.4 330.69,-50.76 331.28,-57.74"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_node17" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~request_data_from_file~2~~CallsGraph_node17"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="420,-24 344,-24 344,0 420,0 420,-24"/>
+<text text-anchor="middle" x="382" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~request_data_from_file~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~request_data_from_file~2~~CallsGraph_edge16" class="edge">
+<title>proc~request_data_from_file~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M118.77,-314.74C127.92,-269.09 166.5,-107.81 267,-33 285.95,-18.89 311.5,-13.31 333.6,-11.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="334.05,-14.87 343.81,-10.74 333.61,-7.89 334.05,-14.87"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~request_data_from_file~2~~CalledByGraph Pages: 1 -->
+<svg id="procrequest_data_from_file2CalledByGraph" width="637pt" height="158pt"
+ viewBox="0.00 0.00 637.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~request_data_from_file~2~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154)">
+<title>proc~~request_data_from_file~2~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 633,-154 633,4 -4,4"/>
+<!-- proc~request_data_from_file~2 -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_node1" class="node">
+<title>proc~request_data_from_file~2</title>
+<polygon fill="none" stroke="black" points="629,-108 398,-108 398,-84 629,-84 629,-108"/>
+<text text-anchor="middle" x="513.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GriddedIO%request_data_from_file</text>
+</g>
+<!-- proc~mapl_extdataprefetch -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_node2" class="node">
+<title>proc~mapl_extdataprefetch</title>
+<g id="a_proc~~request_data_from_file~2~~CalledByGraph_node2"><a xlink:href="../proc/mapl_extdataprefetch.html" xlink:title="MAPL_ExtDataPrefetch">
+<polygon fill="#d9534f" stroke="#d9534f" points="362,-139 230,-139 230,-115 362,-115 362,-139"/>
+<text text-anchor="middle" x="296" y="-124.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataPrefetch</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdataprefetch&#45;&gt;proc~request_data_from_file~2 -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_extdataprefetch&#45;&gt;proc~request_data_from_file~2</title>
+<path fill="none" stroke="#ff0000" d="M362.24,-117.61C380.07,-115.05 399.75,-112.22 418.83,-109.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="419.34,-112.94 428.74,-108.05 418.34,-106.01 419.34,-112.94"/>
+</g>
+<!-- proc~mapl_read_bundle -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_node3" class="node">
+<title>proc~mapl_read_bundle</title>
+<g id="a_proc~~request_data_from_file~2~~CalledByGraph_node3"><a xlink:href="../proc/mapl_read_bundle.html" xlink:title="MAPL_read_bundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="352,-87 240,-87 240,-63 352,-63 352,-87"/>
+<text text-anchor="middle" x="296" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_read_bundle</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_read_bundle&#45;&gt;proc~request_data_from_file~2 -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_read_bundle&#45;&gt;proc~request_data_from_file~2</title>
+<path fill="none" stroke="#ff0000" d="M352.22,-80.38C363.34,-81.46 375.44,-82.64 387.86,-83.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="387.57,-87.34 397.87,-84.83 388.25,-80.38 387.57,-87.34"/>
+</g>
+<!-- proc~main~2 -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_node4" class="node">
+<title>proc~main~2</title>
+<g id="a_proc~~request_data_from_file~2~~CalledByGraph_node4"><a xlink:href="../proc/main~2.html" xlink:title="main">
+<polygon fill="#d9534f" stroke="#d9534f" points="177,-108 123,-108 123,-84 177,-84 177,-108"/>
+<text text-anchor="middle" x="150" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
+</a>
+</g>
+</g>
+<!-- proc~main~2&#45;&gt;proc~mapl_read_bundle -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_edge4" class="edge">
+<title>proc~main~2&#45;&gt;proc~mapl_read_bundle</title>
+<path fill="none" stroke="#00ffff" d="M177.08,-92.2C191.92,-90.03 211.22,-87.22 229.9,-84.49"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="230.5,-87.94 239.89,-83.04 229.49,-81.02 230.5,-87.94"/>
+</g>
+<!-- proc~run_~3 -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_node5" class="node">
+<title>proc~run_~3</title>
+<g id="a_proc~~request_data_from_file~2~~CalledByGraph_node5"><a xlink:href="../proc/run_~3.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="177,-150 123,-150 123,-126 177,-126 177,-150"/>
+<text text-anchor="middle" x="150" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~3&#45;&gt;proc~mapl_extdataprefetch -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_edge3" class="edge">
+<title>proc~run_~3&#45;&gt;proc~mapl_extdataprefetch</title>
+<path fill="none" stroke="#ff0000" d="M177.08,-136.01C189.24,-135.08 204.41,-133.92 219.78,-132.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="220.17,-136.23 229.87,-131.97 219.64,-129.25 220.17,-136.23"/>
+</g>
+<!-- program~time_ave -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_node6" class="node">
+<title>program~time_ave</title>
+<g id="a_proc~~request_data_from_file~2~~CalledByGraph_node6"><a xlink:href="../program/time_ave.html" xlink:title="time_ave">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="180.5,-66 119.5,-66 119.5,-42 180.5,-42 180.5,-66"/>
+<text text-anchor="middle" x="150" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
+</a>
+</g>
+</g>
+<!-- program~time_ave&#45;&gt;proc~mapl_read_bundle -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_edge5" class="edge">
+<title>program~time_ave&#45;&gt;proc~mapl_read_bundle</title>
+<path fill="none" stroke="#00ffff" d="M180.84,-58.35C195.09,-60.43 212.75,-63.01 229.89,-65.5"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="229.48,-68.98 239.88,-66.96 230.49,-62.06 229.48,-68.98"/>
+</g>
+<!-- program~ut_regridding -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_node7" class="node">
+<title>program~ut_regridding</title>
+<g id="a_proc~~request_data_from_file~2~~CalledByGraph_node7"><a xlink:href="../program/ut_regridding.html" xlink:title="ut_ReGridding">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="194,-24 106,-24 106,0 194,0 194,-24"/>
+<text text-anchor="middle" x="150" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ReGridding</text>
+</a>
+</g>
+</g>
+<!-- program~ut_regridding&#45;&gt;proc~mapl_read_bundle -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_edge6" class="edge">
+<title>program~ut_regridding&#45;&gt;proc~mapl_read_bundle</title>
+<path fill="none" stroke="#00ffff" d="M178.76,-24.15C201.28,-34 233.21,-47.96 257.91,-58.77"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="256.76,-62.09 267.32,-62.89 259.56,-55.68 256.76,-62.09"/>
+</g>
+<!-- program~regrid_util -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_node8" class="node">
+<title>program~regrid_util</title>
+<g id="a_proc~~request_data_from_file~2~~CalledByGraph_node8"><a xlink:href="../program/regrid_util.html" xlink:title="Regrid_Util">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-108 0,-108 0,-84 70,-84 70,-108"/>
+<text text-anchor="middle" x="35" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util</text>
+</a>
+</g>
+</g>
+<!-- program~regrid_util&#45;&gt;proc~main~2 -->
+<g id="proc~~request_data_from_file~2~~CalledByGraph_edge7" class="edge">
+<title>program~regrid_util&#45;&gt;proc~main~2</title>
+<path fill="none" stroke="#ff0000" d="M70.21,-96C83.67,-96 99.14,-96 112.78,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="112.8,-99.5 122.8,-96 112.8,-92.5 112.8,-99.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">request_data_from_file</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">filename</span><span class="p">,</span><span class="n">timeindex</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">mapl_GriddedIO</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeindex</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">esmf_grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filegrid</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">maplDatacollection</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">collection</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">numVars</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">names</span><span class="p">(:)</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">output_field</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">input_fields</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ub</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">lb</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">dims</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">lm</span><span class="p">,</span><span class="n">rank</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ArrayReference</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ref</span>
+<span class="w">     </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ptr2d</span><span class="p">(:,:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">     </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ptr3d</span><span class="p">(:,:,:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">localStart</span><span class="p">(:),</span><span class="w"> </span><span class="n">globalStart</span><span class="p">(:),</span><span class="w"> </span><span class="n">globalCount</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridLocalStart</span><span class="p">(:),</span><span class="w"> </span><span class="n">gridGlobalStart</span><span class="p">(:),</span><span class="w"> </span><span class="n">gridGlobalCount</span><span class="p">(:)</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">output_grid</span>
+<span class="w">     </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hasDE</span>
+<span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">factory</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regrid_hints</span>
+
+<span class="w">     </span><span class="n">collection</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Datacollections</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">metadata_collection_id</span><span class="p">)</span>
+<span class="w">     </span><span class="n">this</span><span class="p">%</span><span class="n">current_file_metadata</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">collection</span><span class="p">%</span><span class="n">find</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">     </span><span class="n">filegrid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">collection</span><span class="p">%</span><span class="n">src_grid</span>
+<span class="w">     </span><span class="n">factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_factory</span><span class="p">(</span><span class="n">filegrid</span><span class="p">)</span>
+<span class="w">     </span><span class="n">hasDE</span><span class="o">=</span><span class="n">MAPL_GridHasDE</span><span class="p">(</span><span class="n">filegrid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_bundle</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="n">output_grid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">filegrid</span><span class="o">/=</span><span class="n">output_grid</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">this</span><span class="p">%</span><span class="n">regrid_handle</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">new_regridder_manager</span><span class="p">%</span><span class="n">make_regridder</span><span class="p">(</span><span class="n">filegrid</span><span class="p">,</span><span class="n">output_grid</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">regrid_method</span><span class="p">,</span><span class="n">hints</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">regrid_hints</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">end if</span>
+<span class="k">     call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">filegrid</span><span class="p">,</span><span class="n">globalCellCountPerdim</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">call </span><span class="n">factory</span><span class="p">%</span><span class="n">generate_file_bounds</span><span class="p">(</span><span class="n">fileGrid</span><span class="p">,</span><span class="n">gridLocalStart</span><span class="p">,</span><span class="n">gridGlobalStart</span><span class="p">,</span><span class="n">gridGlobalCount</span><span class="p">,</span><span class="n">metadata</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">current_file_metadata</span><span class="p">%</span><span class="n">fileMetadata</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="c">! create input bundle</span>
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_bundle</span><span class="p">,</span><span class="n">fieldCount</span><span class="o">=</span><span class="n">numVars</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">allocate</span><span class="p">(</span><span class="n">names</span><span class="p">(</span><span class="n">numVars</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">allocate</span><span class="p">(</span><span class="n">input_fields</span><span class="p">(</span><span class="n">numVars</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_bundle</span><span class="p">,</span><span class="n">fieldNameList</span><span class="o">=</span><span class="n">names</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">numVars</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_bundle</span><span class="p">,</span><span class="n">names</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">field</span><span class="o">=</span><span class="n">output_field</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">output_field</span><span class="p">,</span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">input_fields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">filegrid</span><span class="p">,</span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="n">gridToFieldMap</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="n">name</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">names</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hasDE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">input_fields</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="mi">0</span><span class="p">,</span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">ptr2d</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">else</span>
+<span class="k">              allocate</span><span class="p">(</span><span class="n">ptr2d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="k">           </span><span class="n">ref</span><span class="o">=</span><span class="n">factory</span><span class="p">%</span><span class="n">generate_file_reference2D</span><span class="p">(</span><span class="n">ptr2d</span><span class="p">)</span>
+<span class="w">           </span><span class="k">allocate</span><span class="p">(</span><span class="n">localStart</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="p">[</span><span class="n">gridLocalStart</span><span class="p">,</span><span class="n">timeIndex</span><span class="p">])</span>
+<span class="w">           </span><span class="k">allocate</span><span class="p">(</span><span class="n">globalStart</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="p">[</span><span class="n">gridGlobalStart</span><span class="p">,</span><span class="n">timeIndex</span><span class="p">])</span>
+<span class="w">           </span><span class="k">allocate</span><span class="p">(</span><span class="n">globalCount</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="p">[</span><span class="n">gridGlobalCount</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">output_field</span><span class="p">,</span><span class="n">ungriddedLBound</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span><span class="n">ungriddedUBound</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="n">lm</span><span class="o">=</span><span class="n">ub</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="n">lb</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">           </span><span class="n">input_fields</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">filegrid</span><span class="p">,</span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="n">gridToFieldMap</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">ungriddedLBound</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span><span class="n">ungriddedUBound</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">names</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hasDE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">input_fields</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="mi">0</span><span class="p">,</span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">ptr3d</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">else</span>
+<span class="k">              allocate</span><span class="p">(</span><span class="n">ptr3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="k">           </span><span class="n">ref</span><span class="o">=</span><span class="n">factory</span><span class="p">%</span><span class="n">generate_file_reference3D</span><span class="p">(</span><span class="n">ptr3d</span><span class="p">,</span><span class="n">metadata</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">current_file_metadata</span><span class="p">%</span><span class="n">filemetadata</span><span class="p">)</span>
+<span class="w">           </span><span class="k">allocate</span><span class="p">(</span><span class="n">localStart</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="p">[</span><span class="n">gridLocalStart</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">timeIndex</span><span class="p">])</span>
+<span class="w">           </span><span class="k">allocate</span><span class="p">(</span><span class="n">globalStart</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="p">[</span><span class="n">gridGlobalStart</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">timeIndex</span><span class="p">])</span>
+<span class="w">           </span><span class="k">allocate</span><span class="p">(</span><span class="n">globalCount</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="p">[</span><span class="n">gridGlobalCount</span><span class="p">,</span><span class="n">lm</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="w">        </span><span class="k">end if</span>
+<span class="k">        call </span><span class="n">i_Clients</span><span class="p">%</span><span class="n">collective_prefetch_data</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">             </span><span class="n">this</span><span class="p">%</span><span class="n">read_collection_id</span><span class="p">,</span><span class="w"> </span><span class="n">fileName</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">names</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">             </span><span class="p">&amp;</span><span class="w"> </span><span class="n">ref</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="o">=</span><span class="n">localStart</span><span class="p">,</span><span class="w"> </span><span class="n">global_start</span><span class="o">=</span><span class="n">globalStart</span><span class="p">,</span><span class="w"> </span><span class="n">global_count</span><span class="o">=</span><span class="n">globalCount</span><span class="p">)</span>
+<span class="w">        </span><span class="k">deallocate</span><span class="p">(</span><span class="n">localStart</span><span class="p">,</span><span class="n">globalStart</span><span class="p">,</span><span class="n">globalCount</span><span class="p">)</span>
+<span class="w">     </span><span class="k">enddo</span>
+<span class="k">     deallocate</span><span class="p">(</span><span class="n">gridLocalStart</span><span class="p">,</span><span class="n">gridGlobalStart</span><span class="p">,</span><span class="n">gridGlobalCount</span><span class="p">)</span>
+<span class="w">     </span><span class="n">this</span><span class="p">%</span><span class="n">input_bundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldBundleCreate</span><span class="p">(</span><span class="n">fieldList</span><span class="o">=</span><span class="n">input_fields</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">request_data_from_file</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-05-31T14:53:29.827435             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

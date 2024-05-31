@@ -1,0 +1,162 @@
+module test_DistributedMeter
+   use, intrinsic :: iso_fortran_env, only: REAL64
+   use pfunit
+   use MAPL_Profiler
+   implicit none
+
+contains
+
+
+   @test(npes=[1])
+   subroutine test_trivial(this)
+      class (MpiTestMethod), intent(inout) :: this
+ 
+      type (DistributedMeter) :: distributed
+      type (DistributedReal64) :: distributed_total
+
+
+      distributed = DistributedMeter(MpiTimerGauge())
+      call distributed%add_cycle(1.0_REAL64)
+      call distributed%reduce(this%getMpiCommunicator(), 0._REAL64)
+
+      distributed_total = distributed%get_stats_total()
+      @assertEqual(1.0, distributed_total%total)
+      @assertEqual(1.0, distributed_total%min)
+      @assertEqual(1.0, distributed_total%max)
+
+      @assertEqual(0, distributed_total%min_pe)
+      @assertEqual(0, distributed_total%max_pe)
+      @assertEqual(1, distributed_total%num_pes)
+
+   end subroutine test_trivial
+
+
+   @test(npes=[2])
+   subroutine test_get_total(this)
+      class (MpiTestMethod), intent(inout) :: this
+ 
+      type (DistributedMeter) :: distributed
+      type (DistributedReal64) :: distributed_total
+
+      distributed = DistributedMeter(MpiTimerGauge())
+      select case (this%getProcessRank())
+      case (0)
+         call distributed%add_cycle(1.0_REAL64)
+         call distributed%add_cycle(3.0_REAL64)
+      case (1)
+         call distributed%add_cycle(2.0_REAL64)
+      end select
+      call distributed%reduce(this%getMpiCommunicator(), 0._REAL64)
+
+      distributed_total = distributed%get_stats_total()
+
+      if (this%getProcessRank() == 0) then
+         @assertEqual(6.0, distributed_total%total)
+         @assertEqual(2.0, distributed_total%min)
+         @assertEqual(4.0, distributed_total%max)
+
+         @assertEqual(1, distributed_total%min_pe)
+         @assertEqual(0, distributed_total%max_pe)
+         @assertEqual(2, distributed_total%num_pes)
+      end if
+
+   end subroutine test_get_total
+
+   @test(npes=[2])
+   subroutine test_get_min(this)
+      class (MpiTestMethod), intent(inout) :: this
+ 
+      type (DistributedMeter) :: distributed
+      type (DistributedReal64) :: distributed_min_cycle
+
+      distributed = DistributedMeter(MpiTimerGauge())
+      select case (this%getProcessRank())
+      case (0)
+         call distributed%add_cycle(1.0_REAL64)
+         call distributed%add_cycle(3.0_REAL64)
+      case (1)
+         call distributed%add_cycle(2.0_REAL64)
+      end select
+      call distributed%reduce(this%getMpiCommunicator(), 0._REAL64)
+
+      distributed_min_cycle = distributed%get_stats_min_cycle()
+
+      if (this%getProcessRank() == 0) then
+         ! Some of these are meaningless/pointless
+         @assertEqual(3.0, distributed_min_cycle%total)
+         @assertEqual(1.0, distributed_min_cycle%min)
+         @assertEqual(2.0, distributed_min_cycle%max)
+
+         @assertEqual(0, distributed_min_cycle%min_pe)
+         @assertEqual(1, distributed_min_cycle%max_pe)
+         @assertEqual(2, distributed_min_cycle%num_pes)
+      end if
+
+   end subroutine test_get_min
+
+   @test(npes=[2])
+   subroutine test_get_max(this)
+      class (MpiTestMethod), intent(inout) :: this
+ 
+      type (DistributedMeter) :: distributed
+      type (DistributedReal64) :: distributed_max_cycle
+
+      distributed = DistributedMeter(MpiTimerGauge())
+      select case (this%getProcessRank())
+      case (0)
+         call distributed%add_cycle(1.0_REAL64)
+         call distributed%add_cycle(3.0_REAL64)
+      case (1)
+         call distributed%add_cycle(2.0_REAL64)
+      end select
+
+      call distributed%reduce(this%getMpiCommunicator(), 0._REAL64)
+      distributed_max_cycle = distributed%get_stats_max_cycle()
+
+      if (this%getProcessRank() == 0) then
+         ! Some of these are meaningless/pointless
+         @assertEqual(5.0, distributed_max_cycle%total)
+         @assertEqual(2.0, distributed_max_cycle%min)
+         @assertEqual(3.0, distributed_max_cycle%max)
+
+         @assertEqual(1, distributed_max_cycle%min_pe)
+         @assertEqual(0, distributed_max_cycle%max_pe)
+         @assertEqual(2, distributed_max_cycle%num_pes)
+      end if
+
+   end subroutine test_get_max
+
+   @test(npes=[2])
+   subroutine test_get_num_cycles(this)
+      class (MpiTestMethod), intent(inout) :: this
+ 
+      type (DistributedMeter) :: distributed
+      type (DistributedInteger) :: distributed_num_cycles
+
+
+      distributed = DistributedMeter(MpiTimerGauge())
+      select case (this%getProcessRank())
+      case (0)
+         call distributed%add_cycle(1.0_REAL64)
+         call distributed%add_cycle(3.0_REAL64)
+      case (1)
+         call distributed%add_cycle(2.0_REAL64)
+      end select
+      call distributed%reduce(this%getMpiCommunicator(), 0._REAL64)
+
+      distributed_num_cycles = distributed%get_stats_num_cycles()
+
+      if (this%getProcessRank() == 0) then
+         ! Some of these are meaningless/pointless
+         @assertEqual(3, distributed_num_cycles%total)
+         @assertEqual(1, distributed_num_cycles%min)
+         @assertEqual(2, distributed_num_cycles%max)
+
+         @assertEqual(1, distributed_num_cycles%min_pe)
+         @assertEqual(0, distributed_num_cycles%max_pe)
+         @assertEqual(2, distributed_num_cycles%num_pes)
+      end if
+
+   end subroutine test_get_num_cycles
+
+end module test_DistributedMeter
