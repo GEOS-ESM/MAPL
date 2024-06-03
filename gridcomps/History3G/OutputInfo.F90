@@ -162,138 +162,142 @@ contains
 
    end function get_vertical_dim_spec_info
 
-   function get_ungridded_dims_bundle(bundle, tol, rc) result(dims)
+   function get_ungridded_dims_bundle(bundle, rc) result(dims)
       type(UngriddedDims) :: dims
       type(ESMF_FieldBundle), intent(in) :: bundle
-      real, optional, intent(in) :: tol
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Info), allocatable :: info(:)
       type(UngriddedDimVector) :: vec
-      real :: tol_
 
-      tol_ = 1E-8
-      if(present(tol)) tol_ = tol
       info = create_bundle_info(bundle, _RC)
-      vec = get_ungridded_dims_bundle_info(info, tol_, _RC)
+      vec = get_ungridded_dims_bundle_info(info, _RC)
       dims = UngriddedDims(vec)
       call destroy_bundle_info(info, _RC)
       _RETURN(_SUCCESS)
 
    end function get_ungridded_dims_bundle
 
-   function get_ungridded_dims_bundle_info(info, tol, rc) result(vec)
+   function get_ungridded_dims_bundle_info(info, rc) result(vec)
       type(UngriddedDimVector) :: vec
       type(ESMF_Info), intent(in) :: info(:)
-      real, intent(in) :: tol
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
+      type(UngriddedDims) :: dims
 
-      vec = UngriddedDimVector()
       do i=1, size(info)
-         call push_ungridded_dim(vec, info(i), tol, _RC)
+         dims = make_ungridded_dims(info, _RC)
+         call push_ungridded_dims(vec, dims, rc)
       end do
       _RETURN(_SUCCESS)
 
    end function get_ungridded_dims_bundle_info
 
-   function get_ungridded_dims_field(field, tol, rc) result(ungridded)
+   function get_ungridded_dims_field(field, rc) result(ungridded)
       type(UngriddedDims) :: ungridded
       type(ESMF_Field), intent(inout) :: field
-      real, optional, intent(in) :: tol
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Info) :: info
-      type(UngriddedDimVector) :: vec
-      real :: tol_
-
-      tol_ = 1E-8
-      if(present(tol)) tol_ = tol
 
       call ESMF_InfoGetFromHost(field, info, _RC)
-      call push_ungridded_dim(vec, info, tol_, _RC)
-      ungridded = UngriddedDims(vec)
-      call ESMF_InfoDestroy(info, _RC)
+      ungridded = make_ungridded_dims(info, _RC)
       _RETURN(_SUCCESS)
 
    end function get_ungridded_dims_field
 
-   subroutine push_ungridded_dim(vec, info, tol, rc)
-      type(UngriddedDimVector), intent(inout) :: vec
+   function make_ungridded_dims(info, rc) result(dims)
+      type(UngriddedDims) :: dims
       type(ESMF_Info), intent(in) :: info
-      real, intent(in) :: tol
       integer, optional, intent(out) :: rc 
       integer :: status
-      type(UngriddedDim) :: next
-      integer :: num_dims, i, vi
-      logical :: has_dims
-      integer :: num_coord
-      character(len=:), allocatable :: name
-      character(len=:), allocatable :: units
+      integer :: num_dims, i
+      type(UngriddedDim) :: ungridded
       character(len=:), allocatable :: dim_key
-      real, allocatable :: coordinates(:)
 
-      num_dims = 0
-      has_dims = ESMF_InfoIsPresent(info, key=KEY_NUM_UNGRID_DIMS, _RC)
-      if(has_dims) then
-         call ESMF_InfoGet(info, key=KEY_NUM_UNGRID_DIMS, value=num_dims, _RC)
-      end if
+      call ESMF_InfoGet(info, key=KEY_NUM_UNGRID_DIMS, value=num_dims, _RC)
       do i=1, num_dims
          dim_key = make_dim_key(i, _RC)
-         call ESMF_InfoGetCharAlloc(info, key=dim_key // KEY_UNGRIDDED_NAME, value=name, _RC)
-         call ESMF_InfoGetCharAlloc(info, key=dim_key // KEY_UNGRIDDED_UNITS, value=units, _RC)
-         call ESMF_InfoGetAlloc(info, key=dim_key // KEY_UNGRIDDED_COORD, values=coordinates, _RC)
-         call push_next(name, units, coordinates, tol, vec, _RC)
+         ungridded = make_ungridded_dim(info, dim_key, _RC)
+         call dims%add_dim(ungridded, _RC)
       end do
       _RETURN(_SUCCESS)
 
-   end subroutine push_ungridded_dim
-      
-   subroutine push_next(name, units, coordinates, tol, vec,rc)
+   end function make_ungridded_dims
+
+   function make_ungridded_dim(info, key, rc)
+      type(UngriddedDim) :: make_ungridded_dim
+      type(ESMF_Info), intent(in) :: info
+      character(len=*), intent(in) :: key
+      integer, optional, intent(out) :: rc 
+      integer :: status
+      type(ESMF_Info) :: dim_info
+      character(len=:), allocatable :: name
+      character(len=:), allocatable :: units
+      real, allocatable :: coordinates(:)
+
+      dim_info = ESMF_InfoCreate(info, key=key, _RC)
+      call ESMF_InfoGetCharAlloc(info, key=KEY_UNGRIDDED_NAME, value=name, _RC)
+      call ESMF_InfoGetCharAlloc(info, key=KEY_UNGRIDDED_UNITS, value=units, _RC)
+      call ESMF_InfoGetAlloc(info, key=KEY_UNGRIDDED_COORD, values=coordinates, _RC)
+      make_ungridded_dim = UngriddedDim(name, units, coordinates)
+      call ESMF_InfoDestroy(dim_info, _RC)
+
+   end function make_ungridded_dim
+
+   subroutine push_ungridded_dims(vec, dims, rc)
+      class(UngriddedDimVector), intent(inout) :: vec
+      class(UngriddedDims), intent(in) :: dims
+      integer, optional, intent(out) :: rc 
+      integer :: status
+      integer :: i
+
+      do i = 1, dims%get_num_ungridded()
+         associate (udim => dims%get_ith_dim_spec(i))
+            call check_duplicate(vec, udim, _RC)
+            call vec%push_back(udim, _RC)
+         end associate
+      end do
+      _RETURN(_SUCCESS)
+
+   end subroutine push_ungridded_dims
+
+   integer function find_index(v, name) result(i)
+      class(StringVector), intent(in) :: v
       character(len=*), intent(in) :: name
-      character(len=*), intent(in) :: units
-      real, intent(in) :: coordinates(:)
-      real, intent(in) :: tol
-      type(UngriddedDimVector), intent(inout) :: vec
+      type(StringVectorIterator) :: iter
+
+      i = 0
+      iter = v%begin()
+      do while (iter /= v%end())
+         i = i+1
+         if(iter%of() == name) return
+         call iter%next()
+      end do
+      i = 0 
+
+   end function find_index
+
+   subroutine check_duplicate(vec, udim, rc)
+      class(UngriddedDimVector), intent(in) :: vec
+      class(UngriddedDim), intent(in) :: udim
       integer, optional, intent(out) :: rc 
       integer :: status
       type(UngriddedDimVectorIterator) :: iter
-      logical :: below
-      type(UngriddedDim) :: ud
+      type(UngriddedDim) :: vdim
       
-      _ASSERT(tol >= 0, 'A negative relative tolerance is not valid.')
       iter = vec%ftn_begin()
       do while(iter < vec%ftn_end())
          call iter%next()
-         ud = iter%of()
-         if(ud%get_name() /= name) cycle
-         _ASSERT(ud%get_units() == units, 'units does not match.')
-         _ASSERT(size(ud%get_coordinates()) == size(coordinates), 'coordinates has a different size.')
-         below = check_difference(ud%get_coordinates(), coordinates, tol, _RC)
-         _ASSERT(below, 'coordinates differs by more than the relative tolerance.')
+         vdim = iter%of()
+         if(udim%get_name() /= vdim%get_name()) cycle
+         _ASSERT(udim == vdim)
       end do
-      call vec%push_back(UngriddedDim(name, units, coordinates))
+
       _RETURN(_SUCCESS)
 
-   end subroutine push_next
-
-   logical function check_difference(a, b, tol, rc) result(below)
-      real, intent(in) :: a(:)
-      real, intent(in) :: b(:)
-      real, intent(in) :: tol
-      integer, optional, intent(out) :: rc
-      integer :: status
-      real :: distance, mean
-
-      _ASSERT(size(a) == size(b), 'arrays have different length.')
-      _ASSERT(tol >= 0, 'tol must not be negative.')
-      mean = 0.5 * (norm2(a) + norm2(b)) 
-      distance = norm2(a - b)
-      below = (distance <= tol * mean)
-      _RETURN(_SUCCESS)
-
-   end function check_difference
+   end subroutine check_duplicate
 
    function create_bundle_info(bundle, rc) result(bundle_info)
       type(ESMF_Info), allocatable :: bundle_info(:)
@@ -329,21 +333,5 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine destroy_bundle_info
-   
-   integer function find_index(v, name) result(i)
-      class(StringVector), intent(in) :: v
-      character(len=*), intent(in) :: name
-      type(StringVectorIterator) :: iter
-
-      i = 0
-      iter = v%begin()
-      do while (iter /= v%end())
-         i = i+1
-         if(iter%of() == name) return
-         call iter%next()
-      end do
-      i = 0 
-
-   end function find_index
 
 end module mapl3g_output_info
