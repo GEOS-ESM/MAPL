@@ -7,9 +7,11 @@ module mapl3g_output_info
    use mapl3g_ESMF_Info_Keys
    use gFTL2_StringVector
    use esmf, only: ESMF_Field, ESMF_FieldBundle, ESMF_FieldBundleGet
-   use esmf, only: ESMF_Info, ESMF_InfoDestroy, ESMF_InfoIsPresent
-   use esmf, only: ESMF_InfoGet, ESMF_InfoGetCharAlloc, ESMF_InfoGetFromHost
-   use esmf, only: ESMF_InfoGetAlloc
+   use esmf, only: ESMF_Info, ESMF_InfoIsPresent
+   use esmf, only: ESMF_InfoDestroy, ESMF_InfoCreate
+   use esmf, only: ESMF_InfoGet, ESMF_InfoGetFromHost
+   use esmf, only: ESMF_InfoGetAlloc, ESMF_InfoGetCharAlloc
+   use esmf, only: ESMF_InfoPrint
    use Mapl_ErrorHandling
 
    implicit none
@@ -105,8 +107,6 @@ contains
       type(ESMF_FieldBundle), intent(in) :: bundle
       integer, optional, intent(out) :: rc
       integer :: status
-      integer :: i
-      character(len=:), allocatable :: name
       type(ESMF_Info), allocatable :: info(:)
 
       info = create_bundle_info(bundle, _RC)
@@ -187,7 +187,7 @@ contains
       type(UngriddedDims) :: dims
 
       do i=1, size(info)
-         dims = make_ungridded_dims(info, _RC)
+         dims = make_ungridded_dims(info(i), _RC)
          call push_ungridded_dims(vec, dims, rc)
       end do
       _RETURN(_SUCCESS)
@@ -214,35 +214,43 @@ contains
       integer :: status
       integer :: num_dims, i
       type(UngriddedDim) :: ungridded
-      character(len=:), allocatable :: dim_key
 
       call ESMF_InfoGet(info, key=KEY_NUM_UNGRID_DIMS, value=num_dims, _RC)
       do i=1, num_dims
-         dim_key = make_dim_key(i, _RC)
-         ungridded = make_ungridded_dim(info, dim_key, _RC)
+         ungridded = make_ungridded_dim(info, i, _RC)
          call dims%add_dim(ungridded, _RC)
       end do
       _RETURN(_SUCCESS)
 
    end function make_ungridded_dims
 
-   function make_ungridded_dim(info, key, rc)
+   function make_ungridded_dim(info, n, rc)
       type(UngriddedDim) :: make_ungridded_dim
+      integer, intent(in) :: n
       type(ESMF_Info), intent(in) :: info
-      character(len=*), intent(in) :: key
       integer, optional, intent(out) :: rc 
       integer :: status
+      character(len=:), allocatable :: key
       type(ESMF_Info) :: dim_info
       character(len=:), allocatable :: name
       character(len=:), allocatable :: units
       real, allocatable :: coordinates(:)
+      logical :: is_present
+      character(len=1024) :: json_repr
 
+      key = make_dim_key(n, _RC)
+      call ESMF_InfoGet(info, key=key, isPresent=is_present, _RC)
+      if(.not. is_present) then
+         call ESMF_InfoPrint(info, unit=json_repr, _RC)
+      end if
+      _ASSERT(is_present, 'Key ' // key // ' not found in ' // trim(json_repr))
       dim_info = ESMF_InfoCreate(info, key=key, _RC)
-      call ESMF_InfoGetCharAlloc(info, key=KEY_UNGRIDDED_NAME, value=name, _RC)
-      call ESMF_InfoGetCharAlloc(info, key=KEY_UNGRIDDED_UNITS, value=units, _RC)
-      call ESMF_InfoGetAlloc(info, key=KEY_UNGRIDDED_COORD, values=coordinates, _RC)
-      make_ungridded_dim = UngriddedDim(name, units, coordinates)
+      call ESMF_InfoGetCharAlloc(dim_info, key=KEY_UNGRIDDED_NAME, value=name, _RC)
+      call ESMF_InfoGetCharAlloc(dim_info, key=KEY_UNGRIDDED_UNITS, value=units, _RC)
+      call ESMF_InfoGetAlloc(dim_info, key=KEY_UNGRIDDED_COORD, values=coordinates, _RC)
       call ESMF_InfoDestroy(dim_info, _RC)
+      make_ungridded_dim = UngriddedDim(name, units, coordinates)
+      _RETURN(_SUCCESS)
 
    end function make_ungridded_dim
 
@@ -254,10 +262,8 @@ contains
       integer :: i
 
       do i = 1, dims%get_num_ungridded()
-         associate (udim => dims%get_ith_dim_spec(i))
-            call check_duplicate(vec, udim, _RC)
-            call vec%push_back(udim, _RC)
-         end associate
+         call check_duplicate(vec, dims%get_ith_dim_spec(i), _RC)
+         call vec%push_back(dims%get_ith_dim_spec(i), _RC)
       end do
       _RETURN(_SUCCESS)
 
@@ -292,7 +298,7 @@ contains
          call iter%next()
          vdim = iter%of()
          if(udim%get_name() /= vdim%get_name()) cycle
-         _ASSERT(udim == vdim)
+         _ASSERT(udim == vdim, 'UngriddedDim mismatch.')
       end do
 
       _RETURN(_SUCCESS)
@@ -309,6 +315,7 @@ contains
       type(ESMF_Field), allocatable :: fields(:)
       type(ESMF_Info) :: info
 
+      status = 0
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
       _ASSERT(field_count > 0, 'Empty bundle')
       allocate(fields(field_count))

@@ -2,6 +2,8 @@
 #  undef SET_RC
 #endif
 #define SET_RC(A) if(present(rc)) rc = A
+#define _SUCCESS 0
+#define _FAILURE _SUCCESS-1
 #include "MAPL_TestErr.h"
 module Test_OutputInfo
    use mapl3g_output_info
@@ -82,7 +84,6 @@ contains
       real, allocatable :: coordinates(:)
       type(UngriddedDimVector) :: vec
       type(UngriddedDim) :: undim
-      real :: tol = 1E-8
 
       call safe_dealloc(bundle_info)
 
@@ -94,7 +95,7 @@ contains
       do i=1, N
          bundle_info(i) = make_esmf_info(names=EXPECTED_NAMES, units_array=EXPECTED_UNITS, coordinates=EXPECTED_COORDINATES, _RC)
       end do
-      vec = get_ungridded_dims_bundle_info(bundle_info, tol, _RC)
+      vec = get_ungridded_dims_bundle_info(bundle_info, _RC)
       do i=1, N
          undim = vec%at(i)
          name = undim%get_name()
@@ -178,7 +179,7 @@ contains
       integer :: status, i
       character(len=:), allocatable :: names_(:), units_(:)
       real, allocatable :: coordinates_(:, :)
-      character(len=:), allocatable :: dim_key
+      character(len=:), allocatable :: key
       character(len=:), allocatable :: name, units
       real, allocatable :: coord(:)
 
@@ -213,13 +214,13 @@ contains
       call ESMF_InfoSet(info, KEY_NUM_UNGRID_DIMS, num_ungridded, _RC)
 
       do i=1, num_ungridded
-         dim_key = make_dim_key(i, _RC)
+         key = make_dim_key(i, _RC)
          name = names_(i)
          units = units_(i)
          coord = coordinates_(i, :)
-         call ESMF_InfoSet(info, dim_key // KEY_UNGRIDDED_NAME, name, _RC)
-         call ESMF_InfoSet(info, dim_key // KEY_UNGRIDDED_UNITS, units, _RC)
-         call ESMF_InfoSet(info, dim_key // KEY_UNGRIDDED_COORD, coord, _RC)
+         call ESMF_InfoSet(info, key // '/' // KEY_UNGRIDDED_NAME, name, _RC)
+         call ESMF_InfoSet(info, key // '/' // KEY_UNGRIDDED_UNITS, units, _RC)
+         call ESMF_InfoSet(info, key // '/' // KEY_UNGRIDDED_COORD, coord, _RC)
       end do
 
       SET_RC(status)
@@ -238,7 +239,6 @@ contains
 
    subroutine deallocate_destroy(info)
       type(ESMF_Info), allocatable, intent(inout) :: info(:)
-      integer :: i
 
       call destroy_all(info)
       deallocate(info)
