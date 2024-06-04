@@ -92,7 +92,6 @@ contains
 
 
       subroutine process_connections(this, rc)
-        use mapl3g_VirtualConnectionPt
         class(OuterMetaComponent), intent(inout) :: this
         integer, optional, intent(out) :: rc
 

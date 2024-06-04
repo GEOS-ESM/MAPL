@@ -34,6 +34,9 @@ module mapl3g_OuterMetaComponent
    use mapl_ErrorHandling
    use mapl3g_VerticalGeom
    use mapl3g_GeometrySpec
+   ! Kludge to work around Intel 2021 namespace bug that exposes
+   ! private names from other modules in unrelated submodules.
+   ! Report filed 2022-03-14 (T. Clune)
    use gFTL2_StringVector
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
    use esmf

@@ -1,17 +1,10 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) add_child_by_name_smod
-   use esmf
-   use gFTL2_StringVector
    use mapl3g_ComponentSpecParser
-   use mapl3g_HierarchicalRegistry
    use mapl3g_ChildSpec
    use mapl3g_ChildSpecMap
    use mapl3g_GenericGridComp
-   ! Kludge to work around Intel 2021 namespace bug that exposes
-   ! private names from other modules in unrelated submodules.
-   ! Report filed 2022-03-14 (T. Clune)
-   use mapl_keywordenforcer, only: KE => KeywordEnforcer
    implicit none
 
 contains
