@@ -4,7 +4,7 @@ import sys
 import os
 import csv
 from collections import namedtuple
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 import operator
 from functools import partial
 
@@ -47,9 +47,8 @@ def make_entry_emit(dictionary):
 
 def mangle_name_prefix(name, parameters = None):
     pre = 'comp_name'
-    if isinstance(parameters, Iterable):
-        l = list(parameters)
-        pre = l[0] if len(l) else pre
+    if isinstance(parameters, Sequence):
+        pre = parameters[0] if parameters[0] else pre
     codestring = f"'//trim({pre})//'" 
     return string_emit(name.replace("*",codestring)) if name else None
 
