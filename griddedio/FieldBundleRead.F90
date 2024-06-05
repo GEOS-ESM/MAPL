@@ -21,6 +21,7 @@ module MAPL_ESMFFieldBundleRead
    use MAPL_SimpleAlarm
    use MAPL_StringTemplate
    use gFTL2_StringVector
+   use MAPL_RegridMethods
    implicit none
    private
 
@@ -78,7 +79,7 @@ module MAPL_ESMFFieldBundleRead
          var_iter = variables%ftn_begin()
          do while (var_iter /= variables%ftn_end())
             call var_iter%next()
- 
+
             var_has_levels = .false.
             var_name => var_iter%first()
             this_variable => var_iter%second()
@@ -156,7 +157,7 @@ module MAPL_ESMFFieldBundleRead
 
       end subroutine MAPL_create_bundle_from_metdata_id
 
-      subroutine MAPL_read_bundle(bundle,file_tmpl,time,only_vars,regrid_method,noread,file_override,rc)
+      subroutine MAPL_read_bundle(bundle,file_tmpl,time,only_vars,regrid_method,noread,file_override,file_weights,rc)
          type(ESMF_FieldBundle), intent(inout) :: bundle
          character(len=*), intent(in) :: file_tmpl
          type(ESMF_Time), intent(in) :: time
@@ -164,10 +165,11 @@ module MAPL_ESMFFieldBundleRead
          integer, optional, intent(in) :: regrid_method
          logical, optional, intent(in) :: noread
          character(len=*), optional, intent(in) :: file_override
+         logical, optional, intent(in) :: file_weights
          integer, optional, intent(out) :: rc
 
          integer :: status
-         integer :: num_fields, metadata_id, collection_id, time_index, i
+         integer :: num_fields, metadata_id, collection_id, time_index, i, regrid_hints
          type(MAPL_GriddedIO) :: cfio
          character(len=ESMF_MAXPATHLEN) :: file_name
          type(MAPLDataCollection), pointer :: collection => null()
@@ -226,6 +228,13 @@ module MAPL_ESMFFieldBundleRead
 
          cfio=MAPL_GriddedIO(output_bundle=bundle,metadata_collection_id=metadata_id,read_collection_id=collection_id,items=items)
          call cfio%set_param(regrid_method=regrid_method)
+         if (present(file_weights)) then
+            if (file_weights) then
+               regrid_hints = 0
+               regrid_hints = IOR(regrid_hints,REGRID_HINT_FILE_WEIGHTS)
+               call cfio%set_param(regrid_hints=regrid_hints)
+            end if
+         end if
          call cfio%request_data_from_file(trim(file_name),timeindex=time_index,rc=status)
          _VERIFY(status)
          call i_clients%done_collective_prefetch()
