@@ -4,7 +4,7 @@ module mapl3g_output_info
    use mapl3g_UngriddedDim
    use mapl3g_UngriddedDimVector
    use mapl3g_UngriddedDims
-   use mapl3g_ESMF_Info_Keys
+   use mapl3g_esmf_info_keys
    use gFTL2_StringVector
    use esmf, only: ESMF_Field, ESMF_FieldBundle, ESMF_FieldBundleGet
    use esmf, only: ESMF_Info, ESMF_InfoIsPresent

@@ -5,7 +5,22 @@ module mapl3g_esmf_info_keys
 
    implicit none
 
+   public :: KEY_UNGRIDDED_DIMS
+   public :: KEY_VERT_DIM
+   public :: KEY_VERT_GEOM
+   public :: KEY_UNITS
+   public :: KEY_LONG_NAME
+   public :: KEY_STANDARD_NAME
+   public :: KEY_NUM_LEVELS
+   public :: KEY_VLOC
+   public :: KEY_NUM_UNGRID_DIMS
+   public :: KEYSTUB_DIM
+   public :: KEY_UNGRIDDED_NAME
+   public :: KEY_UNGRIDDED_UNITS
+   public :: KEY_UNGRIDDED_COORD
+   public :: KEY_DIM_STRINGS
    public :: make_dim_key
+   private
 
    ! FieldSpec info keys
    character(len=*), parameter :: PREFIX = 'MAPL/'
@@ -18,7 +33,7 @@ module mapl3g_esmf_info_keys
 
    ! VerticalGeom info keys
    character(len=*), parameter :: KEY_NUM_LEVELS = KEY_VERT_GEOM // 'num_levels'
-   
+
    ! VerticalDimSpec info keys
    character(len=*), parameter :: KEY_VLOC = KEY_VERT_DIM // 'vloc'
 
@@ -35,14 +50,13 @@ module mapl3g_esmf_info_keys
       KEYSTUB_DIM // '1', KEYSTUB_DIM // '2', KEYSTUB_DIM // '3', &
       KEYSTUB_DIM // '4', KEYSTUB_DIM // '5', KEYSTUB_DIM // '6', &
       KEYSTUB_DIM // '7', KEYSTUB_DIM // '8', KEYSTUB_DIM // '9']
-   private
 
 contains
 
    function make_dim_key(n, rc) result(key)
       character(len=:), allocatable :: key
       integer, intent(in) :: n
-      integer, optional, intent(out) :: rc 
+      integer, optional, intent(out) :: rc
       integer :: status
       character(len=32) :: raw
 
