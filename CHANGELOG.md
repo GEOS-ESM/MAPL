@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [v2.35.3+R21C_v1.2.0] - 2024-06-XX
+
+### Changed
+
+- Add capability to mangle `LONG_NAME in ACG with a different prefix
+
 ## [v2.35.3+R21C_v1.1.0] - 2024-03-28
 
 ### Fixed
