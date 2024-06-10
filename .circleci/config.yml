@@ -41,6 +41,8 @@ workflows:
           run_unit_tests: true
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
           persist_workspace: true # Needed for MAPL tutorials
+          extra_cmake_options: "-DCMAKE_VERBOSE_MAKEFILE=ON"
+          rebuild_procs: 1
 
       # Builds MAPL without PFLOGGER and FARGPARSE
       - ci/build:
@@ -55,7 +57,7 @@ workflows:
           mepodevelop: false
           remove_flap: true
           remove_pflogger: true
-          extra_cmake_options: "-DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF"
+          extra_cmake_options: "-DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DCMAKE_VERBOSE_MAKEFILE=ON"
           run_unit_tests: true
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
 
