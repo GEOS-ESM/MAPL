@@ -1,0 +1,1176 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ReexportConnection.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>ReexportConnection.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">116 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ReexportConnection.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">ReexportConnection.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_reexportconnection.html">mapl3g_ReexportConnection</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/reexportconnection.f90.html#src">ReexportConnection.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~reexportconnection.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilereexportconnectionf90EfferentGraph" width="641pt" height="550pt"
+ viewBox="0.00 0.00 641.00 550.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph" class="graph" transform="scale(1.91 1.91) rotate(0) translate(4 1049.18)">
+<title>sourcefile~~reexportconnection.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1049.18 1223,-1049.18 1223,4 -4,4"/>
+<!-- sourcefile~reexportconnection.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~reexportconnection.f90</title>
+<polygon fill="none" stroke="black" points="1219,-523.71 1076,-523.71 1076,-499.71 1219,-499.71 1219,-523.71"/>
+<text text-anchor="middle" x="1147.5" y="-509.31" font-family="Helvetica,sans-Serif" font-size="10.50">ReexportConnection.F90</text>
+</g>
+<!-- sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~actualconnectionpt.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/actualconnectionpt.f90.html" xlink:title="ActualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="475,-73.71 336,-73.71 336,-49.71 475,-49.71 475,-73.71"/>
+<text text-anchor="middle" x="405.5" y="-59.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~reexportconnection.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~reexportconnection.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M570,-21.71C528.5,-24.21 482.62,-36.28 450.06,-46.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="448.85,-43.23 440.4,-49.62 450.99,-49.9 448.85,-43.23"/>
+</g>
+<!-- sourcefile~actualptvec_map.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~actualptvec_map.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/actualptvec_map.f90.html" xlink:title="ActualPtVec_Map.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="827,-931.71 703,-931.71 703,-907.71 827,-907.71 827,-931.71"/>
+<text text-anchor="middle" x="765" y="-917.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualPtVec_Map.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~reexportconnection.f90&#45;&gt;sourcefile~actualptvec_map.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~reexportconnection.f90&#45;&gt;sourcefile~actualptvec_map.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M968.5,-959.71C955.72,-966.98 876.07,-948.48 820.57,-934.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="821.41,-930.87 810.85,-931.76 819.66,-937.65 821.41,-930.87"/>
+</g>
+<!-- sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~actualptvector.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/actualptvector.f90.html" xlink:title="ActualPtVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="626,-832.71 516,-832.71 516,-808.71 626,-808.71 626,-832.71"/>
+<text text-anchor="middle" x="571" y="-818.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualPtVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~reexportconnection.f90&#45;&gt;sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~reexportconnection.f90&#45;&gt;sourcefile~actualptvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M968.5,-959.71C913.91,-990.75 918.55,-895 863,-865.71 823.71,-844.99 809.65,-833.53 766,-841.71"/>
+</g>
+<!-- sourcefile~connectionpt.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~connectionpt.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/connectionpt.f90.html" xlink:title="ConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="818,-1011.71 712,-1011.71 712,-987.71 818,-987.71 818,-1011.71"/>
+<text text-anchor="middle" x="765" y="-997.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~reexportconnection.f90&#45;&gt;sourcefile~connectionpt.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~reexportconnection.f90&#45;&gt;sourcefile~connectionpt.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M968.5,-959.71C925.62,-984.09 870.31,-993.82 828.33,-997.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="827.92,-994.12 818.23,-998.42 828.48,-1001.1 827.92,-994.12"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="625.5,-931.71 516.5,-931.71 516.5,-907.71 625.5,-907.71 625.5,-931.71"/>
+<text text-anchor="middle" x="571" y="-917.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~reexportconnection.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~reexportconnection.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M968.5,-959.71C912.45,-991.58 727.8,-955.83 631.55,-934.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="632.2,-930.59 621.68,-931.78 630.64,-937.42 632.2,-930.59"/>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~hierarchicalregistry.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/hierarchicalregistry.f90.html" xlink:title="HierarchicalRegistry.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1040,-523.71 899,-523.71 899,-499.71 1040,-499.71 1040,-523.71"/>
+<text text-anchor="middle" x="969.5" y="-509.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HierarchicalRegistry.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~reexportconnection.f90&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~reexportconnection.f90&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1075.93,-511.71C1067.57,-511.71 1058.98,-511.71 1050.5,-511.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1050.23,-508.21 1040.23,-511.71 1050.23,-515.21 1050.23,-508.21"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="124,-53.71 0,-53.71 0,-29.71 124,-29.71 124,-53.71"/>
+<text text-anchor="middle" x="62" y="-39.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~reexportconnection.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~reexportconnection.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1143.7,-499.55C1128.56,-436.93 1050.16,-149.43 863,-36.71 752.06,30.11 701.27,-13.92 572,-21.71"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M570,-21.71C497.5,-26.63 479.14,-23.57 406.5,-21.71"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M404.5,-21.71C327.41,-19.73 308.11,-21.51 231,-21.71"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M229,-21.71C197.84,-21.78 163.63,-25.31 134.4,-29.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="133.68,-25.95 124.28,-30.84 134.68,-32.88 133.68,-25.95"/>
+</g>
+<!-- sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~stateitemspec.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/stateitemspec.f90.html" xlink:title="StateItemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="821.5,-813.71 708.5,-813.71 708.5,-789.71 821.5,-789.71 821.5,-813.71"/>
+<text text-anchor="middle" x="765" y="-799.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~reexportconnection.f90&#45;&gt;sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~reexportconnection.f90&#45;&gt;sourcefile~stateitemspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1146.58,-524.04C1146.24,-586.21 1135.39,-865.93 970.5,-959.71"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M968.5,-959.71C903.22,-996.83 925.85,-868.81 863,-827.71 853.46,-821.47 842.47,-816.72 831.4,-813.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="832.25,-809.72 821.67,-810.22 830.26,-816.43 832.25,-809.72"/>
+</g>
+<!-- sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~virtualconnectionpt.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/virtualconnectionpt.f90.html" xlink:title="VirtualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="300,-482.71 160,-482.71 160,-458.71 300,-458.71 300,-482.71"/>
+<text text-anchor="middle" x="230" y="-468.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~reexportconnection.f90&#45;&gt;sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~reexportconnection.f90&#45;&gt;sourcefile~virtualconnectionpt.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M968.5,-959.71C921.39,-986.43 914.83,-1004.97 863,-1020.71 738.98,-1058.35 701.6,-1041.33 572,-1039.71"/>
+</g>
+<!-- sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M372.39,-49.66C337.95,-37.83 281.39,-21.58 231,-21.71"/>
+</g>
+<!-- sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~actualconnectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M399.31,-73.95C374.91,-131.45 271.56,-375.08 240.12,-449.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="236.86,-447.94 236.17,-458.51 243.3,-450.67 236.86,-447.94"/>
+</g>
+<!-- sourcefile~actualptvec_map.f90&#45;&gt;sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~actualptvec_map.f90&#45;&gt;sourcefile~actualptvector.f90</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M704.43,-907.7C691.73,-904.06 678.65,-899.46 667,-893.71 638.53,-879.65 610.24,-856.41 592.04,-839.93"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="594.14,-837.11 584.42,-832.89 589.39,-842.25 594.14,-837.11"/>
+</g>
+<!-- sourcefile~actualptvec_map.f90&#45;&gt;sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~actualptvec_map.f90&#45;&gt;sourcefile~virtualconnectionpt.f90</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M743.85,-931.77C724.17,-943.59 693.41,-962.2 667,-978.71 624.45,-1005.3 621.73,-1033 572,-1039.71"/>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M570,-1039.71C458.09,-1054.81 408.33,-1027.43 336,-940.71 277.38,-870.42 242.23,-576.6 233.28,-492.99"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="236.74,-492.41 232.21,-482.83 229.78,-493.15 236.74,-492.41"/>
+</g>
+<!-- sourcefile~actualptvector.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~actualptvector.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M564.01,-808.7C552.14,-784.4 525.49,-727.36 511,-676.71 446.29,-450.46 416.15,-165.24 408.51,-84.13"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="411.98,-83.7 407.58,-74.07 405.01,-84.35 411.98,-83.7"/>
+</g>
+<!-- sourcefile~connectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~connectionpt.f90&#45;&gt;sourcefile~virtualconnectionpt.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M717.81,-1011.74C670.43,-1023.64 599.83,-1040.06 572,-1039.71"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="455.5,-931.71 355.5,-931.71 355.5,-907.71 455.5,-907.71 455.5,-931.71"/>
+<text text-anchor="middle" x="405.5" y="-917.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M516.46,-919.71C500.27,-919.71 482.39,-919.71 465.84,-919.71"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="465.73,-916.21 455.73,-919.71 465.73,-923.21 465.73,-916.21"/>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M908.26,-499.66C893.46,-496.72 877.66,-493.59 863,-490.71 775.93,-473.6 746.04,-493.04 667,-452.71 582.42,-409.54 565.47,-384.5 511,-306.71 459.06,-232.52 425.43,-128.45 412.49,-83.64"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="415.8,-82.49 409.72,-73.81 409.07,-84.39 415.8,-82.49"/>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~actualptvec_map.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~actualptvec_map.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M966.77,-523.96C958.16,-583.16 918.18,-838.94 863,-893.71 855.64,-901.01 846.46,-906.33 836.71,-910.18"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="835.54,-906.88 827.22,-913.45 837.82,-913.5 835.54,-906.88"/>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~actualptvector.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M968.42,-523.85C967.42,-570.57 957.2,-740.32 863,-822.71 829.93,-851.63 809.18,-833.62 766,-841.71"/>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M764,-841.71C717.71,-850.38 664.42,-843.21 625.75,-834.98"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="626.26,-831.51 615.74,-832.76 624.75,-838.34 626.26,-831.51"/>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~connectionpt.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~connectionpt.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M968.73,-524.01C969.15,-578.62 964.37,-802.47 863,-940.71 849.18,-959.56 827.34,-973.6 807.89,-983.25"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="806.13,-980.21 798.58,-987.64 809.11,-986.54 806.13,-980.21"/>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M764,-879.71C727.33,-903.9 710.01,-889.74 667,-898.71 656.85,-900.82 646.11,-903.13 635.64,-905.42"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="634.73,-902.03 625.71,-907.6 636.23,-908.87 634.73,-902.03"/>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M967.36,-499.4C961.1,-434.99 928.92,-137.31 863,-78.71 804.1,-26.35 589.17,-45.72 511,-35.71 464.52,-29.75 453.28,-24.38 406.5,-21.71"/>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~stateitemspec.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M967.65,-523.92C963.98,-566.59 945.71,-710.32 863,-780.71 853.98,-788.38 842.81,-793.45 831.29,-796.76"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="830.45,-793.36 821.58,-799.14 832.12,-800.16 830.45,-793.36"/>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~virtualconnectionpt.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M968.75,-523.92C969.04,-573.39 963.27,-760.81 863,-855.71 830.74,-886.23 803.07,-855.25 766,-879.71"/>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M764,-879.71C716.54,-911.01 559.86,-870.77 511,-841.71 364.2,-754.37 268.73,-557.81 240.07,-492.37"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="243.22,-490.82 236.05,-483.03 236.79,-493.59 243.22,-490.82"/>
+</g>
+<!-- sourcefile~abstractregistry.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~abstractregistry.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/abstractregistry.f90.html" xlink:title="AbstractRegistry.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="825.5,-111.71 704.5,-111.71 704.5,-87.71 825.5,-87.71 825.5,-111.71"/>
+<text text-anchor="middle" x="765" y="-97.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractRegistry.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~abstractregistry.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~abstractregistry.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M966.79,-499.33C958.26,-439.52 918.65,-181.08 863,-125.71 855.29,-118.03 845.57,-112.56 835.29,-108.66"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="836.32,-105.31 825.73,-105.51 834.13,-111.96 836.32,-105.31"/>
+</g>
+<!-- sourcefile~actualptcomponentdrivermap.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~actualptcomponentdrivermap.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/actualptcomponentdrivermap.f90.html" xlink:title="ActualPtComponentDriverMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="863,-771.71 667,-771.71 667,-747.71 863,-747.71 863,-771.71"/>
+<text text-anchor="middle" x="765" y="-757.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualPtComponentDriverMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~actualptcomponentdrivermap.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~actualptcomponentdrivermap.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M966.69,-523.88C960.32,-562.14 935.3,-680.9 863,-738.71 861.39,-740 859.71,-741.21 857.98,-742.36"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="855.89,-739.52 848.94,-747.52 859.36,-745.6 855.89,-739.52"/>
+</g>
+<!-- sourcefile~actualptspecptrmap.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~actualptspecptrmap.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/actualptspecptrmap.f90.html" xlink:title="ActualPtSpecPtrMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="835.5,-729.71 694.5,-729.71 694.5,-705.71 835.5,-705.71 835.5,-729.71"/>
+<text text-anchor="middle" x="765" y="-715.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualPtSpecPtrMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~actualptspecptrmap.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~actualptspecptrmap.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M965.3,-523.98C955.9,-557.52 925.01,-651.22 863,-696.71 857.54,-700.71 851.47,-703.98 845.1,-706.65"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="843.79,-703.41 835.61,-710.14 846.2,-709.98 843.79,-703.41"/>
+</g>
+<!-- sourcefile~esmf_subset.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~esmf_subset.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/esmf_subset.f90.html" xlink:title="ESMF_Subset.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="817.5,-687.71 712.5,-687.71 712.5,-663.71 817.5,-663.71 817.5,-687.71"/>
+<text text-anchor="middle" x="765" y="-673.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Subset.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~esmf_subset.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~esmf_subset.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M963.19,-524.01C950.41,-552.08 915.07,-621.02 863,-654.71 852.38,-661.57 839.88,-666.23 827.45,-669.38"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="826.53,-666 817.53,-671.59 828.06,-672.83 826.53,-666"/>
+</g>
+<!-- sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~esmf_utilities.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/esmf_utilities.f90.html" xlink:title="ESMF_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="819,-645.71 711,-645.71 711,-621.71 819,-621.71 819,-645.71"/>
+<text text-anchor="middle" x="765" y="-631.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~esmf_utilities.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M959.56,-523.88C943.05,-545.42 905.54,-590.1 863,-612.71 852.54,-618.26 840.7,-622.35 828.98,-625.36"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="828.14,-621.96 819.19,-627.64 829.73,-628.78 828.14,-621.96"/>
+</g>
+<!-- sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~extensionaction.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/extensionaction.f90.html" xlink:title="ExtensionAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="631,-297.71 511,-297.71 511,-273.71 631,-273.71 631,-297.71"/>
+<text text-anchor="middle" x="571" y="-283.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~extensionaction.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M966.83,-499.7C958.64,-442.87 920.84,-201.79 863,-158.71 793.14,-106.67 744.89,-119.7 667,-158.71 622.95,-180.76 594.07,-234.02 580.67,-264.09"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="577.29,-263.1 576.58,-273.67 583.73,-265.85 577.29,-263.1"/>
+</g>
+<!-- sourcefile~extensionvector.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~extensionvector.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/extensionvector.f90.html" xlink:title="ExtensionVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="824.5,-603.71 705.5,-603.71 705.5,-579.71 824.5,-579.71 824.5,-603.71"/>
+<text text-anchor="middle" x="765" y="-589.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~extensionvector.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~extensionvector.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M948.08,-523.8C927.25,-535.74 893.72,-553.88 863,-565.71 852.18,-569.87 840.43,-573.63 828.97,-576.91"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="827.71,-573.63 819,-579.66 829.57,-580.37 827.71,-573.63"/>
+</g>
+<!-- sourcefile~fieldspec.f90~2 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~fieldspec.f90~2</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/fieldspec.f90~2.html" xlink:title="FieldSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="808,-523.71 722,-523.71 722,-499.71 808,-499.71 808,-523.71"/>
+<text text-anchor="middle" x="765" y="-509.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~fieldspec.f90~2 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~fieldspec.f90~2</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M898.81,-511.71C872.38,-511.71 842.77,-511.71 818.22,-511.71"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="818.03,-508.21 808.03,-511.71 818.03,-515.21 818.03,-508.21"/>
+</g>
+<!-- sourcefile~genericcoupler.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~genericcoupler.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/genericcoupler.f90.html" xlink:title="GenericCoupler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="824,-443.71 706,-443.71 706,-419.71 824,-419.71 824,-443.71"/>
+<text text-anchor="middle" x="765" y="-429.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GenericCoupler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~genericcoupler.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~genericcoupler.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M948.08,-499.61C927.25,-487.67 893.72,-469.53 863,-457.71 852.18,-453.54 840.43,-449.78 828.97,-446.51"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="829.57,-443.04 819,-443.75 827.71,-449.79 829.57,-443.04"/>
+</g>
+<!-- sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~griddedcomponentdriver.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/griddedcomponentdriver.f90.html" xlink:title="GriddedComponentDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="851,-401.71 679,-401.71 679,-377.71 851,-377.71 851,-401.71"/>
+<text text-anchor="middle" x="765" y="-387.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M959.56,-499.54C943.05,-478 905.54,-433.31 863,-410.71 859.23,-408.71 855.29,-406.9 851.24,-405.26"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="852.21,-401.89 841.61,-401.74 849.8,-408.46 852.21,-401.89"/>
+</g>
+<!-- sourcefile~multistate.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~multistate.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node22"><a xlink:href="../sourcefile/multistate.f90.html" xlink:title="MultiState.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="809,-359.71 721,-359.71 721,-335.71 809,-335.71 809,-359.71"/>
+<text text-anchor="middle" x="765" y="-345.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiState.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M963.19,-499.41C950.41,-471.33 915.07,-402.39 863,-368.71 850.07,-360.34 834.35,-355.26 819.35,-352.18"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="819.59,-348.67 809.13,-350.36 818.36,-355.56 819.59,-348.67"/>
+</g>
+<!-- sourcefile~nullaction.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node23" class="node">
+<title>sourcefile~nullaction.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node23"><a xlink:href="../sourcefile/nullaction.f90.html" xlink:title="NullAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="615,-667.71 527,-667.71 527,-643.71 615,-643.71 615,-667.71"/>
+<text text-anchor="middle" x="571" y="-653.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NullAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~nullaction.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~nullaction.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M908.26,-523.75C893.46,-526.7 877.66,-529.83 863,-532.71 775.93,-549.81 746.48,-531.26 667,-570.71 635.08,-586.55 605.74,-616.08 588.35,-635.82"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="585.52,-633.75 581.66,-643.61 590.83,-638.31 585.52,-633.75"/>
+</g>
+<!-- sourcefile~registryptr.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node24" class="node">
+<title>sourcefile~registryptr.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node24"><a xlink:href="../sourcefile/registryptr.f90.html" xlink:title="RegistryPtr.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="810.5,-317.71 719.5,-317.71 719.5,-293.71 810.5,-293.71 810.5,-317.71"/>
+<text text-anchor="middle" x="765" y="-303.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegistryPtr.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~registryptr.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~registryptr.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M965.3,-499.43C955.9,-465.89 925.01,-372.19 863,-326.71 850.81,-317.76 835.58,-312.48 820.82,-309.41"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="821.19,-305.92 810.73,-307.61 819.96,-312.81 821.19,-305.92"/>
+</g>
+<!-- sourcefile~registryptrmap.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node25" class="node">
+<title>sourcefile~registryptrmap.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node25"><a xlink:href="../sourcefile/registryptrmap.f90.html" xlink:title="RegistryPtrMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="822.5,-275.71 707.5,-275.71 707.5,-251.71 822.5,-251.71 822.5,-275.71"/>
+<text text-anchor="middle" x="765" y="-261.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegistryPtrMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~registryptrmap.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~registryptrmap.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M966.69,-499.54C960.32,-461.27 935.3,-342.51 863,-284.71 854.15,-277.63 843.45,-272.81 832.43,-269.54"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="833.26,-266.14 822.71,-267.06 831.53,-272.92 833.26,-266.14"/>
+</g>
+<!-- sourcefile~stateitemvector.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node26" class="node">
+<title>sourcefile~stateitemvector.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node26"><a xlink:href="../sourcefile/stateitemvector.f90.html" xlink:title="StateItemVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="824.5,-233.71 705.5,-233.71 705.5,-209.71 824.5,-209.71 824.5,-233.71"/>
+<text text-anchor="middle" x="765" y="-219.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~stateitemvector.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~stateitemvector.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M967.65,-499.5C963.98,-456.82 945.71,-313.1 863,-242.71 854.76,-235.7 844.73,-230.86 834.28,-227.56"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="835.17,-224.17 824.61,-224.93 833.34,-230.93 835.17,-224.17"/>
+</g>
+<!-- sourcefile~virtualconnectionptvector.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_node27" class="node">
+<title>sourcefile~virtualconnectionptvector.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~EfferentGraph_node27"><a xlink:href="../sourcefile/virtualconnectionptvector.f90.html" xlink:title="VirtualConnectionPtVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="851,-191.71 679,-191.71 679,-167.71 851,-167.71 851,-191.71"/>
+<text text-anchor="middle" x="765" y="-177.31" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPtVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~virtualconnectionptvector.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~virtualconnectionptvector.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M968.37,-499.62C967.19,-453.1 956.38,-284.02 863,-200.71 861.67,-199.52 860.3,-198.4 858.88,-197.34"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="860.61,-194.29 850.3,-191.86 856.84,-200.19 860.61,-194.29"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~actualptvector.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M708.47,-807.2C685.89,-809.44 659.66,-812.03 636.26,-814.35"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="635.69,-810.89 626.09,-815.35 636.38,-817.85 635.69,-810.89"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M744.18,-813.89C710.03,-834.88 639.98,-877.93 600.57,-902.15"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="598.4,-899.37 591.72,-907.59 602.07,-905.33 598.4,-899.37"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~extensionaction.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M708.46,-800.71C693.21,-797.75 677.9,-791.86 667,-780.71 650,-763.3 590.81,-402.36 575.59,-308.08"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="579,-307.26 573.96,-297.94 572.09,-308.37 579,-307.26"/>
+</g>
+<!-- sourcefile~stateitemspec.f90&#45;&gt;sourcefile~nullaction.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~stateitemspec.f90&#45;&gt;sourcefile~nullaction.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M708.26,-796.59C694.02,-793.47 679.28,-788.53 667,-780.71 626.48,-754.9 596.73,-705.39 582.12,-677.04"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="585.19,-675.35 577.59,-667.97 578.93,-678.48 585.19,-675.35"/>
+</g>
+<!-- sourcefile~virtualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~virtualconnectionpt.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M224.21,-458.33C201.11,-398.63 101.09,-140.14 71.36,-63.32"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="74.52,-61.79 67.65,-53.72 67.99,-64.31 74.52,-61.79"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilereexportconnectionf90EfferentGraph = svgPanZoom('#sourcefilereexportconnectionf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~reexportconnection.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilereexportconnectionf90AfferentGraph" width="568pt" height="368pt"
+ viewBox="0.00 0.00 568.00 368.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 364)">
+<title>sourcefile~~reexportconnection.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-364 564,-364 564,4 -4,4"/>
+<!-- sourcefile~reexportconnection.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~reexportconnection.f90</title>
+<polygon fill="none" stroke="black" points="143,-171 0,-171 0,-147 143,-147 143,-171"/>
+<text text-anchor="middle" x="71.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50">ReexportConnection.F90</text>
+</g>
+<!-- sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~componentspecparser.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/componentspecparser.f90.html" xlink:title="ComponentSpecParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="335.5,-192 179.5,-192 179.5,-168 335.5,-168 335.5,-192"/>
+<text text-anchor="middle" x="257.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~reexportconnection.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~reexportconnection.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M179.27,-171.19C170.64,-170.2 161.84,-169.2 153.18,-168.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="153.42,-164.71 143.09,-167.06 152.62,-171.67 153.42,-164.71"/>
+</g>
+<!-- sourcefile~test_hierarchicalregistry.pf -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~test_hierarchicalregistry.pf</title>
+<g id="a_sourcefile~~reexportconnection.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/test_hierarchicalregistry.pf.html" xlink:title="Test_HierarchicalRegistry.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="336,-150 179,-150 179,-126 336,-126 336,-150"/>
+<text text-anchor="middle" x="257.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_HierarchicalRegistry.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_hierarchicalregistry.pf&#45;&gt;sourcefile~reexportconnection.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~test_hierarchicalregistry.pf&#45;&gt;sourcefile~reexportconnection.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M178.73,-146.88C170.37,-147.83 161.84,-148.8 153.43,-149.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="152.8,-146.31 143.27,-150.92 153.6,-153.27 152.8,-146.31"/>
+</g>
+<!-- sourcefile~outermetacomponent_smod.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~outermetacomponent_smod.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/outermetacomponent_smod.f90.html" xlink:title="OuterMetaComponent_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="560,-360 372,-360 372,-336 560,-336 560,-360"/>
+<text text-anchor="middle" x="466" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent_smod.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~outermetacomponent_smod.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M390.02,-335.98C383.69,-333.52 377.58,-330.56 372,-327 322.23,-295.26 285.6,-233.75 268.77,-201.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="271.82,-199.54 264.19,-192.19 265.57,-202.69 271.82,-199.54"/>
+</g>
+<!-- sourcefile~parse_child.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~parse_child.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/parse_child.f90.html" xlink:title="parse_child.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="514,-318 418,-318 418,-294 514,-294 514,-318"/>
+<text text-anchor="middle" x="466" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_child.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_child.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~parse_child.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M417.91,-300.31C402.66,-297.2 386.06,-292.4 372,-285 331.41,-263.65 294.44,-224.03 274.34,-200.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="277.01,-197.76 267.96,-192.25 271.6,-202.2 277.01,-197.76"/>
+</g>
+<!-- sourcefile~parse_children.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~parse_children.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/parse_children.f90.html" xlink:title="parse_children.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="522.5,-276 409.5,-276 409.5,-252 522.5,-252 522.5,-276"/>
+<text text-anchor="middle" x="466" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_children.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_children.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~parse_children.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M409.16,-254.1C396.73,-251.16 383.75,-247.48 372,-243 340.72,-231.07 307.53,-211.77 285.18,-197.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="286.9,-194.62 276.59,-192.18 283.12,-200.52 286.9,-194.62"/>
+</g>
+<!-- sourcefile~parse_component_spec.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~parse_component_spec.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/parse_component_spec.f90.html" xlink:title="parse_component_spec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="546.5,-234 385.5,-234 385.5,-210 546.5,-210 546.5,-234"/>
+<text text-anchor="middle" x="466" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_component_spec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_component_spec.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~parse_component_spec.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M405.83,-209.96C381.42,-205 352.96,-199.21 327.6,-194.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="328.18,-190.6 317.68,-192.04 326.79,-197.46 328.18,-190.6"/>
+</g>
+<!-- sourcefile~parse_connections.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~parse_connections.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/parse_connections.f90.html" xlink:title="parse_connections.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="533.5,-192 398.5,-192 398.5,-168 533.5,-168 533.5,-192"/>
+<text text-anchor="middle" x="466" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_connections.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_connections.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~parse_connections.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M398.24,-180C381.59,-180 363.49,-180 346.01,-180"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="345.8,-176.5 335.8,-180 345.8,-183.5 345.8,-176.5"/>
+</g>
+<!-- sourcefile~parse_geometry_spec.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~parse_geometry_spec.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/parse_geometry_spec.f90.html" xlink:title="parse_geometry_spec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="542,-150 390,-150 390,-126 542,-126 542,-150"/>
+<text text-anchor="middle" x="466" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_geometry_spec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_geometry_spec.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~parse_geometry_spec.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M405.83,-150.04C381.42,-155 352.96,-160.79 327.6,-165.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="326.79,-162.54 317.68,-167.96 328.18,-169.4 326.79,-162.54"/>
+</g>
+<!-- sourcefile~parse_setservices.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~parse_setservices.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/parse_setservices.f90.html" xlink:title="parse_setservices.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="531,-108 401,-108 401,-84 531,-84 531,-108"/>
+<text text-anchor="middle" x="466" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_setservices.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_setservices.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~parse_setservices.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M400.87,-104.78C390.78,-107.74 380.79,-111.71 372,-117 350.94,-129.69 356.79,-145.87 336,-159 333.23,-160.75 330.32,-162.35 327.31,-163.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="325.82,-160.66 318.05,-167.86 328.61,-167.08 325.82,-160.66"/>
+</g>
+<!-- sourcefile~parse_var_specs.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~parse_var_specs.f90</title>
+<g id="a_sourcefile~~reexportconnection.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/parse_var_specs.f90.html" xlink:title="parse_var_specs.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="527.5,-66 404.5,-66 404.5,-42 527.5,-42 527.5,-66"/>
+<text text-anchor="middle" x="466" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_var_specs.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_var_specs.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~parse_var_specs.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M404.13,-59.14C392.53,-62.38 381.16,-67.38 372,-75 340.78,-100.98 366.66,-132.36 336,-159 334.46,-160.34 332.84,-161.59 331.17,-162.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="329.13,-159.9 322.31,-168 332.69,-165.93 329.13,-159.9"/>
+</g>
+<!-- sourcefile~test_componentspecparser.pf -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~test_componentspecparser.pf</title>
+<g id="a_sourcefile~~reexportconnection.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/test_componentspecparser.pf.html" xlink:title="Test_ComponentSpecParser.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="552,-24 380,-24 380,0 552,0 552,-24"/>
+<text text-anchor="middle" x="466" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ComponentSpecParser.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~reexportconnection.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M383.97,-24.23C379.65,-26.69 375.61,-29.59 372,-33 329.68,-73.01 377.46,-118.1 336,-159 334.88,-160.1 333.72,-161.15 332.5,-162.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="330.25,-159.44 323.92,-167.94 334.16,-165.24 330.25,-159.44"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">mapl3g_ReexportConnection</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_StateItemSpec</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ConnectionPt</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_HierarchicalRegistry</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">Connection</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_HierarchicalRegistry</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_VirtualConnectionPt</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ActualConnectionPt</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ActualPtVec_Map</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ActualPtVector</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_KeywordEnforcer</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandling</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="k">   private</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ReexportConnection</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">Connection</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ReexportConnection</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="k">      type</span><span class="p">(</span><span class="n">ConnectionPt</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ConnectionPt</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">destination</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_source</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_destination</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">connect</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">connect_export_to_export</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">   </span><span class="k">end type </span><span class="n">ReexportConnection</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">   </span><span class="k">interface </span><span class="n">ReexportConnection</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">module procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_ReexportConnection</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">   </span><span class="k">end interface </span><span class="n">ReexportConnection</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="k">contains</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="k">   function </span><span class="n">new_ReexportConnection</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">destination</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ReexportConnection</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">destination</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">source</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">destination</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_ReexportConnection</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">   </span><span class="k">function </span><span class="n">get_source</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ConnectionPt</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ReexportConnection</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">source</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_source</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">   </span><span class="k">function </span><span class="n">get_destination</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ConnectionPt</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">destination</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ReexportConnection</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">destination</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_destination</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">connect</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">registry</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ReexportConnection</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">HierarchicalRegistry</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">registry</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">HierarchicalRegistry</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_registry</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ConnectionPt</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_pt</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="n">src_pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_source</span><span class="p">()</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="n">src_registry</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">registry</span><span class="p">%</span><span class="n">get_subregistry</span><span class="p">(</span><span class="n">src_pt</span><span class="p">)</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">src_registry</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;Unknown source registry&#39;</span><span class="p">)</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">connect_export_to_export</span><span class="p">(</span><span class="n">registry</span><span class="p">,</span><span class="w"> </span><span class="n">src_registry</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">        </span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">connect</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a>
+<a id="ln-79" name="ln-79" href="#ln-79"></a>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">   </span><span class="c">! Non-sibling connection: just propagate pointer &quot;up&quot;</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">connect_export_to_export</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">registry</span><span class="p">,</span><span class="w"> </span><span class="n">src_registry</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ReexportConnection</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">HierarchicalRegistry</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">registry</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">HierarchicalRegistry</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_registry</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualPtVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_actual_pt</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualConnectionPt</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dst_actual_pt</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ActualPtVector</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_pts</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VirtualConnectionPt</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_pt</span><span class="p">,</span><span class="w"> </span><span class="n">dst_pt</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ConnectionPt</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">dst</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="n">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_source</span><span class="p">()</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="n">dst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_destination</span><span class="p">()</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="n">src_pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">src</span><span class="p">%</span><span class="n">v_pt</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span><span class="n">dst_pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dst</span><span class="p">%</span><span class="n">v_pt</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">registry</span><span class="p">%</span><span class="n">has_item_spec</span><span class="p">(</span><span class="n">dst_pt</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;Specified virtual point already exists in this registry&#39;</span><span class="p">)</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">src_registry</span><span class="p">%</span><span class="n">has_item_spec</span><span class="p">(</span><span class="n">src_pt</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;Specified virtual point does not exist.&#39;</span><span class="p">)</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">      </span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">      </span><span class="n">actual_pts</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">src_registry</span><span class="p">%</span><span class="n">get_actual_pts</span><span class="p">(</span><span class="n">src_pt</span><span class="p">)</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">actual_pts</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">        </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">actual_pts</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">        </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">e</span><span class="p">)</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">           </span><span class="n">src_actual_pt</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">of</span><span class="p">()</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">           </span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">src_actual_pt</span><span class="p">%</span><span class="n">is_internal</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">              </span><span class="c">! Don&#39;t encode with comp name</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">              </span><span class="n">dst_actual_pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ActualConnectionPt</span><span class="p">(</span><span class="n">dst_pt</span><span class="p">)</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">           </span><span class="k">else</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="k">              </span><span class="n">dst_actual_pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">src_actual_pt</span><span class="p">%</span><span class="n">add_comp_name</span><span class="p">(</span><span class="n">src_registry</span><span class="p">%</span><span class="n">get_name</span><span class="p">())</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">           </span><span class="k">end if</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="k">           </span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="k">           </span><span class="n">spec</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">src_registry</span><span class="p">%</span><span class="n">get_item_spec</span><span class="p">(</span><span class="n">src_actual_pt</span><span class="p">)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">           </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">spec</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;This should not happen.&#39;</span><span class="p">)</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">           </span><span class="k">call </span><span class="n">registry</span><span class="p">%</span><span class="n">link_item_spec</span><span class="p">(</span><span class="n">dst_pt</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">dst_actual_pt</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">           </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">        </span><span class="k">end do</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="k">      end associate</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="k">    </span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="k">      function </span><span class="n">str_replace</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">pattern</span><span class="p">,</span><span class="w"> </span><span class="n">replacement</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">new_str</span><span class="p">)</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">         </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_str</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pattern</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">replacement</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">idx</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">         </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">scan</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">pattern</span><span class="p">)</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">         </span><span class="n">new_str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:</span><span class="n">idx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">replacement</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">buffer</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">pattern</span><span class="p">):)</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">      </span><span class="k">end function </span><span class="n">str_replace</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">connect_export_to_export</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w"> </span><span class="k">end module </span><span class="n">mapl3g_ReexportConnection</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-06-10T20:49:16.084294             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

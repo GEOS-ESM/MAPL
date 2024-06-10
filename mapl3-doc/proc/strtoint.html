@@ -1,0 +1,900 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>strToInt &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>strToInt
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">34 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ESMF_CFIOUtilMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmf_cfioutilmod.f90.html'>ESMF_CFIOUtilMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmf_cfioutilmod.html'>ESMF_CFIOUtilMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">strToInt</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/strtoint.html#src">strToInt</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine strToInt(timeString, date, begTime)  
+</h2>
+    
+
+    <p><code>strToInt</code> - convert timeString to integer date and time</p>
+<p>This function attempts to identify a coordiante variable
+ from the name or units of the variable.  It does so by
+ attempting to match the units specified in the COARDS
+ conventions or by checking the name against commonly used
+ names.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>2004.10.04  B. Yin         first version.</li>
+</ul>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timestring~9"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timeString</strong></td>
+            <td>
+                <p>string expression of data and time</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-date~19"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>date</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-begtime~9"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>begTime</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~strtoint~~CalledByGraph Pages: 1 -->
+<svg id="procstrtointCalledByGraph" width="641pt" height="593pt"
+ viewBox="0.00 0.00 641.00 593.09" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~strtoint~~CalledByGraph" class="graph" transform="scale(1.25 1.25) rotate(0) translate(4 738.06)">
+<title>proc~~strtoint~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-738.06 798,-738.06 798,4 -4,4"/>
+<!-- proc~strtoint -->
+<g id="proc~~strtoint~~CalledByGraph_node1" class="node">
+<title>proc~strtoint</title>
+<polygon fill="none" stroke="black" points="794,-311.06 740,-311.06 740,-287.06 794,-287.06 794,-311.06"/>
+<text text-anchor="middle" x="767" y="-296.66" font-family="Helvetica,sans-Serif" font-size="10.50">strToInt</text>
+</g>
+<!-- proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_node2" class="node">
+<title>proc~esmf_cfioset</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node2"><a xlink:href="../proc/esmf_cfioset.html" xlink:title="ESMF_CFIOSet">
+<polygon fill="#d9534f" stroke="#d9534f" points="666,-353.06 578,-353.06 578,-329.06 666,-329.06 666,-353.06"/>
+<text text-anchor="middle" x="622" y="-338.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSet</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfioset&#45;&gt;proc~strtoint -->
+<g id="proc~~strtoint~~CalledByGraph_edge1" class="edge">
+<title>proc~esmf_cfioset&#45;&gt;proc~strtoint</title>
+<path fill="none" stroke="#ff0000" d="M666.04,-330.52C678.35,-327.34 691.75,-323.72 704,-320.06 712.53,-317.51 721.65,-314.56 730.19,-311.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="731.56,-314.91 739.89,-308.37 729.3,-308.29 731.56,-314.91"/>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite -->
+<g id="proc~~strtoint~~CalledByGraph_node3" class="node">
+<title>proc~mapl_cfiowritebundlewrite</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node3"><a xlink:href="../proc/mapl_cfiowritebundlewrite.html" xlink:title="MAPL_CFIOWriteBundleWrite">
+<polygon fill="#d9534f" stroke="#d9534f" points="704,-311.06 540,-311.06 540,-287.06 704,-287.06 704,-311.06"/>
+<text text-anchor="middle" x="622" y="-296.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOWriteBundleWrite</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;proc~strtoint -->
+<g id="proc~~strtoint~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;proc~strtoint</title>
+<path fill="none" stroke="#ff0000" d="M704.11,-299.06C712.95,-299.06 721.59,-299.06 729.48,-299.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="729.72,-302.56 739.72,-299.06 729.72,-295.56 729.72,-302.56"/>
+</g>
+<!-- proc~mapl_getcurrentfile -->
+<g id="proc~~strtoint~~CalledByGraph_node4" class="node">
+<title>proc~mapl_getcurrentfile</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node4"><a xlink:href="../proc/mapl_getcurrentfile.html" xlink:title="MAPL_GetCurrentFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="683.5,-269.06 560.5,-269.06 560.5,-245.06 683.5,-245.06 683.5,-269.06"/>
+<text text-anchor="middle" x="622" y="-254.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetCurrentFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getcurrentfile&#45;&gt;proc~strtoint -->
+<g id="proc~~strtoint~~CalledByGraph_edge3" class="edge">
+<title>proc~mapl_getcurrentfile&#45;&gt;proc~strtoint</title>
+<path fill="none" stroke="#ff0000" d="M671.99,-269.15C682.59,-271.93 693.7,-274.98 704,-278.06 712.53,-280.61 721.65,-283.56 730.19,-286.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="729.3,-289.83 739.89,-289.74 731.56,-283.2 729.3,-289.83"/>
+</g>
+<!-- none~find -->
+<g id="proc~~strtoint~~CalledByGraph_node5" class="node">
+<title>none~find</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node5"><a xlink:href="../type/cfiocollection.html#boundprocedure-find" xlink:title="CFIOCollection%find">
+<polygon fill="#a7506f" stroke="#a7506f" points="323,-713.06 202,-713.06 202,-689.06 323,-689.06 323,-713.06"/>
+<text text-anchor="middle" x="262.5" y="-698.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIOCollection%find</text>
+</a>
+</g>
+</g>
+<!-- none~find&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge4" class="edge">
+<title>none~find&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M323.23,-711.08C376.35,-716.51 453.26,-715.32 504,-675.06 604.13,-595.6 618.79,-424.69 620.76,-363.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="624.26,-363.43 621,-353.35 617.27,-363.26 624.26,-363.43"/>
+</g>
+<!-- proc~esmf_cfiofileopen -->
+<g id="proc~~strtoint~~CalledByGraph_node7" class="node">
+<title>proc~esmf_cfiofileopen</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node7"><a xlink:href="../proc/esmf_cfiofileopen.html" xlink:title="ESMF_CFIOFileOpen">
+<polygon fill="#d9534f" stroke="#d9534f" points="492,-551.06 374,-551.06 374,-527.06 492,-527.06 492,-551.06"/>
+<text text-anchor="middle" x="433" y="-536.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOFileOpen</text>
+</a>
+</g>
+</g>
+<!-- none~find&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~strtoint~~CalledByGraph_edge34" class="edge">
+<title>none~find&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ffb300" d="M276.48,-688.91C289.16,-677.02 308.97,-658.37 326,-642.06 356.37,-612.97 391.29,-578.92 412.5,-558.17"/>
+<polygon fill="#ffb300" stroke="#ffb300" points="414.96,-560.66 419.65,-551.17 410.06,-555.66 414.96,-560.66"/>
+</g>
+<!-- proc~esmf_cfiofilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_node6" class="node">
+<title>proc~esmf_cfiofilecreate</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node6"><a xlink:href="../proc/esmf_cfiofilecreate.html" xlink:title="ESMF_CFIOFileCreate">
+<polygon fill="#d9534f" stroke="#d9534f" points="324.5,-255.06 200.5,-255.06 200.5,-231.06 324.5,-231.06 324.5,-255.06"/>
+<text text-anchor="middle" x="262.5" y="-240.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOFileCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiofilecreate&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge5" class="edge">
+<title>proc~esmf_cfiofilecreate&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M302.01,-230.99C352.67,-217.6 442.45,-202.68 504,-242.06 536.16,-262.64 510.7,-295.58 540,-320.06 548.03,-326.76 557.94,-331.36 568.05,-334.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="567.19,-337.89 577.75,-337.09 568.99,-331.13 567.19,-337.89"/>
+</g>
+<!-- proc~esmf_cfiosdffilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_node8" class="node">
+<title>proc~esmf_cfiosdffilecreate</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node8"><a xlink:href="../proc/esmf_cfiosdffilecreate.html" xlink:title="ESMF_CFIOSdfFileCreate">
+<polygon fill="#d9534f" stroke="#d9534f" points="504,-275.06 362,-275.06 362,-251.06 504,-251.06 504,-275.06"/>
+<text text-anchor="middle" x="433" y="-260.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfFileCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiofilecreate&#45;&gt;proc~esmf_cfiosdffilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_edge40" class="edge">
+<title>proc~esmf_cfiofilecreate&#45;&gt;proc~esmf_cfiosdffilecreate</title>
+<path fill="none" stroke="#f0ff00" d="M324.81,-250.34C333.56,-251.37 342.67,-252.46 351.72,-253.53"/>
+<polygon fill="#f0ff00" stroke="#f0ff00" points="351.54,-257.03 361.88,-254.74 352.37,-250.08 351.54,-257.03"/>
+</g>
+<!-- proc~esmf_cfiofileopen&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge6" class="edge">
+<title>proc~esmf_cfiofileopen&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M475.8,-526.97C485.67,-522.91 495.72,-517.68 504,-511.06 556.22,-469.32 594.47,-398.12 611.38,-362.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="614.71,-363.7 615.75,-353.15 608.36,-360.75 614.71,-363.7"/>
+</g>
+<!-- proc~esmf_cfiosdffilecreate&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge7" class="edge">
+<title>proc~esmf_cfiosdffilecreate&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M474,-275.14C484.12,-278.93 494.73,-283.59 504,-289.06 522.18,-299.79 521.29,-310.27 540,-320.06 548.6,-324.56 558.22,-328.14 567.75,-330.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="567.04,-334.41 577.61,-333.67 568.88,-327.66 567.04,-334.41"/>
+</g>
+<!-- proc~mapl_cfiocreatewrite -->
+<g id="proc~~strtoint~~CalledByGraph_node9" class="node">
+<title>proc~mapl_cfiocreatewrite</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node9"><a xlink:href="../proc/mapl_cfiocreatewrite.html" xlink:title="MAPL_CFIOCreatewrite">
+<polygon fill="#d9534f" stroke="#d9534f" points="148,-429.06 15,-429.06 15,-405.06 148,-405.06 148,-429.06"/>
+<text text-anchor="middle" x="81.5" y="-414.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOCreatewrite</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatewrite&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge8" class="edge">
+<title>proc~mapl_cfiocreatewrite&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M148.17,-411.7C231.36,-404.39 378.96,-389.69 504,-368.06 525.09,-364.41 548.08,-359.35 568.05,-354.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="568.99,-357.96 577.89,-352.21 567.35,-351.16 568.99,-357.96"/>
+</g>
+<!-- proc~mapl_cfiocreatewrite&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_edge23" class="edge">
+<title>proc~mapl_cfiocreatewrite&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ff5900" d="M141.13,-404.93C148.91,-401.82 156.45,-397.93 163,-393.06 208.56,-359.16 239.17,-297.49 253.03,-264.78"/>
+<polygon fill="#ff5900" stroke="#ff5900" points="256.38,-265.83 256.94,-255.25 249.91,-263.17 256.38,-265.83"/>
+</g>
+<!-- program~test -->
+<g id="proc~~strtoint~~CalledByGraph_node10" class="node">
+<title>program~test</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node10"><a xlink:href="../program/test.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289.5,-633.06 235.5,-633.06 235.5,-609.06 289.5,-609.06 289.5,-633.06"/>
+<text text-anchor="middle" x="262.5" y="-618.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge9" class="edge">
+<title>program~test&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M289.61,-621.07C337.23,-619.77 439.22,-610.78 504,-560.06 570.47,-508.01 603.72,-407.42 615.67,-363.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="619.08,-363.81 618.2,-353.25 612.3,-362.06 619.08,-363.81"/>
+</g>
+<!-- program~test&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~strtoint~~CalledByGraph_edge36" class="edge">
+<title>program~test&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ffb300" d="M289.79,-613.5C301.13,-609.92 314.41,-605.28 326,-600.06 353.83,-587.53 383.82,-569.84 404.78,-556.73"/>
+<polygon fill="#ffb300" stroke="#ffb300" points="406.87,-559.55 413.45,-551.25 403.13,-553.64 406.87,-559.55"/>
+</g>
+<!-- program~test~11 -->
+<g id="proc~~strtoint~~CalledByGraph_node11" class="node">
+<title>program~test~11</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node11"><a xlink:href="../program/test~11.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289.5,-511.06 235.5,-511.06 235.5,-487.06 289.5,-487.06 289.5,-511.06"/>
+<text text-anchor="middle" x="262.5" y="-496.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~11&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge10" class="edge">
+<title>program~test~11&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M289.68,-499.66C335.69,-499.65 432.89,-494.82 504,-458.06 548.94,-434.83 587.41,-388.2 607.05,-361.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="610.01,-363.24 612.97,-353.07 604.31,-359.17 610.01,-363.24"/>
+</g>
+<!-- program~test~11&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~strtoint~~CalledByGraph_edge37" class="edge">
+<title>program~test~11&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ffb300" d="M289.83,-505.31C311.69,-510.5 343.63,-518.08 371.7,-524.74"/>
+<polygon fill="#ffb300" stroke="#ffb300" points="370.91,-528.15 381.44,-527.06 372.52,-521.34 370.91,-528.15"/>
+</g>
+<!-- program~test~13 -->
+<g id="proc~~strtoint~~CalledByGraph_node12" class="node">
+<title>program~test~13</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node12"><a xlink:href="../program/test~13.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="108.5,-384.06 54.5,-384.06 54.5,-360.06 108.5,-360.06 108.5,-384.06"/>
+<text text-anchor="middle" x="81.5" y="-369.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~13&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge11" class="edge">
+<title>program~test~13&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M108.66,-370.92C174.86,-367.98 354.46,-359.71 504,-350.06 524.86,-348.71 547.8,-347 567.79,-345.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="568.26,-348.9 577.95,-344.62 567.71,-341.92 568.26,-348.9"/>
+</g>
+<!-- program~test~13&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_edge25" class="edge">
+<title>program~test~13&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ff5900" d="M108.62,-368.71C125.14,-365.71 146.42,-360.15 163,-350.06 199.53,-327.83 230.84,-288.18 247.84,-263.89"/>
+<polygon fill="#ff5900" stroke="#ff5900" points="250.89,-265.63 253.64,-255.4 245.11,-261.68 250.89,-265.63"/>
+</g>
+<!-- program~test~14 -->
+<g id="proc~~strtoint~~CalledByGraph_node13" class="node">
+<title>program~test~14</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node13"><a xlink:href="../program/test~14.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="108.5,-341.06 54.5,-341.06 54.5,-317.06 108.5,-317.06 108.5,-341.06"/>
+<text text-anchor="middle" x="81.5" y="-326.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~14&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge12" class="edge">
+<title>program~test~14&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M108.84,-329.65C192.59,-331.51 453.92,-337.34 567.45,-339.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="567.57,-343.37 577.64,-340.09 567.72,-336.37 567.57,-343.37"/>
+</g>
+<!-- program~test~14&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_edge26" class="edge">
+<title>program~test~14&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ff5900" d="M108.58,-324.08C124.69,-320.49 145.55,-314.88 163,-307.06 190.43,-294.76 218.94,-275.4 238.18,-261.19"/>
+<polygon fill="#ff5900" stroke="#ff5900" points="240.44,-263.87 246.33,-255.07 236.23,-258.28 240.44,-263.87"/>
+</g>
+<!-- program~test~2 -->
+<g id="proc~~strtoint~~CalledByGraph_node14" class="node">
+<title>program~test~2</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node14"><a xlink:href="../program/test~2.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="108.5,-551.06 54.5,-551.06 54.5,-527.06 108.5,-527.06 108.5,-551.06"/>
+<text text-anchor="middle" x="81.5" y="-536.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~2&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge13" class="edge">
+<title>program~test~2&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M91.34,-551.35C108.8,-574.43 150.27,-623.61 199,-642.06 326.91,-690.49 398.27,-687.82 504,-601.06 580.84,-538 609.12,-413.89 617.75,-363.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="621.25,-363.58 619.38,-353.15 614.34,-362.47 621.25,-363.58"/>
+</g>
+<!-- program~test~2&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_edge27" class="edge">
+<title>program~test~2&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ff5900" d="M93.54,-526.93C109.92,-508.56 141.09,-472.22 163,-438.06 201.37,-378.24 236.34,-301.51 252.33,-264.68"/>
+<polygon fill="#ff5900" stroke="#ff5900" points="255.59,-265.97 256.33,-255.4 249.16,-263.2 255.59,-265.97"/>
+</g>
+<!-- program~test~2&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~strtoint~~CalledByGraph_edge38" class="edge">
+<title>program~test~2&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ffb300" d="M108.77,-539.06C162.32,-539.06 285.63,-539.06 363.52,-539.06"/>
+<polygon fill="#ffb300" stroke="#ffb300" points="363.73,-542.56 373.73,-539.06 363.73,-535.56 363.73,-542.56"/>
+</g>
+<!-- program~test~3 -->
+<g id="proc~~strtoint~~CalledByGraph_node15" class="node">
+<title>program~test~3</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node15"><a xlink:href="../program/test~3.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="108.5,-298.06 54.5,-298.06 54.5,-274.06 108.5,-274.06 108.5,-298.06"/>
+<text text-anchor="middle" x="81.5" y="-283.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~3&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge14" class="edge">
+<title>program~test~3&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M108.84,-288.75C192.59,-297.3 453.92,-323.99 567.45,-335.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="567.34,-339.1 577.64,-336.63 568.05,-332.13 567.34,-339.1"/>
+</g>
+<!-- program~test~3&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_edge28" class="edge">
+<title>program~test~3&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ff5900" d="M108.53,-279.81C132.76,-273.98 169.79,-265.09 201.35,-257.51"/>
+<polygon fill="#ff5900" stroke="#ff5900" points="202.47,-260.84 211.38,-255.1 200.84,-254.03 202.47,-260.84"/>
+</g>
+<!-- program~test~4 -->
+<g id="proc~~strtoint~~CalledByGraph_node16" class="node">
+<title>program~test~4</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node16"><a xlink:href="../program/test~4.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="108.5,-213.06 54.5,-213.06 54.5,-189.06 108.5,-189.06 108.5,-213.06"/>
+<text text-anchor="middle" x="81.5" y="-198.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~4&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge15" class="edge">
+<title>program~test~4&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M108.59,-198.06C190.57,-189.22 441.27,-166.61 504,-213.06 544.32,-242.92 503.29,-285.86 540,-320.06 547.73,-327.26 557.61,-332.07 567.79,-335.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="567.03,-338.67 577.59,-337.84 568.81,-331.9 567.03,-338.67"/>
+</g>
+<!-- program~test~4&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_edge29" class="edge">
+<title>program~test~4&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ff5900" d="M108.53,-207.17C132.5,-212.79 168.99,-221.35 200.32,-228.7"/>
+<polygon fill="#ff5900" stroke="#ff5900" points="199.75,-232.17 210.29,-231.04 201.35,-225.35 199.75,-232.17"/>
+</g>
+<!-- program~test~5 -->
+<g id="proc~~strtoint~~CalledByGraph_node17" class="node">
+<title>program~test~5</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node17"><a xlink:href="../program/test~5.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="108.5,-171.06 54.5,-171.06 54.5,-147.06 108.5,-147.06 108.5,-171.06"/>
+<text text-anchor="middle" x="81.5" y="-156.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~5&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge16" class="edge">
+<title>program~test~5&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M108.77,-156.63C191.31,-149.59 443.49,-132.62 504,-182.06 553.08,-222.16 495.15,-275.27 540,-320.06 547.56,-327.6 557.45,-332.55 567.72,-335.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="567.06,-339.2 577.61,-338.34 568.82,-332.43 567.06,-339.2"/>
+</g>
+<!-- program~test~5&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_edge30" class="edge">
+<title>program~test~5&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ff5900" d="M108.57,-163.69C124.67,-167.08 145.53,-172.42 163,-180.06 190.26,-191.97 218.59,-210.89 237.83,-224.89"/>
+<polygon fill="#ff5900" stroke="#ff5900" points="235.87,-227.8 246,-230.94 240.04,-222.17 235.87,-227.8"/>
+</g>
+<!-- program~test~6 -->
+<g id="proc~~strtoint~~CalledByGraph_node18" class="node">
+<title>program~test~6</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node18"><a xlink:href="../program/test~6.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="108.5,-129.06 54.5,-129.06 54.5,-105.06 108.5,-105.06 108.5,-129.06"/>
+<text text-anchor="middle" x="81.5" y="-114.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~6&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge17" class="edge">
+<title>program~test~6&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M108.62,-114.93C191.25,-108.79 445.02,-94.56 504,-146.06 563.49,-198 485.56,-262.85 540,-320.06 547.44,-327.87 557.38,-332.92 567.74,-336.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="567.18,-339.62 577.74,-338.72 568.92,-332.84 567.18,-339.62"/>
+</g>
+<!-- program~test~6&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_edge31" class="edge">
+<title>program~test~6&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ff5900" d="M108.59,-120.08C125.09,-122.88 146.36,-128.17 163,-138.06 199.39,-159.69 230.74,-198.65 247.8,-222.55"/>
+<polygon fill="#ff5900" stroke="#ff5900" points="245.02,-224.7 253.61,-230.91 250.77,-220.7 245.02,-224.7"/>
+</g>
+<!-- program~test~7 -->
+<g id="proc~~strtoint~~CalledByGraph_node19" class="node">
+<title>program~test~7</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node19"><a xlink:href="../program/test~7.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="108.5,-87.06 54.5,-87.06 54.5,-63.06 108.5,-63.06 108.5,-87.06"/>
+<text text-anchor="middle" x="81.5" y="-72.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~7&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge18" class="edge">
+<title>program~test~7&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M108.71,-73.11C191.63,-67.56 446.16,-55.2 504,-108.06 574.55,-172.53 475.37,-249.65 540,-320.06 547.45,-328.17 557.58,-333.32 568.17,-336.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="567.39,-339.96 577.95,-339.01 569.1,-333.17 567.39,-339.96"/>
+</g>
+<!-- program~test~7&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_edge32" class="edge">
+<title>program~test~7&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ff5900" d="M108.8,-77.13C125.59,-79.54 147.11,-84.76 163,-96.06 208.64,-128.49 239.23,-189.26 253.05,-221.57"/>
+<polygon fill="#ff5900" stroke="#ff5900" points="249.89,-223.09 256.95,-230.99 256.36,-220.42 249.89,-223.09"/>
+</g>
+<!-- program~test~8 -->
+<g id="proc~~strtoint~~CalledByGraph_node20" class="node">
+<title>program~test~8</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node20"><a xlink:href="../program/test~8.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289.5,-469.06 235.5,-469.06 235.5,-445.06 289.5,-445.06 289.5,-469.06"/>
+<text text-anchor="middle" x="262.5" y="-454.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~8&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge19" class="edge">
+<title>program~test~8&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M289.52,-458.74C334.86,-460.71 430.53,-460.55 504,-431.06 543.61,-415.16 581.2,-381.86 602.64,-360.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="605.26,-362.84 609.78,-353.26 600.27,-357.94 605.26,-362.84"/>
+</g>
+<!-- program~test~8&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~strtoint~~CalledByGraph_edge39" class="edge">
+<title>program~test~8&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ffb300" d="M289.79,-464.62C301.13,-468.2 314.41,-472.84 326,-478.06 353.83,-490.59 383.82,-508.28 404.78,-521.38"/>
+<polygon fill="#ffb300" stroke="#ffb300" points="403.13,-524.48 413.45,-526.87 406.87,-518.57 403.13,-524.48"/>
+</g>
+<!-- program~test~9 -->
+<g id="proc~~strtoint~~CalledByGraph_node21" class="node">
+<title>program~test~9</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node21"><a xlink:href="../program/test~9.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="108.5,-45.06 54.5,-45.06 54.5,-21.06 108.5,-21.06 108.5,-45.06"/>
+<text text-anchor="middle" x="81.5" y="-30.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~9&#45;&gt;proc~esmf_cfioset -->
+<g id="proc~~strtoint~~CalledByGraph_edge20" class="edge">
+<title>program~test~9&#45;&gt;proc~esmf_cfioset</title>
+<path fill="none" stroke="#ff0000" d="M108.61,-25.52C182.06,-6.08 392.33,37.21 504,-68.06 586.33,-145.66 464.59,-235.71 540,-320.06 547.34,-328.27 557.43,-333.46 568.01,-336.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="567.24,-340.11 577.79,-339.15 568.94,-333.32 567.24,-340.11"/>
+</g>
+<!-- program~test~9&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_edge33" class="edge">
+<title>program~test~9&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ff5900" d="M108.85,-34.51C125.88,-36.66 147.64,-41.82 163,-54.06 218.14,-97.99 245.76,-181.22 256.29,-220.92"/>
+<polygon fill="#ff5900" stroke="#ff5900" points="252.91,-221.84 258.76,-230.67 259.7,-220.12 252.91,-221.84"/>
+</g>
+<!-- proc~mapl_cfiocreatefromfile -->
+<g id="proc~~strtoint~~CalledByGraph_node22" class="node">
+<title>proc~mapl_cfiocreatefromfile</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node22"><a xlink:href="../proc/mapl_cfiocreatefromfile.html" xlink:title="MAPL_CFIOCreateFromFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="157,-734.06 6,-734.06 6,-710.06 157,-710.06 157,-734.06"/>
+<text text-anchor="middle" x="81.5" y="-719.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOCreateFromFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;none~find -->
+<g id="proc~~strtoint~~CalledByGraph_edge21" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;none~find</title>
+<path fill="none" stroke="#ff0000" d="M157.12,-713.3C168.57,-711.96 180.37,-710.58 191.71,-709.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.46,-712.68 201.99,-708.04 191.65,-705.73 192.46,-712.68"/>
+</g>
+<!-- proc~mapl_cfioopenwrite -->
+<g id="proc~~strtoint~~CalledByGraph_node23" class="node">
+<title>proc~mapl_cfioopenwrite</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node23"><a xlink:href="../proc/mapl_cfioopenwrite.html" xlink:title="MAPL_CFIOOpenWrite">
+<polygon fill="#d9534f" stroke="#d9534f" points="326,-591.06 199,-591.06 199,-567.06 326,-567.06 326,-591.06"/>
+<text text-anchor="middle" x="262.5" y="-576.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOOpenWrite</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioopenwrite&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~strtoint~~CalledByGraph_edge35" class="edge">
+<title>proc~mapl_cfioopenwrite&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ffb300" d="M314.06,-567.06C332.05,-562.79 352.5,-557.93 371.26,-553.48"/>
+<polygon fill="#ffb300" stroke="#ffb300" points="372.27,-556.84 381.19,-551.12 370.65,-550.02 372.27,-556.84"/>
+</g>
+<!-- proc~mapl_cfioreadbundleread -->
+<g id="proc~~strtoint~~CalledByGraph_node24" class="node">
+<title>proc~mapl_cfioreadbundleread</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node24"><a xlink:href="../proc/mapl_cfioreadbundleread.html" xlink:title="MAPL_CFIOReadBundleRead">
+<polygon fill="#d9534f" stroke="#d9534f" points="163,-692.06 0,-692.06 0,-668.06 163,-668.06 163,-692.06"/>
+<text text-anchor="middle" x="81.5" y="-677.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOReadBundleRead</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadbundleread&#45;&gt;none~find -->
+<g id="proc~~strtoint~~CalledByGraph_edge22" class="edge">
+<title>proc~mapl_cfioreadbundleread&#45;&gt;none~find</title>
+<path fill="none" stroke="#ff0000" d="M163.1,-689.51C172.71,-690.64 182.45,-691.78 191.89,-692.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="191.65,-696.39 201.99,-694.08 192.46,-689.43 191.65,-696.39"/>
+</g>
+<!-- program~test~10 -->
+<g id="proc~~strtoint~~CalledByGraph_node25" class="node">
+<title>program~test~10</title>
+<g id="a_proc~~strtoint~~CalledByGraph_node25"><a xlink:href="../program/test~10.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="108.5,-255.06 54.5,-255.06 54.5,-231.06 108.5,-231.06 108.5,-255.06"/>
+<text text-anchor="middle" x="81.5" y="-240.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~10&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~strtoint~~CalledByGraph_edge24" class="edge">
+<title>program~test~10&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ff5900" d="M108.53,-243.06C129.95,-243.06 161.37,-243.06 190.17,-243.06"/>
+<polygon fill="#ff5900" stroke="#ff5900" points="190.23,-246.56 200.23,-243.06 190.23,-239.56 190.23,-246.56"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocstrtointCalledByGraph = svgPanZoom('#procstrtointCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">        </span><span class="k">subroutine </span><span class="n">strToInt</span><span class="p">(</span><span class="n">timeString</span><span class="p">,</span><span class="w"> </span><span class="n">date</span><span class="p">,</span><span class="w"> </span><span class="n">begTime</span><span class="p">)</span>
+<span class="c">!</span>
+<span class="c">! !USES:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="k">Implicit NONE</span>
+<span class="c">!</span>
+<span class="c">! !INPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeString</span><span class="w"> </span><span class="c">!! string expression of data and time</span>
+<span class="c">!</span>
+<span class="c">! !OUTPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">date</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">begTime</span>
+<span class="c">!</span>
+<span class="c">!-------------------------------------------------------------------------</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iCnt</span><span class="p">,</span><span class="w"> </span><span class="n">jCnt</span><span class="p">,</span><span class="w"> </span><span class="n">dLen</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MVARLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sDate</span><span class="p">,</span><span class="w"> </span><span class="n">sTime</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MVARLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">strDate</span><span class="p">,</span><span class="w"> </span><span class="n">strTime</span>
+<span class="w">       </span><span class="kt">character</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">char</span>
+
+<span class="nb">       </span><span class="n">dLen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">timeString</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;T&#39;</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="n">sDate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timeString</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">dLen</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">       </span><span class="n">sTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timeString</span><span class="p">(</span><span class="n">dLen</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">timeString</span><span class="p">)))</span>
+<span class="w">       </span><span class="n">jCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">       </span><span class="n">strDate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">       </span><span class="k">do </span><span class="n">iCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">sDate</span><span class="p">)</span>
+<span class="w">          </span><span class="nb">char</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sDate</span><span class="p">(</span><span class="n">iCnt</span><span class="p">:</span><span class="n">iCnt</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">char</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;:&#39;</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="nb">char</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">strDate</span><span class="p">(</span><span class="n">jCnt</span><span class="p">:</span><span class="n">jCnt</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">char</span>
+<span class="nb">             </span><span class="n">jCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jCnt</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">       end do</span>
+<span class="k">       </span><span class="n">jCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">       </span><span class="n">strTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">       </span><span class="k">do </span><span class="n">iCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">sTime</span><span class="p">)</span>
+<span class="w">          </span><span class="nb">char</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sTime</span><span class="p">(</span><span class="n">iCnt</span><span class="p">:</span><span class="n">iCnt</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">char</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;:&#39;</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="nb">char</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">strTime</span><span class="p">(</span><span class="n">jCnt</span><span class="p">:</span><span class="n">jCnt</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">char</span>
+<span class="nb">             </span><span class="n">jCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jCnt</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">       end do</span>
+<span class="k">       read</span><span class="p">(</span><span class="n">strDate</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">date</span>
+<span class="w">       </span><span class="k">read</span><span class="p">(</span><span class="n">strTime</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">begTime</span>
+<span class="w">       </span><span class="k">return</span>
+<span class="k">     end subroutine </span><span class="n">strToInt</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-06-10T20:49:16.084294             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

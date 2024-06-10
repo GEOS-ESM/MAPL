@@ -1,0 +1,716 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ChildSpecMap.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>ChildSpecMap.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.7% of total for source files.">1769 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ChildSpecMap.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">ChildSpecMap.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_childspecmap.html">mapl3g_ChildSpecMap</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/childspecmap.f90.html#src">ChildSpecMap.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~childspecmap.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilechildspecmapf90EfferentGraph" width="641pt" height="102pt"
+ viewBox="0.00 0.00 641.00 102.14" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph" class="graph" transform="scale(1.14 1.14) rotate(0) translate(4 112)">
+<title>sourcefile~~childspecmap.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 724,-112 724,4 -4,4"/>
+<!-- sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~childspecmap.f90</title>
+<polygon fill="none" stroke="black" points="720,-87 609,-87 609,-63 720,-63 720,-87"/>
+<text text-anchor="middle" x="664.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">ChildSpecMap.F90</text>
+</g>
+<!-- sourcefile~childspec.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~childspec.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/childspec.f90.html" xlink:title="ChildSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="573,-87 485,-87 485,-63 573,-63 573,-87"/>
+<text text-anchor="middle" x="529" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ChildSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~childspecmap.f90&#45;&gt;sourcefile~childspec.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~childspecmap.f90&#45;&gt;sourcefile~childspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M608.82,-75C600.42,-75 591.76,-75 583.39,-75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="583.37,-71.5 573.37,-75 583.37,-78.5 583.37,-71.5"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="449,-108 325,-108 325,-84 449,-84 449,-108"/>
+<text text-anchor="middle" x="387" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~childspec.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~childspec.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M484.85,-81.47C476.62,-82.71 467.81,-84.03 458.97,-85.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="458.39,-81.9 449.02,-86.85 459.43,-88.82 458.39,-81.9"/>
+</g>
+<!-- sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~usersetservices.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/usersetservices.f90.html" xlink:title="UserSetServices.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="447.5,-66 326.5,-66 326.5,-42 447.5,-42 447.5,-66"/>
+<text text-anchor="middle" x="387" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UserSetServices.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~childspec.f90&#45;&gt;sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~childspec.f90&#45;&gt;sourcefile~usersetservices.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M484.85,-68.53C476.24,-67.24 466.99,-65.85 457.74,-64.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="458.14,-60.98 447.74,-62.96 457.11,-67.91 458.14,-60.98"/>
+</g>
+<!-- sourcefile~dso_utilities.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~dso_utilities.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/dso_utilities.f90.html" xlink:title="DSO_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="279.5,-108 176.5,-108 176.5,-84 279.5,-84 279.5,-108"/>
+<text text-anchor="middle" x="228" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DSO_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~usersetservices.f90&#45;&gt;sourcefile~dso_utilities.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~usersetservices.f90&#45;&gt;sourcefile~dso_utilities.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M341.01,-66.04C323.19,-70.8 302.54,-76.33 283.85,-81.33"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="282.75,-78 274,-83.96 284.56,-84.76 282.75,-78"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="282.5,-66 173.5,-66 173.5,-42 282.5,-42 282.5,-66"/>
+<text text-anchor="middle" x="228" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~usersetservices.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~usersetservices.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M326.2,-54C315.25,-54 303.79,-54 292.73,-54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="292.72,-50.5 282.72,-54 292.72,-57.5 292.72,-50.5"/>
+</g>
+<!-- sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~esmf_interfaces.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/esmf_interfaces.f90.html" xlink:title="ESMF_Interfaces.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289,-24 167,-24 167,0 289,0 289,-24"/>
+<text text-anchor="middle" x="228" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Interfaces.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~usersetservices.f90&#45;&gt;sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~usersetservices.f90&#45;&gt;sourcefile~esmf_interfaces.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M341.01,-41.96C323.19,-37.2 302.54,-31.67 283.85,-26.67"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="284.56,-23.24 274,-24.04 282.75,-30 284.56,-23.24"/>
+</g>
+<!-- sourcefile~filesystemutilities.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~filesystemutilities.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/filesystemutilities.f90.html" xlink:title="FileSystemUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="131,-108 0,-108 0,-84 131,-84 131,-108"/>
+<text text-anchor="middle" x="65.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileSystemUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~dso_utilities.f90&#45;&gt;sourcefile~filesystemutilities.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~dso_utilities.f90&#45;&gt;sourcefile~filesystemutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M176.22,-96C165.14,-96 153.18,-96 141.39,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="141.09,-92.5 131.09,-96 141.09,-99.5 141.09,-92.5"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="115.5,-66 15.5,-66 15.5,-42 115.5,-42 115.5,-66"/>
+<text text-anchor="middle" x="65.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~childspecmap.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M173.11,-54C157.87,-54 141.2,-54 125.67,-54"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="125.65,-50.5 115.65,-54 125.65,-57.5 125.65,-50.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilechildspecmapf90EfferentGraph = svgPanZoom('#sourcefilechildspecmapf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~childspecmap.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilechildspecmapf90AfferentGraph" width="641pt" height="339pt"
+ viewBox="0.00 0.00 641.00 339.41" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph" class="graph" transform="scale(1.08 1.08) rotate(0) translate(4 364)">
+<title>sourcefile~~childspecmap.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-364 691,-364 691,4 -4,4"/>
+<!-- sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~childspecmap.f90</title>
+<polygon fill="none" stroke="black" points="111,-150 0,-150 0,-126 111,-126 111,-150"/>
+<text text-anchor="middle" x="55.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50">ChildSpecMap.F90</text>
+</g>
+<!-- sourcefile~componentspec.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~componentspec.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/componentspec.f90.html" xlink:title="ComponentSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="271,-150 147,-150 147,-126 271,-126 271,-150"/>
+<text text-anchor="middle" x="209" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspec.f90&#45;&gt;sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~componentspec.f90&#45;&gt;sourcefile~childspecmap.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M146.82,-138C138.41,-138 129.75,-138 121.28,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="121.07,-134.5 111.07,-138 121.07,-141.5 121.07,-134.5"/>
+</g>
+<!-- sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~componentspecparser.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/componentspecparser.f90.html" xlink:title="ComponentSpecParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="463,-192 307,-192 307,-168 463,-168 463,-192"/>
+<text text-anchor="middle" x="385" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~childspecmap.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M347.42,-192.06C304.52,-205.57 235.96,-224.96 210,-220"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M208,-220C157.95,-210.44 107.42,-177.28 79.21,-156.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="81.27,-153.34 71.2,-150.05 77.02,-158.9 81.27,-153.34"/>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~componentspec.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~componentspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M334.14,-167.96C314.03,-163.11 290.65,-157.47 269.65,-152.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="270.41,-148.98 259.87,-150.04 268.77,-155.79 270.41,-148.98"/>
+</g>
+<!-- sourcefile~outermetacomponent_smod.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~outermetacomponent_smod.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/outermetacomponent_smod.f90.html" xlink:title="OuterMetaComponent_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="687,-360 499,-360 499,-336 687,-336 687,-360"/>
+<text text-anchor="middle" x="593" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent_smod.f90&#45;&gt;sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~outermetacomponent_smod.f90&#45;&gt;sourcefile~childspecmap.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M533.15,-335.95C521.75,-333.27 509.95,-330.25 499,-327 367.69,-288.05 344.53,-245.7 210,-220"/>
+</g>
+<!-- sourcefile~outermetacomponent_smod.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~outermetacomponent_smod.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M511.45,-335.97C506.95,-333.47 502.75,-330.5 499,-327 458.02,-288.68 501.94,-246.39 463,-206 459.63,-202.5 455.77,-199.47 451.62,-196.85"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="453.2,-193.73 442.74,-192.03 449.85,-199.88 453.2,-193.73"/>
+</g>
+<!-- sourcefile~test_componentspecparser.pf -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~test_componentspecparser.pf</title>
+<g id="a_sourcefile~~childspecmap.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/test_componentspecparser.pf.html" xlink:title="Test_ComponentSpecParser.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="679,-24 507,-24 507,0 679,0 679,-24"/>
+<text text-anchor="middle" x="593" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ComponentSpecParser.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~childspecmap.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M535.38,-24.01C477.79,-36.35 386.03,-56.33 307,-75 239.9,-90.85 163.04,-110.39 112.35,-123.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="111.38,-120.1 102.57,-125.99 113.13,-126.88 111.38,-120.1"/>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M510.97,-24.23C506.65,-26.69 502.61,-29.59 499,-33 456.68,-73.01 504.43,-118.07 463,-159 461.89,-160.1 460.73,-161.14 459.53,-162.12"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="457.32,-159.39 451,-167.9 461.24,-165.19 457.32,-159.39"/>
+</g>
+<!-- sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~mapl_generic.f90~2</title>
+<g id="a_sourcefile~~childspecmap.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/mapl_generic.f90~2.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="440.5,-150 329.5,-150 329.5,-126 440.5,-126 440.5,-150"/>
+<text text-anchor="middle" x="385" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~componentspec.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~componentspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M329.42,-138C314.22,-138 297.47,-138 281.45,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="281.05,-134.5 271.05,-138 281.05,-141.5 281.05,-134.5"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~outermetacomponent.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/outermetacomponent.f90.html" xlink:title="OuterMetaComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="462,-108 308,-108 308,-84 462,-84 462,-108"/>
+<text text-anchor="middle" x="385" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentspec.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M334.14,-108.04C314.03,-112.89 290.65,-118.53 269.65,-123.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="268.77,-120.21 259.87,-125.96 270.41,-127.02 268.77,-120.21"/>
+</g>
+<!-- sourcefile~parse_child.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~parse_child.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/parse_child.f90.html" xlink:title="parse_child.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="641,-318 545,-318 545,-294 641,-294 641,-318"/>
+<text text-anchor="middle" x="593" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_child.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_child.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~parse_child.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M544.79,-303.74C528.84,-300.93 511.84,-295.44 499,-285 469.06,-260.66 491.64,-231.86 463,-206 458.94,-202.34 454.35,-199.19 449.47,-196.48"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="450.97,-193.31 440.45,-192.06 447.9,-199.6 450.97,-193.31"/>
+</g>
+<!-- sourcefile~parse_children.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~parse_children.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/parse_children.f90.html" xlink:title="parse_children.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="649.5,-276 536.5,-276 536.5,-252 649.5,-252 649.5,-276"/>
+<text text-anchor="middle" x="593" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_children.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_children.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~parse_children.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M536.46,-256.93C523.63,-253.84 510.41,-249.39 499,-243 478.98,-231.79 482.41,-218.23 463,-206 456.76,-202.07 449.86,-198.66 442.83,-195.72"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="443.8,-192.35 433.22,-192.01 441.28,-198.88 443.8,-192.35"/>
+</g>
+<!-- sourcefile~parse_component_spec.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~parse_component_spec.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/parse_component_spec.f90.html" xlink:title="parse_component_spec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="673.5,-234 512.5,-234 512.5,-210 673.5,-210 673.5,-234"/>
+<text text-anchor="middle" x="593" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_component_spec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_component_spec.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~parse_component_spec.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M532.97,-209.96C508.62,-205 480.23,-199.21 454.93,-194.05"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="455.54,-190.61 445.04,-192.04 454.14,-197.46 455.54,-190.61"/>
+</g>
+<!-- sourcefile~parse_connections.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~parse_connections.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/parse_connections.f90.html" xlink:title="parse_connections.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="660.5,-192 525.5,-192 525.5,-168 660.5,-168 660.5,-192"/>
+<text text-anchor="middle" x="593" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_connections.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_connections.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~parse_connections.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M525.4,-180C508.8,-180 490.74,-180 473.3,-180"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="473.12,-176.5 463.12,-180 473.12,-183.5 473.12,-176.5"/>
+</g>
+<!-- sourcefile~parse_geometry_spec.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~parse_geometry_spec.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/parse_geometry_spec.f90.html" xlink:title="parse_geometry_spec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="669,-150 517,-150 517,-126 669,-126 669,-150"/>
+<text text-anchor="middle" x="593" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_geometry_spec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_geometry_spec.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~parse_geometry_spec.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M532.97,-150.04C508.62,-155 480.23,-160.79 454.93,-165.95"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="454.14,-162.54 445.04,-167.96 455.54,-169.39 454.14,-162.54"/>
+</g>
+<!-- sourcefile~parse_setservices.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~parse_setservices.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/parse_setservices.f90.html" xlink:title="parse_setservices.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="658,-108 528,-108 528,-84 658,-84 658,-108"/>
+<text text-anchor="middle" x="593" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_setservices.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_setservices.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~parse_setservices.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M527.87,-104.78C517.78,-107.74 507.79,-111.71 499,-117 477.94,-129.69 483.77,-145.85 463,-159 460.19,-160.78 457.23,-162.41 454.17,-163.9"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="452.54,-160.79 444.76,-167.98 455.33,-167.21 452.54,-160.79"/>
+</g>
+<!-- sourcefile~parse_var_specs.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~parse_var_specs.f90</title>
+<g id="a_sourcefile~~childspecmap.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/parse_var_specs.f90.html" xlink:title="parse_var_specs.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="654.5,-66 531.5,-66 531.5,-42 654.5,-42 654.5,-66"/>
+<text text-anchor="middle" x="593" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_var_specs.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_var_specs.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspecmap.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~parse_var_specs.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M531.13,-59.14C519.53,-62.38 508.16,-67.38 499,-75 467.78,-100.98 493.64,-132.34 463,-159 461.47,-160.33 459.87,-161.58 458.2,-162.75"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="456.22,-159.85 449.4,-167.96 459.78,-165.87 456.22,-159.85"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilechildspecmapf90AfferentGraph = svgPanZoom('#sourcefilechildspecmapf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">mapl3g_ChildSpecMap</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ChildSpec</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="cp">#define Key __CHARACTER_DEFERRED</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="cp">#define T ChildSpec</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="cp">#define Map ChildSpecMap</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="cp">#define MapIterator ChildSpecMapIterator</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="cp">#define Pair ChildSpecPair</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="cp">#include &quot;map/template.inc&quot;</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="cp">#undef Pair</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="cp">#undef MapIterator</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="cp">#undef Map</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="cp">#undef T</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="cp">#undef Key</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="k">end module </span><span class="n">mapl3g_ChildSpecMap</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-06-10T20:49:16.084294             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
