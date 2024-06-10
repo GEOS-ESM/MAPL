@@ -28,6 +28,7 @@ module mapl3g_UngriddedDim
 
    interface UngriddedDim
       module procedure new_UngriddedDim_extent
+      module procedure new_UngriddedDim_name_and_extent
       module procedure new_UngriddedDim_name_and_coords
       module procedure new_UngriddedDim_name_units_and_coords
    end interface UngriddedDim
@@ -42,7 +43,6 @@ module mapl3g_UngriddedDim
 
    character(*), parameter :: UNKNOWN_DIM_NAME = 'NONE'
    character(*), parameter :: UNKNOWN_DIM_UNITS = 'NONE'
-   
 
 contains
 
@@ -66,12 +66,18 @@ contains
    end function new_UngriddedDim_name_and_coords
 
 
+   pure function new_UngriddedDim_name_and_extent(name, extent) result(spec)
+      character(*), intent(in) :: name
+      integer, intent(in) :: extent
+      type(UngriddedDim) :: spec
+      spec = UngriddedDim(name, default_coords(extent))
+   end function new_UngriddedDim_name_and_extent
+
    pure function new_UngriddedDim_extent(extent) result(spec)
       integer, intent(in) :: extent
       type(UngriddedDim) :: spec
       spec = UngriddedDim(UNKNOWN_DIM_NAME, default_coords(extent))
    end function new_UngriddedDim_extent
-
 
    pure function default_coords(extent, lbound) result(coords)
       real, allocatable :: coords(:)
