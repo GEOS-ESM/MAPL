@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-submodule(mapl3g_GriddedComponentDriver) finalize_smod
+submodule(mapl3g_GriddedComponentDriver) gcd_finalize_smod
    use :: mapl_ErrorHandling
    use :: mapl3g_OuterMetaComponent
    use :: mapl3g_MethodPhasesMapUtils
@@ -33,4 +33,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine finalize
 
-end submodule finalize_smod
+end submodule gcd_finalize_smod
