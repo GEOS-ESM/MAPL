@@ -24,7 +24,6 @@ set(srcs
   MultiState.F90
   InnerMetaComponent.F90
   OuterMetaComponent.F90
-  OuterMetaComponent_smod.F90
   GenericPhases.F90
   GenericGridComp.F90
 
@@ -58,6 +57,32 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.regridder_mgr MAPL.geom_mgr MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
   TYPE SHARED
   )
+
+##### New function to avoid conflicts with files with the same name
+function(mapl_add_fortran_submodules)
+  set(options)
+  set(oneValueArgs TARGET)
+  set(oneValueArgs SUBDIRECTORY)
+  set(multiValueArgs SOURCES)
+  cmake_parse_arguments(
+    ARG "${options}" "${oneValueArgs}"
+    "${multiValueArgs}" ${ARGN}
+  )
+
+  foreach(file ${ARG_SOURCES})
+    set(input ${ARG_SUBDIRECTORY}/${file})
+    set(output ${ARG_SUBDIRECTORY}_${file})
+    add_custom_command(
+      OUTPUT ${output}
+      COMMAND ${CMAKE_COMMAND} -E copy ${input} ${output}
+    )
+    set_property(SOURCE ${CMAKE_CURRENT_BINARY_DIR}/${output} PROPERTY GENERATED 1)
+    target_sources(mylib PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${output})
+  endforeach()
+
+endfunction()
+#####
+
 add_subdirectory(specs)
 add_subdirectory(registry)
 add_subdirectory(connection)
@@ -66,6 +91,7 @@ add_subdirectory(couplers)
 add_subdirectory(ComponentSpecParser)
 add_subdirectory(ESMF_HConfigUtilities)
 add_subdirectory(GriddedComponentDriver)
+add_subdirectory(OuterMetaComponent)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
