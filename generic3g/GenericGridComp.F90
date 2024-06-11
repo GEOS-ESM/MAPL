@@ -3,7 +3,7 @@
 ! Each generic initialize phase can be supplemented by the user
 ! gridcomp if necessary.   User phases are MAPL phases appended by
 ! "_PRE" or "_POST".
-! 
+!
 ! Generic initialize phases:
 !     MAPL_PROPAGATE_GRID
 !     MAPL_ADVERTISE
@@ -26,7 +26,7 @@ module mapl3g_GenericGridComp
    public :: setServices
    public :: create_grid_comp
 
-   
+
    interface create_grid_comp
       module procedure create_grid_comp_primary
    end interface create_grid_comp
@@ -75,8 +75,8 @@ contains
          end associate
 
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_FINALIZE,     finalize,      _RC)
-!#         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_READRESTART,  read_restart,  _RC)
-!#         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_WRITERESTART, write_restart, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_READRESTART,  read_restart,  _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_WRITERESTART, write_restart, _RC)
 
          _RETURN(ESMF_SUCCESS)
       end subroutine set_entry_points
@@ -85,7 +85,7 @@ contains
 
 
 
-   
+
    recursive type(ESMF_GridComp) function create_grid_comp_primary( &
         name, set_services, config, clock, unusable, petlist, rc) result(gridcomp)
       use :: mapl3g_UserSetServices, only: AbstractUserSetServices
@@ -192,7 +192,7 @@ contains
       character(:), pointer :: phase_name
       type(OuterMetaComponent), pointer :: outer_meta
       type(StringVector), pointer :: phases
-      
+
       outer_meta => get_outer_meta(gridcomp, _RC)
       call ESMF_GridCompGet(gridcomp, currentPhase=phase_idx, _RC)
       select case (phase_idx)
@@ -282,7 +282,7 @@ contains
 
       call ESMF_InfoGetFromHost(gridcomp, info, _RC)
       call ESMF_InfoSet(info, key='MAPL/GRIDCOMP_IS_GENERIC', value=flag_, _RC)
-      
+
       _RETURN(_SUCCESS)
    end subroutine set_is_generic
 end module mapl3g_GenericGridComp

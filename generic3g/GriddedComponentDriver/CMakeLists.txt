@@ -14,5 +14,6 @@ target_sources(MAPL.generic3g PRIVATE
     get_name.F90 
     add_export_coupler.F90 
     add_import_coupler.F90
-
+    read_restart.F90
+    write_restart.F90
 )

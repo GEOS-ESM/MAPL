@@ -835,6 +835,7 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      print *, "OuterMetaComp: read_restart - not implemented yet"
 
       _RETURN(ESMF_SUCCESS)
    end subroutine read_restart
@@ -848,6 +849,8 @@ contains
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
+
+      print *, "OuterMetaComp: write_restart - not implemented yet"
 
       _RETURN(ESMF_SUCCESS)
    end subroutine write_restart
