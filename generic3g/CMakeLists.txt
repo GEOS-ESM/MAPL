@@ -18,6 +18,7 @@ set(srcs
 
   ComponentDriver.F90
   ComponentDriverVector.F90
+  ComponentDriverPtrVector.F90
   GriddedComponentDriver.F90
   GriddedComponentDriverMap.F90
 
