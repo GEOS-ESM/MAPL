@@ -850,7 +850,23 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      print *, "OuterMetaComp: write_restart - not implemented yet"
+      type(GriddedComponentDriver), pointer :: child
+      type(GriddedComponentDriverMapIterator) :: iter
+      character(:), allocatable :: child_name
+      integer :: status
+
+      associate(e => this%children%end())
+        iter = this%children%begin()
+        do while (iter /= e)
+           child_name = iter%first()
+           if (child_name /= "HIST") then
+              child => iter%second()
+              print *, "OuterMetaComp::write_restart::GridComp: ", child_name
+              call child%write_restart(_RC)
+           end if
+           call iter%next()
+        end do
+      end associate
 
       _RETURN(ESMF_SUCCESS)
    end subroutine write_restart
