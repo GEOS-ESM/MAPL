@@ -8,7 +8,6 @@ module mapl3g_SharedIO
    use MAPL_BaseMod
    use mapl3g_output_info
    use mapl3g_UngriddedDims
-   use MAPL_KeywordEnforcerMod
 
    implicit none
 
