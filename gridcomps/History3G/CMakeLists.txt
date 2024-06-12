@@ -5,7 +5,8 @@ set(srcs
  HistoryGridComp.F90
  HistoryCollectionGridComp.F90
  HistoryCollectionGridComp_private.F90
-  )
+ OutputInfo.F90
+ )
 
 find_package (MPI REQUIRED)
 

@@ -3,8 +3,8 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.history3g.tests")
 set (test_srcs
   Test_HistoryGridComp.pf
   Test_HistoryCollectionGridComp.pf
+  Test_OutputInfo.pf
   )
-
 
 add_pfunit_ctest(MAPL.history3g.tests
                 TEST_SOURCES ${test_srcs}

@@ -10,6 +10,9 @@ module mapl3g_HistoryCollectionGridComp_private
    use MAPL_NewArthParserMod, only: parser_variables_in_expression
    use MAPL_TimeStringConversion
    use MAPL_BaseMod, only: MAPL_UnpackTime
+   use mapl3g_output_info, only: get_num_levels, get_vertical_dim_spec_names
+   use mapl3g_output_info, only: get_vertical_dim_spec_name, get_ungridded_dims
+   use gFTL2_StringSet
 
    implicit none
    private
@@ -62,7 +65,12 @@ contains
       type(StringVector) :: variable_names
       integer :: status
 
-      var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, _RC)
+      var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, rc=status)
+      if(status==ESMF_RC_NOT_FOUND) then
+         _FAIL(VAR_LIST_KEY // ' was not found.')
+      end if
+      _VERIFY(status)
+
       iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
       iter_end = ESMF_HConfigIterEnd(var_list,_RC)
       iter = iter_begin
