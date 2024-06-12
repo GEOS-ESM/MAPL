@@ -59,7 +59,7 @@ esma_add_library(${this}
   )
 
 ##### New function to avoid conflicts with files with the same name
-function(mapl_add_fortran_submodules)
+function(esma_add_fortran_submodules)
   set(options)
   set(oneValueArgs TARGET)
   set(oneValueArgs SUBDIRECTORY)
