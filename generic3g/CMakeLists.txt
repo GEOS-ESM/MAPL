@@ -70,14 +70,16 @@ function(mapl_add_fortran_submodules)
   )
 
   foreach(file ${ARG_SOURCES})
-    set(input ${ARG_SUBDIRECTORY}/${file})
-    set(output ${ARG_SUBDIRECTORY}_${file})
+
+    set(input ${CMAKE_CURRENT_SOURCE_DIR}/${ARG_SUBDIRECTORY}/${file})
+    set(output ${CMAKE_CURRENT_BINARY_DIR}/${ARG_SUBDIRECTORY}_${file})
     add_custom_command(
       OUTPUT ${output}
       COMMAND ${CMAKE_COMMAND} -E copy ${input} ${output}
     )
-    set_property(SOURCE ${CMAKE_CURRENT_BINARY_DIR}/${output} PROPERTY GENERATED 1)
-    target_sources(mylib PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${output})
+    set_property(SOURCE ${output} PROPERTY GENERATED 1)
+    target_sources(${ARG_TARGET} PRIVATE ${output})
+
   endforeach()
 
 endfunction()
