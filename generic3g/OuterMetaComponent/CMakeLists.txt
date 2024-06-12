@@ -29,7 +29,6 @@ target_sources(MAPL.generic3g PRIVATE
      run_custom.F90
      run_user.F90
      run_clock_advance.F90
-     finalize.F90 
 
      read_restart.F90
      write_restart.F90
