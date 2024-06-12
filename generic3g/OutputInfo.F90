@@ -135,7 +135,7 @@ contains
 
    function get_vertical_dim_spec_name_field(field, rc) result(spec_name)
       character(len=:), allocatable :: spec_name
-      type(ESMF_Field), intent(inout) :: field
+      type(ESMF_Field), intent(in) :: field
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Info) :: info
@@ -196,7 +196,7 @@ contains
 
    function get_ungridded_dims_field(field, rc) result(ungridded)
       type(UngriddedDims) :: ungridded
-      type(ESMF_Field), intent(inout) :: field
+      type(ESMF_Field), intent(in) :: field
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Info) :: info

@@ -11,7 +11,7 @@ set(srcs
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.geom_mgr MAPL.pfio MAPL.base MAPL.shared MAPL.hconfig_utils GFTL::gftl-v2
+  DEPENDENCIES MAPL.geom_mgr MAPL.pfio MAPL.base MAPL.shared MAPL.generic3g MAPL.hconfig_utils GFTL::gftl-v2
   TYPE ${MAPL_LIBRARY_TYPE}
   )
 

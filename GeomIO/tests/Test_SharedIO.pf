@@ -1,0 +1,40 @@
+module Test_SharedIO
+
+    use pfunit
+    use SharedIO
+    implicit none
+
+contains
+
+    @Test
+    subroutine test_get_vertical_dimension_name()
+       character(len=*), parameter :: DIM_CENTER = 'VERTICAL_DIM_CENTER' 
+       character(len=*), parameter :: DIM_EDGE = 'VERTICAL_DIM_EDGE'
+       character(len=*), parameter :: DIM_UNK = 'UNKNOWN'
+       character(len=*), parameter :: CENTER_NAME = 'lev'
+       character(len=*), parameter :: EDGE_NAME = 'edge'
+
+       @assertEqual(CENTER_NAME, get_vertical_dimension_name(DIM_CENTER), 'Dimension name does not match.')
+       @assertEqual(EDGE_NAME, get_vertical_dimension_name(DIM_EDGE), 'Dimension name does not match.')
+       @assertEqual(0, len(get_vertical_dimension_name(DIM_UNK)), 'Return value should be empty string.')
+
+    end subroutine test_get_vertical_dimension_name
+
+    @Test
+    subroutine test_get_vertical_dimension_num_levels()
+    end subroutine test_get_vertical_dimension_num_levels
+
+    @Test
+    subroutine test_ungridded_dim_names()
+    end subroutine test_ungridded_dim_names
+
+    @Before
+    subroutine set_up()
+    end subroutine set_up
+
+    @After
+    subroutine take_down()
+    end subroutine take_down()
+
+end module Test_SharedIO
+

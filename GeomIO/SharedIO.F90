@@ -6,8 +6,9 @@ module mapl3g_SharedIO
    use gFTL2_StringVector
    use mapl3g_geom_mgr
    use MAPL_BaseMod
-   use mapl3g_output_info
    use mapl3g_UngriddedDims
+   use mapl3g_UngriddedDim
+   use mapl3g_output_info
 
    implicit none
 
@@ -17,6 +18,13 @@ module mapl3g_SharedIO
    public create_time_variable
    public bundle_to_metadata
    public esmf_to_pfio_type
+
+!   public :: add_vertical_dimensions
+   public :: get_vertical_dimension_name
+   public :: get_vertical_dimension_num_levels
+!   public :: get_vertical_dimension_name_from_field
+!   public :: add_ungridded_dimensions
+   public :: ungridded_dim_names
 
 contains
 
@@ -34,9 +42,9 @@ contains
       mapl_geom => get_mapl_geom(geom, _RC)
       metadata = mapl_geom%get_file_metadata()
       ! Add metadata for vertical geom, note could be both center and edge
-      call add_vertical_dimensions(bundle, metadata, _RC)
+      !call add_vertical_dimensions(bundle, metadata, _RC)
       ! Add metadata for all unique ungridded dimensions the set of fields has
-      call add_ungridded_dimensions(bundle, metadata, _RC)
+      !call add_ungridded_dimensions(bundle, metadata, _RC)
 
       ! Add time metadata
       call ESMF_TimeSet(fake_time, timeString="1900-04-03T21:00:00", _RC)
@@ -86,6 +94,7 @@ contains
       type(MAPLGeom), pointer :: mapl_geom
       type(StringVector) :: grid_variables
       type(ESMF_Geom) :: esmfgeom
+      character(len=:), allocatable :: vert_dim_name, ungridded_names
 
       call ESMF_FieldGet(field, geom=esmfgeom, _RC)
       mapl_geom => get_mapl_geom(esmfgeom, _RC)
@@ -93,10 +102,11 @@ contains
       dims = string_vec_to_comma_sep(grid_variables)
       call ESMF_FieldGet(field, name=fname, typekind = typekind, _RC)
       ! add vertical dimension
-      vert_dim_name = get_vertical_dimension_name_from_field(field, _RC)
-      dims = dims//","//vert_dim_name
+!      vert_dim_name = get_vertical_dimension_name_from_field(field, _RC)
+!      dims = dims//","//vert_dim_name
       ! add any ungridded dimensions
-      dims = dims // ungridded_dim_names(field, _RC)
+!      ungridded_names = ungridded_dim_names(field, _RC)
+!      dims = dims // ungridded_names
       ! add time dimension
       dims = dims//",time"
       pfio_type = esmf_to_pfio_type(typekind ,_RC)
@@ -204,9 +214,19 @@ contains
       character(len=*), intent(in) :: dim_spec_name
       character(len=*), parameter :: VERTICAL_CENTER_NAME = 'lev'
       character(len=*), parameter :: VERTICAL_EDGE_NAME = 'edge'
+      character(len=*), parameter :: UNK = ''
 
-      dim_name = VERTICAL_CENTER_NAME
-      if(dim_spec_name == 'VERTICAL_DIM_EDGE') dim_name = VERTICAL_EDGE_NAME
+      dim_name = UNK
+
+      if(dim_spec_name == 'VERTICAL_DIM_EDGE') then
+         dim_name = VERTICAL_EDGE_NAME
+         return
+      end if
+
+      if(dim_spec_name == 'VERTICAL_DIM_CENTER') then
+         dim_name = VERTICAL_CENTER_NAME
+         return
+      end if
 
    end function get_vertical_dimension_name
 
@@ -220,7 +240,7 @@ contains
    end function get_vertical_dimension_num_levels
 
    function get_vertical_dimension_name_from_field(field, rc) result(dim_name)
-      character(len=:), allocatable, intent(out) :: dim_name
+      character(len=:), allocatable :: dim_name
       type(ESMF_Field), intent(in) :: field
       integer, intent(out), optional :: rc
       integer :: status
@@ -238,13 +258,13 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       type(UngriddedDims) :: ungridded_dims
-      type(UngriddedDim) :: ungridded_dim
+      type(UngriddedDim) :: u
       integer :: i
 
       ungridded_dims = get_ungridded_dims(bundle, _RC)
       do i = 1, ungridded_dims%get_num_ungridded()
-         ungridded_dim = ungridded_dims%get_ith_dim_spec(i)
-         call metadata%add_dimension(ungridded_dim%get_name(), ungridded_dim%get_extent())
+         u = ungridded_dims%get_ith_dim_spec(i)
+         call metadata%add_dimension(u%get_name(), u%get_extent())
       end do
       _RETURN(_SUCCESS)
 
@@ -255,13 +275,16 @@ contains
       type(ESMF_Field), intent(in) :: field
       integer, optional, intent(out) :: rc
       integer :: status
+      type(UngriddedDims) :: ungridded_dims
+      type(UngriddedDim) :: u
       integer :: i
       character, parameter :: JOIN = ','
 
       dim_names = ''
       ungridded_dims = get_ungridded_dims(field, _RC)
       do i = 1, ungridded_dims%get_num_ungridded()
-         dim_names = JOIN // ungridded_dims%get_ith_dim_spec(i)%get_name()
+         u = ungridded_dims%get_ith_dim_spec(i)
+         dim_names = JOIN // u%get_name()
       end do
       _RETURN(_SUCCESS)
       
