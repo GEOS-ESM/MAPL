@@ -94,6 +94,10 @@ add_subdirectory(ComponentSpecParser)
 add_subdirectory(ESMF_HConfigUtilities)
 add_subdirectory(GriddedComponentDriver)
 add_subdirectory(OuterMetaComponent)
+esma_add_fortran_submodules(
+  TARGET generic3g
+  SUBDIRECTORY OuterMetaComponent
+  SRCS finalize.F90)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
