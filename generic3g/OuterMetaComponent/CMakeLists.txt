@@ -46,4 +46,3 @@ target_sources(MAPL.generic3g PRIVATE
      set_entry_point.F90
 )
 
-mapl_add_fortran_submodules(TARGET A SUBDIRECTORY A SRCS finalize.F90)
