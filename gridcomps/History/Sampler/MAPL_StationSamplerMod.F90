@@ -645,8 +645,10 @@ contains
 
              ! p_ds_3d(lm, nx)
              p_ds_3d = reshape(p_dst_3d, shape(p_ds_3d), order=[2,1])
+             ! ... 
              call ESMF_FieldRegrid(field_ds_3d, field_chunk_3d, this%RH, _RC)
-
+             !  redistributed:  slower   check.
+             
              if (this%level_by_level) then
                 ! p_chunk_3d (lm, nx)
                 allocate (p_dst_t, source = reshape(p_chunk_3d, [size(p_chunk_3d,2),size(p_chunk_3d,1)], order=[2,1]))
