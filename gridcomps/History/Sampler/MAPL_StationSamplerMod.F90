@@ -637,16 +637,24 @@ contains
              !
              call ESMF_FieldGet(src_field,localDE=0,farrayptr=p_src_3d,_RC)
              call ESMF_FieldGet(dst_field,localDE=0,farrayptr=p_dst_3d,_RC)
+             call MAPL_TimerOn(this%GENSTATE,"assign p_dst_3d=0")
              p_dst_3d = 0.0
-             call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
+             print*, 'shape(p_dst_3d)', shape(p_dst_3d)
+             call MAPL_TimerOff(this%GENSTATE,"assign p_dst_3d=0")             
 
+             call MAPL_TimerOn(this%GENSTATE,"3d_regrid")             
+             call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
+             call MAPL_TimerOff(this%GENSTATE,"3d_regrid")
+             
              call ESMF_FieldGet(field_ds_3d,localDE=0,farrayPtr=p_ds_3d,_RC)
              call ESMF_FieldGet(field_chunk_3d,localDE=0,farrayPtr=p_chunk_3d,_RC)
+             print*, 'shape(p_ds_3d)', shape(p_ds_3d)
 
              ! p_ds_3d(lm, nx)
              p_ds_3d = reshape(p_dst_3d, shape(p_ds_3d), order=[2,1])
              ! ... 
-             call ESMF_FieldRegrid(field_ds_3d, field_chunk_3d, this%RH, _RC)
+             !!             call ESMF_FieldRegrid(field_ds_3d, field_chunk_3d, this%RH, _RC)
+             call ESMF_FieldRedist(field_ds_3d, field_chunk_3d, this%RH, _RC)             
              !  redistributed:  slower   check.
              
              if (this%level_by_level) then
