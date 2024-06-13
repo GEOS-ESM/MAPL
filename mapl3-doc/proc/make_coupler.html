@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for procedures.">19 statements</a>
+                 title=" 0.0% of total for procedures.">20 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -163,7 +163,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-action~2"></span>
+              <span class="anchor" id="variable-action~12"></span>
               class(<a href='../type/extensionaction.html'>ExtensionAction</a>),
             </td>
 <td>intent(in)</td>
@@ -178,7 +178,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-source~7"></span>
+              <span class="anchor" id="variable-source~18"></span>
               type(<a href='../type/griddedcomponentdriver.html'>GriddedComponentDriver</a>),
             </td>
 <td>intent(in),</td>
@@ -193,7 +193,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~760"></span>
+              <span class="anchor" id="variable-rc~1868"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -547,11 +547,26 @@ large graphs.</div>
 <span class="w">      </span><span class="n">coupler_gridcomp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridCompCreate</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;coupler&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">      </span><span class="k">call </span><span class="n">attach_coupler_meta</span><span class="p">(</span><span class="n">coupler_gridcomp</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">      </span><span class="n">coupler_meta</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_coupler_meta</span><span class="p">(</span><span class="n">coupler_gridcomp</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="cp">#ifndef __GFORTRAN__</span>
 <span class="w">      </span><span class="n">coupler_meta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CouplerMetaComponent</span><span class="p">(</span><span class="n">action</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="p">)</span>
+<span class="cp">#else</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ridiculous</span><span class="p">(</span><span class="n">coupler_meta</span><span class="p">,</span><span class="w"> </span><span class="n">CouplerMetaComponent</span><span class="p">(</span><span class="n">action</span><span class="p">,</span><span class="n">source</span><span class="p">))</span>
+<span class="cp">#endif</span>
 
 <span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompSetServices</span><span class="p">(</span><span class="n">coupler_gridComp</span><span class="p">,</span><span class="w"> </span><span class="n">setServices</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">contains</span>
+
+<span class="cp">#ifdef __GFORTRAN__</span>
+<span class="w">      </span><span class="k">subroutine </span><span class="n">ridiculous</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">b</span>
+<span class="w">         </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">ridiculous</span>
+<span class="cp">#endif</span>
+
 <span class="w">   </span><span class="k">end function </span><span class="n">make_coupler</span>
 </pre></div>
 
@@ -576,7 +591,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-06-13T13:03:03.648389             </p>
+ on 2024-06-13T16:04:43.287570             </p>
           </div>
         </div>
         <br>

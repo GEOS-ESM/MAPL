@@ -28,11 +28,26 @@ contains
       coupler_gridcomp = ESMF_GridCompCreate(name='coupler', _RC)
       call attach_coupler_meta(coupler_gridcomp, _RC)
       coupler_meta => get_coupler_meta(coupler_gridcomp, _RC)
+#ifndef __GFORTRAN__
       coupler_meta = CouplerMetaComponent(action, source)
+#else
+      call ridiculous(coupler_meta, CouplerMetaComponent(action,source))
+#endif
 
       call ESMF_GridCompSetServices(coupler_gridComp, setServices, _RC)
 
       _RETURN(_SUCCESS)
+
+   contains
+
+#ifdef __GFORTRAN__
+      subroutine ridiculous(a, b)
+         type(CouplerMetaComponent), intent(out) :: a
+         type(CouplerMetaComponent), intent(in) :: b
+         a = b
+      end subroutine ridiculous
+#endif
+
    end function make_coupler
    
    subroutine setServices(gridcomp, rc)

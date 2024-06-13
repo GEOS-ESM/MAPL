@@ -9,6 +9,7 @@ module mapl3g_ComponentDriver
    private
 
    public :: ComponentDriver
+   public :: ComponentDriverPtr
    public :: initialize_phases
 
    type, abstract :: ComponentDriver
@@ -18,6 +19,10 @@ module mapl3g_ComponentDriver
       procedure(I_run), deferred :: initialize
       procedure(I_run), deferred :: finalize
    end type ComponentDriver
+
+   type :: ComponentDriverPtr
+      class(ComponentDriver), pointer :: ptr
+   end type ComponentDriverPtr
 
    abstract interface
 
