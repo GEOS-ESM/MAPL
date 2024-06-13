@@ -24,7 +24,6 @@ set(srcs
   MultiState.F90
   InnerMetaComponent.F90
   OuterMetaComponent.F90
-  OuterMetaComponent_smod.F90
   GenericPhases.F90
   GenericGridComp.F90
 
@@ -58,6 +57,34 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.regridder_mgr MAPL.geom_mgr MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
   TYPE SHARED
   )
+
+##### New function to avoid conflicts with files with the same name
+function(esma_add_fortran_submodules)
+  set(options)
+  set(oneValueArgs TARGET SUBDIRECTORY)
+  set(multiValueArgs SOURCES)
+  cmake_parse_arguments(
+    ARG "${options}" "${oneValueArgs}"
+    "${multiValueArgs}" ${ARGN}
+  )
+
+  foreach(file ${ARG_SOURCES})
+
+    set(input ${CMAKE_CURRENT_SOURCE_DIR}/${ARG_SUBDIRECTORY}/${file})
+    set(output ${CMAKE_CURRENT_BINARY_DIR}/${ARG_SUBDIRECTORY}_${file})
+    add_custom_command(
+      OUTPUT ${output}
+      COMMAND ${CMAKE_COMMAND} -E copy ${input} ${output}
+      DEPENDS ${input}
+    )
+    set_property(SOURCE ${output} PROPERTY GENERATED 1)
+    target_sources(${ARG_TARGET} PRIVATE ${output})
+
+  endforeach()
+
+endfunction()
+#####
+
 add_subdirectory(specs)
 add_subdirectory(registry)
 add_subdirectory(connection)
@@ -66,6 +93,22 @@ add_subdirectory(couplers)
 add_subdirectory(ComponentSpecParser)
 add_subdirectory(ESMF_HConfigUtilities)
 add_subdirectory(GriddedComponentDriver)
+esma_add_fortran_submodules(
+  TARGET MAPL.generic3g
+  SUBDIRECTORY OuterMetaComponent
+  SOURCES SetServices.F90 add_child_by_name.F90 new_outer_meta.F90 init_meta.F90 
+      get_child_by_name.F90 run_child_by_name.F90 run_children.F90
+      get_outer_meta_from_outer_gc.F90 attach_outer_meta.F90 free_outer_meta.F90
+      get_phases.F90 set_hconfig.F90 get_hconfig.F90 get_geom.F90
+      initialize_advertise_geom.F90 initialize_realize_geom.F90
+      initialize_advertise.F90 initialize_post_advertise.F90
+      initialize_realize.F90 recurse.F90 apply_to_children_custom.F90
+      initialize_user.F90 run_custom.F90 run_user.F90 run_clock_advance.F90
+      read_restart.F90 write_restart.F90 get_name.F90 get_gridcomp.F90
+      set_geom.F90 set_vertical_geom.F90 get_registry.F90
+      get_component_spec.F90 get_internal_state.F90 get_lgr.F90
+      get_user_gc_driver.F90 connect_all.F90 set_entry_point.F90
+      finalize.F90)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
