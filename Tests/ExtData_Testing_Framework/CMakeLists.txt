@@ -45,7 +45,6 @@ foreach(TEST_CASE ${TEST_CASES_1G})
     set_tests_properties ("ExtData1G_${TEST_CASE}" PROPERTIES LABELS "EXTDATA1G_SLOW_TESTS")
   else()
     set_tests_properties ("ExtData1G_${TEST_CASE}" PROPERTIES LABELS "EXTDATA1G_SMALL_TESTS")
-    set_tests_properties ("ExtData1G_${TEST_CASE}" PROPERTIES LABELS "ESSENTIAL")
   endif()
 endforeach()
 
