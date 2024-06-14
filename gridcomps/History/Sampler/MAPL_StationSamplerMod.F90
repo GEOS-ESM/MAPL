@@ -566,7 +566,6 @@ contains
        displs(i) = displs(i-1) + recvcount(i-1)
     end do
 
-
     nsend_v = nsend * lm      ! vertical
     allocate (recvcount_v, source = recvcount * lm )
     allocate (displs_v, source = displs * lm )
@@ -589,46 +588,44 @@ contains
 
     !__  Aux. field
     !
+    call MAPL_TimerOn(this%GENSTATE,"FieldCreate")
 
-    field_ds_2d = ESMF_FieldCreate (this%LS_ds, name='field_2d_ds', typekind=ESMF_TYPEKIND_R4, _RC)
-    field_chunk_2d = ESMF_FieldCreate (this%LS_chunk, name='field_2d_chunk', typekind=ESMF_TYPEKIND_R4, _RC)
     call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-
-    new_src_field = ESMF_FieldCreate (grid, name='new_src_field', typekind=ESMF_TYPEKIND_R4, &
+    field_ds_2d    = ESMF_FieldCreate (this%LS_ds, name='field_2d_ds', typekind=ESMF_TYPEKIND_R4, _RC)
+    field_chunk_2d = ESMF_FieldCreate (this%LS_chunk, name='field_2d_chunk', typekind=ESMF_TYPEKIND_R4, _RC)
+    new_src_field  = ESMF_FieldCreate (grid, name='new_src_field', typekind=ESMF_TYPEKIND_R4, &
          gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-    new_dst_field = ESMF_FieldCreate (this%LS_ds, name='new_dst_field', typekind=ESMF_TYPEKIND_R4, &
+    new_dst_field  = ESMF_FieldCreate (this%LS_ds, name='new_dst_field', typekind=ESMF_TYPEKIND_R4, &
          gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
     field_chunk_3d = ESMF_FieldCreate (this%LS_chunk, name='field_3d_chunk', typekind=ESMF_TYPEKIND_R4, &
          gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
 
-    call ESMF_FieldGet(new_src_field,localDE=0,farrayPtr=p_src_3d,_RC)
-    call ESMF_FieldGet(new_dst_field,localDE=0,farrayPtr=p_dst_3d,_RC)
-    call ESMF_FieldGet(field_chunk_3d,localDE=0,farrayPtr=p_chunk_3d,_RC)
+    call ESMF_FieldGet(field_ds_2d,   localDE=0, farrayptr=p_ds_2d,    _RC)
+    call ESMF_FieldGet(field_chunk_2d,localDE=0, farrayPtr=p_chunk_2d, _RC)
+    call ESMF_FieldGet(new_src_field, localDE=0, farrayPtr=p_src_3d,   _RC)
+    call ESMF_FieldGet(new_dst_field, localDE=0, farrayPtr=p_dst_3d,   _RC)
+    call ESMF_FieldGet(field_chunk_3d,localDE=0, farrayPtr=p_chunk_3d, _RC)
+
+    call MAPL_TimerOff(this%GENSTATE,"FieldCreate")
+
+
+    call MAPL_TimerOn(this%GENSTATE,"Full_regrid")
 
     iter = this%items%begin()
     do while (iter /= this%items%end())
        item => iter%get()
        if (item%itemType == ItemTypeScalar) then
-!!          if (mapl_am_i_root()) write(6,*) 'item%xname=', trim(item%xname)
+          !! if (mapl_am_i_root()) write(6,*) 'item%xname=', trim(item%xname)
           call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
           call ESMF_FieldGet(src_field,rank=rank,_RC)
           select case (rank)
           case(2)
              call ESMF_FieldGet(src_field,localDE=0,farrayptr=p_src_2d,_RC)
-             call ESMF_FieldGet(field_ds_2d,localDE=0,farrayptr=p_ds_2d,_RC)
-             call ESMF_FieldGet(field_chunk_2d,localDE=0,farrayPtr=p_chunk_2d,_RC)
-
-             call this%regridder%regrid(p_src_2d,p_ds_2d,_RC)
-             call ESMF_FieldRedist(field_ds_2d, field_chunk_2d, this%RH, _RC )
+             call ESMF_FieldRegrid (src_field, field_ds_2d, this%regridder%route_handle, _RC)
+             call ESMF_FieldRedist (field_ds_2d, field_chunk_2d, this%RH, _RC )
              call MPI_gatherv ( p_chunk_2d, nsend, MPI_REAL, &
                   p_rt_2d, recvcount, displs, MPI_REAL,&
                   iroot, mpic, ierr )
-
-!             if (mapl_am_i_root()) then
-!                do j=1, nx_sum, 500000
-!                   write(6,*)  'p_rt_2d', p_rt_2d(j)
-!                end do
-!             end if
 
              call MAPL_TimerOn(this%GENSTATE,"put2D")
              if (mapl_am_i_root()) then
@@ -641,24 +638,25 @@ contains
              ! -- CS-> LS_ds; ds->chunk; gather
              !
              call ESMF_FieldGet(src_field,localDE=0,farrayptr=qin_3d,_RC)
-             p_src_3d = reshape(qin_3d,shape(p_src_3d), order = [2,3,1])
 
-!             print*, 'shape(p_src_3d)', shape(p_src_3d)
-!             print*, 'shape(p_dst_3d)', shape(p_dst_3d)
+             !! -- did not improve performance
+             !!call MAPL_TimerOn(this%GENSTATE,"kloopreshape")
+             !!do k=1, lm
+             !!   p_src_3d(k,:,:) = qin_3d(:,:,k)
+             !!end do
+             !!call MAPL_TimerOff(this%GENSTATE,"kloopreshape")
+
+             call MAPL_TimerOn(this%GENSTATE,"reshape")
+             p_src_3d = reshape(qin_3d,shape(p_src_3d),order=[2,3,1])
+             call MAPL_TimerOff(this%GENSTATE,"reshape")
 
              call MAPL_TimerOn(this%GENSTATE,"3d_regrid")
-!!             call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
              call ESMF_FieldRegrid (new_src_field, new_dst_field, this%regridder%route_handle, _RC)
              call MAPL_TimerOff(this%GENSTATE,"3d_regrid")
 
-
-             call MAPL_TimerOn(this%GENSTATE,"ESMF_FieldRedist")
-             ! ...
-             !!             call ESMF_FieldRegrid(field_ds_3d, field_chunk_3d, this%RH, _RC)
-             call ESMF_FieldRedist(new_dst_field, field_chunk_3d, this%RH, _RC)
-
-             call MAPL_TimerOff(this%GENSTATE,"ESMF_FieldRedist")
-
+             call MAPL_TimerOn(this%GENSTATE,"FieldRedist")
+             call ESMF_FieldRedist (new_dst_field, field_chunk_3d, this%RH, _RC)
+             call MAPL_TimerOff(this%GENSTATE,"FieldRedist")
 
              call MAPL_TimerOn(this%GENSTATE,"gahterv")
              if (this%level_by_level) then
@@ -678,13 +676,6 @@ contains
              end if
              call MAPL_TimerOff(this%GENSTATE,"gahterv")
 
-!             if (mapl_am_i_root()) then
-!                do j=1, nx_sum, 500
-!                   write(6,*)  'p_rt_3d', p_rt_3d(:,j)
-!                end do
-!             end if
-!             if (mapl_am_i_root()) write(6,*) 'regrid + gatherV in 3D'
-
              call MAPL_TimerOn(this%GENSTATE,"put3D")
              if (mapl_am_i_root()) then
                 nz=size(p_rt_3d,1); nx=size(p_rt_3d,2)
@@ -703,11 +694,16 @@ contains
        call iter%next()
     end do
 
+    call MAPL_TimerOff(this%GENSTATE,"Full_regrid")
+
+
+    call MAPL_TimerOn(this%GENSTATE,"FieldDestroy")
     call ESMF_FieldDestroy(field_ds_2d,    noGarbage=.true., _RC)
     call ESMF_FieldDestroy(field_chunk_2d, noGarbage=.true., _RC)
     call ESMF_FieldDestroy(field_chunk_3d, noGarbage=.true., _RC)
     call ESMF_FieldDestroy(new_dst_field,  noGarbage=.true., _RC)
     call ESMF_FieldDestroy(new_src_field,  noGarbage=.true., _RC)
+    call MAPL_TimerOff(this%GENSTATE,"FieldDestroy")
 
     _RETURN(_SUCCESS)
   end subroutine append_file
