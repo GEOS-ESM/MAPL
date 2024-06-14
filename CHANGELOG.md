@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_cmake v3.45.1
     - Fix bug in meson detection
 - Updated `checkpoint_simulator` to not create and close file if not writing
+- Update ExtData2G tests
+  - Add new category of `SLOW` tests that take 10-30 seconds and remove them from the `ESSENTIALS`
+    label run in CI
 
 ### Fixed
 
