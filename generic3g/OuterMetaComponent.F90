@@ -1,8 +1,8 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_OuterMetaComponent
-   use mapl3g_geom_mgr
-   use mapl3g_UserSetServices
+
+   use mapl3g_geom_mgr, only: GeomManager, MaplGeom, get_geom_manager
    use mapl3g_UserSetServices,   only: AbstractUserSetServices
    use mapl3g_VariableSpec
    use mapl3g_StateItem
@@ -38,6 +38,9 @@ module mapl3g_OuterMetaComponent
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
    use esmf
    use pflogger, only: logging, Logger
+   use pFIO, only: FileMetaData
+   use mapl3g_geomio, only: GeomPFIO, bundle_to_metadata, make_geom_pfio, get_mapl_geom
+
    implicit none
    private
 
@@ -853,18 +856,72 @@ contains
       type(GriddedComponentDriver), pointer :: child
       type(GriddedComponentDriverMapIterator) :: iter
       character(:), allocatable :: child_name
-      integer :: status
+      type(ESMF_GridComp) :: child_outer_gc
+      type(OuterMetaComponent), pointer :: child_meta
+      type(ESMF_Geom) :: child_geom
+      type(MultiState) :: states
+      type(ESMF_State) :: export_state
+      character(len=ESMF_MAXSTR), allocatable :: item_name(:)
+      type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
+      integer :: status, item_count, idx
+      type(ESMF_FieldBundle) :: o_bundle
+      type(ESMF_Field) :: field
+      type(ESMF_TypeKind_FLAG) :: field_type
+      type(ESMF_FieldStatus_Flag) :: field_status
+      type(FileMetaData) :: metadata
+      class(GeomPFIO), allocatable :: writer
+      type(GeomManager), pointer :: geom_mgr
+      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_Time) :: current_time
+      character(len=ESMF_MAXSTR) :: current_file
 
-      associate(e => this%children%end())
-        iter = this%children%begin()
+      associate(e => this%children%ftn_end())
+        iter = this%children%ftn_begin()
         do while (iter /= e)
+           call iter%next()
            child_name = iter%first()
            if (child_name /= "HIST") then
+              o_bundle = ESMF_FieldBundleCreate(_RC)
               child => iter%second()
               print *, "OuterMetaComp::write_restart::GridComp: ", child_name
+              states = child%get_states()
+              call states%get_state(export_state, "export", _RC)
+              call ESMF_StateGet(export_state, itemCount=item_count, _RC)
+              allocate(item_name(item_count))
+              allocate(item_type(item_count))
+              call ESMF_StateGet(export_state, itemNameList=item_name, itemTypeList=item_type, _RC)
+              do idx = 1, item_count
+                 if (item_type(idx) == ESMF_STATEITEM_FIELD) then
+                    call ESMF_StateGet(export_state, item_name(idx), field, _RC)
+                    call ESMF_FieldGet(field, status=field_status, _RC)
+                    print *, "Field name: ", trim(item_name(idx))
+                    if (field_status == ESMF_FIELDSTATUS_COMPLETE) then
+                       call ESMF_FieldGet(field, typekind=field_type, _RC)
+                       print *, "Field type: ", field_type
+                       call ESMF_FieldPrint(field, _RC)
+                       call ESMF_FieldBundleAdd(o_bundle, [field], _RC)
+                    end if
+                 else if (item_type(idx) == ESMF_STATEITEM_FIELDBUNDLE) then
+                    print *, "FieldBundle: ", trim(item_name(idx))
+                    error stop "Not implemented yet"
+                 end if
+              end do
+              deallocate(item_name, item_type)
+              child_outer_gc = child%get_gridcomp()
+              child_meta => get_outer_meta(child_outer_gc, _RC)
+              child_geom = child_meta%get_geom()
+              metadata = bundle_to_metadata(o_bundle, child_geom, _RC)
+              allocate(writer, source=make_geom_pfio(metadata, rc=status))
+              mapl_geom => get_mapl_geom(child_geom, _RC)
+              call writer%initialize(metadata, mapl_geom, _RC)
+              call ESMF_ClockGet(clock, currTime=current_time, _RC)
+              current_file = trim(child_name) // "_export_rst.nc4"
+              print *, "Current file: ", trim(current_file)
+              call writer%stage_data_to_file(o_bundle, current_file, 1, _RC)
+              deallocate(writer)
+              ! end if
               call child%write_restart(_RC)
            end if
-           call iter%next()
         end do
       end associate
 

@@ -21,6 +21,7 @@ module mapl3g_pFIOServerBounds
       integer, allocatable :: file_shape(:)
    contains
       procedure :: initialize
+      procedure :: finalize
       procedure :: get_local_start
       procedure :: get_global_start
       procedure :: get_global_count
@@ -114,5 +115,18 @@ module mapl3g_pFIOServerBounds
 
    end subroutine initialize
       
+   subroutine finalize(this, rc)
+      class(pFIOServerBounds), intent(inout) :: this
+      integer, intent(out), optional :: rc
+
+      deallocate(this%file_shape)
+      deallocate(this%global_start)
+      deallocate(this%global_count)
+      deallocate(this%local_start)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine finalize
+
 end module mapl3g_pFIOServerBounds
 
