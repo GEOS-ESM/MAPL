@@ -136,7 +136,14 @@ module mapl3g_OuterMetaComponent
 
    character(len=*), parameter :: OUTER_META_PRIVATE_STATE = "MAPL::OuterMetaComponent::private"
 
-
+   abstract interface
+      subroutine I_child_op(this, child_meta, rc)
+         import OuterMetaComponent
+         class(OuterMetaComponent), target, intent(inout) :: this
+         type(OuterMetaComponent), target, intent(inout) :: child_meta
+         integer, optional, intent(out) :: rc
+      end subroutine I_child_Op
+   end interface
 
    ! Submodule interfaces
    interface
@@ -403,15 +410,6 @@ module mapl3g_OuterMetaComponent
       module procedure new_outer_meta
    end interface OuterMetaComponent
 
-
-   abstract interface
-      subroutine I_child_op(this, child_meta, rc)
-         import OuterMetaComponent
-         class(OuterMetaComponent), target, intent(inout) :: this
-         type(OuterMetaComponent), target, intent(inout) :: child_meta
-         integer, optional, intent(out) :: rc
-      end subroutine I_child_Op
-   end interface
 
    interface recurse
       module procedure recurse_
