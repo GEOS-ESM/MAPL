@@ -55,7 +55,7 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      
+
       call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, initialize, phase=GENERIC_COUPLER_INITIALIZE, _RC)
 
       call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, update, phase=GENERIC_COUPLER_UPDATE, _RC)

@@ -103,22 +103,15 @@ contains
       _ASSERT(src_registry%has_item_spec(src_pt), 'Specified virtual point does not exist.')
       
       actual_pts => src_registry%get_actual_pts(src_pt)
-      associate (e => actual_pts%end())
-        iter = actual_pts%begin()
+      associate (e => actual_pts%ftn_end())
+        iter = actual_pts%ftn_begin()
         do while (iter /= e)
+           call iter%next()
            src_actual_pt => iter%of()
-           
-           if (src_actual_pt%is_internal()) then
-              ! Don't encode with comp name
-              dst_actual_pt = ActualConnectionPt(dst_pt)
-           else
-              dst_actual_pt = src_actual_pt%add_comp_name(src_registry%get_name())
-           end if
-           
+           dst_actual_pt = ActualConnectionPt(dst_pt)
            spec => src_registry%get_item_spec(src_actual_pt)
            _ASSERT(associated(spec), 'This should not happen.')
            call registry%link_item_spec(dst_pt, spec, dst_actual_pt, _RC)
-           call iter%next()
         end do
       end associate
     
