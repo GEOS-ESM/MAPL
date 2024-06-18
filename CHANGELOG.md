@@ -30,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixes for NVHPC 24.5
+  - Convert `MAPL_GeosatMaskMod` to "interface-in-both-files" submodule style
+
 ### Removed
 
 ### Deprecated
