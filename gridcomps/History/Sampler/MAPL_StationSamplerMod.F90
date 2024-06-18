@@ -609,7 +609,7 @@ contains
     call MAPL_TimerOff(this%GENSTATE,"FieldCreate")
 
 
-    call MAPL_TimerOn(this%GENSTATE,"Full_regrid")
+!!    call MAPL_TimerOn(this%GENSTATE,"Full_regrid")
 
     iter = this%items%begin()
     do while (iter /= this%items%end())
@@ -654,11 +654,20 @@ contains
              call ESMF_FieldRegrid (new_src_field, new_dst_field, this%regridder%route_handle, _RC)
              call MAPL_TimerOff(this%GENSTATE,"3d_regrid")
 
+
+
+             call MPI_Barrier(mpic,ierr)
+             _VERIFY (ierr)
              call MAPL_TimerOn(this%GENSTATE,"FieldRedist")
              call ESMF_FieldRedist (new_dst_field, field_chunk_3d, this%RH, _RC)
+             call MPI_Barrier(mpic,ierr)
+             _VERIFY (ierr)
              call MAPL_TimerOff(this%GENSTATE,"FieldRedist")
 
-             call MAPL_TimerOn(this%GENSTATE,"gahterv")
+
+             call MPI_Barrier(mpic,ierr)
+             _VERIFY (ierr)
+             call MAPL_TimerOn(this%GENSTATE,"gatherv")
              if (this%level_by_level) then
                 ! p_chunk_3d (lm, nx)
                 allocate (p_dst_t, source = reshape(p_chunk_3d, [size(p_chunk_3d,2),size(p_chunk_3d,1)], order=[2,1]))
@@ -666,6 +675,7 @@ contains
                    call MPI_gatherv ( p_dst_t(1,k), nsend, MPI_REAL, &
                         p_rt_3d_aux(1,k), recvcount, displs, MPI_REAL,&
                         iroot, mpic, ierr )
+                   _VERIFY (ierr)
                 end do
                 deallocate(p_dst_t)
                 p_rt_3d = reshape(p_rt_3d_aux, shape(p_rt_3d), order=[2,1])
@@ -674,7 +684,10 @@ contains
                      p_rt_3d, recvcount_v, displs_v, MPI_REAL,&
                      iroot, mpic, ierr )
              end if
-             call MAPL_TimerOff(this%GENSTATE,"gahterv")
+             call MPI_Barrier(mpic,ierr)
+             _VERIFY (ierr)
+             call MAPL_TimerOff(this%GENSTATE,"gatherv")
+
 
              call MAPL_TimerOn(this%GENSTATE,"put3D")
              if (mapl_am_i_root()) then
@@ -694,7 +707,7 @@ contains
        call iter%next()
     end do
 
-    call MAPL_TimerOff(this%GENSTATE,"Full_regrid")
+!!    call MAPL_TimerOff(this%GENSTATE,"Full_regrid")
 
 
     call MAPL_TimerOn(this%GENSTATE,"FieldDestroy")
