@@ -1,3 +1,5 @@
+#include "MAPL_TestErr.h"
+
 module Test_HierarchicalRegistry
    use funit
    use mapl3g_AbstractRegistry
@@ -303,7 +305,7 @@ contains
       ! E-to-E with rename
       call r%add_connection(ReexportConnection(CP('A',vpt_1), CP('R',vpt_2)), rc=status)
 
-      @assert_that(r%has_item_spec(ActualConnectionPt(vpt_1%add_comp_name('A'))), is(true()))
+      @assert_that(r%has_item_spec(ActualConnectionPt(vpt_2)), is(true()))
 
    end subroutine test_e2e_preserve_actual_pt
 
