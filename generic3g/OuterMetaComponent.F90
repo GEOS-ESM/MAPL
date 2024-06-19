@@ -40,6 +40,7 @@ module mapl3g_OuterMetaComponent
    use pflogger, only: logging, Logger
    use pFIO, only: FileMetaData, o_Clients
    use mapl3g_geomio, only: GeomPFIO, bundle_to_metadata, make_geom_pfio, get_mapl_geom
+   use mapl3g_Restart, only: bundle_from_state_
 
    implicit none
    private
@@ -861,19 +862,14 @@ contains
       type(ESMF_Geom) :: child_geom
       type(MultiState) :: states
       type(ESMF_State) :: export_state
-      character(len=ESMF_MAXSTR), allocatable :: item_name(:)
-      type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
-      integer :: status, item_count, idx
       type(ESMF_FieldBundle) :: o_bundle
-      type(ESMF_Field) :: field
-      type(ESMF_TypeKind_FLAG) :: field_type
-      type(ESMF_FieldStatus_Flag) :: field_status
       type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: writer
       type(GeomManager), pointer :: geom_mgr
       type(MaplGeom), pointer :: mapl_geom
       type(ESMF_Time) :: current_time
       character(len=ESMF_MAXSTR) :: current_file
+      integer :: status, idx
 
       associate(e => this%children%ftn_end())
         iter = this%children%ftn_begin()
@@ -881,42 +877,25 @@ contains
            call iter%next()
            child_name = iter%first()
            if (child_name /= "HIST") then
-              o_bundle = ESMF_FieldBundleCreate(_RC)
               child => iter%second()
               print *, "OuterMetaComp::write_restart::GridComp: ", child_name
               states = child%get_states()
               call states%get_state(export_state, "export", _RC)
-              call ESMF_StateGet(export_state, itemCount=item_count, _RC)
-              allocate(item_name(item_count))
-              allocate(item_type(item_count))
-              call ESMF_StateGet(export_state, itemNameList=item_name, itemTypeList=item_type, _RC)
-              do idx = 1, item_count
-                 if (item_type(idx) == ESMF_STATEITEM_FIELD) then
-                    call ESMF_StateGet(export_state, item_name(idx), field, _RC)
-                    call ESMF_FieldGet(field, status=field_status, _RC)
-                    print *, "Field name: ", trim(item_name(idx))
-                    if (field_status == ESMF_FIELDSTATUS_COMPLETE) then
-                       call ESMF_FieldGet(field, typekind=field_type, _RC)
-                       print *, "Field type: ", field_type
-                       call ESMF_FieldPrint(field, _RC)
-                       call ESMF_FieldBundleAdd(o_bundle, [field], _RC)
-                    end if
-                 else if (item_type(idx) == ESMF_STATEITEM_FIELDBUNDLE) then
-                    print *, "FieldBundle: ", trim(item_name(idx))
-                    error stop "Not implemented yet"
-                 end if
-              end do
-              deallocate(item_name, item_type)
+              o_bundle = bundle_from_state_(export_state, _RC)
               child_outer_gc = child%get_gridcomp()
               child_meta => get_outer_meta(child_outer_gc, _RC)
               child_geom = child_meta%get_geom()
               metadata = bundle_to_metadata(o_bundle, child_geom, _RC)
-              allocate(writer, source=make_geom_pfio(metadata, rc=status))
+              allocate(writer, source=make_geom_pfio(metadata, rc=status)); _VERIFY(status)
               mapl_geom => get_mapl_geom(child_geom, _RC)
               call writer%initialize(metadata, mapl_geom, _RC)
               call ESMF_ClockGet(clock, currTime=current_time, _RC)
-              current_file = trim(child_name) // "_export_rst.nc4"
+              ! call ESMF_TimePrint(current_time)
+              call writer%update_time_on_server(current_time, _RC)
+              current_file = ESMF_UtilStringLowerCase(trim(child_name), rc=status) // "_export_rst.nc4"
+              _VERIFY(status)
               print *, "Current file: ", trim(current_file)
+              ! no-op if bundle is empty
               call writer%stage_data_to_file(o_bundle, current_file, 1, _RC)
               call o_Clients%done_collective_stage()
               call o_Clients%post_wait()
