@@ -38,7 +38,7 @@ module mapl3g_OuterMetaComponent
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
    use esmf
    use pflogger, only: logging, Logger
-   use pFIO, only: FileMetaData
+   use pFIO, only: FileMetaData, o_Clients
    use mapl3g_geomio, only: GeomPFIO, bundle_to_metadata, make_geom_pfio, get_mapl_geom
 
    implicit none
@@ -918,6 +918,8 @@ contains
               current_file = trim(child_name) // "_export_rst.nc4"
               print *, "Current file: ", trim(current_file)
               call writer%stage_data_to_file(o_bundle, current_file, 1, _RC)
+              call o_Clients%done_collective_stage()
+              call o_Clients%post_wait()
               deallocate(writer)
               ! end if
               call child%write_restart(_RC)
