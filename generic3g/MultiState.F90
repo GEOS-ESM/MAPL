@@ -50,6 +50,7 @@ contains
             new_state = state
             return
          end if
+
          new_state = ESMF_StateCreate(name=name)
 
       end function get_state

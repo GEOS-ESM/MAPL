@@ -22,6 +22,8 @@ set (test_srcs
   Test_FieldDictionary.pf
   Test_HierarchicalRegistry.pf
 
+  Test_Registry.pf
+
   Test_Scenarios.pf
   Test_WriteYaml.pf
   Test_HConfigMatch.pf

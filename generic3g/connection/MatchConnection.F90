@@ -5,6 +5,7 @@ module mapl3g_MatchConnection
    use mapl3g_ConnectionPt
    use mapl3g_HierarchicalRegistry, only: Connection
    use mapl3g_HierarchicalRegistry
+   use mapl3g_Registry
    use mapl3g_SimpleConnection
    use mapl3g_VirtualConnectionPt
    use mapl3g_VirtualConnectionPtVector
@@ -28,7 +29,8 @@ module mapl3g_MatchConnection
    contains
       procedure :: get_source
       procedure :: get_destination
-      procedure :: connect
+      procedure :: connect_old
+      procedure :: connect_new
    end type MatchConnection
 
    interface MatchConnection
@@ -59,7 +61,7 @@ contains
       destination = this%destination
    end function get_destination
 
-   recursive subroutine connect(this, registry, rc)
+   recursive subroutine connect_old(this, registry, rc)
       class(MatchConnection), intent(in) :: this
       type(HierarchicalRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
@@ -115,7 +117,65 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-   end subroutine connect
+   end subroutine connect_old
+
+   recursive subroutine connect_new(this, with_registry, rc)
+      class(MatchConnection), intent(in) :: this
+      type(Registry), target, intent(inout) :: with_registry
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      type(ConnectionPt) :: src_pt, dst_pt
+      type(Registry), pointer :: src_registry, dst_registry
+      type(VirtualConnectionPtVector) :: src_v_pts, dst_v_pts
+      type(VirtualConnectionPt), pointer :: dst_pattern, src_v_pt
+      type(VirtualConnectionPt) :: src_pattern, dst_v_pt
+      type(VirtualConnectionPt), pointer :: s_v_pt, d_v_pt
+      type(StateItemSpecPtr), allocatable :: dst_specs(:)
+      integer :: i, j, k
+      class(StateItemSpec), allocatable :: new_spec
+      type(ConnectionPt) :: s_pt, d_pt
+      character(1000) :: message
+
+      src_pt = this%get_source()
+      dst_pt = this%get_destination()
+
+      src_registry => with_registry%get_subregistry(src_pt, _RC)
+      dst_registry => with_registry%get_subregistry(dst_pt, _RC)
+
+!#      dst_v_pts = dst_registry%filter(dst_pt%v_pt)
+
+      do i = 1, dst_v_pts%size()
+         dst_pattern => dst_v_pts%of(i)
+         src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
+              '^'//dst_pattern%get_esmf_name()//'$', comp_name=dst_pattern%get_comp_name())
+!#         dst_specs = dst_registry%get_actual_pt_SpecPtrs(dst_pattern, _RC)
+
+         src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
+              dst_pattern%get_esmf_name(), comp_name=dst_pattern%get_comp_name())
+
+!#         src_v_pts = src_registry%filter(src_pattern)
+         if (src_v_pts%size() == 0) then
+            write(message,*) dst_pattern
+            _FAIL('No matching source found for connection dest: ' // trim(message))
+         end if
+         do j = 1, src_v_pts%size()
+            src_v_pt => src_v_pts%of(j)
+
+            dst_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
+                 src_v_pt%get_esmf_name(), comp_name=src_v_pt%get_comp_name())
+
+            s_pt = ConnectionPt(src_pt%component_name, src_v_pt)
+            d_pt = ConnectionPt(dst_pt%component_name, dst_pattern)
+
+            call with_registry%add_connection(SimpleConnection(s_pt, d_pt), _RC)
+
+         end do
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine connect_new
 
 
 end module mapl3g_MatchConnection

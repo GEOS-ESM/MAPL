@@ -1,0 +1,467 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_Registry
+!#   use mapl3g_AbstractRegistry
+   use mapl3g_StateItemSpec
+   use mapl3g_StateItemExtension
+   use mapl3g_StateItemExtensionPtrVector
+   use mapl3g_Registry
+   use mapl3g_MultiState
+   use mapl3g_ConnectionPt
+   use mapl3g_VirtualConnectionPt
+   use MockItemSpecMod
+   use mapl3g_ExtensionFamily
+   use mapl3g_SimpleConnection
+   use MockItemSpecMod
+   use ESMF_TestMethod_mod
+   use esmf
+   use funit
+   implicit none
+
+   !Useful macro
+#define CP(x,y)  ConnectionPt(x,y)
+   
+contains
+
+   ! Simple bootstrap test to get the implementation started.
+   @test
+   subroutine test_add_virtual_pt()
+      type(Registry) :: r
+      type(VirtualConnectionPt) :: x
+      integer :: status
+
+      r = Registry('A')
+      x = VirtualConnectionPt(state_intent='import', short_name='x')
+      @assert_that(r%has_virtual_pt(x), is(false()))
+      call r%add_virtual_pt(x, _RC)
+      @assert_that(r%has_virtual_pt(x), is(true()))
+
+   end subroutine test_add_virtual_pt
+
+   @test
+   ! The intent for "primary" items in an ExtensionFamily is that
+   ! their name does not get decorated with a disambiguating suffix.
+   ! Generally the primary item is a user-provided spec for the given
+   ! component, but may also be an item in a substate for propagated
+   ! imports and exports.
+   subroutine test_add_primary_spec()
+      type(Registry), target :: r
+      type(VirtualConnectionPt) :: x
+      integer :: status
+      type(ExtensionFamily), pointer :: family
+      type(StateItemExtension), pointer :: primary
+      class(StateItemSpec), pointer :: spec
+      
+      r = Registry('A')
+      x = VirtualConnectionPt(state_intent='import', short_name='x')
+
+      call r%add_primary_spec(x, MockItemSpec('x'), _RC)
+
+      @assert_that(r%num_owned_items(), is(1))
+
+      family => r%get_extension_family(x, _RC)
+      primary => family%get_primary()
+      @assert_that(associated(primary), is(true()))
+      spec => primary%get_spec()
+      select type (spec)
+      type is (MockItemSpec)
+         @assert_that(spec%name, is('x'))
+      class default
+         @assert_that(1, is(0))
+      end select
+
+   end subroutine test_add_primary_spec
+
+   @test
+   ! Addding a spec to a virtual point is assumed to be a new (locally
+   ! owned) item, but that the virtual point already has at least some
+   ! other entry.  This tests verifies that the count of items goes up
+   ! with each requested addition.
+   subroutine test_add_extension_spec()
+      type(Registry), target :: r
+      type(VirtualConnectionPt) :: x
+      integer :: status
+      type(ExtensionFamily), pointer :: family
+      type(StateItemExtensionPtr), pointer :: wrapper
+      class(StateItemSpec), pointer :: spec
+      type(StateItemExtension), pointer :: extension
+      type(StateItemExtensionPtrVector) :: extensions
+
+      r = Registry('A')
+      x = VirtualConnectionPt(state_intent='import', short_name='x')
+      call r%add_virtual_pt(x, _RC)
+
+      call r%add_spec(x, MockItemSpec('x'), _RC)
+      @assert_that(r%num_owned_items(), is(1))
+
+      family => r%get_extension_family(x, _RC)
+      @assert_that(associated(family), is(true()))
+      @assert_that(family%has_primary(), is(false()))
+      extensions = family%get_extensions()
+      @assert_that(int(extensions%size()), is(1))
+      wrapper => extensions%of(1)
+      extension => wrapper%ptr
+      spec => extension%get_spec()
+      select type (spec)
+      type is (MockItemSpec)
+         @assert_that(spec%name, is('x'))
+      class default
+         @assert_that(1, is(0))
+      end select
+
+      call r%add_spec(x, MockItemSpec('y'), _RC)
+      @assert_that(r%num_owned_items(), is(2))
+      @assert_that(family%has_primary(), is(false()))
+      extensions = family%get_extensions()
+      @assert_that(int(extensions%size()), is(2))
+      wrapper => extensions%of(2)
+      extension => wrapper%ptr
+      spec => extension%get_spec()
+      select type (spec)
+      type is (MockItemSpec)
+         @assert_that(spec%name, is('y'))
+      class default
+         @assert_that(1, is(0))
+      end select
+
+   end subroutine test_add_extension_spec
+
+   ! Linked items are in the named family but not owned
+   ! by the registry.  Linked from some other registry.
+   @test
+   subroutine test_link_extension()
+      type(Registry), target :: r
+      type(VirtualConnectionPt) :: x
+      integer :: status
+      type(StateItemExtension), target :: extension
+
+      r = Registry('A')
+      x = VirtualConnectionPt(state_intent='import', short_name='x')
+      call r%add_virtual_pt(x, _RC)
+
+      extension = StateItemExtension(MockItemSpec('x'))
+      call r%link_extension(x, extension, _RC)
+      @assert_that(r%num_owned_items(), is(0))
+
+   end subroutine test_link_extension
+
+   subroutine test_link_extension_spec()
+      type(Registry), target :: r
+      type(VirtualConnectionPt) :: x
+      integer :: status
+      type(ExtensionFamily), pointer :: family
+      type(StateItemExtensionPtr), pointer :: wrapper
+      class(StateItemSpec), allocatable :: spec_x, spec_y
+      class(StateItemSpec), pointer :: spec
+      type(StateItemExtensionPtrVector) :: extensions
+      type(StateItemExtension), target :: ext_x, ext_y
+      type(StateItemExtension), pointer :: ext
+
+      r = Registry('A')
+      x = VirtualConnectionPt(state_intent='import', short_name='x')
+      call r%add_virtual_pt(x, _RC)
+
+      allocate(spec_x, source=MockItemSpec('x'))
+      ext_x = StateItemExtension(spec_x)
+      call r%link_extension(x, ext_x, _RC)
+      @assert_that(r%num_owned_items(), is(0))
+
+      family => r%get_extension_family(x, _RC)
+      @assert_that(associated(family%get_primary()), is(false()))
+      extensions = family%get_extensions()
+      @assert_that(int(extensions%size()), is(1))
+      wrapper => extensions%of(1)
+      ext => wrapper%ptr
+      spec => ext%get_spec()
+      select type (spec)
+      type is (MockItemSpec)
+         @assert_that(spec%name, is('x'))
+      class default
+         @assert_that(1, is(0))
+      end select
+
+      allocate(spec_y, source=MockItemSpec('y'))
+      ext_y = StateItemExtension(spec_y)
+      call r%link_extension(x, ext_y)
+      @assert_that(r%num_owned_items(), is(0))
+      family => r%get_extension_family(x, _RC)
+      @assert_that(associated(family%get_primary()), is(false()))
+      extensions = family%get_extensions()
+      @assert_that(int(extensions%size()), is(2))
+      wrapper => extensions%of(2)
+      ext => wrapper%ptr
+      spec => ext%get_spec()
+      select type (spec)
+      type is (MockItemSpec)
+         @assert_that(spec%name, is('y'))
+      class default
+         @assert_that(1, is(0))
+      end select
+
+   end subroutine test_link_extension_spec
+
+   @test
+   subroutine test_get_subregistry()
+      type(Registry), target :: child_registry
+      type(Registry), target :: r
+      class(Registry), pointer :: ptr
+      
+      r = Registry('parent')
+      child_registry = Registry('child')
+      call r%add_subregistry(child_registry)
+
+      ptr => r%get_subregistry('child')
+      @assert_that(associated(ptr), is(true()))
+
+   end subroutine test_get_subregistry
+
+
+        !-------------------------------------------
+        !
+        !              parent
+        !                |
+        !                |
+        !                |
+        !              child   (import, T)
+        !
+        !-------------------------------------------
+   @test
+   ! Verify that unsatisfied import is propagated to parent.
+   ! 1. Not owned by parent
+   ! 2. Not primary in parent
+   subroutine test_propagate_import()
+      type(Registry), target :: r_child, r_parent
+      integer :: status
+      type(VirtualConnectionPt) :: v_pt
+      type(ExtensionFamily), pointer :: family
+
+      r_parent = Registry('parent')
+      r_child = Registry('child')
+      call r_parent%add_subregistry(r_child)
+
+      v_pt = VirtualConnectionPt(state_intent='import', short_name='T')
+      call r_child%add_primary_spec(v_pt, MockItemSpec('T_child'), _RC)
+      call r_parent%propagate_unsatisfied_imports(_RC)
+
+      @assert_that(r_parent%num_owned_items(), is(0))
+      @assert_that(r_parent%has_virtual_pt(v_pt), is(true()))
+
+      family => r_parent%get_extension_family(v_pt, _RC)
+      @assert_that(family%has_primary(), is(false()))
+      
+   end subroutine test_propagate_import
+
+   @test
+   ! Verify that unsatisfied import is propagated to parent
+   ! even when parent also has same named import.
+   subroutine test_propagate_duplicate_import()
+      type(Registry), target :: r_child, r_parent
+      integer :: status
+      type(VirtualConnectionPt) :: v_pt
+      type(ExtensionFamily), pointer :: family
+
+      r_parent = Registry('parent')
+      r_child = Registry('child')
+      call r_parent%add_subregistry(r_child)
+
+      v_pt = VirtualConnectionPt(state_intent='import', short_name='T')
+      call r_child%add_primary_spec(v_pt, MockItemSpec('T_child'), _RC)
+      call r_parent%add_primary_spec(v_pt, MockItemSpec('T_parent'), _RC)
+      call r_parent%propagate_unsatisfied_imports(_RC)
+
+      @assert_that(r_parent%num_owned_items(), is(1))
+      @assert_that(r_parent%has_virtual_pt(v_pt), is(true()))
+
+      family => r_parent%get_extension_family(v_pt, _RC)
+      @assert_that(family%has_primary(), is(true()))
+      @assert_that(family%num_variants(), is(2))
+
+   end subroutine test_propagate_duplicate_import
+
+
+   @test
+   ! Verify that _satisfied_ import is not propagated to parent.
+   subroutine test_do_not_propagate_satisfied_import()
+      type(Registry), target :: r_child, r_parent
+      integer :: status
+      type(VirtualConnectionPt) :: v_pt
+      type(MockItemSpec), target :: spec
+      
+      r_parent = Registry('parent')
+      r_child = Registry('child')
+      call r_parent%add_subregistry(r_child)
+
+      v_pt = VirtualConnectionPt(state_intent='import', short_name='T')
+      spec = MockItemSpec('T_child')
+      call spec%set_active()
+      call r_child%add_primary_spec(v_pt, spec, _RC)
+      call r_parent%propagate_unsatisfied_imports(_RC)
+
+      @assert_that(r_parent%num_owned_items(), is(0))
+      @assert_that(r_parent%has_virtual_pt(v_pt), is(false()))
+
+   end subroutine test_do_not_propagate_satisfied_import
+
+   @test
+   ! Verify that exports are not propagated to parent.
+   subroutine test_do_not_propagate_export_as_import()
+      type(Registry), target :: r_child, r_parent
+      integer :: status
+      type(VirtualConnectionPt) :: v_pt
+      type(MockItemSpec), target :: spec
+      
+      r_parent = Registry('parent')
+      r_child = Registry('child')
+      call r_parent%add_subregistry(r_child)
+
+      v_pt = VirtualConnectionPt(state_intent='export', short_name='T')
+      spec = MockItemSpec('T_child')
+      call r_child%add_primary_spec(v_pt, spec, _RC)
+      call r_parent%propagate_unsatisfied_imports(_RC)
+
+      @assert_that(r_parent%num_owned_items(), is(0))
+      @assert_that(r_parent%has_virtual_pt(v_pt), is(false()))
+
+   end subroutine test_do_not_propagate_export_as_import
+
+   @test
+   subroutine test_propagate_export()
+      type(Registry), target :: r_child, r_parent
+      integer :: status
+      type(VirtualConnectionPt) :: v_pt, new_v_pt
+      type(ExtensionFamily), pointer :: family
+      
+      r_parent = Registry('parent')
+      r_child = Registry('child')
+      call r_parent%add_subregistry(r_child)
+
+      v_pt = VirtualConnectionPt(state_intent='export', short_name='T')
+      call r_child%add_primary_spec(v_pt, MockItemSpec('T_child'), _RC)
+      call r_parent%propagate_exports(_RC)
+
+      @assert_that(r_parent%num_owned_items(), is(0))
+      @assert_that(r_parent%has_virtual_pt(v_pt), is(false()))
+      new_v_pt = VirtualConnectionPt(v_pt, 'child')
+      @assert_that(r_parent%has_virtual_pt(new_v_pt), is(true()))
+      family => r_parent%get_extension_family(new_v_pt, _RC)
+      @assert_that(associated(family%get_primary()), is(true()))
+            
+   end subroutine test_propagate_export
+
+   @test
+   subroutine test_do_not_propagate_import()
+      type(Registry), target :: r_child, r_parent
+      integer :: status
+      type(VirtualConnectionPt) :: v_pt, new_v_pt
+      
+      r_parent = Registry('parent')
+      r_child = Registry('child')
+      call r_parent%add_subregistry(r_child)
+
+      v_pt = VirtualConnectionPt(state_intent='import', short_name='T')
+      call r_child%add_primary_spec(v_pt, MockItemSpec('T_child'), _RC)
+      call r_parent%propagate_exports(_RC)
+
+      @assert_that(r_parent%num_owned_items(), is(0))
+      @assert_that(r_parent%has_virtual_pt(v_pt), is(false()))
+      new_v_pt = VirtualConnectionPt(v_pt, 'child')
+      @assert_that(r_parent%has_virtual_pt(new_v_pt), is(false()))
+
+   end subroutine test_do_not_propagate_import
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Connect() now creates ESMF_GridComp objects (couplers)
+   ! under-theshood, and thus needs a proper vm.
+   subroutine test_connect(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(Registry) :: r
+      type(Registry), target :: r_A, r_B ! child registries
+      type(VirtualConnectionPt) :: cp_A, cp_B
+      type(SimpleConnection) :: conn
+      type(ExtensionFamily), pointer :: family
+      integer :: status
+
+      r = Registry('P')
+      r_a = Registry('child_A')
+      r_b = Registry('child_B')
+      call r%add_subregistry(r_a)
+      call r%add_subregistry(r_b)
+
+      cp_A = VirtualConnectionPt(state_intent='export', short_name='ae')
+      cp_B = VirtualConnectionPt(state_intent='import', short_name='ai')
+
+      call r_a%add_primary_spec(cp_A, MockItemSpec('AE'))
+      call r_b%add_primary_spec(cp_B, MockItemSpec('AI'))
+
+      conn = SimpleConnection(CP('child_A', cp_A), CP('child_B', cp_B))
+      call r%add_connection(conn, rc=status)
+      @assert_that(status, is(0))
+
+      ! Check that extension was created
+      family => r_a%get_extension_family(cp_A, _RC)
+      @assert_that(associated(family%get_primary()), is(true()))
+      @assert_that(family%num_variants(), is(1))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_connect
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_add_to_state(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(Registry), target :: r
+      type(Registry), target :: r_A ! child registry
+      type(VirtualConnectionPt) :: cp_e1, cp_e2
+      type(VirtualConnectionPt) :: cp_i1, cp_i2
+      integer :: status
+      type(MultiState) :: user_states, outer_states
+      type(ESMF_Info) :: info
+
+      r = Registry('P')
+      r_a = Registry('child_A')
+      call r%add_subregistry(r_a)
+
+      cp_e1 = VirtualConnectionPt(state_intent='export', short_name='e1')
+      cp_e2 = VirtualConnectionPt(state_intent='export', short_name='e2')
+
+      cp_i1 = VirtualConnectionPt(state_intent='import', short_name='i1')
+      cp_i2 = VirtualConnectionPt(state_intent='import', short_name='i2')
+
+      call r_a%add_primary_spec(cp_e1, MockItemSpec('e1'))
+      call r_a%add_primary_spec(cp_i1, MockItemSpec('i1'))
+
+      call r%add_primary_spec(cp_e2, MockItemSpec('e2'))
+      call r%add_primary_spec(cp_i1, MockItemSpec('i1')) ! intentional duplicate with r_A
+      call r%add_primary_spec(cp_i2, MockItemSpec('i2'))
+
+      call r%propagate_exports(_RC)
+      call r%propagate_unsatisfied_imports(_RC)
+
+      user_states = MultiState()
+
+      call r%add_to_states(user_states, 'user', _RC)
+      ! expect e2 and i2 only
+      call ESMF_InfoGetFromHost(user_states%exportstate, info, _RC)
+      @assert_that(ESMF_InfoIsPresent(info, 'e2'), is(true()))
+      @assert_that(ESMF_InfoIsPresent(info, 'a/e1'), is(false()))
+      call ESMF_InfoGetFromHost(user_states%importstate, info, _RC)
+      @assert_that(ESMF_InfoIsPresent(info, 'i2'), is(true()))
+      @assert_that(ESMF_InfoIsPresent(info, 'i1'), is(true()))
+      @assert_that(ESMF_InfoIsPresent(info, 'i1(1)'), is(false()))
+
+      outer_states = MultiState()
+      call r%add_to_states(outer_states, 'outer', _RC)
+      ! expect e2 and i2 only
+      call ESMF_InfoGetFromHost(outer_states%exportstate, info, _RC)
+      @assert_that(ESMF_InfoIsPresent(info, 'e2'), is(true()))
+      @assert_that(ESMF_InfoIsPresent(info, 'child_A/e1'), is(true()))
+      call ESMF_InfoGetFromHost(outer_states%importstate, info, _RC)
+      @assert_that(ESMF_InfoIsPresent(info, 'i2'), is(true()))
+      @assert_that(ESMF_InfoIsPresent(info, 'i1'), is(true()))
+      @assert_that(ESMF_InfoIsPresent(info, 'i1(2)'), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_add_to_state
+
+end module Test_Registry
