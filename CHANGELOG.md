@@ -12,17 +12,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add new option to Regrid_Util.x to write and re-use ESMF pregenerated weights
 - If file path length exceeds ESMF_MAXSTR, add `_FAIL` in subroutine fglob
 - Add GNU UFS-like CI test
+- Add capability to mangle `LONG_NAME in ACG with a different prefix
 
 ### Changed
 
 - fixed a bug in generate_newnxy in MAPL_SwathGridFactory.F90 (`NX*NY=Ncore`)
 - pFIO Clients don't send "Done" message when there is no request
 - Update `components.yaml`
-  - ESMA_cmake v3.45.1
-    - Fix bug in meson detection
+  - ESMA_cmake v3.45.3
+    - Fix bugs in meson detection
+    - Fix for building on older macOS
 - Updated `checkpoint_simulator` to not create and close file if not writing
+- Update ExtData tests
+  - Add new category of `SLOW` tests that take 10-30 seconds and remove them from the `ESSENTIAL`
+    label run in CI
+  - Remove ExtData1G tests from `ESSENTIAL` label
 
 ### Fixed
+
+- Fixes for NVHPC 24.5
+  - Convert `MAPL_GeosatMaskMod` to "interface-in-both-files" submodule style
 
 ### Removed
 

@@ -5,9 +5,15 @@ submodule (MaskSamplerGeosatMod)  MaskSamplerGeosat_implement
   implicit none
 contains
 
-  module procedure MaskSamplerGeosat_from_config
+module function MaskSamplerGeosat_from_config(config,string,clock,rc) result(mask)
   use BinIOMod
   use pflogger, only         :  Logger, logging
+  type(MaskSamplerGeosat) :: mask
+  type(ESMF_Config), intent(inout)        :: config
+  character(len=*),  intent(in)           :: string
+  type(ESMF_Clock),  intent(in)           :: clock
+  integer, optional, intent(out)          :: rc
+
   type(ESMF_Time)            :: currTime
   type(ESMF_TimeInterval)    :: epoch_frequency
   type(ESMF_TimeInterval)    :: obs_time_span
@@ -96,13 +102,21 @@ contains
 
 105 format (1x,a,2x,a)
 106 format (1x,a,2x,i8)
-   end procedure MaskSamplerGeosat_from_config
+end function MaskSamplerGeosat_from_config
 
 
    !
    !-- integrate both initialize and reinitialize
    !
-   module procedure initialize
+module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
+   class(MaskSamplerGeosat), intent(inout) :: this
+   type(GriddedIOitemVector), optional, intent(inout) :: items
+   type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
+   type(TimeData), optional, intent(inout)           :: timeInfo
+   type(VerticalData), optional, intent(inout)       :: vdata
+   logical, optional, intent(in)           :: reinitialize
+   integer, optional, intent(out)          :: rc
+
    integer :: status
    type(ESMF_Grid) :: grid
    type(variable) :: v
@@ -133,12 +147,16 @@ contains
 
    _RETURN(_SUCCESS)
 
-   end procedure initialize
+end subroutine initialize_
 
 
-   module procedure create_Geosat_grid_find_mask
+     module subroutine create_Geosat_grid_find_mask(this, rc)
        use pflogger, only: Logger, logging
        implicit none
+
+       class(MaskSamplerGeosat), intent(inout) :: this
+       integer, optional, intent(out)          :: rc
+
        type(Logger), pointer :: lgr
        real(ESMF_KIND_R8), pointer :: ptAT(:)
        type(ESMF_routehandle) :: RH
@@ -453,10 +471,13 @@ contains
             iroot, mpic, ierr )
 
        _RETURN(_SUCCESS)
-     end procedure create_Geosat_grid_find_mask
+     end subroutine create_Geosat_grid_find_mask
 
 
-module  procedure add_metadata
+module subroutine  add_metadata(this,rc)
+    class(MaskSamplerGeosat), intent(inout) :: this
+    integer, optional, intent(out)          :: rc
+
     type(variable)   :: v
     type(ESMF_Field) :: field
     integer          :: fieldCount
@@ -543,12 +564,16 @@ module  procedure add_metadata
     deallocate (fieldNameList, _STAT)
 
     _RETURN(_SUCCESS)
-  end procedure add_metadata
+  end subroutine add_metadata
 
 
-    module procedure regrid_append_file
-    !
+ module subroutine regrid_append_file(this,current_time,rc)
     implicit none
+
+    class(MaskSamplerGeosat), intent(inout) :: this
+    type(ESMF_Time), intent(inout)          :: current_time
+    integer, optional, intent(out)          :: rc
+    !
     integer :: status
     integer :: fieldCount
     integer :: ub(1), lb(1)
@@ -673,11 +698,14 @@ module  procedure add_metadata
     end do
 
     _RETURN(_SUCCESS)
-  end procedure regrid_append_file
+  end subroutine regrid_append_file
 
 
 
-  module  procedure create_file_handle
+  module subroutine create_file_handle(this,filename,rc)
+    class(MaskSamplerGeosat), intent(inout) :: this
+    character(len=*), intent(in)            :: filename
+    integer, optional, intent(out)          :: rc
     type(variable) :: v
     integer :: status, j
     real(kind=REAL64), allocatable :: x(:)
@@ -705,10 +733,13 @@ module  procedure add_metadata
 !    call this%formatter%put_var('mask_name',this%mask_name,_RC)
 
     _RETURN(_SUCCESS)
-  end procedure create_file_handle
+  end subroutine create_file_handle
 
 
-  module  procedure close_file_handle
+   module subroutine close_file_handle(this,rc)
+    class(MaskSamplerGeosat), intent(inout) :: this
+    integer, optional, intent(out)          :: rc
+
     integer :: status
     if (trim(this%ofile) /= '') then
        if (mapl_am_i_root()) then
@@ -716,11 +747,16 @@ module  procedure add_metadata
        end if
     end if
     _RETURN(_SUCCESS)
-  end procedure close_file_handle
+  end subroutine close_file_handle
 
 
-  module procedure compute_time_for_current
+  module function compute_time_for_current(this,current_time,rc) result(rtime)
     use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
+    class(MaskSamplerGeosat), intent(inout) :: this
+    type(ESMF_Time), intent(in) :: current_time
+    integer, optional, intent(out) :: rc
+    real(kind=ESMF_KIND_R8) :: rtime
+
     integer :: status
     type(ESMF_TimeInterval) :: t_interval
     class(Variable), pointer :: var
@@ -746,7 +782,7 @@ module  procedure add_metadata
     rtime =  rtime_1d(1)
 
     _RETURN(_SUCCESS)
-  end procedure compute_time_for_current
+  end function compute_time_for_current
 
 
 

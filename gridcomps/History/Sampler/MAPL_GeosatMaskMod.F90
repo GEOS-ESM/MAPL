@@ -90,7 +90,7 @@ module MaskSamplerGeosatMod
      integer                        :: obsfile_Te_index
      logical                        :: is_valid
    contains
-     procedure :: initialize
+     procedure :: initialize => initialize_
      procedure :: add_metadata
      procedure :: create_file_handle
      procedure :: close_file_handle
@@ -107,6 +107,8 @@ module MaskSamplerGeosatMod
 
   interface
      module function MaskSamplerGeosat_from_config(config,string,clock,GENSTATE,rc) result(mask)
+       use BinIOMod
+       use pflogger, only         :  Logger, logging
        type(MaskSamplerGeosat) :: mask
        type(ESMF_Config), intent(inout)        :: config
        character(len=*),  intent(in)           :: string
@@ -115,7 +117,7 @@ module MaskSamplerGeosatMod
        integer, optional, intent(out)          :: rc
      end function MaskSamplerGeosat_from_config
 
-     module subroutine initialize(this,items,bundle,timeInfo,vdata,reinitialize,rc)
+     module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
        class(MaskSamplerGeosat), intent(inout) :: this
        type(GriddedIOitemVector), optional, intent(inout) :: items
        type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
@@ -123,9 +125,12 @@ module MaskSamplerGeosatMod
        type(VerticalData), optional, intent(inout)       :: vdata
        logical, optional, intent(in)           :: reinitialize
        integer, optional, intent(out)          :: rc
-     end subroutine initialize
+     end subroutine initialize_
 
      module subroutine create_Geosat_grid_find_mask(this, rc)
+       use pflogger, only: Logger, logging
+       implicit none
+
        class(MaskSamplerGeosat), intent(inout) :: this
        integer, optional, intent(out)          :: rc
      end subroutine create_Geosat_grid_find_mask
@@ -160,6 +165,8 @@ module MaskSamplerGeosatMod
      end subroutine regrid_append_file
 
      module function compute_time_for_current(this,current_time,rc) result(rtime)
+       use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
+
        class(MaskSamplerGeosat), intent(inout) :: this
        type(ESMF_Time), intent(in) :: current_time
        integer, optional, intent(out) :: rc
