@@ -2,69 +2,26 @@
 
 module mapl3g_Restart
 
-   ! use mapl3g_geom_mgr, only: GeomManager, MaplGeom, get_geom_manager
-   ! use mapl3g_UserSetServices,   only: AbstractUserSetServices
-   ! use mapl3g_VariableSpec
-   ! use mapl3g_StateItem
-   use mapl3g_MultiState, only: MultiState
-   ! use mapl3g_VariableSpecVector
-   ! use mapl3g_ComponentSpec
-   ! use mapl3g_GenericPhases
-   ! use mapl3g_Validation, only: is_valid_name
-   ! use mapl3g_InnerMetaComponent
-   ! use mapl3g_MethodPhasesMap
-   ! use mapl3g_StateItemSpec
-   ! use mapl3g_ConnectionPt
-   ! use mapl3g_MatchConnection
-   ! use mapl3g_VirtualConnectionPt
-   ! use mapl3g_ActualPtVector
-   ! use mapl3g_ConnectionVector
-   ! use mapl3g_HierarchicalRegistry
-   ! use mapl3g_StateExtension
-   ! use mapl3g_ExtensionVector
-   ! use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
-   ! use mapl3g_ComponentDriver
-   ! use mapl3g_GriddedComponentDriver
-   ! use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMap
-   ! use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMapIterator
-   ! use mapl3g_GriddedComponentDriverMap, only: operator(/=)
-   ! use mapl3g_ActualPtComponentDriverMap
-   ! use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_INVALIDATE
-   ! use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_UPDATE
-   use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return
-   ! use mapl3g_VerticalGeom
-   ! use mapl3g_GeometrySpec
-   ! use gFTL2_StringVector
-   ! use mapl_keywordEnforcer, only: KE => KeywordEnforcer
-
    use esmf
-   ! use pflogger, only: logging, Logger
-   ! use pFIO, only: FileMetaData, o_Clients
-   ! use mapl3g_geomio, only: GeomPFIO, bundle_to_metadata, make_geom_pfio, get_mapl_geom
+   use pFIO, only: FileMetaData, o_Clients
+   use mapl3g_geom_mgr, only: MaplGeom, get_geom_manager
+   use mapl3g_MultiState, only: MultiState
+   use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return
+   use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio, get_mapl_geom
 
    implicit none
    private
 
    public :: Restart
-   public :: bundle_from_state_
 
    type :: Restart
       private
    contains
-      procedure :: write
-      procedure :: read
+      procedure :: wr1te
+      procedure :: r3ad
    end type Restart
 
-   ! interface Restart
-   !    module procedure new_Restart
-   ! end interface Restart
-
 contains
-
-
-   ! ! Constructor
-   ! type(Restart) function new_Restart() result(restart)
-   ! end function new_Restart
 
    type(ESMF_FieldBundle) function bundle_from_state_(state, rc) result(bundle)
       ! Arguments
@@ -87,11 +44,7 @@ contains
          if (item_type(idx) == ESMF_STATEITEM_FIELD) then
             call ESMF_StateGet(state, item_name(idx), field, _RC)
             call ESMF_FieldGet(field, status=field_status, _RC)
-            ! print *, "Field name: ", trim(item_name(idx))
             if (field_status == ESMF_FIELDSTATUS_COMPLETE) then
-               ! call ESMF_FieldGet(field, typekind=field_type, _RC)
-               ! print *, "Field type: ", field_type
-               ! call ESMF_FieldPrint(field, _RC)
                call ESMF_FieldBundleAdd(bundle, [field], _RC)
             end if
          else if (item_type(idx) == ESMF_STATEITEM_FIELDBUNDLE) then
@@ -104,58 +57,52 @@ contains
       _RETURN(ESMF_SUCCESS)
    end function bundle_from_state_
 
-   subroutine write(this, states, rc)
-
+   subroutine wr1te(this, name, states, geom, clock, rc)
       ! Arguments
       class(Restart), intent(inout) :: this
+      character(len=*), intent(in) :: name
       type(MultiState), intent(in) :: states
+      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_Clock), intent(in) :: clock
       integer, optional, intent(out) :: rc
 
       ! Locals
-      type(ESMF_FieldBundle) :: o_bundle
       type(ESMF_State) :: export_state
+      type(ESMF_FieldBundle) :: out_bundle
+      type(FileMetaData) :: metadata
+      class(GeomPFIO), allocatable :: writer
+      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_Time) :: current_time
+      character(len=ESMF_MAXSTR) :: filename
       integer :: status
-      ! type(FileMetaData) :: metadata
-      ! class(GeomPFIO), allocatable :: writer
-      ! type(GeomManager), pointer :: geom_mgr
-      ! type(MaplGeom), pointer :: mapl_geom
-      ! type(ESMF_Time) :: current_time
-      ! character(len=ESMF_MAXSTR) :: current_file
 
-      ! integer :: status, item_count, idx
-
-      call states%get_state(export_state, "export", _RC)
-      o_bundle = bundle_from_state_(export_state, _RC)
-
-      ! child_outer_gc = child%get_gridcomp()
-      ! child_meta => get_outer_meta(child_outer_gc, _RC)
-      ! child_geom = child_meta%get_geom()
-      ! metadata = bundle_to_metadata(o_bundle, child_geom, _RC)
-      ! allocate(writer, source=make_geom_pfio(metadata, rc=status)); _VERIFY(status)
-      ! mapl_geom => get_mapl_geom(child_geom, _RC)
-      ! call writer%initialize(metadata, mapl_geom, _RC)
-      ! call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      call ESMF_ClockGet(clock, currTime=current_time, _RC)
       ! call ESMF_TimePrint(current_time)
-      ! call writer%update_time_on_server(current_time, _RC)
-      ! current_file = ESMF_UtilStringLowerCase(trim(child_name), rc=status) // "_export_rst.nc4"
-      ! _VERIFY(status)
-      ! print *, "Current file: ", trim(current_file)
-      ! ! no-op if bundle is empty
-      ! call writer%stage_data_to_file(o_bundle, current_file, 1, _RC)
-      ! call o_Clients%done_collective_stage()
-      ! call o_Clients%post_wait()
-      ! deallocate(writer)
+      call states%get_state(export_state, "export", _RC)
+      out_bundle = bundle_from_state_(export_state, _RC)
+      metadata = bundle_to_metadata(out_bundle, geom, _RC)
+      allocate(writer, source=make_geom_pfio(metadata, rc=status)); _VERIFY(status)
+      mapl_geom => get_mapl_geom(geom, _RC)
+      call writer%initialize(metadata, mapl_geom, _RC)
+      call writer%update_time_on_server(current_time, _RC)
+      filename = ESMF_UtilStringLowerCase(trim(name), rc=status) // "_export_rst.nc4"
+      _VERIFY(status)
+      ! no-op if bundle is empty
+      call writer%stage_data_to_file(out_bundle, filename, 1, _RC)
+      call o_Clients%done_collective_stage()
+      call o_Clients%post_wait()
+      deallocate(writer)
 
       _RETURN(ESMF_SUCCESS)
-   end subroutine write
+   end subroutine wr1te
 
-   subroutine read(this, rc)
+   subroutine r3ad(this, rc)
 
       ! Arguments
       class(Restart), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       _RETURN(ESMF_SUCCESS)
-   end subroutine read
+   end subroutine r3ad
       
 end module mapl3g_Restart

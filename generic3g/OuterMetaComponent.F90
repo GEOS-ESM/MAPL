@@ -40,7 +40,7 @@ module mapl3g_OuterMetaComponent
    use pflogger, only: logging, Logger
    use pFIO, only: FileMetaData, o_Clients
    use mapl3g_geomio, only: GeomPFIO, bundle_to_metadata, make_geom_pfio, get_mapl_geom
-   use mapl3g_Restart, only: bundle_from_state_
+   use mapl3g_Restart, only: Restart
 
    implicit none
    private
@@ -854,22 +854,14 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(GriddedComponentDriver), pointer :: child
       type(GriddedComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: child
       character(:), allocatable :: child_name
       type(ESMF_GridComp) :: child_outer_gc
-      type(OuterMetaComponent), pointer :: child_meta
+      type(OuterMetaComponent), pointer :: child_outer_meta
       type(ESMF_Geom) :: child_geom
-      type(MultiState) :: states
-      type(ESMF_State) :: export_state
-      type(ESMF_FieldBundle) :: o_bundle
-      type(FileMetaData) :: metadata
-      class(GeomPFIO), allocatable :: writer
-      type(GeomManager), pointer :: geom_mgr
-      type(MaplGeom), pointer :: mapl_geom
-      type(ESMF_Time) :: current_time
-      character(len=ESMF_MAXSTR) :: current_file
-      integer :: status, idx
+      type(Restart) :: restart
+      integer :: status
 
       associate(e => this%children%ftn_end())
         iter = this%children%ftn_begin()
@@ -877,30 +869,12 @@ contains
            call iter%next()
            child_name = iter%first()
            if (child_name /= "HIST") then
-              child => iter%second()
               print *, "OuterMetaComp::write_restart::GridComp: ", child_name
-              states = child%get_states()
-              call states%get_state(export_state, "export", _RC)
-              o_bundle = bundle_from_state_(export_state, _RC)
+              child => iter%second()
               child_outer_gc = child%get_gridcomp()
-              child_meta => get_outer_meta(child_outer_gc, _RC)
-              child_geom = child_meta%get_geom()
-              metadata = bundle_to_metadata(o_bundle, child_geom, _RC)
-              allocate(writer, source=make_geom_pfio(metadata, rc=status)); _VERIFY(status)
-              mapl_geom => get_mapl_geom(child_geom, _RC)
-              call writer%initialize(metadata, mapl_geom, _RC)
-              call ESMF_ClockGet(clock, currTime=current_time, _RC)
-              ! call ESMF_TimePrint(current_time)
-              call writer%update_time_on_server(current_time, _RC)
-              current_file = ESMF_UtilStringLowerCase(trim(child_name), rc=status) // "_export_rst.nc4"
-              _VERIFY(status)
-              print *, "Current file: ", trim(current_file)
-              ! no-op if bundle is empty
-              call writer%stage_data_to_file(o_bundle, current_file, 1, _RC)
-              call o_Clients%done_collective_stage()
-              call o_Clients%post_wait()
-              deallocate(writer)
-              ! end if
+              child_outer_meta => get_outer_meta(child_outer_gc, _RC)
+              child_geom = child_outer_meta%get_geom()
+              call restart%wr1te(child_name, child%get_states(), child_geom, clock, _RC)
               call child%write_restart(_RC)
            end if
         end do
