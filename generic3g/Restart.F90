@@ -57,12 +57,12 @@ contains
       _RETURN(ESMF_SUCCESS)
    end function bundle_from_state_
 
-   subroutine wr1te(this, name, states, geom, clock, rc)
+   subroutine wr1te(this, gc_name, gc_states, gc_geom, clock, rc)
       ! Arguments
       class(Restart), intent(inout) :: this
-      character(len=*), intent(in) :: name
-      type(MultiState), intent(in) :: states
-      type(ESMF_Geom), intent(in) :: geom
+      character(len=*), intent(in) :: gc_name
+      type(MultiState), intent(in) :: gc_states
+      type(ESMF_Geom), intent(in) :: gc_geom
       type(ESMF_Clock), intent(in) :: clock
       integer, optional, intent(out) :: rc
 
@@ -78,14 +78,14 @@ contains
 
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
       ! call ESMF_TimePrint(current_time)
-      call states%get_state(export_state, "export", _RC)
+      call gc_states%get_state(export_state, "export", _RC)
       out_bundle = bundle_from_state_(export_state, _RC)
-      metadata = bundle_to_metadata(out_bundle, geom, _RC)
+      metadata = bundle_to_metadata(out_bundle, gc_geom, _RC)
       allocate(writer, source=make_geom_pfio(metadata, rc=status)); _VERIFY(status)
-      mapl_geom => get_mapl_geom(geom, _RC)
+      mapl_geom => get_mapl_geom(gc_geom, _RC)
       call writer%initialize(metadata, mapl_geom, _RC)
       call writer%update_time_on_server(current_time, _RC)
-      filename = ESMF_UtilStringLowerCase(trim(name), rc=status) // "_export_rst.nc4"
+      filename = ESMF_UtilStringLowerCase(trim(gc_name), rc=status) // "_export_rst.nc4"
       _VERIFY(status)
       ! no-op if bundle is empty
       call writer%stage_data_to_file(out_bundle, filename, 1, _RC)
