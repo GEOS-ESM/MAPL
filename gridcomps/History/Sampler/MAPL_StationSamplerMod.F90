@@ -308,7 +308,7 @@ contains
     ! init ofile
     sampler%ofile=''
     sampler%obs_written=0
-    sampler%level_by_level = .true.
+    sampler%level_by_level = .false.  ! .true.
 
     _RETURN(_SUCCESS)
   end function new_StationSampler_readfile

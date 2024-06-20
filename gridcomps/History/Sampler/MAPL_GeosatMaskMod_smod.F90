@@ -5,13 +5,14 @@ submodule (MaskSamplerGeosatMod)  MaskSamplerGeosat_implement
   implicit none
 contains
 
-module function MaskSamplerGeosat_from_config(config,string,clock,rc) result(mask)
+module function MaskSamplerGeosat_from_config(config,string,clock,GENSTATE,rc) result(mask)
   use BinIOMod
   use pflogger, only         :  Logger, logging
   type(MaskSamplerGeosat) :: mask
   type(ESMF_Config), intent(inout)        :: config
   character(len=*),  intent(in)           :: string
   type(ESMF_Clock),  intent(in)           :: clock
+  type(MAPL_MetaComp), pointer, intent(in), optional  :: GENSTATE
   integer, optional, intent(out)          :: rc
 
   type(ESMF_Time)            :: currTime
