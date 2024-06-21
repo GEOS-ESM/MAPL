@@ -844,7 +844,6 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine read_restart
 
-
    subroutine write_restart(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_State) :: importState
@@ -868,13 +867,15 @@ contains
         do while (iter /= e)
            call iter%next()
            child_name = iter%first()
+           print *, "write_restart::GridComp (parent/child): ", this%get_name(), " ", child_name
            if (child_name /= "HIST") then
-              print *, "OuterMetaComp::write_restart::GridComp: ", child_name
               child => iter%second()
               child_outer_gc = child%get_gridcomp()
               child_outer_meta => get_outer_meta(child_outer_gc, _RC)
               child_geom = child_outer_meta%get_geom()
-              call restart%wr1te(child_name, child%get_states(), child_geom, clock, _RC)
+              ! TODO: (pchakrab) isn't the clock at this stage the parent's clock?
+              ! TODO: we probably should be using child%get_clock()
+              call restart%write(child_name, child%get_states(), child_geom, clock, _RC)
               call child%write_restart(_RC)
            end if
         end do
@@ -882,7 +883,6 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine write_restart
-
 
    function get_name(this, rc) result(name)
       character(:), allocatable :: name

@@ -17,13 +17,49 @@ module mapl3g_Restart
    type :: Restart
       private
    contains
-      procedure :: wr1te
-      procedure :: r3ad
+      procedure, public :: write
+      procedure, public :: read
    end type Restart
 
 contains
 
-   type(ESMF_FieldBundle) function bundle_from_state_(state, rc) result(bundle)
+   subroutine write(this, gc_name, gc_states, gc_geom, clock, rc)
+      ! Arguments
+      class(Restart), intent(inout) :: this
+      character(len=*), intent(in) :: gc_name
+      type(MultiState), intent(in) :: gc_states
+      type(ESMF_Geom), intent(in) :: gc_geom
+      type(ESMF_Clock), intent(in) :: clock
+      integer, optional, intent(out) :: rc
+
+      ! Locals
+      type(ESMF_State) :: export_state
+      type(ESMF_FieldBundle) :: out_bundle
+      type(ESMF_Time) :: current_time
+      character(len=ESMF_MAXSTR) :: gc_name_lowercase
+      character(len=ESMF_MAXSTR) :: file_name
+      integer :: status
+
+      call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      call gc_states%get_state(export_state, "export", _RC)
+      out_bundle = get_bundle_from_state_(export_state, _RC)
+      gc_name_lowercase = ESMF_UtilStringLowerCase(trim(gc_name), _RC)
+      file_name = trim(gc_name_lowercase) // "_export_rst.nc4"
+      call write_bundle_(out_bundle, file_name, gc_geom, current_time, rc)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine write
+
+   subroutine read(this, rc)
+
+      ! Arguments
+      class(Restart), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine read
+
+   type(ESMF_FieldBundle) function get_bundle_from_state_(state, rc) result(bundle)
       ! Arguments
       type(ESMF_State), intent(in) :: state
       integer, optional, intent(out) :: rc
@@ -53,56 +89,37 @@ contains
          end if
       end do
       deallocate(item_name, item_type, stat=status); _VERIFY(status)
-      
-      _RETURN(ESMF_SUCCESS)
-   end function bundle_from_state_
 
-   subroutine wr1te(this, gc_name, gc_states, gc_geom, clock, rc)
+      _RETURN(ESMF_SUCCESS)
+   end function get_bundle_from_state_
+
+   subroutine write_bundle_(bundle, file_name, geom, current_time, rc)
       ! Arguments
-      class(Restart), intent(inout) :: this
-      character(len=*), intent(in) :: gc_name
-      type(MultiState), intent(in) :: gc_states
-      type(ESMF_Geom), intent(in) :: gc_geom
-      type(ESMF_Clock), intent(in) :: clock
+      type(ESMF_FieldBundle), intent(in) :: bundle
+      character(len=*), intent(in) :: file_name
+      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_Time), intent(in) :: current_time
       integer, optional, intent(out) :: rc
 
       ! Locals
-      type(ESMF_State) :: export_state
-      type(ESMF_FieldBundle) :: out_bundle
       type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: writer
       type(MaplGeom), pointer :: mapl_geom
-      type(ESMF_Time) :: current_time
       character(len=ESMF_MAXSTR) :: filename
       integer :: status
 
-      call ESMF_ClockGet(clock, currTime=current_time, _RC)
-      ! call ESMF_TimePrint(current_time)
-      call gc_states%get_state(export_state, "export", _RC)
-      out_bundle = bundle_from_state_(export_state, _RC)
-      metadata = bundle_to_metadata(out_bundle, gc_geom, _RC)
+      metadata = bundle_to_metadata(bundle, geom, _RC)
       allocate(writer, source=make_geom_pfio(metadata, rc=status)); _VERIFY(status)
-      mapl_geom => get_mapl_geom(gc_geom, _RC)
+      mapl_geom => get_mapl_geom(geom, _RC)
       call writer%initialize(metadata, mapl_geom, _RC)
       call writer%update_time_on_server(current_time, _RC)
-      filename = ESMF_UtilStringLowerCase(trim(gc_name), rc=status) // "_export_rst.nc4"
-      _VERIFY(status)
-      ! no-op if bundle is empty
-      call writer%stage_data_to_file(out_bundle, filename, 1, _RC)
+      ! TODO: no-op if bundle is empty, or should we skip empty bundles?
+      call writer%stage_data_to_file(bundle, file_name, 1, _RC)
       call o_Clients%done_collective_stage()
       call o_Clients%post_wait()
       deallocate(writer)
 
       _RETURN(ESMF_SUCCESS)
-   end subroutine wr1te
+   end subroutine write_bundle_
 
-   subroutine r3ad(this, rc)
-
-      ! Arguments
-      class(Restart), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      _RETURN(ESMF_SUCCESS)
-   end subroutine r3ad
-      
 end module mapl3g_Restart
