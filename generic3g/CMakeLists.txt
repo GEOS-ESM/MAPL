@@ -59,33 +59,6 @@ esma_add_library(${this}
   TYPE SHARED
   )
 
-##### New function to avoid conflicts with files with the same name
-function(esma_add_fortran_submodules)
-  set(options)
-  set(oneValueArgs TARGET SUBDIRECTORY)
-  set(multiValueArgs SOURCES)
-  cmake_parse_arguments(
-    ARG "${options}" "${oneValueArgs}"
-    "${multiValueArgs}" ${ARGN}
-  )
-
-  foreach(file ${ARG_SOURCES})
-
-    set(input ${CMAKE_CURRENT_SOURCE_DIR}/${ARG_SUBDIRECTORY}/${file})
-    set(output ${CMAKE_CURRENT_BINARY_DIR}/${ARG_SUBDIRECTORY}_${file})
-    add_custom_command(
-      OUTPUT ${output}
-      COMMAND ${CMAKE_COMMAND} -E copy ${input} ${output}
-      DEPENDS ${input}
-    )
-    set_property(SOURCE ${output} PROPERTY GENERATED 1)
-    target_sources(${ARG_TARGET} PRIVATE ${output})
-
-  endforeach()
-
-endfunction()
-#####
-
 add_subdirectory(specs)
 add_subdirectory(registry)
 add_subdirectory(connection)
@@ -97,7 +70,7 @@ add_subdirectory(GriddedComponentDriver)
 esma_add_fortran_submodules(
   TARGET MAPL.generic3g
   SUBDIRECTORY OuterMetaComponent
-  SOURCES SetServices.F90 add_child_by_name.F90 new_outer_meta.F90 init_meta.F90 
+  SOURCES SetServices.F90 add_child_by_name.F90 new_outer_meta.F90 init_meta.F90
       get_child_by_name.F90 run_child_by_name.F90 run_children.F90
       get_outer_meta_from_outer_gc.F90 attach_outer_meta.F90 free_outer_meta.F90
       get_phases.F90 set_hconfig.F90 get_hconfig.F90 get_geom.F90
