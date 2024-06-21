@@ -304,11 +304,10 @@ contains
     call ESMF_FieldBundleGet(bundle,grid=grid,_RC)
     sampler%LS_ds = sampler%LSF%create_locstream_on_proc(grid=grid,_RC)
 
-    !
     ! init ofile
     sampler%ofile=''
     sampler%obs_written=0
-    sampler%level_by_level = .false.  ! .true.
+    sampler%level_by_level = .false.
 
     _RETURN(_SUCCESS)
   end function new_StationSampler_readfile
@@ -391,7 +390,6 @@ contains
     iter = this%items%begin()
     do while (iter /= this%items%end())
        item => iter%get()
-       !!print*, 'list item%xname', trim(item%xname)
        if (item%itemType == ItemTypeScalar) then
           call this%create_variable(item%xname,_RC)
        else if (item%itemType == ItemTypeVector) then
@@ -415,7 +413,6 @@ contains
     call ESMF_FieldGet( chunk_field, localDE=0, farrayPtr=pt2, _RC )
     pt1=0.0
     pt2=0.0
-!!    print*, 'shape(pt1 LS_ds)', shape(pt1)
     call ESMF_FieldRedistStore(src_field,chunk_field,this%RH,_RC)
     call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
     call ESMF_FieldDestroy(chunk_field,noGarbage=.true.,_RC)
@@ -462,7 +459,6 @@ contains
     case default
        _FAIL('unsupported rank')
     end select
-    !    v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=chunksizes)
     v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
 
     call v%add_attribute('units',trim(units))
@@ -526,11 +522,9 @@ contains
     integer :: is, ie, ierr
     integer :: M, N, ip
 
-
     this%obs_written=this%obs_written+1
 
     !__ 1. put_var: time variable
-    !
     !
     rtimes = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
     if (mapl_am_i_root()) then
@@ -542,8 +536,9 @@ contains
     !__ 2. regrid + put_var:
     !      ungridded_dim from src to dst [regrid]
     !
-    !   caution about zero-sized array for MPI
-    !   redist
+    !      caution about zero-sized array for MPI
+    !      redist
+    !
     nx_sum = this%nstation
     lm = this%vdata%lm
     call ESMF_VMGetCurrent(vm,_RC)
@@ -608,9 +603,6 @@ contains
 
     call MAPL_TimerOff(this%GENSTATE,"FieldCreate")
 
-
-!!    call MAPL_TimerOn(this%GENSTATE,"Full_regrid")
-
     iter = this%items%begin()
     do while (iter /= this%items%end())
        item => iter%get()
@@ -639,13 +631,6 @@ contains
              !
              call ESMF_FieldGet(src_field,localDE=0,farrayptr=qin_3d,_RC)
 
-             !! -- did not improve performance
-             !!call MAPL_TimerOn(this%GENSTATE,"kloopreshape")
-             !!do k=1, lm
-             !!   p_src_3d(k,:,:) = qin_3d(:,:,k)
-             !!end do
-             !!call MAPL_TimerOff(this%GENSTATE,"kloopreshape")
-
              call MAPL_TimerOn(this%GENSTATE,"reshape")
              p_src_3d = reshape(qin_3d,shape(p_src_3d),order=[2,3,1])
              call MAPL_TimerOff(this%GENSTATE,"reshape")
@@ -653,8 +638,6 @@ contains
              call MAPL_TimerOn(this%GENSTATE,"3d_regrid")
              call ESMF_FieldRegrid (new_src_field, new_dst_field, this%regridder%route_handle, _RC)
              call MAPL_TimerOff(this%GENSTATE,"3d_regrid")
-
-
 
              call MPI_Barrier(mpic,ierr)
              _VERIFY (ierr)
@@ -665,8 +648,6 @@ contains
              call MAPL_TimerOff(this%GENSTATE,"FieldRedist")
 
 
-             call MPI_Barrier(mpic,ierr)
-             _VERIFY (ierr)
              call MAPL_TimerOn(this%GENSTATE,"gatherv")
              if (this%level_by_level) then
                 ! p_chunk_3d (lm, nx)
@@ -684,8 +665,6 @@ contains
                      p_rt_3d, recvcount_v, displs_v, MPI_REAL,&
                      iroot, mpic, ierr )
              end if
-             call MPI_Barrier(mpic,ierr)
-             _VERIFY (ierr)
              call MAPL_TimerOff(this%GENSTATE,"gatherv")
 
 
@@ -706,8 +685,6 @@ contains
 
        call iter%next()
     end do
-
-!!    call MAPL_TimerOff(this%GENSTATE,"Full_regrid")
 
 
     call MAPL_TimerOn(this%GENSTATE,"FieldDestroy")
@@ -934,7 +911,6 @@ contains
        lon = i
     endif
     _ASSERT (ios==0, 'read error')
-
 
     k=index(line(j+1:), '.')
     if (k > 0) then
