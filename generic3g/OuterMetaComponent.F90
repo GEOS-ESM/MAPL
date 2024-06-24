@@ -858,26 +858,28 @@ contains
       character(:), allocatable :: child_name
       type(ESMF_GridComp) :: child_outer_gc
       type(OuterMetaComponent), pointer :: child_outer_meta
+      type(MultiState) :: child_states
       type(ESMF_Geom) :: child_geom
+      type(ESMF_Clock) :: child_clock
       type(Restart) :: restart
       integer :: status
 
-      associate(e => this%children%ftn_end())
-        iter = this%children%ftn_begin()
+      associate(e => this%children%end())
+        iter = this%children%begin()
         do while (iter /= e)
-           call iter%next()
            child_name = iter%first()
            print *, "write_restart::GridComp (parent/child): ", this%get_name(), " ", child_name
            if (child_name /= "HIST") then
               child => iter%second()
               child_outer_gc = child%get_gridcomp()
               child_outer_meta => get_outer_meta(child_outer_gc, _RC)
+              child_states = child%get_states()
               child_geom = child_outer_meta%get_geom()
-              ! TODO: (pchakrab) isn't the clock at this stage the parent's clock?
-              ! TODO: we probably should be using child%get_clock()
-              call restart%write(child_name, child%get_states(), child_geom, clock, _RC)
+              child_clock = child%get_clock()
+              call restart%write(child_name, child_states, child_geom, child_clock, _RC)
               call child%write_restart(_RC)
            end if
+           call iter%next()
         end do
       end associate
 
