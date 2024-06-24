@@ -410,6 +410,10 @@ contains
       class(AbstractSocket),pointer :: connection
       integer :: status
 
+      if (this%isEmpty_RequestHandle()) then
+        _RETURN(_SUCCESS)
+      endif
+    
       connection=>this%get_connection()
       call connection%send(PrefetchDoneMessage(),_RC)
       _RETURN(_SUCCESS)
@@ -420,6 +424,10 @@ contains
       integer, optional, intent(out) :: rc
       class(AbstractSocket),pointer :: connection
       integer :: status
+  
+      if (this%isEmpty_RequestHandle()) then
+        _RETURN(_SUCCESS)
+      endif
 
       connection=>this%get_connection()
       call connection%send(CollectivePrefetchDoneMessage(),_RC)
@@ -432,6 +440,10 @@ contains
       class(AbstractSocket),pointer :: connection
       integer :: status
 
+      if (this%isEmpty_RequestHandle()) then
+        _RETURN(_SUCCESS)
+      endif
+
       connection=>this%get_connection()
       call connection%send(StageDoneMessage(),_RC)
       _RETURN(_SUCCESS)
@@ -443,6 +455,10 @@ contains
       class(AbstractSocket),pointer :: connection
       integer :: status
 
+      if (this%isEmpty_RequestHandle()) then
+        _RETURN(_SUCCESS)
+      endif
+     
       connection=>this%get_connection()
       call connection%send(CollectiveStageDoneMessage(),_RC)
       _RETURN(_SUCCESS)
