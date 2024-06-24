@@ -1,0 +1,928 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>construct_ISO8601Time &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>construct_ISO8601Time
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">20 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_ISO8601_DateTime.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_iso8601_datetime.f90.html'>MAPL_ISO8601_DateTime.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_iso8601_datetime.html'>MAPL_ISO8601_DateTime</a></li>
+            <li class="breadcrumb-item active" aria-current="page">construct_ISO8601Time</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/construct_iso8601time.html#src">construct_ISO8601Time</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function construct_ISO8601Time(isostring, rc) result(time)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-isostring~12"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>isostring</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1488"></span>
+              integer,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-time~60"></span>
+          type(<a href='../type/iso8601time.html'>ISO8601Time</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~construct_iso8601time~~CallsGraph Pages: 1 -->
+<svg id="procconstruct_iso8601timeCallsGraph" width="641pt" height="277pt"
+ viewBox="0.00 0.00 641.00 276.67" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~construct_iso8601time~~CallsGraph" class="graph" transform="scale(1.61 1.61) rotate(0) translate(4 441)">
+<title>proc~~construct_iso8601time~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-441 1027,-441 1027,4 -4,4"/>
+<!-- proc~construct_iso8601time -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node1" class="node">
+<title>proc~construct_iso8601time</title>
+<polygon fill="none" stroke="black" points="139,-353 0,-353 0,-329 139,-329 139,-353"/>
+<text text-anchor="middle" x="69.5" y="-338.6" font-family="Helvetica,sans-Serif" font-size="10.50">construct_ISO8601Time</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="254,-395 175,-395 175,-371 254,-371 254,-395"/>
+<text text-anchor="middle" x="214.5" y="-380.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~construct_iso8601time&#45;&gt;interface~mapl_assert -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge1" class="edge">
+<title>proc~construct_iso8601time&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M111.48,-353.04C128.17,-357.94 147.6,-363.65 165,-368.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="164.39,-372.22 174.97,-371.68 166.36,-365.51 164.39,-372.22"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node3"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="405,-353 323,-353 323,-329 405,-329 405,-353"/>
+<text text-anchor="middle" x="364" y="-338.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~construct_iso8601time&#45;&gt;proc~mapl_return -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge2" class="edge">
+<title>proc~construct_iso8601time&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M139.08,-341C192.25,-341 264.72,-341 312.63,-341"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="312.77,-344.5 322.77,-341 312.77,-337.5 312.77,-344.5"/>
+</g>
+<!-- proc~parse_time -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node4" class="node">
+<title>proc~parse_time</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node4"><a xlink:href="../proc/parse_time.html" xlink:title="parse_time">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="250.5,-148 178.5,-148 178.5,-124 250.5,-124 250.5,-148"/>
+<text text-anchor="middle" x="214.5" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_time</text>
+</a>
+</g>
+</g>
+<!-- proc~construct_iso8601time&#45;&gt;proc~parse_time -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge3" class="edge">
+<title>proc~construct_iso8601time&#45;&gt;proc~parse_time</title>
+<path fill="none" stroke="#ff0000" d="M79.02,-328.79C102.71,-294.82 169.6,-198.93 199.16,-156.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="202.18,-158.35 205.03,-148.15 196.44,-154.35 202.18,-158.35"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node8" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node8"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="431,-437 297,-437 297,-413 431,-413 431,-437"/>
+<text text-anchor="middle" x="364" y="-422.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge4" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M254.25,-394.04C271.55,-398.96 292.18,-404.83 310.8,-410.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="310.04,-413.56 320.62,-412.93 311.96,-406.83 310.04,-413.56"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node9" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node9"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="438,-395 290,-395 290,-371 438,-371 438,-395"/>
+<text text-anchor="middle" x="364" y="-380.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge5" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M254.25,-383C262.25,-383 270.97,-383 279.87,-383"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="279.97,-386.5 289.97,-383 279.97,-379.5 279.97,-386.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node5" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node5"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="602.5,-363 487.5,-363 487.5,-339 602.5,-339 602.5,-363"/>
+<text text-anchor="middle" x="545" y="-348.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff00" d="M405.17,-343.24C426.37,-344.43 452.93,-345.91 477.13,-347.26"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="477.15,-350.77 487.33,-347.83 477.54,-343.78 477.15,-350.77"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node10" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node10"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="611.5,-416 478.5,-416 478.5,-392 611.5,-392 611.5,-416"/>
+<text text-anchor="middle" x="545" y="-401.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M405.38,-351.86C416.05,-354.93 427.52,-358.42 438,-362 460.86,-369.8 486.01,-379.7 506.08,-387.94"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="504.91,-391.24 515.49,-391.83 507.58,-384.77 504.91,-391.24"/>
+</g>
+<!-- proc~is_valid_time~2 -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node6" class="node">
+<title>proc~is_valid_time~2</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node6"><a xlink:href="../proc/is_valid_time~2.html" xlink:title="is_valid_time">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="404.5,-169 323.5,-169 323.5,-145 404.5,-145 404.5,-169"/>
+<text text-anchor="middle" x="364" y="-154.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_valid_time</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_time&#45;&gt;proc~is_valid_time~2 -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge8" class="edge">
+<title>proc~parse_time&#45;&gt;proc~is_valid_time~2</title>
+<path fill="none" stroke="#0000ff" d="M250.83,-141.03C269.49,-143.69 292.71,-146.99 313.18,-149.91"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="312.89,-153.4 323.28,-151.34 313.87,-146.47 312.89,-153.4"/>
+</g>
+<!-- proc~is_whole_number -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node7" class="node">
+<title>proc~is_whole_number</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node7"><a xlink:href="../proc/is_whole_number.html" xlink:title="is_whole_number">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="992,-66 887,-66 887,-42 992,-42 992,-66"/>
+<text text-anchor="middle" x="939.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_whole_number</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_time&#45;&gt;proc~is_whole_number -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge9" class="edge">
+<title>proc~parse_time&#45;&gt;proc~is_whole_number</title>
+<path fill="none" stroke="#0000ff" d="M230.3,-148.1C268.03,-178.05 372.06,-255.2 474,-282 535.04,-298.05 554.66,-296.86 616,-282 715.11,-257.99 738.19,-237.87 820,-177 861.46,-146.15 901.4,-100.29 922.66,-74.16"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="925.6,-76.09 929.14,-66.11 920.14,-71.71 925.6,-76.09"/>
+</g>
+<!-- proc~parse_timezone_offset -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node11" class="node">
+<title>proc~parse_timezone_offset</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node11"><a xlink:href="../proc/parse_timezone_offset.html" xlink:title="parse_timezone_offset">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="430.5,-122 297.5,-122 297.5,-98 430.5,-98 430.5,-122"/>
+<text text-anchor="middle" x="364" y="-107.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_timezone_offset</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_time&#45;&gt;proc~parse_timezone_offset -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge10" class="edge">
+<title>proc~parse_time&#45;&gt;proc~parse_timezone_offset</title>
+<path fill="none" stroke="#0000ff" d="M250.83,-129.77C261.86,-127.83 274.48,-125.6 287.18,-123.36"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="288.11,-126.75 297.35,-121.57 286.9,-119.86 288.11,-126.75"/>
+</g>
+<!-- proc~read_whole_number -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node12" class="node">
+<title>proc~read_whole_number</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node12"><a xlink:href="../proc/read_whole_number.html" xlink:title="read_whole_number">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="605.5,-25 484.5,-25 484.5,-1 605.5,-1 605.5,-25"/>
+<text text-anchor="middle" x="545" y="-10.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_whole_number</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_time&#45;&gt;proc~read_whole_number -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge11" class="edge">
+<title>proc~parse_time&#45;&gt;proc~read_whole_number</title>
+<path fill="none" stroke="#0000ff" d="M221.8,-123.73C232.72,-103.87 257.17,-65.08 290,-47 346.56,-15.84 420.64,-9.09 474.18,-9.08"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="474.24,-12.58 484.27,-9.16 474.3,-5.58 474.24,-12.58"/>
+</g>
+<!-- proc~undelimit -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node13" class="node">
+<title>proc~undelimit</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node13"><a xlink:href="../proc/undelimit.html" xlink:title="undelimit">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="395.5,-80 332.5,-80 332.5,-56 395.5,-56 395.5,-80"/>
+<text text-anchor="middle" x="364" y="-65.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">undelimit</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_time&#45;&gt;proc~undelimit -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge12" class="edge">
+<title>proc~parse_time&#45;&gt;proc~undelimit</title>
+<path fill="none" stroke="#0000ff" d="M231.61,-123.95C246.21,-113.49 268.65,-98.57 290,-89 300.32,-84.37 311.92,-80.49 322.78,-77.37"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="323.76,-80.73 332.49,-74.72 321.92,-73.98 323.76,-80.73"/>
+</g>
+<!-- at -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node14" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="763,-353 709,-353 709,-329 763,-329 763,-353"/>
+<text text-anchor="middle" x="736" y="-338.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge13" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M602.71,-348C633.81,-346.35 671.45,-344.36 698.61,-342.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="699.04,-346.41 708.84,-342.38 698.67,-339.42 699.04,-346.41"/>
+</g>
+<!-- insert -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node15" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="763,-395 709,-395 709,-371 763,-371 763,-395"/>
+<text text-anchor="middle" x="736" y="-380.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge14" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M602.71,-360.6C633.94,-365.89 671.78,-372.3 698.97,-376.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="698.39,-380.35 708.84,-378.57 699.56,-373.45 698.39,-380.35"/>
+</g>
+<!-- proc~is_valid_hour -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node17" class="node">
+<title>proc~is_valid_hour</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node17"><a xlink:href="../proc/is_valid_hour.html" xlink:title="is_valid_hour">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="586,-231 504,-231 504,-207 586,-207 586,-231"/>
+<text text-anchor="middle" x="545" y="-216.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_valid_hour</text>
+</a>
+</g>
+</g>
+<!-- proc~is_valid_time~2&#45;&gt;proc~is_valid_hour -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge15" class="edge">
+<title>proc~is_valid_time~2&#45;&gt;proc~is_valid_hour</title>
+<path fill="none" stroke="#ffaa00" d="M395.34,-169.05C417.1,-177.53 447.18,-188.95 474,-198 480.46,-200.18 487.3,-202.37 494.06,-204.47"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="493.29,-207.9 503.87,-207.47 495.33,-201.2 493.29,-207.9"/>
+</g>
+<!-- proc~is_valid_millisecond -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node18" class="node">
+<title>proc~is_valid_millisecond</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node18"><a xlink:href="../proc/is_valid_millisecond.html" xlink:title="is_valid_millisecond">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="604,-189 486,-189 486,-165 604,-165 604,-189"/>
+<text text-anchor="middle" x="545" y="-174.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_valid_millisecond</text>
+</a>
+</g>
+</g>
+<!-- proc~is_valid_time~2&#45;&gt;proc~is_valid_millisecond -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge16" class="edge">
+<title>proc~is_valid_time~2&#45;&gt;proc~is_valid_millisecond</title>
+<path fill="none" stroke="#ffaa00" d="M404.73,-161.44C425.54,-163.76 451.63,-166.68 475.58,-169.36"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="475.37,-172.85 485.69,-170.49 476.14,-165.9 475.37,-172.85"/>
+</g>
+<!-- proc~is_valid_minute -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node19" class="node">
+<title>proc~is_valid_minute</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node19"><a xlink:href="../proc/is_valid_minute.html" xlink:title="is_valid_minute">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="592,-147 498,-147 498,-123 592,-123 592,-147"/>
+<text text-anchor="middle" x="545" y="-132.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_valid_minute</text>
+</a>
+</g>
+</g>
+<!-- proc~is_valid_time~2&#45;&gt;proc~is_valid_minute -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge17" class="edge">
+<title>proc~is_valid_time~2&#45;&gt;proc~is_valid_minute</title>
+<path fill="none" stroke="#ffaa00" d="M404.73,-152.12C429.11,-149.12 460.72,-145.24 487.67,-141.92"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="488.24,-145.38 497.74,-140.69 487.39,-138.43 488.24,-145.38"/>
+</g>
+<!-- proc~is_valid_second -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node20" class="node">
+<title>proc~is_valid_second</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node20"><a xlink:href="../proc/is_valid_second.html" xlink:title="is_valid_second">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="592.5,-105 497.5,-105 497.5,-81 592.5,-81 592.5,-105"/>
+<text text-anchor="middle" x="545" y="-90.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_valid_second</text>
+</a>
+</g>
+</g>
+<!-- proc~is_valid_time~2&#45;&gt;proc~is_valid_second -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge18" class="edge">
+<title>proc~is_valid_time~2&#45;&gt;proc~is_valid_second</title>
+<path fill="none" stroke="#ffaa00" d="M401.29,-144.87C413.09,-140.72 426.19,-135.88 438,-131 454.35,-124.25 457.48,-120.34 474,-114 479.18,-112.01 484.64,-110.09 490.12,-108.27"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="491.52,-111.5 499.97,-105.11 489.38,-104.83 491.52,-111.5"/>
+</g>
+<!-- proc~is_valid_timezone_offset -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node21" class="node">
+<title>proc~is_valid_timezone_offset</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node21"><a xlink:href="../proc/is_valid_timezone_offset.html" xlink:title="is_valid_timezone_offset">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="616,-273 474,-273 474,-249 616,-249 616,-273"/>
+<text text-anchor="middle" x="545" y="-258.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_valid_timezone_offset</text>
+</a>
+</g>
+</g>
+<!-- proc~is_valid_time~2&#45;&gt;proc~is_valid_timezone_offset -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge19" class="edge">
+<title>proc~is_valid_time~2&#45;&gt;proc~is_valid_timezone_offset</title>
+<path fill="none" stroke="#ffaa00" d="M377.71,-169.17C397.03,-187.06 435.64,-220.46 474,-240 477.82,-241.94 481.84,-243.74 485.96,-245.39"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="485.07,-248.8 495.66,-249 487.51,-242.23 485.07,-248.8"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M431.14,-417.24C443.2,-415.83 455.87,-414.34 468.19,-412.89"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="468.9,-416.33 478.43,-411.69 468.09,-409.38 468.9,-416.33"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffa9" d="M432.16,-370.99C446.91,-368.36 462.53,-365.56 477.26,-362.93"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="478.07,-366.34 487.3,-361.14 476.84,-359.45 478.07,-366.34"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffa9" d="M438.06,-391.57C448.07,-392.75 458.36,-393.95 468.41,-395.13"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="468.02,-398.61 478.36,-396.3 468.83,-391.66 468.02,-398.61"/>
+</g>
+<!-- proc~initialize~3 -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node16" class="node">
+<title>proc~initialize~3</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node16"><a xlink:href="../proc/initialize~3.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="764.5,-437 707.5,-437 707.5,-413 764.5,-413 764.5,-437"/>
+<text text-anchor="middle" x="736" y="-422.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~3 -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~3</title>
+<path fill="none" stroke="#00a9ff" d="M611.57,-411.29C640.31,-414.48 672.99,-418.11 697.5,-420.83"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="697.15,-424.32 707.47,-421.94 697.92,-417.36 697.15,-424.32"/>
+</g>
+<!-- proc~parse_timezone_offset&#45;&gt;proc~is_whole_number -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge24" class="edge">
+<title>proc~parse_timezone_offset&#45;&gt;proc~is_whole_number</title>
+<path fill="none" stroke="#0000ff" d="M411.32,-97.89C420.26,-95.22 429.49,-92.21 438,-89 454.56,-82.76 456.81,-76.21 474,-72 614.77,-37.56 786.62,-42.58 876.67,-48.65"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="876.49,-52.14 886.71,-49.35 876.98,-45.16 876.49,-52.14"/>
+</g>
+<!-- proc~parse_timezone_offset&#45;&gt;proc~read_whole_number -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge25" class="edge">
+<title>proc~parse_timezone_offset&#45;&gt;proc~read_whole_number</title>
+<path fill="none" stroke="#0000ff" d="M421.39,-98C427.26,-95.53 432.93,-92.57 438,-89 460.39,-73.24 452.22,-55.6 474,-39 478.94,-35.24 484.48,-31.97 490.23,-29.15"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="491.66,-32.34 499.37,-25.07 488.81,-25.95 491.66,-32.34"/>
+</g>
+<!-- proc~read_whole_number_indexed -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node22" class="node">
+<title>proc~read_whole_number_indexed</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node22"><a xlink:href="../proc/read_whole_number_indexed.html" xlink:title="read_whole_number_indexed">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="820,-25 652,-25 652,-1 820,-1 820,-25"/>
+<text text-anchor="middle" x="736" y="-10.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_whole_number_indexed</text>
+</a>
+</g>
+</g>
+<!-- proc~read_whole_number&#45;&gt;proc~read_whole_number_indexed -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge26" class="edge">
+<title>proc~read_whole_number&#45;&gt;proc~read_whole_number_indexed</title>
+<path fill="none" stroke="#aa00ff" d="M605.54,-13C617.04,-13 629.34,-13 641.61,-13"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="641.9,-16.5 651.9,-13 641.9,-9.5 641.9,-16.5"/>
+</g>
+<!-- proc~is_between -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node24" class="node">
+<title>proc~is_between</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node24"><a xlink:href="../proc/is_between.html" xlink:title="is_between">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="772,-168 700,-168 700,-144 772,-144 772,-168"/>
+<text text-anchor="middle" x="736" y="-153.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_between</text>
+</a>
+</g>
+</g>
+<!-- proc~is_valid_hour&#45;&gt;proc~is_between -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge27" class="edge">
+<title>proc~is_valid_hour&#45;&gt;proc~is_between</title>
+<path fill="none" stroke="#00ff00" d="M586.08,-207.33C595.9,-204.38 606.35,-201.15 616,-198 641.58,-189.65 670.01,-179.65 692.66,-171.5"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="694.1,-174.7 702.31,-168.01 691.72,-168.12 694.1,-174.7"/>
+</g>
+<!-- proc~is_valid_millisecond&#45;&gt;proc~is_between -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge28" class="edge">
+<title>proc~is_valid_millisecond&#45;&gt;proc~is_between</title>
+<path fill="none" stroke="#00ffa9" d="M604.25,-170.53C631.7,-167.48 663.97,-163.89 689.58,-161.05"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="690.2,-164.5 699.76,-159.92 689.43,-157.54 690.2,-164.5"/>
+</g>
+<!-- proc~is_valid_minute&#45;&gt;proc~is_between -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge29" class="edge">
+<title>proc~is_valid_minute&#45;&gt;proc~is_between</title>
+<path fill="none" stroke="#00a9ff" d="M592.23,-140.14C621.95,-143.44 660.38,-147.71 689.87,-150.99"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="689.58,-154.48 699.91,-152.1 690.36,-147.52 689.58,-154.48"/>
+</g>
+<!-- proc~is_valid_second&#45;&gt;proc~is_between -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge30" class="edge">
+<title>proc~is_valid_second&#45;&gt;proc~is_between</title>
+<path fill="none" stroke="#0000ff" d="M587.56,-105.11C596.94,-107.94 606.83,-111.01 616,-114 641.58,-122.35 670.01,-132.35 692.66,-140.5"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="691.72,-143.88 702.31,-143.99 694.1,-137.3 691.72,-143.88"/>
+</g>
+<!-- proc~read_whole_number_indexed&#45;&gt;proc~is_whole_number -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge32" class="edge">
+<title>proc~read_whole_number_indexed&#45;&gt;proc~is_whole_number</title>
+<path fill="none" stroke="#ff00aa" d="M796.1,-25.02C821.52,-30.2 851.24,-36.24 876.93,-41.47"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="876.43,-44.94 886.93,-43.51 877.83,-38.08 876.43,-44.94"/>
+</g>
+<!-- proc~get_integer_digit_from_string -->
+<g id="proc~~construct_iso8601time~~CallsGraph_node23" class="node">
+<title>proc~get_integer_digit_from_string</title>
+<g id="a_proc~~construct_iso8601time~~CallsGraph_node23"><a xlink:href="../proc/get_integer_digit_from_string.html" xlink:title="get_integer_digit_from_string">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1023,-24 856,-24 856,0 1023,0 1023,-24"/>
+<text text-anchor="middle" x="939.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_integer_digit_from_string</text>
+</a>
+</g>
+</g>
+<!-- proc~read_whole_number_indexed&#45;&gt;proc~get_integer_digit_from_string -->
+<g id="proc~~construct_iso8601time~~CallsGraph_edge31" class="edge">
+<title>proc~read_whole_number_indexed&#45;&gt;proc~get_integer_digit_from_string</title>
+<path fill="none" stroke="#ff00aa" d="M820.12,-12.59C828.61,-12.55 837.28,-12.5 845.87,-12.46"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="845.91,-15.96 855.89,-12.41 845.88,-8.96 845.91,-15.96"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocconstruct_iso8601timeCallsGraph = svgPanZoom('#procconstruct_iso8601timeCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~construct_iso8601time~~CalledByGraph Pages: 1 -->
+<svg id="procconstruct_iso8601timeCalledByGraph" width="346pt" height="74pt"
+ viewBox="0.00 0.00 346.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~construct_iso8601time~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~construct_iso8601time~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 342,-70 342,4 -4,4"/>
+<!-- proc~construct_iso8601time -->
+<g id="proc~~construct_iso8601time~~CalledByGraph_node1" class="node">
+<title>proc~construct_iso8601time</title>
+<polygon fill="none" stroke="black" points="338,-45 199,-45 199,-21 338,-21 338,-45"/>
+<text text-anchor="middle" x="268.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">construct_ISO8601Time</text>
+</g>
+<!-- interface~iso8601time -->
+<g id="proc~~construct_iso8601time~~CalledByGraph_node2" class="node">
+<title>interface~iso8601time</title>
+<g id="a_proc~~construct_iso8601time~~CalledByGraph_node2"><a xlink:href="../interface/iso8601time.html" xlink:title="ISO8601Time">
+<polygon fill="#a7506f" stroke="#a7506f" points="123.5,-66 39.5,-66 39.5,-42 123.5,-42 123.5,-66"/>
+<text text-anchor="middle" x="81.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ISO8601Time</text>
+</a>
+</g>
+</g>
+<!-- interface~iso8601time&#45;&gt;proc~construct_iso8601time -->
+<g id="proc~~construct_iso8601time~~CalledByGraph_edge2" class="edge">
+<title>interface~iso8601time&#45;&gt;proc~construct_iso8601time</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M123.56,-49.34C142.76,-47.16 166.3,-44.49 188.73,-41.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="189.4,-45.39 198.94,-40.78 188.61,-38.43 189.4,-45.39"/>
+</g>
+<!-- proc~test_construct_iso8601time -->
+<g id="proc~~construct_iso8601time~~CalledByGraph_node3" class="node">
+<title>proc~test_construct_iso8601time</title>
+<g id="a_proc~~construct_iso8601time~~CalledByGraph_node3"><a xlink:href="../proc/test_construct_iso8601time.html" xlink:title="test_construct_ISO8601Time">
+<polygon fill="#d9534f" stroke="#d9534f" points="163,-24 0,-24 0,0 163,0 163,-24"/>
+<text text-anchor="middle" x="81.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_construct_ISO8601Time</text>
+</a>
+</g>
+</g>
+<!-- proc~test_construct_iso8601time&#45;&gt;proc~construct_iso8601time -->
+<g id="proc~~construct_iso8601time~~CalledByGraph_edge1" class="edge">
+<title>proc~test_construct_iso8601time&#45;&gt;proc~construct_iso8601time</title>
+<path fill="none" stroke="#ff0000" d="M163.11,-21.15C171.55,-22.11 180.13,-23.08 188.56,-24.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="188.41,-27.54 198.74,-25.19 189.2,-20.59 188.41,-27.54"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">construct_ISO8601Time</span><span class="p">(</span><span class="n">isostring</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="nb">time</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isostring</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ISO8601Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
+<span class="nb">      </span><span class="k">type</span><span class="p">(</span><span class="n">time_fields</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fields</span>
+<span class="w">      </span><span class="n">fields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parse_time</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="nb">adjustl</span><span class="p">(</span><span class="n">isostring</span><span class="p">)))</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">fields</span><span class="p">%</span><span class="n">is_valid_</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="nb">time</span><span class="p">%</span><span class="n">hour_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fields</span><span class="p">%</span><span class="n">hour_</span>
+<span class="w">         </span><span class="nb">time</span><span class="p">%</span><span class="n">minute_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fields</span><span class="p">%</span><span class="n">minute_</span>
+<span class="w">         </span><span class="nb">time</span><span class="p">%</span><span class="n">second_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fields</span><span class="p">%</span><span class="n">second_</span>
+<span class="w">         </span><span class="nb">time</span><span class="p">%</span><span class="n">millisecond_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fields</span><span class="p">%</span><span class="n">millisecond_</span>
+<span class="w">         </span><span class="nb">time</span><span class="p">%</span><span class="n">timezone_offset_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fields</span><span class="p">%</span><span class="n">timezone_offset_</span>
+<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Invalid ISO 8601 time string&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end function </span><span class="n">construct_ISO8601Time</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-06-24T17:42:19.645017             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

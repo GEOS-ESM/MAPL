@@ -1,0 +1,1651 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_LoadBalance.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_LoadBalance.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">298 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_LoadBalance.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">MAPL_LoadBalance.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_loadbalancemod.html">MAPL_LoadBalanceMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/mapl_loadbalance.f90.html#src">MAPL_LoadBalance.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mapl_loadbalance.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilemapl_loadbalancef90EfferentGraph" width="641pt" height="132pt"
+ viewBox="0.00 0.00 641.00 132.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph" class="graph" transform="scale(1.24 1.24) rotate(0) translate(4 160)">
+<title>sourcefile~~mapl_loadbalance.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-160 790,-160 790,4 -4,4"/>
+<!-- sourcefile~mapl_loadbalance.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~mapl_loadbalance.f90</title>
+<polygon fill="none" stroke="black" points="786,-74 647,-74 647,-50 786,-50 786,-74"/>
+<text text-anchor="middle" x="716.5" y="-59.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_LoadBalance.F90</text>
+</g>
+<!-- sourcefile~constants.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~constants.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/constants.f90.html" xlink:title="Constants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="609.5,-115 521.5,-115 521.5,-91 609.5,-91 609.5,-115"/>
+<text text-anchor="middle" x="565.5" y="-100.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Constants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_loadbalance.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~mapl_loadbalance.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M671.6,-74.08C655.24,-78.58 636.5,-83.74 619.41,-88.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="618.29,-85.12 609.57,-91.15 620.14,-91.87 618.29,-85.12"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="484,-34 315,-34 315,-10 484,-10 484,-34"/>
+<text text-anchor="middle" x="399.5" y="-19.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_loadbalance.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~mapl_loadbalance.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M646.59,-56.61C609.08,-53.34 561.9,-48.71 520,-43 504.93,-40.95 488.86,-38.38 473.55,-35.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="474.07,-32.29 463.62,-34.03 472.87,-39.19 474.07,-32.29"/>
+</g>
+<!-- sourcefile~mapl_sort.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~mapl_sort.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/mapl_sort.f90.html" xlink:title="MAPL_Sort.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="611,-34 520,-34 520,-10 611,-10 611,-34"/>
+<text text-anchor="middle" x="565.5" y="-19.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Sort.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_loadbalance.f90&#45;&gt;sourcefile~mapl_sort.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~mapl_loadbalance.f90&#45;&gt;sourcefile~mapl_sort.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M670.8,-50C655.18,-45.81 637.47,-41.05 621.14,-36.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="621.74,-33.21 611.17,-33.99 619.92,-39.97 621.74,-33.21"/>
+</g>
+<!-- sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~internalconstants.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/internalconstants.f90.html" xlink:title="InternalConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="464,-156 335,-156 335,-132 464,-132 464,-156"/>
+<text text-anchor="middle" x="399.5" y="-141.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InternalConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~constants.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~constants.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M521.41,-113.77C502.16,-118.58 479.19,-124.33 458.47,-129.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="457.35,-126.18 448.5,-132 459.05,-132.97 457.35,-126.18"/>
+</g>
+<!-- sourcefile~mathconstants.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~mathconstants.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/mathconstants.f90.html" xlink:title="MathConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="264.5,-106 150.5,-106 150.5,-82 264.5,-82 264.5,-106"/>
+<text text-anchor="middle" x="207.5" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MathConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~constants.f90&#45;&gt;sourcefile~mathconstants.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~constants.f90&#45;&gt;sourcefile~mathconstants.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M521.2,-101.91C459.83,-100.35 347,-97.5 274.97,-95.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="274.74,-92.17 264.65,-95.42 274.56,-99.17 274.74,-92.17"/>
+</g>
+<!-- sourcefile~physicalconstants.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~physicalconstants.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/physicalconstants.f90.html" xlink:title="PhysicalConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="464.5,-76 334.5,-76 334.5,-52 464.5,-52 464.5,-76"/>
+<text text-anchor="middle" x="399.5" y="-61.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PhysicalConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~constants.f90&#45;&gt;sourcefile~physicalconstants.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~constants.f90&#45;&gt;sourcefile~physicalconstants.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M521.41,-92.75C502.98,-88.37 481.14,-83.18 461.12,-78.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="461.7,-74.96 451.16,-76.05 460.08,-81.77 461.7,-74.96"/>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~mapl_errorhandling.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/mapl_errorhandling.f90.html" xlink:title="MAPL_ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="279,-44 136,-44 136,-20 279,-20 279,-44"/>
+<text text-anchor="middle" x="207.5" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_errorhandling.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_errorhandling.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M314.89,-26.4C306.39,-26.85 297.78,-27.3 289.31,-27.75"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="288.89,-24.26 279.08,-28.29 289.25,-31.25 288.89,-24.26"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-24 0,-24 0,0 100,0 100,-24"/>
+<text text-anchor="middle" x="50" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M314.99,-13.33C302.93,-12.36 290.65,-11.54 279,-11 215.51,-8.08 199.55,-10.63 136,-11 127.82,-11.05 119.19,-11.12 110.7,-11.21"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="110.4,-7.71 100.44,-11.32 110.48,-14.71 110.4,-7.71"/>
+</g>
+<!-- sourcefile~mapl_sort.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~mapl_sort.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M519.69,-22C511.62,-22 502.95,-22 494.1,-22"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="494.05,-18.5 484.05,-22 494.05,-25.5 494.05,-18.5"/>
+</g>
+<!-- sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~mapl_errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M135.58,-22.88C127.03,-21.78 118.38,-20.67 110.03,-19.59"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="110.4,-16.11 100.03,-18.31 109.5,-23.05 110.4,-16.11"/>
+</g>
+<!-- sourcefile~physicalconstants.f90&#45;&gt;sourcefile~mathconstants.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~physicalconstants.f90&#45;&gt;sourcefile~mathconstants.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M334.44,-74.11C315.17,-77.16 294,-80.5 274.61,-83.56"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="273.98,-80.12 264.65,-85.13 275.07,-87.03 273.98,-80.12"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilemapl_loadbalancef90EfferentGraph = svgPanZoom('#sourcefilemapl_loadbalancef90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mapl_loadbalance.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilemapl_loadbalancef90AfferentGraph" width="641pt" height="334pt"
+ viewBox="0.00 0.00 641.00 333.84" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph" class="graph" transform="scale(2.47 2.47) rotate(0) translate(4 822.02)">
+<title>sourcefile~~mapl_loadbalance.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-822.02 1582,-822.02 1582,4 -4,4"/>
+<!-- sourcefile~mapl_loadbalance.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~mapl_loadbalance.f90</title>
+<polygon fill="none" stroke="black" points="139,-170 0,-170 0,-146 139,-146 139,-170"/>
+<text text-anchor="middle" x="69.5" y="-155.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_LoadBalance.F90</text>
+</g>
+<!-- sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~base.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/base.f90.html" xlink:title="Base.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="573.5,-150 512.5,-150 512.5,-126 573.5,-126 573.5,-150"/>
+<text text-anchor="middle" x="543" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base.f90&#45;&gt;sourcefile~mapl_loadbalance.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~base.f90&#45;&gt;sourcefile~mapl_loadbalance.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M512.15,-139.27C440.27,-142.31 255.71,-150.14 149.3,-154.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="149.1,-151.16 139.25,-155.08 149.39,-158.16 149.1,-151.16"/>
+</g>
+<!-- sourcefile~maplshared.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~maplshared.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/maplshared.f90.html" xlink:title="MaplShared.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="273,-190 175,-190 175,-166 273,-166 273,-190"/>
+<text text-anchor="middle" x="224" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplShared.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_loadbalance.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_loadbalance.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M174.75,-171.67C166.59,-170.6 157.95,-169.47 149.25,-168.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="149.42,-164.82 139.05,-166.99 148.51,-171.76 149.42,-164.82"/>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~extdataroot_gridcomp.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/extdataroot_gridcomp.f90.html" xlink:title="ExtDataRoot_GridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1250,-268 1090,-268 1090,-244 1250,-244 1250,-268"/>
+<text text-anchor="middle" x="1170" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataRoot_GridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~maplshared.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~maplshared.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1131.86,-243.98C1060.84,-222.1 900.5,-178 762,-178 762,-178 762,-178 542,-178 451.68,-178 346.89,-178 283.29,-178"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="283.07,-174.5 273.07,-178 283.07,-181.5 283.07,-174.5"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="793,-386 729,-386 729,-362 793,-362 793,-386"/>
+<text text-anchor="middle" x="761" y="-371.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M1127.36,-268.07C1049.12,-290.76 881.07,-339.48 803.18,-362.06"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="801.88,-358.79 793.25,-364.94 803.83,-365.52 801.88,-358.79"/>
+</g>
+<!-- sourcefile~varspecdescription.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node29" class="node">
+<title>sourcefile~varspecdescription.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node29"><a xlink:href="../sourcefile/varspecdescription.f90.html" xlink:title="VarspecDescription.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1041,-268 903,-268 903,-244 1041,-244 1041,-268"/>
+<text text-anchor="middle" x="972" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarspecDescription.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~varspecdescription.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge55" class="edge">
+<title>sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~varspecdescription.f90</title>
+<path fill="none" stroke="#ff0055" stroke-dasharray="5,2" d="M1089.84,-256C1077.1,-256 1063.92,-256 1051.2,-256"/>
+<polygon fill="#ff0055" stroke="#ff0055" points="1051.11,-252.5 1041.11,-256 1051.11,-259.5 1051.11,-252.5"/>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M728.98,-371.42C709.25,-368.43 684.1,-361.96 666,-348 601.07,-297.9 564.37,-202.69 550.49,-159.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="553.78,-158.64 547.45,-150.15 547.1,-160.74 553.78,-158.64"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="420,-604 309,-604 309,-580 420,-580 420,-604"/>
+<text text-anchor="middle" x="364.5" y="-589.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M728.82,-374.88C685.44,-377.17 605.31,-385.3 544,-414"/>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M542,-414C500.47,-433.44 489.33,-439.51 456,-471 423.37,-501.83 393.92,-545.51 377.98,-571.09"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="374.8,-569.58 372.56,-579.94 380.77,-573.24 374.8,-569.58"/>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~maplshared.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~maplshared.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M359.35,-579.61C339.92,-521.52 257.72,-275.8 232.43,-200.22"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="235.62,-198.71 229.13,-190.34 228.98,-200.94 235.62,-198.71"/>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~mapl_nuopcwrappermod.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/mapl_nuopcwrappermod.f90.html" xlink:title="MAPL_NUOPCWrapperMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="848,-108 674,-108 674,-84 848,-84 848,-108"/>
+<text text-anchor="middle" x="761" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NUOPCWrapperMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M698.1,-108.04C661.21,-115.21 615.47,-124.1 583.45,-130.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="582.71,-126.91 573.56,-132.25 584.04,-133.78 582.71,-126.91"/>
+</g>
+<!-- sourcefile~test_cfio_bundle.pf -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~test_cfio_bundle.pf</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/test_cfio_bundle.pf.html" xlink:title="Test_CFIO_Bundle.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="820.5,-66 701.5,-66 701.5,-42 820.5,-42 820.5,-66"/>
+<text text-anchor="middle" x="761" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_CFIO_Bundle.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_cfio_bundle.pf&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~test_cfio_bundle.pf&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M701.16,-64.7C689.36,-67.53 677.16,-70.95 666,-75 632.42,-87.19 596.35,-106.7 572.21,-120.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="570.4,-117.78 563.57,-125.88 573.96,-123.81 570.4,-117.78"/>
+</g>
+<!-- sourcefile~tstqsat.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~tstqsat.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/tstqsat.f90.html" xlink:title="tstqsat.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="796,-24 726,-24 726,0 796,0 796,-24"/>
+<text text-anchor="middle" x="761" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tstqsat.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~tstqsat.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~tstqsat.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M725.58,-15.57C707.16,-18.48 684.53,-23.7 666,-33 623.14,-54.51 582.92,-94.36 561.06,-118.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="558.45,-115.98 554.38,-125.76 563.66,-120.65 558.45,-115.98"/>
+</g>
+<!-- sourcefile~ut_extdata.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~ut_extdata.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/ut_extdata.f90.html" xlink:title="ut_ExtData.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1216.5,-366 1123.5,-366 1123.5,-342 1216.5,-342 1216.5,-366"/>
+<text text-anchor="middle" x="1170" y="-351.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ExtData.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ut_extdata.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~ut_extdata.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1123.44,-342.96C1068.17,-329.19 972.4,-304.14 892,-277 776.44,-237.99 643.51,-181.57 580.62,-154.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="581.7,-150.82 571.14,-150.02 578.9,-157.23 581.7,-150.82"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~extdatagridcompmod.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/extdatagridcompmod.f90.html" xlink:title="ExtDataGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1049,-592 895,-592 895,-568 1049,-568 1049,-592"/>
+<text text-anchor="middle" x="972" y="-577.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ut_extdata.f90&#45;&gt;sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge39" class="edge">
+<title>sourcefile~ut_extdata.f90&#45;&gt;sourcefile~extdatagridcompmod.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M1152.2,-366.04C1133.81,-380.1 1104.71,-405 1088,-433 1058.15,-483.01 1093.56,-518.2 1052,-559 1050.89,-560.09 1049.74,-561.12 1048.53,-562.1"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="1046.36,-559.34 1040.05,-567.85 1050.29,-565.14 1046.36,-559.34"/>
+</g>
+<!-- sourcefile~utcfio_bundle.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~utcfio_bundle.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/utcfio_bundle.f90.html" xlink:title="utCFIO_Bundle.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="817.5,-150 704.5,-150 704.5,-126 817.5,-126 817.5,-150"/>
+<text text-anchor="middle" x="761" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO_Bundle.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~utcfio_bundle.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~utcfio_bundle.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M704.37,-138C666.7,-138 617.81,-138 583.96,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="583.54,-134.5 573.54,-138 583.54,-141.5 583.54,-134.5"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~comp_testing_driver.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/comp_testing_driver.f90.html" xlink:title="Comp_Testing_Driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1433,-426 1288,-426 1288,-402 1433,-402 1433,-426"/>
+<text text-anchor="middle" x="1360.5" y="-411.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Comp_Testing_Driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M1287.94,-408.82C1252.55,-407.57 1209.32,-408.02 1171,-414"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1356.72,-426.16C1347.96,-461.78 1317.47,-566.91 1252,-622 1131.02,-723.79 693.02,-744.8 544,-692"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1242,-613 1098,-613 1098,-589 1242,-589 1242,-613"/>
+<text text-anchor="middle" x="1170" y="-598.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge42" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1347.13,-426.27C1315.17,-457.98 1229.61,-542.86 1190.72,-581.44"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1187.8,-579.4 1183.17,-588.93 1192.73,-584.37 1187.8,-579.4"/>
+</g>
+<!-- sourcefile~extdatadriver.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~extdatadriver.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/extdatadriver.f90.html" xlink:title="ExtDataDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1578,-304 1469,-304 1469,-280 1578,-280 1578,-304"/>
+<text text-anchor="middle" x="1523.5" y="-289.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1359.5,-216C1333.37,-211.63 1267.42,-227.97 1220.93,-241.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1219.69,-237.79 1211.03,-243.9 1221.61,-244.52 1219.69,-237.79"/>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M1505.23,-279.88C1476.86,-260.93 1417.9,-225.44 1361.5,-216"/>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M1359.5,-216C1154.4,-181.67 1081.04,-148.36 892,-235 836.78,-260.31 793.82,-320.96 774,-353.13"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="770.96,-351.39 768.81,-361.77 776.96,-355 770.96,-351.39"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~extdatadrivergridcomp.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/extdatadrivergridcomp.f90.html" xlink:title="ExtDataDriverGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1252,-466 1088,-466 1088,-442 1252,-442 1252,-466"/>
+<text text-anchor="middle" x="1170" y="-451.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge34" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M1472.32,-304.06C1404.51,-320.43 1291.62,-348.01 1288,-351 1258.86,-375.05 1280.35,-403.03 1252,-428 1247.84,-431.66 1243.17,-434.81 1238.21,-437.51"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="1236.54,-434.43 1229.04,-441.91 1239.57,-440.74 1236.54,-434.43"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~extdatadrivermod.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/extdatadrivermod.f90.html" xlink:title="ExtDataDriverMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1427,-304 1294,-304 1294,-280 1427,-280 1427,-304"/>
+<text text-anchor="middle" x="1360.5" y="-289.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge36" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivermod.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M1468.89,-292C1458.77,-292 1448.01,-292 1437.35,-292"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="1437.2,-288.5 1427.2,-292 1437.2,-295.5 1437.2,-288.5"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M1118.11,-441.94C1078.71,-433.02 1022.66,-421.2 973,-414"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge37" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M1159.07,-466.08C1140.42,-487.96 1097.86,-534.21 1052,-559 1048.35,-560.97 1044.5,-562.77 1040.55,-564.41"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="1039.3,-561.13 1031.18,-567.93 1041.77,-567.69 1039.3,-561.13"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~extdatagridcompng.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/extdatagridcompng.f90.html" xlink:title="ExtDataGridCompNG.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1045.5,-676 898.5,-676 898.5,-652 1045.5,-652 1045.5,-676"/>
+<text text-anchor="middle" x="972" y="-661.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompNG.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge40" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#54ff00" stroke-dasharray="5,2" d="M1160.97,-466.03C1146.17,-488.3 1113.76,-537.53 1088,-580 1071.27,-607.57 1077.56,-623.34 1052,-643 1050.13,-644.44 1048.16,-645.78 1046.13,-647.03"/>
+<polygon fill="#54ff00" stroke="#54ff00" points="1044.02,-644.19 1036.81,-651.95 1047.29,-650.38 1044.02,-644.19"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~mapl_historygridcomp.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/mapl_historygridcomp.f90.html" xlink:title="MAPL_HistoryGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1052,-634 892,-634 892,-610 1052,-610 1052,-634"/>
+<text text-anchor="middle" x="972" y="-619.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge48" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl_historygridcomp.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M1162.94,-466.05C1148.11,-494.26 1107.14,-564.94 1052,-601 1049.41,-602.69 1046.69,-604.25 1043.88,-605.68"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="1042.32,-602.54 1034.64,-609.84 1045.2,-608.93 1042.32,-602.54"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1296.47,-279.96C1279.65,-276.75 1261.33,-273.25 1244.03,-269.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1244.45,-266.46 1233.97,-268.03 1243.14,-273.34 1244.45,-266.46"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M1297.48,-304.02C1294.14,-305.75 1290.94,-307.74 1288,-310 1261.83,-330.14 1276.01,-352.32 1252,-375 1222.95,-402.44 1210.48,-407.83 1171,-414"/>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M1169,-414C1082.93,-427.44 1059.21,-426.5 973,-414"/>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M971,-414C919.42,-406.52 907.2,-400.75 856,-391 838.73,-387.71 819.65,-384.23 803.21,-381.28"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="803.82,-377.84 793.36,-379.52 802.59,-384.73 803.82,-377.84"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge35" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M1308.36,-304.03C1300.83,-307.56 1293.7,-312.12 1288,-318 1252.22,-354.96 1288.48,-391.73 1252,-428 1248.52,-431.46 1244.57,-434.46 1240.35,-437.07"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="1238.51,-434.08 1231.33,-441.87 1241.8,-440.26 1238.51,-434.08"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M903.96,-567.84C899.6,-565.39 895.55,-562.48 892,-559 850.7,-518.54 901.06,-470.23 856,-434 801.86,-390.47 606.92,-384.55 544,-414"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M898.4,-675.67C794.06,-691.27 607.26,-714.49 544,-692"/>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M542,-692C505.1,-678.93 490.83,-690.86 456,-673 426.25,-657.75 398.64,-630.32 381.93,-611.65"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="384.47,-609.23 375.25,-604 379.19,-613.84 384.47,-609.23"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1156.53,-613.03C1136.37,-631.74 1094.53,-667.46 1052,-685 805.54,-786.66 686.12,-887.63 456,-753 404.33,-722.77 379.89,-651.01 370.45,-614.37"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="373.74,-613.1 367.98,-604.21 366.94,-614.75 373.74,-613.1"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge38" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M1097.96,-593.39C1085.43,-592.05 1072.26,-590.63 1059.36,-589.25"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="1059.4,-585.74 1049.09,-588.15 1058.66,-592.7 1059.4,-585.74"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge41" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#54ff00" stroke-dasharray="5,2" d="M1137.46,-613.14C1114.06,-621.95 1081.26,-633.88 1052,-643 1045.11,-645.15 1037.83,-647.27 1030.6,-649.3"/>
+<polygon fill="#54ff00" stroke="#54ff00" points="1029.53,-645.96 1020.81,-651.99 1031.38,-652.71 1029.53,-645.96"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge49" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_historygridcomp.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M1097.96,-608.61C1086.32,-609.86 1074.13,-611.16 1062.12,-612.45"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="1061.66,-608.98 1052.09,-613.53 1062.41,-615.94 1061.66,-608.98"/>
+</g>
+<!-- sourcefile~mapl_demo_fargparse.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~mapl_demo_fargparse.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/mapl_demo_fargparse.f90.html" xlink:title="MAPL_demo_fargparse.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1050.5,-550 893.5,-550 893.5,-526 1050.5,-526 1050.5,-550"/>
+<text text-anchor="middle" x="972" y="-535.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_demo_fargparse.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_demo_fargparse.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~mapl_demo_fargparse.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M904.4,-525.98C899.89,-523.5 895.68,-520.54 892,-517 852.79,-479.28 895.02,-437.92 856,-400 842.03,-386.42 821.63,-379.8 803.4,-376.62"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="803.67,-373.12 793.27,-375.15 802.66,-380.05 803.67,-373.12"/>
+</g>
+<!-- sourcefile~mapl_geosatmaskmod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~mapl_geosatmaskmod.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/mapl_geosatmaskmod.f90.html" xlink:title="MAPL_GeosatMaskMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="621,-504 465,-504 465,-480 621,-480 621,-504"/>
+<text text-anchor="middle" x="543" y="-489.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GeosatMaskMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_geosatmaskmod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~mapl_geosatmaskmod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M490.21,-504.08C478.6,-507.75 466.6,-512.35 456,-518 428.66,-532.56 401.75,-556.07 384.48,-572.67"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="381.94,-570.26 377.25,-579.76 386.84,-575.25 381.94,-570.26"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~mapl_historycollection.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/mapl_historycollection.f90.html" xlink:title="MAPL_HistoryCollection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="841,-626 681,-626 681,-602 841,-602 841,-626"/>
+<text text-anchor="middle" x="761" y="-611.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryCollection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M680.64,-609.57C607.02,-605.47 498.79,-599.43 430.25,-595.61"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="430.2,-592.1 420.02,-595.04 429.81,-599.09 430.2,-592.1"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_geosatmaskmod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge45" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_geosatmaskmod.f90</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M684.9,-601.91C678.28,-599.47 671.88,-596.53 666,-593 644.93,-580.34 648.29,-567.43 630,-551 612.56,-535.34 590.77,-520.43 573.49,-509.52"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="575.25,-506.5 564.91,-504.2 571.56,-512.44 575.25,-506.5"/>
+</g>
+<!-- sourcefile~mapl_stationsamplermod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~mapl_stationsamplermod.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/mapl_stationsamplermod.f90.html" xlink:title="MAPL_StationSamplerMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="630,-664 456,-664 456,-640 630,-640 630,-664"/>
+<text text-anchor="middle" x="543" y="-649.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StationSamplerMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_stationsamplermod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge50" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_stationsamplermod.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M691.66,-626.02C669.59,-629.91 644.95,-634.24 622.22,-638.24"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="621.51,-634.81 612.27,-639.99 622.72,-641.7 621.51,-634.81"/>
+</g>
+<!-- sourcefile~mapl_trajectorymod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~mapl_trajectorymod.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/mapl_trajectorymod.f90.html" xlink:title="MAPL_TrajectoryMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="615,-584 471,-584 471,-560 615,-560 615,-584"/>
+<text text-anchor="middle" x="543" y="-569.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TrajectoryMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_trajectorymod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge52" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_trajectorymod.f90</title>
+<path fill="none" stroke="#5400ff" stroke-dasharray="5,2" d="M698.1,-601.96C672.46,-596.98 642.54,-591.16 615.93,-585.99"/>
+<polygon fill="#5400ff" stroke="#5400ff" points="616.39,-582.51 605.91,-584.04 615.05,-589.38 616.39,-582.51"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M908.78,-609.94C902.85,-607.49 897.14,-604.54 892,-601 869.45,-585.46 879.01,-565.85 856,-551 820.19,-527.89 804.11,-538.62 762,-532"/>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M760,-532C626.27,-510.99 587.37,-518.31 456,-551 434.82,-556.27 412.46,-566.35 395.26,-575.2"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="393.49,-572.18 386.28,-579.95 396.76,-578.37 393.49,-572.18"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_geosatmaskmod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge46" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_geosatmaskmod.f90</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M903.92,-609.88C899.57,-607.43 895.53,-604.49 892,-601 849.39,-558.83 903.72,-507.3 856,-471 773.97,-408.6 642.02,-450.3 579.31,-476.02"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="577.72,-472.89 569.85,-479.99 580.43,-479.34 577.72,-472.89"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_historycollection.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge47" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_historycollection.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M891.99,-618.98C878.72,-618.47 864.87,-617.94 851.37,-617.42"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="851.25,-613.91 841.13,-617.03 850.98,-620.91 851.25,-613.91"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_stationsamplermod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge51" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_stationsamplermod.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M891.88,-631.56C879.87,-632.83 867.61,-634.03 856,-635 783.8,-641.04 702.01,-645.41 640.29,-648.2"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="640.01,-644.71 630.17,-648.65 640.32,-651.7 640.01,-644.71"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_trajectorymod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge53" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_trajectorymod.f90</title>
+<path fill="none" stroke="#5400ff" stroke-dasharray="5,2" d="M760,-532C729.83,-527.26 652.85,-544.11 599.45,-557.39"/>
+<polygon fill="#5400ff" stroke="#5400ff" points="598.28,-554.07 589.44,-559.91 599.99,-560.86 598.28,-554.07"/>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~mapl_orbgridcompmod.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/mapl_orbgridcompmod.f90.html" xlink:title="MAPL_OrbGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="625.5,-744 460.5,-744 460.5,-720 625.5,-720 625.5,-744"/>
+<text text-anchor="middle" x="543" y="-729.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OrbGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M484.27,-719.85C474.36,-716.31 464.52,-711.78 456,-706 420.23,-681.7 391.84,-638.94 376.95,-613.27"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="379.87,-611.33 371.92,-604.33 373.78,-614.77 379.87,-611.33"/>
+</g>
+<!-- sourcefile~mapl_stationsamplermod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~mapl_stationsamplermod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M500.27,-639.99C486.15,-635.76 470.33,-630.85 456,-626 439.41,-620.38 421.31,-613.7 405.69,-607.75"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="406.9,-604.46 396.31,-604.15 404.4,-611 406.9,-604.46"/>
+</g>
+<!-- sourcefile~mapl_trajectorymod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~mapl_trajectorymod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M470.97,-580.05C457.46,-581.58 443.39,-583.17 430.09,-584.68"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="429.64,-581.21 420.1,-585.81 430.43,-588.16 429.64,-581.21"/>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~pfio_mapl_demo.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node26"><a xlink:href="../sourcefile/pfio_mapl_demo.f90.html" xlink:title="pfio_MAPL_demo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1034,-508 910,-508 910,-484 1034,-484 1034,-508"/>
+<text text-anchor="middle" x="972" y="-493.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pfio_MAPL_demo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M909.68,-485.54C903.3,-482.8 897.25,-479.34 892,-475 863.52,-451.42 884.36,-423.72 856,-400 841.34,-387.74 821.34,-381.24 803.56,-377.8"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="803.84,-374.3 793.4,-376.11 802.69,-381.2 803.84,-374.3"/>
+</g>
+<!-- sourcefile~regrid_util.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node27" class="node">
+<title>sourcefile~regrid_util.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node27"><a xlink:href="../sourcefile/regrid_util.f90.html" xlink:title="Regrid_Util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1018,-466 926,-466 926,-442 1018,-442 1018,-466"/>
+<text text-anchor="middle" x="972" y="-451.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M925.61,-442.01C914.31,-438.24 902.45,-433.57 892,-428 874.11,-418.47 874.11,-409.1 856,-400 839.59,-391.76 820.2,-385.83 803.31,-381.74"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="803.7,-378.24 793.17,-379.42 802.14,-385.06 803.7,-378.24"/>
+</g>
+<!-- sourcefile~time_ave_util.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node28" class="node">
+<title>sourcefile~time_ave_util.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node28"><a xlink:href="../sourcefile/time_ave_util.f90.html" xlink:title="time_ave_util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1025,-386 919,-386 919,-362 1025,-362 1025,-386"/>
+<text text-anchor="middle" x="972" y="-371.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave_util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~time_ave_util.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~time_ave_util.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M918.8,-374C883.12,-374 836.49,-374 803.38,-374"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="803.14,-370.5 793.14,-374 803.14,-377.5 803.14,-370.5"/>
+</g>
+<!-- sourcefile~varspecdescription.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~varspecdescription.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M926.6,-268.05C915.06,-271.86 902.83,-276.54 892,-282 851.18,-302.57 808.87,-334.94 784.02,-355.29"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="781.75,-352.62 776.28,-361.7 786.22,-358.01 781.75,-352.62"/>
+</g>
+<!-- sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node30" class="node">
+<title>sourcefile~mapl_cap.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node30"><a xlink:href="../sourcefile/mapl_cap.f90.html" xlink:title="MAPL_Cap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1405.5,-384 1315.5,-384 1315.5,-360 1405.5,-360 1405.5,-384"/>
+<text text-anchor="middle" x="1360.5" y="-369.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge43" class="edge">
+<title>sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1315.23,-378.55C1305.42,-381.67 1295.67,-386.25 1288,-393 1258.11,-419.29 1270.82,-439.93 1252,-475 1231.28,-513.61 1202.75,-555.97 1185.67,-580.42"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1182.61,-578.68 1179.72,-588.88 1188.33,-582.71 1182.61,-578.68"/>
+</g>
+<!-- sourcefile~mapl_geosatmaskmod_smod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node31" class="node">
+<title>sourcefile~mapl_geosatmaskmod_smod.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node31"><a xlink:href="../sourcefile/mapl_geosatmaskmod_smod.f90.html" xlink:title="MAPL_GeosatMaskMod_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="856,-504 666,-504 666,-480 856,-480 856,-504"/>
+<text text-anchor="middle" x="761" y="-489.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GeosatMaskMod_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_geosatmaskmod_smod.f90&#45;&gt;sourcefile~mapl_geosatmaskmod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge44" class="edge">
+<title>sourcefile~mapl_geosatmaskmod_smod.f90&#45;&gt;sourcefile~mapl_geosatmaskmod.f90</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M665.89,-492C654.49,-492 642.87,-492 631.57,-492"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="631.29,-488.5 621.29,-492 631.29,-495.5 631.29,-488.5"/>
+</g>
+<!-- sourcefile~mapl_trajectorymod_smod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node32" class="node">
+<title>sourcefile~mapl_trajectorymod_smod.f90</title>
+<g id="a_sourcefile~~mapl_loadbalance.f90~~AfferentGraph_node32"><a xlink:href="../sourcefile/mapl_trajectorymod_smod.f90.html" xlink:title="MAPL_TrajectoryMod_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="850,-584 672,-584 672,-560 850,-560 850,-584"/>
+<text text-anchor="middle" x="761" y="-569.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TrajectoryMod_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_trajectorymod_smod.f90&#45;&gt;sourcefile~mapl_trajectorymod.f90 -->
+<g id="sourcefile~~mapl_loadbalance.f90~~AfferentGraph_edge54" class="edge">
+<title>sourcefile~mapl_trajectorymod_smod.f90&#45;&gt;sourcefile~mapl_trajectorymod.f90</title>
+<path fill="none" stroke="#5400ff" stroke-dasharray="5,2" d="M671.83,-572C656.48,-572 640.57,-572 625.41,-572"/>
+<polygon fill="#5400ff" stroke="#5400ff" points="625.05,-568.5 615.05,-572 625.05,-575.5 625.05,-568.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilemapl_loadbalancef90AfferentGraph = svgPanZoom('#sourcefilemapl_loadbalancef90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#define LDB_SUCCESS  0</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="c">!------------------------------------------------------------------------------</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="c">!&gt;</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="c">!### MODULE: `MAPL_LoadBalanceMod`</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="c">!</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="k">module </span><span class="n">MAPL_LoadBalanceMod</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">  </span><span class="k">use </span><span class="n">MAPL_Constants</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">MAPL_R8</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">  </span><span class="k">use </span><span class="n">MAPL_SortMod</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">  </span><span class="k">use </span><span class="n">MAPL_ExceptionHandling</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">  </span><span class="k">use </span><span class="n">mpi</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">  </span><span class="k">implicit none</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="k">  private</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="k">  public </span><span class="n">MAPL_BalanceWork</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">  </span><span class="k">public </span><span class="n">MAPL_BalanceCreate</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">  </span><span class="k">public </span><span class="n">MAPL_BalanceDestroy</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">  </span><span class="k">public </span><span class="n">MAPL_BalanceGet</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">  </span><span class="k">interface </span><span class="n">MAPL_BalanceWork</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">     </span><span class="k">module procedure </span><span class="n">MAPL_BalanceWork4</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">     </span><span class="k">module procedure </span><span class="n">MAPL_BalanceWork8</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">  </span><span class="k">end interface </span><span class="n">MAPL_BalanceWork</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">public</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPL_Distribute</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">public</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPL_Retrieve</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="k">type </span><span class="n">TBalanceStrategy</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">UNBALANCED_LENGTH</span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">BALANCED_LENGTH</span><span class="w">  </span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">BUFFER_LENGTH</span><span class="w">    </span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">PASSES</span><span class="w">           </span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">COMM</span><span class="w">             </span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NOP</span><span class="p">(:,:)</span><span class="o">=&gt;</span><span class="nb">Null</span><span class="p">()</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">  </span><span class="k">end type </span><span class="n">TBalanceStrategy</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAX_NUM_STRATEGIES</span><span class="o">=</span><span class="mi">1000</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">TBalanceStrategy</span><span class="p">),</span><span class="w"> </span><span class="k">save</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="n">MAX_NUM_STRATEGIES</span><span class="p">)</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="c">!---------------------------------------------------------------------------</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="c">!&gt;</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="c">!### EXAMPLE</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="c">!```fortran</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="c">!      REAL A(IM,JM,LM), B(IM,JM), C(IM,JM,LM)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="c">!      REAL, allocatable :: AT(:,:), BT(:), CT(:,:)</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="c">!      LOGICAL MASK(IM,JM)</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="c">!      ...</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="c">!      LENGTH = COUNT(MASK)</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="c">!      IRUN   = MAPL_BalanceCreate(LENGTH)</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="c">!      IDIM   = max(length,irun)</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="c">!</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="c">!      allocate(AT(IDIM,LM),BT(IDIM),CT(IDIM,LM)</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="c">!</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="c">!      BT(1:LENGTH) = PACK(B,MASK)</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="c">!</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="c">!      DO L=1,LM</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="c">!       AT(1:LENGTH,L) = PACK(A(:,:,L),MASK)</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="c">!      ENDDO</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="c">!</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="c">!!! DISTRIBUTE THE INPUTS</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="c">!</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="c">!      CALL MAPL_BalanceWork(AT,IDIM,LM,Direction=MAPL_Distribute)</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="c">!      CALL MAPL_BalanceWork(BT,IDIM,1 ,Direction=MAPL_Distribute)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="c">!</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="c">!!! PLUG COMPATIBLE ROUTINE AT(IN), BT(INOUT), CT(OUT)</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="c">!</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="c">!      CALL WORKSUB(IRUN,AT,BT,CT)</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="c">!</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="c">!!! RETRIEVE THE OUTPUTS</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="c">!</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="c">!      CALL MAPL_BalanceWork(CT,IDIM,LM,Direction=MAPL_Retrieve)</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="c">!      CALL MAPL_BalanceWork(BT,IDIM, 1,Direction=MAPL_Retrieve)</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="c">!</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="c">!      B = UNPACK(BT(1:LENGTH),MASK,B)</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="c">!</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="c">!      DO L=1,LM</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="c">!       C(:,:,L) = UNPACK(CT(1:LENGTH,L),MASK,0)</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="c">!      ENDDO</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="c">!      ...</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="c">!```</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="c">!---------------------------------------------------------------------------</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="k">contains</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="c">!---------------------------------------------------------------------------</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="c">!&gt;</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="c">! Depending on the argument &quot;Direction&quot;, this performs the actual distribution</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="c">! of work or the gathering of results for a given strategy. The strategy has to</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="c">! have been predefined by a call to MAPL_BalanceCreate. A strategy &quot;Handle&quot;</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="c">! obtained from that call can be optionally used to specify the strategy. Otherwise,</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="c">! a default strategy is assumed (see MAPL_BalanceCreate for details).</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="c">! Work (Results) is distributed (retrieved) using the buffer A, which is assumed</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="c">! to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="c">! The blocksize of A (Idim) must be at least as large as the BufLen associated</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="c">! with the strategy. This size can be obtained by quering the strategy using</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="c">! its handle or be saving it from the MAPL_BalanceCreate call. Again, see</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="c">! MAPL_BalanceCreate for details.</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_BalanceWork4</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="nb">Idim</span><span class="p">,</span><span class="w"> </span><span class="n">Direction</span><span class="p">,</span><span class="w"> </span><span class="n">Handle</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w">              </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">A</span><span class="p">(:)</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">Idim</span><span class="p">,</span><span class="w"> </span><span class="n">Direction</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Handle</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">PASS</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">,</span><span class="w"> </span><span class="n">PROCESSOR</span><span class="p">,</span><span class="w"> </span><span class="n">CURSOR</span><span class="p">,</span><span class="w"> </span><span class="n">ISTRAT</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">COMM</span><span class="p">,</span><span class="w"> </span><span class="n">Vtype</span><span class="p">,</span><span class="w"> </span><span class="n">VLength</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">K1</span><span class="p">,</span><span class="w"> </span><span class="n">K2</span><span class="p">,</span><span class="w"> </span><span class="n">K3</span><span class="p">,</span><span class="w"> </span><span class="n">Jdim</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SEND</span><span class="p">,</span><span class="w"> </span><span class="n">RECV</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NOP</span><span class="p">(:,:)</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">    </span><span class="n">Jdim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="o">/</span><span class="nb">Idim</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="nb">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">Handle</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="k">       </span><span class="n">ISTRAT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Handle</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">    </span><span class="k">else</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="k">       </span><span class="n">ISTRAT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">    </span><span class="k">endif</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="k">    if</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">PASSES</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! We have a defined strategy</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">NOP</span><span class="p">),</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="c">! Initialize CURSOR, which is the location in the first block of A where</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="c">! the next read or write is to occur. K1 and K2 are the limits</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Direction</span><span class="o">==</span><span class="n">MAPL_Distribute</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="k">          </span><span class="n">CURSOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">UnBALANCED_LENGTH</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">          </span><span class="n">k1</span><span class="o">=</span><span class="mi">1</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">          </span><span class="n">k2</span><span class="o">=</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">PASSES</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">          </span><span class="n">k3</span><span class="o">=</span><span class="mi">1</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">       </span><span class="k">else</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="k">          </span><span class="n">CURSOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="w">  </span><span class="n">BALANCED_LENGTH</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">          </span><span class="n">k1</span><span class="o">=</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">PASSES</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">          </span><span class="n">k2</span><span class="o">=</span><span class="mi">1</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">          </span><span class="n">k3</span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">       </span><span class="k">end if</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="c">! NOP contains the communication pattern for the strategy, i.e,,</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="c">!  who passes what to whom within COMM.</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">       </span><span class="n">NOP</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">NOP</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">       </span><span class="n">COMM</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">COMM</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">       </span><span class="k">do PASS</span><span class="o">=</span><span class="n">K1</span><span class="p">,</span><span class="n">K2</span><span class="p">,</span><span class="n">K3</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="n">Direction</span><span class="o">==</span><span class="n">MAPL_Distribute</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="k">             </span><span class="n">SEND</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="k">PASS</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">             </span><span class="n">RECV</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="k">PASS</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">0</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">          </span><span class="k">else</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="k">             </span><span class="n">SEND</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="k">PASS</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">0</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">             </span><span class="n">RECV</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="k">PASS</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">          </span><span class="k">end if</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="k">          </span><span class="n">LENGTH</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nb">abs</span><span class="p">(</span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="k">PASS</span><span class="p">))</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">          </span><span class="n">PROCESSOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="k">PASS</span><span class="p">)</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="n">Jdim</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="k">             </span><span class="n">Vtype</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_REAL</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">             </span><span class="n">VLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LENGTH</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">          </span><span class="k">else</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="k">             call </span><span class="n">MPI_Type_VECTOR</span><span class="p">(</span><span class="n">Jdim</span><span class="p">,</span><span class="w"> </span><span class="n">Length</span><span class="p">,</span><span class="w"> </span><span class="nb">Idim</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL</span><span class="p">,</span><span class="w"> </span><span class="n">Vtype</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">             </span><span class="k">call </span><span class="n">MPI_TYPE_COMMIT</span><span class="p">(</span><span class="n">Vtype</span><span class="p">,</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">             </span><span class="n">VLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">          </span><span class="k">end if</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="k">          if</span><span class="p">(</span><span class="n">SEND</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! -- SENDER</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">             </span><span class="n">CURSOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CURSOR</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">LENGTH</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">             </span><span class="k">call </span><span class="n">MPI_SEND</span><span class="p">(</span><span class="n">A</span><span class="p">(</span><span class="n">CURSOR</span><span class="p">),</span><span class="w"> </span><span class="n">VLength</span><span class="p">,</span><span class="w"> </span><span class="n">Vtype</span><span class="p">,</span><span class="w"> </span><span class="n">PROCESSOR</span><span class="p">,</span><span class="w"> </span><span class="k">PASS</span><span class="p">,</span><span class="w"> </span><span class="n">COMM</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">          </span><span class="k">endif</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a>
+<a id="ln-171" name="ln-171" href="#ln-171"></a>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="k">          if</span><span class="p">(</span><span class="n">RECV</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! -- RECEIVER</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">             </span><span class="k">call </span><span class="n">MPI_RECV</span><span class="p">(</span><span class="n">A</span><span class="p">(</span><span class="n">CURSOR</span><span class="p">),</span><span class="w"> </span><span class="n">VLength</span><span class="p">,</span><span class="w"> </span><span class="n">Vtype</span><span class="p">,</span><span class="w"> </span><span class="n">PROCESSOR</span><span class="p">,</span><span class="w"> </span><span class="k">PASS</span><span class="p">,</span><span class="w"> </span><span class="n">COMM</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">                                                          </span><span class="n">MPI_STATUS_IGNORE</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">             </span><span class="n">CURSOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CURSOR</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">LENGTH</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">          </span><span class="k">endif</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="k">          if</span><span class="p">(</span><span class="n">Jdim</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="k">             call </span><span class="n">MPI_TYPE_FREE</span><span class="p">(</span><span class="n">Vtype</span><span class="p">,</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">          </span><span class="k">end if</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="k">       enddo</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="k">    end if</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">LDB_SUCCESS</span><span class="p">)</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_BalanceWork4</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="c">!---------------------------------------------------------------------------</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="c">!&gt;</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="c">! Depending on the argument &quot;Direction&quot;, this performs the actual distribution</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="c">! of work or the gathering of results for a given strategy. The strategy has to</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="c">! have been predefined by a call to MAPL_BalanceCreate. A strategy &quot;Handle&quot;</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="c">! obtained from that call can be optionally used to specify the strategy. Otherwise,</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="c">! a default strategy is assumed (see MAPL_BalanceCreate for details).</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="c">! Work (Results) is distributed (retrieved) using the buffer A, which is assumed</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="c">! to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="c">! The blocksize of A (Idim) must be at least as large as the BufLen associated</span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="c">! with the strategy. This size can be obtained by quering the strategy using</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="c">! its handle or be saving it from the MAPL_BalanceCreate call. Again, see</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="c">! MAPL_BalanceCreate for details.</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_BalanceWork8</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="nb">Idim</span><span class="p">,</span><span class="w"> </span><span class="n">Direction</span><span class="p">,</span><span class="w"> </span><span class="n">Handle</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">MAPL_R8</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">A</span><span class="p">(:)</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">            </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">Idim</span><span class="p">,</span><span class="w"> </span><span class="n">Direction</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Handle</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">PASS</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">,</span><span class="w"> </span><span class="n">PROCESSOR</span><span class="p">,</span><span class="w"> </span><span class="n">CURSOR</span><span class="p">,</span><span class="w"> </span><span class="n">ISTRAT</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">COMM</span><span class="p">,</span><span class="w"> </span><span class="n">Vtype</span><span class="p">,</span><span class="w"> </span><span class="n">VLength</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">K1</span><span class="p">,</span><span class="w"> </span><span class="n">K2</span><span class="p">,</span><span class="w"> </span><span class="n">K3</span><span class="p">,</span><span class="w"> </span><span class="n">Jdim</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">    </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SEND</span><span class="p">,</span><span class="w"> </span><span class="n">RECV</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NOP</span><span class="p">(:,:)</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">    </span><span class="n">Jdim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="o">/</span><span class="nb">Idim</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="nb">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">Handle</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="k">       </span><span class="n">ISTRAT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Handle</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">    </span><span class="k">else</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="k">       </span><span class="n">ISTRAT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">    </span><span class="k">endif</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="k">    if</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">PASSES</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! We have a defined strategy</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="w">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">NOP</span><span class="p">),</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a>
+<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="c">! Initialize CURSOR, which is the location in the first block of A where</span>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="c">! the next read or write is to occur. K1 and K2 are the limits</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Direction</span><span class="o">==</span><span class="n">MAPL_Distribute</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="k">          </span><span class="n">CURSOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">UnBALANCED_LENGTH</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a><span class="w">          </span><span class="n">k1</span><span class="o">=</span><span class="mi">1</span>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="w">          </span><span class="n">k2</span><span class="o">=</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">PASSES</span>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="w">          </span><span class="n">k3</span><span class="o">=</span><span class="mi">1</span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">       </span><span class="k">else</span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="k">          </span><span class="n">CURSOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="w">  </span><span class="n">BALANCED_LENGTH</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">          </span><span class="n">k1</span><span class="o">=</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">PASSES</span>
+<a id="ln-236" name="ln-236" href="#ln-236"></a><span class="w">          </span><span class="n">k2</span><span class="o">=</span><span class="mi">1</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">          </span><span class="n">k3</span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">       </span><span class="k">end if</span>
+<a id="ln-239" name="ln-239" href="#ln-239"></a>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="c">! NOP contains the communication pattern for the strategy, i.e,,</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="c">!  who passes what to whom within COMM.</span>
+<a id="ln-242" name="ln-242" href="#ln-242"></a>
+<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">       </span><span class="n">NOP</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">NOP</span>
+<a id="ln-244" name="ln-244" href="#ln-244"></a><span class="w">       </span><span class="n">COMM</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">ISTRAT</span><span class="p">)%</span><span class="n">COMM</span>
+<a id="ln-245" name="ln-245" href="#ln-245"></a>
+<a id="ln-246" name="ln-246" href="#ln-246"></a><span class="w">       </span><span class="k">do PASS</span><span class="o">=</span><span class="n">K1</span><span class="p">,</span><span class="n">K2</span><span class="p">,</span><span class="n">K3</span>
+<a id="ln-247" name="ln-247" href="#ln-247"></a><span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="n">Direction</span><span class="o">==</span><span class="n">MAPL_Distribute</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="k">             </span><span class="n">SEND</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="k">PASS</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a><span class="w">             </span><span class="n">RECV</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="k">PASS</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">0</span>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="w">          </span><span class="k">else</span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="k">             </span><span class="n">SEND</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="k">PASS</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">0</span>
+<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="w">             </span><span class="n">RECV</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="k">PASS</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">          </span><span class="k">end if</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a>
+<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="k">          </span><span class="n">LENGTH</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nb">abs</span><span class="p">(</span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="k">PASS</span><span class="p">))</span>
+<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="w">          </span><span class="n">PROCESSOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="k">PASS</span><span class="p">)</span>
+<a id="ln-257" name="ln-257" href="#ln-257"></a>
+<a id="ln-258" name="ln-258" href="#ln-258"></a><span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="n">Jdim</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="k">             </span><span class="n">Vtype</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_DOUBLE_PRECISION</span>
+<a id="ln-260" name="ln-260" href="#ln-260"></a><span class="w">             </span><span class="n">VLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LENGTH</span>
+<a id="ln-261" name="ln-261" href="#ln-261"></a><span class="w">          </span><span class="k">else</span>
+<a id="ln-262" name="ln-262" href="#ln-262"></a><span class="k">             call </span><span class="n">MPI_Type_VECTOR</span><span class="p">(</span><span class="n">Jdim</span><span class="p">,</span><span class="w"> </span><span class="n">Length</span><span class="p">,</span><span class="w"> </span><span class="nb">Idim</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="w"> </span><span class="n">Vtype</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="w">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-264" name="ln-264" href="#ln-264"></a><span class="w">             </span><span class="k">call </span><span class="n">MPI_TYPE_COMMIT</span><span class="p">(</span><span class="n">Vtype</span><span class="p">,</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-265" name="ln-265" href="#ln-265"></a><span class="w">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-266" name="ln-266" href="#ln-266"></a><span class="w">             </span><span class="n">VLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-267" name="ln-267" href="#ln-267"></a><span class="w">          </span><span class="k">end if</span>
+<a id="ln-268" name="ln-268" href="#ln-268"></a>
+<a id="ln-269" name="ln-269" href="#ln-269"></a><span class="k">          if</span><span class="p">(</span><span class="n">SEND</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! -- SENDER</span>
+<a id="ln-270" name="ln-270" href="#ln-270"></a><span class="w">             </span><span class="n">CURSOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CURSOR</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">LENGTH</span>
+<a id="ln-271" name="ln-271" href="#ln-271"></a><span class="w">             </span><span class="k">call </span><span class="n">MPI_SEND</span><span class="p">(</span><span class="n">A</span><span class="p">(</span><span class="n">CURSOR</span><span class="p">),</span><span class="w"> </span><span class="n">VLength</span><span class="p">,</span><span class="w"> </span><span class="n">Vtype</span><span class="p">,</span><span class="w"> </span><span class="n">PROCESSOR</span><span class="p">,</span><span class="w"> </span><span class="k">PASS</span><span class="p">,</span><span class="w"> </span><span class="n">COMM</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="w">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-273" name="ln-273" href="#ln-273"></a><span class="w">          </span><span class="k">endif</span>
+<a id="ln-274" name="ln-274" href="#ln-274"></a>
+<a id="ln-275" name="ln-275" href="#ln-275"></a>
+<a id="ln-276" name="ln-276" href="#ln-276"></a><span class="k">          if</span><span class="p">(</span><span class="n">RECV</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! -- RECEIVER</span>
+<a id="ln-277" name="ln-277" href="#ln-277"></a><span class="w">             </span><span class="k">call </span><span class="n">MPI_RECV</span><span class="p">(</span><span class="n">A</span><span class="p">(</span><span class="n">CURSOR</span><span class="p">),</span><span class="w"> </span><span class="n">VLength</span><span class="p">,</span><span class="w"> </span><span class="n">Vtype</span><span class="p">,</span><span class="w"> </span><span class="n">PROCESSOR</span><span class="p">,</span><span class="w"> </span><span class="k">PASS</span><span class="p">,</span><span class="w"> </span><span class="n">COMM</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-278" name="ln-278" href="#ln-278"></a><span class="w">                                                          </span><span class="n">MPI_STATUS_IGNORE</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-279" name="ln-279" href="#ln-279"></a><span class="w">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-280" name="ln-280" href="#ln-280"></a><span class="w">             </span><span class="n">CURSOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CURSOR</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">LENGTH</span>
+<a id="ln-281" name="ln-281" href="#ln-281"></a><span class="w">          </span><span class="k">endif</span>
+<a id="ln-282" name="ln-282" href="#ln-282"></a>
+<a id="ln-283" name="ln-283" href="#ln-283"></a><span class="k">          if</span><span class="p">(</span><span class="n">Jdim</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-284" name="ln-284" href="#ln-284"></a><span class="k">             call </span><span class="n">MPI_TYPE_FREE</span><span class="p">(</span><span class="n">Vtype</span><span class="p">,</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-285" name="ln-285" href="#ln-285"></a><span class="w">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-286" name="ln-286" href="#ln-286"></a><span class="w">          </span><span class="k">end if</span>
+<a id="ln-287" name="ln-287" href="#ln-287"></a><span class="k">       enddo</span>
+<a id="ln-288" name="ln-288" href="#ln-288"></a><span class="k">    end if</span>
+<a id="ln-289" name="ln-289" href="#ln-289"></a>
+<a id="ln-290" name="ln-290" href="#ln-290"></a><span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">LDB_SUCCESS</span><span class="p">)</span>
+<a id="ln-291" name="ln-291" href="#ln-291"></a><span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_BalanceWork8</span>
+<a id="ln-292" name="ln-292" href="#ln-292"></a>
+<a id="ln-293" name="ln-293" href="#ln-293"></a><span class="c">!---------------------------------------------------------------------------</span>
+<a id="ln-294" name="ln-294" href="#ln-294"></a><span class="c">!&gt;</span>
+<a id="ln-295" name="ln-295" href="#ln-295"></a><span class="c">! This routine creates a balancing strategy over an MPI communicator (Comm)</span>
+<a id="ln-296" name="ln-296" href="#ln-296"></a><span class="c">! given the work in the local rank (OrgLen). The startegy can be committed</span>
+<a id="ln-297" name="ln-297" href="#ln-297"></a><span class="c">! and used later through Handle. If a handle is not requested, the latest</span>
+<a id="ln-298" name="ln-298" href="#ln-298"></a><span class="c">! non-committed strategy is kept at Handle=0, which will be the default strategy</span>
+<a id="ln-299" name="ln-299" href="#ln-299"></a><span class="c">! for the other methods. The number of passes may be optionally controlled</span>
+<a id="ln-300" name="ln-300" href="#ln-300"></a><span class="c">! with an upper limit (MaxPasses) or a limiting criterion (BalCond).</span>
+<a id="ln-301" name="ln-301" href="#ln-301"></a><span class="c">! The amount of work resulting for the local rank can be returned (BalLen).</span>
+<a id="ln-302" name="ln-302" href="#ln-302"></a><span class="c">!</span>
+<a id="ln-303" name="ln-303" href="#ln-303"></a><span class="c">!@note</span>
+<a id="ln-304" name="ln-304" href="#ln-304"></a><span class="c">! As there may be more than one communicator, Comm is required. This</span>
+<a id="ln-305" name="ln-305" href="#ln-305"></a><span class="c">! will most likely be the communicator from the ESMF VM.</span>
+<a id="ln-306" name="ln-306" href="#ln-306"></a><span class="c">!@endnote</span>
+<a id="ln-307" name="ln-307" href="#ln-307"></a><span class="c">!</span>
+<a id="ln-308" name="ln-308" href="#ln-308"></a><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_BalanceCreate</span><span class="p">(</span><span class="n">OrgLen</span><span class="p">,</span><span class="w"> </span><span class="n">Comm</span><span class="p">,</span><span class="w"> </span><span class="n">MaxPasses</span><span class="p">,</span><span class="w"> </span><span class="n">BalCond</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-309" name="ln-309" href="#ln-309"></a><span class="w">                                </span><span class="n">Handle</span><span class="p">,</span><span class="w"> </span><span class="n">BalLen</span><span class="p">,</span><span class="w"> </span><span class="n">BufLen</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-310" name="ln-310" href="#ln-310"></a>
+<a id="ln-311" name="ln-311" href="#ln-311"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">OrgLen</span>
+<a id="ln-312" name="ln-312" href="#ln-312"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">Comm</span>
+<a id="ln-313" name="ln-313" href="#ln-313"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">MaxPasses</span>
+<a id="ln-314" name="ln-314" href="#ln-314"></a><span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w">    </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">BalCond</span>
+<a id="ln-315" name="ln-315" href="#ln-315"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Handle</span><span class="p">,</span><span class="w"> </span><span class="n">BalLen</span><span class="p">,</span><span class="w"> </span><span class="n">BufLen</span>
+<a id="ln-316" name="ln-316" href="#ln-316"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-317" name="ln-317" href="#ln-317"></a>
+<a id="ln-318" name="ln-318" href="#ln-318"></a><span class="w">    </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">BalCond_</span>
+<a id="ln-319" name="ln-319" href="#ln-319"></a><span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MaxPasses_</span>
+<a id="ln-320" name="ln-320" href="#ln-320"></a><span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">KPASS</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Balance</span><span class="p">,</span><span class="w"> </span><span class="n">MyNewWork</span><span class="p">,</span><span class="w"> </span><span class="n">MyBufSize</span>
+<a id="ln-321" name="ln-321" href="#ln-321"></a><span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NPES</span><span class="p">,</span><span class="w"> </span><span class="n">MyPE</span><span class="p">,</span><span class="w"> </span><span class="n">J</span>
+<a id="ln-322" name="ln-322" href="#ln-322"></a>
+<a id="ln-323" name="ln-323" href="#ln-323"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">WORK</span><span class="p">(:),</span><span class="w"> </span><span class="n">RANK</span><span class="p">(:),</span><span class="w"> </span><span class="n">NOP</span><span class="p">(:,:)</span>
+<a id="ln-324" name="ln-324" href="#ln-324"></a>
+<a id="ln-325" name="ln-325" href="#ln-325"></a><span class="c">! Defaults of optional Inputs</span>
+<a id="ln-326" name="ln-326" href="#ln-326"></a><span class="c">!----------------------------</span>
+<a id="ln-327" name="ln-327" href="#ln-327"></a>
+<a id="ln-328" name="ln-328" href="#ln-328"></a><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BalCond</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-329" name="ln-329" href="#ln-329"></a><span class="k">       </span><span class="n">BalCond_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BalCond</span>
+<a id="ln-330" name="ln-330" href="#ln-330"></a><span class="w">    </span><span class="k">else</span>
+<a id="ln-331" name="ln-331" href="#ln-331"></a><span class="k">       </span><span class="n">BalCond_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span>
+<a id="ln-332" name="ln-332" href="#ln-332"></a><span class="w">    </span><span class="k">end if</span>
+<a id="ln-333" name="ln-333" href="#ln-333"></a>
+<a id="ln-334" name="ln-334" href="#ln-334"></a><span class="k">    if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">MaxPasses</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-335" name="ln-335" href="#ln-335"></a><span class="k">       </span><span class="n">MaxPasses_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MaxPasses</span>
+<a id="ln-336" name="ln-336" href="#ln-336"></a><span class="w">    </span><span class="k">else</span>
+<a id="ln-337" name="ln-337" href="#ln-337"></a><span class="k">       </span><span class="n">MaxPasses_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+<a id="ln-338" name="ln-338" href="#ln-338"></a><span class="w">    </span><span class="k">end if</span>
+<a id="ln-339" name="ln-339" href="#ln-339"></a>
+<a id="ln-340" name="ln-340" href="#ln-340"></a><span class="c">! Get Communicator parameters</span>
+<a id="ln-341" name="ln-341" href="#ln-341"></a><span class="c">!----------------------------</span>
+<a id="ln-342" name="ln-342" href="#ln-342"></a>
+<a id="ln-343" name="ln-343" href="#ln-343"></a><span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_RANK</span><span class="p">(</span><span class="n">Comm</span><span class="p">,</span><span class="w"> </span><span class="n">MyPE</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-344" name="ln-344" href="#ln-344"></a><span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-345" name="ln-345" href="#ln-345"></a><span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_SIZE</span><span class="p">(</span><span class="n">Comm</span><span class="p">,</span><span class="w"> </span><span class="n">NPES</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-346" name="ln-346" href="#ln-346"></a><span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-347" name="ln-347" href="#ln-347"></a>
+<a id="ln-348" name="ln-348" href="#ln-348"></a><span class="c">! Allocate temporary space</span>
+<a id="ln-349" name="ln-349" href="#ln-349"></a><span class="c">!-------------------------</span>
+<a id="ln-350" name="ln-350" href="#ln-350"></a>
+<a id="ln-351" name="ln-351" href="#ln-351"></a><span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">MaxPasses_</span><span class="p">),</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">NPES</span><span class="p">),</span><span class="w"> </span><span class="n">Rank</span><span class="p">(</span><span class="n">NPES</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-352" name="ln-352" href="#ln-352"></a><span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<a id="ln-353" name="ln-353" href="#ln-353"></a>
+<a id="ln-354" name="ln-354" href="#ln-354"></a><span class="c">! Initialize global lists of work load and corresponding rank</span>
+<a id="ln-355" name="ln-355" href="#ln-355"></a><span class="c">!------------------------------------------------------------</span>
+<a id="ln-356" name="ln-356" href="#ln-356"></a>
+<a id="ln-357" name="ln-357" href="#ln-357"></a><span class="w">    </span><span class="k">call </span><span class="n">MPI_AllGather</span><span class="p">(</span><span class="n">OrgLen</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_INTEGER</span><span class="p">,&amp;</span>
+<a id="ln-358" name="ln-358" href="#ln-358"></a><span class="w">                       </span><span class="n">Work</span><span class="w">  </span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="n">Comm</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-359" name="ln-359" href="#ln-359"></a><span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-360" name="ln-360" href="#ln-360"></a>
+<a id="ln-361" name="ln-361" href="#ln-361"></a><span class="w">    </span><span class="k">do</span><span class="w"> </span><span class="k">concurrent</span><span class="w"> </span><span class="p">(</span><span class="n">J</span><span class="o">=</span><span class="mi">1</span><span class="p">:</span><span class="n">NPES</span><span class="p">)</span>
+<a id="ln-362" name="ln-362" href="#ln-362"></a><span class="w">       </span><span class="n">Rank</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">J</span><span class="o">-</span><span class="mi">1</span>
+<a id="ln-363" name="ln-363" href="#ln-363"></a><span class="w">    </span><span class="k">end do</span>
+<a id="ln-364" name="ln-364" href="#ln-364"></a>
+<a id="ln-365" name="ln-365" href="#ln-365"></a><span class="k">    call </span><span class="n">CreateStrategy</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">,</span><span class="w"> </span><span class="n">MyPE</span><span class="p">,</span><span class="w"> </span><span class="n">BalCond_</span><span class="p">,</span><span class="w"> </span><span class="n">Kpass</span><span class="p">,</span><span class="w"> </span><span class="n">MyNewWork</span><span class="p">,</span><span class="w"> </span><span class="n">MyBufSize</span><span class="p">,</span><span class="w"> </span><span class="n">NOP</span><span class="p">)</span>
+<a id="ln-366" name="ln-366" href="#ln-366"></a>
+<a id="ln-367" name="ln-367" href="#ln-367"></a><span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">)</span>
+<a id="ln-368" name="ln-368" href="#ln-368"></a>
+<a id="ln-369" name="ln-369" href="#ln-369"></a><span class="c">! Done with balancing strategy. Prepare optional Outputs.</span>
+<a id="ln-370" name="ln-370" href="#ln-370"></a><span class="c">!--------------------------------------------------------</span>
+<a id="ln-371" name="ln-371" href="#ln-371"></a>
+<a id="ln-372" name="ln-372" href="#ln-372"></a><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">Handle</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-373" name="ln-373" href="#ln-373"></a><span class="k">       do </span><span class="n">Balance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">MAX_NUM_STRATEGIES</span>
+<a id="ln-374" name="ln-374" href="#ln-374"></a><span class="w">          </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">associated</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="p">))</span><span class="w"> </span><span class="k">exit</span>
+<a id="ln-375" name="ln-375" href="#ln-375"></a><span class="k">       enddo</span>
+<a id="ln-376" name="ln-376" href="#ln-376"></a>
+<a id="ln-377" name="ln-377" href="#ln-377"></a><span class="k">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">Balance</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">MAX_NUM_STRATEGIES</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-378" name="ln-378" href="#ln-378"></a><span class="w">       </span><span class="n">Handle</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">Balance</span>
+<a id="ln-379" name="ln-379" href="#ln-379"></a><span class="w">    </span><span class="k">else</span>
+<a id="ln-380" name="ln-380" href="#ln-380"></a><span class="k">       </span><span class="n">Balance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-381" name="ln-381" href="#ln-381"></a><span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-382" name="ln-382" href="#ln-382"></a><span class="w">           </span><span class="k">deallocate</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="p">)</span>
+<a id="ln-383" name="ln-383" href="#ln-383"></a><span class="w">    </span><span class="k">end if</span>
+<a id="ln-384" name="ln-384" href="#ln-384"></a>
+<a id="ln-385" name="ln-385" href="#ln-385"></a><span class="k">    if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BalLen</span><span class="p">))</span><span class="w"> </span><span class="n">BalLen</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">MyNewWork</span>
+<a id="ln-386" name="ln-386" href="#ln-386"></a><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BufLen</span><span class="p">))</span><span class="w"> </span><span class="n">BufLen</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">MyBufSize</span>
+<a id="ln-387" name="ln-387" href="#ln-387"></a>
+<a id="ln-388" name="ln-388" href="#ln-388"></a><span class="c">! Save the Strategy</span>
+<a id="ln-389" name="ln-389" href="#ln-389"></a><span class="c">!------------------</span>
+<a id="ln-390" name="ln-390" href="#ln-390"></a>
+<a id="ln-391" name="ln-391" href="#ln-391"></a><span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">KPASS</span><span class="p">))</span>
+<a id="ln-392" name="ln-392" href="#ln-392"></a>
+<a id="ln-393" name="ln-393" href="#ln-393"></a><span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">BALANCED_LENGTH</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">MyNewWork</span>
+<a id="ln-394" name="ln-394" href="#ln-394"></a><span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">BUFFER_LENGTH</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">MyBufSize</span>
+<a id="ln-395" name="ln-395" href="#ln-395"></a><span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">UNBALANCED_LENGTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OrgLen</span>
+<a id="ln-396" name="ln-396" href="#ln-396"></a><span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">PASSES</span><span class="w">            </span><span class="o">=</span><span class="w"> </span><span class="n">KPASS</span>
+<a id="ln-397" name="ln-397" href="#ln-397"></a><span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">COMM</span><span class="w">              </span><span class="o">=</span><span class="w"> </span><span class="n">Comm</span>
+<a id="ln-398" name="ln-398" href="#ln-398"></a><span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="w">               </span><span class="o">=</span><span class="w"> </span><span class="n">NOP</span><span class="p">(:,:</span><span class="n">KPASS</span><span class="p">)</span>
+<a id="ln-399" name="ln-399" href="#ln-399"></a>
+<a id="ln-400" name="ln-400" href="#ln-400"></a><span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">NOP</span><span class="p">)</span>
+<a id="ln-401" name="ln-401" href="#ln-401"></a>
+<a id="ln-402" name="ln-402" href="#ln-402"></a><span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">LDB_SUCCESS</span><span class="p">)</span>
+<a id="ln-403" name="ln-403" href="#ln-403"></a>
+<a id="ln-404" name="ln-404" href="#ln-404"></a><span class="w">  </span><span class="k">contains</span>
+<a id="ln-405" name="ln-405" href="#ln-405"></a>
+<a id="ln-406" name="ln-406" href="#ln-406"></a><span class="k">    subroutine </span><span class="n">CreateStrategy</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">,</span><span class="w"> </span><span class="n">MyPE</span><span class="p">,</span><span class="w"> </span><span class="n">BalCond</span><span class="p">,</span><span class="w"> </span><span class="n">KPASS</span><span class="p">,</span><span class="w"> </span><span class="n">MyNewWork</span><span class="p">,</span><span class="w"> </span><span class="n">MyBufSize</span><span class="p">,</span><span class="w"> </span><span class="n">NOP</span><span class="p">)</span>
+<a id="ln-407" name="ln-407" href="#ln-407"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Work</span><span class="p">(:),</span><span class="w"> </span><span class="n">Rank</span><span class="p">(:)</span>
+<a id="ln-408" name="ln-408" href="#ln-408"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MyPE</span>
+<a id="ln-409" name="ln-409" href="#ln-409"></a><span class="w">      </span><span class="kt">real</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">BalCond</span>
+<a id="ln-410" name="ln-410" href="#ln-410"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NOP</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">KPASS</span><span class="p">,</span><span class="w"> </span><span class="n">MyNewWork</span><span class="p">,</span><span class="w"> </span><span class="n">MyBufSize</span>
+<a id="ln-411" name="ln-411" href="#ln-411"></a>
+<a id="ln-412" name="ln-412" href="#ln-412"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NPES</span><span class="p">,</span><span class="w"> </span><span class="n">J</span><span class="p">,</span><span class="w"> </span><span class="n">JSPARD</span><span class="p">,</span><span class="w"> </span><span class="nb">LEN</span><span class="p">,</span><span class="w"> </span><span class="n">MaxPasses</span>
+<a id="ln-413" name="ln-413" href="#ln-413"></a><span class="w">      </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">MEAN</span>
+<a id="ln-414" name="ln-414" href="#ln-414"></a>
+<a id="ln-415" name="ln-415" href="#ln-415"></a><span class="w">      </span><span class="n">NPES</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">Work</span><span class="p">)</span>
+<a id="ln-416" name="ln-416" href="#ln-416"></a><span class="w">      </span><span class="n">MaxPasses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">NOP</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<a id="ln-417" name="ln-417" href="#ln-417"></a>
+<a id="ln-418" name="ln-418" href="#ln-418"></a><span class="c">! Loop over passes until either MaxPasses or BalanceCondition is met</span>
+<a id="ln-419" name="ln-419" href="#ln-419"></a><span class="c">!-------------------------------------------------------------------</span>
+<a id="ln-420" name="ln-420" href="#ln-420"></a>
+<a id="ln-421" name="ln-421" href="#ln-421"></a><span class="w">      </span><span class="n">KPASS</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-422" name="ln-422" href="#ln-422"></a><span class="w">      </span><span class="n">MEAN</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="n">Work</span><span class="p">)</span><span class="o">/</span><span class="kt">real</span><span class="p">(</span><span class="n">NPES</span><span class="p">)</span>
+<a id="ln-423" name="ln-423" href="#ln-423"></a><span class="w">      </span><span class="n">MyNewWork</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OrgLen</span>
+<a id="ln-424" name="ln-424" href="#ln-424"></a><span class="w">      </span><span class="n">MyBufSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OrgLen</span>
+<a id="ln-425" name="ln-425" href="#ln-425"></a>
+<a id="ln-426" name="ln-426" href="#ln-426"></a><span class="w">      </span><span class="n">PASSES</span><span class="p">:</span><span class="w"> </span><span class="k">do while</span><span class="p">(</span><span class="n">KPASS</span><span class="o">&lt;</span><span class="n">MaxPasses</span><span class="p">)</span>
+<a id="ln-427" name="ln-427" href="#ln-427"></a>
+<a id="ln-428" name="ln-428" href="#ln-428"></a><span class="c">! Sort latest work-load and rank lists in ascending order of work</span>
+<a id="ln-429" name="ln-429" href="#ln-429"></a><span class="c">!----------------------------------------------------------------</span>
+<a id="ln-430" name="ln-430" href="#ln-430"></a>
+<a id="ln-431" name="ln-431" href="#ln-431"></a><span class="w">         </span><span class="k">call </span><span class="n">MAPL_Sort</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">)</span>
+<a id="ln-432" name="ln-432" href="#ln-432"></a>
+<a id="ln-433" name="ln-433" href="#ln-433"></a><span class="c">! Check for balance condition on the ratio of max minus min work</span>
+<a id="ln-434" name="ln-434" href="#ln-434"></a><span class="c">!  to the ideal average work</span>
+<a id="ln-435" name="ln-435" href="#ln-435"></a><span class="c">!---------------------------------------------------------------</span>
+<a id="ln-436" name="ln-436" href="#ln-436"></a>
+<a id="ln-437" name="ln-437" href="#ln-437"></a><span class="w">         </span><span class="k">if</span><span class="p">((</span><span class="n">Work</span><span class="p">(</span><span class="n">NPES</span><span class="p">)</span><span class="o">-</span><span class="n">Work</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="n">MEAN</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">BalCond</span><span class="p">)</span><span class="w"> </span><span class="k">exit</span>
+<a id="ln-438" name="ln-438" href="#ln-438"></a>
+<a id="ln-439" name="ln-439" href="#ln-439"></a><span class="c">! Fold the sorted work list and compute the transfers needed</span>
+<a id="ln-440" name="ln-440" href="#ln-440"></a><span class="c">!  to balance the &quot;least with the greatest&quot;.</span>
+<a id="ln-441" name="ln-441" href="#ln-441"></a><span class="c">!-----------------------------------------------------------</span>
+<a id="ln-442" name="ln-442" href="#ln-442"></a>
+<a id="ln-443" name="ln-443" href="#ln-443"></a><span class="w">         </span><span class="n">KPASS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KPASS</span><span class="o">+</span><span class="mi">1</span>
+<a id="ln-444" name="ln-444" href="#ln-444"></a>
+<a id="ln-445" name="ln-445" href="#ln-445"></a><span class="w">         </span><span class="n">FOLD</span><span class="p">:</span><span class="w"> </span><span class="k">do </span><span class="n">J</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NPES</span><span class="o">/</span><span class="mi">2</span>
+<a id="ln-446" name="ln-446" href="#ln-446"></a>
+<a id="ln-447" name="ln-447" href="#ln-447"></a><span class="w">            </span><span class="c">! Js partner in the fold has &gt;= the work as J</span>
+<a id="ln-448" name="ln-448" href="#ln-448"></a><span class="w">            </span><span class="n">JSPARD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NPES</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">J</span>
+<a id="ln-449" name="ln-449" href="#ln-449"></a>
+<a id="ln-450" name="ln-450" href="#ln-450"></a><span class="w">            </span><span class="c">! Half the difference will be sent to J (can be zero)</span>
+<a id="ln-451" name="ln-451" href="#ln-451"></a><span class="w">            </span><span class="nb">LEN</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">Work</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="o">-</span><span class="n">Work</span><span class="p">(</span><span class="n">J</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span>
+<a id="ln-452" name="ln-452" href="#ln-452"></a>
+<a id="ln-453" name="ln-453" href="#ln-453"></a><span class="w">            </span><span class="c">! New lengths that obtain after completion of this pass</span>
+<a id="ln-454" name="ln-454" href="#ln-454"></a><span class="w">            </span><span class="n">Work</span><span class="p">(</span><span class="n">J</span><span class="w">     </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">J</span><span class="w">     </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">LEN</span>
+<a id="ln-455" name="ln-455" href="#ln-455"></a><span class="nb">            </span><span class="n">Work</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">LEN</span>
+<a id="ln-456" name="ln-456" href="#ln-456"></a>
+<a id="ln-457" name="ln-457" href="#ln-457"></a><span class="w">            </span><span class="c">! A negative length means J receives from partner</span>
+<a id="ln-458" name="ln-458" href="#ln-458"></a><span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">Rank</span><span class="p">(</span><span class="n">J</span><span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MyPE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-459" name="ln-459" href="#ln-459"></a><span class="k">               </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">KPASS</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="nb">LEN</span>
+<a id="ln-460" name="ln-460" href="#ln-460"></a><span class="nb">               </span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">KPASS</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Rank</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="w"> </span><span class="c">! Partners rank</span>
+<a id="ln-461" name="ln-461" href="#ln-461"></a><span class="w">               </span><span class="n">MyNewWork</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">J</span><span class="p">)</span>
+<a id="ln-462" name="ln-462" href="#ln-462"></a><span class="w">               </span><span class="n">MyBufSize</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">MyBufSize</span><span class="p">,</span><span class="n">MyNewWork</span><span class="p">)</span>
+<a id="ln-463" name="ln-463" href="#ln-463"></a><span class="w">            </span><span class="k">endif</span>
+<a id="ln-464" name="ln-464" href="#ln-464"></a>
+<a id="ln-465" name="ln-465" href="#ln-465"></a><span class="w">            </span><span class="c">! If I am the partner, I will send to J</span>
+<a id="ln-466" name="ln-466" href="#ln-466"></a><span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">Rank</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MyPE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-467" name="ln-467" href="#ln-467"></a><span class="k">               </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">KPASS</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">LEN</span>
+<a id="ln-468" name="ln-468" href="#ln-468"></a><span class="nb">               </span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">KPASS</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Rank</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w">  </span><span class="c">! Js rank</span>
+<a id="ln-469" name="ln-469" href="#ln-469"></a><span class="w">               </span><span class="n">MyNewWork</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span>
+<a id="ln-470" name="ln-470" href="#ln-470"></a><span class="w">               </span><span class="n">MyBufSize</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">MyBufSize</span><span class="p">,</span><span class="n">MyNewWork</span><span class="p">)</span>
+<a id="ln-471" name="ln-471" href="#ln-471"></a><span class="w">            </span><span class="k">endif</span>
+<a id="ln-472" name="ln-472" href="#ln-472"></a>
+<a id="ln-473" name="ln-473" href="#ln-473"></a><span class="k">         enddo </span><span class="n">FOLD</span>
+<a id="ln-474" name="ln-474" href="#ln-474"></a>
+<a id="ln-475" name="ln-475" href="#ln-475"></a><span class="w">      </span><span class="k">enddo </span><span class="n">PASSES</span>
+<a id="ln-476" name="ln-476" href="#ln-476"></a>
+<a id="ln-477" name="ln-477" href="#ln-477"></a><span class="w">    </span><span class="k">end subroutine </span><span class="n">CreateStrategy</span>
+<a id="ln-478" name="ln-478" href="#ln-478"></a>
+<a id="ln-479" name="ln-479" href="#ln-479"></a><span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_BalanceCreate</span>
+<a id="ln-480" name="ln-480" href="#ln-480"></a>
+<a id="ln-481" name="ln-481" href="#ln-481"></a><span class="c">!---------------------------------------------------------------------------</span>
+<a id="ln-482" name="ln-482" href="#ln-482"></a>
+<a id="ln-483" name="ln-483" href="#ln-483"></a><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_BalanceDestroy</span><span class="p">(</span><span class="n">Handle</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-484" name="ln-484" href="#ln-484"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Handle</span>
+<a id="ln-485" name="ln-485" href="#ln-485"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-486" name="ln-486" href="#ln-486"></a>
+<a id="ln-487" name="ln-487" href="#ln-487"></a><span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Handle_</span>
+<a id="ln-488" name="ln-488" href="#ln-488"></a>
+<a id="ln-489" name="ln-489" href="#ln-489"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">Handle</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-490" name="ln-490" href="#ln-490"></a><span class="k">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">Handle</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Handle is less than 0&#39;</span><span class="p">)</span>
+<a id="ln-491" name="ln-491" href="#ln-491"></a><span class="w">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">Handle</span><span class="o">&lt;=</span><span class="n">MAX_NUM_STRATEGIES</span><span class="p">,</span><span class="s1">&#39;Handle is greater than MAX_NUM_STRATEGIES&#39;</span><span class="p">)</span>
+<a id="ln-492" name="ln-492" href="#ln-492"></a><span class="w">       </span><span class="n">Handle_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Handle</span>
+<a id="ln-493" name="ln-493" href="#ln-493"></a><span class="w">    </span><span class="k">else</span>
+<a id="ln-494" name="ln-494" href="#ln-494"></a><span class="w">       </span><span class="c">! If we do not pass in a Handle, assume we wish to destroy</span>
+<a id="ln-495" name="ln-495" href="#ln-495"></a><span class="w">       </span><span class="c">! the default Strategy which has a Handle of 0</span>
+<a id="ln-496" name="ln-496" href="#ln-496"></a><span class="w">       </span><span class="n">Handle_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-497" name="ln-497" href="#ln-497"></a><span class="w">    </span><span class="k">end if</span>
+<a id="ln-498" name="ln-498" href="#ln-498"></a>
+<a id="ln-499" name="ln-499" href="#ln-499"></a><span class="k">    if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Handle_</span><span class="p">)%</span><span class="n">NOP</span><span class="p">))</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-500" name="ln-500" href="#ln-500"></a><span class="w">         </span><span class="k">deallocate</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Handle_</span><span class="p">)%</span><span class="n">NOP</span><span class="p">)</span>
+<a id="ln-501" name="ln-501" href="#ln-501"></a>
+<a id="ln-502" name="ln-502" href="#ln-502"></a><span class="w">    </span><span class="k">nullify</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Handle_</span><span class="p">)%</span><span class="n">NOP</span><span class="p">)</span>
+<a id="ln-503" name="ln-503" href="#ln-503"></a>
+<a id="ln-504" name="ln-504" href="#ln-504"></a><span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Handle_</span><span class="p">)%</span><span class="n">UNBALANCED_LENGTH</span><span class="w"> </span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-505" name="ln-505" href="#ln-505"></a><span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Handle_</span><span class="p">)%</span><span class="n">BALANCED_LENGTH</span><span class="w">   </span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-506" name="ln-506" href="#ln-506"></a><span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Handle_</span><span class="p">)%</span><span class="n">BUFFER_LENGTH</span><span class="w">     </span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-507" name="ln-507" href="#ln-507"></a><span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Handle_</span><span class="p">)%</span><span class="n">PASSES</span><span class="w">            </span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-508" name="ln-508" href="#ln-508"></a><span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Handle_</span><span class="p">)%</span><span class="n">COMM</span><span class="w">              </span><span class="o">=-</span><span class="mi">1</span>
+<a id="ln-509" name="ln-509" href="#ln-509"></a>
+<a id="ln-510" name="ln-510" href="#ln-510"></a><span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">LDB_SUCCESS</span><span class="p">)</span>
+<a id="ln-511" name="ln-511" href="#ln-511"></a><span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_BalanceDestroy</span>
+<a id="ln-512" name="ln-512" href="#ln-512"></a>
+<a id="ln-513" name="ln-513" href="#ln-513"></a><span class="c">!---------------------------------------------------------------------------</span>
+<a id="ln-514" name="ln-514" href="#ln-514"></a>
+<a id="ln-515" name="ln-515" href="#ln-515"></a><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_BalanceGet</span><span class="p">(</span><span class="n">Handle</span><span class="p">,</span><span class="w"> </span><span class="n">BalLen</span><span class="p">,</span><span class="w"> </span><span class="n">BufLen</span><span class="p">,</span><span class="w"> </span><span class="n">Passes</span><span class="p">,</span><span class="w"> </span><span class="n">Comm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-516" name="ln-516" href="#ln-516"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Handle</span>
+<a id="ln-517" name="ln-517" href="#ln-517"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">BalLen</span><span class="p">,</span><span class="w"> </span><span class="n">BufLen</span><span class="p">,</span><span class="w"> </span><span class="n">Passes</span><span class="p">,</span><span class="w"> </span><span class="n">Comm</span>
+<a id="ln-518" name="ln-518" href="#ln-518"></a><span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-519" name="ln-519" href="#ln-519"></a>
+<a id="ln-520" name="ln-520" href="#ln-520"></a><span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">Handle</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Handle is less than 0&#39;</span><span class="p">)</span>
+<a id="ln-521" name="ln-521" href="#ln-521"></a><span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">Handle</span><span class="o">&lt;=</span><span class="n">MAX_NUM_STRATEGIES</span><span class="p">,</span><span class="s1">&#39;Handle is greater than MAX_NUM_STATEGIES&#39;</span><span class="p">)</span>
+<a id="ln-522" name="ln-522" href="#ln-522"></a>
+<a id="ln-523" name="ln-523" href="#ln-523"></a><span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Handle</span><span class="p">)%</span><span class="n">NOP</span><span class="p">),</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<a id="ln-524" name="ln-524" href="#ln-524"></a>
+<a id="ln-525" name="ln-525" href="#ln-525"></a><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BalLen</span><span class="p">))</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-526" name="ln-526" href="#ln-526"></a><span class="w">         </span><span class="n">BalLen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Handle</span><span class="p">)%</span><span class="n">BALANCED_LENGTH</span>
+<a id="ln-527" name="ln-527" href="#ln-527"></a><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BufLen</span><span class="p">))</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-528" name="ln-528" href="#ln-528"></a><span class="w">         </span><span class="n">BufLen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Handle</span><span class="p">)%</span><span class="n">BUFFER_LENGTH</span>
+<a id="ln-529" name="ln-529" href="#ln-529"></a><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">Passes</span><span class="p">))</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-530" name="ln-530" href="#ln-530"></a><span class="w">         </span><span class="n">Passes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Handle</span><span class="p">)%</span><span class="n">PASSES</span>
+<a id="ln-531" name="ln-531" href="#ln-531"></a><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">Comm</span><span class="w">  </span><span class="p">))</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-532" name="ln-532" href="#ln-532"></a><span class="w">         </span><span class="n">Comm</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Handle</span><span class="p">)%</span><span class="n">COMM</span>
+<a id="ln-533" name="ln-533" href="#ln-533"></a>
+<a id="ln-534" name="ln-534" href="#ln-534"></a><span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">LDB_SUCCESS</span><span class="p">)</span>
+<a id="ln-535" name="ln-535" href="#ln-535"></a><span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_BalanceGet</span>
+<a id="ln-536" name="ln-536" href="#ln-536"></a>
+<a id="ln-537" name="ln-537" href="#ln-537"></a><span class="k">end module </span><span class="n">MAPL_LOADBALANCEMOD</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-06-24T17:42:19.645017             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
