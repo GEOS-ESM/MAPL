@@ -859,24 +859,29 @@ contains
       type(ESMF_GridComp) :: child_outer_gc
       type(OuterMetaComponent), pointer :: child_outer_meta
       type(MultiState) :: child_states
+      type(ESMF_State) :: child_internal_state, child_import_state
       type(ESMF_Geom) :: child_geom
       type(ESMF_Clock) :: child_clock
-      type(Restart) :: restart
+      type(Restart) :: rstrt
       integer :: status
 
       associate(e => this%children%end())
         iter = this%children%begin()
         do while (iter /= e)
            child_name = iter%first()
-           print *, "write_restart::GridComp (parent/child): ", this%get_name(), " ", child_name
            if (child_name /= "HIST") then
+              print *, "writing restart: ", trim(child_name)
               child => iter%second()
+              child_clock = child%get_clock()
               child_outer_gc = child%get_gridcomp()
               child_outer_meta => get_outer_meta(child_outer_gc, _RC)
-              child_states = child%get_states()
               child_geom = child_outer_meta%get_geom()
-              child_clock = child%get_clock()
-              call restart%write(child_name, child_states, child_geom, child_clock, _RC)
+              rstrt = Restart(child_name, child_geom, child_clock, _RC)
+              child_internal_state = child_outer_meta%get_internal_state()
+              call rstrt%write("internal", child_internal_state, _RC)
+              child_states = child%get_states()
+              call child_states%get_state(child_import_state, "import", _RC)
+              call rstrt%write("import", child_import_state, _RC)
               call child%write_restart(_RC)
            end if
            call iter%next()

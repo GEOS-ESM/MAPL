@@ -16,36 +16,52 @@ module mapl3g_Restart
 
    type :: Restart
       private
+      character(len=ESMF_MAXSTR) :: gc_name
+      type(ESMF_Geom) :: gc_geom
+      type(ESMF_Time) :: current_time
    contains
       procedure, public :: write
       procedure, public :: read
+      procedure, private :: write_bundle_
    end type Restart
+
+   interface Restart
+      procedure, private :: initialize_
+   end interface Restart
 
 contains
 
-   subroutine write(this, gc_name, gc_states, gc_geom, clock, rc)
+   function initialize_(gc_name, gc_geom, gc_clock, rc) result(new_restart)
+      character(len=*), intent(in) :: gc_name
+      type(ESMF_Geom), intent(in) :: gc_geom
+      type(ESMF_Clock), intent(in) :: gc_clock
+      integer, optional, intent(out) :: rc
+      type(Restart) :: new_restart ! result
+
+      integer :: status
+
+      new_restart%gc_name = ESMF_UtilStringLowerCase(trim(gc_name), _RC)
+      call ESMF_Clockget(gc_clock, currTime = new_restart%current_time, _RC)
+      new_restart%gc_geom = gc_geom
+
+      _RETURN(ESMF_SUCCESS)
+   end function initialize_
+
+   subroutine write(this, state_type, state, rc)
       ! Arguments
       class(Restart), intent(inout) :: this
-      character(len=*), intent(in) :: gc_name
-      type(MultiState), intent(in) :: gc_states
-      type(ESMF_Geom), intent(in) :: gc_geom
-      type(ESMF_Clock), intent(in) :: clock
+      character(len=*), intent(in) :: state_type
+      type(ESMF_State), intent(in) :: state
       integer, optional, intent(out) :: rc
 
       ! Locals
-      type(ESMF_State) :: export_state
       type(ESMF_FieldBundle) :: out_bundle
-      type(ESMF_Time) :: current_time
-      character(len=ESMF_MAXSTR) :: gc_name_lowercase
       character(len=ESMF_MAXSTR) :: file_name
       integer :: status
 
-      call ESMF_ClockGet(clock, currTime=current_time, _RC)
-      call gc_states%get_state(export_state, "export", _RC)
-      out_bundle = get_bundle_from_state_(export_state, _RC)
-      gc_name_lowercase = ESMF_UtilStringLowerCase(trim(gc_name), _RC)
-      file_name = trim(gc_name_lowercase) // "_export_rst.nc4"
-      call write_bundle_(out_bundle, file_name, gc_geom, current_time, rc)
+      out_bundle = get_bundle_from_state_(state, _RC)
+      file_name = trim(this%gc_name) // "_" // trim(state_type) // "_rst.nc4"
+      call this%write_bundle_(out_bundle, file_name, rc)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine write
@@ -93,26 +109,24 @@ contains
       _RETURN(ESMF_SUCCESS)
    end function get_bundle_from_state_
 
-   subroutine write_bundle_(bundle, file_name, geom, current_time, rc)
+   subroutine write_bundle_(this, bundle, file_name, rc)
       ! Arguments
+      class(Restart), intent(in) :: this
       type(ESMF_FieldBundle), intent(in) :: bundle
       character(len=*), intent(in) :: file_name
-      type(ESMF_Geom), intent(in) :: geom
-      type(ESMF_Time), intent(in) :: current_time
       integer, optional, intent(out) :: rc
 
       ! Locals
       type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: writer
       type(MaplGeom), pointer :: mapl_geom
-      character(len=ESMF_MAXSTR) :: filename
       integer :: status
 
-      metadata = bundle_to_metadata(bundle, geom, _RC)
+      metadata = bundle_to_metadata(bundle, this%gc_geom, _RC)
       allocate(writer, source=make_geom_pfio(metadata, rc=status)); _VERIFY(status)
-      mapl_geom => get_mapl_geom(geom, _RC)
+      mapl_geom => get_mapl_geom(this%gc_geom, _RC)
       call writer%initialize(metadata, mapl_geom, _RC)
-      call writer%update_time_on_server(current_time, _RC)
+      call writer%update_time_on_server(this%current_time, _RC)
       ! TODO: no-op if bundle is empty, or should we skip empty bundles?
       call writer%stage_data_to_file(bundle, file_name, 1, _RC)
       call o_Clients%done_collective_stage()
