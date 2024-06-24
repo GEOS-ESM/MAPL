@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-## [2.47.0] - 2024-06-20
+## [2.47.0] - 2024-06-24
 
 ### Added
 
@@ -30,21 +30,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - pFIO Clients don't send "Done" message when there is no request
 - Update `components.yaml`
-  - ESMA_cmake v3.45.3
+  - ESMA_cmake v3.46.0
     - Fix bugs in meson detection
     - Fix for building on older macOS
+    - Add `esma_add_fortran_submodules` function
 - Updated `checkpoint_simulator` to not create and close file if not writing
 - Update ExtData tests
   - Add new category of `SLOW` tests that take 10-30 seconds and remove them from the `ESSENTIAL`
     label run in CI
   - Remove ExtData1G tests from `ESSENTIAL` label, but run them in the UFS-like CI test
+- Improved timing for station sampler with GHCNd input: used LocStream with CS background, LS with uniform distributed points, and `MPI_GatherV`
 
 ### Fixed
 
 - Fixed a bug in `generate_newnxy` in `MAPL_SwathGridFactory.F90` (`NX*NY=Ncore`)
 - Fixes for NVHPC 24.5
   - Convert `MAPL_GeosatMaskMod` to "interface-in-both-files" submodule style
-
 
 ## [2.46.2] - 2024-05-31
 
