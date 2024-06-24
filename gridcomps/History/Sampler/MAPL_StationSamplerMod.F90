@@ -434,6 +434,7 @@ contains
     integer :: rank,lb(1),ub(1)
     integer :: k, ig
     integer, allocatable :: chunksizes(:)
+    type(ESMF_Info) :: infoh
 
     call ESMF_FieldBundleGet(this%bundle,vname,field=field,_RC)
     call ESMF_FieldGet(field,name=var_name,rank=field_rank,_RC)
