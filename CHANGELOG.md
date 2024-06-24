@@ -60,6 +60,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.47.0] - 2024-06-24
+
+### Added
+
 - Add new option to `Regrid_Util.x` to write and re-use ESMF pregenerated weights
 - If file path length exceeds `ESMF_MAXSTR`, add `_FAIL` in subroutine fglob
 - Add GNU UFS-like CI test
@@ -78,16 +90,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add new category of `SLOW` tests that take 10-30 seconds and remove them from the `ESSENTIAL`
     label run in CI
   - Remove ExtData1G tests from `ESSENTIAL` label, but run them in the UFS-like CI test
+- Improved timing for station sampler with GHCNd input: used LocStream with CS background, LS with uniform distributed points, and `MPI_GatherV`
 
 ### Fixed
 
 - Fixed a bug in `generate_newnxy` in `MAPL_SwathGridFactory.F90` (`NX*NY=Ncore`)
 - Fixes for NVHPC 24.5
   - Convert `MAPL_GeosatMaskMod` to "interface-in-both-files" submodule style
-
-### Removed
-
-### Deprecated
 
 ## [2.46.2] - 2024-05-31
 
