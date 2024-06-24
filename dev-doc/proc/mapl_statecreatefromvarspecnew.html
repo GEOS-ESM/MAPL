@@ -1,0 +1,918 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_StateCreateFromVarSpecNew &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_StateCreateFromVarSpecNew
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">83 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericmod.html'>MAPL_GenericMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_StateCreateFromVarSpecNew</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_statecreatefromvarspecnew.html#src">MAPL_StateCreateFromVarSpecNew</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_StateCreateFromVarSpecNew(STATE, SPEC, GRID, TILEGRID, DEFER, range, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-state~62"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>STATE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec~28"></span>
+              type(<a href='../type/statespecification.html'>StateSpecification</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SPEC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid~40"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GRID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tilegrid~4"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TILEGRID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-defer"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>DEFER</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-range~3"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>range</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~224"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_statecreatefromvarspecnew~~CallsGraph Pages: 1 -->
+<svg id="procmapl_statecreatefromvarspecnewCallsGraph" width="430pt" height="326pt"
+ viewBox="0.00 0.00 430.00 326.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 322)">
+<title>proc~~mapl_statecreatefromvarspecnew~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-322 426,-322 426,4 -4,4"/>
+<!-- proc~mapl_statecreatefromvarspecnew -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node1" class="node">
+<title>proc~mapl_statecreatefromvarspecnew</title>
+<polygon fill="none" stroke="black" points="202,-171 0,-171 0,-147 202,-147 202,-171"/>
+<text text-anchor="middle" x="101" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_StateCreateFromVarSpecNew</text>
+</g>
+<!-- ESMF_FieldIsCreated -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node2" class="node">
+<title>ESMF_FieldIsCreated</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_fieldiscreated.html" xlink:title="ESMF_FieldIsCreated">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="390.5,-318 269.5,-318 269.5,-294 390.5,-294 390.5,-318"/>
+<text text-anchor="middle" x="330" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_FieldIsCreated</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_statecreatefromvarspecnew&#45;&gt;ESMF_FieldIsCreated -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_statecreatefromvarspecnew&#45;&gt;ESMF_FieldIsCreated</title>
+<path fill="none" stroke="#ff0000" d="M111.41,-171.26C131.63,-196.71 181.96,-255.33 238,-285 244.6,-288.5 251.77,-291.41 259.09,-293.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="258.55,-297.34 269.13,-296.88 260.57,-290.64 258.55,-297.34"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node3" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="372.5,-276 287.5,-276 287.5,-252 372.5,-252 372.5,-276"/>
+<text text-anchor="middle" x="330" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~mapl_statecreatefromvarspecnew&#45;&gt;esmf_fieldget -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_statecreatefromvarspecnew&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M117.81,-171.18C142.25,-189.44 191.29,-223.8 238,-243 250.43,-248.11 264.35,-252.11 277.49,-255.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="276.83,-258.63 287.35,-257.36 278.34,-251.79 276.83,-258.63"/>
+</g>
+<!-- interface~mapl_varspecget -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node4" class="node">
+<title>interface~mapl_varspecget</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node4"><a xlink:href="../interface/mapl_varspecget.html" xlink:title="MAPL_VarSpecGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="384.5,-234 275.5,-234 275.5,-210 384.5,-210 384.5,-234"/>
+<text text-anchor="middle" x="330" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_statecreatefromvarspecnew&#45;&gt;interface~mapl_varspecget -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_statecreatefromvarspecnew&#45;&gt;interface~mapl_varspecget</title>
+<path fill="none" stroke="#ff0000" d="M138.44,-171.04C165.71,-179.86 204,-191.84 238,-201 246.85,-203.39 256.23,-205.74 265.48,-207.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="264.89,-211.42 275.43,-210.32 266.5,-204.61 264.89,-211.42"/>
+</g>
+<!-- interface~mapl_varspecset~2 -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node5" class="node">
+<title>interface~mapl_varspecset~2</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node5"><a xlink:href="../interface/mapl_varspecset~2.html" xlink:title="MAPL_VarSpecSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="383.5,-192 276.5,-192 276.5,-168 383.5,-168 383.5,-192"/>
+<text text-anchor="middle" x="330" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecSet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_statecreatefromvarspecnew&#45;&gt;interface~mapl_varspecset~2 -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_statecreatefromvarspecnew&#45;&gt;interface~mapl_varspecset~2</title>
+<path fill="none" stroke="#ff0000" d="M202.23,-168.27C223.97,-170.28 246.38,-172.36 266.19,-174.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="266.01,-177.69 276.29,-175.12 266.66,-170.72 266.01,-177.69"/>
+</g>
+<!-- none~of~73 -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node6" class="node">
+<title>none~of~73</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node6"><a xlink:href="../type/varspecvector.html#boundprocedure-of~73" xlink:title="VarSpecVector%of">
+<polygon fill="#a7506f" stroke="#a7506f" points="385,-150 275,-150 275,-126 385,-126 385,-150"/>
+<text text-anchor="middle" x="330" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpecVector%of</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_statecreatefromvarspecnew&#45;&gt;none~of~73 -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_statecreatefromvarspecnew&#45;&gt;none~of~73</title>
+<path fill="none" stroke="#ff0000" d="M202.23,-149.73C223.37,-147.77 245.13,-145.76 264.53,-143.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="265.11,-147.43 274.75,-143.02 264.47,-140.46 265.11,-147.43"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="371,-108 289,-108 289,-84 371,-84 371,-108"/>
+<text text-anchor="middle" x="330" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_statecreatefromvarspecnew&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_statecreatefromvarspecnew&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M138.44,-146.96C165.71,-138.14 204,-126.16 238,-117 251.22,-113.44 265.63,-109.94 279,-106.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="280.01,-110.21 288.98,-104.58 278.45,-103.39 280.01,-110.21"/>
+</g>
+<!-- proc~mapl_statecreatefromspecnew -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node8" class="node">
+<title>proc~mapl_statecreatefromspecnew</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node8"><a xlink:href="../proc/mapl_statecreatefromspecnew.html" xlink:title="MAPL_StateCreateFromSpecNew">
+<polygon fill="#d9534f" stroke="#d9534f" points="422,-66 238,-66 238,-42 422,-42 422,-66"/>
+<text text-anchor="middle" x="330" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateCreateFromSpecNew</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_statecreatefromvarspecnew&#45;&gt;proc~mapl_statecreatefromspecnew -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_statecreatefromvarspecnew&#45;&gt;proc~mapl_statecreatefromspecnew</title>
+<path fill="none" stroke="#ff0000" d="M117.81,-146.82C142.25,-128.56 191.29,-94.2 238,-75 243.38,-72.79 249.04,-70.78 254.79,-68.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="255.93,-72.29 264.54,-66.1 253.95,-65.57 255.93,-72.29"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node9" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CallsGraph_node9"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="368,-24 292,-24 292,0 368,0 368,-24"/>
+<text text-anchor="middle" x="330" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_statecreatefromvarspecnew&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_statecreatefromvarspecnew&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M111.41,-146.74C131.63,-121.29 181.96,-62.67 238,-33 251.39,-25.91 267.13,-21.2 281.72,-18.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="282.44,-21.5 291.59,-16.15 281.1,-14.63 282.44,-21.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_statecreatefromvarspecnew~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_statecreatefromvarspecnewCalledByGraph" width="641pt" height="267pt"
+ viewBox="0.00 0.00 641.00 266.93" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph" class="graph" transform="scale(1.06 1.06) rotate(0) translate(4 280)">
+<title>proc~~mapl_statecreatefromvarspecnew~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-280 678,-280 678,4 -4,4"/>
+<!-- proc~mapl_statecreatefromvarspecnew -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node1" class="node">
+<title>proc~mapl_statecreatefromvarspecnew</title>
+<polygon fill="none" stroke="black" points="674,-108 472,-108 472,-84 674,-84 674,-108"/>
+<text text-anchor="middle" x="573" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_StateCreateFromVarSpecNew</text>
+</g>
+<!-- proc~mapl_genericinitialize -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node2" class="node">
+<title>proc~mapl_genericinitialize</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node2"><a xlink:href="../proc/mapl_genericinitialize.html" xlink:title="MAPL_GenericInitialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="436,-171 303,-171 303,-147 436,-147 436,-171"/>
+<text text-anchor="middle" x="369.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericInitialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericinitialize&#45;&gt;proc~mapl_statecreatefromvarspecnew -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_genericinitialize&#45;&gt;proc~mapl_statecreatefromvarspecnew</title>
+<path fill="none" stroke="#ff0000" d="M409.35,-146.85C442.07,-136.62 489.01,-121.95 524.06,-110.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="525.11,-114.33 533.61,-108 523.02,-107.65 525.11,-114.33"/>
+</g>
+<!-- proc~mapl_readforcingx -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node3" class="node">
+<title>proc~mapl_readforcingx</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node3"><a xlink:href="../proc/mapl_readforcingx.html" xlink:title="MAPL_ReadForcingX">
+<polygon fill="#d9534f" stroke="#d9534f" points="429.5,-66 309.5,-66 309.5,-42 429.5,-42 429.5,-66"/>
+<text text-anchor="middle" x="369.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcingX</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_readforcingx&#45;&gt;proc~mapl_statecreatefromvarspecnew -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_readforcingx&#45;&gt;proc~mapl_statecreatefromvarspecnew</title>
+<path fill="none" stroke="#ff0000" d="M428.24,-66.04C451.96,-70.98 479.58,-76.74 504.24,-81.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="503.75,-85.35 514.25,-83.96 505.17,-78.5 503.75,-85.35"/>
+</g>
+<!-- proc~initialize_ -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node4" class="node">
+<title>proc~initialize_</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node4"><a xlink:href="../proc/initialize_.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="238.5,-276 176.5,-276 176.5,-252 238.5,-252 238.5,-276"/>
+<text text-anchor="middle" x="207.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_edge3" class="edge">
+<title>proc~initialize_&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M238.54,-255.45C247.96,-252.19 258.19,-248.02 267,-243 298.61,-224.98 330.13,-196.92 349.47,-178.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="352.04,-180.63 356.73,-171.13 347.14,-175.63 352.04,-180.63"/>
+</g>
+<!-- proc~initialize_~2 -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node5" class="node">
+<title>proc~initialize_~2</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node5"><a xlink:href="../proc/initialize_~2.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="238.5,-234 176.5,-234 176.5,-210 238.5,-210 238.5,-234"/>
+<text text-anchor="middle" x="207.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~2&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_edge4" class="edge">
+<title>proc~initialize_~2&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M238.66,-211.48C247.8,-208.21 257.84,-204.54 267,-201 288.31,-192.77 311.89,-183.05 330.96,-175.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="332.36,-178.24 340.21,-171.13 329.63,-171.8 332.36,-178.24"/>
+</g>
+<!-- proc~initialize_~3 -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node6" class="node">
+<title>proc~initialize_~3</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node6"><a xlink:href="../proc/initialize_~3.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="238.5,-192 176.5,-192 176.5,-168 238.5,-168 238.5,-192"/>
+<text text-anchor="middle" x="207.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~3&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_edge5" class="edge">
+<title>proc~initialize_~3&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M238.59,-176.05C254.01,-174.03 273.55,-171.46 292.75,-168.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="293.28,-172.4 302.74,-167.63 292.37,-165.46 293.28,-172.4"/>
+</g>
+<!-- proc~initialize_~4 -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node7" class="node">
+<title>proc~initialize_~4</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node7"><a xlink:href="../proc/initialize_~4.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="238.5,-150 176.5,-150 176.5,-126 238.5,-126 238.5,-150"/>
+<text text-anchor="middle" x="207.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~4&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_edge6" class="edge">
+<title>proc~initialize_~4&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M238.59,-141.95C254.01,-143.97 273.55,-146.54 292.75,-149.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="292.37,-152.54 302.74,-150.37 293.28,-145.6 292.37,-152.54"/>
+</g>
+<!-- proc~initialize~3 -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node8" class="node">
+<title>proc~initialize~3</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node8"><a xlink:href="../proc/initialize~3.html" xlink:title="Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="236,-108 179,-108 179,-84 236,-84 236,-108"/>
+<text text-anchor="middle" x="207.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize~3&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_edge7" class="edge">
+<title>proc~initialize~3&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M236.28,-105.67C246.03,-109.14 257.03,-113.15 267,-117 288.31,-125.23 311.89,-134.95 330.96,-142.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="329.63,-146.2 340.21,-146.87 332.36,-139.76 329.63,-146.2"/>
+</g>
+<!-- proc~mapl_readforcing1 -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node9" class="node">
+<title>proc~mapl_readforcing1</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node9"><a xlink:href="../proc/mapl_readforcing1.html" xlink:title="MAPL_ReadForcing1">
+<polygon fill="#d9534f" stroke="#d9534f" points="267,-66 148,-66 148,-42 267,-42 267,-66"/>
+<text text-anchor="middle" x="207.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcing1</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_readforcing1&#45;&gt;proc~mapl_readforcingx -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_edge8" class="edge">
+<title>proc~mapl_readforcing1&#45;&gt;proc~mapl_readforcingx</title>
+<path fill="none" stroke="#00ffff" d="M267.17,-54C277.58,-54 288.51,-54 299.18,-54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="299.3,-57.5 309.3,-54 299.3,-50.5 299.3,-57.5"/>
+</g>
+<!-- proc~mapl_readforcing2 -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node10" class="node">
+<title>proc~mapl_readforcing2</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node10"><a xlink:href="../proc/mapl_readforcing2.html" xlink:title="MAPL_ReadForcing2">
+<polygon fill="#d9534f" stroke="#d9534f" points="267,-24 148,-24 148,0 267,0 267,-24"/>
+<text text-anchor="middle" x="207.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcing2</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_readforcing2&#45;&gt;proc~mapl_readforcingx -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_edge9" class="edge">
+<title>proc~mapl_readforcing2&#45;&gt;proc~mapl_readforcingx</title>
+<path fill="none" stroke="#00ffff" d="M254.35,-24.04C272.59,-28.82 293.75,-34.38 312.86,-39.4"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="312.08,-42.81 322.64,-41.96 313.86,-36.04 312.08,-42.81"/>
+</g>
+<!-- interface~mapl_readforcing -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node11" class="node">
+<title>interface~mapl_readforcing</title>
+<g id="a_proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_node11"><a xlink:href="../interface/mapl_readforcing.html" xlink:title="MAPL_ReadForcing">
+<polygon fill="#a7506f" stroke="#a7506f" points="112,-45 0,-45 0,-21 112,-21 112,-45"/>
+<text text-anchor="middle" x="56" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcing</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing1 -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_edge10" class="edge">
+<title>interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing1</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M112.24,-40.76C120.61,-41.94 129.33,-43.16 137.94,-44.37"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="137.58,-47.85 147.97,-45.78 138.56,-40.92 137.58,-47.85"/>
+</g>
+<!-- interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing2 -->
+<g id="proc~~mapl_statecreatefromvarspecnew~~CalledByGraph_edge11" class="edge">
+<title>interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing2</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M112.24,-25.24C120.61,-24.06 129.33,-22.84 137.94,-21.63"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="138.56,-25.08 147.97,-20.22 137.58,-18.15 138.56,-25.08"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_statecreatefromvarspecnewCalledByGraph = svgPanZoom('#procmapl_statecreatefromvarspecnewCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">MAPL_StateCreateFromVarSpecNew</span><span class="p">(</span><span class="n">STATE</span><span class="p">,</span><span class="n">SPEC</span><span class="p">,</span><span class="n">GRID</span><span class="p">,</span><span class="n">TILEGRID</span><span class="p">,</span><span class="n">DEFER</span><span class="p">,</span><span class="nb">range</span><span class="p">,</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w">                 </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">STATE</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StateSpecification</span><span class="p">),</span><span class="w">               </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SPEC</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w">                  </span><span class="k">intent</span><span class="p">(</span><span class="n">INout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GRID</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">                </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DEFER</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">        </span><span class="k">intent</span><span class="p">(</span><span class="n">INout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TILEGRID</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">                </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="o">=</span><span class="s2">&quot;MAPL_StateCreateFromVarSpec&quot;</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">L</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">DIMS</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="nb">STAT</span>
+<span class="nb">      </span><span class="kt">integer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">LOCATION</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">GRD</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">range_</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_VarSpec</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varspec</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_created</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SPEC_FIELD</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="nb">range</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">range_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">range</span>
+<span class="nb">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">range_</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">         </span><span class="n">range_</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spec</span><span class="p">%</span><span class="n">var_specs</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      do </span><span class="n">L</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">range_</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">range_</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_VarSpecGet</span><span class="p">(</span><span class="n">SPEC</span><span class="p">%</span><span class="n">var_specs</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">DIMS</span><span class="o">=</span><span class="n">DIMS</span><span class="p">,</span><span class="w"> </span><span class="n">VLOCATION</span><span class="o">=</span><span class="n">LOCATION</span><span class="p">,</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="nb">STAT</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="c">!ALT we should also check if we have a valid grid in the spec so we do not overwrite it</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">IAND</span><span class="p">(</span><span class="nb">STAT</span><span class="p">,</span><span class="w"> </span><span class="n">MAPL_BundleItem</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="nb">IAND</span><span class="p">(</span><span class="nb">STAT</span><span class="p">,</span><span class="w"> </span><span class="n">MAPL_StateItem</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">GRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GRID</span>
+<span class="w">         </span><span class="k">else</span>
+<span class="w">            </span><span class="c">! choose the grid</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_VarSpecGet</span><span class="p">(</span><span class="n">SPEC</span><span class="p">%</span><span class="n">var_specs</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">FIELD</span><span class="o">=</span><span class="n">SPEC_FIELD</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="n">is_created</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldIsCreated</span><span class="p">(</span><span class="n">SPEC_FIELD</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">is_created</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">SPEC_FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">GRID</span><span class="o">=</span><span class="n">GRD</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">else</span>
+
+
+<span class="k">               </span><span class="n">Dimensionality</span><span class="p">:</span><span class="w"> </span><span class="k">select case</span><span class="p">(</span><span class="n">DIMS</span><span class="p">)</span>
+
+<span class="w">               </span><span class="k">case</span><span class="p">(</span><span class="n">MAPL_DimsHorzVert</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">select case</span><span class="p">(</span><span class="n">LOCATION</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">case</span><span class="p">(</span><span class="n">MAPL_VLocationCenter</span><span class="p">)</span>
+<span class="w">                     </span><span class="n">GRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GRID</span>
+<span class="w">                  </span><span class="k">case</span><span class="p">(</span><span class="n">MAPL_VLocationEdge</span><span class="w">  </span><span class="p">)</span>
+<span class="w">                     </span><span class="n">GRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GRID</span>
+<span class="w">                  </span><span class="k">case </span><span class="n">default</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">end select</span>
+<span class="k">               case</span><span class="p">(</span><span class="n">MAPL_DimsHorzOnly</span><span class="p">)</span>
+<span class="w">                  </span><span class="n">GRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GRID</span>
+<span class="w">               </span><span class="k">case</span><span class="p">(</span><span class="n">MAPL_DimsVertOnly</span><span class="p">)</span>
+<span class="w">                  </span><span class="n">GRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GRID</span>
+<span class="w">               </span><span class="k">case</span><span class="p">(</span><span class="n">MAPL_DimsNone</span><span class="p">)</span>
+<span class="w">                  </span><span class="n">GRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GRID</span>
+<span class="w">               </span><span class="k">case</span><span class="p">(</span><span class="n">MAPL_DimsTileOnly</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">TILEGRID</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">endif</span>
+<span class="k">                  </span><span class="n">GRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TILEGRID</span>
+<span class="w">               </span><span class="k">case</span><span class="p">(</span><span class="n">MAPL_DimsTileTile</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">TILEGRID</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">endif</span>
+<span class="k">                  </span><span class="n">GRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TILEGRID</span>
+<span class="w">               </span><span class="k">case </span><span class="n">default</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">               </span><span class="k">end select </span><span class="n">Dimensionality</span>
+<span class="w">            </span><span class="k">end if</span><span class="w"> </span><span class="c">! if created</span>
+<span class="w">         </span><span class="k">end if</span><span class="w"> </span><span class="c">! if ISTAT</span>
+
+<span class="w">         </span><span class="n">varspec</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">SPEC</span><span class="p">%</span><span class="n">var_specs</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_VarSpecSet</span><span class="p">(</span><span class="n">varspec</span><span class="p">,</span><span class="w"> </span><span class="n">GRID</span><span class="o">=</span><span class="n">GRD</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="k">      call </span><span class="n">MAPL_StateCreateFromSpecNew</span><span class="p">(</span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="n">SPEC</span><span class="p">,</span><span class="w"> </span><span class="n">DEFER</span><span class="p">,</span><span class="w"> </span><span class="nb">range</span><span class="o">=</span><span class="nb">range</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w">  </span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_StateCreateFromVarSpecNew</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-06-24T17:56:00.056297             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

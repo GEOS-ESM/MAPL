@@ -1,0 +1,670 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>readTileFile &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>readTileFile
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">128 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Regrid_Functions_Mod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/regrid_functions_mod.f90.html'>Regrid_Functions_Mod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/regrid_functions_mod.html'>Regrid_Functions_Mod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">readTileFile</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/readtilefile.html#src">readTileFile</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine readTileFile(TFDir, gridIn, gridOut, RC)  
+</h2>
+    
+
+    <p>The routine <code>readTileFile</code> reads a tile file and stores the
+ relevant data in module variables for later use.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>09 Jan 2016 - S. D. Eastham - Initial version</li>
+</ul>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tfdir~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TFDir</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gridin~4"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gridIn</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gridout~4"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gridOut</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~287"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~readtilefile~~CallsGraph Pages: 1 -->
+<svg id="procreadtilefileCallsGraph" width="370pt" height="74pt"
+ viewBox="0.00 0.00 370.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~readtilefile~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~readtilefile~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 366,-70 366,4 -4,4"/>
+<!-- proc~readtilefile -->
+<g id="proc~~readtilefile~~CallsGraph_node1" class="node">
+<title>proc~readtilefile</title>
+<polygon fill="none" stroke="black" points="73,-45 0,-45 0,-21 73,-21 73,-45"/>
+<text text-anchor="middle" x="36.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">readTileFile</text>
+</g>
+<!-- proc~assert -->
+<g id="proc~~readtilefile~~CallsGraph_node2" class="node">
+<title>proc~assert</title>
+<g id="a_proc~~readtilefile~~CallsGraph_node2"><a xlink:href="../proc/assert.html" xlink:title="Assert">
+<polygon fill="#d9534f" stroke="#d9534f" points="163,-66 109,-66 109,-42 163,-42 163,-66"/>
+<text text-anchor="middle" x="136" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~readtilefile&#45;&gt;proc~assert -->
+<g id="proc~~readtilefile~~CallsGraph_edge1" class="edge">
+<title>proc~readtilefile&#45;&gt;proc~assert</title>
+<path fill="none" stroke="#ff0000" d="M73.25,-40.7C81.6,-42.5 90.49,-44.41 98.85,-46.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="98.21,-49.66 108.72,-48.34 99.68,-42.81 98.21,-49.66"/>
+</g>
+<!-- proc~getlun -->
+<g id="proc~~readtilefile~~CallsGraph_node3" class="node">
+<title>proc~getlun</title>
+<g id="a_proc~~readtilefile~~CallsGraph_node3"><a xlink:href="../proc/getlun.html" xlink:title="GetLUN">
+<polygon fill="#d9534f" stroke="#d9534f" points="163,-24 109,-24 109,0 163,0 163,-24"/>
+<text text-anchor="middle" x="136" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GetLUN</text>
+</a>
+</g>
+</g>
+<!-- proc~readtilefile&#45;&gt;proc~getlun -->
+<g id="proc~~readtilefile~~CallsGraph_edge2" class="edge">
+<title>proc~readtilefile&#45;&gt;proc~getlun</title>
+<path fill="none" stroke="#ff0000" d="M73.25,-25.3C81.6,-23.5 90.49,-21.59 98.85,-19.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="99.68,-23.19 108.72,-17.66 98.21,-16.34 99.68,-23.19"/>
+</g>
+<!-- nf90_close -->
+<g id="proc~~readtilefile~~CallsGraph_node4" class="node">
+<title>nf90_close</title>
+<polygon fill="#777777" stroke="#777777" points="362,-66 292,-66 292,-42 362,-42 362,-66"/>
+<text text-anchor="middle" x="327" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_close</text>
+</g>
+<!-- proc~assert&#45;&gt;nf90_close -->
+<g id="proc~~readtilefile~~CallsGraph_edge3" class="edge">
+<title>proc~assert&#45;&gt;nf90_close</title>
+<path fill="none" stroke="#ff0000" d="M163.24,-54.52C174.28,-54.71 187.27,-54.91 199,-55 224.33,-55.2 230.67,-55.18 256,-55 264.29,-54.94 273.14,-54.84 281.66,-54.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="281.87,-58.23 291.82,-54.59 281.77,-51.23 281.87,-58.23"/>
+</g>
+<!-- proc~cleanup -->
+<g id="proc~~readtilefile~~CallsGraph_node5" class="node">
+<title>proc~cleanup</title>
+<g id="a_proc~~readtilefile~~CallsGraph_node5"><a xlink:href="../proc/cleanup.html" xlink:title="Cleanup">
+<polygon fill="#d9534f" stroke="#d9534f" points="256,-46 199,-46 199,-22 256,-22 256,-46"/>
+<text text-anchor="middle" x="227.5" y="-31.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Cleanup</text>
+</a>
+</g>
+</g>
+<!-- proc~assert&#45;&gt;proc~cleanup -->
+<g id="proc~~readtilefile~~CallsGraph_edge4" class="edge">
+<title>proc~assert&#45;&gt;proc~cleanup</title>
+<path fill="none" stroke="#ff0000" d="M163.37,-48.11C171.37,-46.32 180.33,-44.32 188.92,-42.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="189.77,-45.79 198.76,-40.2 188.24,-38.96 189.77,-45.79"/>
+</g>
+<!-- proc~cleanup&#45;&gt;nf90_close -->
+<g id="proc~~readtilefile~~CallsGraph_edge5" class="edge">
+<title>proc~cleanup&#45;&gt;nf90_close</title>
+<path fill="none" stroke="#00ffff" d="M256.18,-39.68C264.11,-41.3 272.96,-43.12 281.63,-44.9"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="281.15,-48.37 291.65,-46.95 282.56,-41.52 281.15,-48.37"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">Subroutine </span><span class="n">readTileFile</span><span class="p">(</span><span class="n">TFDir</span><span class="p">,</span><span class="n">gridIn</span><span class="p">,</span><span class="n">gridOut</span><span class="p">,</span><span class="n">RC</span><span class="p">)</span>
+<span class="c">!</span>
+<span class="c">! !USES:</span>
+<span class="c">!</span>
+<span class="c">!      Use Precision_Mod, Only: f4</span>
+
+<span class="c">!</span>
+<span class="c">! !INPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">Character</span><span class="p">(</span><span class="nb">Len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">Intent</span><span class="p">(</span><span class="n">In</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">TFDir</span>
+<span class="w">      </span><span class="kt">Character</span><span class="p">(</span><span class="nb">Len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">Intent</span><span class="p">(</span><span class="n">In</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">gridIn</span>
+<span class="w">      </span><span class="kt">Character</span><span class="p">(</span><span class="nb">Len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">Intent</span><span class="p">(</span><span class="n">In</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">gridOut</span>
+<span class="w">      </span><span class="kt">Integer</span><span class="p">,</span><span class="w"> </span><span class="k">Optional</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+<span class="c">!</span>
+<span class="c">! !OUTPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="c">!Real(kind=sp), Intent(Out) :: TestOut</span>
+<span class="c">!</span>
+<span class="c">!-----------------------------------------------------------------------</span>
+<span class="c">!</span>
+<span class="c">! !LOCAL VARIABLES:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">Character</span><span class="p">(</span><span class="nb">Len</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">fName</span><span class="p">,</span><span class="w"> </span><span class="n">errMsg</span>
+<span class="w">      </span><span class="kt">Logical</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">Found</span>
+<span class="w">      </span><span class="kt">Integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">fID</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">Real</span><span class="p">(</span><span class="nb">Kind</span><span class="o">=</span><span class="n">sp</span><span class="p">),</span><span class="k">Allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RTemp</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">Integer</span><span class="p">,</span><span class="k">Allocatable</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">ITemp</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">Integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">nGrids</span><span class="p">,</span><span class="w"> </span><span class="n">gridInIdx</span>
+<span class="w">      </span><span class="kt">Integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">nX</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">nY</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">Character</span><span class="p">(</span><span class="nb">Len</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">STemp</span>
+<span class="w">      </span><span class="kt">Character</span><span class="p">(</span><span class="nb">Len</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">gridNameTF</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">!=================================================================</span>
+<span class="w">      </span><span class="c">! readTileFile starts here!</span>
+<span class="w">      </span><span class="c">!=================================================================</span>
+
+<span class="w">      </span><span class="c">! Assemble the full tile file name</span>
+<span class="w">      </span><span class="k">Write</span><span class="p">(</span><span class="n">fName</span><span class="p">,</span><span class="s1">&#39;(a,a,a,a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">gridIn</span><span class="p">),</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="nb">Trim</span><span class="p">(</span><span class="n">gridOut</span><span class="p">),</span><span class="s1">&#39;.bin&#39;</span>
+<span class="w">      </span><span class="n">fName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">TFDir</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">fName</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">Inquire</span><span class="p">(</span><span class="k">File</span><span class="o">=</span><span class="n">fName</span><span class="p">,</span><span class="n">Exist</span><span class="o">=</span><span class="n">Found</span><span class="p">)</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">Found</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="w">         </span><span class="c">! Try the reverse name</span>
+<span class="w">         </span><span class="k">Write</span><span class="p">(</span><span class="n">fName</span><span class="p">,</span><span class="s1">&#39;(a,a,a,a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">gridOut</span><span class="p">),</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="nb">Trim</span><span class="p">(</span><span class="n">gridIn</span><span class="p">),</span><span class="s1">&#39;.bin&#39;</span>
+<span class="w">         </span><span class="n">fName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">TFDir</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">fName</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">Inquire</span><span class="p">(</span><span class="k">File</span><span class="o">=</span><span class="n">fName</span><span class="p">,</span><span class="n">Exist</span><span class="o">=</span><span class="n">Found</span><span class="p">)</span>
+<span class="w">         </span><span class="k">If</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">Found</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">            Write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="s1">&#39;(a,a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39; --- Could not find binary tile file &#39;</span><span class="p">,</span><span class="nb">Trim</span><span class="p">(</span><span class="n">fName</span><span class="p">)</span>
+<span class="w">            </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">            </span><span class="k">Return</span>
+<span class="k">         End If</span>
+<span class="k">      End If</span>
+
+<span class="w">      </span><span class="c">! Tile file variables</span>
+<span class="w">      </span><span class="k">Call </span><span class="n">GetLUN</span><span class="p">(</span><span class="n">fID</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">Call </span><span class="n">Assert</span><span class="p">(</span><span class="n">RC</span><span class="p">,</span><span class="s1">&#39;readTileFile&#39;</span><span class="p">,</span><span class="s1">&#39;GetLUN failed&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! NOTE: Tile files are little-endian</span>
+<span class="w">      </span><span class="k">Open</span><span class="p">(</span><span class="k">File</span><span class="o">=</span><span class="nb">Trim</span><span class="p">(</span><span class="n">fName</span><span class="p">),</span><span class="n">Unit</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="n">IOStat</span><span class="o">=</span><span class="n">status</span><span class="p">,&amp;</span>
+<span class="w">               </span><span class="n">FORM</span><span class="o">=</span><span class="s1">&#39;UNFORMATTED&#39;</span><span class="p">,</span><span class="n">STATUS</span><span class="o">=</span><span class="s1">&#39;OLD&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="o">/=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">         Write</span><span class="p">(</span><span class="n">errMsg</span><span class="p">,</span><span class="s1">&#39;(a,a,a,I8)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;Failed to open &#39;</span><span class="p">,</span><span class="nb">Trim</span><span class="p">(</span><span class="n">fName</span><span class="p">),&amp;</span>
+<span class="w">            </span><span class="s1">&#39;. ID: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<span class="w">         </span><span class="k">Call </span><span class="n">Assert</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="s1">&#39;readTileFile&#39;</span><span class="p">,</span><span class="n">errMsg</span><span class="p">)</span>
+<span class="w">      </span><span class="k">End If</span>
+
+<span class="w">      </span><span class="c">! Read in the number of weights</span>
+<span class="w">      </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span><span class="w"> </span><span class="n">nWeight</span>
+
+<span class="w">      </span><span class="c">! Allocate the arrays</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">II_In</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">JJ_In</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">II_Out</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">JJ_Out</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">W</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+
+<span class="w">      </span><span class="c">! Also allocate temporary arrays</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">RTemp</span><span class="p">(</span><span class="n">nWeight</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span><span class="w"> </span><span class="n">nGrids</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">nGrids</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">         Close</span><span class="p">(</span><span class="n">Unit</span><span class="o">=</span><span class="n">fID</span><span class="p">)</span>
+<span class="w">         </span><span class="k">Call </span><span class="n">Assert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;readTileFile&#39;</span><span class="p">,</span><span class="s1">&#39;Bad grid count&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">End If</span>
+
+<span class="k">      Do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nGrids</span>
+<span class="w">         </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span><span class="w"> </span><span class="n">STemp</span>
+<span class="w">         </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span><span class="w"> </span><span class="n">nX</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="w">         </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span><span class="w"> </span><span class="n">nY</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="w">         </span><span class="n">gridNameTF</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">STemp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">End Do</span>
+
+<span class="k">      </span><span class="n">Found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">False</span><span class="p">.</span>
+<span class="w">      </span><span class="k">Do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nGrids</span>
+<span class="w">         </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="nb">Trim</span><span class="p">(</span><span class="n">gridNameTF</span><span class="p">(</span><span class="n">I</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">gridIn</span><span class="p">))</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">            </span><span class="n">Found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">True</span><span class="p">.</span>
+<span class="w">            </span><span class="k">Exit</span>
+<span class="k">         End If</span>
+<span class="k">      End Do</span>
+
+<span class="k">      If</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">Found</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">         Close</span><span class="p">(</span><span class="n">Unit</span><span class="o">=</span><span class="n">fID</span><span class="p">)</span>
+<span class="w">         </span><span class="k">Call </span><span class="n">Assert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;readTileFile&#39;</span><span class="p">,</span><span class="s1">&#39;Input grid name mismatch&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">End If</span>
+
+<span class="k">      </span><span class="n">gridInIdx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">I</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">Found</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">         Close</span><span class="p">(</span><span class="n">Unit</span><span class="o">=</span><span class="n">fID</span><span class="p">)</span>
+<span class="w">         </span><span class="k">Call </span><span class="n">Assert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;readTileFile&#39;</span><span class="p">,</span><span class="s1">&#39;Input grid name mismatch&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">End If</span>
+
+<span class="w">      </span><span class="c">! Must arrange so that grid 1 is the input grid</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">gridInIdx</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">         </span><span class="n">STemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gridNameTF</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">         </span><span class="n">gridNameTF</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gridNameTF</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">         </span><span class="n">gridNameTF</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">STemp</span>
+
+<span class="w">         </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nX</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">         </span><span class="n">nX</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nX</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">         </span><span class="n">nX</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">I</span>
+
+<span class="w">         </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nY</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">         </span><span class="n">nY</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nY</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">         </span><span class="n">nY</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">I</span>
+<span class="w">      </span><span class="k">End If</span>
+
+<span class="k">      </span><span class="n">Found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">gridNameTF</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">gridIn</span><span class="p">)</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">Found</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">         Close</span><span class="p">(</span><span class="n">Unit</span><span class="o">=</span><span class="n">fID</span><span class="p">)</span>
+<span class="w">         </span><span class="k">Call </span><span class="n">Assert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;readTileFile&#39;</span><span class="p">,</span><span class="s1">&#39;Rearrangement failed&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">End If</span>
+
+<span class="k">      </span><span class="n">Found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">gridNameTF</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">gridOut</span><span class="p">)</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">Found</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">         Close</span><span class="p">(</span><span class="n">Unit</span><span class="o">=</span><span class="n">fID</span><span class="p">)</span>
+<span class="w">         </span><span class="k">Call </span><span class="n">Assert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;readTileFile&#39;</span><span class="p">,</span><span class="s1">&#39;Output grid name mismatch&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">End If</span>
+
+<span class="w">      </span><span class="c">! Skip 3 fields</span>
+<span class="w">      </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span>
+<span class="w">      </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span>
+<span class="w">      </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Read data for grid 1</span>
+<span class="w">      </span><span class="c">! X-dim indices</span>
+<span class="w">      </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span><span class="w"> </span><span class="n">RTemp</span>
+<span class="w">      </span><span class="n">ITemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NINT</span><span class="p">(</span><span class="n">RTemp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">gridInIdx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">         </span><span class="n">II_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span>
+<span class="w">      </span><span class="k">Else</span>
+<span class="k">         </span><span class="n">II_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span>
+<span class="w">      </span><span class="k">End If</span>
+
+<span class="w">      </span><span class="c">! Y-dim indices</span>
+<span class="w">      </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span><span class="w"> </span><span class="n">RTemp</span>
+<span class="w">      </span><span class="n">ITemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NINT</span><span class="p">(</span><span class="n">RTemp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">gridInIdx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">         </span><span class="n">JJ_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span>
+<span class="w">      </span><span class="k">Else</span>
+<span class="k">         </span><span class="n">JJ_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span>
+<span class="w">      </span><span class="k">End If</span>
+
+<span class="k">      Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span><span class="w"> </span><span class="n">RTemp</span>
+<span class="w">      </span><span class="c">! Doesn&#39;t actually matter whether we use W_In or W_Out</span>
+<span class="w">      </span><span class="n">W</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RTemp</span>
+
+<span class="w">      </span><span class="c">! Now repeat for grid 2</span>
+<span class="w">      </span><span class="c">! X-dim indices</span>
+<span class="w">      </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span><span class="w"> </span><span class="n">RTemp</span>
+<span class="w">      </span><span class="n">ITemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NINT</span><span class="p">(</span><span class="n">RTemp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">gridInIdx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">         </span><span class="n">II_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span>
+<span class="w">      </span><span class="k">Else</span>
+<span class="k">         </span><span class="n">II_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span>
+<span class="w">      </span><span class="k">End If</span>
+
+<span class="w">      </span><span class="c">! Y-dim indices (in)</span>
+<span class="w">      </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span><span class="w"> </span><span class="n">RTemp</span>
+<span class="w">      </span><span class="n">ITemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NINT</span><span class="p">(</span><span class="n">RTemp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">gridInIdx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">         </span><span class="n">JJ_In</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span>
+<span class="w">      </span><span class="k">Else</span>
+<span class="k">         </span><span class="n">JJ_Out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ITemp</span>
+<span class="w">      </span><span class="k">End If</span>
+
+<span class="w">      </span><span class="c">!Read(fID) RTemp</span>
+<span class="w">      </span><span class="c">!W = RTemp</span>
+
+<span class="w">      </span><span class="c">! Close the tile file</span>
+<span class="w">      </span><span class="k">Close</span><span class="p">(</span><span class="n">Unit</span><span class="o">=</span><span class="n">fID</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Allocate the counting variable</span>
+<span class="w">      </span><span class="c">! nX and nY already swapped</span>
+<span class="w">      </span><span class="k">Allocate</span><span class="p">(</span><span class="n">outSum</span><span class="p">(</span><span class="n">nX</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nY</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>
+
+<span class="w">      </span><span class="c">! Deallocate temporary arrays</span>
+<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">ITemp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">Deallocate</span><span class="p">(</span><span class="n">RTemp</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">End Subroutine </span><span class="n">readTileFile</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-06-24T17:56:00.056297             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

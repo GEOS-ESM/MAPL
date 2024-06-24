@@ -1,0 +1,1377 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_SunOrbitCreate &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_SunOrbitCreate
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">174 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_sun_uc.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_sun_uc.f90.html'>MAPL_sun_uc.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_sunmod.html'>MAPL_SunMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_SunOrbitCreate</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_sunorbitcreate.html#src">MAPL_SunOrbitCreate</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function MAPL_SunOrbitCreate(CLOCK, ECCENTRICITY, OBLIQUITY, PERIHELION, EQUINOX, EOT, ORBIT_ANAL2B, ORB2B_YEARLEN, ORB2B_REF_YYYYMMDD, ORB2B_REF_HHMMSS, ORB2B_ECC_REF, ORB2B_ECC_RATE, ORB2B_OBQ_REF, ORB2B_OBQ_RATE, ORB2B_LAMBDAP_REF, ORB2B_LAMBDAP_RATE, ORB2B_EQUINOX_YYYYMMDD, ORB2B_EQUINOX_HHMMSS, FIX_SUN, RC)  
+</h2>
+    
+
+    <p>Integrates the earth<code>s orbit and stores the necessary
+ parameters to easily compute the earth</code>s position for each day
+ of the full (usually 4-year) intercalation cycle.
+ The orbital parameters are passed as arguments.
+ The full calendar intercalation cycle is obtained from the
+ ESMF clock passed as an argument. This becomes the orbit`s
+ attached clock. Currently we assume a single intercalation.</p>
+<p>A good introduction to celestial mechanics for understanding
+ this code can be found in Blanco &amp; McCuskey, 1961: &ldquo;Basic
+ Physics of the Solar System&rdquo;, hereafter BM.</p>
+<div class="codehilite"><pre><span></span><code><span class="w"> </span><span class="nl">CLOCK</span><span class="p">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">orbit</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">depend</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">calendar</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">clock</span>
+<span class="w">        </span><span class="n">This</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nf">year</span><span class="p">,</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">intercalation</span><span class="w"> </span><span class="k">cycle</span><span class="p">.</span>
+
+<span class="w"> </span><span class="nl">ECCENTRICITY</span><span class="p">:</span><span class="w"> </span><span class="n">Eccentricity</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">Earth</span><span class="err">`</span><span class="n">s</span><span class="w"> </span><span class="n">orbit</span><span class="p">.</span>
+
+<span class="w"> </span><span class="nl">PERIHELION</span><span class="p">:</span><span class="w"> </span><span class="n">Longitude</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">perihelion</span><span class="p">,</span><span class="w"> </span><span class="n">measured</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nf">degrees</span><span class="w"> </span><span class="k">from</span>
+<span class="w">             </span><span class="n">autumnal</span><span class="w"> </span><span class="n">equinox</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">direction</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">Earth</span><span class="err">`</span><span class="n">s</span><span class="w"> </span><span class="n">motion</span><span class="p">.</span>
+
+<span class="w"> </span><span class="nl">OBLIQUITY</span><span class="p">:</span><span class="w"> </span><span class="n">Tilt</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">Earth</span><span class="err">`</span><span class="n">s</span><span class="w"> </span><span class="n">rotation</span><span class="w"> </span><span class="n">axis</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">a</span>
+<span class="w">            </span><span class="n">normal</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">plane</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">orbit</span><span class="p">.</span><span class="w"> </span><span class="ow">In</span><span class="w"> </span><span class="nf">degrees</span><span class="p">.</span>
+
+<span class="w"> </span><span class="nl">EQUINOX</span><span class="p">:</span><span class="w"> </span><span class="nf">Day</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nf">year</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">vernal</span><span class="w"> </span><span class="n">equinox</span><span class="p">.</span>
+<span class="w">          </span><span class="n">Equinox</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">assumed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">occur</span><span class="w"> </span><span class="k">at</span><span class="w"> </span><span class="mi">0</span><span class="n">Z</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="nf">day</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">the</span>
+<span class="w">          </span><span class="k">first</span><span class="w"> </span><span class="nf">year</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">cycle</span><span class="p">.</span>
+
+<span class="w"> </span><span class="nl">EOT</span><span class="p">:</span><span class="w"> </span><span class="n">Apply</span><span class="w"> </span><span class="n">Equation</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nc">Time</span><span class="w"> </span><span class="n">correction</span><span class="vm">?</span>
+
+<span class="w"> </span><span class="nl">ORBIT_ANAL2B</span><span class="p">:</span><span class="w"> </span><span class="k">New</span><span class="w"> </span><span class="n">orbital</span><span class="w"> </span><span class="k">system</span><span class="w"> </span><span class="p">(</span><span class="n">analytic</span><span class="w"> </span><span class="n">two</span><span class="o">-</span><span class="n">body</span><span class="p">)</span><span class="w"> </span><span class="n">allows</span><span class="w"> </span><span class="ow">some</span>
+<span class="w">               </span><span class="nc">time</span><span class="o">-</span><span class="k">varying</span><span class="w"> </span><span class="n">behavior</span><span class="p">,</span><span class="w"> </span><span class="n">namely</span><span class="p">,</span><span class="w"> </span><span class="n">linear</span><span class="w"> </span><span class="nc">time</span><span class="w"> </span><span class="n">variation</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">LAMBDAP</span><span class="p">,</span>
+<span class="w">               </span><span class="n">ECC</span><span class="p">,</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">OBQ</span><span class="p">.</span><span class="w"> </span><span class="k">If</span><span class="w"> </span><span class="p">.</span><span class="k">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">following</span><span class="w"> </span><span class="n">ORB2B</span><span class="w"> </span><span class="k">parameters</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="n">used</span>
+<span class="w">               </span><span class="ow">and</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="n">CLOCK</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">EOT</span><span class="w"> </span><span class="n">above</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="n">used</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">.</span><span class="n">e</span><span class="p">.,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">ECCENTRICITY</span><span class="p">,</span>
+<span class="w">               </span><span class="n">OBLIQUITY</span><span class="p">,</span><span class="w"> </span><span class="n">PERIHELION</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">EQUINOX</span><span class="w"> </span><span class="n">above</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="ow">NOT</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="k">are</span>
+<span class="w">               </span><span class="n">replaced</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">relevant</span><span class="w"> </span><span class="n">ORB2B</span><span class="w"> </span><span class="k">parameters</span><span class="w"> </span><span class="n">below</span><span class="p">.</span>
+
+<span class="w"> </span><span class="nl">ORB2B_YEARLEN</span><span class="p">:</span><span class="w"> </span><span class="n">Fixed</span><span class="w"> </span><span class="n">anomalistic</span><span class="w"> </span><span class="nf">year</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">mean</span><span class="w"> </span><span class="n">solar</span><span class="w"> </span><span class="n">days</span><span class="p">.</span>
+
+<span class="w"> </span><span class="nl">ORB2B_REF_YYYYMMDD</span><span class="p">:</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="nc">date</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">orbital</span><span class="w"> </span><span class="k">parameters</span><span class="p">.</span>
+
+<span class="w"> </span><span class="nl">ORB2B_REF_HHMMSS</span><span class="p">:</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="nc">time</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">orbital</span><span class="w"> </span><span class="k">parameters</span><span class="p">.</span>
+
+<span class="w"> </span><span class="nl">ORB2B_ECC_REF</span><span class="p">:</span><span class="w"> </span><span class="n">Orbital</span><span class="w"> </span><span class="n">eccentricity</span><span class="w"> </span><span class="k">at</span><span class="w"> </span><span class="n">reference</span><span class="w"> </span><span class="nc">date</span><span class="p">.</span>
+
+<span class="w"> </span><span class="nl">ORB2B_ECC_RATE</span><span class="p">:</span><span class="w"> </span><span class="n">Rate</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">change</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">orbital</span><span class="w"> </span><span class="n">eccentricity</span><span class="w"> </span><span class="n">per</span><span class="w"> </span><span class="n">Julian</span><span class="w"> </span><span class="n">century</span><span class="p">.</span>
+
+<span class="w"> </span><span class="nl">ORB2B_OBQ_REF</span><span class="p">:</span><span class="w"> </span><span class="n">Earth</span><span class="s1">&#39;s obliquity (axial tilt) at reference date [degrees].</span>
+
+<span class="s1"> ORB2B_OBQ_RATE: Rate of change of obliquity [degrees per Julian century].</span>
+
+<span class="s1"> ORB2B_LAMBDAP_REF: Longitude of perihelion at reference date [degrees]</span>
+<span class="s1">                    from March equinox to perihelion in direction of earth&#39;</span><span class="n">s</span><span class="w"> </span><span class="n">motion</span><span class="p">).</span>
+
+<span class="w"> </span><span class="nl">ORB2B_LAMBDAP_RATE</span><span class="p">:</span><span class="w"> </span><span class="n">Rate</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">change</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">LAMBDAP</span><span class="w"> </span><span class="o">[</span><span class="n">degrees per Julian century</span><span class="o">]</span>
+<span class="w">                     </span><span class="p">(</span><span class="n">Combines</span><span class="w"> </span><span class="k">both</span><span class="w"> </span><span class="n">equatorial</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">ecliptic</span><span class="w"> </span><span class="n">precession</span><span class="p">).</span>
+
+<span class="w"> </span><span class="nl">ORB2B_EQUINOX_YYYYMMDD</span><span class="p">:</span><span class="w"> </span><span class="n">March</span><span class="w"> </span><span class="n">equinox</span><span class="w"> </span><span class="nc">date</span><span class="p">.</span>
+
+<span class="w"> </span><span class="nl">ORB2B_EQUINOX_HHMMSS</span><span class="p">:</span><span class="w"> </span><span class="n">March</span><span class="w"> </span><span class="n">equinox</span><span class="w"> </span><span class="nc">time</span><span class="p">.</span>
+</code></pre></div>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~45"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLOCK</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-eccentricity"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ECCENTRICITY</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-obliquity"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>OBLIQUITY</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-perihelion"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>PERIHELION</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-equinox"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>EQUINOX</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-eot~2"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>EOT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orbit_anal2b"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORBIT_ANAL2B</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orb2b_yearlen~2"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORB2B_YEARLEN</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orb2b_ref_yyyymmdd"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORB2B_REF_YYYYMMDD</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orb2b_ref_hhmmss"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORB2B_REF_HHMMSS</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orb2b_ecc_ref~2"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORB2B_ECC_REF</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orb2b_ecc_rate~2"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORB2B_ECC_RATE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orb2b_obq_ref~2"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORB2B_OBQ_REF</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orb2b_obq_rate~2"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORB2B_OBQ_RATE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orb2b_lambdap_ref~2"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORB2B_LAMBDAP_REF</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orb2b_lambdap_rate~2"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORB2B_LAMBDAP_RATE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orb2b_equinox_yyyymmdd"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORB2B_EQUINOX_YYYYMMDD</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orb2b_equinox_hhmmss"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORB2B_EQUINOX_HHMMSS</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fix_sun~3"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>FIX_SUN</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~423"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-mapl_sunorbitcreate"></span>
+          type(<a href='../type/mapl_sunorbit.html'>MAPL_SunOrbit</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_sunorbitcreate~~CallsGraph Pages: 1 -->
+<svg id="procmapl_sunorbitcreateCallsGraph" width="566pt" height="326pt"
+ viewBox="0.00 0.00 566.00 326.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 322)">
+<title>proc~~mapl_sunorbitcreate~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-322 562,-322 562,4 -4,4"/>
+<!-- proc~mapl_sunorbitcreate -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node1" class="node">
+<title>proc~mapl_sunorbitcreate</title>
+<polygon fill="none" stroke="black" points="128,-171 0,-171 0,-147 128,-147 128,-171"/>
+<text text-anchor="middle" x="64" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SunOrbitCreate</text>
+</g>
+<!-- ESMF_TimeIntervalGet -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node2" class="node">
+<title>ESMF_TimeIntervalGet</title>
+<g id="a_proc~~mapl_sunorbitcreate~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalget.html" xlink:title="ESMF_TimeIntervalGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="296,-318 164,-318 164,-294 296,-294 296,-318"/>
+<text text-anchor="middle" x="230" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sunorbitcreate&#45;&gt;ESMF_TimeIntervalGet -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_sunorbitcreate&#45;&gt;ESMF_TimeIntervalGet</title>
+<path fill="none" stroke="#ff0000" d="M71.39,-171.38C85,-196.53 119.27,-253.82 164,-285 166.37,-286.65 168.88,-288.18 171.48,-289.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.06,-292.8 180.59,-293.96 173.09,-286.48 170.06,-292.8"/>
+</g>
+<!-- ESMF_TimeIntervalSet -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node3" class="node">
+<title>ESMF_TimeIntervalSet</title>
+<g id="a_proc~~mapl_sunorbitcreate~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="295,-276 165,-276 165,-252 295,-252 295,-276"/>
+<text text-anchor="middle" x="230" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sunorbitcreate&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_sunorbitcreate&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#ff0000" d="M76.33,-171.29C93.62,-189.38 128.35,-223.15 164,-243 167.25,-244.81 170.67,-246.49 174.19,-248.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="173.04,-251.36 183.63,-251.88 175.68,-244.87 173.04,-251.36"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node4" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_proc~~mapl_sunorbitcreate~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="275,-234 185,-234 185,-210 275,-210 275,-234"/>
+<text text-anchor="middle" x="230" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sunorbitcreate&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_sunorbitcreate&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#ff0000" d="M91.63,-171.06C111.42,-179.83 139.16,-191.74 164,-201 169.14,-202.92 174.54,-204.83 179.95,-206.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="179.03,-210.05 189.62,-209.9 181.25,-203.41 179.03,-210.05"/>
+</g>
+<!-- proc~calceafromta -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node5" class="node">
+<title>proc~calceafromta</title>
+<g id="a_proc~~mapl_sunorbitcreate~~CallsGraph_node5"><a xlink:href="../proc/calceafromta.html" xlink:title="calcEAfromTA">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="272.5,-192 187.5,-192 187.5,-168 272.5,-168 272.5,-192"/>
+<text text-anchor="middle" x="230" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calcEAfromTA</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sunorbitcreate&#45;&gt;proc~calceafromta -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_sunorbitcreate&#45;&gt;proc~calceafromta</title>
+<path fill="none" stroke="#ff0000" d="M128.41,-167.12C144.37,-169.16 161.33,-171.33 176.68,-173.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="176.66,-176.83 187.02,-174.62 177.55,-169.88 176.66,-176.83"/>
+</g>
+<!-- proc~calcmafromea -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node6" class="node">
+<title>proc~calcmafromea</title>
+<g id="a_proc~~mapl_sunorbitcreate~~CallsGraph_node6"><a xlink:href="../proc/calcmafromea.html" xlink:title="calcMAfromEA">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="274.5,-150 185.5,-150 185.5,-126 274.5,-126 274.5,-150"/>
+<text text-anchor="middle" x="230" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calcMAfromEA</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sunorbitcreate&#45;&gt;proc~calcmafromea -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_sunorbitcreate&#45;&gt;proc~calcmafromea</title>
+<path fill="none" stroke="#ff0000" d="M128.41,-150.88C143.79,-148.91 160.09,-146.82 174.99,-144.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.57,-148.37 185.05,-143.63 174.69,-141.43 175.57,-148.37"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_sunorbitcreate~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="271,-108 189,-108 189,-84 271,-84 271,-108"/>
+<text text-anchor="middle" x="230" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sunorbitcreate&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_sunorbitcreate&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M91.63,-146.94C111.42,-138.17 139.16,-126.26 164,-117 169.14,-115.08 174.54,-113.17 179.95,-111.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="181.25,-114.59 189.62,-108.1 179.03,-107.95 181.25,-114.59"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_sunorbitcreate~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="268,-66 192,-66 192,-42 268,-42 268,-66"/>
+<text text-anchor="middle" x="230" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sunorbitcreate&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_sunorbitcreate&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M76.33,-146.71C93.62,-128.62 128.35,-94.85 164,-75 169.64,-71.86 175.83,-69.1 182.07,-66.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="183.59,-69.88 191.85,-63.25 181.25,-63.29 183.59,-69.88"/>
+</g>
+<!-- proc~rect_pmpi -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node9" class="node">
+<title>proc~rect_pmpi</title>
+<g id="a_proc~~mapl_sunorbitcreate~~CallsGraph_node9"><a xlink:href="../proc/rect_pmpi.html" xlink:title="RECT_PMPI">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="265,-24 195,-24 195,0 265,0 265,-24"/>
+<text text-anchor="middle" x="230" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RECT_PMPI</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sunorbitcreate&#45;&gt;proc~rect_pmpi -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_sunorbitcreate&#45;&gt;proc~rect_pmpi</title>
+<path fill="none" stroke="#ff0000" d="M71.39,-146.62C85,-121.47 119.27,-64.18 164,-33 170.36,-28.57 177.71,-25.03 185.13,-22.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.49,-25.45 194.84,-18.93 184.25,-18.82 186.49,-25.45"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node10" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_sunorbitcreate~~CallsGraph_node10"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="456,-108 341,-108 341,-84 456,-84 456,-108"/>
+<text text-anchor="middle" x="398.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#003fff" d="M271.31,-96C289.17,-96 310.67,-96 330.82,-96"/>
+<polygon fill="#003fff" stroke="#003fff" points="330.89,-99.5 340.89,-96 330.89,-92.5 330.89,-99.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_sunorbitcreate~~CallsGraph_node11"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="465,-66 332,-66 332,-42 465,-42 465,-66"/>
+<text text-anchor="middle" x="398.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#003fff" d="M271.31,-85.83C291.93,-80.63 317.39,-74.21 340.04,-68.5"/>
+<polygon fill="#003fff" stroke="#003fff" points="341.04,-71.85 349.88,-66.01 339.33,-65.06 341.04,-71.85"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M268.37,-54C284.14,-54 303.11,-54 321.6,-54"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="321.79,-57.5 331.79,-54 321.79,-50.5 321.79,-57.5"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node12" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="556.5,-150 502.5,-150 502.5,-126 556.5,-126 556.5,-150"/>
+<text text-anchor="middle" x="529.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge12" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M436.47,-108.04C454.02,-113.75 474.92,-120.55 492.36,-126.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="491.59,-129.66 502.18,-129.43 493.75,-123.01 491.59,-129.66"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node13" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="556.5,-108 502.5,-108 502.5,-84 556.5,-84 556.5,-108"/>
+<text text-anchor="middle" x="529.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge13" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M456.08,-96C468.29,-96 480.89,-96 492.08,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="492.32,-99.5 502.32,-96 492.32,-92.5 492.32,-99.5"/>
+</g>
+<!-- proc~initialize~10 -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_node14" class="node">
+<title>proc~initialize~10</title>
+<g id="a_proc~~mapl_sunorbitcreate~~CallsGraph_node14"><a xlink:href="../proc/initialize~10.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="558,-66 501,-66 501,-42 558,-42 558,-66"/>
+<text text-anchor="middle" x="529.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~10 -->
+<g id="proc~~mapl_sunorbitcreate~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~10</title>
+<path fill="none" stroke="#00ffff" d="M465.13,-54C473.88,-54 482.59,-54 490.63,-54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="490.77,-57.5 500.77,-54 490.77,-50.5 490.77,-57.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_SunOrbit</span><span class="p">)</span><span class="w"> </span><span class="k">function </span><span class="n">MAPL_SunOrbitCreate</span><span class="p">(</span><span class="n">CLOCK</span><span class="p">,</span><span class="w">                  </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">ECCENTRICITY</span><span class="p">,</span><span class="w">           </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">OBLIQUITY</span><span class="p">,</span><span class="w">              </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">PERIHELION</span><span class="p">,</span><span class="w">             </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">EQUINOX</span><span class="p">,</span><span class="w">                </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">EOT</span><span class="p">,</span><span class="w">                    </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">ORBIT_ANAL2B</span><span class="p">,</span><span class="w">           </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">ORB2B_YEARLEN</span><span class="p">,</span><span class="w">          </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">ORB2B_REF_YYYYMMDD</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">ORB2B_REF_HHMMSS</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">ORB2B_ECC_REF</span><span class="p">,</span><span class="w">          </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">ORB2B_ECC_RATE</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">ORB2B_OBQ_REF</span><span class="p">,</span><span class="w">          </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">ORB2B_OBQ_RATE</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">ORB2B_LAMBDAP_REF</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">ORB2B_LAMBDAP_RATE</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">ORB2B_EQUINOX_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">ORB2B_EQUINOX_HHMMSS</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">                                                 </span><span class="n">FIX_SUN</span><span class="p">,</span><span class="w">                </span><span class="p">&amp;</span>
+<span class="w">                                                                      </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+
+<span class="c">! !ARGUMENTS:</span>
+
+<span class="w"> </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span>
+<span class="w"> </span><span class="kt">real</span><span class="w">              </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ECCENTRICITY</span>
+<span class="w"> </span><span class="kt">real</span><span class="w">              </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">OBLIQUITY</span>
+<span class="w"> </span><span class="kt">real</span><span class="w">              </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">PERIHELION</span>
+<span class="w"> </span><span class="kt">integer</span><span class="w">           </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">EQUINOX</span>
+<span class="w"> </span><span class="kt">logical</span><span class="w">           </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">EOT</span>
+<span class="w"> </span><span class="kt">logical</span><span class="w">           </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORBIT_ANAL2B</span>
+<span class="w"> </span><span class="kt">real</span><span class="w">              </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_YEARLEN</span>
+<span class="w"> </span><span class="kt">integer</span><span class="w">           </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_REF_YYYYMMDD</span>
+<span class="w"> </span><span class="kt">integer</span><span class="w">           </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_REF_HHMMSS</span>
+<span class="w"> </span><span class="kt">real</span><span class="w">              </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_ECC_REF</span>
+<span class="w"> </span><span class="kt">real</span><span class="w">              </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_ECC_RATE</span>
+<span class="w"> </span><span class="kt">real</span><span class="w">              </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_OBQ_REF</span>
+<span class="w"> </span><span class="kt">real</span><span class="w">              </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_OBQ_RATE</span>
+<span class="w"> </span><span class="kt">real</span><span class="w">              </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_LAMBDAP_REF</span>
+<span class="w"> </span><span class="kt">real</span><span class="w">              </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_LAMBDAP_RATE</span>
+<span class="w"> </span><span class="kt">integer</span><span class="w">           </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_EQUINOX_YYYYMMDD</span>
+<span class="w"> </span><span class="kt">integer</span><span class="w">           </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORB2B_EQUINOX_HHMMSS</span>
+<span class="w"> </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FIX_SUN</span>
+<span class="w"> </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="c">!EOPI</span>
+
+<span class="c">! =======================================</span>
+<span class="c">! PMN Dec 2019: Notes on Equation of Time</span>
+<span class="c">! =======================================</span>
+<span class="c">! (Part of a more complete analysis available in orbit.pdf)</span>
+<span class="c">!</span>
+<span class="c">! @ Introduction:</span>
+<span class="c">!</span>
+<span class="c">! The Earth rotates on its axis with a period T_S called the sidereal</span>
+<span class="c">! day (after the Latin for &quot;star&quot;, since it is the rotation period of</span>
+<span class="c">! the Earth with respect to distant stars). T_S is slightly shorter</span>
+<span class="c">! than the so-called mean solar day, or clock day, of duration T_M =</span>
+<span class="c">! 86400 seconds. This is because the Earth is a prograde planet, i.e.,</span>
+<span class="c">! it rotates about its axis in the same sense (counterclockwise look-</span>
+<span class="c">! ing down on the North Pole) as it orbits the sun. Specifically, say</span>
+<span class="c">! the sun crosses the meridian of some location at a particular time.</span>
+<span class="c">! And imagine there is a distant star directly behind the sun at that</span>
+<span class="c">! moment. After one sidereal day the location will rotate 360 degrees</span>
+<span class="c">! about the earth&#39;s axis and the distant star will again cross its</span>
+<span class="c">! merdian. But during that period the earth will have moved a small</span>
+<span class="c">! counterclockwise distance around its orbit and so it will take a</span>
+<span class="c">! small additional rotation of the earth for the sun to also cross</span>
+<span class="c">! the meridian and thereby complete a solar day.</span>
+<span class="c">!</span>
+<span class="c">! Put another way, a solar day is slightly longer than a sidereal day</span>
+<span class="c">! because the sun appears to move slowly eastward across the celestial</span>
+<span class="c">! sphere with respect to distant stars as the year passes. The path</span>
+<span class="c">! of this motion is called the ecliptic. And clearly what governs the</span>
+<span class="c">! length of a solar day is the apparent velocity of the sun along the</span>
+<span class="c">! ecliptic, or, more particularly, the equatorial component of that</span>
+<span class="c">! velocity. But both the magnitude and equatorial component of the solar</span>
+<span class="c">! ecliptic velocity change during the year, the former because the earth&#39;s</span>
+<span class="c">! orbit is elliptical, not circular, and the latter because the earth&#39;s</span>
+<span class="c">! axis of rotation is tilted with respect to the orbital (ecliptic) plane.</span>
+<span class="c">! Thus the length of a solar day changes during the year. While these</span>
+<span class="c">! factors cause only a small perturbation to the length of the solar</span>
+<span class="c">! day (less than 30 seconds), the perturbations accumulate so that at</span>
+<span class="c">! different times of the year apparent solar time (&quot;sundial time&quot;) and</span>
+<span class="c">! mean solar time (&quot;clock time&quot;) can differ by as much as ~15 minutes.</span>
+<span class="c">! This difference is called the Equation of Time.</span>
+<span class="c">!</span>
+<span class="c">! To be more rigorous, consider a fictitious &quot;Mean Sun&quot; that moves at</span>
+<span class="c">! constant eastward speed around the celestial equator, completing a</span>
+<span class="c">! full revolution in a year, namely in the period Y * T_M, where Y is</span>
+<span class="c">! the number of mean solar days in a year (e.g., 365.25). Thus, in one</span>
+<span class="c">! mean solar day, T_M, the mean sun has moved an angle 2*PI/Y eastward.</span>
+<span class="c">! Hence, beyond one full earth revolution, period T_S, an additional</span>
+<span class="c">! earth rotation of (T_M-T_S) * 2*PI/T_S = 2*PI/Y is required to &quot;catch</span>
+<span class="c">! up with the moving sun&quot;, as described earlier. Hence T_M - T_S = T_S / Y</span>
+<span class="c">! and so</span>
+<span class="c">!</span>
+<span class="c">! T_M = T_S (Y+1)/Y,..... (1)</span>
+<span class="c">!</span>
+<span class="c">! a constant (near unity) multiple of the fixed sidereal day. T_M is</span>
+<span class="c">! the length of the solar day for the &quot;mean sun&quot;, or the &quot;mean solar</span>
+<span class="c">! day&quot;. Because it is invariant during the year, it is convenient for</span>
+<span class="c">! timekeeping, and forms the basis for &quot;mean solar time&quot;, which at</span>
+<span class="c">! Greenwich is essentially UTC. By *definition*, T_M = 24h = 86400s.</span>
+<span class="c">! That is, what we know as &quot;hours&quot;, &quot;minutes&quot; and &quot;seconds&quot;, are just</span>
+<span class="c">! convenient integer fractions of the mean solar day. In these units,</span>
+<span class="c">! the sidereal day T_S is approximately 23h 56m 4s.</span>
+<span class="c">!</span>
+<span class="c">! The solar zenith angle calculation (in MAPL_SunGetInsolation) needs</span>
+<span class="c">! the true local solar hour angle, h_T, which is the angle, measured</span>
+<span class="c">! westward along the equator, from the local meridian to the true sun.</span>
+<span class="c">! This is just the Greenwich solar hour angle, H_T, plus the longitude,</span>
+<span class="c">! so we will henceforth work exclusively with Greenwich hour angles.</span>
+<span class="c">! We should use the hour angle of the *true* sun, H_T, but a common</span>
+<span class="c">! approximation replaces this with the hour angle of the mean sun</span>
+<span class="c">!</span>
+<span class="c">! H_M = 2*PI*(u-0.5),..... (2)</span>
+<span class="c">!</span>
+<span class="c">! where u is UTC time (in days) and the offset is needed because the mean</span>
+<span class="c">! solar hour angle is zero at &quot;noon&quot;. If more accuracy is required, the</span>
+<span class="c">! hour angle of the true sun is typically obtained as a small correction</span>
+<span class="c">! to H_M called the Equation of time, EOT:</span>
+<span class="c">!</span>
+<span class="c">! H_T = H_M + EOT,  where  EOT = H_T - H_M.</span>
+<span class="c">!</span>
+<span class="c">! As discussed above, EOT corrects for two factors:</span>
+<span class="c">! (a) the variable speed of the earth in its elliptical orbit about</span>
+<span class="c">!     the sun (e.g., moving fastest at perihelion), and</span>
+<span class="c">! (b) the tilt of the earth&#39;s axis of rotation wrt its orbital plane</span>
+<span class="c">!     (the &quot;obliquity&quot;), which causes the equatorial projection of</span>
+<span class="c">!     the sun&#39;s apparent ecliptic motion to vary with the season</span>
+<span class="c">!     (e.g., being parallel to the equator at the solstices.)</span>
+<span class="c">!</span>
+<span class="c">! @ Derivation of Equation of Time:</span>
+<span class="c">!</span>
+<span class="c">! We can write</span>
+<span class="c">!</span>
+<span class="c">! H_T  = H_1 - (H_1 - H_T) = H_1 - a_T,</span>
+<span class="c">!</span>
+<span class="c">! where H_1 is the Greenwich hour angle of the First Point of Aries (the</span>
+<span class="c">! location of the vernal equinox, denoted &quot;1PoA&quot;), and is also known as the</span>
+<span class="c">! Greenwich Sidereal hour angle, and where a_T is the right ascension of the</span>
+<span class="c">! true sun (since the right ascension of any object is just the difference</span>
+<span class="c">! between the hour angles of 1PoA and the object). Hence,</span>
+<span class="c">!</span>
+<span class="c">! EOT = H_1 - H_M - a_T...... (3)</span>
+<span class="c">!</span>
+<span class="c">! All three terms on the right of (3) are time variable: a_T changes slowly</span>
+<span class="c">! throughout the year, and is known from the earth-sun two-body elliptical</span>
+<span class="c">! orbit solution, while H_1 and H_M vary rapidly with earth&#39;s rotation. H_M</span>
+<span class="c">! has a period of one mean solar day, T_M, and H_1 has a period of one</span>
+<span class="c">! sidereal day, T_S.</span>
+<span class="c">!</span>
+<span class="c">! It may seem from from (2) that the mean sun and its hour angle are fully</span>
+<span class="c">! specified. That, in fact, is not yet the case: (2) is really just a def-</span>
+<span class="c">! inition of UTC, namely, that one UTC day is one mean solar day and that</span>
+<span class="c">! the time of culmination of the mean sun, what we call &quot;noon&quot;, occurs at</span>
+<span class="c">! UTC 12h00m. What we are still at liberty to do is specify the phasing of</span>
+<span class="c">! the mean sun in its equatorial orbit, e.g., by specifying the time u_R</span>
+<span class="c">! at which the mean sun passes through 1PoA (both on the equator). At this</span>
+<span class="c">! time, H_1(u_R) = H_M(u_R), and so</span>
+<span class="c">!</span>
+<span class="c">! H_1(u) - H_M(u) = 2*PI*(u-u_R)*(Y+1)/Y - 2*PI*(u-u_R)</span>
+<span class="c">!                 = 2*PI * (u-u_R) / Y</span>
+<span class="c">!                       = MA(u) - MA(u_R),... (4)</span>
+<span class="c">!</span>
+<span class="c">! where MA(u) = 2*PI * (u-u_P) / Y is the so-called &quot;mean anomaly&quot;, known</span>
+<span class="c">! from the earth-sun two-body orbital solution, and u_P is the time of</span>
+<span class="c">! perihelion. Thus, to fully determine EOT, through (3) and (4), we need</span>
+<span class="c">! only to specify MA(u_R).</span>
+<span class="c">!</span>
+<span class="c">! To understand the mean anomaly MA, consider the standard two-body earth-</span>
+<span class="c">! sun problem in which the earth E moves in an elliptical orbit about the</span>
+<span class="c">! sun S at one focus, all in the ecliptic plane. The point on the ellipse</span>
+<span class="c">! closest to S is called the perihelion P. Obviously, the center of the</span>
+<span class="c">! ellipse O, the focus S and the perihelion P are co-linear, the so-called</span>
+<span class="c">! major axis of the ellipse. Additionally, let C be the circumscribing circle</span>
+<span class="c">! of the ellipse, with center O and passing through P (and the corresponding</span>
+<span class="c">! aphelion A). By Kepler&#39;s Second Law, the sun-earth vector sweeps out equal</span>
+<span class="c">! areas in equal times, so the fractional area of the elliptical sector PSE</span>
+<span class="c">! is a linear function of time, being zero at perihelion and one a year later.</span>
+<span class="c">! Specifically, this fractional area is none other than the scaled mean anomaly</span>
+<span class="c">! MA(u)/(2*PI) = (u - u_P) / Y. Clearly MA(u) can also be interpreted as an</span>
+<span class="c">! angle, the angle POQ of a point Q orbiting on the circumcircle C at constant</span>
+<span class="c">! speed in the same direction as the earth, also with a yearly period, and</span>
+<span class="c">! passing through P at the same time u_P as the earth. Thus the point Q can</span>
+<span class="c">! be conceptualized as a sort of &quot;mean earth&quot; orbiting a &quot;second mean sun&quot;</span>
+<span class="c">! (different from M above) at O. Note that while the angle MA(u) = angle POQ</span>
+<span class="c">! of this mean earth at time u is a linear function of time, the corresponding</span>
+<span class="c">! angle of the real earth, namely TA(u) = angle PSE, called the true anomaly,</span>
+<span class="c">! is a non-linear function of time, since the real earth has a variable speed</span>
+<span class="c">! in its elliptical orbit, e.g., moving faster at perihelion, so that its areal</span>
+<span class="c">! fraction is linear in time. The relationship between MA(u) and TA(u) is known</span>
+<span class="c">! from the orbital solution. Finally, the ecliptic longitude of the earth,</span>
+<span class="c">! lambda = angle 1SE is the angle at the sun, measured in the same direction</span>
+<span class="c">! as the earth&#39;s motion, from the First Point of Aries to the earth. Then</span>
+<span class="c">!</span>
+<span class="c">!    TA(u) = angle PSE(u) = angle PS1 + angle 1SE(u) = lambda(u) - lambda_P,</span>
+<span class="c">!</span>
+<span class="c">! where lambda_P = lambda(u_P) = angle 1SP = -angle PS1 is known as the</span>
+<span class="c">! longitude of perihelion, and is currently about 283 deg, or equivalently</span>
+<span class="c">! -77 deg.</span>
+<span class="c">!</span>
+<span class="c">! With this background, we can understand the quantity MA(u_R) we are trying</span>
+<span class="c">! to specify. If we *choose*</span>
+<span class="c">!</span>
+<span class="c">!                      MA(u_R) = -lambda_P = angle PS1... (5)</span>
+<span class="c">!                      &lt;==&gt; angle POQ(u_R) = angle PS1,</span>
+<span class="c">!</span>
+<span class="c">! then at u_R, viewed from the mean earth Q, the second (ecliptic) mean sun</span>
+<span class="c">! O is in direction of 1PoA. And at that same time, by definition of u_R,</span>
+<span class="c">! the first (equatorial) mean sun M, as seen from the real earth E, is also</span>
+<span class="c">! in direction of 1PoA.</span>
+<span class="c">!</span>
+<span class="c">! I (PMN) have verified that the choice (5) for MA(u_R) leads to zero mean</span>
+<span class="c">! EOT to first order in the eccentricity, e. I cannot say, at this point,</span>
+<span class="c">! that it is generally true for any order in e. I add below a final explicit</span>
+<span class="c">! enforcement of zero mean EOT to the code. [I found that the order e^2 term</span>
+<span class="c">! for the mean EOT was NOT zero, and was larger than the mean EOT produced</span>
+<span class="c">! by this code (which is valid for all orders in e) before any explicity</span>
+<span class="c">! correction of the mean to zero. This suggests: (a) that I made a mistake</span>
+<span class="c">! in my calculations, or (b) that higer order e terms provide some cancel-</span>
+<span class="c">! ation.]</span>
+<span class="c">!</span>
+<span class="c">! Hence, finally,</span>
+<span class="c">!</span>
+<span class="c">! EOT(u) = MA(u) + PRHV - a_T(u)... (6)</span>
+<span class="c">!</span>
+<span class="c">! where PRHV is the name for lamba_P in the code.</span>
+<span class="c">! ===========================================================================</span>
+
+<span class="c">! Locals</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;SunOrbitCreate&quot;</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">YEARLEN</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">K</span><span class="p">,</span><span class="w"> </span><span class="n">KP</span><span class="p">,</span><span class="w"> </span><span class="n">YEARS_PER_CYCLE</span><span class="p">,</span><span class="w"> </span><span class="n">DAYS_PER_CYCLE</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">TREL</span><span class="p">,</span><span class="w"> </span><span class="n">T1</span><span class="p">,</span><span class="w"> </span><span class="n">T2</span><span class="p">,</span><span class="w"> </span><span class="n">T3</span><span class="p">,</span><span class="w"> </span><span class="n">T4</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">SOB</span><span class="p">,</span><span class="w"> </span><span class="n">COB</span><span class="p">,</span><span class="w"> </span><span class="n">OMG0</span><span class="p">,</span><span class="w"> </span><span class="n">OMG</span><span class="p">,</span><span class="w"> </span><span class="n">PRH</span><span class="p">,</span><span class="w"> </span><span class="n">PRHV</span>
+<span class="w">      </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">OMECC</span><span class="p">,</span><span class="w"> </span><span class="n">OPECC</span><span class="p">,</span><span class="w"> </span><span class="n">OMSQECC</span><span class="p">,</span><span class="w"> </span><span class="n">EAFAC</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">TA</span><span class="p">,</span><span class="w"> </span><span class="n">EA</span><span class="p">,</span><span class="w"> </span><span class="n">MA</span><span class="p">,</span><span class="w"> </span><span class="n">TRRA</span><span class="p">,</span><span class="w"> </span><span class="n">MNRA</span>
+<span class="w">      </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">meanEOT</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_SunOrbit</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORBIT</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">day</span><span class="p">,</span><span class="w"> </span><span class="n">hour</span><span class="p">,</span><span class="w"> </span><span class="n">minute</span><span class="p">,</span><span class="w"> </span><span class="nb">second</span>
+<span class="nb">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">days</span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ECC_EQNX</span><span class="p">,</span><span class="w"> </span><span class="n">LAMBDAP_EQNX</span><span class="p">,</span><span class="w"> </span><span class="n">EAFAC_EQNX</span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TA_EQNX</span><span class="p">,</span><span class="w"> </span><span class="n">EA_EQNX</span><span class="p">,</span><span class="w"> </span><span class="n">MA_EQNX</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DT</span>
+
+<span class="w">      </span><span class="c">! record inputs needed by both orbit methods</span>
+<span class="w">      </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">CLOCK</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">CLOCK</span>
+<span class="w">      </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">EOT</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">EOT</span>
+<span class="w">      </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ANAL2B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT_ANAL2B</span>
+
+<span class="w">      </span><span class="c">! Analytic two-body orbit?</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ORBIT_ANAL2B</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="w">        </span><span class="c">! record inputs in ORBIT type</span>
+<span class="w">        </span><span class="k">associate</span><span class="p">(</span><span class="n">D2R</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">MAPL_DEGREES_TO_RADIANS</span><span class="p">)</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_YEARLEN</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">ORB2B_YEARLEN</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_ECC_REF</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">ORB2B_ECC_REF</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_OBQ_REF</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">ORB2B_OBQ_REF</span><span class="w">      </span><span class="o">*</span><span class="w"> </span><span class="n">D2R</span><span class="w">           </span><span class="c">! radians</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_LAMBDAP_REF</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">ORB2B_LAMBDAP_REF</span><span class="w">  </span><span class="o">*</span><span class="w"> </span><span class="n">D2R</span><span class="w">           </span><span class="c">! radians</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_ECC_RATE</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">ORB2B_ECC_RATE</span><span class="w">           </span><span class="o">/</span><span class="w"> </span><span class="mi">3652</span><span class="mf">5.</span><span class="w">  </span><span class="c">! per day</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_OBQ_RATE</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">ORB2B_OBQ_RATE</span><span class="w">     </span><span class="o">*</span><span class="w"> </span><span class="n">D2R</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">3652</span><span class="mf">5.</span><span class="w">  </span><span class="c">! radians per day</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_LAMBDAP_RATE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORB2B_LAMBDAP_RATE</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">D2R</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">3652</span><span class="mf">5.</span><span class="w">  </span><span class="c">! radians per day</span>
+<span class="w">        </span><span class="k">end associate</span>
+<span class="w">        </span><span class="c">! record MAPL Time object for REFerence time</span>
+<span class="w">        </span><span class="n">year</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">ORB2B_REF_YYYYMMDD</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">10000</span>
+<span class="w">        </span><span class="n">month</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">ORB2B_REF_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="mi">10000</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">        </span><span class="n">day</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">ORB2B_REF_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span>
+<span class="w">        </span><span class="n">hour</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">ORB2B_REF_HHMMSS</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">10000</span>
+<span class="w">        </span><span class="n">minute</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">ORB2B_REF_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="mi">10000</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">        </span><span class="nb">second</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">ORB2B_REF_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_TIME_REF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">          </span><span class="n">yy</span><span class="o">=</span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">dd</span><span class="o">=</span><span class="n">day</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">        </span><span class="c">! record MAPL Time object for EQUINOX</span>
+<span class="w">        </span><span class="n">year</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">ORB2B_EQUINOX_YYYYMMDD</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">10000</span>
+<span class="w">        </span><span class="n">month</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">ORB2B_EQUINOX_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="mi">10000</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">        </span><span class="n">day</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">ORB2B_EQUINOX_YYYYMMDD</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span>
+<span class="w">        </span><span class="n">hour</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">ORB2B_EQUINOX_HHMMSS</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">10000</span>
+<span class="w">        </span><span class="n">minute</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">ORB2B_EQUINOX_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="mi">10000</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">        </span><span class="nb">second</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">ORB2B_EQUINOX_HHMMSS</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_TIME_EQUINOX</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">          </span><span class="n">yy</span><span class="o">=</span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">dd</span><span class="o">=</span><span class="n">day</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">        </span><span class="c">! time-invariant precalculations</span>
+<span class="w">        </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_OMG0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MAPL_PI</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">ORB2B_YEARLEN</span>
+
+<span class="w">        </span><span class="c">! at provided ORB2B_TIME_EQUINOX LAMBDA=0 by definition</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_TIME_EQUINOX</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_TIME_REF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">          </span><span class="n">d_r8</span><span class="o">=</span><span class="n">days</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">        </span><span class="n">ECC_EQNX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_ECC_REF</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">days</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_ECC_RATE</span>
+<span class="w">        </span><span class="n">LAMBDAP_EQNX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_LAMBDAP_REF</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">days</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_LAMBDAP_RATE</span>
+<span class="w">        </span><span class="n">EAFAC_EQNX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">((</span><span class="mf">1.</span><span class="o">-</span><span class="n">ECC_EQNX</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span><span class="o">+</span><span class="n">ECC_EQNX</span><span class="p">))</span>
+<span class="w">        </span><span class="n">TA_EQNX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">LAMBDAP_EQNX</span><span class="w">  </span><span class="c">! since LAMBDA=0</span>
+<span class="w">        </span><span class="n">EA_EQNX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calcEAfromTA</span><span class="p">(</span><span class="n">TA_EQNX</span><span class="p">,</span><span class="n">EAFAC_EQNX</span><span class="p">)</span>
+<span class="w">        </span><span class="n">MA_EQNX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calcMAfromEA</span><span class="p">(</span><span class="n">EA_EQNX</span><span class="p">,</span><span class="n">ECC_EQNX</span><span class="p">)</span>
+
+<span class="w">        </span><span class="c">! Time of one perihelion (all subsequent ORB2B_YEARLEN apart)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">DT</span><span class="p">,</span><span class="w"> </span><span class="n">d_r8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">dble</span><span class="p">(</span><span class="n">MA_EQNX</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_OMG0</span><span class="p">))</span>
+<span class="w">        </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_TIME_PERI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_TIME_EQUINOX</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">DT</span>
+
+<span class="w">      </span><span class="k">else</span>
+
+<span class="w">        </span><span class="c">! ==================================</span>
+<span class="w">        </span><span class="c">! Standard tabularized intercalation</span>
+<span class="w">        </span><span class="c">! ==================================</span>
+
+<span class="w">        </span><span class="c">! MJS:  This needs to come from the calendar when the time manager works right.</span>
+<span class="w">        </span><span class="n">YEARLEN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">36</span><span class="mf">5.25</span>
+
+<span class="w">        </span><span class="c">! Factors involving the orbital parameters</span>
+<span class="w">        </span><span class="c">!-----------------------------------------</span>
+<span class="w">        </span><span class="n">OMECC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ECCENTRICITY</span>
+<span class="w">        </span><span class="n">OPECC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ECCENTRICITY</span>
+<span class="w">        </span><span class="n">OMSQECC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ECCENTRICITY</span><span class="o">**</span><span class="mi">2</span><span class="w"> </span><span class="c">! pmn: consider changing to line below when zero-diff not issue</span>
+<span class="c">!       OMSQECC = OMECC * OPECC</span>
+<span class="w">        </span><span class="n">EAFAC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="n">OMECC</span><span class="o">/</span><span class="n">OPECC</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">associate</span><span class="p">(</span><span class="n">D2R</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">MAPL_DEGREES_TO_RADIANS</span><span class="p">)</span>
+<span class="w">          </span><span class="n">OMG0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.</span><span class="o">*</span><span class="n">MAPL_PI</span><span class="o">/</span><span class="n">YEARLEN</span>
+<span class="w">          </span><span class="n">OMG</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">OMG0</span><span class="o">/</span><span class="nb">sqrt</span><span class="p">(</span><span class="n">OMSQECC</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span>
+<span class="w">          </span><span class="n">PRH</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">PERIHELION</span><span class="o">*</span><span class="n">D2R</span>
+<span class="w">          </span><span class="n">SOB</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">sin</span><span class="p">(</span><span class="n">OBLIQUITY</span><span class="o">*</span><span class="n">D2R</span><span class="p">)</span>
+<span class="w">          </span><span class="n">COB</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">cos</span><span class="p">(</span><span class="n">OBLIQUITY</span><span class="o">*</span><span class="n">D2R</span><span class="p">)</span>
+<span class="w">        </span><span class="k">end associate</span>
+
+<span class="w">        </span><span class="c">! PRH is the ecliptic longitude of the perihelion, measured (at the Sun)</span>
+<span class="w">        </span><span class="c">! from the autumnal equinox in the direction of the Earth`s orbital motion</span>
+<span class="w">        </span><span class="c">! (counterclockwise as viewed from ecliptic north pole).</span>
+<span class="w">        </span><span class="c">! For EOT calculations we will reference the perihelion wrt to the vernal</span>
+<span class="w">        </span><span class="c">! equinox, PRHV. Of course, the difference is just PI.</span>
+<span class="w">        </span><span class="c">! pmn: once the EOT code is established and zero-diff not an issue,</span>
+<span class="w">        </span><span class="c">!   consider removing original PRH and changing the original (non-EOT),</span>
+<span class="w">        </span><span class="c">!   code, which employs</span>
+<span class="w">        </span><span class="c">!       cos(Y \pm PI) = -COS(Y)</span>
+<span class="w">        </span><span class="c">! to use PRHV, namely</span>
+<span class="w">        </span><span class="c">!       -cos(Y-PRH) = cos(Y-PRH-PI) = cos(Y-PRHV)</span>
+<span class="w">        </span><span class="n">PRHV</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PRH</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">MAPL_PI_R8</span>
+
+<span class="w">        </span><span class="c">! Compute length of leap cycle</span>
+<span class="w">        </span><span class="c">! ----------------------------</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">YEARLEN</span><span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">YEARLEN</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0.</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">YEARS_PER_CYCLE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nint</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="n">YEARLEN</span><span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">YEARLEN</span><span class="p">)))</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">         </span><span class="n">YEARS_PER_CYCLE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">        </span><span class="k">endif</span>
+
+<span class="k">        </span><span class="n">DAYS_PER_CYCLE</span><span class="o">=</span><span class="nb">nint</span><span class="p">(</span><span class="n">YEARLEN</span><span class="o">*</span><span class="n">YEARS_PER_CYCLE</span><span class="p">)</span>
+
+<span class="w">        </span><span class="c">! save inputs and intercalculation details</span>
+<span class="w">        </span><span class="c">! ----------------------------------------</span>
+<span class="w">        </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">OB</span><span class="w">              </span><span class="o">=</span><span class="w"> </span><span class="n">OBLIQUITY</span>
+<span class="w">        </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ECC</span><span class="w">             </span><span class="o">=</span><span class="w"> </span><span class="n">ECCENTRICITY</span>
+<span class="w">        </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">PER</span><span class="w">             </span><span class="o">=</span><span class="w"> </span><span class="n">PERIHELION</span>
+<span class="w">        </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">EQNX</span><span class="w">            </span><span class="o">=</span><span class="w"> </span><span class="n">EQUINOX</span>
+<span class="w">        </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">YEARLEN</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">YEARLEN</span>
+<span class="w">        </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">YEARS_PER_CYCLE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">YEARS_PER_CYCLE</span>
+<span class="w">        </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">DAYS_PER_CYCLE</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">DAYS_PER_CYCLE</span>
+
+<span class="w">        </span><span class="c">! Allocate orbital cycle outputs</span>
+<span class="w">        </span><span class="c">! ------------------------------</span>
+<span class="w">        </span><span class="c">! TH: Ecliptic longitude of the true Sun, TREL [radians]</span>
+<span class="w">        </span><span class="c">! ZS: Sine of declination</span>
+<span class="w">        </span><span class="c">! ZC: Cosine of declination</span>
+<span class="w">        </span><span class="c">! PP: Inverse of square of earth-sun distance [1/(AU**2)]</span>
+<span class="w">        </span><span class="c">! ET: Equation of time [radians] =</span>
+<span class="w">        </span><span class="c">!     True solar hour angle - Mean solar hour angle</span>
+
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">TH</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">TH</span><span class="p">)</span>
+<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">TH</span><span class="p">(</span><span class="n">DAYS_PER_CYCLE</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZC</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZC</span><span class="p">(</span><span class="n">DAYS_PER_CYCLE</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZS</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZS</span><span class="p">)</span>
+<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZS</span><span class="p">(</span><span class="n">DAYS_PER_CYCLE</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">PP</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">PP</span><span class="p">)</span>
+<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">PP</span><span class="p">(</span><span class="n">DAYS_PER_CYCLE</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">EOT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ET</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ET</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ET</span><span class="p">(</span><span class="n">DAYS_PER_CYCLE</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">        </span><span class="k">end if</span>
+
+<span class="w">        </span><span class="c">! Begin integration at the vernal equinox (K=1, KP=EQUINOX), at</span>
+<span class="w">        </span><span class="c">! which, by defn, the ecliptic longitude of the true sun is zero.</span>
+<span class="w">        </span><span class="c">! Right ascension of true sun at EQUINOX is also zero by defn.</span>
+<span class="w">        </span><span class="c">! --------------------------------------------------------------</span>
+<span class="w">        </span><span class="n">KP</span><span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="n">EQUINOX</span>
+<span class="w">        </span><span class="n">TREL</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="mf">0.</span>
+<span class="w">        </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZS</span><span class="p">(</span><span class="n">KP</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sin</span><span class="p">(</span><span class="n">TREL</span><span class="p">)</span><span class="o">*</span><span class="n">SOB</span>
+<span class="w">        </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZC</span><span class="p">(</span><span class="n">KP</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZS</span><span class="p">(</span><span class="n">KP</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">        </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">PP</span><span class="p">(</span><span class="n">KP</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">ECCENTRICITY</span><span class="o">*</span><span class="nb">cos</span><span class="p">(</span><span class="n">TREL</span><span class="o">-</span><span class="n">PRH</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">OMSQECC</span><span class="w"> </span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+<span class="w">        </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">TH</span><span class="p">(</span><span class="n">KP</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TREL</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">EOT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">          </span><span class="c">! Right ascension of &quot;mean sun&quot; = MA(u) + PRHV [eqn (6) above].</span>
+<span class="w">          </span><span class="c">! Calcn of True (TA), Eccentric (EA), and Mean Anomaly (MA).</span>
+<span class="w">          </span><span class="n">TA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TREL</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">PRHV</span><span class="w">                    </span><span class="c">! by defn of TA and PRHV</span>
+<span class="w">          </span><span class="n">EA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.d0</span><span class="o">*</span><span class="nb">atan</span><span class="p">(</span><span class="n">EAFAC</span><span class="o">*</span><span class="nb">tan</span><span class="p">(</span><span class="n">TA</span><span class="o">/</span><span class="mf">2.d0</span><span class="p">))</span><span class="w">  </span><span class="c">! BM 4-55</span>
+<span class="w">          </span><span class="n">MA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EA</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ECCENTRICITY</span><span class="o">*</span><span class="nb">sin</span><span class="p">(</span><span class="n">EA</span><span class="p">)</span><span class="w">      </span><span class="c">! Kepler&#39;s eqn (BM 4-49 ff.)</span>
+<span class="w">          </span><span class="n">MNRA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MA</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">PRHV</span><span class="w">                    </span><span class="c">! see EOT notes above</span>
+<span class="w">          </span><span class="n">TRRA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.</span><span class="w">                           </span><span class="c">! because TREL=0 at Equinox</span>
+
+<span class="w">          </span><span class="c">! Equation of Time, ET [radians]</span>
+<span class="w">          </span><span class="c">! True Solar hour angle = Mean Solar hour angle + ET</span>
+<span class="w">          </span><span class="c">! (hour angle and right ascension are in reverse direction)</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ET</span><span class="p">(</span><span class="n">KP</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rect_pmpi</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">MNRA</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">TRRA</span><span class="p">))</span>
+<span class="w">        </span><span class="k">end if</span>
+
+<span class="w">        </span><span class="c">! Integrate orbit for entire leap cycle using Runge-Kutta</span>
+<span class="w">        </span><span class="c">! Mean sun moves at constant speed around Celestial Equator</span>
+<span class="w">        </span><span class="c">! ---------------------------------------------------------</span>
+<span class="w">        </span><span class="k">do </span><span class="n">K</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">DAYS_PER_CYCLE</span>
+<span class="w">          </span><span class="n">T1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dTRELdDAY</span><span class="p">(</span><span class="n">TREL</span><span class="w">       </span><span class="p">,</span><span class="n">OMG</span><span class="p">,</span><span class="n">ECCENTRICITY</span><span class="p">,</span><span class="n">PRH</span><span class="p">)</span>
+<span class="w">          </span><span class="n">T2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dTRELdDAY</span><span class="p">(</span><span class="n">TREL</span><span class="o">+</span><span class="n">T1</span><span class="o">*</span><span class="mf">0.5</span><span class="p">,</span><span class="n">OMG</span><span class="p">,</span><span class="n">ECCENTRICITY</span><span class="p">,</span><span class="n">PRH</span><span class="p">)</span>
+<span class="w">          </span><span class="n">T3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dTRELdDAY</span><span class="p">(</span><span class="n">TREL</span><span class="o">+</span><span class="n">T2</span><span class="o">*</span><span class="mf">0.5</span><span class="p">,</span><span class="n">OMG</span><span class="p">,</span><span class="n">ECCENTRICITY</span><span class="p">,</span><span class="n">PRH</span><span class="p">)</span>
+<span class="w">          </span><span class="n">T4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dTRELdDAY</span><span class="p">(</span><span class="n">TREL</span><span class="o">+</span><span class="n">T3</span><span class="w">    </span><span class="p">,</span><span class="n">OMG</span><span class="p">,</span><span class="n">ECCENTRICITY</span><span class="p">,</span><span class="n">PRH</span><span class="p">)</span>
+<span class="w">          </span><span class="n">KP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">KP</span><span class="p">,</span><span class="n">DAYS_PER_CYCLE</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">          </span><span class="n">TREL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TREL</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">T1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">2.0</span><span class="o">*</span><span class="p">(</span><span class="n">T2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">T3</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">T4</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">6.0</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZS</span><span class="p">(</span><span class="n">KP</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sin</span><span class="p">(</span><span class="n">TREL</span><span class="p">)</span><span class="o">*</span><span class="n">SOB</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZC</span><span class="p">(</span><span class="n">KP</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ZS</span><span class="p">(</span><span class="n">KP</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">PP</span><span class="p">(</span><span class="n">KP</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">ECCENTRICITY</span><span class="o">*</span><span class="nb">cos</span><span class="p">(</span><span class="n">TREL</span><span class="o">-</span><span class="n">PRH</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">OMSQECC</span><span class="w"> </span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">TH</span><span class="p">(</span><span class="n">KP</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TREL</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">EOT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="c">! From BM 1-15 and 1-16 with beta=0 (Sun is on ecliptic),</span>
+<span class="w">            </span><span class="c">! and dividing through by common cos(dec) since it does not</span>
+<span class="w">            </span><span class="c">! affect the ratio of sin(RA) to cos(RA).</span>
+<span class="w">            </span><span class="n">TRRA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atan2</span><span class="p">(</span><span class="nb">sin</span><span class="p">(</span><span class="n">TREL</span><span class="p">)</span><span class="o">*</span><span class="n">COB</span><span class="p">,</span><span class="nb">cos</span><span class="p">(</span><span class="n">TREL</span><span class="p">))</span>
+<span class="w">            </span><span class="n">MNRA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MNRA</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">OMG0</span>
+<span class="w">            </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ET</span><span class="p">(</span><span class="n">KP</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rect_pmpi</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">MNRA</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">TRRA</span><span class="p">))</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">        enddo</span>
+
+<span class="w">        </span><span class="c">! enforce zero mean EOT (just in case)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">EOT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">meanEOT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ET</span><span class="p">)</span><span class="o">/</span><span class="n">DAYS_PER_CYCLE</span>
+<span class="w">          </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ET</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ET</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">meanEOT</span>
+<span class="w">        </span><span class="k">end if</span>
+
+<span class="k">      end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">FIX_SUN</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">FIX_SUN</span><span class="o">=</span><span class="n">FIX_SUN</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">FIX_SUN</span><span class="o">=</span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">CREATED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span>
+<span class="w">      </span><span class="n">MAPL_SunOrbitCreate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">contains</span>
+
+<span class="k">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w"> </span><span class="k">function </span><span class="n">dTRELdDAY</span><span class="p">(</span><span class="n">TREL</span><span class="p">,</span><span class="n">OMG</span><span class="p">,</span><span class="n">ECCENTRICITY</span><span class="p">,</span><span class="n">PRH</span><span class="p">)</span>
+<span class="w">            </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TREL</span><span class="w"> </span><span class="c">! ecliptic longitude of true Sun</span>
+<span class="w">            </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">OMG</span>
+<span class="w">            </span><span class="kt">real</span><span class="p">,</span><span class="w">              </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ECCENTRICITY</span>
+<span class="w">            </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">PRH</span>
+
+<span class="w">            </span><span class="n">dTRELdDAY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OMG</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">ECCENTRICITY</span><span class="o">*</span><span class="nb">cos</span><span class="p">(</span><span class="n">TREL</span><span class="o">-</span><span class="n">PRH</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+<span class="w">         </span><span class="k">end function </span><span class="n">dTRELdDAY</span>
+
+<span class="w">    </span><span class="k">end function </span><span class="n">MAPL_SunOrbitCreate</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-06-24T17:56:00.056297             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
