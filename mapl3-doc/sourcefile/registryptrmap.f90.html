@@ -1,0 +1,601 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>RegistryPtrMap.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>RegistryPtrMap.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.6% of total for source files.">1769 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/RegistryPtrMap.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">RegistryPtrMap.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_registryptrmap.html">mapl3g_RegistryPtrMap</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/registryptrmap.f90.html#src">RegistryPtrMap.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~registryptrmap.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefileregistryptrmapf90EfferentGraph" width="407pt" height="32pt"
+ viewBox="0.00 0.00 407.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~registryptrmap.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>sourcefile~~registryptrmap.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 403,-28 403,4 -4,4"/>
+<!-- sourcefile~registryptrmap.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~registryptrmap.f90</title>
+<polygon fill="none" stroke="black" points="399,-24 284,-24 284,0 399,0 399,-24"/>
+<text text-anchor="middle" x="341.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">RegistryPtrMap.F90</text>
+</g>
+<!-- sourcefile~registryptr.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~registryptr.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/registryptr.f90.html" xlink:title="RegistryPtr.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="248,-24 157,-24 157,0 248,0 248,-24"/>
+<text text-anchor="middle" x="202.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegistryPtr.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~registryptrmap.f90&#45;&gt;sourcefile~registryptr.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~registryptrmap.f90&#45;&gt;sourcefile~registryptr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M283.99,-12C275.5,-12 266.75,-12 258.3,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="258.17,-8.5 248.17,-12 258.17,-15.5 258.17,-8.5"/>
+</g>
+<!-- sourcefile~abstractregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~abstractregistry.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/abstractregistry.f90.html" xlink:title="AbstractRegistry.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="121,-24 0,-24 0,0 121,0 121,-24"/>
+<text text-anchor="middle" x="60.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractRegistry.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~registryptr.f90&#45;&gt;sourcefile~abstractregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~registryptr.f90&#45;&gt;sourcefile~abstractregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M156.82,-12C148.65,-12 139.95,-12 131.26,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="131.09,-8.5 121.09,-12 131.09,-15.5 131.09,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~registryptrmap.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefileregistryptrmapf90AfferentGraph" width="493pt" height="494pt"
+ viewBox="0.00 0.00 493.00 494.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 490)">
+<title>sourcefile~~registryptrmap.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-490 489,-490 489,4 -4,4"/>
+<!-- sourcefile~registryptrmap.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~registryptrmap.f90</title>
+<polygon fill="none" stroke="black" points="115,-255 0,-255 0,-231 115,-231 115,-255"/>
+<text text-anchor="middle" x="57.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50">RegistryPtrMap.F90</text>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~hierarchicalregistry.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/hierarchicalregistry.f90.html" xlink:title="HierarchicalRegistry.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="292,-255 151,-255 151,-231 292,-231 292,-255"/>
+<text text-anchor="middle" x="221.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HierarchicalRegistry.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~registryptrmap.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~hierarchicalregistry.f90&#45;&gt;sourcefile~registryptrmap.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M150.86,-243C142.44,-243 133.86,-243 125.49,-243"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="125.4,-239.5 115.4,-243 125.4,-246.5 125.4,-239.5"/>
+</g>
+<!-- sourcefile~componentspec.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~componentspec.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/componentspec.f90.html" xlink:title="ComponentSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="468.5,-486 344.5,-486 344.5,-462 468.5,-462 468.5,-486"/>
+<text text-anchor="middle" x="406.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspec.f90&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~componentspec.f90&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M344.24,-462.81C338.4,-460.19 332.86,-456.97 328,-453 266.67,-402.9 237.69,-308.05 227.26,-265.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="230.62,-264.09 224.95,-255.14 223.8,-265.67 230.62,-264.09"/>
+</g>
+<!-- sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~componentspecparser.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/componentspecparser.f90.html" xlink:title="ComponentSpecParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="484.5,-444 328.5,-444 328.5,-420 484.5,-420 484.5,-444"/>
+<text text-anchor="middle" x="406.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M343.83,-419.99C338.2,-417.53 332.82,-414.57 328,-411 276.36,-372.76 243.95,-301.02 230.17,-264.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.38,-263.51 226.64,-255.34 226.82,-265.94 233.38,-263.51"/>
+</g>
+<!-- sourcefile~connectionvector.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~connectionvector.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/connectionvector.f90.html" xlink:title="ConnectionVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="470.5,-402 342.5,-402 342.5,-378 470.5,-378 470.5,-402"/>
+<text text-anchor="middle" x="406.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConnectionVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~connectionvector.f90&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~connectionvector.f90&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M345.91,-377.92C339.62,-375.47 333.52,-372.53 328,-369 285.46,-341.79 251.32,-291.97 234.29,-263.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="237.28,-262 229.18,-255.17 231.25,-265.56 237.28,-262"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="462,-360 351,-360 351,-336 462,-336 462,-360"/>
+<text text-anchor="middle" x="406.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M350.67,-336.16C342.86,-333.62 335.09,-330.59 328,-327 294.44,-310.01 261.45,-281.26 241.53,-262.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="243.92,-259.65 234.32,-255.18 239.04,-264.66 243.92,-259.65"/>
+</g>
+<!-- sourcefile~matchconnection.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~matchconnection.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/matchconnection.f90.html" xlink:title="MatchConnection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="470.5,-318 342.5,-318 342.5,-294 470.5,-294 470.5,-318"/>
+<text text-anchor="middle" x="406.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MatchConnection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~matchconnection.f90&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~matchconnection.f90&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M357.7,-293.97C347.82,-291.22 337.52,-288.17 328,-285 305.02,-277.34 279.79,-267.35 259.77,-259.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="260.96,-255.75 250.39,-255.11 258.26,-262.21 260.96,-255.75"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~outermetacomponent.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/outermetacomponent.f90.html" xlink:title="OuterMetaComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="483.5,-276 329.5,-276 329.5,-252 483.5,-252 483.5,-276"/>
+<text text-anchor="middle" x="406.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M329.48,-255.28C320.49,-254.24 311.3,-253.19 302.26,-252.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="302.47,-248.65 292.14,-250.99 301.67,-255.61 302.47,-248.65"/>
+</g>
+<!-- sourcefile~protoextdatagc.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~protoextdatagc.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/protoextdatagc.f90.html" xlink:title="ProtoExtDataGC.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="466.5,-234 346.5,-234 346.5,-210 466.5,-210 466.5,-234"/>
+<text text-anchor="middle" x="406.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProtoExtDataGC.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protoextdatagc.f90&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~protoextdatagc.f90&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M346.34,-228.79C332.34,-230.4 317.18,-232.14 302.43,-233.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="301.84,-230.37 292.3,-234.99 302.63,-237.33 301.84,-230.37"/>
+</g>
+<!-- sourcefile~reexportconnection.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~reexportconnection.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/reexportconnection.f90.html" xlink:title="ReexportConnection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="478,-192 335,-192 335,-168 478,-168 478,-192"/>
+<text text-anchor="middle" x="406.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ReexportConnection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~reexportconnection.f90&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~reexportconnection.f90&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M357.7,-192.03C347.82,-194.78 337.52,-197.83 328,-201 305.02,-208.66 279.79,-218.65 259.77,-226.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="258.26,-223.79 250.39,-230.89 260.96,-230.25 258.26,-223.79"/>
+</g>
+<!-- sourcefile~servicespec.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~servicespec.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/servicespec.f90.html" xlink:title="ServiceSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="457,-150 356,-150 356,-126 457,-126 457,-150"/>
+<text text-anchor="middle" x="406.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServiceSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~servicespec.f90&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~servicespec.f90&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M355.59,-148.29C346.17,-151.13 336.58,-154.66 328,-159 294.44,-175.99 261.45,-204.74 241.53,-223.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="239.04,-221.34 234.32,-230.82 243.92,-226.35 239.04,-221.34"/>
+</g>
+<!-- sourcefile~simpleconnection.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~simpleconnection.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/simpleconnection.f90.html" xlink:title="SimpleConnection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="473,-108 340,-108 340,-84 473,-84 473,-108"/>
+<text text-anchor="middle" x="406.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleConnection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~simpleconnection.f90&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~simpleconnection.f90&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M345.91,-108.08C339.62,-110.53 333.52,-113.47 328,-117 285.46,-144.21 251.32,-194.03 234.29,-222.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="231.25,-220.44 229.18,-230.83 237.28,-224 231.25,-220.44"/>
+</g>
+<!-- sourcefile~test_hierarchicalregistry.pf -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~test_hierarchicalregistry.pf</title>
+<g id="a_sourcefile~~registryptrmap.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/test_hierarchicalregistry.pf.html" xlink:title="Test_HierarchicalRegistry.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="485,-66 328,-66 328,-42 485,-42 485,-66"/>
+<text text-anchor="middle" x="406.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_HierarchicalRegistry.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_hierarchicalregistry.pf&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~test_hierarchicalregistry.pf&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M343.83,-66.01C338.2,-68.47 332.82,-71.43 328,-75 276.36,-113.24 243.95,-184.98 230.17,-221.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="226.82,-220.06 226.64,-230.66 233.38,-222.49 226.82,-220.06"/>
+</g>
+<!-- sourcefile~variablespec.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~variablespec.f90</title>
+<g id="a_sourcefile~~registryptrmap.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/variablespec.f90.html" xlink:title="VariableSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="459,-24 354,-24 354,0 459,0 459,-24"/>
+<text text-anchor="middle" x="406.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~hierarchicalregistry.f90 -->
+<g id="sourcefile~~registryptrmap.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~hierarchicalregistry.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M353.78,-19.51C344.51,-22.58 335.45,-26.92 328,-33 266.67,-83.1 237.69,-177.95 227.26,-220.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="223.8,-220.33 224.95,-230.86 230.62,-221.91 223.8,-220.33"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">mapl3g_RegistryPtrMap</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_RegistryPtr</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="cp">#define Key __CHARACTER_DEFERRED</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="cp">#define T RegistryPtr</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="cp">#define Map RegistryPtrMap</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="cp">#define MapIterator RegistryPtrMapIterator</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="cp">#define Pair RegistryPtrPair</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="cp">#include &quot;map/template.inc&quot;</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="cp">#undef Pair</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="cp">#undef MapIterator</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="cp">#undef Map</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="cp">#undef T</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="cp">#undef Key</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="k">end module </span><span class="n">mapl3g_RegistryPtrMap</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-06-24T20:07:12.524917             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

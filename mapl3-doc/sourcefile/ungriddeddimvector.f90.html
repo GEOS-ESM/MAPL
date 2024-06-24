@@ -1,0 +1,627 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>UngriddedDimVector.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>UngriddedDimVector.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.5% of total for source files.">1292 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/UngriddedDimVector.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">UngriddedDimVector.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_ungriddeddimvector.html">mapl3g_UngriddedDimVector</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/ungriddeddimvector.f90.html#src">UngriddedDimVector.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~ungriddeddimvector.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefileungriddeddimvectorf90EfferentGraph" width="582pt" height="74pt"
+ viewBox="0.00 0.00 582.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~ungriddeddimvector.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>sourcefile~~ungriddeddimvector.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 578,-70 578,4 -4,4"/>
+<!-- sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~ungriddeddimvector.f90</title>
+<polygon fill="none" stroke="black" points="574,-45 429,-45 429,-21 574,-21 574,-45"/>
+<text text-anchor="middle" x="501.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">UngriddedDimVector.F90</text>
+</g>
+<!-- sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~ungriddeddim.f90</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/ungriddeddim.f90.html" xlink:title="UngriddedDim.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="393,-45 281,-45 281,-21 393,-21 393,-45"/>
+<text text-anchor="middle" x="337" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDim.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddimvector.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~ungriddeddimvector.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M428.75,-33C420.29,-33 411.69,-33 403.32,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="403.26,-29.5 393.26,-33 403.26,-36.5 403.26,-29.5"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="245,-66 136,-66 136,-42 245,-42 245,-66"/>
+<text text-anchor="middle" x="190.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M280.96,-41C272.59,-42.22 263.89,-43.48 255.35,-44.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="254.83,-41.26 245.43,-46.16 255.83,-48.19 254.83,-41.26"/>
+</g>
+<!-- sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~lu_bound.f90</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/lu_bound.f90.html" xlink:title="LU_Bound.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="234.5,-24 146.5,-24 146.5,0 234.5,0 234.5,-24"/>
+<text text-anchor="middle" x="190.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LU_Bound.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M280.96,-25C269.11,-23.28 256.62,-21.46 244.84,-19.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="245.11,-16.25 234.71,-18.28 244.1,-23.18 245.11,-16.25"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-66 0,-66 0,-42 100,-42 100,-66"/>
+<text text-anchor="middle" x="50" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M135.95,-54C127.62,-54 118.96,-54 110.51,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.33,-50.5 100.33,-54 110.33,-57.5 110.33,-50.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~ungriddeddimvector.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefileungriddeddimvectorf90AfferentGraph" width="641pt" height="345pt"
+ viewBox="0.00 0.00 641.00 345.02" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph" class="graph" transform="scale(1.18 1.18) rotate(0) translate(4 404)">
+<title>sourcefile~~ungriddeddimvector.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-404 754,-404 754,4 -4,4"/>
+<!-- sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~ungriddeddimvector.f90</title>
+<polygon fill="none" stroke="black" points="145,-275 0,-275 0,-251 145,-251 145,-275"/>
+<text text-anchor="middle" x="72.5" y="-260.6" font-family="Helvetica,sans-Serif" font-size="10.50">UngriddedDimVector.F90</text>
+</g>
+<!-- sourcefile~outputinfo.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~outputinfo.f90</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/outputinfo.f90.html" xlink:title="OutputInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="458.5,-398 367.5,-398 367.5,-374 458.5,-374 458.5,-398"/>
+<text text-anchor="middle" x="413" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OutputInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outputinfo.f90&#45;&gt;sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~outputinfo.f90&#45;&gt;sourcefile~ungriddeddimvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M367.34,-377.03C332.62,-369.71 283.39,-358.54 241,-346"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="299,-213 181,-213 181,-189 299,-189 299,-213"/>
+<text text-anchor="middle" x="240" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outputinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~outputinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M393.43,-373.94C377.07,-362.83 353.1,-345.34 335,-327 302.04,-293.62 270.96,-248.26 254.1,-222.06"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="256.87,-219.89 248.55,-213.33 250.96,-223.64 256.87,-219.89"/>
+</g>
+<!-- sourcefile~test_outputinfo.pf -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~test_outputinfo.pf</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/test_outputinfo.pf.html" xlink:title="Test_OutputInfo.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="692,-358 585,-358 585,-334 692,-334 692,-358"/>
+<text text-anchor="middle" x="638.5" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_OutputInfo.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_outputinfo.pf&#45;&gt;sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~test_outputinfo.pf&#45;&gt;sourcefile~ungriddeddimvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M584.9,-349.68C492.24,-355.54 303.79,-364.57 241,-346"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M239,-346C187.88,-330.09 133.22,-299.75 101.27,-280.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="102.86,-277.36 92.5,-275.13 99.21,-283.33 102.86,-277.36"/>
+</g>
+<!-- sourcefile~test_outputinfo.pf&#45;&gt;sourcefile~outputinfo.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~test_outputinfo.pf&#45;&gt;sourcefile~outputinfo.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M584.82,-355.43C549.93,-361.67 504.27,-369.84 468.93,-376.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="468.02,-372.78 458.79,-377.98 469.25,-379.67 468.02,-372.78"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M206.7,-213.1C180.61,-222.87 143.71,-236.7 115.36,-247.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="113.86,-244.14 105.72,-250.93 116.31,-250.7 113.86,-244.14"/>
+</g>
+<!-- sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~componentspecparser.f90</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/componentspecparser.f90.html" xlink:title="ComponentSpecParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="491,-66 335,-66 335,-42 491,-42 491,-66"/>
+<text text-anchor="middle" x="413" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M351.8,-66.13C345.87,-68.56 340.15,-71.49 335,-75 295.25,-102.08 265.69,-151.58 251.12,-179.81"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="247.95,-178.32 246.6,-188.83 254.2,-181.46 247.95,-178.32"/>
+</g>
+<!-- sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~fieldspec.f90</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/fieldspec.f90.html" xlink:title="FieldSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="456,-24 370,-24 370,0 456,0 456,-24"/>
+<text text-anchor="middle" x="413" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M369.65,-17.25C357.54,-20.34 344.93,-25.23 335,-33 286.08,-71.24 258.66,-142.45 247.3,-178.65"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="243.81,-178.09 244.28,-188.68 250.51,-180.11 243.81,-178.09"/>
+</g>
+<!-- sourcefile~historycollectiongridcomp_private.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~historycollectiongridcomp_private.f90</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/historycollectiongridcomp_private.f90.html" xlink:title="HistoryCollectionGridComp_private.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="750,-400 527,-400 527,-376 750,-376 750,-400"/>
+<text text-anchor="middle" x="638.5" y="-385.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionGridComp_private.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~outputinfo.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~historycollectiongridcomp_private.f90&#45;&gt;sourcefile~outputinfo.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M526.73,-387.01C506.55,-386.83 486.32,-386.65 468.68,-386.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="468.64,-382.99 458.61,-386.4 468.58,-389.99 468.64,-382.99"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="468.5,-318 357.5,-318 357.5,-294 468.5,-294 468.5,-318"/>
+<text text-anchor="middle" x="413" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M357.33,-294.5C349.61,-291.9 341.94,-288.77 335,-285 304.38,-268.36 275.48,-239.92 258.01,-220.79"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="260.52,-218.36 251.25,-213.23 255.3,-223.02 260.52,-218.36"/>
+</g>
+<!-- sourcefile~test_addfieldspec.pf -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~test_addfieldspec.pf</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/test_addfieldspec.pf.html" xlink:title="Test_AddFieldSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="474.5,-276 351.5,-276 351.5,-252 474.5,-252 474.5,-276"/>
+<text text-anchor="middle" x="413" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_AddFieldSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_addfieldspec.pf&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~test_addfieldspec.pf&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M363.18,-251.9C353.75,-249.23 344,-246.22 335,-243 314.55,-235.69 292.34,-225.86 274.64,-217.55"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="275.85,-214.24 265.32,-213.11 272.84,-220.57 275.85,-214.24"/>
+</g>
+<!-- sourcefile~test_bracketspec.pf -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~test_bracketspec.pf</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/test_bracketspec.pf.html" xlink:title="Test_BracketSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="472.5,-234 353.5,-234 353.5,-210 472.5,-210 472.5,-234"/>
+<text text-anchor="middle" x="413" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_BracketSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M353.15,-214.77C338.94,-213.03 323.65,-211.15 309.05,-209.36"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="309.44,-205.88 299.09,-208.13 308.59,-212.83 309.44,-205.88"/>
+</g>
+<!-- sourcefile~test_fieldinfo.pf -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~test_fieldinfo.pf</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/test_fieldinfo.pf.html" xlink:title="Test_FieldInfo.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="461,-192 365,-192 365,-168 461,-168 461,-192"/>
+<text text-anchor="middle" x="413" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_FieldInfo.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldinfo.pf&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~test_fieldinfo.pf&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M364.82,-185.79C347.72,-187.89 328.04,-190.31 309.48,-192.59"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="308.81,-189.15 299.31,-193.84 309.66,-196.09 308.81,-189.15"/>
+</g>
+<!-- sourcefile~test_fieldspec.pf -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~test_fieldspec.pf</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/test_fieldspec.pf.html" xlink:title="Test_FieldSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="464.5,-150 361.5,-150 361.5,-126 464.5,-126 464.5,-150"/>
+<text text-anchor="middle" x="413" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_FieldSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M363.18,-150.1C353.75,-152.77 344,-155.78 335,-159 314.55,-166.31 292.34,-176.14 274.64,-184.45"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="272.84,-181.43 265.32,-188.89 275.85,-187.76 272.84,-181.43"/>
+</g>
+<!-- sourcefile~variablespec.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~variablespec.f90</title>
+<g id="a_sourcefile~~ungriddeddimvector.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/variablespec.f90.html" xlink:title="VariableSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465.5,-108 360.5,-108 360.5,-84 465.5,-84 465.5,-108"/>
+<text text-anchor="middle" x="413" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~variablespec.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~ungriddeddimvector.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~variablespec.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M360.18,-106.57C351.5,-109.34 342.79,-112.77 335,-117 304.38,-133.64 275.48,-162.08 258.01,-181.21"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="255.3,-178.98 251.25,-188.77 260.52,-183.64 255.3,-178.98"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefileungriddeddimvectorf90AfferentGraph = svgPanZoom('#sourcefileungriddeddimvectorf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">mapl3g_UngriddedDimVector</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_UngriddedDim</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="cp">#define T UngriddedDim</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="cp">#define Vector UngriddedDimVector</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="cp">#define VectorIterator UngriddedDimVectorIterator</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="cp">#include &quot;vector/template.inc&quot;</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="cp">#undef T</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="cp">#undef Vector</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="cp">#undef VectorIterator</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">  </span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="k">end module </span><span class="n">mapl3g_UngriddedDimVector</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-06-24T20:07:12.524917             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
