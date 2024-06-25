@@ -365,51 +365,36 @@ end subroutine initialize_
        ! -- proc
        locstream_factory = LocStreamFactory(lons_chunk,lats_chunk,_RC)
        LS_chunk = locstream_factory%create_locstream_on_proc(_RC)
-
+       
        ! -- distributed with background grid
        call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
        LS_ds = locstream_factory%create_locstream_on_proc(grid=grid,_RC)
 
+       fieldA = ESMF_FieldCreate (LS_chunk, name='A', typekind=ESMF_TYPEKIND_R8, _RC)
+       fieldB = ESMF_FieldCreate (LS_ds, name='B', typekind=ESMF_TYPEKIND_R8, _RC)
+       call ESMF_FieldGet( fieldA, localDE=0, farrayPtr=ptA)
+       call ESMF_FieldGet( fieldB, localDE=0, farrayPtr=ptB)
 
-       ! -- get coord.  method-2
-       imethod=2
-       if (imethod == 1) then
-          fieldA = ESMF_FieldCreate (LS_chunk, name='A', typekind=ESMF_TYPEKIND_R8, _RC)
-          fieldB = ESMF_FieldCreate (LS_ds, name='B', typekind=ESMF_TYPEKIND_R8, _RC)
+       ptA(:) = lons_chunk(:)
+       call ESMF_FieldRedistStore (fieldA, fieldB, RH, _RC)
+       call MPI_Barrier(mpic,ierr)
+       _VERIFY (ierr)
+       call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
+       lons_ds = ptB
+       
+       ptA(:) = lats_chunk(:)
+       call MPI_Barrier(mpic,ierr)
+       _VERIFY (ierr)
+       call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
+       lats_ds = ptB
 
-          call ESMF_FieldGet( fieldA, localDE=0, farrayPtr=ptA)
-          call ESMF_FieldGet( fieldB, localDE=0, farrayPtr=ptB)
-          ptA(:) = lons_chunk(:)
+       write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)
 
-          call ESMF_FieldRedistStore (fieldA, fieldB, RH, _RC)
-
-          call MPI_Barrier(mpic,ierr)
-          _VERIFY (ierr)
-          call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
-          lons_ds = ptB
-          ptA(:) = lats_chunk(:)
-
-          call MPI_Barrier(mpic,ierr)
-          _VERIFY (ierr)
-          call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
-          lats_ds = ptB
-
-          write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)
-          
-          call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
-          call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
-          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
-       elseif (imethod == 2) then
-          call ESMF_LocStreamGetKey( LS_ds, "ESMF:Lon", farray=ptA)
-          lons_ds = ptA
-          call ESMF_LocStreamGetKey( LS_ds, "ESMF:Lat", farray=ptB)
-          lats_ds = ptB
-          write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)          
-       end if
-
+       call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
+       call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
+       call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
 
        call MAPL_TimerOff(this%GENSTATE,"2_ABIgrid_LS")
-
 
 
        ! __ s3. find n.n. CS pts for LS_ds (halo)
