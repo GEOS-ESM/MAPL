@@ -35,7 +35,7 @@ module function MaskSamplerGeosat_from_config(config,string,clock,GENSTATE,rc) r
   mask%clock=clock
   mask%grid_file_name=''
   if (present(GENSTATE)) mask%GENSTATE => GENSTATE
-  
+
   call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
   if (mapl_am_I_root()) write(6,*) 'string', string
 
@@ -159,13 +159,13 @@ end subroutine initialize_
        integer, optional, intent(out)          :: rc
 
        type(Logger), pointer :: lgr
-       real(ESMF_KIND_R8), pointer :: ptAT(:)
        type(ESMF_routehandle) :: RH
        type(ESMF_Grid) :: grid
-       integer :: mypet, npes
+       integer :: mypet, petcount, mpic
        integer :: iroot, rootpet, ierr
        type (ESMF_LocStream) :: LS_rt
        type (ESMF_LocStream) :: LS_ds
+       type (ESMF_LocStream) :: LS_chunk
        type (LocStreamFactory):: locstream_factory
        type (ESMF_Field) :: fieldA
        type (ESMF_Field) :: fieldB
@@ -182,13 +182,11 @@ end subroutine initialize_
        type(ESMF_DElayout) :: layout
        type(ESMF_VM) :: VM
        integer :: myid
-       integer :: ndes
        integer :: dimCount
        integer, allocatable :: II(:)
        integer, allocatable :: JJ(:)
        real(REAL64), allocatable :: obs_lons(:)
        real(REAL64), allocatable :: obs_lats(:)
-       integer :: mpic
 
        type (ESMF_Field) :: fieldI4
        type(ESMF_routehandle) :: RH_halo
@@ -227,7 +225,17 @@ end subroutine initialize_
        integer :: nsend
        integer, allocatable :: recvcounts_loc(:)
        integer, allocatable :: displs_loc(:)
-       integer :: status
+
+       integer, allocatable :: sendcount(:), displs(:)
+       integer :: recvcount
+       integer :: M, N, ip
+       integer :: nx2
+
+       real(REAL64), allocatable :: lons_chunk(:)
+       real(REAL64), allocatable :: lats_chunk(:)
+
+       integer :: status, imethod
+
 
        lgr => logging%get_logger('HISTORY.sampler')
 
@@ -238,6 +246,7 @@ end subroutine initialize_
        !   prepare recvcounts + displs for gatherv
        !
 
+       call MAPL_TimerOn(this%GENSTATE,"1_genABIgrid")
        if (mapl_am_i_root()) then
           ! __s1.  SAT file
           !
@@ -289,58 +298,123 @@ end subroutine initialize_
           end do
           arr(1)=nx
        else
+          nx=0
           allocate(lons(0),lats(0),_STAT)
           arr(1)=0
        endif
 
+
        call ESMF_VMGetCurrent(vm,_RC)
-       call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=npes, localpet=mypet, _RC)
+       call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=petcount, localpet=mypet, _RC)
        call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx, &
             count=1, reduceflag=ESMF_REDUCE_SUM, _RC)
        this%nobs = nx
        if (mapl_am_I_root()) write(6,*) 'nobs tot :', nx
+       call MAPL_TimerOff(this%GENSTATE,"1_genABIgrid")
 
-       if ( nx == 0 ) then
-          this%is_valid = .false.
-          _RETURN(ESMF_SUCCESS)
-          !
-          ! no valid obs points are found
-          !
-       end if
 
 
        ! __ s2. set distributed LS
        !
+       call MAPL_TimerOn(this%GENSTATE,"2_ABIgrid_LS")
+       !
+       !__ distrubute data chunk for the locstream points : mpi_scatterV
+       !__ create LS on parallel processors
+       !       caution about zero-sized array for MPI
+
+       nx_sum = nx
+       ip = mypet    ! 0 to M-1
+       N = nx_sum
+       M = petCount
+       recvcount = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+            int(ip  , INT64) * int(N, INT64) / int(M, INT64)
+       call lgr%debug('%a %i12 %i12', 'ip, recvcount', ip, recvcount)
+
+       allocate ( sendcount (petCount) )
+       allocate ( displs    (petCount) )
+       do ip=0, M-1
+          sendcount(ip+1) = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
+               int(ip  , INT64) * int(N, INT64) / int(M, INT64)
+       end do
+       displs(1)=0
+       do i = 2, petCount
+          displs(i) = displs(i-1) + sendcount(i-1)
+       end do
+
+       allocate ( lons_chunk (recvcount) )
+       allocate ( lats_chunk (recvcount) )
+
+       arr(1) = recvcount
+       call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx2, &
+            count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
+       _ASSERT( nx2 == nx_sum, 'Erorr in recvcount' )
+
+       call MPI_Scatterv( lons, sendcount, &
+            displs, MPI_REAL8,  lons_chunk, &
+            recvcount, MPI_REAL8, 0, mpic, ierr)
+
+       call MPI_Scatterv( lats, sendcount, &
+            displs, MPI_REAL8,  lats_chunk, &
+            recvcount, MPI_REAL8, 0, mpic, ierr)
+
+
+       ! -- root
        locstream_factory = LocStreamFactory(lons,lats,_RC)
        LS_rt = locstream_factory%create_locstream(_RC)
+
+       ! -- proc
+       locstream_factory = LocStreamFactory(lons_chunk,lats_chunk,_RC)
+       LS_chunk = locstream_factory%create_locstream_on_proc(_RC)
+
+       ! -- distributed with background grid
        call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-       LS_ds = locstream_factory%create_locstream(grid=grid,_RC)
+       LS_ds = locstream_factory%create_locstream_on_proc(grid=grid,_RC)
 
-       fieldA = ESMF_FieldCreate (LS_rt, name='A', typekind=ESMF_TYPEKIND_R8, _RC)
-       fieldB = ESMF_FieldCreate (LS_ds, name='B', typekind=ESMF_TYPEKIND_R8, _RC)
 
-       call ESMF_FieldGet( fieldA, localDE=0, farrayPtr=ptA)
-       call ESMF_FieldGet( fieldB, localDE=0, farrayPtr=ptB)
-       if (mypet == 0) then
-          ptA(:) = lons(:)
+       ! -- get coord.  method-2
+       imethod=2
+       if (imethod == 1) then
+          fieldA = ESMF_FieldCreate (LS_chunk, name='A', typekind=ESMF_TYPEKIND_R8, _RC)
+          fieldB = ESMF_FieldCreate (LS_ds, name='B', typekind=ESMF_TYPEKIND_R8, _RC)
+
+          call ESMF_FieldGet( fieldA, localDE=0, farrayPtr=ptA)
+          call ESMF_FieldGet( fieldB, localDE=0, farrayPtr=ptB)
+          ptA(:) = lons_chunk(:)
+
+          call ESMF_FieldRedistStore (fieldA, fieldB, RH, _RC)
+
+          call MPI_Barrier(mpic,ierr)
+          _VERIFY (ierr)
+          call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
+          lons_ds = ptB
+          ptA(:) = lats_chunk(:)
+
+          call MPI_Barrier(mpic,ierr)
+          _VERIFY (ierr)
+          call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
+          lats_ds = ptB
+
+          write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)
+          
+          call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
+          call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
+          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
+       elseif (imethod == 2) then
+          call ESMF_LocStreamGetKey( LS_ds, "ESMF:Lon", farray=ptA)
+          lons_ds = ptA
+          call ESMF_LocStreamGetKey( LS_ds, "ESMF:Lat", farray=ptB)
+          lats_ds = ptB
+          write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)          
        end if
-       call ESMF_FieldRedistStore (fieldA, fieldB, RH, _RC)
-       call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
-       lons_ds = ptB
 
-       if (mypet == 0) then
-          ptA(:) = lats(:)
-       end if
-       call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
-       lats_ds = ptB
 
-       call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
-       call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
-       call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
+       call MAPL_TimerOff(this%GENSTATE,"2_ABIgrid_LS")
+
 
 
        ! __ s3. find n.n. CS pts for LS_ds (halo)
        !
+       call MAPL_TimerOn(this%GENSTATE,"3_CS_halo")
        obs_lons = lons_ds * MAPL_DEGREES_TO_RADIANS_R8
        obs_lats = lats_ds * MAPL_DEGREES_TO_RADIANS_R8
        nx = size ( lons_ds )
@@ -407,6 +481,7 @@ end subroutine initialize_
              end if
           end do
        end do
+       call MAPL_TimerOff(this%GENSTATE,"3_CS_halo")
 
 
        ! ----
@@ -415,6 +490,7 @@ end subroutine initialize_
        !  - mpi_gatherV
        !
 
+       call MAPL_TimerOn(this%GENSTATE,"4_gathV")
 
        ! __ s4.1 find this%lons/lats on root for NC output
        !
@@ -442,11 +518,11 @@ end subroutine initialize_
 
        ! __ s4.2  find this%recvcounts / this%displs
        !
-       allocate( this%recvcounts(npes), this%displs(npes), _STAT )
-       allocate( recvcounts_loc(npes), displs_loc(npes), _STAT )
+       allocate( this%recvcounts(petcount), this%displs(petcount), _STAT )
+       allocate( recvcounts_loc(petcount), displs_loc(petcount), _STAT )
        recvcounts_loc(:)=1
        displs_loc(1)=0
-       do i=2, npes
+       do i=2, petcount
           displs_loc(i) = displs_loc(i-1) + recvcounts_loc(i-1)
        end do
        call MPI_gatherv ( this%npt_mask, 1, MPI_INTEGER, &
@@ -456,7 +532,7 @@ end subroutine initialize_
           this%recvcounts(:) = 0
        end if
        this%displs(1)=0
-       do i=2, npes
+       do i=2, petcount
           this%displs(i) = this%displs(i-1) + this%recvcounts(i-1)
        end do
 
@@ -470,6 +546,8 @@ end subroutine initialize_
        call MPI_gatherv ( lats, nsend, MPI_REAL8, &
             this%lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
+
+       call MAPL_TimerOff(this%GENSTATE,"4_gathV")
 
        _RETURN(_SUCCESS)
      end subroutine create_Geosat_grid_find_mask
@@ -589,7 +667,7 @@ module subroutine  add_metadata(this,rc)
     integer :: i, j, k, rank
     integer :: nx, nz
     integer :: ix, iy, m
-    integer :: mypet, npes, nsend
+    integer :: mypet, petcount, nsend
     integer :: iroot, ierr
     integer :: mpic
     integer, allocatable :: recvcounts_3d(:)
@@ -602,7 +680,7 @@ module subroutine  add_metadata(this,rc)
 
     ! -- fixed for all fields
     call ESMF_VMGetCurrent(vm,_RC)
-    call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=npes, localpet=mypet, _RC)
+    call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=petcount, localpet=mypet, _RC)
     iroot=0
     nx = this%npt_mask
     nz = this%vdata%lm
@@ -615,7 +693,7 @@ module subroutine  add_metadata(this,rc)
        allocate ( p_dst_2d_full (0), _STAT )
        allocate ( p_dst_3d_full (0), _STAT )
     end if
-    allocate( recvcounts_3d(npes), displs_3d(npes), _STAT )
+    allocate( recvcounts_3d(petcount), displs_3d(petcount), _STAT )
     recvcounts_3d(:) = nz * this%recvcounts(:)
     displs_3d(:)     = nz * this%displs(:)
 
