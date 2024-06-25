@@ -1,40 +1,126 @@
 module Test_SharedIO
 
     use pfunit
-    use SharedIO
+    use mapl3g_SharedIO
+    use mapl3g_UngriddedDims
+    use mapl3g_UngriddedDim
+
     implicit none
+
+    type :: String
+       character(len=:), allocatable :: s_
+    contains
+       procedure, pass(this) :: assign_character_from_string
+       generic :: assignment(=) => assign_character_from_string
+    end type
+    
+    character(len=*), parameter :: DIM_CENTER = 'VERTICAL_DIM_CENTER' 
+    character(len=*), parameter :: DIM_EDGE = 'VERTICAL_DIM_EDGE'
+    character(len=*), parameter :: DIM_UNK = 'UNKNOWN'
+    character(len=*), parameter :: CENTER_NAME = 'lev'
+    character(len=*), parameter :: EDGE_NAME = 'edge'
+
+    interface make_message
+       module procedure :: make_message_string
+    end interface make_message
 
 contains
 
+   subroutine assign_character_from_string(ch, this)
+      character(len=:), allocatable, intent(inout) :: ch
+      class(String), intent(in) :: this
+
+      ch = this%s_
+
+   end subroutine assign_character_from_string
+       
     @Test
     subroutine test_get_vertical_dimension_name()
-       character(len=*), parameter :: DIM_CENTER = 'VERTICAL_DIM_CENTER' 
-       character(len=*), parameter :: DIM_EDGE = 'VERTICAL_DIM_EDGE'
-       character(len=*), parameter :: DIM_UNK = 'UNKNOWN'
-       character(len=*), parameter :: CENTER_NAME = 'lev'
-       character(len=*), parameter :: EDGE_NAME = 'edge'
+       character(len=:), allocatable :: name
+       character(len=:), allocatable :: vertical_dim
+       character(len=:), allocatable :: message
+       
+       vertical_dim = DIM_CENTER
+       name = CENTER_NAME
+       message = make_message('Dimension name does not match for', vertical_dim)
+       @assertEqual(name, get_vertical_dimension_name(vertical_dim), message)
 
-       @assertEqual(CENTER_NAME, get_vertical_dimension_name(DIM_CENTER), 'Dimension name does not match.')
-       @assertEqual(EDGE_NAME, get_vertical_dimension_name(DIM_EDGE), 'Dimension name does not match.')
-       @assertEqual(0, len(get_vertical_dimension_name(DIM_UNK)), 'Return value should be empty string.')
+       vertical_dim = DIM_EDGE
+       name = EDGE_NAME
+       message = make_message('Dimension name does not match for', vertical_dim)
+       @assertEqual(name, get_vertical_dimension_name(vertical_dim), message)
+
+       vertical_dim = DIM_UNK
+       message = make_message('Return value should be empty String', vertical_dim)
+       @assertEqual(0, len(get_vertical_dimension_name(DIM_UNK)), message)
 
     end subroutine test_get_vertical_dimension_name
 
     @Test
     subroutine test_get_vertical_dimension_num_levels()
+      integer, parameter :: NUMLEVELS = 3
+      character(:), allocatable :: vertical_dim
+      integer :: num_levels
+      character(len=:), allocatable :: message
+
+      vertical_dim = DIM_CENTER
+      num_levels = NUMLEVELS
+      message = make_message('Num_levels does not match for', vertical_dim) 
+      @assertEqual(num_levels, get_vertical_dimension_num_levels(vertical_dim, NUMLEVELS), message)
+
+      vertical_dim = DIM_EDGE
+      num_levels = NUMLEVELS+1
+      message = make_message('Num_levels does not match for', vertical_dim) 
+      @assertEqual(num_levels, get_vertical_dimension_num_levels(vertical_dim, NUMLEVELS), message)
+
     end subroutine test_get_vertical_dimension_num_levels
 
     @Test
-    subroutine test_ungridded_dim_names()
-    end subroutine test_ungridded_dim_names
+    subroutine test_cat_ungridded_dim_names()
+       type(UngriddedDims) :: dims
+       character(len=8), parameter :: NAMES(3) = [character(len=8) :: 'Alice', 'Bob', 'Mallory']
+       
+       dims = make_ungridded_dims(NAMES)
+       
+    end subroutine test_cat_ungridded_dim_names
 
-    @Before
-    subroutine set_up()
-    end subroutine set_up
+    function make_message_string(message, String) result(msg)
+       character(len=:), allocatable :: msg
+       character(len=*), intent(in) :: message
+       character(len=*), intent(in) :: String
 
-    @After
-    subroutine take_down()
-    end subroutine take_down()
+       msg = message // ' "' // String // '".'
 
+    end function make_message_string
+
+    function make_ungridded_dims(names) result(dims)
+       type(UngriddedDims) :: dims
+       character(len=*), intent(in) :: names(:)
+       type(UngriddedDim), allocatable :: dims_array(:)
+       integer :: i
+       character(len=:), allocatable :: name
+
+       allocate(dims_array(size(names)))
+       do i = 1, size(names)
+         name = trim(names(i))
+         dims_array(i) = UngriddedDim(name, len(name))
+       end do
+
+       dims = UngriddedDims(dims_array)
+
+    end function make_ungridded_dims
+
+   function make_string_array(names) result(array)
+      type(String), allocatable :: array(:)
+      character(len=*), intent(in) :: names(:)
+      integer :: i
+
+      allocate(array(size(names)))
+
+      do i = 1, size(array)
+         array(i) = String(names(i))
+      end do
+
+    end function make_string_array
+      
 end module Test_SharedIO
-

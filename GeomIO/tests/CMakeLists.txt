@@ -1,4 +1,4 @@
-set(MODULE_DIRECTORY "${esma_include}/MAPL.GeomIO.tests")
+set(MODULE_DIRECTORY "${esma_include}/MAPL.GeomIO/tests")
 
 set (test_srcs
   Test_SharedIO.pf
@@ -6,7 +6,7 @@ set (test_srcs
 
 add_pfunit_ctest(MAPL.GeomIO.tests
                 TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL.GeomIO MAPL.pfunit
+                LINK_LIBRARIES MAPL.GeomIO MAPL.generic3g MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
