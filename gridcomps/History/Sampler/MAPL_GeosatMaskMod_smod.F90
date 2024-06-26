@@ -245,13 +245,13 @@ end subroutine initialize_
        !   find mask points on each PET with halo
        !   prepare recvcounts + displs for gatherv
        !
- 
+
        call ESMF_VMGetCurrent(vm,_RC)
        call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=petcount, localpet=mypet, _RC)
        iroot = 0
        ip = mypet    ! 0 to M-1
-       M = petCount       
-       
+       M = petCount
+
        call MAPL_TimerOn(this%GENSTATE,"1_genABIgrid")
        if (mapl_am_i_root()) then
           ! __s1.  SAT file
@@ -273,7 +273,7 @@ end subroutine initialize_
        if ( .NOT. mapl_am_i_root() )  allocate (x(n1), y(n2), _STAT)
        call MAPL_CommsBcast(vm, DATA=lam_sat, N=1, ROOT=MAPL_Root, _RC)
        call MAPL_CommsBcast(vm, DATA=x, N=n1, ROOT=MAPL_Root, _RC)
-       call MAPL_CommsBcast(vm, DATA=y, N=n2, ROOT=MAPL_Root, _RC)                
+       call MAPL_CommsBcast(vm, DATA=y, N=n2, ROOT=MAPL_Root, _RC)
 
        !
        ! use thin_factor to reduce regridding matrix size
@@ -306,7 +306,7 @@ end subroutine initialize_
        do i=1, xdim_red
           do j=1, ydim_red
              k = k + 1
-             if ( mod(k,M) == ip ) then                
+             if ( mod(k,M) == ip ) then
                 x0 = x( i * this%thin_factor )
                 y0 = y( j * this%thin_factor )
                 call ABI_XY_2_lonlat (x0, y0, lam_sat, lon0, lat0, mask=mask0)
@@ -319,18 +319,18 @@ end subroutine initialize_
           end do
        end do
 
-       arr(1)=nx2       
+       arr(1)=nx2
        call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx, &
             count=1, reduceflag=ESMF_REDUCE_SUM, _RC)
 
 
        ! gatherV for lons/lats
-       if (mapl_am_i_root()) then          
+       if (mapl_am_i_root()) then
           allocate(lons(nx),lats(nx),_STAT)
        else
           allocate(lons(0),lats(0),_STAT)
        endif
-       
+
        allocate( this%recvcounts(petcount), this%displs(petcount), _STAT )
        allocate( recvcounts_loc(petcount), displs_loc(petcount), _STAT )
        recvcounts_loc(:)=1
@@ -364,7 +364,7 @@ end subroutine initialize_
        deallocate (recvcounts_loc, displs_loc, _STAT)
        deallocate (x, y, _STAT)
        call MAPL_TimerOff(this%GENSTATE,"1_genABIgrid")
-       
+
 
        ! __ s2. set distributed LS
        !
@@ -377,7 +377,7 @@ end subroutine initialize_
        ! -- proc
        locstream_factory = LocStreamFactory(lons_chunk,lats_chunk,_RC)
        LS_chunk = locstream_factory%create_locstream_on_proc(_RC)
-       
+
        ! -- distributed with background grid
        call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
        LS_ds = locstream_factory%create_locstream_on_proc(grid=grid,_RC)
@@ -393,7 +393,7 @@ end subroutine initialize_
        _VERIFY (ierr)
        call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
        lons_ds = ptB
-       
+
        ptA(:) = lats_chunk(:)
        call MPI_Barrier(mpic,ierr)
        _VERIFY (ierr)
