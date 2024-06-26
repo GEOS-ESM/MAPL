@@ -21,6 +21,7 @@ module MaskSamplerGeosatMod
   use pFIO_FileMetadataMod, only : FileMetadata
   use pFIO_NetCDF4_FileFormatterMod, only : NetCDF4_FileFormatter
   use MAPL_GenericMod, only : MAPL_MetaComp, MAPL_TimerOn, MAPL_TimerOff
+  use MPI, only  :  MPI_INTEGER, MPI_REAL, MPI_REAL8
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
   use pflogger, only: Logger, logging
