@@ -2431,8 +2431,10 @@ ENDDO PARSER
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
+             call MAPL_TimerOn(GENSTATE,"mask_init")
              list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,genstate=GENSTATE,_RC)
              call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             call MAPL_TimerOff(GENSTATE,"mask_init")
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (list(n)%bundle, trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, genstate=GENSTATE, _RC)
              call list(n)%station_sampler%add_metadata_route_handle(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
@@ -3714,11 +3716,9 @@ ENDDO PARSER
             call MAPL_TimerOff(GENSTATE,"Station")
          elseif (list(n)%sampler_spec == 'mask') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
-            call MAPL_TimerOn(GENSTATE,"Mask")
-            call MAPL_TimerOn(GENSTATE,"AppendFile")
+            call MAPL_TimerOn(GENSTATE,"Mask_append")
             call list(n)%mask_sampler%append_file(current_time,_RC)
-            call MAPL_TimerOff(GENSTATE,"AppendFile")
-            call MAPL_TimerOff(GENSTATE,"Mask")
+            call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif
 
 
