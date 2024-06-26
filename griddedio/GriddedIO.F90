@@ -23,6 +23,7 @@ module MAPL_GriddedIOMod
   use gFTL_StringStringMap
   use MAPL_FileMetadataUtilsMod
   use MAPL_DownbitMod
+  use MAPL_GenericMod, only : MAPL_MetaComp, MAPL_TimerOn, MAPL_TimerOff
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   use ieee_arithmetic, only: isnan => ieee_is_nan
@@ -109,7 +110,7 @@ module MAPL_GriddedIOMod
         _RETURN(ESMF_SUCCESS)
      end function new_MAPL_GriddedIO
 
-     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,rc)
+     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,genstate,rc)
         class (MAPL_GriddedIO), target, intent(inout) :: this
         type(GriddedIOitemVector), target, intent(inout) :: items
         type(ESMF_FieldBundle), intent(inout) :: bundle
@@ -117,6 +118,7 @@ module MAPL_GriddedIOMod
         type(VerticalData), intent(inout), optional :: vdata
         type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
         type(StringStringMap), target, intent(in), optional :: global_attributes
+        type(MAPL_MetaComp), pointer, intent(in), optional :: GENSTATE
         integer, intent(out), optional :: rc
 
         type(ESMF_Grid) :: input_grid
@@ -129,13 +131,17 @@ module MAPL_GriddedIOMod
         type(StringStringMapIterator) :: s_iter
         character(len=:), pointer :: attr_name, attr_val
         class(Variable), pointer :: coord_var
+        type(MAPL_MetaComp), pointer :: GENSTATE_t
         integer :: status
 
         if ( allocated (this%metadata) ) deallocate(this%metadata)
         allocate(this%metadata)
+        if ( present(genstate) ) GENSTATE_t => genstate
 
+        call MAPL_TimerOn(GENSTATE_t,"destroy bundle")
         call MAPL_FieldBundleDestroy(this%output_bundle, _RC)
-
+        call MAPL_TimerOff(GENSTATE_t,"destroy bundle")
+        
         this%items = items
         this%input_bundle = bundle
         this%output_bundle = ESMF_FieldBundleCreate(rc=status)
@@ -150,10 +156,13 @@ module MAPL_GriddedIOMod
            _VERIFY(status)
         end if
 
+        call MAPL_TimerOn(GENSTATE_t,"create regrid_handle")        
         this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,hints=this%regrid_hints,rc=status)
         _VERIFY(status)
+        call MAPL_TimerOff(GENSTATE_t,"create regrid_handle")                
 
 
+        call MAPL_TimerOn(GENSTATE_t,"p3")
         ! We get the regrid_method here because in the case of Identity, we set it to
         ! REGRID_METHOD_IDENTITY in the regridder constructor if identity. Now we need
         ! to change the regrid_method in the GriddedIO object to be the same as the
@@ -231,6 +240,7 @@ module MAPL_GriddedIOMod
               call s_iter%next()
            enddo
         end if
+        call MAPL_TimerOff(GENSTATE_t,"p3")
         _RETURN(_SUCCESS)
 
       end subroutine CreateFileMetaData

@@ -623,7 +623,9 @@ contains
              end if
 
              if (trim(grid_type)/='Swath') then
+                call MAPL_TimerOn(GENSTATE,"nonswath_makegrid")
                 output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
+                call MAPL_TimerOff(GENSTATE,"nonswath_makegrid")
              else
                 swath_count = swath_count + 1
                 !
@@ -2437,14 +2439,23 @@ ENDDO PARSER
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
                 call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,Hsampler%tunit,ogrid=pgrid,vdata=list(n)%vdata,_RC)
              else
+                call MAPL_TimerOn(GENSTATE,"nonswath")
+                call MAPL_TimerOn(GENSTATE,"CreateFileMetaData")                
                 if (trim(list(n)%output_grid_label)/='') then
+                   write(6,*) 'nail: output_grid_label not empty'
                    pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
-                   call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+                   call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,genstate=GENSTATE,_RC)
                 else
+                   write(6,*) 'nail: output_grid_label is  empty'                   
                    call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
                 end if
+                call MAPL_TimerOff(GENSTATE,"CreateFileMetaData")                                
+
+                call MAPL_TimerOn(GENSTATE,"add_hist_clct")                                                
                 collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
                 call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
+                call MAPL_TimerOff(GENSTATE,"add_hist_clct")                                                
+                call MAPL_TimerOff(GENSTATE,"nonswath")             
              endif
           end if
        end if
