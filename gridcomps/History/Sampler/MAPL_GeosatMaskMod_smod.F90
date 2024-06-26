@@ -487,7 +487,7 @@ end subroutine initialize_
        !  - mpi_gatherV
        !
 
-       call MAPL_TimerOn(this%GENSTATE,"4_gathV")
+       call MAPL_TimerOn(this%GENSTATE,"4_gatherV")
 
        ! __ s4.1 find this%lons/lats on root for NC output
        !
@@ -544,7 +544,7 @@ end subroutine initialize_
             this%lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
 
-       call MAPL_TimerOff(this%GENSTATE,"4_gathV")
+       call MAPL_TimerOff(this%GENSTATE,"4_gatherV")
 
        _RETURN(_SUCCESS)
      end subroutine create_Geosat_grid_find_mask
