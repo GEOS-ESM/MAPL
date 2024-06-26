@@ -248,6 +248,7 @@ end subroutine initialize_
  
        call ESMF_VMGetCurrent(vm,_RC)
        call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=petcount, localpet=mypet, _RC)
+       iroot = 0
        ip = mypet    ! 0 to M-1
        M = petCount       
        
@@ -317,17 +318,16 @@ end subroutine initialize_
              end if
           end do
        end do
-       arr(1)=nx2
 
-       
+       arr(1)=nx2       
        call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx, &
             count=1, reduceflag=ESMF_REDUCE_SUM, _RC)
+
 
        ! gatherV for lons/lats
        if (mapl_am_i_root()) then          
           allocate(lons(nx),lats(nx),_STAT)
        else
-          nx=0
           allocate(lons(0),lats(0),_STAT)
        endif
        
@@ -356,7 +356,9 @@ end subroutine initialize_
        call MPI_gatherv ( lats_chunk, nsend, MPI_REAL8, &
             lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       this%nobs = nx
+
+
+!!       if (mapl_am_I_root()) write(6,*) 'nobs tot :', nx
 
        deallocate (this%recvcounts, this%displs, _STAT)
        deallocate (recvcounts_loc, displs_loc, _STAT)
@@ -397,6 +399,8 @@ end subroutine initialize_
        _VERIFY (ierr)
        call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
        lats_ds = ptB
+
+!!       write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)
 
        call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
        call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
