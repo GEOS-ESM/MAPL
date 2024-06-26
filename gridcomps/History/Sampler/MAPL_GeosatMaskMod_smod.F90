@@ -240,12 +240,17 @@ end subroutine initialize_
        lgr => logging%get_logger('HISTORY.sampler')
 
        ! Metacode:
-       !   read ABI grid into LS_rt
-       !   gen LS_ds with CS background grid
+       !   read ABI grid into  lons/lats, lons_chunk/lats_chunk
+       !   gen LS_chunk and LS_ds with CS background grid
        !   find mask points on each PET with halo
        !   prepare recvcounts + displs for gatherv
        !
-
+ 
+       call ESMF_VMGetCurrent(vm,_RC)
+       call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=petcount, localpet=mypet, _RC)
+       ip = mypet    ! 0 to M-1
+       M = petCount       
+       
        call MAPL_TimerOn(this%GENSTATE,"1_genABIgrid")
        if (mapl_am_i_root()) then
           ! __s1.  SAT file
@@ -256,107 +261,115 @@ end subroutine initialize_
           key_p = this%var_name_proj
           key_p_att = this%att_name_proj
           call get_ncfile_dimension(fn,nlon=n1,nlat=n2,key_lon=key_x,key_lat=key_y,_RC)
-          !
-          ! use thin_factor to reduce regridding matrix size
-          !
-          xdim_true = n1
-          ydim_true = n2
-          xdim_red  = n1 / this%thin_factor
-          ydim_red  = n2 / this%thin_factor
-          allocate (x (xdim_true), _STAT )
-          allocate (y (xdim_true), _STAT )
-
+          allocate (x(n1), y(n2), _STAT)
           call get_v1d_netcdf_R8_complete (fn, key_x, x, _RC)
           call get_v1d_netcdf_R8_complete (fn, key_y, y, _RC)
           call get_att_real_netcdf (fn, key_p, key_p_att, lambda0_deg, _RC)
           lam_sat = lambda0_deg * MAPL_DEGREES_TO_RADIANS_R8
+       end if
+       call MAPL_CommsBcast(vm, DATA=n1, N=1, ROOT=MAPL_Root, _RC)
+       call MAPL_CommsBcast(vm, DATA=n2, N=1, ROOT=MAPL_Root, _RC)
+       if ( .NOT. mapl_am_i_root() )  allocate (x(n1), y(n2), _STAT)
+       call MAPL_CommsBcast(vm, DATA=lam_sat, N=1, ROOT=MAPL_Root, _RC)
+       call MAPL_CommsBcast(vm, DATA=x, N=n1, ROOT=MAPL_Root, _RC)
+       call MAPL_CommsBcast(vm, DATA=y, N=n2, ROOT=MAPL_Root, _RC)                
 
-          nx=0
-          do i=1, xdim_red
-             do j=1, ydim_red
+       !
+       ! use thin_factor to reduce regridding matrix size
+       !
+       xdim_red  = n1 / this%thin_factor
+       ydim_red  = n2 / this%thin_factor
+       _ASSERT ( xdim_red * ydim_red > M, 'mask reduced points after thin_factor is less than Nproc!')
+
+       ! get nx2
+       nx2=0
+       k=0
+       do i=1, xdim_red
+          do j=1, ydim_red
+             k = k + 1
+             if ( mod(k,M) == ip ) then
                 x0 = x( i * this%thin_factor )
                 y0 = y( j * this%thin_factor )
                 call ABI_XY_2_lonlat (x0, y0, lam_sat, lon0, lat0, mask=mask0)
                 if (mask0 > 0) then
-                   nx=nx+1
+                   nx2=nx2+1
                 end if
-             end do
+             end if
           end do
-          allocate (lons(nx), lats(nx), _STAT)
-          nx = 0
-          do i=1, xdim_red
-             do j=1, ydim_red
+       end do
+       allocate (lons_chunk(nx2), lats_chunk(nx2), _STAT)
+
+       ! get lons_chunk/...
+       nx2 = 0
+       k = 0
+       do i=1, xdim_red
+          do j=1, ydim_red
+             k = k + 1
+             if ( mod(k,M) == ip ) then                
                 x0 = x( i * this%thin_factor )
                 y0 = y( j * this%thin_factor )
                 call ABI_XY_2_lonlat (x0, y0, lam_sat, lon0, lat0, mask=mask0)
                 if (mask0 > 0) then
-                   nx=nx+1
-                   lons(nx) = lon0 * MAPL_RADIANS_TO_DEGREES
-                   lats(nx) = lat0 * MAPL_RADIANS_TO_DEGREES
+                   nx2=nx2+1
+                   lons_chunk(nx2) = lon0 * MAPL_RADIANS_TO_DEGREES
+                   lats_chunk(nx2) = lat0 * MAPL_RADIANS_TO_DEGREES
                 end if
-             end do
+             end if
           end do
-          arr(1)=nx
+       end do
+       arr(1)=nx2
+
+       
+       call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx, &
+            count=1, reduceflag=ESMF_REDUCE_SUM, _RC)
+       write(6,*) 'ip, nx, nx2', ip, nx, nx2
+
+       ! gatherV for lons/lats
+       if (mapl_am_i_root()) then          
+          allocate(lons(nx),lats(nx),_STAT)
        else
           nx=0
           allocate(lons(0),lats(0),_STAT)
-          arr(1)=0
        endif
+       
+       allocate( this%recvcounts(petcount), this%displs(petcount), _STAT )
+       allocate( recvcounts_loc(petcount), displs_loc(petcount), _STAT )
+       recvcounts_loc(:)=1
+       displs_loc(1)=0
+       do i=2, petcount
+          displs_loc(i) = displs_loc(i-1) + recvcounts_loc(i-1)
+       end do
+       call MPI_gatherv ( nx2, 1, MPI_INTEGER, &
+            this%recvcounts, recvcounts_loc, displs_loc, MPI_INTEGER,&
+            iroot, mpic, ierr )
+       if (.not. mapl_am_i_root()) then
+          this%recvcounts(:) = 0
+       end if
+       this%displs(1)=0
+       do i=2, petcount
+          this%displs(i) = this%displs(i-1) + this%recvcounts(i-1)
+       end do
 
+       nsend = nx2
+       call MPI_gatherv ( lons_chunk, nsend, MPI_REAL8, &
+            lons, this%recvcounts, this%displs, MPI_REAL8,&
+            iroot, mpic, ierr )
+       call MPI_gatherv ( lats_chunk, nsend, MPI_REAL8, &
+            lats, this%recvcounts, this%displs, MPI_REAL8,&
+            iroot, mpic, ierr )
 
-       call ESMF_VMGetCurrent(vm,_RC)
-       call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=petcount, localpet=mypet, _RC)
-       call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx, &
-            count=1, reduceflag=ESMF_REDUCE_SUM, _RC)
        this%nobs = nx
        if (mapl_am_I_root()) write(6,*) 'nobs tot :', nx
+
+       deallocate (this%recvcounts, this%displs, _STAT)
+       deallocate (recvcounts_loc, displs_loc, _STAT)
+       deallocate (x, y, _STAT)
        call MAPL_TimerOff(this%GENSTATE,"1_genABIgrid")
-
-
+       
 
        ! __ s2. set distributed LS
        !
        call MAPL_TimerOn(this%GENSTATE,"2_ABIgrid_LS")
-       !
-       !__ distrubute data chunk for the locstream points : mpi_scatterV
-       !__ create LS on parallel processors
-       !       caution about zero-sized array for MPI
-
-       nx_sum = nx
-       ip = mypet    ! 0 to M-1
-       N = nx_sum
-       M = petCount
-       recvcount = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
-            int(ip  , INT64) * int(N, INT64) / int(M, INT64)
-       call lgr%debug('%a %i12 %i12', 'ip, recvcount', ip, recvcount)
-
-       allocate ( sendcount (petCount) )
-       allocate ( displs    (petCount) )
-       do ip=0, M-1
-          sendcount(ip+1) = int(ip+1, INT64) * int(N, INT64) / int(M, INT64) - &
-               int(ip  , INT64) * int(N, INT64) / int(M, INT64)
-       end do
-       displs(1)=0
-       do i = 2, petCount
-          displs(i) = displs(i-1) + sendcount(i-1)
-       end do
-
-       allocate ( lons_chunk (recvcount) )
-       allocate ( lats_chunk (recvcount) )
-
-       arr(1) = recvcount
-       call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx2, &
-            count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
-       _ASSERT( nx2 == nx_sum, 'Erorr in recvcount' )
-
-       call MPI_Scatterv( lons, sendcount, &
-            displs, MPI_REAL8,  lons_chunk, &
-            recvcount, MPI_REAL8, 0, mpic, ierr)
-
-       call MPI_Scatterv( lats, sendcount, &
-            displs, MPI_REAL8,  lats_chunk, &
-            recvcount, MPI_REAL8, 0, mpic, ierr)
-
 
        ! -- root
        locstream_factory = LocStreamFactory(lons,lats,_RC)
