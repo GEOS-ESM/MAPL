@@ -322,7 +322,6 @@ end subroutine initialize_
        
        call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx, &
             count=1, reduceflag=ESMF_REDUCE_SUM, _RC)
-       write(6,*) 'ip, nx, nx2', ip, nx, nx2
 
        ! gatherV for lons/lats
        if (mapl_am_i_root()) then          
@@ -357,9 +356,7 @@ end subroutine initialize_
        call MPI_gatherv ( lats_chunk, nsend, MPI_REAL8, &
             lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-
        this%nobs = nx
-       if (mapl_am_I_root()) write(6,*) 'nobs tot :', nx
 
        deallocate (this%recvcounts, this%displs, _STAT)
        deallocate (recvcounts_loc, displs_loc, _STAT)
@@ -400,8 +397,6 @@ end subroutine initialize_
        _VERIFY (ierr)
        call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
        lats_ds = ptB
-
-       write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)
 
        call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
        call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
