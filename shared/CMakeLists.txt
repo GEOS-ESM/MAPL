@@ -31,7 +31,7 @@ set (srcs
     MAPL_CF_Time.F90
 # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
-    Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
+    #Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
     )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.constants GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
@@ -52,4 +52,5 @@ if (PFUNIT_FOUND)
 endif ()
 
 add_subdirectory(Constants)
+add_subdirectory(Shmem)
 #add_subdirectory(tests EXCLUDE_FROM_ALL)
