@@ -157,14 +157,23 @@ module MAPL_GriddedIOMod
         call ESMF_FieldBundleSet(this%output_bundle,grid=this%output_grid,_RC)
         factory => get_factory(this%output_grid,_RC)
         call factory%append_metadata(this%metadata)
-        coord_var => this%metadata%get_variable('lons')
-        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
-        coord_var => this%metadata%get_variable('lats')
-        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
-        coord_var => this%metadata%get_variable('corner_lons')
-        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
-        coord_var => this%metadata%get_variable('corner_lats')
-        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
+
+        if (this%metadata%has_variable('lons')) then
+           coord_var => this%metadata%get_variable('lons',_RC)
+           call coord_var%set_deflation(this%deflateLevel)
+        end if
+        if (this%metadata%has_variable('lats')) then
+           coord_var => this%metadata%get_variable('lats',_RC)
+           call coord_var%set_deflation(this%deflateLevel)
+        end if
+        if (this%metadata%has_variable('corner_lons')) then
+           coord_var => this%metadata%get_variable('corner_lons',_RC)
+           call coord_var%set_deflation(this%deflateLevel)
+        end if
+        if (this%metadata%has_variable('corner_lats')) then
+           coord_var => this%metadata%get_variable('corner_lats',_RC)
+           call coord_var%set_deflation(this%deflateLevel)
+        end if
 
 
         if (present(vdata)) then
