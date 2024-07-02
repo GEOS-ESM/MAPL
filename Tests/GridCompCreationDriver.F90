@@ -9,15 +9,16 @@ program grid_comp_creation_driver
    use MAPL
    implicit none
 
-   integer :: status
+   integer, parameter :: EXPECTED_NARGS = 1
    character(len=:), parameter :: Iam="GridCompCreationDriver"
-   character(len=:), parameter :: CAPNAME = 'GridCompCreationCap'
-   character(len=:), parameter :: TESTNAME = 'GridCompCreationTest'
-   integer :: npes_model = 20
-   type(TestParameters) :: parameters
-
-   parameters = TestParameters(TESTNAME, npes_model)
-   call initialize_cap(Root_SetServices, parameters, _RC) 
+   integer :: status
+   character(len=:), allocatable :: parameter_file
+   character(len=MAXSTR) :: raw
+   
+   _ASSERT(command_argument_count() == EXPECTED_NARGS, 'Unexpected number of command line arguments')
+   call get_command_argument(1, value=raw, _RC_(status, status))
+   parameter_file = trim(adjustl(raw))
+   call initialize_cap(Root_SetServices, parameter_file, _RC) 
    call run_cap(_RC)
    stop
 

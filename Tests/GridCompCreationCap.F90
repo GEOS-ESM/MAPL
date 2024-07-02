@@ -1,60 +1,78 @@
 #include "MAPL_Generic.h"
+#define INCN(I, N) I = I + N
+#define INCR(I) INCN(I, 1)
+
 module grid_comp_creation_cap
 
+   use MPI
+   use ESMF
+   use MAPL
+   use MAPL_FargparseCLIMod 
    use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64
    implicit none
    private
 
-   type :: TestParameters
-      type(ESMF_LogKind_Flag), parameter :: esmf_logging_mode = ESMF_LOGKIND_NONE
-      character(len=*), allocatable :: name
-      integer :: npes_model = -1
-      type(TestParameters), allocatable :: subtest_parameters => null()
-      character(:), allocatable :: logging_config
-   end type TestParameters
+   public :: MAXSTR
 
-   interface TestParameters
-      module procedure :: construct_test_parameters
-   end interface TestParameters
+   type :: KeyValuePair
+      character(len=:), allocatable :: key
+      character(len=*), allocatable :: value
+      logical :: is_not_empty = .TRUE..
+   end type
 
+   integer, parameter :: MAXSTR = 256
    procedure, pointer :: cap_set_services => null()
    type(ServerManager) :: cap_server
    type(SplitCommunicator) :: split_comm
    integer :: rank
    integer :: comm_world
    character(len=:), allocatable :: cap_name
-   integer :: npes_world
+   integer :: npes_model
+   character(len=:), allocatable :: logging_config
+
+   type(KeyValuePair), parameter, target :: NULL_PAIR = KeyValuePair('', '', .FALSE.)
 
 contains
 
-   function construct_test_parameters(name, npes_model) result(parameters)
-      Type(TestParameters) :: parameters
-      character(len=*), intent(in) :: name
-      integer, intent(in) :: npes_model
-
-      parameters%name = name
-      parameters%npes_model = npes_model
-
-   end function construct_test_parameters
-
-   subroutine initialize_cap(set_services, parameters, unusable, rc)
+   subroutine initialize_cap(set_services, parameter_file, parameters, unusable, rc)
       procedure, intent(in) :: set_services
-      class(TestParameters), intent(inout) :: parameters
+      character(len=*), intent(in) :: parameter_file
+      type(KeyValuePair), intent(out) :: parameters(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: status
+      type(KeyValuePair), pointer :: pair
+      character(len=:), allocatable :: key
+      character(len=:), parameter :: NOT_FOUND = ' was not found.'
 
       _UNUSED_DUMMY(unusable)
-      cap_name = parameters%name
+
       cap_set_services => set_services
-      call initialize_mpi(_RC)
-      call MAPL_Initialize(comm=MPI_COMM_WORLD, logging_config=parameters%logging_config, _RC)
+      parameters = read_parameters(parameter_file, _RC)
+
+      key = 'cap_name'
+      pair => find_pair(key, parameters)
+      _ASSERT(pair%is_not_empty, key // NOT_FOUND)
+      cap_name = pair%value
+
+      key = 'npes_model'
+      pair => find_pair(key, parameters)
+      _ASSERT(pair%is_not_empty, key // NOT_FOUND)
+      npes_model = pair%value
+      
+      key = 'logging_config'
+      pair => find_pair(key, parameters)
+      _ASSERT(pair%is_not_empty, key // NOT_FOUND)
+      logging_config = pair%value
+
+      call initialize_mpi(npes_model, _RC)
+      call MAPL_Initialize(comm=MPI_COMM_WORLD, logging_config=logging_config, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine initialize_cap
 
-   subroutine initialize_mpi(parameters, rc) 
-      type(TestParameters), intent(in) :: parameters
+   subroutine initialize_mpi(npes, rc) 
+      integer, intent(inout) :: npes
       integer, optional, intent(out) :: rc
       integer :: ierror
       integer :: npes_world
@@ -64,12 +82,8 @@ contains
       comm_world=MPI_COMM_WORLD
       call MPI_Comm_rank(comm_world, rank, ierror); _VERIFY(ierror)
       call MPI_Comm_size(comm_world, npes_world, ierror); _VERIFY(ierror)
-
-      if (parameters%npes_model == -1) then
-         ! just a feed back to parameters to maintain integrity
-          parameters%npes_model = npes_world
-      endif
-      _ASSERT(npes_world >= parameters%npes_model, "npes_world is smaller than npes_model")
+      if (npes == -1) npes = npes_world
+      _ASSERT(npes_world >= npes, "npes_world is smaller than npes_model")
 
       _RETURN(_SUCCESS)
 
@@ -97,8 +111,8 @@ contains
 
    end subroutine finalize_cap
 
-   subroutine run_cap(parametes, rc)
-      type(TestParameters), intent(in) :: parameters
+   subroutine run_cap(parameters, rc)
+      type(KeyValuePairs), intent(in) :: parameters(:)
       integer, optional, intent(out) :: rc
       integer :: status
       character(len=:), parameter :: SPLITCOMM_NAME = 'model'
@@ -127,5 +141,79 @@ contains
       hconfig = ESMF_HConfigCreate(filename, _RC)
       call ESMF_HConfigDestroy(hconfig, _RC)
    end subroutine read_test_parameters
+
+   function construct_null_pair() result(null_pair)
+      type(NullPair) :: null_pair
+
+      null_pair%key = ''
+      null_pair%value = ''
+
+   end function construct_null_pair
+
+   function read_parameters(filename, rc) result(parameters)
+      type(KeyValuePair), allocatable :: parameters(:)
+      character(len=*), intent(in) :: filename
+      integer, optional, intent(out) :: rc
+      integer :: status, funit
+      character(len=MAXSTR) :: raw
+      character(len=:), parameter :: FMT_ = '(A)'
+      integer :: numlines
+      character(len=:), allocatable :: key, value
+
+      open(newunit=funit, file=trim(filename), status='old', action='read', _IOSTAT)
+
+      numlines = 0
+      do while (.not. EOF(funit))
+         numlines = numlines + 1
+         read(funit, fmt=FMT_) raw
+         if(len_trim(raw) == 0) cycle
+      end do
+      allocate(parameters(numlines))
+
+      rewind(funit, _IOSTAT)
+      i = 0
+      do while (.not. EOF(funit))
+         read(funit, fmt=FMT_) raw
+         raw = adjustl(raw)
+         if(len_trim(raw) == 0) cycle
+         call split(raw, ':', key, value)
+         if(len(key) == 0) cycle
+         i = i+1
+         parameters(i) = KeyValuePair(key, value)
+      end do
+
+      parameters = parameters(1:i)
+
+   end function read_parameters
+
+   subroutine split(str, token, remain, delim) 
+      character(len=*), intent(in) :: str
+      character(len=*), intent(in) :: delim
+      character(len=:), allocatable, intent(out) :: token
+      character(len=:), allocatable, intent(out) :: remain
+      integer :: i
+
+      token = trim(adjustl(str))
+      i = index(token, delim)
+      remain = token((i+len(delim)):)
+      token = token(:(i-1))
+
+   end subroutine split
+
+   function find_pair(key, pairs) result(ptr)
+      type(KeyValuePair), pointer :: ptr
+      character(len=*), intent(in) :: key
+      class(KeyValuePair), intent(in) :: pairs(:)
+      character(len=:), allocatable :: key_
+
+      ptr => NULL_PAIR
+      key_ = trim(adjustl(key))
+      if(len(key_) == 0 .or. size(pairs) == 0) return
+      do i=1, size(pairs)
+         if(pairs(i)%key /= key_) cycle
+         ptr => pairs(i)
+      end do
       
+   end function find_pair
+
 end module grid_comp_creation_cap
