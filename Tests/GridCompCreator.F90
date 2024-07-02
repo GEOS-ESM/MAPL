@@ -1,13 +1,10 @@
 #include "MAPL_Generic.h"
-#define INCN(I, N) I = I + N
-#define INCR(I) INCN(I, 1)
-
-module grid_comp_creation_cap
+module grid_comp_creator
 
    use MPI
    use ESMF
    use MAPL
-   use MAPL_FargparseCLIMod 
+   use mapl3g_Cap
    use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64
    implicit none
    private
@@ -34,7 +31,7 @@ module grid_comp_creation_cap
 
 contains
 
-   subroutine initialize_cap(set_services, parameter_file, parameters, unusable, rc)
+   subroutine initialize(set_services, parameter_file, parameters, unusable, rc)
       procedure, intent(in) :: set_services
       character(len=*), intent(in) :: parameter_file
       type(KeyValuePair), intent(out) :: parameters(:)
@@ -69,7 +66,7 @@ contains
       call MAPL_Initialize(comm=MPI_COMM_WORLD, logging_config=logging_config, _RC)
       _RETURN(_SUCCESS)
 
-   end subroutine initialize_cap
+   end subroutine initialize
 
    subroutine initialize_mpi(npes, rc) 
       integer, intent(inout) :: npes
@@ -216,4 +213,4 @@ contains
       
    end function find_pair
 
-end module grid_comp_creation_cap
+end module grid_comp_creator

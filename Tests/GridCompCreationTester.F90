@@ -1,11 +1,11 @@
 #define I_AM_MAIN
 #include "MAPL_Generic.h"
-program grid_comp_creation_driver
+program grid_comp_creation_tester
 
    use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64
    use MPI
    use ESMF
-   use gridcomp_creation_cap
+   use gridcomp_creator
    use MAPL
    implicit none
 
@@ -23,4 +23,4 @@ program grid_comp_creation_driver
    stop
 
 !_contains
-end program grid_comp_creation_driver
+end program grid_comp_creation_tester
