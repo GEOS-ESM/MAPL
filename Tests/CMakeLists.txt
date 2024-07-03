@@ -6,8 +6,6 @@ set (srcs
     ExtDataDriver.F90
     ExtDataDriverMod.F90
     VarspecDescription.F90
-    GridCompCreationTest.F90
-    GridCompCreator.F90
     )
 
 # We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
