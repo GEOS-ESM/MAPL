@@ -36,6 +36,7 @@ module mapl3g_MaplFramework
       type(ESMF_HConfig) :: mapl_hconfig
       type(DirectoryService) :: directory_service
       type(MpiServer), pointer :: o_server => null()
+      type(MpiServer), pointer :: i_server => null()
       type(DistributedProfiler) :: time_profiler
    contains
       procedure :: initialize
@@ -45,7 +46,7 @@ module mapl3g_MaplFramework
 #endif
       procedure :: initialize_profilers
       procedure :: initialize_servers
-      procedure :: initialize_simple_oserver
+      procedure :: initialize_simple_servers
 
       procedure :: finalize
       procedure :: finalize_servers
@@ -239,7 +240,7 @@ contains
          end if
          _RETURN_IF(this%model_comm == MPI_COMM_NULL)
          this%directory_service = DirectoryService(this%model_comm)
-         call this%initialize_simple_oserver(_RC)
+         call this%initialize_simple_servers(_RC)
          _RETURN(_SUCCESS)
       end if
 
@@ -346,6 +347,7 @@ contains
       i_server = 0
       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
          i_server = i_server + 1
+         ! server_hconfigs(i_server) = ESMF_HConfigCreateAtMapVal(iter, _RC)
          server_hconfigs(i_server) = ESMF_HConfigCreateAt(iter, _RC)
       end do
 
@@ -384,7 +386,7 @@ contains
       _RETURN(_SUCCESS)
    end function get_model_petCount
 
-   subroutine initialize_simple_oserver(this, unusable, rc)
+   subroutine initialize_simple_servers(this, unusable, rc)
       class(MaplFramework), target, intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -394,6 +396,8 @@ contains
 
 
       call init_IO_ClientManager(this%model_comm, _RC)
+
+      ! o server
       allocate(this%o_server, source=MpiServer(this%model_comm, 'o_server', rc=status), stat=stat_alloc)
       _VERIFY(status)
       _VERIFY(stat_alloc)
@@ -401,9 +405,18 @@ contains
       clientPtr => o_Clients%current()
       call this%directory_service%connect_to_server('o_server', clientPtr, this%model_comm)
 
+      ! i server
+      allocate(this%i_server, source=MpiServer(this%model_comm, 'i_server', rc=status), stat=stat_alloc)
+      _VERIFY(status)
+      _VERIFY(stat_alloc)
+      call this%directory_service%publish(PortInfo('i_server', this%i_server), this%i_server)
+      clientPtr => i_Clients%current()
+      _HERE
+      call this%directory_service%connect_to_server('i_server', clientPtr, this%model_comm)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine initialize_simple_oserver
+   end subroutine initialize_simple_servers
 
    subroutine get(this, unusable, directory_service, rc)
       class(MaplFramework), target, intent(in) :: this
