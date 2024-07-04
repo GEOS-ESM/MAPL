@@ -5,7 +5,7 @@ module grid_comp_creator
    use ESMF
    use MAPL
    use shared_constants
-   use, intrinsic :: iso_fortan_env, only I64 => int64
+   use, intrinsic :: iso_fortan_env, only: I64 => int64
 
    implicit none
    private
