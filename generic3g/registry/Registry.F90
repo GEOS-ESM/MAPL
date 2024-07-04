@@ -13,7 +13,7 @@ module mapl3g_Registry
    use mapl3g_StateItemExtensionVector
    use mapl3g_StateItemExtensionPtrVector
    use mapl3g_ExtensionFamily
-   use mapl3g_VirtualPtExtensionsMap
+   use mapl3g_VirtualPtFamilyMap
    use mapl3g_StateItemVector
    use mapl3g_StateItemSpec
    use mapl3g_HierarchicalRegistry, only: Connection
@@ -38,7 +38,7 @@ module mapl3g_Registry
       type(StateItemExtensionVector) :: owned_items ! specs and couplers
       type(RegistryPtrMap) :: subregistries
 
-      type(VirtualPtExtensionsMap) :: extensions_map
+      type(VirtualPtFamilyMap) :: family_map
 
       type(ComponentDriverVector) :: export_couplers ! invalidate() after run
       type(ComponentDriverVector) :: import_couplers ! update() before run
@@ -123,7 +123,7 @@ contains
    logical function has_virtual_pt(this, virtual_pt)
       class(Registry), intent(in) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
-      has_virtual_pt = (this%extensions_map%count(virtual_pt) > 0)
+      has_virtual_pt = (this%family_map%count(virtual_pt) > 0)
    end function has_virtual_pt
 
    subroutine add_virtual_pt(this, virtual_pt, rc)
@@ -132,7 +132,7 @@ contains
       integer, optional, intent(out) :: rc
 
       _ASSERT(.not. this%has_virtual_pt(virtual_pt), "Virtual connection point already exists in registry")
-      call this%extensions_map%insert(virtual_pt, ExtensionFamily())
+      call this%family_map%insert(virtual_pt, ExtensionFamily())
 
       _RETURN(_SUCCESS)
    end subroutine add_virtual_pt
@@ -158,7 +158,7 @@ contains
 
       ! New family (or else!)
       call this%add_virtual_pt(virtual_pt, _RC)
-      family => this%extensions_map%at(virtual_pt, _RC)
+      family => this%family_map%at(virtual_pt, _RC)
       family = ExtensionFamily(this%owned_items%back())
 
       _RETURN(_SUCCESS)
@@ -175,7 +175,7 @@ contains
 
       primary => null()
       _ASSERT(this%has_virtual_pt(virtual_pt), "Virtual connection point does not exist in registry")
-      family => this%extensions_map%at(virtual_pt,_RC)
+      family => this%family_map%at(virtual_pt,_RC)
       primary => family%get_primary()
    end function get_primary_extension
 
@@ -224,7 +224,7 @@ contains
 
       _ASSERT(this%has_virtual_pt(virtual_pt), "Virtual connection point does not exist in registry")
 
-      family => this%extensions_map%at(virtual_pt, _RC)
+      family => this%family_map%at(virtual_pt, _RC)
       call family%add_extension(extension)
 
       _RETURN(_SUCCESS)
@@ -238,7 +238,7 @@ contains
 
       integer :: status
 
-      family => this%extensions_map%at(virtual_pt, _RC)
+      family => this%family_map%at(virtual_pt, _RC)
 
       _RETURN(_SUCCESS)
    end function get_extension_family
@@ -254,7 +254,7 @@ contains
       integer :: i
 
       _ASSERT(this%has_virtual_pt(virtual_pt), "Virtual connection point does not exist in registry")
-      family => this%extensions_map%at(virtual_pt, _RC)
+      family => this%family_map%at(virtual_pt, _RC)
       associate (n => family%num_variants())
         allocate(extensions(n))
         do i = 1, n
@@ -361,12 +361,12 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(VirtualPtExtensionsMapIterator) :: iter
+      type(VirtualPtFamilyMapIterator) :: iter
       type(VirtualConnectionPt), pointer :: virtual_pt
       type(ExtensionFamily), pointer :: family
 
-      associate (e => subregistry%extensions_map%ftn_end())
-        iter = subregistry%extensions_map%ftn_begin()
+      associate (e => subregistry%family_map%ftn_end())
+        iter = subregistry%family_map%ftn_begin()
         do while (iter /= e)
            call iter%next()
            virtual_pt => iter%first()
@@ -448,10 +448,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(VirtualPtExtensionsMapIterator) :: iter
+      type(VirtualPtFamilyMapIterator) :: iter
 
-     associate (e => subregistry%extensions_map%ftn_end())
-        iter = subregistry%extensions_map%ftn_begin()
+     associate (e => subregistry%family_map%ftn_end())
+        iter = subregistry%family_map%ftn_begin()
         do while (iter /= e)
            call iter%next()
            call this%propagate_exports(subregistry%get_name(), iter, _RC)
@@ -464,7 +464,7 @@ contains
    subroutine propagate_exports_virtual_pt(this, subregistry_name, iter, rc)
       class(Registry), target, intent(inout) :: this
       character(*), intent(in) :: subregistry_name
-      type(VirtualPtExtensionsMapIterator), intent(in) :: iter
+      type(VirtualPtFamilyMapIterator), intent(in) :: iter
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -478,7 +478,7 @@ contains
       new_virtual_pt = VirtualConnectionPt(virtual_pt, subregistry_name)
       call this%add_virtual_pt(new_virtual_pt, _RC)
       family => iter%second()
-      call this%extensions_map%insert(new_virtual_pt, family)
+      call this%family_map%insert(new_virtual_pt, family)
 
       _RETURN(_SUCCESS)
    end subroutine propagate_exports_virtual_pt
@@ -534,12 +534,12 @@ contains
          character(*), intent(inout) :: iomsg
 
          integer :: total
-         type(VirtualPtExtensionsMapIterator) :: iter
+         type(VirtualPtFamilyMapIterator) :: iter
          type(ExtensionFamily), pointer :: family
 
          total = 0
-         associate (e => this%extensions_map%ftn_end())
-           iter = this%extensions_map%ftn_begin()
+         associate (e => this%family_map%ftn_end())
+           iter = this%family_map%ftn_begin()
            do while (iter /= e)
               call iter%next()
               family => iter%second()
@@ -550,7 +550,7 @@ contains
          write(unit,'(a,a, a,i0, a,i0, a,i0,a)',iostat=iostat,iomsg=iomsg) &
               'Registry(name=', this%name, &
               ', n_owned=', this%num_owned_items(), &
-              ', n_virtual=', this%extensions_map%size(), &
+              ', n_virtual=', this%family_map%size(), &
               ', n_extensions=', total, ')' // new_line('a')
          if (iostat /= 0) return
          write(unit,*,iostat=iostat,iomsg=iomsg) '   extensions: '// new_line('a')
@@ -561,13 +561,13 @@ contains
          integer, intent(out) :: iostat
          character(*), intent(inout) :: iomsg
 
-         type(VirtualPtExtensionsMapIterator) :: virtual_iter
+         type(VirtualPtFamilyMapIterator) :: virtual_iter
          type(ExtensionFamily), pointer :: family
 
          write(unit,*,iostat=iostat,iomsg=iomsg) '   virtuals: '// new_line('a')
          if (iostat /= 0) return
-         associate (e => this%extensions_map%ftn_end())
-           virtual_iter = this%extensions_map%ftn_begin()
+         associate (e => this%family_map%ftn_end())
+           virtual_iter = this%family_map%ftn_begin()
            do while (virtual_iter /= e)
               call virtual_iter%next()
               associate (virtual_pt => virtual_iter%first())
@@ -613,7 +613,7 @@ contains
       integer, optional, intent(out) :: rc
       
       integer :: status
-      type(VirtualPtExtensionsMapIterator) :: family_iter
+      type(VirtualPtFamilyMapIterator) :: family_iter
       type(VirtualConnectionPt), pointer :: v_pt
       type(ActualConnectionPt) :: a_pt
       type(ExtensionFamily), pointer :: family
@@ -626,9 +626,9 @@ contains
 
       _ASSERT(any([mode == 'user', mode == 'outer']), 'invalid mode: <' // mode // '>')
 
-      associate (e => this%extensions_map%ftn_end())
+      associate (e => this%family_map%ftn_end())
 
-        family_iter = this%extensions_map%ftn_begin()
+        family_iter = this%family_map%ftn_begin()
         do while (family_iter /= e)
            call family_iter%next()
            v_pt => family_iter%first()
@@ -678,10 +678,10 @@ contains
       type(VirtualConnectionPt), intent(in) :: pattern
 
       type(VirtualConnectionPt), pointer :: v_pt
-      type(VirtualPtExtensionsMapIterator) :: iter
+      type(VirtualPtFamilyMapIterator) :: iter
       
-      associate (e => this%extensions_map%ftn_end())
-        iter = this%extensions_map%ftn_begin()
+      associate (e => this%family_map%ftn_end())
+        iter = this%family_map%ftn_begin()
         do while (iter /= e)
            call iter%next()
            v_pt => iter%first()

@@ -1,4 +1,4 @@
- module mapl3g_VirtualPtExtensionsMap
+ module mapl3g_VirtualPtFamilyMap
    use mapl3g_VirtualConnectionPt
    use mapl3g_ExtensionFamily
 
@@ -6,9 +6,9 @@
 #define Key_LT(a,b) (a < b)
 #define T ExtensionFamily
 
-#define Map VirtualPtExtensionsMap
-#define MapIterator VirtualPtExtensionsMapIterator
-#define Pair VirtualPtExtensionsPair
+#define Map VirtualPtFamilyMap
+#define MapIterator VirtualPtFamilyMapIterator
+#define Pair VirtualPtFamilyPair
 
 #include "map/template.inc"
 
@@ -18,4 +18,4 @@
 #undef T
 #undef Key
 
-end module mapl3g_VirtualPtExtensionsMap
+end module mapl3g_VirtualPtFamilyMap

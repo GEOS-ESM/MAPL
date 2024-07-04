@@ -21,5 +21,5 @@ target_sources(MAPL.generic3g PRIVATE
   StateItemExtensionVector.F90
   StateItemExtensionPtrVector.F90
   ExtensionFamily.F90
-  VirtualPtExtensionsMap.F90
+  VirtualPtFamilyMap.F90
 )
