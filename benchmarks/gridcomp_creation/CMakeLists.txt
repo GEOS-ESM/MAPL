@@ -3,7 +3,7 @@ set(MODULE_DIRECTORY ${esma_include}/benchmarks/gridcomp_creation)
 
 ecbuild_add_executable (
   TARGET ${exe}
-  SOURCES GridCompCreationTester.F90 GridCompCreator.F90
+  SOURCES GridCompCreationTester.F90 GridCompCreator.F90 shared_constants.F90
 )
 
 #target_link_libraries (${exe} PRIVATE MAPL.shared MPI::MPI_Fortran FARGPARSE::fargparse)

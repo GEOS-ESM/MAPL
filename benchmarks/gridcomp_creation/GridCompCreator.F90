@@ -1,11 +1,10 @@
-#define _SET_IF_PRESENT(A, B) if(present(A)) A = B
-#define _RC _SET_IF_PRESENT(rc, status)
+#define _HERE print*,__FILE__,__LINE__
+#define _RC rc=status
 module grid_comp_creator
 
    use ESMF
-   use MAPL
    use shared_constants
-   use, intrinsic :: iso_fortan_env, only: I64 => int64
+   use, intrinsic :: iso_fortran_env, only: I64 => int64
 
    implicit none
    private
@@ -15,38 +14,39 @@ module grid_comp_creator
 
    type :: GC_Container
       type(ESMF_GridComp) :: gc
-      type(ESMF_State) :: importState, exportState
    end type GC_Container
 
    character(len=:), allocatable :: parameter_filename
    integer :: npes_model
-   integer :: ngc = 1
+   integer :: ngc = 0
+
+   type(GC_Container), allocatable :: gcc(:)
 
 contains
 
-   subroutine initialize(npes, param_filename, rc)
+   subroutine initialize(npes, num_gc, param_file, rc)
       integer, intent(in) :: npes
-      character(len=*), optional, intent(in) :: param_filename
+      integer, intent(in) :: num_gc
+      character(len=*), optional, intent(in) :: param_file
       integer, optional, intent(out) :: rc
       integer :: status
 
-      npes_model = npes
       parameter_filename = ''
-      if(present(param_filename)) parameter_filename = param_filename 
-      ngc = 10
-      call ESMF_Initialize(rc=status)
-      _RC
+      if(present(param_file)) parameter_filename = param_file 
+      npes_model = npes
+      ngc = num_gc
+      allocate(gcc(ngc))
+      call ESMF_Initialize(_RC)
 
    end subroutine initialize
 
    subroutine finalize(rc)
-      type(GC_Container), intent(in) :: gcc(:)
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call destroy_containers(gcc, rc=status)
-      call ESMF_Finalize(rc=status)
-      _RC
+      call destroy_containers(gcc, _RC)
+      if(allocated(gcc)) deallocate(gcc)
+      call ESMF_Finalize(_RC)
 
    end subroutine finalize
 
@@ -55,35 +55,39 @@ contains
       integer(kind=I64), intent(out) :: memory
       integer, optional, intent(out) :: rc
       integer :: status
-      type(GC_Container), allocatable :: gcc(:)
 
-      allocate(gcc(ngc))
-      call run_gridcomp_creation(gcc, time, memory, rc = status)
-      call finalize(gcc, rc=status)
-      _RC
+      call run_gridcomp_creation(gcc, time, memory, _RC)
+      call finalize(_RC)
 
    end subroutine run
 
    subroutine run_gridcomp_creation(gcc, time, memory, rc)
       type(GC_Container), intent(inout) :: gcc(:)
-      integer(kind=I64), intent(in) :: ngc
       integer(kind=I64), intent(out) :: time
       integer(kind=I64), intent(out) :: memory
       integer, optional, intent(out) :: rc
       integer :: status
-      integer(kind=I64) :: start_time
+      integer :: i
 
-      call system_clock(count=start_time) 
+      time = timer()
       do i = 1, size(gcc)
-         gcc(i) = make_container(i, rc=status)
+         gcc(i) = make_container(i, _RC)
       end do
       call system_clock(count=time)
-      time = time - start_time
+      time = timer(time)
       memory = get_memory_use(rc)
-      _RC
       
    end subroutine run_gridcomp_creation
 
+   function timer(start_time)
+      integer(I64) :: timer
+      integer(I64), optional, intent(in) :: start_time
+
+      call system_clock(count=timer)
+      if(present(start_time)) timer = timer - start_time
+
+   end function timer
+      
    integer function get_memory_use(rc)
       integer, optional, intent(out) :: rc
       integer :: status
@@ -96,57 +100,33 @@ contains
       character(len=MAXSTR) :: gc_name
       integer, intent(in) :: n
       integer :: ios
-      character, parameter :: FMT_ = '(I0)'
+      character(len=*), parameter :: FMT_ = '(I0)'
       character(len=MAXSTR) :: raw
 
       write(raw, fmt=FMT_, iostat=ios) n
-      gc_name = "GC" // n
+      gc_name = "GC" // trim(raw)
 
    end function make_gc_name
 
-   subroutine setservices(gridcomp, rc)
-      type(ESMF_GridComp) :: gridcomp
-      integer, intent(out) :: rc
-      integer :: status
-      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run_gc, rc=status)
-      _RC
-
-   end subroutine setservices
-
-   function make_container(n, rc) result(gc)
+   function make_container(n, rc) result(gcc)
       type(GC_Container) :: gcc
       integer, intent(in) :: n
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_State) :: importState, exportState
 
-      gcc%gc = ESMF_GridCompCreate(name=trim(make_gc_name(n)), rc=status)
-      gcc%importState = ESMF_StateCreate(rc=status)
-      gcc%exportState = ESMF_StateCreate(rc=status)
-      call ESMF_GridCompSetServices(gcc%gc, setservices, rc=status)
+      gcc%gc = ESMF_GridCompCreate(name=trim(make_gc_name(n)), _RC)
 
    end function make_container
 
-   subroutine run_gc(gridcomp, importState, exportState, clock, rc)
-      type(ESMF_GridComp) :: gridcomp
-      type(ESMF_State) :: importState, exportState
-      integer, optional, intent(out) :: rc
-      integer :: status
-      call ESMF_ClockAdvance(clock, rc=status)
-      _RC
-
-   end subroutine run_rc
-
    subroutine destroy_containers(gcc, rc)
-      type(GC_Container), intent(inout) :: gcc
+      type(GC_Container), intent(inout) :: gcc(:)
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
       
       do i=1, size(gcc)
-         call ESMF_GridCompDestroy(gcc(i)%gc, rc=status)
+         call ESMF_GridCompDestroy(gcc(i)%gc, _RC)
       end do
-      _RC
 
    end subroutine destroy_containers
 
