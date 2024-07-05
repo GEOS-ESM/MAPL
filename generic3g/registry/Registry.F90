@@ -179,7 +179,8 @@ contains
       primary => family%get_primary()
    end function get_primary_extension
 
-   subroutine add_extension(this, virtual_pt, extension, rc)
+   function add_extension(this, virtual_pt, extension, rc) result(new_extension)
+      type(StateItemExtension), pointer :: new_extension
       class(Registry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       type(StateItemExtension), intent(in) :: extension
@@ -190,10 +191,11 @@ contains
       _ASSERT(this%has_virtual_pt(virtual_pt), "Virtual connection point does not exist in registry")
 
       call this%owned_items%push_back(extension)
+      new_extension => this%owned_items%back()
       call this%link_extension(virtual_pt, this%owned_items%back(), _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine add_extension
+   end function add_extension
 
    subroutine add_spec(this, virtual_pt, spec, rc)
       class(Registry), target, intent(inout) :: this

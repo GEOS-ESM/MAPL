@@ -6,6 +6,9 @@ module mapl3g_StateItemExtension
    use mapl3g_GriddedComponentDriver
    use mapl3g_ComponentDriverVector
    use mapl3g_ComponentDriverPtrVector
+   use mapl3g_ExtensionAction
+   use mapl3g_GenericCoupler
+   use mapl_ErrorHandling
    implicit none
    private
 
@@ -27,6 +30,7 @@ module mapl3g_StateItemExtension
       procedure :: get_spec
       procedure :: get_export_couplers
       procedure :: get_import_couplers
+      procedure :: make_extension
    end type StateItemExtension
 
    type :: StateItemExtensionPtr
@@ -77,5 +81,34 @@ contains
       type(ComponentDriverPtrVector), pointer :: couplers
       couplers => this%import_couplers
    end function get_import_couplers
-   
+
+   ! Creation of an extension requires a new coupler that transforms
+   ! from source (this) spec to dest (extension) spec. This new coupler
+   ! is added to the export specs of source (this), and the new extension
+   ! gains it as a reference (pointer).
+
+   function make_extension(this, goal, rc) result(extension)
+      type(StateItemExtension) :: extension
+      class(StateItemExtension), target, intent(inout) :: this
+      class(StateItemSpec), target, intent(in) :: goal
+      integer, intent(out) :: rc
+
+      integer :: status
+!#      class(StateItemSpec), allocatable :: new_spec
+!#      class(ExtensionAction), allocatable :: action
+!#      type(GriddedComponentDriver) :: new_coupler
+!#      
+!#      new_spec = this%spec%make_extension(goal, _RC)
+!#      call new_spec%set_active()
+!#      call this%spec%set_active
+!#
+!#      action = this%spec%make_action(new_spec, _RC)
+!#      new_coupler = make_driver(action, _RC)
+!#      call this%add_export_coupler(new_coupler)
+!#
+!#      extension = StateItemExtension(new_spec)
+!#      call extension%add_import_coupler(this%export_couplers%back())
+
+      _RETURN(_SUCCESS)
+   end function make_extension
 end module mapl3g_StateItemExtension
