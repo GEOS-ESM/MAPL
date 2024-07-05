@@ -13,6 +13,7 @@ module mapl3g_MatchConnection
    use mapl3g_ActualPtVec_Map
    use mapl3g_ActualPtVector
    use mapl3g_StateItemSpec
+   use mapl3g_StateItemExtension
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -74,7 +75,6 @@ contains
       type(VirtualConnectionPt), pointer :: dst_pattern, src_v_pt
       type(VirtualConnectionPt) :: src_pattern, dst_v_pt
       type(VirtualConnectionPt), pointer :: s_v_pt, d_v_pt
-      type(StateItemSpecPtr), allocatable :: dst_specs(:)
       integer :: i, j, k
       class(StateItemSpec), allocatable :: new_spec
       type(ConnectionPt) :: s_pt, d_pt
@@ -90,9 +90,6 @@ contains
 
       do i = 1, dst_v_pts%size()
          dst_pattern => dst_v_pts%of(i)
-         src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
-              '^'//dst_pattern%get_esmf_name()//'$', comp_name=dst_pattern%get_comp_name())
-         dst_specs = dst_registry%get_actual_pt_SpecPtrs(dst_pattern, _RC)
 
          src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
               dst_pattern%get_esmf_name(), comp_name=dst_pattern%get_comp_name())
@@ -132,9 +129,7 @@ contains
       type(VirtualConnectionPt), pointer :: dst_pattern, src_v_pt
       type(VirtualConnectionPt) :: src_pattern, dst_v_pt
       type(VirtualConnectionPt), pointer :: s_v_pt, d_v_pt
-      type(StateItemSpecPtr), allocatable :: dst_specs(:)
       integer :: i, j, k
-      class(StateItemSpec), allocatable :: new_spec
       type(ConnectionPt) :: s_pt, d_pt
       character(1000) :: message
 
@@ -144,18 +139,15 @@ contains
       src_registry => with_registry%get_subregistry(src_pt, _RC)
       dst_registry => with_registry%get_subregistry(dst_pt, _RC)
 
-!#      dst_v_pts = dst_registry%filter(dst_pt%v_pt)
+      dst_v_pts = dst_registry%filter(dst_pt%v_pt)
 
       do i = 1, dst_v_pts%size()
          dst_pattern => dst_v_pts%of(i)
-         src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
-              '^'//dst_pattern%get_esmf_name()//'$', comp_name=dst_pattern%get_comp_name())
-!#         dst_specs = dst_registry%get_actual_pt_SpecPtrs(dst_pattern, _RC)
 
          src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
               dst_pattern%get_esmf_name(), comp_name=dst_pattern%get_comp_name())
 
-!#         src_v_pts = src_registry%filter(src_pattern)
+         src_v_pts = src_registry%filter(src_pattern)
          if (src_v_pts%size() == 0) then
             write(message,*) dst_pattern
             _FAIL('No matching source found for connection dest: ' // trim(message))

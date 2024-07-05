@@ -182,8 +182,11 @@ contains
       _ASSERT(.not. dst_registry%has_virtual_pt(dst_pt), 'Specified virtual point already exists in this registry')
       _ASSERT(src_registry%has_virtual_pt(src_pt), 'Specified virtual point does not exist.')
 
-      family => src_registry%get_extension_family(src_pt)
-!#      call dst_registry%add_virtual_pt(src_pt, family, _RC)
+      call dst_registry%add_virtual_pt(src_pt, _RC)
+      ! get the pointer in dst
+      family => dst_registry%get_extension_family(src_pt)
+      ! copy from src
+      family = src_registry%get_extension_family(src_pt)
     
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
