@@ -1,5 +1,6 @@
 set(exe gc_run.x)
 
+add_subdirectory(gridcomp_creation)
 ecbuild_add_executable (
   TARGET ${exe}
   SOURCES gc_run.F90)

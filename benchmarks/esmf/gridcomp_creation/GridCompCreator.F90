@@ -1,4 +1,3 @@
-#define _HERE print*,__FILE__,__LINE__
 #define RC_ rc=status
 module grid_comp_creator
 
@@ -80,15 +79,6 @@ contains
       
    end subroutine run_gridcomp_creation
 
-   function timer(start_time)
-      integer(I64) :: timer
-      integer(I64), optional, intent(in) :: start_time
-
-      call system_clock(count=timer)
-      if(present(start_time)) timer = timer - start_time
-
-   end function timer
-      
    integer function get_memory_use(rc)
       integer, optional, intent(out) :: rc
       integer :: status
