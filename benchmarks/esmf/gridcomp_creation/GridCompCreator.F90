@@ -1,10 +1,10 @@
 #define _HERE print*,__FILE__,__LINE__
-#define _RC rc=status
+#define RC_ rc=status
 module grid_comp_creator
 
    use ESMF
    use shared_constants
-   use, intrinsic :: iso_fortran_env, only: I64 => int64
+   use, intrinsic :: iso_fortran_env, only: I64 => int64, R64 => real64
 
    implicit none
    private
@@ -36,7 +36,7 @@ contains
       npes_model = npes
       ngc = num_gc
       allocate(gcc(ngc))
-      call ESMF_Initialize(_RC)
+      call ESMF_Initialize(RC_)
 
    end subroutine initialize
 
@@ -44,37 +44,38 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call destroy_containers(gcc, _RC)
+      call destroy_containers(gcc, RC_)
       if(allocated(gcc)) deallocate(gcc)
-      call ESMF_Finalize(_RC)
+      call ESMF_Finalize(RC_)
 
    end subroutine finalize
 
    subroutine run(time, memory, rc)
-      integer(kind=I64), intent(out) :: time
+      real(kind=R64), intent(out) :: time
       integer(kind=I64), intent(out) :: memory
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call run_gridcomp_creation(gcc, time, memory, _RC)
-      call finalize(_RC)
+      call run_gridcomp_creation(gcc, time, memory, RC_)
+      call finalize(RC_)
 
    end subroutine run
 
    subroutine run_gridcomp_creation(gcc, time, memory, rc)
       type(GC_Container), intent(inout) :: gcc(:)
-      integer(kind=I64), intent(out) :: time
+      real(kind=R64), intent(out) :: time
       integer(kind=I64), intent(out) :: memory
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
+      integer(kind=I64) :: start, end_, count_rate
 
-      time = timer()
+      call system_clock(count = start, count_rate=count_rate)
       do i = 1, size(gcc)
-         gcc(i) = make_container(i, _RC)
+         gcc(i) = make_container(i, RC_)
       end do
-      call system_clock(count=time)
-      time = timer(time)
+      call system_clock(count = end_, count_rate=count_rate)
+      time = real(end_ - start) / count_rate
       memory = get_memory_use(rc)
       
    end subroutine run_gridcomp_creation
@@ -114,7 +115,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      gcc%gc = ESMF_GridCompCreate(name=trim(make_gc_name(n)), _RC)
+      gcc%gc = ESMF_GridCompCreate(name=trim(make_gc_name(n)), RC_)
 
    end function make_container
 
@@ -125,7 +126,7 @@ contains
       integer :: i
       
       do i=1, size(gcc)
-         call ESMF_GridCompDestroy(gcc(i)%gc, _RC)
+         call ESMF_GridCompDestroy(gcc(i)%gc, RC_)
       end do
 
    end subroutine destroy_containers
