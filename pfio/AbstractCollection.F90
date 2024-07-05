@@ -10,19 +10,19 @@ module pFIO_AbstractCollectionMod
 
    type, abstract :: AbstractCollection
    contains
-      procedure(find), deferred :: find   
+      procedure(I_find), deferred :: find
    end type AbstractCollection
 
    abstract interface
 
-      function find(this, file_name, rc) result(formatter)
+      function I_find(this, file_name, rc) result(formatter)
          use pFIO_NetCDF4_FileFormatterMod, only: NetCDF4_FileFormatter
          import AbstractCollection
          class(AbstractCollection), intent(inout) :: this
          character(len=*), intent(in) :: file_name
          integer, optional, intent(out) :: rc
          type(NetCDF4_FileFormatter), pointer :: formatter
-      end function find
+      end function I_find
 
    end interface
 
