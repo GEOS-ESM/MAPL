@@ -8,7 +8,9 @@ module mapl3g_StateItemExtension
    use mapl3g_ComponentDriverPtrVector
    use mapl3g_ExtensionAction
    use mapl3g_GenericCoupler
+   use mapl3g_MultiState
    use mapl_ErrorHandling
+   use esmf
    implicit none
    private
 
@@ -51,13 +53,13 @@ contains
 
    subroutine add_export_coupler(this, coupler)
       class(StateItemExtension), intent(inout) :: this
-      type(GriddedComponentDriver), intent(in) :: coupler
+      class(GriddedComponentDriver), intent(in) :: coupler
       call this%export_couplers%push_back(coupler)
    end subroutine add_export_coupler
 
    subroutine add_import_coupler(this, coupler)
       class(StateItemExtension), intent(inout) :: this
-      type(GriddedComponentDriver), pointer :: coupler
+      class(ComponentDriver), pointer :: coupler
       type(ComponentDriverPtr) :: wrapper
 
       wrapper%ptr => coupler
@@ -94,20 +96,23 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-!#      class(StateItemSpec), allocatable :: new_spec
-!#      class(ExtensionAction), allocatable :: action
-!#      type(GriddedComponentDriver) :: new_coupler
-!#      
-!#      new_spec = this%spec%make_extension(goal, _RC)
-!#      call new_spec%set_active()
-!#      call this%spec%set_active
-!#
-!#      action = this%spec%make_action(new_spec, _RC)
-!#      new_coupler = make_driver(action, _RC)
-!#      call this%add_export_coupler(new_coupler)
-!#
-!#      extension = StateItemExtension(new_spec)
-!#      call extension%add_import_coupler(this%export_couplers%back())
+      class(StateItemSpec), allocatable :: new_spec
+      class(ExtensionAction), allocatable :: action
+      type(GriddedComponentDriver) :: new_coupler
+      type(ESMF_GridComp) :: coupler_gridcomp
+      type(ESMF_Clock) :: fake_clock
+      
+      new_spec = this%spec%make_extension(goal, _RC)
+      call new_spec%set_active()
+      call this%spec%set_active
+
+      action = this%spec%make_action(new_spec, _RC)
+      coupler_gridcomp = make_coupler(action, _RC)
+      new_coupler = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
+      call this%add_export_coupler(new_coupler)
+
+      extension = StateItemExtension(new_spec)
+      call extension%add_import_coupler(this%export_couplers%back())
 
       _RETURN(_SUCCESS)
    end function make_extension

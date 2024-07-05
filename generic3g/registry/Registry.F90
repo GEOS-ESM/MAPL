@@ -40,9 +40,6 @@ module mapl3g_Registry
 
       type(VirtualPtFamilyMap) :: family_map
 
-      type(ComponentDriverVector) :: export_couplers ! invalidate() after run
-      type(ComponentDriverVector) :: import_couplers ! update() before run
-
    contains
 
       procedure :: add_subregistry
@@ -82,8 +79,6 @@ module mapl3g_Registry
       generic :: get_subregistry => get_subregistry_by_name
       generic :: get_subregistry => get_subregistry_by_conn_pt
 
-      procedure :: add_import_coupler
-      procedure :: add_export_coupler
       procedure :: allocate
       procedure :: add_to_states
 
@@ -497,18 +492,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine add_connection
-
-   subroutine add_import_coupler(this, coupler)
-      class(Registry), target, intent(inout) :: this
-      type(GriddedComponentDriver), intent(in) :: coupler
-      call this%import_couplers%push_back(coupler)
-   end subroutine add_import_coupler
-
-   subroutine add_export_coupler(this, coupler)
-      class(Registry), target, intent(inout) :: this
-      type(GriddedComponentDriver), intent(in) :: coupler
-      call this%export_couplers%push_back(coupler)
-   end subroutine add_export_coupler
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
       class(Registry), intent(in) :: this

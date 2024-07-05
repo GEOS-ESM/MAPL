@@ -199,8 +199,6 @@ contains
          ! In the case of wildcard specs, we need to pass an actual_pt to
          ! the dst_spec to support multiple matches.  A bit of a kludge.
          effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
-              src_pt%v_pt%get_esmf_name(), comp_name=src_pt%v_pt%get_comp_name()))
-         effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
               src_pt%v_pt%get_comp_name()//'/'//src_pt%v_pt%get_esmf_name()))
          call dst_spec%connect_to(last_spec, effective_pt, _RC)
          call dst_spec%set_active()
@@ -281,12 +279,11 @@ contains
       integer :: i_extension
       integer :: cost, lowest_cost
       type(StateItemExtension), pointer :: best_extension
-      class(StateItemSpec), pointer :: best_spec
+      type(StateItemExtension), pointer :: last_extension
+      type(StateItemExtension) :: old_extension
+      type(StateItemExtension) :: new_extension
       class(StateItemSpec), pointer :: last_spec
-      class(StateItemSpec), target, allocatable :: old_spec
-      class(StateItemSpec), allocatable, target :: new_spec
       type(ActualConnectionPt) :: effective_pt
-      type(ActualConnectionPt) :: extension_pt
 
       type(GriddedComponentDriver), pointer :: source_coupler
       type(ActualPtVector), pointer :: src_actual_pts
@@ -309,45 +306,22 @@ contains
          _ASSERT(dst_spec%can_connect_to(src_spec), "impossible connection")
 
          call find_closest_extension_new(dst_extension, src_extensions, closest_extension=best_extension, lowest_cost=lowest_cost, _RC)
-         best_spec => best_extension%get_spec()
-         call best_spec%set_active()
-         call activate_dependencies_new(best_spec, src_registry, _RC)
+         call activate_dependencies_new(best_extension, src_registry, _RC)
 
-         ! Now build out sequence of extensions that form a chain to
-         ! dst_spec.  This includes creating couplers (handled inside
-         ! registry.)
-         last_spec => best_spec
-         old_spec = best_spec
+         last_extension => best_extension
+         old_extension = best_extension
+
          source_coupler => null()
          do i_extension = 1, lowest_cost
-            new_spec = old_spec%make_extension(dst_spec, _RC)
-            call new_spec%set_active()
-!#            extension_pt = src_registry%extend(src_pt%v_pt, old_spec, new_spec, source_coupler=source_coupler, _RC)
-!#            source_coupler => src_registry%get_export_coupler(extension_pt)
-            ! ifort 2021.6 does something odd with the following move_alloc
-!#            call move_alloc(from=new_spec, to=old_spec)
-            deallocate(old_spec)
-            allocate(old_spec, source=new_spec)
-            deallocate(new_spec)
-
-            last_spec => old_spec
+            new_extension = old_extension%make_extension(dst_spec, _RC)
+            last_extension => src_registry%add_extension(src_pt%v_pt, new_extension, _RC)
          end do
-
-         call dst_spec%set_active()
-
-         ! If couplers were needed, then the final coupler must also be
-         ! referenced in the dst registry so that gridcomps can do update()
-         ! requests.
-         if (lowest_cost >= 1) then
-!#            call dst_registry%add_import_coupler(source_coupler)
-         end if
 
          ! In the case of wildcard specs, we need to pass an actual_pt to
          ! the dst_spec to support multiple matches.  A bit of a kludge.
          effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
-              src_pt%v_pt%get_esmf_name(), comp_name=src_pt%v_pt%get_comp_name()))
-         effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
               src_pt%v_pt%get_comp_name()//'/'//src_pt%v_pt%get_esmf_name()))
+         last_spec => last_extension%get_spec()
          call dst_spec%connect_to(last_spec, effective_pt, _RC)
          call dst_spec%set_active()
             
@@ -357,8 +331,8 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine connect_sibling_new
 
-   subroutine activate_dependencies_new(spec, with_registry, rc)
-      class(StateItemSpec), intent(in) :: spec
+   subroutine activate_dependencies_new(extension, with_registry, rc)
+      type(StateItemExtension), intent(in) :: extension
       type(Registry), target, intent(in) :: with_registry
       integer, optional, intent(out) :: rc
 
@@ -366,8 +340,10 @@ contains
       integer :: i
       type(StringVector) :: dependencies
       class(StateItemExtension), pointer :: dep_extension
+      class(StateItemSpec), pointer :: spec
       class(StateItemSpec), pointer :: dep_spec
 
+      spec => extension%get_spec()
       dependencies = spec%get_raw_dependencies()
       do i = 1, dependencies%size()
          associate (v_pt => VirtualConnectionPt(state_intent='export', short_name=dependencies%of(i)) )
