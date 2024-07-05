@@ -91,7 +91,7 @@ contains
       if (item_count > 0) then
          file_name = trim(this%gc_name) // "_" // trim(state_type) // "_rst.nc4"
          print *, "Reading restart: ", trim(file_name)
-         call some_thing_(file_name, state, _RC)
+         call read_fields_(file_name, state, _RC)
       end if
 
       _RETURN(ESMF_SUCCESS)
@@ -158,7 +158,7 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine write_bundle_
 
-   subroutine some_thing_(file_name, state, rc)
+   subroutine read_fields_(file_name, state, rc)
       ! Arguments
       character(len=*), intent(in) :: file_name
       type(ESMF_State), intent(in) :: state
@@ -166,24 +166,40 @@ contains
 
       ! Locals
       logical :: file_exists
-      type(FileMetaData) :: metadata
+      integer :: status
+
+      inquire(file=trim(file_name), exist=file_exists)
+      _ASSERT(file_exists, "restart file " // trim(file_name) // " does not exist")
+
+      call request_data_from_file(state, file_name, _RC)
+      call i_Clients%done_collective_prefetch()
+      call i_Clients%wait()
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine read_fields_
+
+   ! pchakrab: TODO - this should probably go to Grid_PFIO.F90
+   subroutine request_data_from_file(state, file_name, rc)
+      ! Arguments
+      type(ESMF_State), intent(in) :: state
+      character(len=*), intent(in) :: file_name
+      integer, intent(out), optional :: rc
+
+      ! Locals
       type(NetCDF4_FileFormatter) :: file_formatter
+      type(FileMetaData) :: metadata
       character(len=ESMF_MAXSTR), allocatable :: item_name(:)
       type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
       type(ESMF_Grid) :: grid
       type(ESMF_Field) :: field
       type(ESMF_TypeKind_Flag) :: esmf_typekind
       integer :: pfio_typekind
-      integer, allocatable :: local_start(:), global_start(:), global_count(:)
       integer, allocatable :: element_count(:), new_element_count(:)
-      integer :: num_fields, idx, status
+      integer, allocatable :: local_start(:), global_start(:), global_count(:)
       type(c_ptr) :: address
       type(pFIOServerBounds) :: server_bounds
       type(ArrayReference) :: ref
-      integer :: collection_id
-
-      inquire(file=trim(file_name), exist=file_exists)
-      _ASSERT(file_exists, "restart file " // trim(file_name) // " does not exist")
+      integer :: collection_id, num_fields, idx, status
 
       call file_formatter%open(file_name, PFIO_READ, _RC)
       metadata = file_formatter%read(_RC)
@@ -204,7 +220,6 @@ contains
            call ESMF_FieldGet(field, grid=grid, typekind=esmf_typekind, _RC)
            element_count = FieldGetLocalElementCount(field, _RC)
            call server_bounds%initialize(grid, element_count, _RC)
-           ! call server_bounds%initialize(grid, [element_count, 1], _RC)
            global_start = server_bounds%get_global_start()
            global_count = server_bounds%get_global_count()
            local_start = server_bounds%get_local_start()
@@ -223,10 +238,8 @@ contains
            call server_bounds%finalize()
          end associate
       end do
-      call i_Clients%done_collective_prefetch()
-      call i_Clients%wait()
 
       _RETURN(ESMF_SUCCESS)
-   end subroutine some_thing_
+   end subroutine request_data_from_file
 
 end module mapl3g_Restart
