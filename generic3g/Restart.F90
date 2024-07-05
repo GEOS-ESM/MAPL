@@ -2,12 +2,17 @@
 
 module mapl3g_Restart
 
+   use, intrinsic :: iso_c_binding, only: c_ptr
    use esmf
-   use pFIO, only: FileMetaData, o_Clients
    use mapl3g_geom_mgr, only: MaplGeom, get_geom_manager
    use mapl3g_MultiState, only: MultiState
-   use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return
+   use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
    use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio, get_mapl_geom
+   use mapl3g_pFIOServerBounds, only: pFIOServerBounds
+   use mapl3g_SharedIO, only: esmf_to_pfio_type
+   use MAPL_FieldPointerUtilities, only: FieldGetCPtr, FieldGetLocalElementCount
+   use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
+   use pFIO, only: i_Clients, o_Clients, ArrayReference
 
    implicit none
    private
@@ -57,20 +62,37 @@ contains
       ! Locals
       type(ESMF_FieldBundle) :: out_bundle
       character(len=ESMF_MAXSTR) :: file_name
-      integer :: status
+      integer :: item_count, status
 
-      out_bundle = get_bundle_from_state_(state, _RC)
-      file_name = trim(this%gc_name) // "_" // trim(state_type) // "_rst.nc4"
-      call this%write_bundle_(out_bundle, file_name, rc)
+      call ESMF_StateGet(state, itemCount=item_count, _RC)
+      if (item_count > 0) then
+         file_name = trim(this%gc_name) // "_" // trim(state_type) // "_checkpoint.nc4"
+         print *, "Writing restart: ", trim(file_name)
+         out_bundle = get_bundle_from_state_(state, _RC)
+         call this%write_bundle_(out_bundle, file_name, rc)
+      end if
 
       _RETURN(ESMF_SUCCESS)
    end subroutine write
 
-   subroutine read(this, rc)
+   subroutine read(this, state_type, state, rc)
 
       ! Arguments
       class(Restart), intent(inout) :: this
+      character(len=*), intent(in) :: state_type
+      type(ESMF_State), intent(in) :: state
       integer, optional, intent(out) :: rc
+
+      ! Locals
+      character(len=ESMF_MAXSTR) :: file_name
+      integer :: item_count, status
+
+      call ESMF_StateGet(state, itemCount=item_count, _RC)
+      if (item_count > 0) then
+         file_name = trim(this%gc_name) // "_" // trim(state_type) // "_rst.nc4"
+         print *, "Reading restart: ", trim(file_name)
+         call some_thing_(file_name, state, _RC)
+      end if
 
       _RETURN(ESMF_SUCCESS)
    end subroutine read
@@ -135,5 +157,76 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine write_bundle_
+
+   subroutine some_thing_(file_name, state, rc)
+      ! Arguments
+      character(len=*), intent(in) :: file_name
+      type(ESMF_State), intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      ! Locals
+      logical :: file_exists
+      type(FileMetaData) :: metadata
+      type(NetCDF4_FileFormatter) :: file_formatter
+      character(len=ESMF_MAXSTR), allocatable :: item_name(:)
+      type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: field
+      type(ESMF_TypeKind_Flag) :: esmf_typekind
+      integer :: pfio_typekind
+      integer, allocatable :: local_start(:), global_start(:), global_count(:)
+      integer, allocatable :: element_count(:), new_element_count(:)
+      integer :: num_fields, idx, status
+      type(c_ptr) :: address
+      type(pFIOServerBounds) :: server_bounds
+      type(ArrayReference) :: ref
+      integer :: collection_id
+
+      inquire(file=trim(file_name), exist=file_exists)
+      _ASSERT(file_exists, "restart file " // trim(file_name) // " does not exist")
+
+      call file_formatter%open(file_name, PFIO_READ, _RC)
+      metadata = file_formatter%read(_RC)
+      call file_formatter%close(_RC)
+      collection_id = i_Clients%add_hist_collection(metadata, mode=PFIO_READ)
+
+      call ESMF_StateGet(state, itemCount=num_fields, _RC)
+      allocate(item_name(num_fields), stat=status); _VERIFY(status)
+      allocate(item_type(num_fields), stat=status); _VERIFY(status)
+      call ESMF_StateGet(state, itemNameList=item_name, itemTypeList=item_type, _RC)
+      do idx = 1, num_fields
+         if (item_type(idx) /= ESMF_STATEITEM_FIELD) then
+            error stop "cannot read non-ESMF_STATEITEM_FIELD type"
+         end if
+         associate (var_name => item_name(idx))
+           _ASSERT(metadata%has_variable(var_name), "var not in file metadata")
+           call ESMF_StateGet(state, var_name, field, _RC)
+           call ESMF_FieldGet(field, grid=grid, typekind=esmf_typekind, _RC)
+           element_count = FieldGetLocalElementCount(field, _RC)
+           call server_bounds%initialize(grid, element_count, _RC)
+           ! call server_bounds%initialize(grid, [element_count, 1], _RC)
+           global_start = server_bounds%get_global_start()
+           global_count = server_bounds%get_global_count()
+           local_start = server_bounds%get_local_start()
+           call FieldGetCptr(field, address, _RC)
+           pfio_typekind = esmf_to_pfio_type(esmf_typekind, _RC)
+           new_element_count = server_bounds%get_file_shape()
+           ref = ArrayReference(address, pfio_typekind, new_element_count)
+           call i_Clients%collective_prefetch_data( &
+                collection_id, &
+                file_name, &
+                var_name, &
+                ref, &
+                start=local_start, &
+                global_start=global_start, &
+                global_count=global_count)
+           call server_bounds%finalize()
+         end associate
+      end do
+      call i_Clients%done_collective_prefetch()
+      call i_Clients%wait()
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine some_thing_
 
 end module mapl3g_Restart

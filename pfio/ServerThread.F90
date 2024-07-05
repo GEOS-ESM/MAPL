@@ -17,6 +17,8 @@ module pFIO_ServerThreadMod
    use pFIO_BaseThreadMod
    use pFIO_ExtDataCollectionMod
    use pFIO_ExtCollectionVectorMod
+   use pFIO_HistoryCollectionMod
+   use pFIO_HistoryCollectionVectorMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_IntegerRequestMapMod
    use pFIO_IntegerSocketMapMod
@@ -33,6 +35,7 @@ module pFIO_ServerThreadMod
    use pFIO_DummyMessageMod
    use pFIO_HandShakeMessageMod
    use pFIO_IDMessageMod
+   use pFIO_AbstractCollectionMod, only: AbstractCollection
    use pFIO_AddHistCollectionMessageMod
    use pFIO_AbstractDataMessageMod
    use pFIO_PrefetchDataMessageMod
@@ -669,12 +672,20 @@ contains
       real(kind=REAL64), pointer :: values_real64_0d
       real(kind=REAL64), pointer :: values_real64_1d(:)
 
-      type (ExtDataCollection), pointer :: collection
+      class(AbstractCollection), pointer :: collection
 
       integer, allocatable :: start(:),count(:)
       integer :: status
 
-      collection => this%ext_collections%at(message%collection_id)
+      ! pchakrab: TODO: need a better way to differentiate between extdata and restart
+      associate(file_name => message%file_name)
+        if (index(file_name, "_rst") > 0 ) then
+           print *, "Getting data from a restart file"
+           collection => this%hist_collections%at(message%collection_id)
+        else
+           collection => this%ext_collections%at(message%collection_id)
+        end if
+      end associate
       formatter => collection%find(message%file_name, _RC)
 
       select type (message)

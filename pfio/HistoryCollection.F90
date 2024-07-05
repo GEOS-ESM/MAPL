@@ -2,128 +2,127 @@
 #include "unused_dummy.H"
 
 module pFIO_HistoryCollectionMod
-  use MAPL_ExceptionHandling
-  use gFTL_StringIntegerMap
-  use pFIO_NetCDF4_FileFormatterMod
-  use pFIO_StringNetCDF4_FileFormatterMapMod
-  use pFIO_FileMetadataMod
-  use pFIO_StringVariableMapMod
-  use pFIO_ConstantsMod
-  implicit none
-  private
+   use MAPL_ExceptionHandling
+   use gFTL_StringIntegerMap
+   use pFIO_NetCDF4_FileFormatterMod
+   use pFIO_StringNetCDF4_FileFormatterMapMod
+   use pFIO_FileMetadataMod
+   use pFIO_StringVariableMapMod
+   use pFIO_ConstantsMod
+   use pFIO_AbstractCollectionMod, only: AbstractCollection
+   implicit none
+   private
 
-  public :: HistoryCollection
-  public :: new_HistoryCollection
+   public :: HistoryCollection
+   public :: new_HistoryCollection
 
-  type :: HistoryCollection
-    type (Filemetadata) :: fmd
-    type (StringNetCDF4_FileFormatterMap) :: formatters
+   type, extends(AbstractCollection) :: HistoryCollection
+      type (Filemetadata) :: fmd
+      type (StringNetCDF4_FileFormatterMap) :: formatters
+   contains
+      procedure :: find => find_
+      procedure :: ModifyMetadata
+      procedure :: ReplaceMetadata
+      procedure :: clear
+   end type HistoryCollection
 
-  contains
-    procedure :: find => find_
-    procedure :: ModifyMetadata
-    procedure :: ReplaceMetadata
-    procedure :: clear
-  end type HistoryCollection
-
-  interface HistoryCollection
-    module procedure new_HistoryCollection
-  end interface HistoryCollection
+   interface HistoryCollection
+      module procedure new_HistoryCollection
+   end interface HistoryCollection
 
 contains
 
-  function new_HistoryCollection(fmd) result(collection)
-    type (HistoryCollection) :: collection
-    type (FilemetaData), intent(in) :: fmd
+   function new_HistoryCollection(fmd) result(collection)
+      type (HistoryCollection) :: collection
+      type (FilemetaData), intent(in) :: fmd
 
-    collection%fmd = fmd
-    collection%formatters = StringNetCDF4_FileFormatterMap()
+      collection%fmd = fmd
+      collection%formatters = StringNetCDF4_FileFormatterMap()
 
-  end function new_HistoryCollection
+   end function new_HistoryCollection
 
-  function find_(this, file_name,rc) result(formatter)
-    class (HistoryCollection), target, intent(inout) :: this
-    character(len=*), intent(in) :: file_name
-    integer,optional,intent(out) :: rc
+   function find_(this, file_name, rc) result(formatter)
+      class (HistoryCollection), intent(inout) :: this
+      character(len=*), intent(in) :: file_name
+      integer, optional, intent(out) :: rc
+      type (NetCDF4_FileFormatter), pointer :: formatter
 
-    type (NetCDF4_FileFormatter), pointer :: formatter
-    type (NetCDF4_FileFormatter) :: fm
+      type (NetCDF4_FileFormatter) :: fm
+      type(StringNetCDF4_FileFormatterMapIterator) :: iter
+      integer :: status
+      character(len=*), parameter :: Iam = "HistoryCollection::find()"
+      logical :: f_exist
 
-    type(StringNetCDF4_FileFormatterMapIterator) :: iter
-    integer :: status
-    character(len=*), parameter :: Iam = "HistoryCollection::find()"
-    logical :: f_exist
-
-    iter = this%formatters%find(trim(file_name))
-    if (iter == this%formatters%end()) then
-       inquire(file=file_name, exist=f_exist)
-       if(.not. f_exist) then
-         call fm%create(trim(file_name),rc=status)
-         _VERIFY(status)
-         call fm%write(this%fmd, rc=status)
-         _VERIFY(status)
-       else
-          call fm%open(trim(file_name), pFIO_WRITE, _RC)
-       endif
-       call this%formatters%insert( trim(file_name),fm)
-       iter = this%formatters%find(trim(file_name))
-    end if
-    formatter => iter%value()
-    _RETURN(_SUCCESS)
+      iter = this%formatters%find(trim(file_name))
+      if (iter == this%formatters%end()) then
+         inquire(file=file_name, exist=f_exist)
+         if(.not. f_exist) then
+            call fm%create(trim(file_name),rc=status)
+            _VERIFY(status)
+            call fm%write(this%fmd, rc=status)
+            _VERIFY(status)
+         else
+            call fm%open(trim(file_name), pFIO_WRITE, _RC)
+         endif
+         call this%formatters%insert( trim(file_name),fm)
+         iter = this%formatters%find(trim(file_name))
+      end if
+      formatter => iter%value()
+      _RETURN(_SUCCESS)
    end function find_
 
-  subroutine  ModifyMetadata(this,var_map,rc)
-    class (HistoryCollection), target, intent(inout) :: this
-    type (StringVariableMap), target, intent(in) :: var_map
-    integer, optional, intent(out) :: rc
+   subroutine  ModifyMetadata(this,var_map,rc)
+      class (HistoryCollection), target, intent(inout) :: this
+      type (StringVariableMap), target, intent(in) :: var_map
+      integer, optional, intent(out) :: rc
 
-    type(StringVariableMapIterator) :: iter
-    integer :: status
-    character(len=*), parameter :: Iam = "HistoryCollection::ModifyMetadata()"
+      type(StringVariableMapIterator) :: iter
+      integer :: status
+      character(len=*), parameter :: Iam = "HistoryCollection::ModifyMetadata()"
 
-    iter = var_map%ftn_begin()
-    do while (iter /= var_map%ftn_end())
-       call iter%next()
+      iter = var_map%ftn_begin()
+      do while (iter /= var_map%ftn_end())
+         call iter%next()
 
-       call this%fmd%modify_variable(iter%first(), iter%second(), _RC)
-    enddo
+         call this%fmd%modify_variable(iter%first(), iter%second(), _RC)
+      enddo
 
-    _RETURN(_SUCCESS)
-  end subroutine ModifyMetadata
+      _RETURN(_SUCCESS)
+   end subroutine ModifyMetadata
 
-  subroutine  ReplaceMetadata(this, fmd,rc)
-    class (HistoryCollection), intent(inout) :: this
-    type (FileMetadata), intent(in) :: fmd
-    integer, optional, intent(out) :: rc
+   subroutine  ReplaceMetadata(this, fmd,rc)
+      class (HistoryCollection), intent(inout) :: this
+      type (FileMetadata), intent(in) :: fmd
+      integer, optional, intent(out) :: rc
 
-    character(len=*), parameter :: Iam = "HistoryCollection::ReplaceMetadata()"
+      character(len=*), parameter :: Iam = "HistoryCollection::ReplaceMetadata()"
 
-    this%fmd = fmd
+      this%fmd = fmd
 
-    _RETURN(_SUCCESS)
-  end subroutine ReplaceMetadata
+      _RETURN(_SUCCESS)
+   end subroutine ReplaceMetadata
 
-  subroutine clear(this, rc)
-    class (HistoryCollection), target, intent(inout) :: this
-    integer, optional, intent(out) :: rc
+   subroutine clear(this, rc)
+      class (HistoryCollection), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
 
-    type(NetCDF4_FileFormatter), pointer :: f_ptr
-    type(StringNetCDF4_FileFormatterMapIterator) :: iter
-    character(:),pointer :: file_name
-    integer :: status
+      type(NetCDF4_FileFormatter), pointer :: f_ptr
+      type(StringNetCDF4_FileFormatterMapIterator) :: iter
+      character(:),pointer :: file_name
+      integer :: status
 
-    iter = this%formatters%begin()
-    do while (iter /= this%formatters%end())
-      file_name => iter%key()
-      f_ptr => this%formatters%at(file_name)
-      call f_ptr%close(rc=status)
-      _VERIFY(status)
-      ! remove the files
-      call this%formatters%erase(iter)
       iter = this%formatters%begin()
-    enddo
-    _RETURN(_SUCCESS)
-  end subroutine clear
+      do while (iter /= this%formatters%end())
+         file_name => iter%key()
+         f_ptr => this%formatters%at(file_name)
+         call f_ptr%close(rc=status)
+         _VERIFY(status)
+         ! remove the files
+         call this%formatters%erase(iter)
+         iter = this%formatters%begin()
+      enddo
+      _RETURN(_SUCCESS)
+   end subroutine clear
 
 end module pFIO_HistoryCollectionMod
 
@@ -154,43 +153,43 @@ module pFIO_HistoryCollectionVectorUtilMod
 
 contains
 
-  subroutine HistoryCollectionVector_serialize(histVec,buffer)
-     type (HistoryCollectionVector),intent(in) :: histVec
-     integer, allocatable,intent(inout) :: buffer(:)
-     integer, allocatable :: tmp(:)
-     type (HistoryCollection),pointer :: hist_ptr
-     integer :: n, i
+   subroutine HistoryCollectionVector_serialize(histVec,buffer)
+      type (HistoryCollectionVector),intent(in) :: histVec
+      integer, allocatable,intent(inout) :: buffer(:)
+      integer, allocatable :: tmp(:)
+      type (HistoryCollection),pointer :: hist_ptr
+      integer :: n, i
 
-     if (allocated(buffer)) deallocate(buffer)
-     allocate(buffer(0))
+      if (allocated(buffer)) deallocate(buffer)
+      allocate(buffer(0))
 
-     n = histVec%size()
-     do i = 1, n
-        hist_ptr=>histVec%at(i)
-        call hist_ptr%fmd%serialize(tmp)
-        buffer = [buffer,tmp]
-     enddo
+      n = histVec%size()
+      do i = 1, n
+         hist_ptr=>histVec%at(i)
+         call hist_ptr%fmd%serialize(tmp)
+         buffer = [buffer,tmp]
+      enddo
 
-  end subroutine
+   end subroutine HistoryCollectionVector_serialize
 
-  subroutine HistoryCollectionVector_deserialize(buffer, histVec)
-     type (HistoryCollectionVector),intent(inout) :: histVec
-     integer, intent(in) :: buffer(:)
-     type (HistoryCollection) :: hist
-     type (FileMetadata) :: fmd
-     integer :: n, length, fmd_len
+   subroutine HistoryCollectionVector_deserialize(buffer, histVec)
+      type (HistoryCollectionVector),intent(inout) :: histVec
+      integer, intent(in) :: buffer(:)
+      type (HistoryCollection) :: hist
+      type (FileMetadata) :: fmd
+      integer :: n, length, fmd_len
 
-     length = size(buffer)
-     n=1
-     fmd = FileMetadata()
-     histVec = HistoryCollectionVector()
-     do while (n < length)
-       hist = HistoryCollection(fmd)
-       call FileMetadata_deserialize(buffer(n:), hist%fmd)
-       call histVec%push_back(hist)
-       call deserialize_intrinsic(buffer(n:),fmd_len)
-       n = n + fmd_len
-     enddo
-  end subroutine
+      length = size(buffer)
+      n=1
+      fmd = FileMetadata()
+      histVec = HistoryCollectionVector()
+      do while (n < length)
+         hist = HistoryCollection(fmd)
+         call FileMetadata_deserialize(buffer(n:), hist%fmd)
+         call histVec%push_back(hist)
+         call deserialize_intrinsic(buffer(n:),fmd_len)
+         n = n + fmd_len
+      enddo
+   end subroutine HistoryCollectionVector_deserialize
 
 end module pFIO_HistoryCollectionVectorUtilMod
