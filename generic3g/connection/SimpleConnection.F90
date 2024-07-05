@@ -331,6 +331,9 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine connect_sibling_new
 
+   ! This activates _within_ the user gridcomp.   Some exports may require
+   ! other exports to be computed even when no external connection is made to those
+   ! exports.
    subroutine activate_dependencies_new(extension, with_registry, rc)
       type(StateItemExtension), intent(in) :: extension
       type(Registry), target, intent(in) :: with_registry
