@@ -5,7 +5,10 @@
 program Example_Driver
    use MPI
    use MAPL
+#ifdef __NVCOMPILER
+   ! Needed by NVIDIA but breaks Intel (see https://github.com/GEOS-ESM/MAPL/pull/2664)
    use mapl_CapOptionsMod, only: MAPL_CapOptions
+#endif
    implicit none
 
    type (MAPL_Cap) :: cap
