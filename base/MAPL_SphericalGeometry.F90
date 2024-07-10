@@ -9,6 +9,13 @@ module MAPL_SphericalGeometry
 implicit none
 private
 public get_points_in_spherical_domain
+public :: distance
+
+interface distance
+   module procedure distance_r32
+   module procedure distance_r64
+end interface distance
+
 contains
 
  subroutine get_points_in_spherical_domain(center_lons,center_lats,corner_lons,corner_lats,lons,lats,ii,jj,rc)
@@ -216,5 +223,29 @@ function vect_mag(v) result(mag)
    real :: mag
    mag = sqrt(v(1)*v(1)+v(2)*v(2)+v(3)*v(3))
 end function vect_mag
+
+! Computes distance between two points (in lat lon as radians),
+! and returns distance in radians (unit sphere)
+! Using formulae from: https://www.movable-type.co.uk/scripts/latlong.html
+
+elemental real(kind=REAL64) function distance_r64(lon1, lat1, lon2, lat2) result(d)
+   real(kind=REAL64), intent(in) :: lon1, lat1
+   real(kind=REAL64), intent(in) :: lon2, lat2
+
+   associate(a => sin(lat2-lat1)**2 + cos(lat1)*cos(lat2)*sin((lon2-lon1)/2)**2)
+     d = 2*atan2(sqrt(a), sqrt(1-a))
+   end associate
+
+end function distance_r64
+
+elemental real(kind=REAL32) function distance_r32(lon1, lat1, lon2, lat2) result(d)
+   real(kind=REAL32), intent(in) :: lon1, lat1
+   real(kind=REAL32), intent(in) :: lon2, lat2
+
+   associate(a => sin(lat2-lat1)**2 + cos(lat1)*cos(lat2)*sin((lon2-lon1)/2)**2)
+     d = 2*atan2(sqrt(a), sqrt(1-a))
+   end associate
+
+end function distance_r32
 
 end module MAPL_SphericalGeometry
