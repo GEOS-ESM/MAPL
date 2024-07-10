@@ -1,0 +1,41 @@
+#include "MAPL_Generic.h"
+
+submodule (mapl3g_OuterMetaComponent) run_clock_advance_smod
+   implicit none
+
+contains
+
+   module recursive subroutine run_clock_advance(this, unusable, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      ! optional arguments
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GriddedComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: child
+      type(StringVector), pointer :: run_phases
+      logical :: found
+      integer :: phase
+
+      associate(e => this%children%ftn_end())
+        iter = this%children%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           child => iter%second()
+           call child%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+        end do
+      end associate
+
+      call this%user_gc_driver%clock_advance(_RC)
+
+      run_phases => this%get_phases(ESMF_METHOD_RUN)
+      phase = get_phase_index(run_phases, phase_name='GENERIC::RUN_CLOCK_ADVANCE', found=found)
+      if (found) then
+         call this%user_gc_driver%run(phase_idx=phase, _RC)
+      end if
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine run_clock_advance
+
+end submodule run_clock_advance_smod

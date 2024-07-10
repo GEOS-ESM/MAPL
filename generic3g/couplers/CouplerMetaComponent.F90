@@ -1,9 +1,10 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_CouplerMetaComponent
-   use mapl3g_ComponentDriver, only: ComponentDriver
+   use mapl3g_ComponentDriver, only: ComponentDriver, ComponentDriverPtr
    use mapl3g_GriddedComponentDriver, only: GriddedComponentDriver
    use mapl3g_ComponentDriverVector, only: ComponentDriverVector
+   use mapl3g_ComponentDriverPtrVector, only: ComponentDriverPtrVector
    use mapl3g_ExtensionAction
    use mapl_ErrorHandlingMod
    use mapl3g_ESMF_Interfaces
@@ -28,7 +29,7 @@ module mapl3g_CouplerMetaComponent
    type :: CouplerMetaComponent
       private
       class(ExtensionAction), allocatable :: action
-      type(GriddedComponentDriver), pointer :: source => null()
+      type(ComponentDriverPtrVector) :: sources
       type(ComponentDriverVector) :: consumers
       logical :: stale = .true.
    contains
@@ -38,9 +39,9 @@ module mapl3g_CouplerMetaComponent
       procedure :: clock_advance
 
       ! Helper procedures
-      procedure :: update_source
+      procedure :: update_sources
       procedure :: invalidate_consumers
-      procedure :: set_source
+      procedure :: add_source
       procedure :: add_consumer
 
       ! Accessors
@@ -75,8 +76,13 @@ contains
       class(ExtensionAction), intent(in) :: action
       type(GriddedComponentDriver), target, optional, intent(in) :: source
 
+      type(ComponentDriverPtr) :: source_wrapper
+
       this%action = action
-      if (present(source)) this%source => source
+      if (present(source)) then
+         source_wrapper%ptr => source
+         call this%sources%push_back(source_wrapper)
+      end if
 
    end function new_CouplerMetaComponent
 
@@ -93,7 +99,7 @@ contains
       _RETURN_IF(this%is_up_to_date())
 
 !#      call this%propagate_attributes(_RC)
-      call this%update_source(_RC)
+      call this%update_sources(_RC)
       
       call this%action%run(_RC)
       call this%set_up_to_date()
@@ -101,17 +107,21 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update
 
-   recursive subroutine update_source(this, rc)
+   recursive subroutine update_sources(this, rc)
       class(CouplerMetaComponent) :: this
       integer, intent(out) :: rc
 
       integer :: status
+      integer :: i
+      type(ComponentDriverPtr), pointer :: source_wrapper
 
-      _RETURN_UNLESS(associated(this%source))
-      call this%source%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+      do i = 1, this%sources%size()
+         source_wrapper => this%sources%of(i)
+         call source_wrapper%ptr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+      end do
 
       _RETURN(_SUCCESS)
-   end subroutine update_source
+   end subroutine update_sources
 
    recursive subroutine invalidate(this, sourceState, exportState, clock, rc)
         class(CouplerMetaComponent) :: this
@@ -177,12 +187,16 @@ contains
       consumer => this%consumers%back()
    end function add_consumer
 
-   subroutine set_source(this, source)
+   subroutine add_source(this, source)
       class(CouplerMetaComponent), target, intent(inout) :: this
       type(GriddedComponentDriver), pointer, intent(in) :: source
 
-      this%source => source
-   end subroutine set_source
+      type(ComponentDriverPtr) :: source_wrapper
+      source_wrapper%ptr => source
+
+      call this%sources%push_back(source_wrapper)
+
+   end subroutine add_source
 
 
    function get_coupler_meta(gridcomp, rc) result(meta)
