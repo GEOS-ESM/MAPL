@@ -1,101 +1,160 @@
-#define RC_ rc=status
+#include "MAPL_Generic.h"
 module grid_comp_creator
 
-   use ESMF
    use shared_constants
+   use grid_comp_creator_memory_profiler
+   use mapl_ErrorHandlingMod
+   use MAPL_ApplicationSupport
+   use MAPL_KeywordEnforcerMod
+   use ESMF
+   use mpi
    use, intrinsic :: iso_fortran_env, only: I64 => int64, R64 => real64
 
    implicit none
    private
 
-   public :: initialize
-   public :: run
+   public :: GridCompCreator
+   public :: run_creator
 
    type :: GC_Container
       type(ESMF_GridComp) :: gc
    end type GC_Container
 
-   character(len=:), allocatable :: parameter_filename
-   integer :: npes_model
-   integer :: ngc = 0
+   type :: GridCompCreator
+      character(len=:), allocatable :: name
+      integer :: npes_model = -1
+      integer :: ngc = -1
+      integer :: rank = -1
+      type(GC_Container), allocatable :: gcc(:)
+      character(len=:), allocatable :: parameter_filename
+   end type GridCompCreator
 
-   type(GC_Container), allocatable :: gcc(:)
+   interface GridCompCreator
+      module procedure :: construct_creator
+   end interface GridCompCreator
+
+   character(len=*), parameter :: name = 'GridCompCreator'
+   integer, parameter :: comm = MPI_COMM_WORLD
 
 contains
 
-   subroutine initialize(npes, num_gc, param_file, rc)
+   function construct_creator(npes, num_gc, param_file, rc) result(creator)
+      type(GridCompCreator) :: creator
       integer, intent(in) :: npes
       integer, intent(in) :: num_gc
       character(len=*), optional, intent(in) :: param_file
       integer, optional, intent(out) :: rc
       integer :: status
 
-      parameter_filename = ''
-      if(present(param_file)) parameter_filename = param_file 
-      npes_model = npes
-      ngc = num_gc
-      allocate(gcc(ngc))
-      call ESMF_Initialize(RC_)
+      creator%name = name
+      creator%parameter_filename = ''
+      if(present(param_file)) creator%parameter_filename = param_file 
+      creator%npes_model = npes
+      creator%ngc = num_gc
 
-   end subroutine initialize
+      call initialize_creator(creator, _RC)
+      _RETURN(_SUCCESS)
 
-   subroutine finalize(rc)
+   end function construct_creator
+
+   subroutine initialize_creator(creator, rc)
+      class(GridCompCreator), intent(inout) :: creator
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call destroy_containers(gcc, RC_)
-      if(allocated(gcc)) deallocate(gcc)
-      call ESMF_Finalize(RC_)
+      call initialize_mpi(creator, _RC)
+      call MAPL_Initialize(comm=comm, _RC)
+      _RETURN(_SUCCESS)
 
-   end subroutine finalize
+   end subroutine initialize_creator
 
-   subroutine run(time, memory, rc)
+   subroutine initialize_mpi(creator, rc) 
+      class (GridCompCreator), intent(inout) :: creator
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: ierror
+      integer :: npes_world
+
+      call MPI_Init(ierror)
+      call MPI_Comm_rank(comm, creator%rank, _IERROR)
+      call MPI_Comm_size(comm, npes_world, _IERROR)
+      if (creator%npes_model == -1) creator%npes_model = npes_world
+      _ASSERT(npes_world >= creator%npes_model, "npes_world is smaller than npes_model")
+
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize_mpi
+
+   subroutine finalize_creator(this, rc)
+      class(GridCompCreator), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call destroy_containers(this%gcc, _RC)
+      if(allocated(this%gcc)) deallocate(this%gcc)
+      !call ESMF_Finalize(_RC)
+      !call MAPL_Finalize(_RC)
+      call mpi_finalize(status)
+      _HERE
+      _RETURN(_SUCCESS)
+
+   end subroutine finalize_creator
+
+   subroutine run_creator(creator, time, mem_used, mem_commit, rc)
+      class(GridCompCreator), intent(inout) :: creator
       real(kind=R64), intent(out) :: time
-      integer(kind=I64), intent(out) :: memory
+      class(MemoryProfile), intent(out) :: mem_used
+      class(MemoryProfile), intent(out) :: mem_commit
       integer, optional, intent(out) :: rc
       integer :: status
+      type(ESMF_VM) :: vm
 
-      call run_gridcomp_creation(gcc, time, memory, RC_)
-      call finalize(RC_)
+      _ASSERT(.not. allocated(creator%gcc), 'gcc is already allocated.')
+      allocate(creator%gcc(creator%ngc))
+      call ESMF_Initialize(vm=vm, _RC)
+      call run_gridcomp_creation(creator%gcc, time, mem_used, mem_commit, _RC)
+      call finalize_creator(creator, _RC)
+      _RETURN(_SUCCESS)
 
-   end subroutine run
+   end subroutine run_creator
 
-   subroutine run_gridcomp_creation(gcc, time, memory, rc)
+   subroutine run_gridcomp_creation(gcc, time, mem_used, mem_commit, rc)
       type(GC_Container), intent(inout) :: gcc(:)
       real(kind=R64), intent(out) :: time
-      integer(kind=I64), intent(out) :: memory
+      type(MemoryProfile), intent(out) :: mem_used
+      type(MemoryProfile), intent(out) :: mem_commit
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
       integer(kind=I64) :: start, end_, count_rate
+      type(MemoryProfile) :: mem_used_before, mem_commit_before
 
+      call profile_memory(mem_used_before, mem_commit_before, _RC)
       call system_clock(count = start, count_rate=count_rate)
       do i = 1, size(gcc)
-         gcc(i) = make_container(i, RC_)
+         gcc(i) = make_container(i, _RC)
       end do
       call system_clock(count = end_, count_rate=count_rate)
-      time = real(end_ - start) / count_rate
-      memory = get_memory_use(rc)
+      call profile_memory(mem_used, mem_commit, _RC)
+      time = real(end_ - start, R64) / count_rate
+      mem_used    = mem_used - mem_used_before
+      mem_commit  = mem_commit - mem_commit_before
+      _RETURN(_SUCCESS)
       
    end subroutine run_gridcomp_creation
 
-   integer function get_memory_use(rc)
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      get_memory_use = -1
-
-   end function get_memory_use
-
-   function make_gc_name(n) result(gc_name)
+   function make_gc_name(n, rc) result(gc_name)
       character(len=MAXSTR) :: gc_name
       integer, intent(in) :: n
-      integer :: ios
+      integer, optional, intent(out) :: rc
+      integer :: status
       character(len=*), parameter :: FMT_ = '(I0)'
       character(len=MAXSTR) :: raw
 
-      write(raw, fmt=FMT_, iostat=ios) n
+      write(raw, fmt=FMT_, iostat=status) n
+      _ASSERT(status == _SUCCESS, 'Unable to make gridcomp name')
       gc_name = "GC" // trim(raw)
+      _RETURN(_SUCCESS)
 
    end function make_gc_name
 
@@ -105,7 +164,8 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      gcc%gc = ESMF_GridCompCreate(name=trim(make_gc_name(n)), RC_)
+      gcc%gc = ESMF_GridCompCreate(name=trim(make_gc_name(n)), _RC)
+      _RETURN(_SUCCESS)
 
    end function make_container
 
@@ -116,8 +176,9 @@ contains
       integer :: i
       
       do i=1, size(gcc)
-         call ESMF_GridCompDestroy(gcc(i)%gc, RC_)
+         call ESMF_GridCompDestroy(gcc(i)%gc, _RC)
       end do
+      _RETURN(_SUCCESS)
 
    end subroutine destroy_containers
 
