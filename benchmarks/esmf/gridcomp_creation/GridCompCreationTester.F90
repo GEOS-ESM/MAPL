@@ -1,5 +1,13 @@
 #define I_AM_MAIN
 #include "MAPL_Generic.h"
+#define SET_RC_(S) if(present(rc)) rc=S
+#define _SET_RCZ SET_RC_(0)
+#define _SET_RCS SET_RC_(status)
+#define _SET_RCS_ _SET_RCS; _CHECK_STATUS
+#define _CHECK_RC rc=status); CHECK_STATUS(status
+#define CHECK_STATUS(S) if(S /= 0) return
+#define _CHECK_STATUS CHECK_STATUS(status)
+
 program grid_comp_creation_tester
 
    use, intrinsic :: iso_fortran_env, only: I64 => int64, R64 => real64
@@ -9,11 +17,6 @@ program grid_comp_creation_tester
    use mapl_ErrorHandlingMod
 
    implicit none
-
-   interface char
-      procedure :: as_character_real
-      procedure :: as_character_integer
-   end interface char
 
    interface add_column
       procedure :: add_column_real
@@ -34,6 +37,7 @@ program grid_comp_creation_tester
    type(GridCompCreator) :: creator
    type(MemoryProfile) :: mem_used
    type(MemoryProfile) :: mem_commit
+   integer :: rank
 
    parameter_filename = ''
    npes = 1
@@ -54,11 +58,14 @@ program grid_comp_creation_tester
       parameter_filename = adjustl(raw)
    end if
    
-   creator = GridCompCreator(npes, ngc, _RC)
+   creator = GridCompCreator(npes, ngc)
    call run_creator(creator, time, mem_used, mem_commit, _RC)
-   _HERE
-   call write_results(ngc, time, mem_used, mem_commit, _RC)
-
+   call MPI_Comm_Rank(creator%comm, rank, status)
+   if(rank == 0) then
+      call write_results(ngc, time, mem_used, mem_commit, rc=status)
+      if(status /= 0) write(*, '(A)') 'Failed to write results.'
+   end if
+   call finalize_all(creator)
    stop
 
 contains
@@ -68,30 +75,30 @@ contains
       real(R64), intent(in) :: time
       class(MemoryProfile), intent(in) :: mem_used
       class(MemoryProfile), intent(in) :: mem_commit
-      integer, optional, intent(in) :: rc
+      integer, optional, intent(out) :: rc
       integer :: status
       character(len=:), allocatable :: performance
       character(len=:), allocatable :: columns
       
-      columns = '#num_components'
-      performance = char(ngc, _RC)
-      call add_column(columns, 'time (s)', _RC)
-      call add_column(performance, time, _RC)
-      call add_column(columns, 'total_mem (MB)', _RC)
-      call add_column(performance, mem_used%total, _RC)
-      call add_column(columns, 'mem_used (MB)', _RC)
-      call add_column(performance, mem_used%memory, _RC)
-      call add_column(columns, 'mem_commit (MB)', _RC)
-      call add_column(performance, mem_commit%memory, _RC)
-      call add_column(columns, 'percent_used', _RC)
-      call add_column(performance, mem_used%percent, _RC)
-      call add_column(columns, 'percent_commit', _RC)
-      call add_column(performance, mem_commit%percent, _RC)
+      columns = '# num_components'
+      performance = as_character_integer(ngc, _CHECK_RC)
+      call add_column(columns, 'time (s)')
+      call add_column(performance, time, _CHECK_RC)
+      call add_column(columns, 'total_mem (MB)')
+      call add_column(performance, mem_used%total, _CHECK_RC)
+      call add_column(columns, 'mem_used (MB)')
+      call add_column(performance, mem_used%memory, _CHECK_RC)
+      call add_column(columns, 'mem_commit (MB)')
+      call add_column(performance, mem_commit%memory, _CHECK_RC)
+      call add_column(columns, 'percent_used')
+      call add_column(performance, mem_used%percent, _CHECK_RC)
+      call add_column(columns, 'percent_commit')
+      call add_column(performance, mem_commit%percent, _CHECK_RC)
 
       write(*, fmt='(A)') columns
       write(*, fmt='(A)') performance
 
-      _RETURN(_SUCCESS)
+      _SET_RCZ
 
    end subroutine write_results
 
@@ -101,9 +108,8 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      row = row // JOIN // char(t, _RC)
-
-      _RETURN(_SUCCESS)
+      row = row // JOIN // as_character_real(t, rc=status)
+      _SET_RCS
 
    end subroutine add_column_real
 
@@ -113,9 +119,8 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      row = row // JOIN // char(n, _RC)
-
-      _RETURN(_SUCCESS)
+      row = row // JOIN // as_character_integer(n, rc=status)
+      _SET_RCS
 
    end subroutine add_column_integer
 
@@ -125,8 +130,7 @@ contains
       integer, optional, intent(out) :: rc
       
       row = row // JOIN // ch
-
-      _RETURN(_SUCCESS)
+      _SET_RCZ
 
    end subroutine add_column_character
 
@@ -139,10 +143,8 @@ contains
       character(len=*), parameter :: FMT_ = '(G0)'
 
       write(raw, fmt=FMT_, iostat=status) t
-      _ASSERT(status == 0, 'Failed to write as character')
+      _SET_RCS_
       ch = trim(adjustl(raw))
-
-      _RETURN(_SUCCESS)
 
    end function as_character_real
 
@@ -155,10 +157,8 @@ contains
       character(len=*), parameter :: FMT_ = '(I0)'
 
       write(raw, fmt=FMT_, iostat=status) n
-      _ASSERT(status == 0, 'Failed to write as character')
+      _SET_RCS_
       ch = trim(adjustl(raw))
-
-      _RETURN(_SUCCESS)
 
    end function as_character_integer
 

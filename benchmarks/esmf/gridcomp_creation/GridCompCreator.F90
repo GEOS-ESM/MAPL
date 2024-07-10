@@ -4,7 +4,6 @@ module grid_comp_creator
    use shared_constants
    use grid_comp_creator_memory_profiler
    use mapl_ErrorHandlingMod
-   use MAPL_ApplicationSupport
    use MAPL_KeywordEnforcerMod
    use ESMF
    use mpi
@@ -15,6 +14,7 @@ module grid_comp_creator
 
    public :: GridCompCreator
    public :: run_creator
+   public :: finalize_all
 
    type :: GC_Container
       type(ESMF_GridComp) :: gc
@@ -25,6 +25,7 @@ module grid_comp_creator
       integer :: npes_model = -1
       integer :: ngc = -1
       integer :: rank = -1
+      integer :: comm = MPI_COMM_WORLD
       type(GC_Container), allocatable :: gcc(:)
       character(len=:), allocatable :: parameter_filename
    end type GridCompCreator
@@ -34,17 +35,14 @@ module grid_comp_creator
    end interface GridCompCreator
 
    character(len=*), parameter :: name = 'GridCompCreator'
-   integer, parameter :: comm = MPI_COMM_WORLD
 
 contains
 
-   function construct_creator(npes, num_gc, param_file, rc) result(creator)
+   function construct_creator(npes, num_gc, param_file) result(creator)
       type(GridCompCreator) :: creator
       integer, intent(in) :: npes
       integer, intent(in) :: num_gc
       character(len=*), optional, intent(in) :: param_file
-      integer, optional, intent(out) :: rc
-      integer :: status
 
       creator%name = name
       creator%parameter_filename = ''
@@ -52,18 +50,19 @@ contains
       creator%npes_model = npes
       creator%ngc = num_gc
 
-      call initialize_creator(creator, _RC)
-      _RETURN(_SUCCESS)
-
    end function construct_creator
 
    subroutine initialize_creator(creator, rc)
       class(GridCompCreator), intent(inout) :: creator
       integer, optional, intent(out) :: rc
       integer :: status
+      type(ESMF_VM) :: vm
 
-      call initialize_mpi(creator, _RC)
-      call MAPL_Initialize(comm=comm, _RC)
+      _ASSERT(.not. allocated(creator%gcc), 'gcc is already allocated.')
+      allocate(creator%gcc(creator%ngc))
+      !call initialize_mpi(creator, _RC)
+      call ESMF_Initialize(vm=vm, _RC)
+      call ESMF_VMGet(vm, mpiCommunicator=creator%comm, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine initialize_creator
@@ -76,8 +75,8 @@ contains
       integer :: npes_world
 
       call MPI_Init(ierror)
-      call MPI_Comm_rank(comm, creator%rank, _IERROR)
-      call MPI_Comm_size(comm, npes_world, _IERROR)
+      call MPI_Comm_rank(creator%comm, creator%rank, _IERROR)
+      call MPI_Comm_size(creator%comm, npes_world, _IERROR)
       if (creator%npes_model == -1) creator%npes_model = npes_world
       _ASSERT(npes_world >= creator%npes_model, "npes_world is smaller than npes_model")
 
@@ -92,13 +91,19 @@ contains
 
       call destroy_containers(this%gcc, _RC)
       if(allocated(this%gcc)) deallocate(this%gcc)
-      !call ESMF_Finalize(_RC)
-      !call MAPL_Finalize(_RC)
-      call mpi_finalize(status)
-      _HERE
       _RETURN(_SUCCESS)
 
    end subroutine finalize_creator
+
+
+   subroutine finalize_all(creator, rc)
+      class(GridCompCreator), intent(inout) :: creator
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call ESMF_Finalize()
+
+   end subroutine finalize_all
 
    subroutine run_creator(creator, time, mem_used, mem_commit, rc)
       class(GridCompCreator), intent(inout) :: creator
@@ -107,13 +112,11 @@ contains
       class(MemoryProfile), intent(out) :: mem_commit
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_VM) :: vm
 
-      _ASSERT(.not. allocated(creator%gcc), 'gcc is already allocated.')
-      allocate(creator%gcc(creator%ngc))
-      call ESMF_Initialize(vm=vm, _RC)
+      call initialize_creator(creator, _RC)
       call run_gridcomp_creation(creator%gcc, time, mem_used, mem_commit, _RC)
       call finalize_creator(creator, _RC)
+
       _RETURN(_SUCCESS)
 
    end subroutine run_creator
