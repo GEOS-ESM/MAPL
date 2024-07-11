@@ -93,6 +93,18 @@ module mapl3g_LatLonDecomposition
          integer, intent(in) :: rank
       end function get_lat_subset
 
+      pure module subroutine get_idx_range(distribution, rank, i_0, i_1)
+         integer, intent(in) :: distribution(:)
+         integer, intent(in) :: rank
+         integer, intent(out) :: i_0, i_1
+      end subroutine get_idx_range
+
+      pure module function get_subset(coordinates, i_0, i_1) result(subset)
+         real(kind=R8), allocatable :: subset(:)
+         real(kind=R8), intent(in) :: coordinates(:)
+         integer, intent(in) :: i_0, i_1
+      end function get_subset
+
       ! Static factory methods
       module function make_LatLonDecomposition_current_vm(dims, rc) result(decomp)
          type(LatLonDecomposition) :: decomp

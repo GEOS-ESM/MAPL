@@ -141,6 +141,13 @@ interface
          integer, optional, intent(out) :: rc
       end function supports_metadata_
 
+      module function make_decomposition(hconfig, dims, rc) result(decomp)
+         type(LatLonDecomposition) :: decomp
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, intent(in) :: dims(2)
+         integer, optional, intent(out) :: rc
+      end function make_decomposition
+
    end interface
 
 end module mapl3g_LatLonGeomSpec
