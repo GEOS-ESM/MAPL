@@ -15,7 +15,6 @@ module grid_comp_creator
    public :: GridCompCreator
    public :: run_creator
    public :: finalize_creator
-   public :: finalize_all
 
    type :: GC_Container
       type(ESMF_GridComp) :: gc
@@ -60,11 +59,9 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_VM) :: vm
-      integer :: npes_world
 
       _ASSERT(.not. allocated(this%gcc), 'gcc is already allocated.')
       allocate(this%gcc(this%ngc))
-      !call initialize_mpi(this, _RC)
       call ESMF_Initialize(vm=vm, _RC)
       call ESMF_VMGet(vm, mpiCommunicator=this%comm, _RC)
       call MPI_Comm_rank(this%comm, this%rank, _IERROR)
@@ -73,23 +70,6 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine initialize_creator
-
-   subroutine initialize_mpi(creator, rc) 
-      class (GridCompCreator), intent(inout) :: creator
-      integer, optional, intent(out) :: rc
-      integer :: status
-      integer :: ierror
-      integer :: npes_world
-
-      call MPI_Init(ierror)
-      call MPI_Comm_rank(creator%comm, creator%rank, _IERROR)
-      call MPI_Comm_size(creator%comm, npes_world, _IERROR)
-      if (creator%npes == -1) creator%npes = npes_world
-      _ASSERT(npes_world >= creator%npes, "npes_world is smaller than npes")
-
-      _RETURN(_SUCCESS)
-
-   end subroutine initialize_mpi
 
    subroutine finalize_creator(this, rc)
       class(GridCompCreator), intent(inout) :: this
@@ -103,15 +83,6 @@ contains
 
    end subroutine finalize_creator
 
-   subroutine finalize_all(creator, rc)
-      class(GridCompCreator), intent(inout) :: creator
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      call ESMF_Finalize()
-
-   end subroutine finalize_all
-
    subroutine run_creator(this, time, mem_used, mem_commit, rc)
       class(GridCompCreator), intent(inout) :: this
       real(kind=R64), intent(out) :: time
@@ -122,7 +93,6 @@ contains
 
       call initialize_creator(this, _RC)
       call run_gridcomp_creation(this%gcc, time, mem_used, mem_commit, _RC)
-!      call finalize_creator(this, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -140,12 +110,22 @@ contains
       type(MemoryProfile) :: mem_used_before, mem_commit_before
 
       call profile_memory(mem_used_before, mem_commit_before, _RC)
+      write(*, '(A)') 'Used (before):'
+      call print_memory_profile(mem_used_before)
+      write(*, '(A)') 'Committed (before):'
+      call print_memory_profile(mem_commit_before)
       call system_clock(count = start, count_rate=count_rate)
       do i = 1, size(gcc)
          gcc(i) = make_container(i, _RC)
       end do
       call system_clock(count = end_, count_rate=count_rate)
       call profile_memory(mem_used, mem_commit, _RC)
+      write(*, '(A)') 'Used:'
+      call print_memory_profile(mem_used)
+      write(*, '(A)') 'Committed:'
+      call print_memory_profile(mem_commit)
+      if(mem_used == mem_used_before) write(*, '(A)') 'mem_used equal'
+      if(mem_commit == mem_commit_before) write(*, '(A)') 'mem_commit equal'
       time = real(end_ - start, R64) / count_rate
       mem_used    = mem_used - mem_used_before
       mem_commit  = mem_commit - mem_commit_before

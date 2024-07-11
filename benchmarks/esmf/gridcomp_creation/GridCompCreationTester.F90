@@ -19,8 +19,7 @@ program grid_comp_creation_tester
    character(len=MAXSTR) :: raw
    type(GridCompCreator) :: creator
    real(kind=R64) :: time
-   type(MemoryProfile) :: mem_used
-   type(MemoryProfile) :: mem_commit
+   type(MemoryProfile) :: mem_used, mem_used_before, mem_commit, mem_commit_before
 
    parameter_filename = ''
    ngc = 10
@@ -35,6 +34,7 @@ program grid_comp_creation_tester
       parameter_filename = adjustl(raw)
    end if
    
+!   call profile_memory(mem_used_before, mem_commit_before, _RC)
    creator = GridCompCreator(ngc)
    call creator%run(time, mem_used, mem_commit, _RC)
    if(creator%rank == 0) then
@@ -56,9 +56,9 @@ contains
       character(len=MAXSTR) :: performance
       character(len=MAXSTR) :: columns
 !      real(R64) :: real_columns(6) 
-!      character(len=*), parameter :: FMT_ = "(I0, 6(',', 1X, ES22.16))"
+!      character(len=*), parameter :: FMT_ = "(I0, 6(',', 1X, ES23.16))"
       real(R64) :: real_columns(3)
-      character(len=*), parameter :: FMT_ = "(I0, 3(',', 1X, ES22.16))"
+      character(len=*), parameter :: FMT_ = "(I0, 3(',', 1X, ES23.16))"
       
 !      real_columns(1) = time
 !      real_columns(2:4) = [mem_used%total, mem_used%memory, mem_used%percent]
