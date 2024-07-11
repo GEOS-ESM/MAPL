@@ -43,13 +43,6 @@ module mapl3g_LatAxis
 
    interface
 
-      ! Constructor
-      pure module function new_LatAxis(centers, corners) result(axis)
-         type(LatAxis) :: axis
-         real(kind=R8), intent(in) :: centers(:)
-         real(kind=R8), intent(in) :: corners(:)
-      end function new_LatAxis
-
       logical module function supports_hconfig(hconfig, rc) result(supports)
          type(ESMF_HConfig), intent(in) :: hconfig
          integer, optional, intent(out) :: rc
@@ -101,6 +94,16 @@ module mapl3g_LatAxis
       end subroutine fix_bad_pole
 
    end interface
+
+   CONTAINS
+
+   ! Constructor
+   pure function new_LatAxis(centers, corners) result(axis)
+      type(LatAxis) :: axis
+      real(kind=R8), intent(in) :: centers(:)
+      real(kind=R8), intent(in) :: corners(:)
+      axis%CoordinateAxis = CoordinateAxis(centers, corners)
+   end function new_LatAxis
 
    
 end module mapl3g_LatAxis

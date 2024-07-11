@@ -43,13 +43,6 @@ module mapl3g_LonAxis
 
    interface
 
-      ! Constructor
-      pure module function new_LonAxis(centers, corners) result(axis)
-         type(LonAxis) :: axis
-         real(kind=R8), intent(in) :: centers(:)
-         real(kind=R8), intent(in) :: corners(:)
-      end function new_LonAxis
-
       module logical function supports_hconfig(hconfig, rc) result(supports)
          type(ESMF_HConfig), intent(in) :: hconfig
          integer, optional, intent(out) :: rc
@@ -98,6 +91,16 @@ module mapl3g_LonAxis
       end function get_lon_range
 
    end interface
+
+   CONTAINS
+
+   ! Constructor
+   pure function new_LonAxis(centers, corners) result(axis)
+      type(LonAxis) :: axis
+      real(kind=R8), intent(in) :: centers(:)
+      real(kind=R8), intent(in) :: corners(:)
+      axis%CoordinateAxis = CoordinateAxis(centers, corners)
+   end function new_LonAxis
 
 end module mapl3g_LonAxis
 

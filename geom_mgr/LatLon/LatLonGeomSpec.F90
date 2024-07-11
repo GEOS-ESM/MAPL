@@ -49,15 +49,6 @@ module mapl3g_LatLonGeomSpec
 
 interface
 
-      ! Basic constructor for LatLonGeomSpec
-      module function new_LatLonGeomSpec(lon_axis, lat_axis, decomposition) result(spec)
-         type(LatLonGeomSpec) :: spec
-         type(LonAxis), intent(in) :: lon_axis
-         type(LatAxis), intent(in) :: lat_axis
-         type(Latlondecomposition), intent(in) :: decomposition
-      end function new_LatLonGeomSpec
-
-
       pure logical module function equal_to(a, b)
          class(LatLonGeomSpec), intent(in) :: a
          class(GeomSpec), intent(in) :: b
@@ -149,6 +140,21 @@ interface
       end function make_decomposition
 
    end interface
+
+   CONTAINS
+
+   ! Basic constructor for LatLonGeomSpec
+   function new_LatLonGeomSpec(lon_axis, lat_axis, decomposition) result(spec)
+      type(LatLonGeomSpec) :: spec
+      type(LonAxis), intent(in) :: lon_axis
+      type(LatAxis), intent(in) :: lat_axis
+      type(LatLonDecomposition), intent(in) :: decomposition
+
+      spec%lon_axis = lon_axis
+      spec%lat_axis = lat_axis
+      spec%decomposition = decomposition
+
+   end function new_LatLonGeomSpec
 
 end module mapl3g_LatLonGeomSpec
 
