@@ -143,9 +143,11 @@ contains
       
       call dummy%make_mpi_type(dummy%statistics, type_dist_struct, ierror)
       call MPI_Type_commit(type_dist_struct, ierror)
+      _VERIFY(ierror)
 
       commute = .true.
       call MPI_Op_create(true_reduce, commute, dist_reduce_op, ierror)
+      _VERIFY(ierror)
 
    end subroutine initialize
 
@@ -278,6 +280,7 @@ contains
       type(DistributedStatistics) :: tmp
 
       call MPI_Comm_rank(comm, rank, ierror)
+      _VERIFY(ierror)
 
       this%statistics%total = DistributedReal64(this%get_total(), rank)
       this%statistics%exclusive = DistributedReal64(exclusive, rank)
@@ -288,6 +291,7 @@ contains
 
       tmp = this%statistics
       call MPI_Reduce(tmp, this%statistics, 1, type_dist_struct, dist_reduce_op, 0, comm, ierror)
+      _VERIFY(ierror)
 
    end subroutine reduce_mpi
 
@@ -304,9 +308,11 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(r64)
       call MPI_Type_get_extent_x(MPI_REAL8, lb, sz, ierror)
+      _VERIFY(ierror)
       displacements = [0_MPI_ADDRESS_KIND, 3*sz]
 
       call MPI_Type_create_struct(2, [3,4], displacements, [MPI_REAL8, MPI_INTEGER], new_type, ierror)
+      _VERIFY(ierror)
 
    end subroutine make_mpi_type_distributed_real64
 
@@ -323,6 +329,7 @@ contains
       _UNUSED_DUMMY(int)
       displacements = [0_MPI_ADDRESS_KIND]
       call MPI_Type_create_struct(1, [6], displacements, [MPI_INTEGER], new_type, ierror)
+      _VERIFY(ierror)
 
    end subroutine make_mpi_type_distributed_integer
 
@@ -341,9 +348,12 @@ contains
       call this%make_mpi_type(this%statistics%num_cycles, type_dist_integer, ierror)
 
       call MPI_Type_get_extent_x(type_dist_real64, lb, sz, ierror)
+      _VERIFY(ierror)
       displacements = [0_MPI_ADDRESS_KIND, 6*sz]
       call MPI_Type_create_struct(2, [6,1], displacements, [type_dist_real64, type_dist_integer], new_type, ierror)
+      _VERIFY(ierror)
       call MPI_Type_get_extent_x(new_type, lb, sz2, ierror)
+      _VERIFY(ierror)
 
    end subroutine make_mpi_type_distributed_data
 

@@ -42,6 +42,7 @@ contains
         use MPI
         integer :: rank, ierror
         call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
+        _VERIFY(ierror)
         allocate(character(4) :: tmp_file)
         write(tmp_file,'(i4.4)')rank
         tmp_file = 'tmp_' // tmp_file // '.dat'
