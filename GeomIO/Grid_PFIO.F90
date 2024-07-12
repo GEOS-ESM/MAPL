@@ -1,6 +1,9 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_GridPFIO
+
+   use, intrinsic :: iso_c_binding, only: c_ptr
+
    use mapl_ErrorHandling
    use mapl3g_GeomPFIO
    use mapl3g_SharedIO
@@ -9,7 +12,7 @@ module mapl3g_GridPFIO
    use MAPL_BaseMod
    use MAPL_FieldPointerUtilities
    use mapl3g_pFIOServerBounds
-   use, intrinsic :: iso_c_binding, only: c_ptr
+
    implicit none
    private
 
@@ -18,8 +21,8 @@ module mapl3g_GridPFIO
       private
    contains
       procedure :: stage_data_to_file
+      procedure :: request_data_from_file
    end type GridPFIO
-
 
 contains
 
@@ -38,7 +41,7 @@ contains
       type(c_ptr) :: address
       integer :: type_kind
       type(ESMF_TypeKind_Flag) :: tk
-      integer, allocatable :: element_count(:), new_element_count(:) 
+      integer, allocatable :: element_count(:), new_element_count(:)
 
       type(ESMF_Grid) :: grid
       type(pFIOServerBounds) :: server_bounds
@@ -57,7 +60,7 @@ contains
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
-         
+
          ! generate array reference
          call FieldGetCptr(field, address, _RC)
          type_kind = esmf_to_pfio_type(tk, _RC)
@@ -70,7 +73,63 @@ contains
       enddo
 
       _RETURN(_SUCCESS)
-
    end subroutine stage_data_to_file
+
+   subroutine request_data_from_file(this, file_name, state, rc)
+      ! Arguments
+      class(GridPFIO), intent(inout) :: this
+      character(len=*), intent(in) :: file_name
+      type(ESMF_State), intent(inout) :: state
+      integer, intent(out), optional :: rc
+
+      ! Locals
+      character(len=ESMF_MAXSTR), allocatable :: item_name(:)
+      type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
+      character(len=ESMF_MAXSTR) :: var_name
+      type(ESMF_Field) :: field
+      type(ESMF_Grid) :: grid
+      type(ESMF_TypeKind_Flag) :: esmf_typekind
+      type(pFIOServerBounds) :: server_bounds
+      integer, allocatable :: element_count(:), new_element_count(:)
+      integer, allocatable :: local_start(:), global_start(:), global_count(:)
+      type(c_ptr) :: address
+      type(ArrayReference) :: ref
+      integer :: collection_id, num_fields, idx, pfio_typekind, status
+
+      collection_id = this%get_collection_id()
+
+      call ESMF_StateGet(state, itemCount=num_fields, _RC)
+      allocate(item_name(num_fields), stat=status); _VERIFY(status)
+      allocate(item_type(num_fields), stat=status); _VERIFY(status)
+      call ESMF_StateGet(state, itemNameList=item_name, itemTypeList=item_type, _RC)
+      do idx = 1, num_fields
+         if (item_type(idx) /= ESMF_STATEITEM_FIELD) then
+            error stop "cannot read non-ESMF_STATEITEM_FIELD type"
+         end if
+         var_name = item_name(idx)
+         call ESMF_StateGet(state, var_name, field, _RC)
+         call ESMF_FieldGet(field, grid=grid, typekind=esmf_typekind, _RC)
+         element_count = FieldGetLocalElementCount(field, _RC)
+         call server_bounds%initialize(grid, element_count, _RC)
+         global_start = server_bounds%get_global_start()
+         global_count = server_bounds%get_global_count()
+         local_start = server_bounds%get_local_start()
+         call FieldGetCptr(field, address, _RC)
+         pfio_typekind = esmf_to_pfio_type(esmf_typekind, _RC)
+         new_element_count = server_bounds%get_file_shape()
+         ref = ArrayReference(address, pfio_typekind, new_element_count)
+         call i_Clients%collective_prefetch_data( &
+              collection_id, &
+              file_name, &
+              var_name, &
+              ref, &
+              start=local_start, &
+              global_start=global_start, &
+              global_count=global_count)
+         call server_bounds%finalize()
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine request_data_from_file
 
 end module mapl3g_GridPFIO
