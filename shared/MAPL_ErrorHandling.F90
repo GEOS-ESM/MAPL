@@ -244,7 +244,7 @@ contains
       integer :: status
       integer :: error_code = -1
       call MPI_Abort(MPI_COMM_WORLD,error_code,status)
-      _VERIFY(status)
+      !_VERIFY(status)
   end subroutine MAPL_abort
 
   function get_error_message(error_code) result(description)

@@ -1,3 +1,4 @@
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 module MAPL_AbstractMeter
    use, intrinsic :: iso_fortran_env, only: REAL64

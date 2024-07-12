@@ -195,7 +195,6 @@ contains
       call MPI_Comm_split_type(shared_communicator, MPI_COMM_TYPE_SHARED, 0, info, node_comm, ierror)
       _VERIFY(ierror)
       call MPI_Comm_rank(node_comm, rank_on_node, ierror); _VERIFY(ierror)
-      _VERIFY(ierror)
 
       node_id = this%get_node_id(rc=status); _VERIFY(status)
       node_sizes = this%get_node_sizes(rc=status); _VERIFY(status)
@@ -250,11 +249,8 @@ contains
       call MPI_Comm_split_type(shared_communicator, MPI_COMM_TYPE_SHARED, 0, info, node_comm, ierror)
       _VERIFY(ierror)
       call MPI_Comm_size(shared_communicator, npes, ierror); _VERIFY(ierror)
-      _VERIFY(ierror)
       call MPI_Comm_rank(shared_communicator, rank, ierror); _VERIFY(ierror)
-      _VERIFY(ierror)
       call MPI_Comm_rank(node_comm, rank_on_node, ierror); _VERIFY(ierror)
-      _VERIFY(ierror)
 
       allocate(node_ranks(0:npes-1), stat=status);  _VERIFY(status)
       call MPI_Allgather(rank_on_node, 1, MPI_INTEGER, node_ranks, 1, MPI_INTEGER, shared_communicator, ierror)
@@ -319,7 +315,7 @@ contains
      integer :: ierror
      if (this%is_split) then
         call MPI_Comm_free(this%sub_comm, ierror)
-        _VERIFY(ierror)
+        !_VERIFY(ierror)
      endif
   end subroutine free_sub_comm
 
@@ -332,7 +328,7 @@ contains
 
      if (from%is_split) then
        call MPI_Comm_rank(comm, rank, ierror)
-       _VERIFY(ierror)
+       !_VERIFY(ierror)
        if (rank == 0) print*, "WARNING, try not to duplicate a splitter that has been split. Only one split splitter should be called free_sub_comm"
      endif
      call this%set_shared_communicator(comm)
