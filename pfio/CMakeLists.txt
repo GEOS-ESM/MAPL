@@ -37,7 +37,6 @@ set (srcs
   CollectiveStageDoneMessage.F90
   DummyMessage.F90
   HandShakeMessage.F90
-  AbstractCollection.F90
   AddExtCollectionMessage.F90
   IDMessage.F90
   AbstractDataMessage.F90

@@ -204,12 +204,12 @@ contains
       call file_formatter%open(file_name, PFIO_READ, _RC)
       metadata = file_formatter%read(_RC)
       call file_formatter%close(_RC)
-      collection_id = i_Clients%add_hist_collection(metadata, mode=PFIO_READ)
 
       call ESMF_StateGet(state, itemCount=num_fields, _RC)
       allocate(item_name(num_fields), stat=status); _VERIFY(status)
       allocate(item_type(num_fields), stat=status); _VERIFY(status)
       call ESMF_StateGet(state, itemNameList=item_name, itemTypeList=item_type, _RC)
+      collection_id = i_Clients%add_ext_collection(file_name, _RC)
       do idx = 1, num_fields
          if (item_type(idx) /= ESMF_STATEITEM_FIELD) then
             error stop "cannot read non-ESMF_STATEITEM_FIELD type"
