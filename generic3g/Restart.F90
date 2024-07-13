@@ -32,26 +32,26 @@ module mapl3g_Restart
    end type Restart
 
    interface Restart
-      procedure, private :: initialize_
+      procedure new_Restart
    end interface Restart
 
 contains
 
-   function initialize_(gc_name, gc_geom, gc_clock, rc) result(new_restart)
+   function new_Restart(gc_name, gc_geom, gc_clock, rc) result(new_rstrt)
       character(len=*), intent(in) :: gc_name
       type(ESMF_Geom), intent(in) :: gc_geom
       type(ESMF_Clock), intent(in) :: gc_clock
       integer, optional, intent(out) :: rc
-      type(Restart) :: new_restart ! result
+      type(Restart) :: new_rstrt ! result
 
       integer :: status
 
-      new_restart%gc_name = ESMF_UtilStringLowerCase(trim(gc_name), _RC)
-      call ESMF_Clockget(gc_clock, currTime = new_restart%current_time, _RC)
-      new_restart%gc_geom = gc_geom
+      new_rstrt%gc_name = ESMF_UtilStringLowerCase(trim(gc_name), _RC)
+      call ESMF_Clockget(gc_clock, currTime = new_rstrt%current_time, _RC)
+      new_rstrt%gc_geom = gc_geom
 
       _RETURN(ESMF_SUCCESS)
-   end function initialize_
+   end function new_Restart
 
    subroutine write(this, state_type, state, rc)
       ! Arguments
