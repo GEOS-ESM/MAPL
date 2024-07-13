@@ -5,7 +5,7 @@ submodule (mapl3g_OuterMetaComponent) read_restart_smod
 
 contains
 
-   module subroutine read_restart(this, importState, exportState, clock, unusable, rc)
+   module recursive subroutine read_restart(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
