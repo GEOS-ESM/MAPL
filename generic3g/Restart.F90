@@ -68,7 +68,7 @@ contains
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       if (item_count > 0) then
          file_name = trim(this%gc_name) // "_" // trim(state_type) // "_checkpoint.nc4"
-         print *, "Writing restart: ", trim(file_name)
+         print *, "Writing checkpoint: ", trim(file_name)
          out_bundle = get_bundle_from_state_(state, _RC)
          call this%write_bundle_(out_bundle, file_name, rc)
       end if

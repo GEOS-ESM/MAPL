@@ -18,13 +18,13 @@ set(srcs
 
   ComponentDriver.F90
   ComponentDriverVector.F90
+  ComponentDriverPtrVector.F90
   GriddedComponentDriver.F90
   GriddedComponentDriverMap.F90
 
   MultiState.F90
   InnerMetaComponent.F90
   OuterMetaComponent.F90
-  OuterMetaComponent_smod.F90
   GenericPhases.F90
   GenericGridComp.F90
 
@@ -60,14 +60,51 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.regridder_mgr MAPL.geom_mgr MAPL.GeomIO MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
   TYPE SHARED
   )
+
 add_subdirectory(specs)
 add_subdirectory(registry)
 add_subdirectory(connection)
 add_subdirectory(actions)
 add_subdirectory(couplers)
-add_subdirectory(ComponentSpecParser)
-add_subdirectory(ESMF_HConfigUtilities)
-add_subdirectory(GriddedComponentDriver)
+
+esma_add_fortran_submodules(
+  TARGET MAPL.generic3g
+  SUBDIRECTORY OuterMetaComponent
+  SOURCES SetServices.F90 add_child_by_name.F90 new_outer_meta.F90 init_meta.F90
+          get_child_by_name.F90 run_child_by_name.F90 run_children.F90
+          get_outer_meta_from_outer_gc.F90 attach_outer_meta.F90 free_outer_meta.F90
+          get_phases.F90 set_hconfig.F90 get_hconfig.F90 get_geom.F90
+          initialize_advertise_geom.F90 initialize_realize_geom.F90
+          initialize_advertise.F90 initialize_post_advertise.F90
+          initialize_realize.F90 recurse.F90 apply_to_children_custom.F90
+          initialize_user.F90 run_custom.F90 run_user.F90 run_clock_advance.F90
+          read_restart.F90 write_restart.F90 get_name.F90 get_gridcomp.F90
+          set_geom.F90 set_vertical_geom.F90 get_registry.F90
+          get_component_spec.F90 get_internal_state.F90 get_lgr.F90
+          get_user_gc_driver.F90 connect_all.F90 set_entry_point.F90
+          finalize.F90)
+
+esma_add_fortran_submodules(
+  TARGET MAPL.generic3g
+  SUBDIRECTORY ComponentSpecParser
+  SOURCES parse_child.F90 parse_children.F90 parse_connections.F90
+          parse_var_specs.F90 parse_geometry_spec.F90 parse_component_spec.F90
+          parse_setservices.F90)
+
+esma_add_fortran_submodules(
+  TARGET MAPL.generic3g
+  SUBDIRECTORY ESMF_HConfigUtilities
+  SOURCES MAPL_HConfigMatch.F90
+          write_hconfig.F90)
+
+esma_add_fortran_submodules(
+  TARGET MAPL.generic3g
+  SUBDIRECTORY GriddedComponentDriver
+  SOURCES initialize.F90 run.F90 finalize.F90 get_states.F90
+          get_clock.F90 set_clock.F90 run_export_couplers.F90
+          run_import_couplers.F90 clock_advance.F90 new_GriddedComponentDriver.F90
+          get_gridcomp.F90 get_name.F90 add_export_coupler.F90 
+          add_import_coupler.F90 read_restart.F90 write_restart.F90)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
