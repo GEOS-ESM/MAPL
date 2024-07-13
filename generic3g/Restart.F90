@@ -86,13 +86,19 @@ contains
 
       ! Locals
       character(len=ESMF_MAXSTR) :: file_name
+      logical :: file_exists
       integer :: item_count, status
 
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       if (item_count > 0) then
          file_name = trim(this%gc_name) // "_" // trim(state_type) // "_rst.nc4"
-         print *, "Reading restart: ", trim(file_name)
-         call this%read_fields_(file_name, state, _RC)
+         inquire(file=trim(file_name), exist=file_exists)
+         if (file_exists) then
+            print *, "Reading restart: ", trim(file_name)
+            call this%read_fields_(file_name, state, _RC)
+         else
+            print *, "Restart file <" // trim(file_name) // "> does not exist. Skip reading!"
+         end if
       end if
 
       _RETURN(ESMF_SUCCESS)
@@ -167,15 +173,11 @@ contains
       integer, optional, intent(out) :: rc
 
       ! Locals
-      logical :: file_exists
       type(NetCDF4_FileFormatter) :: file_formatter
       type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: reader
       type(MaplGeom), pointer :: mapl_geom
       integer :: status
-
-      inquire(file=trim(file_name), exist=file_exists)
-      _ASSERT(file_exists, "restart file " // trim(file_name) // " does not exist")
 
       call file_formatter%open(file_name, PFIO_READ, _RC)
       metadata = file_formatter%read(_RC)
