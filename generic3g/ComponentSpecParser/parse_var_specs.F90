@@ -240,7 +240,7 @@ contains
                temp_dim = UngriddedDim(dim_size, name=dim_name, units=dim_units)
             end if
             if (has_coordinates) then
-               coordinates = ESMF_HConfigAsR4(dim_spec, keyString=KEY_UNGRIDDED_DIM_COORDINATES, _RC)
+               coordinates = ESMF_HConfigAsR4Seq(dim_spec, keyString=KEY_UNGRIDDED_DIM_COORDINATES, _RC)
                temp_dim = UngriddedDim(coordinates, name=dim_name, units=dim_units)
             end if
             call ungridded_dims%add_dim(temp_dim, _RC)
