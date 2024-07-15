@@ -13,8 +13,8 @@ module Test_SharedIO
        procedure, pass(this) :: assign_character_from_string
        generic :: assignment(=) => assign_character_from_string
     end type
-    
-    character(len=*), parameter :: DIM_CENTER = 'VERTICAL_DIM_CENTER' 
+
+    character(len=*), parameter :: DIM_CENTER = 'VERTICAL_DIM_CENTER'
     character(len=*), parameter :: DIM_EDGE = 'VERTICAL_DIM_EDGE'
     character(len=*), parameter :: DIM_UNK = 'UNKNOWN'
     character(len=*), parameter :: CENTER_NAME = 'lev'
@@ -33,13 +33,13 @@ contains
       ch = this%s_
 
    end subroutine assign_character_from_string
-       
+
     @Test
     subroutine test_get_vertical_dimension_name()
        character(len=:), allocatable :: name
        character(len=:), allocatable :: vertical_dim
        character(len=:), allocatable :: message
-       
+
        vertical_dim = DIM_CENTER
        name = CENTER_NAME
        message = make_message('Dimension name does not match for', vertical_dim)
@@ -65,12 +65,12 @@ contains
 
       vertical_dim = DIM_CENTER
       num_levels = NUMLEVELS
-      message = make_message('Num_levels does not match for', vertical_dim) 
+      message = make_message('Num_levels does not match for', vertical_dim)
       @assertEqual(num_levels, get_vertical_dimension_num_levels(vertical_dim, NUMLEVELS), message)
 
       vertical_dim = DIM_EDGE
       num_levels = NUMLEVELS+1
-      message = make_message('Num_levels does not match for', vertical_dim) 
+      message = make_message('Num_levels does not match for', vertical_dim)
       @assertEqual(num_levels, get_vertical_dimension_num_levels(vertical_dim, NUMLEVELS), message)
 
     end subroutine test_get_vertical_dimension_num_levels
@@ -79,9 +79,9 @@ contains
     subroutine test_cat_ungridded_dim_names()
        type(UngriddedDims) :: dims
        character(len=8), parameter :: NAMES(3) = [character(len=8) :: 'Alice', 'Bob', 'Mallory']
-       
+
        dims = make_ungridded_dims(NAMES)
-       
+
     end subroutine test_cat_ungridded_dim_names
 
     function make_message_string(message, String) result(msg)
@@ -103,7 +103,7 @@ contains
        allocate(dims_array(size(names)))
        do i = 1, size(names)
          name = trim(names(i))
-         dims_array(i) = UngriddedDim(name, len(name))
+         dims_array(i) = UngriddedDim(len(name), name=name)
        end do
 
        dims = UngriddedDims(dims_array)
@@ -122,5 +122,5 @@ contains
       end do
 
     end function make_string_array
-      
+
 end module Test_SharedIO

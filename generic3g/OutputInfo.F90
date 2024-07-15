@@ -101,7 +101,7 @@ contains
 
       call ESMF_InfoGet(info, key=KEY_NUM_LEVELS, value=num, _RC)
       _RETURN(_SUCCESS)
-      
+
    end function get_num_levels_info
 
    function get_vertical_dim_spec_names_bundle(bundle, rc) result(names)
@@ -205,7 +205,7 @@ contains
    function make_ungridded_dims(info, rc) result(dims)
       type(UngriddedDims) :: dims
       type(ESMF_Info), intent(in) :: info
-      integer, optional, intent(out) :: rc 
+      integer, optional, intent(out) :: rc
       integer :: status
       integer :: num_dims, i
       type(UngriddedDim) :: ungridded
@@ -223,7 +223,7 @@ contains
       type(UngriddedDim) :: make_ungridded_dim
       integer, intent(in) :: n
       type(ESMF_Info), intent(in) :: info
-      integer, optional, intent(out) :: rc 
+      integer, optional, intent(out) :: rc
       integer :: status
       character(len=:), allocatable :: key
       type(ESMF_Info) :: dim_info
@@ -244,7 +244,7 @@ contains
       call ESMF_InfoGetCharAlloc(dim_info, key=KEY_UNGRIDDED_UNITS, value=units, _RC)
       call ESMF_InfoGetAlloc(dim_info, key=KEY_UNGRIDDED_COORD, values=coordinates, _RC)
       call ESMF_InfoDestroy(dim_info, _RC)
-      make_ungridded_dim = UngriddedDim(name, units, coordinates)
+      make_ungridded_dim = UngriddedDim(coordinates, name=name, units=units)
       _RETURN(_SUCCESS)
 
    end function make_ungridded_dim
@@ -252,7 +252,7 @@ contains
    subroutine push_ungridded_dims(vec, dims, rc)
       class(UngriddedDimVector), intent(inout) :: vec
       class(UngriddedDims), intent(in) :: dims
-      integer, optional, intent(out) :: rc 
+      integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
 
@@ -276,18 +276,18 @@ contains
          if(iter%of() == name) return
          call iter%next()
       end do
-      i = 0 
+      i = 0
 
    end function find_index
 
    subroutine check_duplicate(vec, udim, rc)
       class(UngriddedDimVector), intent(in) :: vec
       class(UngriddedDim), intent(in) :: udim
-      integer, optional, intent(out) :: rc 
+      integer, optional, intent(out) :: rc
       integer :: status
       type(UngriddedDimVectorIterator) :: iter
       type(UngriddedDim) :: vdim
-      
+
       iter = vec%ftn_begin()
       do while(iter < vec%ftn_end())
          call iter%next()
@@ -333,7 +333,7 @@ contains
 
    subroutine destroy_bundle_info(bundle_info, rc)
       type(ESMF_Info), intent(inout) :: bundle_info(:)
-      integer, optional, intent(out) :: rc 
+      integer, optional, intent(out) :: rc
       integer :: status, i
 
       do i=1, size(bundle_info)

@@ -28,9 +28,7 @@ module mapl3g_UngriddedDim
 
    interface UngriddedDim
       module procedure new_UngriddedDim_extent
-      module procedure new_UngriddedDim_name_and_extent
-      module procedure new_UngriddedDim_name_and_coords
-      module procedure new_UngriddedDim_name_units_and_coords
+      module procedure new_UngriddedDim_coordinates
    end interface UngriddedDim
 
    interface operator(==)
@@ -46,38 +44,34 @@ module mapl3g_UngriddedDim
 
 contains
 
-   pure function new_UngriddedDim_name_units_and_coords(name, units, coordinates) result(spec)
-      type(UngriddedDim) :: spec
-      character(*), intent(in) :: name
-      character(*), intent(in) :: units
-      real, intent(in) :: coordinates(:)
 
-      spec%name = name
-      spec%units = units
+   pure function new_UngriddedDim_extent(extent, name, units) result(spec)
+      integer, intent(in) :: extent
+      character(len=*), optional, intent(in) :: name
+      character(len=*), optional, intent(in) :: units
+      type(UngriddedDim) :: spec
+
+      spec%name = UNKNOWN_DIM_NAME
+      if (present(name)) spec%name = name
+      spec%units = UNKNOWN_DIM_UNITS
+      if (present(units)) spec%units = units
+      spec%coordinates = default_coords(extent)
+
+   end function new_UngriddedDim_extent
+
+   pure function new_UngriddedDim_coordinates(coordinates, name, units) result(spec)
+      real, intent(in) :: coordinates(:)
+      character(len=*), optional, intent(in) :: name
+      character(len=*), optional, intent(in) :: units
+      type(UngriddedDim) :: spec
+
+      spec%name = UNKNOWN_DIM_NAME
+      if (present(name)) spec%name = name
+      spec%units = UNKNOWN_DIM_UNITS
+      if (present(units)) spec%units = units
       spec%coordinates = coordinates
 
-   end function new_UngriddedDim_name_units_and_coords
-
-   pure function new_UngriddedDim_name_and_coords(name, coordinates) result(spec)
-      type(UngriddedDim) :: spec
-      character(*), intent(in) :: name
-      real, intent(in) :: coordinates(:)
-      spec = UngriddedDim(name, UNKNOWN_DIM_UNITS, coordinates)
-   end function new_UngriddedDim_name_and_coords
-
-
-   pure function new_UngriddedDim_name_and_extent(name, extent) result(spec)
-      character(*), intent(in) :: name
-      integer, intent(in) :: extent
-      type(UngriddedDim) :: spec
-      spec = UngriddedDim(name, default_coords(extent))
-   end function new_UngriddedDim_name_and_extent
-
-   pure function new_UngriddedDim_extent(extent) result(spec)
-      integer, intent(in) :: extent
-      type(UngriddedDim) :: spec
-      spec = UngriddedDim(UNKNOWN_DIM_NAME, default_coords(extent))
-   end function new_UngriddedDim_extent
+   end function new_UngriddedDim_coordinates
 
    pure function default_coords(extent, lbound) result(coords)
       real, allocatable :: coords(:)

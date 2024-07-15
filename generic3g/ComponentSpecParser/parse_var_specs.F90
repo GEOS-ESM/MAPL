@@ -1,7 +1,7 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_ComponentSpecParser) parse_var_specs_smod
-   
+
 contains
 
    ! A component is not required to have var_specs.   E.g, in theory GCM gridcomp will not
@@ -63,8 +63,8 @@ contains
 
          subcfg = ESMF_HConfigCreateAt(hconfig,keyString=state_intent, _RC)
 
-         b = ESMF_HConfigIterBegin(subcfg, _RC) 
-         e = ESMF_HConfigIterEnd(subcfg, _RC) 
+         b = ESMF_HConfigIterBegin(subcfg, _RC)
+         e = ESMF_HConfigIterEnd(subcfg, _RC)
          iter = b
          do while (ESMF_HConfigIterLoop(iter,b,e))
             name = ESMF_HConfigAsStringMapKey(iter, _RC)
@@ -92,7 +92,7 @@ contains
             dependencies = to_dependencies(attributes, _RC)
 
             esmf_state_intent = to_esmf_state_intent(state_intent)
-             
+
             var_spec = VariableSpec(esmf_state_intent, short_name=short_name, &
                  itemtype=itemtype, &
                  service_items=service_items, &
@@ -110,7 +110,7 @@ contains
             call var_specs%push_back(var_spec)
 
             call ESMF_HConfigDestroy(attributes, _RC)
-            
+
          end do
 
          call ESMF_HConfigDestroy(subcfg, _RC)
@@ -208,11 +208,12 @@ contains
 
          integer :: status
          type(ESMF_HConfig) :: dim_specs, dim_spec
-         character(len=:), allocatable :: dim_name
+         character(len=:), allocatable :: dim_name, dim_units
+         real, allocatable :: coordinates(:)
          integer :: dim_size,i
          type(UngriddedDim) :: temp_dim
 
-         logical :: has_ungridded_dims
+         logical :: has_ungridded_dims, has_name, has_units, has_extent, has_coordinates
          integer :: n_specs
 
          has_ungridded_dims = ESMF_HConfigIsDefined(attributes, keyString=KEY_UNGRIDDED_DIMS, _RC)
@@ -223,15 +224,31 @@ contains
          n_specs = ESMF_HConfigGetSize(dim_specs, _RC)
          do i = 1, n_specs
             dim_spec = ESMF_HConfigCreateAt(dim_specs, index=i, _RC)
-            dim_name = ESMF_HConfigAsString(dim_spec, keyString=KEY_UNGRIDDED_DIM_NAME, _RC)
-            dim_size = ESMF_HConfigAsI4(dim_spec, keyString=KEY_UNGRIDDED_DIM_EXTENT, _RC)
-            temp_dim = UngriddedDim(dim_size)
+            has_name = ESMF_HConfigIsDefined(dim_spec,keyString=KEY_UNGRIDDED_DIM_NAME)
+            has_units = ESMF_HConfigIsDefined(dim_spec,keyString=KEY_UNGRIDDED_DIM_UNITS)
+            has_extent = ESMF_HConfigIsDefined(dim_spec,keyString=KEY_UNGRIDDED_DIM_EXTENT)
+            has_coordinates = ESMF_HConfigIsDefined(dim_spec,keyString=KEY_UNGRIDDED_DIM_COORDINATES)
+            _ASSERT(.not.(has_units .and. has_coordinates), "Both extent and coordinates specified")
+            if (has_name) then
+               dim_name = ESMF_HConfigAsString(dim_spec, keyString=KEY_UNGRIDDED_DIM_NAME, _RC)
+            end if
+            if (has_units) then
+               dim_units = ESMF_HConfigAsString(dim_spec, keyString=KEY_UNGRIDDED_DIM_UNITS, _RC)
+            end if
+            if (has_extent) then
+               dim_size = ESMF_HConfigAsI4(dim_spec, keyString=KEY_UNGRIDDED_DIM_EXTENT, _RC)
+               temp_dim = UngriddedDim(dim_size, name=dim_name, units=dim_units)
+            end if
+            if (has_coordinates) then
+               coordinates = ESMF_HConfigAsR4(dim_spec, keyString=KEY_UNGRIDDED_DIM_COORDINATES, _RC)
+               temp_dim = UngriddedDim(coordinates, name=dim_name, units=dim_units)
+            end if
             call ungridded_dims%add_dim(temp_dim, _RC)
             call ESMF_HConfigDestroy(dim_spec, _RC)
-         end do 
+         end do
 
          call ESMF_HConfigDestroy(dim_specs, _RC)
-         
+
          _RETURN(_SUCCESS)
       end function to_UngriddedDims
 
@@ -247,8 +264,8 @@ contains
 
          has_itemtype = ESMF_HConfigIsDefined(attributes,keyString='class',_RC)
          _RETURN_UNLESS(has_itemtype)
-         
-         subclass= ESMF_HConfigAsString(attributes, keyString='class',_RC) 
+
+         subclass= ESMF_HConfigAsString(attributes, keyString='class',_RC)
 
          select case (ESMF_UtilStringLowerCase(subclass))
          case ('field')
@@ -263,7 +280,7 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine to_itemtype
-      
+
       subroutine to_service_items(service_items, attributes, rc)
          type(StringVector), intent(out) :: service_items
          type(ESMF_HConfig), target, intent(in) :: attributes
@@ -277,10 +294,10 @@ contains
 
          has_service_items = ESMF_HConfigIsDefined(attributes,keyString='items',_RC)
          _RETURN_UNLESS(has_service_items)
-         
+
          seq = ESMF_HConfigCreateAt(attributes,keyString='items',_RC)
          _ASSERT(ESMF_HConfigIsSequence(seq),"items must be a sequence")
-         num_items = ESMF_HConfigGetSize(seq,_RC) 
+         num_items = ESMF_HConfigGetSize(seq,_RC)
          do i = 1,num_items
             item_name = ESMF_HConfigAsString(seq,index = i, _RC)
             call service_items%push_back(item_name)
@@ -288,12 +305,12 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine to_service_items
-      
+
       function to_dependencies(attributes, rc) result(dependencies)
          type(StringVector) :: dependencies
          type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc
-         
+
          integer :: status
          logical :: has_dependencies
          type(ESMF_HConfig) :: dependencies_hconfig
@@ -303,7 +320,7 @@ contains
          dependencies = StringVector()
          has_dependencies = ESMF_HConfigIsDefined(attributes, keyString='dependencies', _RC)
          _RETURN_UNLESS(has_dependencies)
-         
+
          dependencies_hconfig = ESMF_HConfigCreateAt(attributes, keyString='dependencies', _RC)
          _ASSERT(ESMF_HConfigIsSequence(dependencies_hconfig), 'expected sequence for attribute <dependencies>')
          n_dependencies = ESMF_HConfigGetSize(dependencies_hconfig, _RC)
