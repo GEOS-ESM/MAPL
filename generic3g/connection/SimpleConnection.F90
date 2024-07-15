@@ -280,12 +280,12 @@ contains
       integer :: cost, lowest_cost
       type(StateItemExtension), pointer :: best_extension
       type(StateItemExtension), pointer :: last_extension
-      type(StateItemExtension) :: old_extension
-      type(StateItemExtension) :: new_extension
+      type(StateItemExtension) :: extension
+      type(StateItemExtension), pointer :: new_extension
       class(StateItemSpec), pointer :: last_spec
       type(ActualConnectionPt) :: effective_pt
 
-      type(GriddedComponentDriver), pointer :: source_coupler
+      type(GriddedComponentDriver), pointer :: coupler
       type(ActualPtVector), pointer :: src_actual_pts
       type(ActualConnectionPt), pointer :: best_pt
 
@@ -309,12 +309,13 @@ contains
          call activate_dependencies_new(best_extension, src_registry, _RC)
 
          last_extension => best_extension
-         old_extension = best_extension
 
-         source_coupler => null()
          do i_extension = 1, lowest_cost
-            new_extension = old_extension%make_extension(dst_spec, _RC)
-            last_extension => src_registry%add_extension(src_pt%v_pt, new_extension, _RC)
+            extension = last_extension%make_extension(dst_spec, _RC)
+            new_extension => src_registry%add_extension(src_pt%v_pt, extension, _RC)
+            coupler => new_extension%get_producer()
+            call last_extension%add_consumer(coupler)
+            last_extension => new_extension
          end do
 
          ! In the case of wildcard specs, we need to pass an actual_pt to
@@ -395,3 +396,4 @@ contains
    end subroutine find_closest_extension_new
 
 end module mapl3g_SimpleConnection
+

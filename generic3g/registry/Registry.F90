@@ -40,6 +40,9 @@ module mapl3g_Registry
 
       type(VirtualPtFamilyMap) :: family_map
 
+!#      type(GriddedComponentDriverPtrVector) :: export_couplers
+!#      type(GriddedComponentDriverPtrVector) :: import_couplers
+
    contains
 
       procedure :: add_subregistry

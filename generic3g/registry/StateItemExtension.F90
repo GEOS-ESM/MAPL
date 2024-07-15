@@ -17,21 +17,20 @@ module mapl3g_StateItemExtension
    public :: StateItemExtension
    public :: StateItemExtensionPtr
 
-   ! A StateItemExtension "owns" the spec and associated export
-   ! couplers.   The import couplers are pointers back to
-   ! other export couplers.
+   ! A StateItemExtension "owns" a spec as well as the coupler
+   ! that produces it (if any).
 
    type StateItemExtension
       private
       class(StateItemSpec), allocatable :: spec
-      type(ComponentDriverVector) :: export_couplers ! invalidate()
-      type(ComponentDriverPtrVector) :: import_couplers ! update()
+      type(GriddedComponentDriver), allocatable :: producer ! coupler that computes spec
+      type(ComponentDriverPtrVector) :: consumers ! couplers that depend on spec
    contains
-      procedure :: add_export_coupler
-      procedure :: add_import_coupler
       procedure :: get_spec
-      procedure :: get_export_couplers
-      procedure :: get_import_couplers
+      procedure :: get_producer
+      procedure :: get_consumers
+      procedure :: has_producer
+      procedure :: add_consumer
       procedure :: make_extension
    end type StateItemExtension
 
@@ -41,6 +40,7 @@ module mapl3g_StateItemExtension
 
    interface StateItemExtension
       procedure :: new_StateItemExtension_spec
+      procedure :: new_StateItemExtension_w_producer
    end interface StateItemExtension
 
 contains
@@ -51,20 +51,13 @@ contains
       ext%spec = spec
    end function new_StateItemExtension_spec
 
-   subroutine add_export_coupler(this, coupler)
-      class(StateItemExtension), intent(inout) :: this
-      class(GriddedComponentDriver), intent(in) :: coupler
-      call this%export_couplers%push_back(coupler)
-   end subroutine add_export_coupler
-
-   subroutine add_import_coupler(this, coupler)
-      class(StateItemExtension), intent(inout) :: this
-      class(ComponentDriver), pointer :: coupler
-      type(ComponentDriverPtr) :: wrapper
-
-      wrapper%ptr => coupler
-      call this%import_couplers%push_back(wrapper)
-   end subroutine add_import_coupler
+   function new_StateItemExtension_w_producer(spec, producer) result(ext)
+      type(StateItemExtension) :: ext
+      class(StateItemSpec), intent(in) :: spec
+      type(GriddedComponentDriver), intent(in) :: producer
+      ext%spec = spec
+      ext%producer = producer
+   end function new_StateItemExtension_w_producer
 
    function get_spec(this) result(spec)
       class(StateItemExtension), target, intent(in) :: this
@@ -72,17 +65,36 @@ contains
       spec => this%spec
    end function get_spec
 
-   function get_export_couplers(this) result(couplers)
+   logical function has_producer(this)
       class(StateItemExtension), target, intent(in) :: this
-      type(ComponentDriverVector), pointer :: couplers
-      couplers => this%export_couplers
-   end function get_export_couplers
+      has_producer = allocated(this%producer)
+   end function has_producer
 
-   function get_import_couplers(this) result(couplers)
+   function get_producer(this) result(producer)
       class(StateItemExtension), target, intent(in) :: this
-      type(ComponentDriverPtrVector), pointer :: couplers
-      couplers => this%import_couplers
-   end function get_import_couplers
+      type(GriddedComponentDriver), pointer :: producer
+      if (.not. allocated(this%producer)) then
+         producer => null()
+      end if
+      
+      producer => this%producer
+
+   end function get_producer
+
+   function get_consumers(this) result(consumers)
+      class(StateItemExtension), target, intent(in) :: this
+      type(ComponentDriverPtrVector), pointer :: consumers
+      consumers => this%consumers
+   end function get_consumers
+
+   subroutine add_consumer(this, consumer)
+      class(StateItemExtension), intent(inout) :: this
+      type(GriddedComponentDriver), pointer :: consumer
+      type(ComponentDriverPtr) :: wrapper
+
+      wrapper%ptr => consumer
+      call this%consumers%push_back(wrapper)
+   end subroutine add_consumer
 
    ! Creation of an extension requires a new coupler that transforms
    ! from source (this) spec to dest (extension) spec. This new coupler
@@ -90,7 +102,7 @@ contains
    ! gains it as a reference (pointer).
 
    function make_extension(this, goal, rc) result(extension)
-      type(StateItemExtension) :: extension
+      type(StateItemExtension), target :: extension
       class(StateItemExtension), target, intent(inout) :: this
       class(StateItemSpec), target, intent(in) :: goal
       integer, intent(out) :: rc
@@ -98,7 +110,7 @@ contains
       integer :: status
       class(StateItemSpec), allocatable :: new_spec
       class(ExtensionAction), allocatable :: action
-      type(GriddedComponentDriver) :: new_coupler
+      type(GriddedComponentDriver) :: producer
       type(ESMF_GridComp) :: coupler_gridcomp
       type(ESMF_Clock) :: fake_clock
       
@@ -108,12 +120,11 @@ contains
 
       action = this%spec%make_action(new_spec, _RC)
       coupler_gridcomp = make_coupler(action, _RC)
-      new_coupler = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
-      call this%add_export_coupler(new_coupler)
+      producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
 
-      extension = StateItemExtension(new_spec)
-      call extension%add_import_coupler(this%export_couplers%back())
+      extension = StateItemExtension(new_spec, producer)
 
       _RETURN(_SUCCESS)
    end function make_extension
+
 end module mapl3g_StateItemExtension
