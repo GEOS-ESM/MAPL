@@ -243,4 +243,50 @@ contains
       
    end subroutine test_mirror_units
 
+   @test
+   subroutine test_mirror_geom()
+      type(FieldSpec) :: import_spec
+      type(FieldSpec) :: export_spec
+
+      
+      import_spec = FieldSpec( &
+           vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDims(), &
+           standard_name='A', long_name='AA', attributes=StringVector())
+
+      export_spec = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDims(), &
+           standard_name='A', long_name='AA', attributes=StringVector(), &
+           units='m')
+
+      @assert_that(import_spec%can_connect_to(export_spec), is(true()))
+
+   end subroutine test_mirror_geom
+
+   @test
+   subroutine test_mirror_geom_cost()
+      type(FieldSpec) :: import_spec
+      type(FieldSpec) :: export_spec
+
+      
+      import_spec = FieldSpec( &
+           vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDims(), &
+           standard_name='A', long_name='AA', attributes=StringVector())
+
+      export_spec = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDims(), &
+           standard_name='A', long_name='AA', attributes=StringVector(), &
+           units='m')
+
+      @assert_that(export_spec%extension_cost(import_spec), is(0))
+
+   end subroutine test_mirror_geom_cost
+
 end module Test_FieldSpec
