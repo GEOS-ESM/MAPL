@@ -44,6 +44,8 @@ module mapl3g_output_info
       module procedure :: get_ungridded_dims_field
    end interface get_ungridded_dims
 
+   character(len=*), parameter :: VERT_DIM_NONE = 'VERTICAL_DIM_NONE'
+
 contains
 
    integer function get_num_levels_bundle(bundle, rc) result(num)
@@ -54,7 +56,6 @@ contains
 
       info = create_bundle_info(bundle, _RC)
       num = get_num_levels_bundle_info(info, _RC)
-      call destroy_bundle_info(info, _RC)
       _RETURN(_SUCCESS)
 
    end function get_num_levels_bundle
@@ -65,10 +66,12 @@ contains
       integer :: status
       integer :: i, n
 
-      num = get_num_levels_info(info(1), _RC)
-      do i=2, size(info)
+      num = 0
+      do i=1, size(info)
          n = get_num_levels_info(info(i), _RC)
-         _ASSERT(n == num, 'All fields must have the same number of vertical levels.')
+         num = max(num, n)
+         if(n == 0) cycle
+         _ASSERT(n == num, 'Fields with vertical levels must have the same number of levels.')
       end do
       _RETURN(_SUCCESS)
 
@@ -82,7 +85,6 @@ contains
 
       call ESMF_InfoGetFromHost(field, info, _RC)
       num = get_num_levels_info(info, _RC)
-      call ESMF_InfoDestroy(info, _RC)
       _RETURN(_SUCCESS)
 
    end function get_num_levels_field
@@ -91,13 +93,13 @@ contains
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
       integer :: status
-      logical :: key_present
+      logical :: is_none
 
       num = 0
-      key_present = ESMF_InfoIsPresent(info, key=KEY_NUM_LEVELS, _RC)
-      if(key_present) then
-         call ESMF_InfoGet(info, key=KEY_NUM_LEVELS, value=num, _RC)
-      end if
+      is_none = VERT_DIM_NONE == get_vertical_dim_spec_info(info, _RC)
+      _RETURN_IF(is_none)
+
+      call ESMF_InfoGet(info, key=KEY_NUM_LEVELS, value=num, _RC)
       _RETURN(_SUCCESS)
       
    end function get_num_levels_info
@@ -111,7 +113,6 @@ contains
 
       info = create_bundle_info(bundle, _RC)
       names = get_vertical_dim_spec_names_bundle_info(info, _RC)
-      call destroy_bundle_info(info, _RC)
       _RETURN(_SUCCESS)
 
    end function get_vertical_dim_spec_names_bundle
@@ -135,14 +136,13 @@ contains
 
    function get_vertical_dim_spec_name_field(field, rc) result(spec_name)
       character(len=:), allocatable :: spec_name
-      type(ESMF_Field), intent(inout) :: field
+      type(ESMF_Field), intent(in) :: field
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Info) :: info
 
       call ESMF_InfoGetFromHost(field, info, _RC)
       spec_name = get_vertical_dim_spec_info(info, _RC)
-      call ESMF_InfoDestroy(info, _RC)
       _RETURN(_SUCCESS)
 
    end function get_vertical_dim_spec_name_field
@@ -152,11 +152,7 @@ contains
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
       integer :: status
-      integer :: n
 
-      spec_name = ''
-      n = get_num_levels_info(info, _RC) 
-      _RETURN_UNLESS(n > 0)
       call ESMF_InfoGetCharAlloc(info, key=KEY_VLOC, value=spec_name, _RC)
       _RETURN(_SUCCESS)
 
@@ -173,7 +169,6 @@ contains
       info = create_bundle_info(bundle, _RC)
       vec = get_ungridded_dims_bundle_info(info, _RC)
       dims = UngriddedDims(vec)
-      call destroy_bundle_info(info, _RC)
       _RETURN(_SUCCESS)
 
    end function get_ungridded_dims_bundle
@@ -196,7 +191,7 @@ contains
 
    function get_ungridded_dims_field(field, rc) result(ungridded)
       type(UngriddedDims) :: ungridded
-      type(ESMF_Field), intent(inout) :: field
+      type(ESMF_Field), intent(in) :: field
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Info) :: info
@@ -305,6 +300,13 @@ contains
 
    end subroutine check_duplicate
 
+   logical function is_vertical_dim_none(s)
+      character(len=*), intent(in) :: s
+
+      is_vertical_dim_none = s == 'VERTICAL_DIM_NONE'
+
+   end function is_vertical_dim_none
+
    function create_bundle_info(bundle, rc) result(bundle_info)
       type(ESMF_Info), allocatable :: bundle_info(:)
       type(ESMF_FieldBundle), intent(in) :: bundle
@@ -322,7 +324,7 @@ contains
       call ESMF_FieldBundleGet(bundle, fieldList=fields, _RC)
       allocate(bundle_info(field_count))
       do i=1, field_count
-         call ESMF_InfoGetFromHost(field, info, _RC)
+         call ESMF_InfoGetFromHost(fields(i), info, _RC)
          bundle_info(i) = info
       end do
       _RETURN(_SUCCESS)
