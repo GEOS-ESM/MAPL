@@ -36,8 +36,8 @@ module pFIO_ClientManagerMod
      integer :: large_total = 0
      integer :: small_total = 0
    contains
-      procedure :: add_ext_collection
-      procedure :: add_hist_collection
+      procedure :: add_read_data_collection
+      procedure :: add_write_data_collection
       procedure :: modify_metadata
       procedure :: replace_metadata
       procedure :: modify_metadata_all
@@ -113,10 +113,10 @@ contains
       _UNUSED_DUMMY(unusable)
    end function new_ClientManager
 
-   function add_ext_collection(this, template, unusable, rc) result(collection_id)
+   function add_read_data_collection(this, template, unusable, rc) result(collection_id)
       integer :: collection_id
       class (ClientManager), intent(inout) :: this
-      character(len=*), intent(in) :: template
+      character(len=*), intent(in) :: template ! filename template
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
       class (ClientThread), pointer :: clientPtr
@@ -125,14 +125,14 @@ contains
 
       do i = 1, this%size()
          ClientPtr => this%clients%at(i)
-         collection_id = clientPtr%add_ext_collection(template)
+         collection_id = clientPtr%add_read_data_collection(template)
       enddo
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function add_ext_collection
+   end function add_read_data_collection
 
-   function add_hist_collection(this, fmd, unusable,mode, rc) result(hist_collection_id)
+   function add_write_data_collection(this, fmd, unusable,mode, rc) result(hist_collection_id)
       integer :: hist_collection_id
       class (ClientManager), intent(inout) :: this
       type(FileMetadata),intent(in) :: fmd
@@ -144,12 +144,12 @@ contains
 
       do i = 1, this%size()
          ClientPtr => this%clients%at(i)
-         hist_collection_id = clientPtr%add_hist_collection(fmd, mode=mode)
+         hist_collection_id = clientPtr%add_write_data_collection(fmd, mode=mode)
       enddo
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function add_hist_collection
+   end function add_write_data_collection
 
    subroutine prefetch_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start, rc)

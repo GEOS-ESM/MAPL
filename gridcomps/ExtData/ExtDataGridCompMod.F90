@@ -984,7 +984,7 @@ CONTAINS
       call GetLevs(item,time,self%ExtDataState,self%allowExtrap,_RC)
       call ESMF_VMBarrier(vm)
       ! register collections
-      item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file))
+      item%iclient_collection_id=i_clients%add_read_data_collection(trim(item%file))
       ! create interpolating fields, check if the vertical levels match the file
       if (item%vartype == MAPL_FieldItem) then
 

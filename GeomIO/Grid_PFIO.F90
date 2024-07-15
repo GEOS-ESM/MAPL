@@ -75,10 +75,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine stage_data_to_file
 
-   subroutine request_data_from_file(this, file_name, state, rc)
+   subroutine request_data_from_file(this, filename, state, rc)
       ! Arguments
       class(GridPFIO), intent(inout) :: this
-      character(len=*), intent(in) :: file_name
+      character(len=*), intent(in) :: filename
       type(ESMF_State), intent(inout) :: state
       integer, intent(out), optional :: rc
 
@@ -120,7 +120,7 @@ contains
          ref = ArrayReference(address, pfio_typekind, new_element_count)
          call i_Clients%collective_prefetch_data( &
               collection_id, &
-              file_name, &
+              filename, &
               var_name, &
               ref, &
               start=local_start, &

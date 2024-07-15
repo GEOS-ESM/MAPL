@@ -38,11 +38,11 @@ module mapl3g_GeomPFIO
         integer, intent(out), optional :: rc
      end subroutine I_stage_data_to_file
 
-     subroutine I_request_data_from_file(this, file_name, state, rc)
+     subroutine I_request_data_from_file(this, filename, state, rc)
         use esmf
         import GeomPFIO
         class(GeomPFIO), intent(inout) :: this
-        character(len=*), intent(in) :: file_name
+        character(len=*), intent(in) :: filename
         type(ESMF_State), intent(inout) :: state
         integer, intent(out), optional :: rc
      end subroutine I_request_data_from_file
@@ -91,21 +91,21 @@ contains
       integer :: status
 
       this%mapl_geom => mapl_geom
-      this%collection_id = o_Clients%add_hist_collection(metadata, _RC)
+      this%collection_id = o_Clients%add_write_data_collection(metadata, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine init_with_metadata
 
-   subroutine init_with_filename(this, file_name, mapl_geom,  rc)
+   subroutine init_with_filename(this, filename, mapl_geom,  rc)
       class(GeomPFIO), intent(inout) :: this
-      character(len=*), intent(in) :: file_name
+      character(len=*), intent(in) :: filename
       type(MaplGeom), intent(in), pointer :: mapl_geom
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       this%mapl_geom => mapl_geom
-      this%collection_id = i_Clients%add_ext_collection(file_name, _RC)
+      this%collection_id = i_Clients%add_read_data_collection(filename, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine init_with_filename

@@ -182,7 +182,7 @@ module MAPL_ESMFFieldBundleRead
          call fill_grads_template(file_name,file_tmpl,time=time,rc=status)
          _VERIFY(status)
 
-         collection_id=i_clients%add_ext_collection(trim(file_tmpl))
+         collection_id=i_clients%add_read_data_collection(trim(file_tmpl))
 
          metadata_id = MAPL_DataAddCollection(trim(file_tmpl))
          collection => DataCollections%at(metadata_id)

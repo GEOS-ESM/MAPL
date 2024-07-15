@@ -344,8 +344,8 @@ contains
       ! get the input first
 
       icPtr => this%ic_vec%at(1)
-      collection_id = icPtr%add_ext_collection('collection-i')
-      !collection_id = this%i_c%add_ext_collection('collection-i')
+      collection_id = icPtr%add_read_data_collection('collection-i')
+      !collection_id = this%i_c%add_read_data_collection('collection-i')
 
       allocate(prefetch_ids(this%vars%size()))
 
@@ -388,10 +388,10 @@ contains
          enddo
 
          ocPtr=> this%oc_vec%at(1)
-         this%hist_collection_ids(1) = ocPtr%add_hist_collection(fmd)
-         this%hist_collection_ids(2) = ocPtr%add_hist_collection(fmd)
+         this%hist_collection_ids(1) = ocPtr%add_write_data_collection(fmd)
+         this%hist_collection_ids(2) = ocPtr%add_write_data_collection(fmd)
 
-         !this%hist_collection_ids(1) = this%o_c%add_hist_collection(fmd)
+         !this%hist_collection_ids(1) = this%o_c%add_write_data_collection(fmd)
          collection_num = 2
          allocate(stage_ids(this%vars%size(),collection_num))
 
