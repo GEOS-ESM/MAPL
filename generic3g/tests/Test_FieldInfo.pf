@@ -33,9 +33,10 @@ contains
       call ungridded_dims%add_dim(UngriddedDim('a', 'm', [1.,2.]))
       call ungridded_dims%add_dim(UngriddedDim('b', 's', [1.,2.,3.]))
 
-      spec = FieldSpec(geom, vertical_geom, VERTICAL_DIM_CENTER, &
-           ESMF_TYPEKIND_R4, ungridded_dims, &
-           't', 'p', 'unknown')
+      spec = FieldSpec(geom=geom, vertical_geom=vertical_geom, &
+           vertical_dim_spec=VERTICAL_DIM_CENTER, &
+           typekind=ESMF_TYPEKIND_R4, ungridded_dims=ungridded_dims, &
+           standard_name='t', long_name='p', units='unknown')
 
       f = ESMF_FieldCreate(geom, ESMF_TYPEKIND_R4, ungriddedLbound=[1,1], ungriddedUbound=[2,3], _RC)
       call spec%set_info(f, _RC)
