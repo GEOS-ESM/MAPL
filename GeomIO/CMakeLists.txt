@@ -11,7 +11,7 @@ set(srcs
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.geom_mgr MAPL.pfio MAPL.base MAPL.shared MAPL.hconfig_utils GFTL::gftl-v2
+  DEPENDENCIES MAPL.geom_mgr MAPL.pfio MAPL.base MAPL.shared MAPL.generic3g MAPL.hconfig_utils GFTL::gftl-v2
   TYPE SHARED
   )
 
@@ -19,7 +19,7 @@ target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 target_link_libraries (${this} PUBLIC ESMF::ESMF)
 
- #if (PFUNIT_FOUND)
-   #add_subdirectory(tests EXCLUDE_FROM_ALL)
- #endif ()
+if (PFUNIT_FOUND)
+   add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif ()
 
