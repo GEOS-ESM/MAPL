@@ -15,39 +15,30 @@ contains
       integer, optional, intent(out) :: rc
 
       ! Locals
-      type(GriddedComponentDriverMapIterator) :: iter
-      type(GriddedComponentDriver), pointer :: child
-      character(:), allocatable :: child_name
-      type(ESMF_GridComp) :: child_outer_gc
-      type(OuterMetaComponent), pointer :: child_outer_meta
-      type(MultiState) :: child_states
-      type(ESMF_State) :: child_internal_state, child_import_state
-      type(ESMF_Geom) :: child_geom
-      type(ESMF_Clock) :: child_clock
+      type(GriddedComponentDriver), pointer :: driver
+      type(ESMF_GridComp) :: gc
+      character(:), allocatable :: name
+      type(MultiState) :: states
+      type(ESMF_State) :: internal_state, import_state
+      type(ESMF_Geom) :: geom
       type(Restart) :: rstrt
       integer :: status
 
-      associate(e => this%children%end())
-        iter = this%children%begin()
-        do while (iter /= e)
-           child_name = iter%first()
-           if (child_name /= "HIST") then
-              child => iter%second()
-              child_clock = child%get_clock()
-              child_outer_gc = child%get_gridcomp()
-              child_outer_meta => get_outer_meta(child_outer_gc, _RC)
-              child_geom = child_outer_meta%get_geom()
-              rstrt = Restart(child_name, child_geom, child_clock, _RC)
-              child_internal_state = child_outer_meta%get_internal_state()
-              call rstrt%read("internal", child_internal_state, _RC)
-              child_states = child%get_states()
-              call child_states%get_state(child_import_state, "import", _RC)
-              call rstrt%read("import", child_import_state, _RC)
-              call child%read_restart(_RC)
-           end if
-           call iter%next()
-        end do
-      end associate
+      driver => this%get_user_gc_driver()
+      name = driver%get_name()
+      if ((name /= "cap") .and. (name /= "HIST")) then
+         gc = driver%get_gridcomp()
+         geom = this%get_geom()
+         states = driver%get_states()
+         call states%get_state(import_state, "import", _RC)
+         call states%get_state(internal_state, "internal", _RC)
+         rstrt = Restart(name, geom, clock, _RC)
+         call rstrt%read("import", import_state, _RC)
+         call rstrt%read("internal", internal_state, _RC)
+      end if
+      if (name /= "HIST") then
+         call recurse_read_restart(this, _RC)
+      end if
 
       _RETURN(ESMF_SUCCESS)
    end subroutine read_restart

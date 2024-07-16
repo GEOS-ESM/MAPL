@@ -280,6 +280,16 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine recurse_
    
+      module recursive subroutine recurse_read_restart_(this, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine recurse_read_restart_
+
+      module recursive subroutine recurse_write_restart_(this, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine recurse_write_restart_
+
       module subroutine apply_to_children_custom(this, oper, rc)
          class(OuterMetaComponent), intent(inout) :: this
          procedure(I_child_op) :: oper
@@ -417,6 +427,14 @@ module mapl3g_OuterMetaComponent
    interface recurse
       module procedure recurse_
    end interface recurse
+
+   interface recurse_read_restart
+      module procedure recurse_read_restart_
+   end interface recurse_read_restart
+
+   interface recurse_write_restart
+      module procedure recurse_write_restart_
+   end interface recurse_write_restart
 
    interface apply_to_children
       module procedure apply_to_children_custom
