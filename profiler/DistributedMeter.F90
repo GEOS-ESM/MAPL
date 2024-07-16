@@ -1,7 +1,9 @@
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module MAPL_DistributedMeter
    use, intrinsic :: iso_fortran_env, only: REAL64
+   use mapl_ErrorHandlingMod
    use MAPL_AbstractMeter
    use MAPL_AdvancedMeter
    use MAPL_AbstractGauge
@@ -140,6 +142,7 @@ contains
 
       type (DistributedMeter) :: dummy
       logical :: commute
+      integer :: ierr, rc
       
       call dummy%make_mpi_type(dummy%statistics, type_dist_struct, ierror)
       call MPI_Type_commit(type_dist_struct, ierror)
@@ -274,7 +277,7 @@ contains
       integer, intent(in) :: comm
       real(kind=REAL64), intent(in) :: exclusive
 
-      integer :: ierror
+      integer :: ierror, rc
 
       integer :: rank
       type(DistributedStatistics) :: tmp
@@ -304,6 +307,7 @@ contains
 
       integer(kind=MPI_ADDRESS_KIND) :: displacements(2)
       integer(kind=MPI_ADDRESS_KIND) :: lb, sz
+      integer :: rc
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(r64)
@@ -324,6 +328,7 @@ contains
       integer, intent(out) :: ierror
 
       integer(kind=MPI_ADDRESS_KIND) :: displacements(1)
+      integer :: rc
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(int)
@@ -342,6 +347,7 @@ contains
 
       integer(kind=MPI_ADDRESS_KIND) :: displacements(2)
       integer(kind=MPI_ADDRESS_KIND) :: lb, sz, sz2
+      integer :: rc
 
       _UNUSED_DUMMY(d)
       call this%make_mpi_type(this%statistics%total, type_dist_real64, ierror)

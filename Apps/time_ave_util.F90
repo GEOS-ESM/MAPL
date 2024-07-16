@@ -5,6 +5,7 @@ program  time_ave
 
    use ESMF
    use MAPL
+   use MAPL_BaseMod
    use MAPL_FileMetadataUtilsMod
    use gFTL_StringVector
    use MPI

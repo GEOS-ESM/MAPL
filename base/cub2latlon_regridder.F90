@@ -559,7 +559,7 @@ contains
       integer :: p
       integer, allocatable :: counts(:)
       integer, allocatable :: displs(:)
-      integer :: ierror
+      integer :: ierror, rc
 
       allocate(counts(0:pet_count-1))
       allocate(displs(0:pet_count-1))

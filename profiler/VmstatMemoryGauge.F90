@@ -1,3 +1,4 @@
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 module MAPL_VmstatMemoryGauge
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
@@ -40,9 +41,10 @@ contains
       _UNUSED_DUMMY(this)
       block
         use MPI
+       ! use mapl_ErrorHandlingMod
         integer :: rank, ierror
         call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
-        _VERIFY(ierror)
+       ! _VERIFY(ierror)
         allocate(character(4) :: tmp_file)
         write(tmp_file,'(i4.4)')rank
         tmp_file = 'tmp_' // tmp_file // '.dat'

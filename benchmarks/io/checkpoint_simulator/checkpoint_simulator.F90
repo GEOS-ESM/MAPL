@@ -65,7 +65,7 @@ contains
       type(ESMF_Config) :: config
 
       logical :: is_present
-      integer :: comm_size, status,error_code
+      integer :: comm_size, status,error_code, rc
 
       config = ESMF_ConfigCreate()
       this%extra_info = .false.
@@ -183,7 +183,7 @@ contains
       integer, allocatable :: seeds(:)
 
       call MPI_COMM_RANK(MPI_COMM_WORLD,rank,status)
-      _VERIFY(status)
+      !_VERIFY(status)
       call random_seed(size=seed_size)
       allocate(seeds(seed_size))
       seeds = rank
@@ -204,7 +204,7 @@ contains
       class(test_support), intent(inout) :: this
 
       integer, allocatable :: ims(:),jms(:)
-      integer :: rank, status,comm_size,n,i,j,rank_counter,offset,index_offset
+      integer :: rank, status,comm_size,n,i,j,rank_counter,offset,index_offset, rc
 
       call MPI_Comm_Rank(MPI_COMM_WORLD,rank,status)
       _VERIFY(status)
@@ -258,7 +258,7 @@ contains
   subroutine create_communicators(this)
      class(test_support), intent(inout) :: this
 
-     integer :: myid,status,nx0,ny0,color,j,ny_by_writers,local_ny,key
+     integer :: myid,status,nx0,ny0,color,j,ny_by_writers,local_ny,key,rc
 
      local_ny = this%ny*6
      call MPI_Comm_Rank(mpi_comm_world,myid,status)
@@ -299,7 +299,7 @@ contains
   subroutine close_file(this)
      class(test_support), intent(inout) :: this
 
-     integer :: status
+     integer :: status, rc
 
      integer(kind=INT64) :: sub_start,sub_end
 
@@ -321,7 +321,7 @@ contains
   subroutine create_file(this)
      class(test_support), intent(inout) :: this
 
-     integer :: status
+     integer :: status,rc
      integer :: info
      integer :: xdim,ydim,zdim,i,varid,create_mode
      character(len=:), allocatable :: fname
@@ -405,7 +405,7 @@ contains
 
   subroutine write_file(this)
      class(test_support), intent(inout) :: this
-     integer :: status,i,l
+     integer :: status,i,l,rc
 
      integer(kind=INT64) :: sub_start,sub_end
 
@@ -437,7 +437,7 @@ contains
      class(test_support), intent(inout) :: this
      character(len=*), intent(in) :: var_name
      real, intent(in) :: local_var(:,:,:)
-     integer :: status
+     integer :: status,rc
      real,  allocatable :: recvbuf(:)
      integer                               :: I,J,N,K,L,myrow,myiorank,ndes_x
      integer                               :: start(3), cnt(3)
@@ -557,7 +557,7 @@ contains
      character(len=*), intent(in) :: var_name
      real, intent(in) :: local_var(:,:)
      integer, intent(in) :: z_index
-     integer :: status
+     integer :: status, rc
      real,  allocatable :: recvbuf(:)
      integer                               :: I,J,N,K,L,myrow,myiorank,ndes_x
      integer                               :: start(3), cnt(3)
@@ -673,15 +673,17 @@ contains
 end module
 
 #include "MAPL_ErrLog.h"
+#include "unused_dummy.H"
 program checkpoint_tester
    use ESMF
+   use MAPL_ErrorHandlingMod
    use MPI
    use NetCDF
    use mapl_checkpoint_support_mod
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
    implicit NONE
 
-   integer :: status,rank,writer_size,writer_rank,comm_size,i
+   integer :: status,rank,writer_size,writer_rank,comm_size,i,rc
    type(test_support) :: support
    integer(kind=INT64) :: start_write,end_time,count_rate,start_app,end_app
    real(kind=REAL64) :: time_sum,write_time,create_time,close_time,write_3d_time,write_2d_time
@@ -693,29 +695,29 @@ program checkpoint_tester
 
    call system_clock(count=start_app,count_rate=count_rate)
    call MPI_Init(status)
-   _VERIFY(status)
+   !_VERIFY(status)
    call MPI_Barrier(MPI_COMM_WORLD,status)
-   _VERIFY(status)
+   !_VERIFY(status)
 
    call MPI_Comm_Rank(MPI_COMM_WORLD,rank,status)
-   _VERIFY(status)
+   !_VERIFY(status)
    call MPI_Comm_Size(MPI_COMM_WORLD,comm_size,status)
-   _VERIFY(status)
+   !_VERIFY(status)
    call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE,mpiCommunicator=MPI_COMM_WORLD)
    call MPI_Barrier(MPI_COMM_WORLD,status)
-   _VERIFY(status)
+   !_VERIFY(status)
 
    call support%set_parameters("checkpoint_benchmark.rc")
    call MPI_Barrier(MPI_COMM_WORLD,status)
-   _VERIFY(status)
+   !_VERIFY(status)
 
    call support%create_arrays()
    call MPI_Barrier(MPI_COMM_WORLD,status)
-   _VERIFY(status)
+   !_VERIFY(status)
 
    call support%create_communicators()
    call MPI_Barrier(MPI_COMM_WORLD,status)
-   _VERIFY(status)
+   !_VERIFY(status)
 
    allocate(total_throughput(support%n_trials))
    allocate(all_proc_throughput(support%n_trials))
@@ -725,18 +727,18 @@ program checkpoint_tester
 
       call system_clock(count=start_write)
       call MPI_Barrier(MPI_COMM_WORLD,status)
-      _VERIFY(status)
+      !_VERIFY(status)
       if (support%do_writes) call support%create_file()
       call MPI_Barrier(MPI_COMM_WORLD,status)
-      _VERIFY(status)
+      !_VERIFY(status)
 
       call support%write_file()
       call MPI_Barrier(MPI_COMM_WORLD,status)
-      _VERIFY(status)
+      !_VERIFY(status)
 
       if (support%do_writes) call support%close_file()
       call MPI_Barrier(MPI_COMM_WORLD,status)
-      _VERIFY(status)
+      !_VERIFY(status)
 
       call system_clock(count=end_time)
       write_time = real(end_time-start_write,kind=REAL64)/real(count_rate,kind=REAL64)
@@ -748,14 +750,14 @@ program checkpoint_tester
 
       if (support%write_counter > 0) then
          call MPI_COMM_SIZE(support%writers_comm,writer_size,status)
-         _VERIFY(status)
+         !_VERIFY(status)
          call MPI_COMM_RANK(support%writers_comm,writer_rank,status)
-         _VERIFY(status)
+         !_VERIFY(status)
          call MPI_AllReduce(support%data_volume,average_volume,1,MPI_DOUBLE_PRECISION,MPI_SUM,support%writers_comm,status)
-         _VERIFY(status)
+         !_VERIFY(status)
          average_volume = average_volume/real(writer_size,kind=REAL64)
          call MPI_AllReduce(support%time_writing,average_time,1,MPI_DOUBLE_PRECISION,MPI_SUM,support%writers_comm,status)
-         _VERIFY(status)
+         !_VERIFY(status)
          average_time = average_time/real(writer_size,kind=REAL64)
       end if
       if (rank == 0) then
