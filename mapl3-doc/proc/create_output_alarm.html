@@ -163,7 +163,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~144"></span>
+              <span class="anchor" id="variable-clock~43"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
             </td>
 <td>intent(inout)</td>
@@ -178,7 +178,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-hconfig~134"></span>
+              <span class="anchor" id="variable-hconfig~33"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_hconfig.html'>ESMF_HConfig</a>),
             </td>
 <td>intent(in)</td>
@@ -193,7 +193,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-comp_name~57"></span>
+              <span class="anchor" id="variable-comp_name~12"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -208,7 +208,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~3081"></span>
+              <span class="anchor" id="variable-rc~868"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -765,7 +765,7 @@ large graphs.</div>
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">create_output_alarm</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">comp_name</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">create_output_alarm</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">comp_name</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
 <span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comp_name</span>
@@ -788,23 +788,23 @@ large graphs.</div>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_frequency</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">         </span><span class="n">time_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hconfig_to_esmf_timeinterval</span><span class="p">(</span><span class="n">time_hconfig</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;frequency&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">      </span><span class="k">end if</span>
-<span class="k">    </span>
-<span class="k">      </span><span class="n">int_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span>
-<span class="w">      </span><span class="n">has_ref_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">time_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="s1">&#39;ref_time&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span>
+
+<span class="k">      </span><span class="n">int_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="n">has_ref_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">time_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="s1">&#39;ref_time&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_ref_time</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">         </span><span class="n">iso_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsString</span><span class="p">(</span><span class="n">time_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="s1">&#39;ref_time&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">         </span><span class="n">int_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">string_to_integer_time</span><span class="p">(</span><span class="n">iso_time</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">      </span><span class="k">end if</span>
-<span class="k">      </span>
-<span class="k">      call </span><span class="n">MAPL_UnpackTime</span><span class="p">(</span><span class="n">int_time</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span>
+
+<span class="k">      call </span><span class="n">MAPL_UnpackTime</span><span class="p">(</span><span class="n">int_time</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">)</span>
 <span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="n">yy</span><span class="o">=</span><span class="n">yy</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="n">mm</span><span class="p">,</span><span class="w"> </span><span class="n">dd</span><span class="o">=</span><span class="n">dd</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">first_ring_time</span><span class="p">,</span><span class="w"> </span><span class="n">yy</span><span class="o">=</span><span class="n">yy</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="n">mm</span><span class="p">,</span><span class="w"> </span><span class="n">dd</span><span class="o">=</span><span class="n">dd</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">     </span>
+
 <span class="w">      </span><span class="c">! These 2 lines are borrowed from old History. Unforunately until ESMF alarms</span>
 <span class="w">      </span><span class="c">! get fixed kluges like this are neccessary so alarms will acutally ring</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">first_ring_time</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">startTime</span><span class="p">)</span><span class="w"> </span><span class="n">first_ring_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">first_ring_time</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">time_interval</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">first_ring_time</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">currTime</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">           </span><span class="n">first_ring_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">first_ring_time</span><span class="w"> </span><span class="o">+</span><span class="p">(</span><span class="nb">INT</span><span class="p">((</span><span class="n">currTime</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">first_ring_time</span><span class="p">)</span><span class="o">/</span><span class="n">time_interval</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">time_interval</span><span class="w"> </span>
+<span class="w">           </span><span class="n">first_ring_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">first_ring_time</span><span class="w"> </span><span class="o">+</span><span class="p">(</span><span class="nb">INT</span><span class="p">((</span><span class="n">currTime</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">first_ring_time</span><span class="p">)</span><span class="o">/</span><span class="n">time_interval</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">time_interval</span>
 
 <span class="w">      </span><span class="nb">alarm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_AlarmCreate</span><span class="p">(</span><span class="n">clock</span><span class="o">=</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">RingInterval</span><span class="o">=</span><span class="n">time_interval</span><span class="p">,</span><span class="w"> </span><span class="n">RingTime</span><span class="o">=</span><span class="n">first_ring_time</span><span class="p">,</span><span class="w"> </span><span class="n">sticky</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">comp_name</span><span class="o">//</span><span class="s2">&quot;_write_alarm&quot;</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
@@ -833,7 +833,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-07-15T19:45:14.413842             </p>
+ on 2024-07-16T19:36:13.623899             </p>
           </div>
         </div>
         <br>

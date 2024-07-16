@@ -2,6 +2,8 @@ module Test_FieldSpec
    use funit
    use mapl3g_FieldSpec
    use mapl3g_UngriddedDims
+   use mapl3g_UngriddedDim
+   use mapl3g_UngriddedDimVector
    use mapl3g_VerticalDimSpec
    use mapl3g_VerticalGeom
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
@@ -55,7 +57,7 @@ contains
 
       call import_attributes%push_back('radius')
 
-      
+
       import_spec = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
@@ -72,7 +74,7 @@ contains
       @assert_that(import_spec%can_connect_to(export_spec), is(false()))
 
    end subroutine test_mismatched_attribute
-   
+
    @test
    ! Only the import attributes need to match. Not all.
    subroutine test_matched_attribute()
@@ -84,7 +86,7 @@ contains
       call import_attributes%push_back('radius')
       call export_attributes%push_back('radius')
       call export_attributes%push_back('other')
-      
+
       import_spec = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
@@ -118,7 +120,7 @@ contains
       call export_attributes%push_back('other2')
       call export_attributes%push_back('diameter')
 
-      
+
       import_spec = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
@@ -205,7 +207,7 @@ contains
            units='m')
 
       @assert_that(import_spec%can_connect_to(export_spec), is(true()))
-      
+
    end subroutine test_same_units
 
    @test
@@ -214,7 +216,7 @@ contains
       type(FieldSpec) :: export_spec
       type(ESMF_Geom) :: geom
 
-      
+
       import_spec = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
@@ -229,7 +231,40 @@ contains
            units='m')
 
       @assert_that(import_spec%can_connect_to(export_spec), is(true()))
-      
+
    end subroutine test_mirror_units
+
+   @test
+   subroutine test_mirror_ungridded_dims()
+      type(FieldSpec) :: import_spec
+      type(FieldSpec) :: export_spec
+      type(ESMF_Geom) :: geom
+
+      type(UngriddedDims) :: mirror_ungrid, export_dims
+      type(UngriddedDimVector) :: ungrid_dims
+      type(UngriddedDim) :: ungrid_dim
+
+      mirror_ungrid = mirror_ungridded_dims()
+      ungrid_dim = UngriddedDim(2)
+      call ungrid_dims%push_back(ungrid_dim)
+      export_dims = UngriddedDims(ungrid_dims)
+
+      import_spec = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = mirror_ungrid, &
+           standard_name='A', long_name='AA', attributes=StringVector(), &
+           units='m')
+
+      export_spec = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = export_dims, &
+           standard_name='A', long_name='AA', attributes=StringVector(), &
+           units='m')
+
+      @assert_that(import_spec%can_connect_to(export_spec), is(true()))
+
+   end subroutine test_mirror_ungridded_dims
 
 end module Test_FieldSpec

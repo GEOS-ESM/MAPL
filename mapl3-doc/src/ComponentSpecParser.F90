@@ -28,7 +28,7 @@ module mapl3g_ComponentSpecParser
    implicit none
    private
 
-   ! 
+   !
    public :: parse_component_spec
 
    ! The following interfaces are public only for testing purposes.
@@ -54,7 +54,9 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: KEY_DEFAULT_VALUE = 'default_value'
    character(*), parameter :: KEY_UNGRIDDED_DIMS = 'ungridded_dims'
    character(*), parameter :: KEY_UNGRIDDED_DIM_NAME = 'dim_name'
+   character(*), parameter :: KEY_UNGRIDDED_DIM_UNITS = 'dim_units'
    character(*), parameter :: KEY_UNGRIDDED_DIM_EXTENT = 'extent'
+   character(*), parameter :: KEY_UNGRIDDED_DIM_COORDINATES = 'coordinates'
    character(*), parameter :: KEY_VERTICAL_DIM_SPEC = 'vertical_dim_spec'
 
    !>
@@ -103,5 +105,5 @@ module mapl3g_ComponentSpecParser
       end function parse_child
 
    END INTERFACE
-   
+
 end module mapl3g_ComponentSpecParser
