@@ -219,8 +219,8 @@ contains
 
    end function make_ungridded_dims
 
-   function make_ungridded_dim(info, n, rc)
-      type(UngriddedDim) :: make_ungridded_dim
+   function make_ungridded_dim(info, n, rc) result(ungridded_dim)
+      type(UngriddedDim) :: ungridded_dim
       integer, intent(in) :: n
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
@@ -244,7 +244,7 @@ contains
       call ESMF_InfoGetCharAlloc(dim_info, key=KEY_UNGRIDDED_UNITS, value=units, _RC)
       call ESMF_InfoGetAlloc(dim_info, key=KEY_UNGRIDDED_COORD, values=coordinates, _RC)
       call ESMF_InfoDestroy(dim_info, _RC)
-      make_ungridded_dim = UngriddedDim(coordinates, name=name, units=units)
+      ungridded_dim = UngriddedDim(coordinates, name=name, units=units)
       _RETURN(_SUCCESS)
 
    end function make_ungridded_dim

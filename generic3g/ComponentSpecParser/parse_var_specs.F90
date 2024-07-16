@@ -228,7 +228,7 @@ contains
             has_units = ESMF_HConfigIsDefined(dim_spec,keyString=KEY_UNGRIDDED_DIM_UNITS)
             has_extent = ESMF_HConfigIsDefined(dim_spec,keyString=KEY_UNGRIDDED_DIM_EXTENT)
             has_coordinates = ESMF_HConfigIsDefined(dim_spec,keyString=KEY_UNGRIDDED_DIM_COORDINATES)
-            _ASSERT(.not.(has_units .and. has_coordinates), "Both extent and coordinates specified")
+            _ASSERT(.not.(has_extent .and. has_coordinates), "Both extent and coordinates specified")
             if (has_name) then
                dim_name = ESMF_HConfigAsString(dim_spec, keyString=KEY_UNGRIDDED_DIM_NAME, _RC)
             end if
