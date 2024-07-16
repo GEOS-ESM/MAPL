@@ -25,13 +25,13 @@ contains
       real, allocatable :: coords(:)
       character(len=:), allocatable :: temp_string
       integer :: temp_int
-      
+
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
       vertical_geom = VerticalGeom(4)
 
-      call ungridded_dims%add_dim(UngriddedDim('a', 'm', [1.,2.]))
-      call ungridded_dims%add_dim(UngriddedDim('b', 's', [1.,2.,3.]))
+      call ungridded_dims%add_dim(UngriddedDim([1.,2.], name='a', units='m'))
+      call ungridded_dims%add_dim(UngriddedDim([1.,2.,3.], name='b', units='s'))
 
       spec = FieldSpec(geom=geom, vertical_geom=vertical_geom, &
            vertical_dim_spec=VERTICAL_DIM_CENTER, &

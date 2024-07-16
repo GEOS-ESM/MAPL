@@ -87,6 +87,7 @@ module mapl3g_FieldSpec
       procedure :: match_typekind
       procedure :: match_string
       procedure :: match_vertical_dim_spec
+      procedure :: match_ungridded_dims
    end interface match
 
    interface can_match
@@ -148,9 +149,9 @@ contains
 !#      type(ExtraDimsSpec), intent(in) :: ungridded_dims
 !#      type(ESMF_Geom), intent(in) :: geom
 !#      character(*), intent(in) :: units
-!#      
+!#
 !#      field_spec = FieldSpec(ungridded_dims, ESMF_TYPEKIND_R4, geom, units)
-!#      
+!#
 !#   end function new_FieldSpec_defaults
 !#
 
@@ -239,7 +240,7 @@ contains
       end if
 
       call this%set_info(this%payload, _RC)
-   
+
       _RETURN(ESMF_SUCCESS)
 
    contains
@@ -250,36 +251,36 @@ contains
          real(kind=ESMF_KIND_R8), pointer :: x_r8_1d(:),x_r8_2d(:,:),x_r8_3d(:,:,:),x_r8_4d(:,:,:,:)
          integer :: status, rank
 
-         call ESMF_FieldGet(this%payload,rank=rank,_RC) 
+         call ESMF_FieldGet(this%payload,rank=rank,_RC)
          if (this%typekind == ESMF_TYPEKIND_R4) then
             if (rank == 1) then
                call ESMF_FieldGet(this%payload,farrayptr=x_r4_1d,_RC)
-               x_r4_1d = this%default_value   
+               x_r4_1d = this%default_value
             else if (rank == 2) then
                call ESMF_FieldGet(this%payload,farrayptr=x_r4_2d,_RC)
-               x_r4_2d = this%default_value   
+               x_r4_2d = this%default_value
             else if (rank == 3) then
                call ESMF_FieldGet(this%payload,farrayptr=x_r4_3d,_RC)
-               x_r4_3d = this%default_value   
+               x_r4_3d = this%default_value
             else if (rank == 4) then
                call ESMF_FieldGet(this%payload,farrayptr=x_r4_4d,_RC)
-               x_r4_4d = this%default_value   
+               x_r4_4d = this%default_value
             else
                _FAIL('unsupported rank')
             end if
          else if (this%typekind == ESMF_TYPEKIND_R8) then
             if (rank == 1) then
                call ESMF_FieldGet(this%payload,farrayptr=x_r8_1d,_RC)
-               x_r8_1d = this%default_value   
+               x_r8_1d = this%default_value
             else if (rank == 2) then
                call ESMF_FieldGet(this%payload,farrayptr=x_r8_2d,_RC)
-               x_r8_2d = this%default_value   
+               x_r8_2d = this%default_value
             else if (rank == 3) then
                call ESMF_FieldGet(this%payload,farrayptr=x_r8_3d,_RC)
-               x_r8_3d = this%default_value   
+               x_r8_3d = this%default_value
             else if (rank == 4) then
                call ESMF_FieldGet(this%payload,farrayptr=x_r8_4d,_RC)
-               x_r8_4d = this%default_value   
+               x_r8_4d = this%default_value
             else
                _FAIL('unsupported rank')
             end if
@@ -288,7 +289,7 @@ contains
          end if
          _RETURN(ESMF_SUCCESS)
       end subroutine set_field_default
-            
+
    end subroutine allocate
 
    function get_ungridded_bounds(this, rc) result(bounds)
@@ -343,6 +344,7 @@ contains
          procedure :: mirror_string
          procedure :: mirror_real
          procedure :: mirror_vertical_dim_spec
+         procedure :: mirror_ungriddedDims
       end interface mirror
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
@@ -357,6 +359,7 @@ contains
          call mirror(dst=this%units, src=src_spec%units)
          call mirror(dst=this%vertical_dim_spec, src=src_spec%vertical_dim_spec)
          call mirror(dst=this%default_value, src=src_spec%default_value)
+         call mirror(dst=this%ungridded_dims, src=src_spec%ungridded_dims)
 
       class default
          _FAIL('Cannot connect field spec to non field spec.')
@@ -366,6 +369,7 @@ contains
       _UNUSED_DUMMY(actual_pt)
 
    contains
+
       
       subroutine mirror_geom(dst, src)
          type(ESMF_Geom), allocatable, intent(inout) :: dst, src
@@ -384,6 +388,7 @@ contains
          _ASSERT(MAPL_SameGeom(dst, src), 'cannot connect mismatched geom without coupler.')
 
       end subroutine mirror_geom
+
 
       subroutine mirror_typekind(dst, src)
          type(ESMF_TypeKind_Flag), intent(inout) :: dst, src
@@ -449,6 +454,24 @@ contains
 
       end subroutine mirror_real
 
+      subroutine mirror_ungriddedDims(dst, src)
+         type(UngriddedDims), intent(inout) :: dst, src
+
+         type(UngriddedDims) :: mirror_dims
+         mirror_dims = mirror_ungridded_dims()
+
+         if (dst == src) return
+
+         if (dst == mirror_dims) then
+            dst = src
+         end if
+
+         if (src == mirror_dims) then
+            src = dst
+         end if
+
+      end subroutine mirror_ungriddedDims
+
    end subroutine connect_to
 
 
@@ -467,7 +490,7 @@ contains
          can_connect_to = all ([ &
               can_match(this%geom,src_spec%geom), &
               match(this%vertical_dim_spec,src_spec%vertical_dim_spec), &
-              this%ungridded_dims == src_spec%ungridded_dims, & 
+              match(this%ungridded_dims,src_spec%ungridded_dims), &
               includes(this%attributes, src_spec%attributes), &
               can_convert_units_ &
               ])
@@ -635,13 +658,13 @@ contains
             action = CopyAction(this%payload, dst_spec%payload)
             _RETURN(_SUCCESS)
          end if
-         
+
          if (.not. match(this%units,dst_spec%units)) then
             deallocate(action)
             action = ConvertUnitsAction(this%payload, this%units, dst_spec%payload, dst_spec%units)
             _RETURN(_SUCCESS)
          end if
-         
+
       class default
          _FAIL('Dst spec is incompatible with FieldSpec.')
       end select
@@ -721,6 +744,18 @@ contains
 
    end function match_vertical_dim_spec
 
+   logical function match_ungridded_dims(a, b) result(match)
+      type(UngriddedDims), intent(in) :: a, b
+
+      type(UngriddedDims) :: mirror_dims
+      integer :: n_mirror
+
+      mirror_dims = MIRROR_UNGRIDDED_DIMS()
+      n_mirror = count([a == mirror_dims, b == mirror_dims])
+      match = (n_mirror == 1) .or. (n_mirror == 0 .and. a == b)
+
+   end function match_ungridded_dims
+
    logical function mirror(str)
       character(:), allocatable :: str
 
@@ -799,7 +834,7 @@ contains
    logical function update_item_string(a, b)
       character(:), allocatable, intent(inout) :: a
       character(:), allocatable, intent(in) :: b
-      
+
       update_item_string = .false.
       if (.not. match(a, b)) then
          a = b
