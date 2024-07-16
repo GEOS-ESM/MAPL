@@ -12,6 +12,7 @@ module mapl3g_HistoryCollectionGridComp_private
    use MAPL_BaseMod, only: MAPL_UnpackTime
    use mapl3g_output_info, only: get_num_levels, get_vertical_dim_spec_names
    use mapl3g_output_info, only: get_vertical_dim_spec_name, get_ungridded_dims
+   use mapl3g_UngriddedDims
    use gFTL2_StringSet
 
    implicit none
@@ -116,7 +117,7 @@ contains
       _RETURN(_SUCCESS)
    end function create_output_bundle
 
-   subroutine create_output_alarm(clock, hconfig, comp_name, rc) 
+   subroutine create_output_alarm(clock, hconfig, comp_name, rc)
       type(ESMF_Clock), intent(inout) :: clock
       type(ESMF_HConfig), intent(in) :: hconfig
       character(len=*), intent(in) :: comp_name
@@ -139,23 +140,23 @@ contains
       if (has_frequency) then
          time_interval = hconfig_to_esmf_timeinterval(time_hconfig, 'frequency', _RC)
       end if
-    
-      int_time = 0 
-      has_ref_time = ESMF_HConfigIsDefined(time_hconfig, keyString='ref_time', _RC) 
+
+      int_time = 0
+      has_ref_time = ESMF_HConfigIsDefined(time_hconfig, keyString='ref_time', _RC)
       if (has_ref_time) then
          iso_time = ESMF_HConfigAsString(time_hconfig, keyString='ref_time', _RC)
          int_time = string_to_integer_time(iso_time, _RC)
       end if
-      
-      call MAPL_UnpackTime(int_time, h, m, s) 
+
+      call MAPL_UnpackTime(int_time, h, m, s)
       call ESMF_TimeGet(currTime, yy=yy, mm=mm, dd=dd, _RC)
       call ESMF_TimeSet(first_ring_time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
-     
+
       ! These 2 lines are borrowed from old History. Unforunately until ESMF alarms
       ! get fixed kluges like this are neccessary so alarms will acutally ring
       if (first_ring_time == startTime) first_ring_time = first_ring_time + time_interval
       if (first_ring_time < currTime) &
-           first_ring_time = first_ring_time +(INT((currTime - first_ring_time)/time_interval)+1)*time_interval 
+           first_ring_time = first_ring_time +(INT((currTime - first_ring_time)/time_interval)+1)*time_interval
 
       alarm = ESMF_AlarmCreate(clock=clock, RingInterval=time_interval, RingTime=first_ring_time, sticky=.false., name=comp_name//"_write_alarm",  _RC)
 
@@ -178,18 +179,18 @@ contains
       has_start = ESMF_HConfigIsDefined(time_hconfig, keyString='start', _RC)
       has_stop = ESMF_HConfigIsDefined(time_hconfig, keyString='stop', _RC)
       if (has_start) then
-         time_string = ESMF_HConfigAsString(time_hconfig, keyString='start', _RC) 
+         time_string = ESMF_HConfigAsString(time_hconfig, keyString='start', _RC)
          call ESMF_TimeSet(start_stop_time(1), timeString=time_string, _RC)
       end if
       if (has_stop) then
-         time_string = ESMF_HConfigAsString(time_hconfig, keyString='stop', _RC) 
+         time_string = ESMF_HConfigAsString(time_hconfig, keyString='stop', _RC)
          call ESMF_TimeSet(start_stop_time(2), timeString=time_string, _RC)
       end if
       _RETURN(_SUCCESS)
    end function set_start_stop_time
 
    subroutine parse_item_expression(item, item_name, var_names, rc)
-      type(ESMF_HConfigIter), intent(in) :: item 
+      type(ESMF_HConfigIter), intent(in) :: item
       character(len=:), allocatable, intent(out) :: item_name
       type(StringVector), intent(out) :: var_names
       integer, optional, intent(out) :: rc
@@ -197,13 +198,13 @@ contains
       integer :: status
 
       call parse_item_common(item, item_name, expression, _RC)
-      var_names = get_expression_variables(expression, _RC) 
+      var_names = get_expression_variables(expression, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine parse_item_expression
 
    subroutine parse_item_simple(item, item_name, var_name, rc)
-      type(ESMF_HConfigIter), intent(in) :: item 
+      type(ESMF_HConfigIter), intent(in) :: item
       character(len=:), allocatable, intent(out) :: item_name
       character(len=:), allocatable, intent(out) :: var_name
       integer, optional, intent(out) :: rc
@@ -217,7 +218,7 @@ contains
    end subroutine parse_item_simple
 
    subroutine parse_item_common(item, item_name, expression, rc)
-      type(ESMF_HConfigIter), intent(in) :: item 
+      type(ESMF_HConfigIter), intent(in) :: item
       character(len=:), allocatable, intent(out) :: item_name
       character(len=:), allocatable, intent(out) :: expression
       integer, optional, intent(out) :: rc
@@ -248,13 +249,15 @@ contains
       type(StringVectorIterator) :: ftn_iter, ftn_end
       type(VariableSpec) :: varspec
       character(len=:), allocatable :: short_name
+      type(UngriddedDims) :: mirror_ungrid
 
+      mirror_ungrid = mirror_ungridded_dims()
       ftn_end = names%ftn_end()
       ftn_iter = names%ftn_begin()
       do while (ftn_iter /= ftn_end)
          call ftn_iter%next()
          short_name = ftn_iter%of()
-         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, vertical_dim_spec=VERTICAL_DIM_MIRROR)
+         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, vertical_dim_spec=VERTICAL_DIM_MIRROR, ungridded_dims=mirror_ungrid)
          call MAPL_AddSpec(gridcomp, varspec, _RC)
       end do
 
@@ -296,7 +299,7 @@ contains
       raw_vars = parser_variables_in_expression(expression, _RC)
       iter = raw_vars%begin()
       do while(iter /= raw_vars%end())
-        call variables%push_back(replace_delimiter(iter%of())) 
+        call variables%push_back(replace_delimiter(iter%of()))
         call iter%next()
       end do
 
