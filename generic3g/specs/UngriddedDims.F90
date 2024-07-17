@@ -14,6 +14,7 @@ module mapl3g_UngriddedDims
    private
 
    public :: UngriddedDims
+   public :: mirror_ungridded_dims
    public :: operator(==)
    public :: operator(/=)
 
@@ -21,6 +22,7 @@ module mapl3g_UngriddedDims
    ! before any other ungridded dim specs.
    type :: UngriddedDims
       private
+      logical :: is_mirror = .false.
       type(UngriddedDimVector) :: dim_specs
    contains
       procedure :: add_dim
@@ -47,6 +49,13 @@ module mapl3g_UngriddedDims
 
 contains
 
+   function mirror_ungridded_dims() result(spec)
+      type(UngriddedDims) :: spec
+
+      spec%dim_specs = UngriddedDimVector()
+      spec%is_mirror = .true.
+
+   end function mirror_ungridded_dims
 
    function new_UngriddedDims_empty() result(spec)
       type(UngriddedDims) :: spec
@@ -97,7 +106,7 @@ contains
       class(UngriddedDims), intent(in) :: this
 
       get_num_ungridded = this%dim_specs%size()
-      
+
    end function get_num_ungridded
 
 
@@ -108,7 +117,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
+
       dim_spec => this%dim_specs%at(i, _RC)
       _RETURN(_SUCCESS)
 
@@ -137,8 +146,10 @@ contains
       integer :: i
 
       equal_to = .false.
+
+      if (a%is_mirror .neqv. b%is_mirror) return
       associate (n => a%dim_specs%size())
-      
+
         if (b%dim_specs%size() /= n) return
         do i = 1, n
            if (a%dim_specs%of(i) /= b%dim_specs%of(i)) return
@@ -147,7 +158,7 @@ contains
       end associate
 
       equal_to = .true.
-        
+
    end function equal_to
 
 
