@@ -7,6 +7,9 @@ jobs:
   # Enforces the update of a changelog file on every pull request
   changelog:
     runs-on: ubuntu-latest
+    # We only want to run this job if the base_ref of the PR is *NOT*
+    # release/MAPL-v3
+    if: "!startsWith(github.base_ref, 'release/MAPL-v3')"
     steps:
     - uses: dangoslen/changelog-enforcer@v3
       with:

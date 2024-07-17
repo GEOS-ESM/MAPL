@@ -6,6 +6,7 @@ module mapl3g_HierarchicalRegistry
    use mapl3g_StateItemSpec
    use mapl3g_ActualPtSpecPtrMap
    use mapl3g_ActualPtComponentDriverMap
+   use mapl3g_ComponentDriverVector
    use mapl3g_GriddedComponentDriver
    use mapl3g_ConnectionPt
    use mapl3g_VirtualConnectionPt
@@ -48,7 +49,8 @@ module mapl3g_HierarchicalRegistry
       type(RegistryPtrMap) :: subregistries
 
       type(ActualPtComponentDriverMap) :: export_couplers
-      type(ActualPtComponentDriverMap) :: import_couplers
+!#      type(ActualPtComponentDriverMap), public :: import_couplers
+      type(ComponentDriverVector), public :: import_couplers
 
    contains
 
@@ -101,7 +103,7 @@ module mapl3g_HierarchicalRegistry
       procedure :: get_export_couplers
 
       procedure :: get_export_coupler
-      procedure :: get_import_coupler
+!#      procedure :: get_import_coupler
       procedure :: add_import_coupler
 
       procedure :: allocate
@@ -865,7 +867,7 @@ contains
    end function get_export_couplers
       
    function get_import_couplers(this) result(import_couplers)
-      type(ActualPtComponentDriverMap), pointer :: import_couplers
+      type(ComponentDriverVector), pointer :: import_couplers
       class(HierarchicalRegistry), target, intent(in) :: this
 
       import_couplers => this%import_couplers
@@ -884,28 +886,27 @@ contains
       _RETURN(_SUCCESS)
    end function get_export_coupler
 
-   function get_import_coupler(this, actual_pt, rc) result(coupler)
-      type(GriddedComponentDriver), pointer :: coupler
-      class(HierarchicalRegistry), target, intent(in) :: this
-      type(ActualConnectionPt), intent(in) :: actual_pt
-      integer, optional, intent(out) :: rc
+!#   function get_import_coupler(this, actual_pt, rc) result(coupler)
+!#      type(GriddedComponentDriver), pointer :: coupler
+!#      class(HierarchicalRegistry), target, intent(in) :: this
+!#      type(ActualConnectionPt), intent(in) :: actual_pt
+!#      integer, optional, intent(out) :: rc
+!#
+!#      integer :: status
+!#
+!#      coupler => this%import_couplers%at(actual_pt, _RC)
+!#
+!#      _RETURN(_SUCCESS)
+!#   end function get_import_coupler
 
-      integer :: status
 
-      coupler => this%import_couplers%at(actual_pt, _RC)
-
-      _RETURN(_SUCCESS)
-   end function get_import_coupler
-
-
-   subroutine add_import_coupler(this, actual_pt, coupler)
+   subroutine add_import_coupler(this, coupler)
       class(HierarchicalRegistry), target, intent(inout) :: this
-      type(ActualConnectionPt), intent(in) :: actual_pt
       type(GriddedComponentDriver), intent(in) :: coupler
 
       integer :: status
 
-      call this%import_couplers%insert(actual_pt, coupler)
+      call this%import_couplers%push_back(coupler)
 
    end subroutine add_import_coupler
 
