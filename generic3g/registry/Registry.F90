@@ -157,9 +157,23 @@ contains
       ! New family (or else!)
       call this%add_virtual_pt(virtual_pt, _RC)
       family => this%family_map%at(virtual_pt, _RC)
+#ifndef __GFORTRAN__      
       family = ExtensionFamily(this%owned_items%back())
-
+#else
+      call ridiculous(family, ExtensionFamily(this%owned_items%back()))
+#endif
       _RETURN(_SUCCESS)
+
+#ifdef __GFORTRAN__      
+   contains
+
+      subroutine ridiculous(a, b)
+         type(ExtensionFamily), intent(out) :: a
+         type(ExtensionFamily), intent(in) :: b
+         a = b
+      end subroutine ridiculous
+#endif
+
    end subroutine add_primary_spec
 
    function get_primary_extension(this, virtual_pt, rc) result(primary)
