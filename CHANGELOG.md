@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug in FieldSet routines when passing R8 ESMF fields
+
 ### Removed
 
 ### Deprecated
