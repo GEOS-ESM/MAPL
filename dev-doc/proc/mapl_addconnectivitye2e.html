@@ -1,0 +1,959 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_AddConnectivityE2E &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_AddConnectivityE2E
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">17 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericmod.html'>MAPL_GenericMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_AddConnectivityE2E</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_addconnectivitye2e.html#src">MAPL_AddConnectivityE2E</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_AddConnectivityE2E(GC, SHORT_NAME, SRC_ID, TO_EXPORT, TO_NAME, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc~55"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-short_name~17"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SHORT_NAME</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-src_id"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SRC_ID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-to_export"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TO_EXPORT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-to_name~4"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TO_NAME</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~383"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_addconnectivitye2e~~CallsGraph Pages: 1 -->
+<svg id="procmapl_addconnectivitye2eCallsGraph" width="641pt" height="146pt"
+ viewBox="0.00 0.00 641.00 145.97" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph" class="graph" transform="scale(1.99 1.99) rotate(0) translate(4 287.02)">
+<title>proc~~mapl_addconnectivitye2e~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-287.02 1274,-287.02 1274,4 -4,4"/>
+<!-- proc~mapl_addconnectivitye2e -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node1" class="node">
+<title>proc~mapl_addconnectivitye2e</title>
+<polygon fill="none" stroke="black" points="153,-164 0,-164 0,-140 153,-140 153,-164"/>
+<text text-anchor="middle" x="76.5" y="-149.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_AddConnectivityE2E</text>
+</g>
+<!-- proc~append -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node2" class="node">
+<title>proc~append</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node2"><a xlink:href="../proc/append.html" xlink:title="VarConn%append">
+<polygon fill="#d9534f" stroke="#d9534f" points="308.5,-66 200.5,-66 200.5,-42 308.5,-42 308.5,-66"/>
+<text text-anchor="middle" x="254.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarConn%append</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_addconnectivitye2e&#45;&gt;proc~append -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_addconnectivitye2e&#45;&gt;proc~append</title>
+<path fill="none" stroke="#ff0000" d="M93.9,-139.99C115.13,-124.78 153.61,-98.35 189,-80 195.93,-76.41 203.48,-72.97 210.89,-69.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="212.22,-73.08 220.14,-66.05 209.56,-66.6 212.22,-73.08"/>
+</g>
+<!-- proc~mapl_connectivityget -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node3" class="node">
+<title>proc~mapl_connectivityget</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node3"><a xlink:href="../proc/mapl_connectivityget.html" xlink:title="MAPL_ConnectivityGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="320,-202 189,-202 189,-178 320,-178 320,-202"/>
+<text text-anchor="middle" x="254.5" y="-187.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ConnectivityGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_addconnectivitye2e&#45;&gt;proc~mapl_connectivityget -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_addconnectivitye2e&#45;&gt;proc~mapl_connectivityget</title>
+<path fill="none" stroke="#ff0000" d="M133.19,-164.02C150.61,-167.78 169.99,-171.97 188.02,-175.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="187.36,-179.3 197.87,-177.99 188.84,-172.46 187.36,-179.3"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="954,-262 872,-262 872,-238 954,-238 954,-262"/>
+<text text-anchor="middle" x="913" y="-247.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_addconnectivitye2e&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_addconnectivitye2e&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M97,-164.05C118.77,-177.08 155.37,-197.77 189,-211 260.53,-239.15 280.25,-242.91 356,-256 542.7,-288.26 593.2,-287.86 782,-272 808.55,-269.77 837.82,-265.02 861.86,-260.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="862.66,-263.91 871.82,-258.59 861.34,-257.04 862.66,-263.91"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="951,-136 875,-136 875,-112 951,-112 951,-136"/>
+<text text-anchor="middle" x="913" y="-121.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_addconnectivitye2e&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_addconnectivitye2e&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M153.2,-147.31C247.83,-141.66 414.82,-132.38 558,-128 667.63,-124.64 796.43,-124.02 864.41,-123.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="864.79,-127.45 874.78,-123.95 864.78,-120.45 864.79,-127.45"/>
+</g>
+<!-- proc~append&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge6" class="edge">
+<title>proc~append&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M276.36,-66.01C324.37,-93.12 447.13,-159.29 558,-193 663.37,-225.04 792.17,-240.02 861.69,-246.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="861.65,-249.72 871.92,-247.1 862.26,-242.75 861.65,-249.72"/>
+</g>
+<!-- none~resize~26 -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node7" class="node">
+<title>none~resize~26</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node7"><a xlink:href="../type/varconnvector.html#boundprocedure-resize~26" xlink:title="VarConnVector%resize">
+<polygon fill="#a7506f" stroke="#a7506f" points="505,-24 373,-24 373,0 505,0 505,-24"/>
+<text text-anchor="middle" x="439" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarConnVector%resize</text>
+</a>
+</g>
+</g>
+<!-- proc~append&#45;&gt;none~resize~26 -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge5" class="edge">
+<title>proc~append&#45;&gt;none~resize~26</title>
+<path fill="none" stroke="#ff0000" d="M307.8,-41.96C328.99,-37.09 353.63,-31.42 375.74,-26.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="376.73,-29.69 385.7,-24.04 375.16,-22.87 376.73,-29.69"/>
+</g>
+<!-- proc~vector_back~2 -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node10" class="node">
+<title>proc~vector_back~2</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node10"><a xlink:href="../proc/vector_back~2.html" xlink:title="VarConnVector%vector_back">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="522,-66 356,-66 356,-42 522,-42 522,-66"/>
+<text text-anchor="middle" x="439" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarConnVector%vector_back</text>
+</a>
+</g>
+</g>
+<!-- proc~append&#45;&gt;proc~vector_back~2 -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge7" class="edge">
+<title>proc~append&#45;&gt;proc~vector_back~2</title>
+<path fill="none" stroke="#ff0000" d="M308.78,-54C320.4,-54 333.02,-54 345.67,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="345.81,-57.5 355.81,-54 345.81,-50.5 345.81,-57.5"/>
+</g>
+<!-- proc~mapl_connectivityget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_connectivityget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7fff00" d="M278.31,-202.03C298.21,-211.85 328.18,-225.05 356,-231 538.94,-270.14 763.34,-260.93 861.73,-254.13"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="862.25,-257.6 871.98,-253.39 861.76,-250.62 862.25,-257.6"/>
+</g>
+<!-- proc~mapl_connectivityget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_connectivityget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#7fff00" d="M320,-180.69C381.17,-172.1 475.69,-159.44 558,-151 667.56,-139.77 796.65,-131.06 864.62,-126.83"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="865.23,-130.3 874.99,-126.19 864.8,-123.31 865.23,-130.3"/>
+</g>
+<!-- interface~mapl_getobjectfromgc -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node6" class="node">
+<title>interface~mapl_getobjectfromgc</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node6"><a xlink:href="../interface/mapl_getobjectfromgc.html" xlink:title="MAPL_GetObjectFromGC">
+<polygon fill="#a7506f" stroke="#a7506f" points="510,-222 368,-222 368,-198 510,-198 510,-222"/>
+<text text-anchor="middle" x="439" y="-207.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetObjectFromGC</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_connectivityget&#45;&gt;interface~mapl_getobjectfromgc -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_connectivityget&#45;&gt;interface~mapl_getobjectfromgc</title>
+<path fill="none" stroke="#7fff00" d="M320.1,-197.08C332.32,-198.42 345.23,-199.83 357.86,-201.22"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="357.59,-204.71 367.91,-202.32 358.35,-197.75 357.59,-204.71"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node8" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node8"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1168,-262 1053,-262 1053,-238 1168,-238 1168,-262"/>
+<text text-anchor="middle" x="1110.5" y="-247.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M954.03,-250C979.52,-250 1013.15,-250 1042.62,-250"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1042.84,-253.5 1052.84,-250 1042.84,-246.5 1042.84,-253.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node9" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node9"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1177,-157 1044,-157 1044,-133 1177,-133 1177,-157"/>
+<text text-anchor="middle" x="1110.5" y="-142.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M954.27,-245.28C971.45,-242.2 991.33,-237.17 1008,-229 1041.04,-212.81 1072.63,-183.81 1091.55,-164.48"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1094.23,-166.75 1098.62,-157.1 1089.17,-161.9 1094.23,-166.75"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M951.23,-128C974.52,-130.5 1005.36,-133.81 1033.63,-136.85"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1033.59,-140.37 1043.9,-137.95 1034.34,-133.41 1033.59,-140.37"/>
+</g>
+<!-- proc~mapl_internalstateget -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node14" class="node">
+<title>proc~mapl_internalstateget</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node14"><a xlink:href="../proc/mapl_internalstateget.html" xlink:title="MAPL_InternalStateGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="737,-184 603,-184 603,-160 737,-160 737,-184"/>
+<text text-anchor="middle" x="670" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_InternalStateGet</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_getobjectfromgc&#45;&gt;proc~mapl_internalstateget -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_getobjectfromgc&#45;&gt;proc~mapl_internalstateget</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M510.26,-198.34C536.38,-194.01 566.12,-189.07 592.75,-184.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="593.49,-188.08 602.78,-182.99 592.34,-181.17 593.49,-188.08"/>
+</g>
+<!-- proc~vector_resize_size_kind~2 -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node15" class="node">
+<title>proc~vector_resize_size_kind~2</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node15"><a xlink:href="../proc/vector_resize_size_kind~2.html" xlink:title="VarConnVector%vector_resize_size_kind">
+<polygon fill="#d9534f" stroke="#d9534f" points="782,-24 558,-24 558,0 782,0 782,-24"/>
+<text text-anchor="middle" x="670" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarConnVector%vector_resize_size_kind</text>
+</a>
+</g>
+</g>
+<!-- none~resize~26&#45;&gt;proc~vector_resize_size_kind~2 -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge15" class="edge">
+<title>none~resize~26&#45;&gt;proc~vector_resize_size_kind~2</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M505.01,-12C518.44,-12 532.99,-12 547.7,-12"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="547.89,-15.5 557.89,-12 547.89,-8.5 547.89,-15.5"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node11" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1268.5,-283 1214.5,-283 1214.5,-259 1268.5,-259 1268.5,-283"/>
+<text text-anchor="middle" x="1241.5" y="-268.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge16" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ff66" d="M1168.08,-259.21C1180.42,-261.22 1193.14,-263.29 1204.42,-265.13"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="1203.89,-268.59 1214.32,-266.74 1205.01,-261.68 1203.89,-268.59"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node12" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1268.5,-241 1214.5,-241 1214.5,-217 1268.5,-217 1268.5,-241"/>
+<text text-anchor="middle" x="1241.5" y="-226.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge17" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ff66" d="M1168.08,-240.79C1180.42,-238.78 1193.14,-236.71 1204.42,-234.87"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="1205.01,-238.32 1214.32,-233.26 1203.89,-231.41 1205.01,-238.32"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node13" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node13"><a xlink:href="../proc/initialize~12.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1270,-157 1213,-157 1213,-133 1270,-133 1270,-157"/>
+<text text-anchor="middle" x="1241.5" y="-142.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="#0066ff" d="M1177.13,-145C1185.88,-145 1194.59,-145 1202.63,-145"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="1202.77,-148.5 1212.77,-145 1202.77,-141.5 1202.77,-148.5"/>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0066ff" d="M737.12,-182.01C752.36,-185.79 768.15,-190.96 782,-198 800.82,-207.57 799.13,-219.53 818,-229 831.48,-235.77 847.13,-240.37 861.74,-243.5"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="861.17,-246.95 871.66,-245.44 862.51,-240.08 861.17,-246.95"/>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0066ff" d="M731.5,-159.95C772.85,-151.72 826.84,-140.96 864.96,-133.37"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="865.66,-136.8 874.78,-131.41 864.29,-129.93 865.66,-136.8"/>
+</g>
+<!-- ESMF_GridCompGet -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node16" class="node">
+<title>ESMF_GridCompGet</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node16"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_gridcompget.html" xlink:title="ESMF_GridCompGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="972.5,-220 853.5,-220 853.5,-196 972.5,-196 972.5,-220"/>
+<text text-anchor="middle" x="913" y="-205.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;ESMF_GridCompGet -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;ESMF_GridCompGet</title>
+<path fill="none" stroke="#0066ff" d="M737.17,-181.88C770.13,-186.81 809.95,-192.76 843.26,-197.73"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="842.96,-201.23 853.37,-199.24 844,-194.3 842.96,-201.23"/>
+</g>
+<!-- ESMF_UserCompGetInternalState -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node17" class="node">
+<title>ESMF_UserCompGetInternalState</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node17"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_usercompgetinternalstate.html" xlink:title="ESMF_UserCompGetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="1008,-178 818,-178 818,-154 1008,-154 1008,-178"/>
+<text text-anchor="middle" x="913" y="-163.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_UserCompGetInternalState</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;ESMF_UserCompGetInternalState -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;ESMF_UserCompGetInternalState</title>
+<path fill="none" stroke="#0066ff" d="M737.17,-170.35C759,-169.81 783.83,-169.19 807.79,-168.59"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="808.08,-172.09 817.99,-168.34 807.91,-165.09 808.08,-172.09"/>
+</g>
+<!-- none~reserve~26 -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_node18" class="node">
+<title>none~reserve~26</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CallsGraph_node18"><a xlink:href="../type/varconnvector.html#boundprocedure-reserve~26" xlink:title="VarConnVector%reserve">
+<polygon fill="#a7506f" stroke="#a7506f" points="983.5,-24 842.5,-24 842.5,0 983.5,0 983.5,-24"/>
+<text text-anchor="middle" x="913" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarConnVector%reserve</text>
+</a>
+</g>
+</g>
+<!-- proc~vector_resize_size_kind~2&#45;&gt;none~reserve~26 -->
+<g id="proc~~mapl_addconnectivitye2e~~CallsGraph_edge23" class="edge">
+<title>proc~vector_resize_size_kind~2&#45;&gt;none~reserve~26</title>
+<path fill="none" stroke="#cc00ff" d="M782.33,-12C799.12,-12 816.16,-12 832.11,-12"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="832.43,-15.5 842.43,-12 832.43,-8.5 832.43,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_addconnectivitye2eCallsGraph = svgPanZoom('#procmapl_addconnectivitye2eCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_addconnectivitye2e~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_addconnectivitye2eCalledByGraph" width="641pt" height="57pt"
+ viewBox="0.00 0.00 641.00 56.76" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph" class="graph" transform="scale(2.04 2.04) rotate(0) translate(4 112)">
+<title>proc~~mapl_addconnectivitye2e~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 1306,-112 1306,4 -4,4"/>
+<!-- proc~mapl_addconnectivitye2e -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_node1" class="node">
+<title>proc~mapl_addconnectivitye2e</title>
+<polygon fill="none" stroke="black" points="1302,-66 1149,-66 1149,-42 1302,-42 1302,-66"/>
+<text text-anchor="middle" x="1225.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_AddConnectivityE2E</text>
+</g>
+<!-- proc~mapl_stateaddexportspecfrmchldname -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_node2" class="node">
+<title>proc~mapl_stateaddexportspecfrmchldname</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CalledByGraph_node2"><a xlink:href="../proc/mapl_stateaddexportspecfrmchldname.html" xlink:title="MAPL_StateAddExportSpecFrmChldName">
+<polygon fill="#d9534f" stroke="#d9534f" points="1113,-66 882,-66 882,-42 1113,-42 1113,-66"/>
+<text text-anchor="middle" x="997.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateAddExportSpecFrmChldName</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateaddexportspecfrmchldname&#45;&gt;proc~mapl_addconnectivitye2e -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_stateaddexportspecfrmchldname&#45;&gt;proc~mapl_addconnectivitye2e</title>
+<path fill="none" stroke="#ff0000" d="M1113.16,-54C1121.78,-54 1130.39,-54 1138.78,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1138.9,-57.5 1148.9,-54 1138.9,-50.5 1138.9,-57.5"/>
+</g>
+<!-- proc~mapl_stateaddexportspecfrmchld -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_node3" class="node">
+<title>proc~mapl_stateaddexportspecfrmchld</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CalledByGraph_node3"><a xlink:href="../proc/mapl_stateaddexportspecfrmchld.html" xlink:title="MAPL_StateAddExportSpecFrmChld">
+<polygon fill="#d9534f" stroke="#d9534f" points="846,-66 647,-66 647,-42 846,-42 846,-66"/>
+<text text-anchor="middle" x="746.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateAddExportSpecFrmChld</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateaddexportspecfrmchld&#45;&gt;proc~mapl_stateaddexportspecfrmchldname -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_stateaddexportspecfrmchld&#45;&gt;proc~mapl_stateaddexportspecfrmchldname</title>
+<path fill="none" stroke="#ff0000" d="M846.27,-54C854.66,-54 863.22,-54 871.78,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="871.81,-57.5 881.81,-54 871.81,-50.5 871.81,-57.5"/>
+</g>
+<!-- interface~mapl_addexportspec -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_node4" class="node">
+<title>interface~mapl_addexportspec</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CalledByGraph_node4"><a xlink:href="../interface/mapl_addexportspec.html" xlink:title="MAPL_AddExportSpec">
+<polygon fill="#a7506f" stroke="#a7506f" points="357,-66 230,-66 230,-42 357,-42 357,-66"/>
+<text text-anchor="middle" x="293.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AddExportSpec</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_addexportspec&#45;&gt;proc~mapl_stateaddexportspecfrmchld -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_edge4" class="edge">
+<title>interface~mapl_addexportspec&#45;&gt;proc~mapl_stateaddexportspecfrmchld</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M357.03,-54.73C368.97,-54.84 381.37,-54.94 393,-55 489.89,-55.49 514.11,-55.36 611,-55 619.31,-54.97 627.9,-54.93 636.55,-54.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="636.73,-58.38 646.7,-54.82 636.68,-51.38 636.73,-58.38"/>
+</g>
+<!-- proc~mapl_stateaddexportspecfrmchld_all -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_node5" class="node">
+<title>proc~mapl_stateaddexportspecfrmchld_all</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CalledByGraph_node5"><a xlink:href="../proc/mapl_stateaddexportspecfrmchld_all.html" xlink:title="MAPL_StateAddExportSpecFrmChld_All">
+<polygon fill="#d9534f" stroke="#d9534f" points="611,-46 393,-46 393,-22 611,-22 611,-46"/>
+<text text-anchor="middle" x="502" y="-31.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateAddExportSpecFrmChld_All</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_addexportspec&#45;&gt;proc~mapl_stateaddexportspecfrmchld_all -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_edge8" class="edge">
+<title>interface~mapl_addexportspec&#45;&gt;proc~mapl_stateaddexportspecfrmchld_all</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M357.02,-47.95C365.3,-47.14 373.99,-46.3 382.84,-45.44"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="383.26,-48.92 392.87,-44.47 382.58,-41.95 383.26,-48.92"/>
+</g>
+<!-- proc~mapl_stateaddexportspecfrmchld_all&#45;&gt;proc~mapl_stateaddexportspecfrmchld -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_edge3" class="edge">
+<title>proc~mapl_stateaddexportspecfrmchld_all&#45;&gt;proc~mapl_stateaddexportspecfrmchld</title>
+<path fill="none" stroke="#ff0000" d="M611.13,-42.92C619.66,-43.62 628.28,-44.33 636.82,-45.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="636.54,-48.53 646.79,-45.86 637.12,-41.55 636.54,-48.53"/>
+</g>
+<!-- proc~addnewspec -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_node6" class="node">
+<title>proc~addnewspec</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CalledByGraph_node6"><a xlink:href="../proc/addnewspec.html" xlink:title="VarspecDescription%addNewSpec">
+<polygon fill="#d9534f" stroke="#d9534f" points="194,-108 0,-108 0,-84 194,-84 194,-108"/>
+<text text-anchor="middle" x="97" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarspecDescription%addNewSpec</text>
+</a>
+</g>
+</g>
+<!-- proc~addnewspec&#45;&gt;interface~mapl_addexportspec -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_edge5" class="edge">
+<title>proc~addnewspec&#45;&gt;interface~mapl_addexportspec</title>
+<path fill="none" stroke="#ff0000" d="M153.74,-83.96C176.52,-79.04 203.06,-73.31 226.78,-68.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.72,-71.57 236.76,-66.04 226.24,-64.73 227.72,-71.57"/>
+</g>
+<!-- proc~setservices~2 -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_node7" class="node">
+<title>proc~setservices~2</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CalledByGraph_node7"><a xlink:href="../proc/setservices~2.html" xlink:title="SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="134.5,-66 59.5,-66 59.5,-42 134.5,-42 134.5,-66"/>
+<text text-anchor="middle" x="97" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~2&#45;&gt;interface~mapl_addexportspec -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_edge6" class="edge">
+<title>proc~setservices~2&#45;&gt;interface~mapl_addexportspec</title>
+<path fill="none" stroke="#ff0000" d="M134.58,-54C158.5,-54 190.58,-54 219.57,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="219.68,-57.5 229.68,-54 219.68,-50.5 219.68,-57.5"/>
+</g>
+<!-- proc~setservices~5 -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_node8" class="node">
+<title>proc~setservices~5</title>
+<g id="a_proc~~mapl_addconnectivitye2e~~CalledByGraph_node8"><a xlink:href="../proc/setservices~5.html" xlink:title="SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="134.5,-24 59.5,-24 59.5,0 134.5,0 134.5,-24"/>
+<text text-anchor="middle" x="97" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~5&#45;&gt;interface~mapl_addexportspec -->
+<g id="proc~~mapl_addconnectivitye2e~~CalledByGraph_edge7" class="edge">
+<title>proc~setservices~5&#45;&gt;interface~mapl_addexportspec</title>
+<path fill="none" stroke="#ff0000" d="M134.58,-19.9C160.5,-25.5 195.99,-33.16 226.76,-39.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="226.05,-43.23 236.56,-41.92 227.53,-36.39 226.05,-43.23"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_addconnectivitye2eCalledByGraph = svgPanZoom('#procmapl_addconnectivitye2eCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">MAPL_AddConnectivityE2E</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">SHORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">SRC_ID</span><span class="p">,</span><span class="w"> </span><span class="n">TO_EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">TO_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w">            </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span><span class="w"> </span><span class="c">! Gridded component</span>
+<span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">              </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SHORT_NAME</span>
+<span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">      </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">TO_NAME</span><span class="w"> </span><span class="c">!name in TO_EXPORT</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">                        </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SRC_ID</span><span class="w"> </span><span class="c">!FROM_EXPORT</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">                        </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TO_EXPORT</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">              </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">     </span><span class="c">! Error code:</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="o">=</span><span class="s2">&quot;MAPL_AddConnectivityE2E&quot;</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_Connectivity</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">conn</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_ConnectivityGet</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">connectivityPtr</span><span class="o">=</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">conn</span><span class="p">%</span><span class="n">connect</span><span class="p">%</span><span class="n">append</span><span class="p">(</span><span class="n">SHORT_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">TO_NAME</span><span class="o">=</span><span class="n">TO_NAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">FROM_EXPORT</span><span class="o">=</span><span class="n">SRC_ID</span><span class="p">,</span><span class="w"> </span><span class="n">TO_IMPORT</span><span class="o">=</span><span class="n">TO_EXPORT</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_AddConnectivityE2E</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-07-17T17:12:09.421946             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

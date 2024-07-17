@@ -1,0 +1,675 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>handle_ReplaceMetadata &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>handle_ReplaceMetadata
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">16 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ServerThread.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/serverthread.f90.html'>ServerThread.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_serverthreadmod.html'>pFIO_ServerThreadMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">handle_ReplaceMetadata</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/handle_replacemetadata~2.html#src">handle_ReplaceMetadata</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine handle_ReplaceMetadata(this, message, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/serverthread.html'>ServerThread</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2853"></span>
+              class(<a href='../type/serverthread.html'>ServerThread</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-message~67"></span>
+              type(<a href='../type/replacemetadatamessage.html'>ReplaceMetadataMessage</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>message</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1194"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~handle_replacemetadata~2~~CallsGraph Pages: 1 -->
+<svg id="prochandle_replacemetadata2CallsGraph" width="641pt" height="123pt"
+ viewBox="0.00 0.00 641.00 122.64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~handle_replacemetadata~2~~CallsGraph" class="graph" transform="scale(1.91 1.91) rotate(0) translate(4 230)">
+<title>proc~~handle_replacemetadata~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-230 1219,-230 1219,4 -4,4"/>
+<!-- proc~handle_replacemetadata~2 -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node1" class="node">
+<title>proc~handle_replacemetadata~2</title>
+<polygon fill="none" stroke="black" points="230,-124 0,-124 0,-100 230,-100 230,-124"/>
+<text text-anchor="middle" x="115" y="-109.6" font-family="Helvetica,sans-Serif" font-size="10.50">ServerThread%handle_ReplaceMetadata</text>
+</g>
+<!-- none~at~315 -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node2" class="node">
+<title>none~at~315</title>
+<g id="a_proc~~handle_replacemetadata~2~~CallsGraph_node2"><a xlink:href="../type/historycollectionvector.html#boundprocedure-at~315" xlink:title="HistoryCollectionVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="447.5,-226 290.5,-226 290.5,-202 447.5,-202 447.5,-226"/>
+<text text-anchor="middle" x="369" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_replacemetadata~2&#45;&gt;none~at~315 -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge1" class="edge">
+<title>proc~handle_replacemetadata~2&#45;&gt;none~at~315</title>
+<path fill="none" stroke="#ff0000" d="M134.12,-124.07C161.52,-141.77 215.66,-174.68 266,-193 272.45,-195.35 279.23,-197.46 286.1,-199.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="285.64,-202.85 296.2,-201.98 287.4,-196.08 285.64,-202.85"/>
+</g>
+<!-- proc~get_connection -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node3" class="node">
+<title>proc~get_connection</title>
+<g id="a_proc~~handle_replacemetadata~2~~CallsGraph_node3"><a xlink:href="../proc/get_connection.html" xlink:title="BaseThread%get_connection">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="453,-104 285,-104 285,-80 453,-80 453,-104"/>
+<text text-anchor="middle" x="369" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseThread%get_connection</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_replacemetadata~2&#45;&gt;proc~get_connection -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge2" class="edge">
+<title>proc~handle_replacemetadata~2&#45;&gt;proc~get_connection</title>
+<path fill="none" stroke="#ff0000" d="M230.2,-102.94C244.98,-101.76 259.97,-100.57 274.36,-99.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="275.03,-102.89 284.72,-98.61 274.48,-95.91 275.03,-102.89"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~handle_replacemetadata~2~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="642.5,-147 560.5,-147 560.5,-123 642.5,-123 642.5,-147"/>
+<text text-anchor="middle" x="601.5" y="-132.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_replacemetadata~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge3" class="edge">
+<title>proc~handle_replacemetadata~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M230.21,-117.42C331.61,-122.24 475.01,-129.04 550.13,-132.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="550.11,-136.11 560.27,-133.09 550.45,-129.12 550.11,-136.11"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~handle_replacemetadata~2~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="639.5,-43 563.5,-43 563.5,-19 639.5,-19 639.5,-43"/>
+<text text-anchor="middle" x="601.5" y="-28.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_replacemetadata~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge4" class="edge">
+<title>proc~handle_replacemetadata~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M153.86,-99.98C183.97,-90.83 227.32,-78.56 266,-71 367.14,-51.24 487.51,-39.73 552.73,-34.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="553.4,-37.94 563.1,-33.66 552.85,-30.96 553.4,-37.94"/>
+</g>
+<!-- proc~replacemetadata -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node6" class="node">
+<title>proc~replacemetadata</title>
+<g id="a_proc~~handle_replacemetadata~2~~CallsGraph_node6"><a xlink:href="../proc/replacemetadata.html" xlink:title="HistoryCollection%ReplaceMetadata">
+<polygon fill="#d9534f" stroke="#d9534f" points="472,-184 266,-184 266,-160 472,-160 472,-184"/>
+<text text-anchor="middle" x="369" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollection%ReplaceMetadata</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_replacemetadata~2&#45;&gt;proc~replacemetadata -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge5" class="edge">
+<title>proc~handle_replacemetadata~2&#45;&gt;proc~replacemetadata</title>
+<path fill="none" stroke="#ff0000" d="M166.69,-124.07C207.36,-133.75 264.56,-147.37 307.6,-157.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="306.85,-161.04 317.39,-159.95 308.47,-154.23 306.85,-161.04"/>
+</g>
+<!-- send -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node7" class="node">
+<title>send</title>
+<polygon fill="#777777" stroke="#777777" points="396,-24 342,-24 342,0 396,0 396,-24"/>
+<text text-anchor="middle" x="369" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">send</text>
+</g>
+<!-- proc~handle_replacemetadata~2&#45;&gt;send -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge6" class="edge">
+<title>proc~handle_replacemetadata~2&#45;&gt;send</title>
+<path fill="none" stroke="#ff0000" d="M137.23,-99.75C165.74,-83.73 218.33,-55.61 266,-38 287.46,-30.07 312.32,-23.68 332.13,-19.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="332.96,-22.62 341.98,-17.06 331.46,-15.78 332.96,-22.62"/>
+</g>
+<!-- proc~v_at_32~26 -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node11" class="node">
+<title>proc~v_at_32~26</title>
+<g id="a_proc~~handle_replacemetadata~2~~CallsGraph_node11"><a xlink:href="../proc/v_at_32~26.html" xlink:title="HistoryCollectionVector%v_at_32">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="695,-226 508,-226 508,-202 695,-202 695,-226"/>
+<text text-anchor="middle" x="601.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector%v_at_32</text>
+</a>
+</g>
+</g>
+<!-- none~at~315&#45;&gt;proc~v_at_32~26 -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge7" class="edge">
+<title>none~at~315&#45;&gt;proc~v_at_32~26</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M447.72,-214C463.73,-214 480.84,-214 497.59,-214"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="497.96,-217.5 507.96,-214 497.96,-210.5 497.96,-217.5"/>
+</g>
+<!-- proc~get_connection&#45;&gt;proc~mapl_return -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge9" class="edge">
+<title>proc~get_connection&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ffff00" d="M434.51,-104.04C471.09,-110.86 516.17,-119.27 550.12,-125.6"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="549.81,-129.1 560.28,-127.5 551.09,-122.22 549.81,-129.1"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node8" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~handle_replacemetadata~2~~CallsGraph_node8"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="641,-104 562,-104 562,-80 641,-80 641,-104"/>
+<text text-anchor="middle" x="601.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~get_connection&#45;&gt;interface~mapl_assert -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge8" class="edge">
+<title>proc~get_connection&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ffff00" d="M453.22,-92C486.29,-92 523.19,-92 551.78,-92"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="551.92,-95.5 561.92,-92 551.92,-88.5 551.92,-95.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node9" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~handle_replacemetadata~2~~CallsGraph_node9"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1113,-175 998,-175 998,-151 1113,-151 1113,-175"/>
+<text text-anchor="middle" x="1055.5" y="-160.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff00" d="M642.66,-140.06C667.97,-143.07 701.35,-146.75 731,-149 819.59,-155.74 922.09,-159.49 987.57,-161.38"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="987.65,-164.88 997.75,-161.66 987.85,-157.88 987.65,-164.88"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node10" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~handle_replacemetadata~2~~CallsGraph_node10"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1122,-75 989,-75 989,-51 1122,-51 1122,-75"/>
+<text text-anchor="middle" x="1055.5" y="-60.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M642.53,-138.26C708.56,-142.44 843.84,-145.94 953,-116 980.43,-108.48 1008.91,-92.81 1028.69,-80.45"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1030.6,-83.38 1037.13,-75.04 1026.82,-77.48 1030.6,-83.38"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M639.61,-27.56C703.88,-22.4 839.88,-14.95 953,-32 973.54,-35.1 995.67,-41.48 1014.01,-47.65"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1012.91,-50.97 1023.5,-50.94 1015.2,-44.36 1012.91,-50.97"/>
+</g>
+<!-- proc~replacemetadata&#45;&gt;proc~mapl_return -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge13" class="edge">
+<title>proc~replacemetadata&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M444.84,-159.99C479.32,-154.45 519.34,-148.03 550.16,-143.08"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="550.92,-146.5 560.24,-141.46 549.81,-139.59 550.92,-146.5"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node15" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~handle_replacemetadata~2~~CallsGraph_node15"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="909,-65 775,-65 775,-41 909,-41 909,-65"/>
+<text text-anchor="middle" x="842" y="-50.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M641.08,-85.69C674.46,-80.23 723.69,-72.18 764.95,-65.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="765.68,-68.86 774.98,-63.8 764.55,-61.95 765.68,-68.86"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node16" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~handle_replacemetadata~2~~CallsGraph_node16"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="916,-107 768,-107 768,-83 916,-83 916,-107"/>
+<text text-anchor="middle" x="842" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M641.08,-92.49C672.5,-92.88 717.96,-93.45 757.61,-93.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="757.77,-97.45 767.81,-94.08 757.86,-90.45 757.77,-97.45"/>
+</g>
+<!-- at -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node12" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1213.5,-156 1159.5,-156 1159.5,-132 1213.5,-132 1213.5,-156"/>
+<text text-anchor="middle" x="1186.5" y="-141.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge16" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#7fff00" d="M1113.08,-154.67C1125.42,-152.85 1138.14,-150.97 1149.42,-149.31"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1149.94,-152.78 1159.32,-147.86 1148.92,-145.85 1149.94,-152.78"/>
+</g>
+<!-- insert -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node13" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1213.5,-198 1159.5,-198 1159.5,-174 1213.5,-174 1213.5,-198"/>
+<text text-anchor="middle" x="1186.5" y="-183.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge17" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#7fff00" d="M1113.08,-173.09C1125.42,-175.29 1138.14,-177.56 1149.42,-179.57"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1148.86,-183.02 1159.32,-181.33 1150.09,-176.13 1148.86,-183.02"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node14" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~handle_replacemetadata~2~~CallsGraph_node14"><a xlink:href="../proc/initialize~12.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1215,-75 1158,-75 1158,-51 1215,-51 1215,-75"/>
+<text text-anchor="middle" x="1186.5" y="-60.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="#00ffff" d="M1122.13,-63C1130.88,-63 1139.59,-63 1147.63,-63"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1147.77,-66.5 1157.77,-63 1147.77,-59.5 1147.77,-66.5"/>
+</g>
+<!-- proc~v_at_size_kind~26 -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_node17" class="node">
+<title>proc~v_at_size_kind~26</title>
+<g id="a_proc~~handle_replacemetadata~2~~CallsGraph_node17"><a xlink:href="../proc/v_at_size_kind~26.html" xlink:title="HistoryCollectionVector%v_at_size_kind">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="953,-226 731,-226 731,-202 953,-202 953,-226"/>
+<text text-anchor="middle" x="842" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector%v_at_size_kind</text>
+</a>
+</g>
+</g>
+<!-- proc~v_at_32~26&#45;&gt;proc~v_at_size_kind~26 -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge19" class="edge">
+<title>proc~v_at_32~26&#45;&gt;proc~v_at_size_kind~26</title>
+<path fill="none" stroke="#7f00ff" d="M695.05,-214C703.43,-214 711.99,-214 720.56,-214"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="720.61,-217.5 730.61,-214 720.61,-210.5 720.61,-217.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M909.05,-56.12C931.22,-57.17 956.12,-58.35 978.96,-59.43"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="978.8,-62.92 988.95,-59.9 979.13,-55.93 978.8,-62.92"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0000ff" d="M880.33,-107C915.6,-118.34 968.66,-135.4 1006.95,-147.71"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1006.25,-151.16 1016.84,-150.89 1008.39,-144.5 1006.25,-151.16"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~handle_replacemetadata~2~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M916.08,-83.94C936.4,-80.87 958.5,-77.52 978.95,-74.43"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="979.49,-77.89 988.85,-72.93 978.44,-70.97 979.49,-77.89"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprochandle_replacemetadata2CallsGraph = svgPanZoom('#prochandle_replacemetadata2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">handle_ReplaceMetadata</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ServerThread</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ReplaceMetadataMessage</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">message</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">HistoryCollection</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hist_collection</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractSocket</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">connection</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DummyMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">handshake_msg</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="n">hist_collection</span><span class="o">=&gt;</span><span class="n">this</span><span class="p">%</span><span class="n">hist_collections</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">collection_id</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">hist_collection</span><span class="p">%</span><span class="n">ReplaceMetadata</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">fmd</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">connection</span><span class="o">=&gt;</span><span class="n">this</span><span class="p">%</span><span class="n">get_connection</span><span class="p">()</span>
+<span class="w">      </span><span class="k">call </span><span class="n">connection</span><span class="p">%</span><span class="n">send</span><span class="p">(</span><span class="n">handshake_msg</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">handle_ReplaceMetadata</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-07-17T17:12:09.421946             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
