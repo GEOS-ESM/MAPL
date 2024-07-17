@@ -67,6 +67,7 @@ contains
 
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       if (item_count > 0) then
+         ! TODO: the file_name should come from OuterMetaComponents's hconfig
          file_name = trim(this%gc_name) // "_" // trim(state_type) // "_checkpoint.nc4"
          print *, "Writing checkpoint: ", trim(file_name)
          out_bundle = get_bundle_from_state_(state, _RC)
@@ -91,14 +92,16 @@ contains
 
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       if (item_count > 0) then
+         ! TODO: the file_name should come from OuterMetaComponents's hconfig
          file_name = trim(this%gc_name) // "_" // trim(state_type) // "_rst.nc4"
          inquire(file=trim(file_name), exist=file_exists)
-         if (file_exists) then
-            print *, "Reading restart: ", trim(file_name)
-            call this%read_fields_(file_name, state, _RC)
-         else
+         if (.not. file_exists) then
+            ! TODO: Need to decide what happens in that case. Bootstrapping variables?
             print *, "Restart file <" // trim(file_name) // "> does not exist. Skip reading!"
+            _RETURN(ESMF_SUCCESS)
          end if
+         print *, "Reading restart: ", trim(file_name)
+         call this%read_fields_(file_name, state, _RC)
       end if
 
       _RETURN(ESMF_SUCCESS)
@@ -118,22 +121,20 @@ contains
 
       bundle = ESMF_FieldBundleCreate(_RC) ! bundle to pack fields in
       call ESMF_StateGet(state, itemCount=item_count, _RC)
-      allocate(item_name(item_count), stat=status); _VERIFY(status)
-      allocate(item_type(item_count), stat=status); _VERIFY(status)
+      allocate(item_name(item_count), _STAT)
+      allocate(item_type(item_count), _STAT)
       call ESMF_StateGet(state, itemNameList=item_name, itemTypeList=item_type, _RC)
       do idx = 1, item_count
-         if (item_type(idx) == ESMF_STATEITEM_FIELD) then
-            call ESMF_StateGet(state, item_name(idx), field, _RC)
-            call ESMF_FieldGet(field, status=field_status, _RC)
-            if (field_status == ESMF_FIELDSTATUS_COMPLETE) then
-               call ESMF_FieldBundleAdd(bundle, [field], _RC)
-            end if
-         else if (item_type(idx) == ESMF_STATEITEM_FIELDBUNDLE) then
-            print *, "FieldBundle: ", trim(item_name(idx))
-            error stop "Not implemented yet"
+         if (item_type(idx) /= ESMF_STATEITEM_FIELD) then
+            _FAIL("FieldBundle has not been implemented yet")
+         end if
+         call ESMF_StateGet(state, item_name(idx), field, _RC)
+         call ESMF_FieldGet(field, status=field_status, _RC)
+         if (field_status == ESMF_FIELDSTATUS_COMPLETE) then
+            call ESMF_FieldBundleAdd(bundle, [field], _RC)
          end if
       end do
-      deallocate(item_name, item_type, stat=status); _VERIFY(status)
+      deallocate(item_name, item_type, _STAT)
 
       _RETURN(ESMF_SUCCESS)
    end function get_bundle_from_state_
@@ -152,7 +153,7 @@ contains
       integer :: status
 
       metadata = bundle_to_metadata(bundle, this%gc_geom, _RC)
-      allocate(writer, source=make_geom_pfio(metadata, rc=status)); _VERIFY(status)
+      allocate(writer, source=make_geom_pfio(metadata), _STAT)
       mapl_geom => get_mapl_geom(this%gc_geom, _RC)
       call writer%initialize(metadata, mapl_geom, _RC)
       call writer%update_time_on_server(this%current_time, _RC)
@@ -182,7 +183,7 @@ contains
       call file_formatter%open(file_name, PFIO_READ, _RC)
       metadata = file_formatter%read(_RC)
       call file_formatter%close(_RC)
-      allocate(reader, source=make_geom_pfio(metadata, rc=status)); _VERIFY(status)
+      allocate(reader, source=make_geom_pfio(metadata), _STAT)
       mapl_geom => get_mapl_geom(this%gc_geom, _RC)
       call reader%initialize(file_name, mapl_geom, _RC)
       call reader%request_data_from_file(file_name, state, _RC)
