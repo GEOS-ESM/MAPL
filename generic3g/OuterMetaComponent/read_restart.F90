@@ -21,7 +21,7 @@ contains
       type(MultiState) :: states
       type(ESMF_State) :: internal_state, import_state
       type(ESMF_Geom) :: geom
-      type(Restart) :: rstrt
+      type(RestartHandler) :: restart_handler
       integer :: status
 
       driver => this%get_user_gc_driver()
@@ -32,9 +32,9 @@ contains
          states = driver%get_states()
          call states%get_state(import_state, "import", _RC)
          call states%get_state(internal_state, "internal", _RC)
-         rstrt = Restart(name, geom, clock, _RC)
-         call rstrt%read("import", import_state, _RC)
-         call rstrt%read("internal", internal_state, _RC)
+         restart_handler = RestartHandler(name, geom, clock, _RC)
+         call restart_handler%read("import", import_state, _RC)
+         call restart_handler%read("internal", internal_state, _RC)
       end if
       if (name /= "HIST") then
          call recurse_read_restart(this, _RC)

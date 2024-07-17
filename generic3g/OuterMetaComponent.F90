@@ -39,7 +39,7 @@ module mapl3g_OuterMetaComponent
    use esmf
    use pflogger, only: logging, Logger
    use mapl3g_geomio, only: get_mapl_geom
-   use mapl3g_Restart, only: Restart
+   use mapl3g_RestartHandler, only: RestartHandler
 
    implicit none
    private

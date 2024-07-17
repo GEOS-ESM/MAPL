@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_Restart
+module mapl3g_RestartHandler
 
    use, intrinsic :: iso_c_binding, only: c_ptr
    use esmf
@@ -17,9 +17,9 @@ module mapl3g_Restart
    implicit none
    private
 
-   public :: Restart
+   public :: RestartHandler
 
-   type :: Restart
+   type :: RestartHandler
       private
       character(len=ESMF_MAXSTR) :: gc_name
       type(ESMF_Geom) :: gc_geom
@@ -29,33 +29,33 @@ module mapl3g_Restart
       procedure, public :: read
       procedure, private :: write_bundle_
       procedure, private :: read_fields_
-   end type Restart
+   end type RestartHandler
 
-   interface Restart
-      procedure new_Restart
-   end interface Restart
+   interface RestartHandler
+      procedure new_RestartHandler
+   end interface RestartHandler
 
 contains
 
-   function new_Restart(gc_name, gc_geom, gc_clock, rc) result(new_rstrt)
+   function new_RestartHandler(gc_name, gc_geom, gc_clock, rc) result(restart_handler)
       character(len=*), intent(in) :: gc_name
       type(ESMF_Geom), intent(in) :: gc_geom
       type(ESMF_Clock), intent(in) :: gc_clock
       integer, optional, intent(out) :: rc
-      type(Restart) :: new_rstrt ! result
+      type(RestartHandler) :: restart_handler ! result
 
       integer :: status
 
-      new_rstrt%gc_name = ESMF_UtilStringLowerCase(trim(gc_name), _RC)
-      call ESMF_Clockget(gc_clock, currTime = new_rstrt%current_time, _RC)
-      new_rstrt%gc_geom = gc_geom
+      restart_handler%gc_name = ESMF_UtilStringLowerCase(trim(gc_name), _RC)
+      call ESMF_Clockget(gc_clock, currTime = restart_handler%current_time, _RC)
+      restart_handler%gc_geom = gc_geom
 
       _RETURN(ESMF_SUCCESS)
-   end function new_Restart
+   end function new_RestartHandler
 
    subroutine write(this, state_type, state, rc)
       ! Arguments
-      class(Restart), intent(inout) :: this
+      class(RestartHandler), intent(inout) :: this
       character(len=*), intent(in) :: state_type
       type(ESMF_State), intent(in) :: state
       integer, optional, intent(out) :: rc
@@ -79,7 +79,7 @@ contains
    subroutine read(this, state_type, state, rc)
 
       ! Arguments
-      class(Restart), intent(inout) :: this
+      class(RestartHandler), intent(inout) :: this
       character(len=*), intent(in) :: state_type
       type(ESMF_State), intent(inout) :: state
       integer, optional, intent(out) :: rc
@@ -140,7 +140,7 @@ contains
 
    subroutine write_bundle_(this, bundle, file_name, rc)
       ! Arguments
-      class(Restart), intent(in) :: this
+      class(RestartHandler), intent(in) :: this
       type(ESMF_FieldBundle), intent(in) :: bundle
       character(len=*), intent(in) :: file_name
       integer, optional, intent(out) :: rc
@@ -167,7 +167,7 @@ contains
 
    subroutine read_fields_(this, file_name, state, rc)
       ! Arguments
-      class(Restart), intent(in) :: this
+      class(RestartHandler), intent(in) :: this
       character(len=*), intent(in) :: file_name
       type(ESMF_State), intent(inout) :: state
       integer, optional, intent(out) :: rc
@@ -192,4 +192,4 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine read_fields_
 
-end module mapl3g_Restart
+end module mapl3g_RestartHandler
