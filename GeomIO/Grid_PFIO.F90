@@ -56,7 +56,7 @@ contains
          element_count = FieldGetLocalElementCount(field, _RC)
          call ESMF_FieldGet(field, grid=grid, typekind=tk,  _RC)
 
-         call server_bounds%initialize(grid, element_count, time_index=time_index, _RC)
+         server_bounds = pFIOServerBounds(grid, element_count, time_index=time_index, _RC)
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
@@ -69,7 +69,7 @@ contains
 
          call o_clients%collective_stage_data(collection_id,filename, trim(field_names(i)), &
               ref, start=local_start, global_start=global_start, global_count=global_count)
-         call server_bounds%finalize()
+         ! call server_bounds%finalize()
       enddo
 
       _RETURN(_SUCCESS)
@@ -110,7 +110,7 @@ contains
          call ESMF_StateGet(state, var_name, field, _RC)
          call ESMF_FieldGet(field, grid=grid, typekind=esmf_typekind, _RC)
          element_count = FieldGetLocalElementCount(field, _RC)
-         call server_bounds%initialize(grid, element_count, _RC)
+         server_bounds = pFIOServerBounds(grid, element_count, _RC)
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
