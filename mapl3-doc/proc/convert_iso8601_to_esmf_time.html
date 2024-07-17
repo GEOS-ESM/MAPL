@@ -1,0 +1,666 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>convert_ISO8601_to_esmf_time &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>convert_ISO8601_to_esmf_time
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">13 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_ISO8601_DateTime_ESMF.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_iso8601_datetime_esmf.f90.html'>MAPL_ISO8601_DateTime_ESMF.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_iso8601_datetime_esmf.html'>MAPL_ISO8601_DateTime_ESMF</a></li>
+            <li class="breadcrumb-item active" aria-current="page">convert_ISO8601_to_esmf_time</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/convert_iso8601_to_esmf_time.html#src">convert_ISO8601_to_esmf_time</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function convert_ISO8601_to_esmf_time(isostring, rc) result(time)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-isostring~18"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>isostring</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2627"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-time~76"></span>
+          type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~convert_iso8601_to_esmf_time~~CallsGraph Pages: 1 -->
+<svg id="procconvert_iso8601_to_esmf_timeCallsGraph" width="641pt" height="406pt"
+ viewBox="0.00 0.00 641.00 406.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph" class="graph" transform="scale(1.01 1.01) rotate(0) translate(4 406)">
+<title>proc~~convert_iso8601_to_esmf_time~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-406 643,-406 643,4 -4,4"/>
+<!-- proc~convert_iso8601_to_esmf_time -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node1" class="node">
+<title>proc~convert_iso8601_to_esmf_time</title>
+<polygon fill="none" stroke="black" points="180,-234 0,-234 0,-210 180,-210 180,-234"/>
+<text text-anchor="middle" x="90" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50">convert_ISO8601_to_esmf_time</text>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node2" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="377.5,-402 287.5,-402 287.5,-378 377.5,-378 377.5,-402"/>
+<text text-anchor="middle" x="332.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~convert_iso8601_to_esmf_time&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge1" class="edge">
+<title>proc~convert_iso8601_to_esmf_time&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#ff0000" d="M97.51,-234.35C113.44,-263.22 157.37,-335.2 216,-369 234.43,-379.62 257.03,-385.08 277.33,-387.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="277.06,-391.3 287.4,-388.97 277.87,-384.35 277.06,-391.3"/>
+</g>
+<!-- proc~get_day_datetime -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node3" class="node">
+<title>proc~get_day_datetime</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node3"><a xlink:href="../proc/get_day_datetime.html" xlink:title="ISO8601DateTime%get_day_datetime">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="439.5,-360 225.5,-360 225.5,-336 439.5,-336 439.5,-360"/>
+<text text-anchor="middle" x="332.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ISO8601DateTime%get_day_datetime</text>
+</a>
+</g>
+</g>
+<!-- proc~convert_iso8601_to_esmf_time&#45;&gt;proc~get_day_datetime -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge2" class="edge">
+<title>proc~convert_iso8601_to_esmf_time&#45;&gt;proc~get_day_datetime</title>
+<path fill="none" stroke="#ff0000" d="M101.3,-234.07C121.06,-256.37 166.75,-303.86 216,-327 220.61,-329.17 225.42,-331.11 230.34,-332.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="229.35,-336.21 239.94,-335.96 231.51,-329.55 229.35,-336.21"/>
+</g>
+<!-- proc~get_hour_datetime -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node4" class="node">
+<title>proc~get_hour_datetime</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node4"><a xlink:href="../proc/get_hour_datetime.html" xlink:title="ISO8601DateTime%get_hour_datetime">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="442.5,-318 222.5,-318 222.5,-294 442.5,-294 442.5,-318"/>
+<text text-anchor="middle" x="332.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ISO8601DateTime%get_hour_datetime</text>
+</a>
+</g>
+</g>
+<!-- proc~convert_iso8601_to_esmf_time&#45;&gt;proc~get_hour_datetime -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge3" class="edge">
+<title>proc~convert_iso8601_to_esmf_time&#45;&gt;proc~get_hour_datetime</title>
+<path fill="none" stroke="#ff0000" d="M110.58,-234.11C134.56,-248.4 176.83,-271.87 216,-285 223.34,-287.46 231.04,-289.65 238.84,-291.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="238.2,-295.05 248.74,-293.94 239.81,-288.23 238.2,-295.05"/>
+</g>
+<!-- proc~get_minute_datetime -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node5" class="node">
+<title>proc~get_minute_datetime</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node5"><a xlink:href="../proc/get_minute_datetime.html" xlink:title="ISO8601DateTime%get_minute_datetime">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="448.5,-276 216.5,-276 216.5,-252 448.5,-252 448.5,-276"/>
+<text text-anchor="middle" x="332.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ISO8601DateTime%get_minute_datetime</text>
+</a>
+</g>
+</g>
+<!-- proc~convert_iso8601_to_esmf_time&#45;&gt;proc~get_minute_datetime -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge4" class="edge">
+<title>proc~convert_iso8601_to_esmf_time&#45;&gt;proc~get_minute_datetime</title>
+<path fill="none" stroke="#ff0000" d="M159.92,-234.04C188.85,-239.09 222.66,-244.99 252.59,-250.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="252.12,-253.69 262.57,-251.96 253.32,-246.79 252.12,-253.69"/>
+</g>
+<!-- proc~get_month_datetime -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node6" class="node">
+<title>proc~get_month_datetime</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node6"><a xlink:href="../proc/get_month_datetime.html" xlink:title="ISO8601DateTime%get_month_datetime">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="447,-234 218,-234 218,-210 447,-210 447,-234"/>
+<text text-anchor="middle" x="332.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ISO8601DateTime%get_month_datetime</text>
+</a>
+</g>
+</g>
+<!-- proc~convert_iso8601_to_esmf_time&#45;&gt;proc~get_month_datetime -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge5" class="edge">
+<title>proc~convert_iso8601_to_esmf_time&#45;&gt;proc~get_month_datetime</title>
+<path fill="none" stroke="#ff0000" d="M180.21,-222C189.24,-222 198.53,-222 207.84,-222"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="207.94,-225.5 217.94,-222 207.94,-218.5 207.94,-225.5"/>
+</g>
+<!-- proc~get_second_datetime -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node7" class="node">
+<title>proc~get_second_datetime</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node7"><a xlink:href="../proc/get_second_datetime.html" xlink:title="ISO8601DateTime%get_second_datetime">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="449,-192 216,-192 216,-168 449,-168 449,-192"/>
+<text text-anchor="middle" x="332.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ISO8601DateTime%get_second_datetime</text>
+</a>
+</g>
+</g>
+<!-- proc~convert_iso8601_to_esmf_time&#45;&gt;proc~get_second_datetime -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge6" class="edge">
+<title>proc~convert_iso8601_to_esmf_time&#45;&gt;proc~get_second_datetime</title>
+<path fill="none" stroke="#ff0000" d="M159.92,-209.96C188.85,-204.91 222.66,-199.01 252.59,-193.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="253.32,-197.21 262.57,-192.04 252.12,-190.31 253.32,-197.21"/>
+</g>
+<!-- proc~get_year_datetime -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node8" class="node">
+<title>proc~get_year_datetime</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node8"><a xlink:href="../proc/get_year_datetime.html" xlink:title="ISO8601DateTime%get_year_datetime">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="442,-150 223,-150 223,-126 442,-126 442,-150"/>
+<text text-anchor="middle" x="332.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ISO8601DateTime%get_year_datetime</text>
+</a>
+</g>
+</g>
+<!-- proc~convert_iso8601_to_esmf_time&#45;&gt;proc~get_year_datetime -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge7" class="edge">
+<title>proc~convert_iso8601_to_esmf_time&#45;&gt;proc~get_year_datetime</title>
+<path fill="none" stroke="#ff0000" d="M110.58,-209.89C134.56,-195.6 176.83,-172.13 216,-159 223.34,-156.54 231.04,-154.35 238.84,-152.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="239.81,-155.77 248.74,-150.06 238.2,-148.95 239.81,-155.77"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node9" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node9"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="373.5,-98 291.5,-98 291.5,-74 373.5,-74 373.5,-98"/>
+<text text-anchor="middle" x="332.5" y="-83.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~convert_iso8601_to_esmf_time&#45;&gt;proc~mapl_return -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge8" class="edge">
+<title>proc~convert_iso8601_to_esmf_time&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M101.8,-209.97C122.04,-188.15 168,-142.02 216,-117 236.25,-106.45 260.43,-99.24 281.41,-94.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="282.39,-97.82 291.42,-92.29 280.91,-90.98 282.39,-97.82"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node10" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node10"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="370.5,-35 294.5,-35 294.5,-11 370.5,-11 370.5,-35"/>
+<text text-anchor="middle" x="332.5" y="-20.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~convert_iso8601_to_esmf_time&#45;&gt;proc~mapl_verify -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge9" class="edge">
+<title>proc~convert_iso8601_to_esmf_time&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M97.47,-209.91C113.63,-180.82 158.58,-106.3 216,-65 236.35,-50.36 262.36,-40.31 284.53,-33.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="285.75,-37.02 294.42,-30.93 283.85,-30.28 285.75,-37.02"/>
+</g>
+<!-- proc~get_day -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node13" class="node">
+<title>proc~get_day</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node13"><a xlink:href="../proc/get_day.html" xlink:title="ISO8601Date%get_day">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="629.5,-360 494.5,-360 494.5,-336 629.5,-336 629.5,-360"/>
+<text text-anchor="middle" x="562" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ISO8601Date%get_day</text>
+</a>
+</g>
+</g>
+<!-- proc~get_day_datetime&#45;&gt;proc~get_day -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge10" class="edge">
+<title>proc~get_day_datetime&#45;&gt;proc~get_day</title>
+<path fill="none" stroke="#ffaa00" d="M439.59,-348C454.6,-348 469.78,-348 484.1,-348"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="484.35,-351.5 494.35,-348 484.35,-344.5 484.35,-351.5"/>
+</g>
+<!-- proc~get_hour -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node14" class="node">
+<title>proc~get_hour</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node14"><a xlink:href="../proc/get_hour.html" xlink:title="ISO8601Time%get_hour">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="632.5,-318 491.5,-318 491.5,-294 632.5,-294 632.5,-318"/>
+<text text-anchor="middle" x="562" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ISO8601Time%get_hour</text>
+</a>
+</g>
+</g>
+<!-- proc~get_hour_datetime&#45;&gt;proc~get_hour -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge11" class="edge">
+<title>proc~get_hour_datetime&#45;&gt;proc~get_hour</title>
+<path fill="none" stroke="#aaff00" d="M442.59,-306C455.5,-306 468.5,-306 480.91,-306"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="481.19,-309.5 491.19,-306 481.19,-302.5 481.19,-309.5"/>
+</g>
+<!-- proc~get_minute -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node15" class="node">
+<title>proc~get_minute</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node15"><a xlink:href="../proc/get_minute.html" xlink:title="ISO8601Time%get_minute">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="639,-276 485,-276 485,-252 639,-252 639,-276"/>
+<text text-anchor="middle" x="562" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ISO8601Time%get_minute</text>
+</a>
+</g>
+</g>
+<!-- proc~get_minute_datetime&#45;&gt;proc~get_minute -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge12" class="edge">
+<title>proc~get_minute_datetime&#45;&gt;proc~get_minute</title>
+<path fill="none" stroke="#00ff00" d="M448.58,-264C457.45,-264 466.32,-264 474.95,-264"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="474.97,-267.5 484.97,-264 474.97,-260.5 474.97,-267.5"/>
+</g>
+<!-- proc~get_month -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node16" class="node">
+<title>proc~get_month</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node16"><a xlink:href="../proc/get_month.html" xlink:title="ISO8601Date%get_month">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="637,-234 487,-234 487,-210 637,-210 637,-234"/>
+<text text-anchor="middle" x="562" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ISO8601Date%get_month</text>
+</a>
+</g>
+</g>
+<!-- proc~get_month_datetime&#45;&gt;proc~get_month -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge13" class="edge">
+<title>proc~get_month_datetime&#45;&gt;proc~get_month</title>
+<path fill="none" stroke="#00ffa9" d="M447.25,-222C457.12,-222 466.99,-222 476.57,-222"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="476.82,-225.5 486.82,-222 476.82,-218.5 476.82,-225.5"/>
+</g>
+<!-- proc~get_second -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node17" class="node">
+<title>proc~get_second</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node17"><a xlink:href="../proc/get_second.html" xlink:title="ISO8601Time%get_second">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="639,-192 485,-192 485,-168 639,-168 639,-192"/>
+<text text-anchor="middle" x="562" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ISO8601Time%get_second</text>
+</a>
+</g>
+</g>
+<!-- proc~get_second_datetime&#45;&gt;proc~get_second -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge14" class="edge">
+<title>proc~get_second_datetime&#45;&gt;proc~get_second</title>
+<path fill="none" stroke="#00a9ff" d="M449.25,-180C457.83,-180 466.4,-180 474.76,-180"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="474.84,-183.5 484.84,-180 474.84,-176.5 474.84,-183.5"/>
+</g>
+<!-- proc~get_year -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node18" class="node">
+<title>proc~get_year</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node18"><a xlink:href="../proc/get_year.html" xlink:title="ISO8601Date%get_year">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="631.5,-150 492.5,-150 492.5,-126 631.5,-126 631.5,-150"/>
+<text text-anchor="middle" x="562" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ISO8601Date%get_year</text>
+</a>
+</g>
+</g>
+<!-- proc~get_year_datetime&#45;&gt;proc~get_year -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge15" class="edge">
+<title>proc~get_year_datetime&#45;&gt;proc~get_year</title>
+<path fill="none" stroke="#0000ff" d="M442.25,-138C455.68,-138 469.21,-138 482.07,-138"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="482.24,-141.5 492.24,-138 482.24,-134.5 482.24,-141.5"/>
+</g>
+<!-- at -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node11" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="589,-108 535,-108 535,-84 589,-84 589,-108"/>
+<text text-anchor="middle" x="562" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#aa00ff" d="M373.65,-87.76C416.36,-89.64 483.34,-92.59 524.58,-94.4"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="524.58,-97.9 534.73,-94.85 524.89,-90.91 524.58,-97.9"/>
+</g>
+<!-- insert -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node12" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="589,-66 535,-66 535,-42 589,-42 589,-66"/>
+<text text-anchor="middle" x="562" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#aa00ff" d="M373.65,-80.35C416.36,-74.34 483.34,-64.92 524.58,-59.12"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="525.31,-62.55 534.73,-57.7 524.34,-55.62 525.31,-62.55"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_node19" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~convert_iso8601_to_esmf_time~~CallsGraph_node19"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="628.5,-24 495.5,-24 495.5,0 628.5,0 628.5,-24"/>
+<text text-anchor="middle" x="562" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#aa00ff" d="M365.8,-74C396.33,-62.82 443.51,-45.97 485,-33 491.58,-30.94 498.52,-28.88 505.42,-26.9"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="506.78,-30.15 515.44,-24.05 504.87,-23.41 506.78,-30.15"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~convert_iso8601_to_esmf_time~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00aa" d="M370.56,-21.21C401.53,-19.71 446.71,-17.53 485.29,-15.66"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="485.64,-19.15 495.46,-15.17 485.3,-12.16 485.64,-19.15"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocconvert_iso8601_to_esmf_timeCallsGraph = svgPanZoom('#procconvert_iso8601_to_esmf_timeCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">convert_ISO8601_to_esmf_time</span><span class="p">(</span><span class="n">isostring</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="nb">time</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isostring</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
+<span class="nb">      </span><span class="k">type</span><span class="p">(</span><span class="n">ISO8601DateTime</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">datetime</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="n">datetime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ISO8601DateTime</span><span class="p">(</span><span class="n">isostring</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">yy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">datetime</span><span class="p">%</span><span class="n">get_year</span><span class="p">(),</span><span class="w"> </span><span class="n">mm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">datetime</span><span class="p">%</span><span class="n">get_month</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">dd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">datetime</span><span class="p">%</span><span class="n">get_day</span><span class="p">(),</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">datetime</span><span class="p">%</span><span class="n">get_hour</span><span class="p">(),</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">datetime</span><span class="p">%</span><span class="n">get_minute</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">s</span><span class="o">=</span><span class="w"> </span><span class="n">datetime</span><span class="p">%</span><span class="n">get_second</span><span class="p">(),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end function </span><span class="n">convert_ISO8601_to_esmf_time</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-07-17T20:14:48.944822             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
