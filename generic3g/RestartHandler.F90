@@ -4,11 +4,9 @@ module mapl3g_RestartHandler
 
    use, intrinsic :: iso_c_binding, only: c_ptr
    use esmf
-   use mapl3g_geom_mgr, only: MaplGeom, get_geom_manager
-   use mapl3g_MultiState, only: MultiState
+   use mapl3g_geom_mgr, only: MaplGeom
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
    use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio, get_mapl_geom
-   use mapl3g_pFIOServerBounds, only: pFIOServerBounds
    use mapl3g_SharedIO, only: esmf_to_pfio_type
    use MAPL_FieldPointerUtilities, only: FieldGetCPtr, FieldGetLocalElementCount
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
@@ -50,7 +48,7 @@ contains
       call ESMF_Clockget(gc_clock, currTime = restart_handler%current_time, _RC)
       restart_handler%gc_geom = gc_geom
 
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
    end function new_RestartHandler
 
    subroutine write(this, state_type, state, rc)
@@ -74,7 +72,7 @@ contains
          call this%write_bundle_(out_bundle, file_name, rc)
       end if
 
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
    end subroutine write
 
    subroutine read(this, state_type, state, rc)
@@ -98,13 +96,13 @@ contains
          if (.not. file_exists) then
             ! TODO: Need to decide what happens in that case. Bootstrapping variables?
             print *, "Restart file <" // trim(file_name) // "> does not exist. Skip reading!"
-            _RETURN(ESMF_SUCCESS)
+            _RETURN(_SUCCESS)
          end if
          print *, "Reading restart: ", trim(file_name)
          call this%read_fields_(file_name, state, _RC)
       end if
 
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
    end subroutine read
 
    type(ESMF_FieldBundle) function get_bundle_from_state_(state, rc) result(bundle)
@@ -136,7 +134,7 @@ contains
       end do
       deallocate(item_name, item_type, _STAT)
 
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
    end function get_bundle_from_state_
 
    subroutine write_bundle_(this, bundle, file_name, rc)
@@ -163,7 +161,7 @@ contains
       call o_Clients%post_wait()
       deallocate(writer)
 
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
    end subroutine write_bundle_
 
    subroutine read_fields_(this, file_name, state, rc)
@@ -190,7 +188,7 @@ contains
       call i_Clients%done_collective_prefetch()
       call i_Clients%wait()
 
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
    end subroutine read_fields_
 
 end module mapl3g_RestartHandler
