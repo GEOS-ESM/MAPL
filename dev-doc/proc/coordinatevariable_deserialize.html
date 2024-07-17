@@ -1,0 +1,810 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CoordinateVariable_deserialize &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>CoordinateVariable_deserialize
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">56 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/CoordinateVariable.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/coordinatevariable.f90.html'>CoordinateVariable.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_coordinatevariablemod.html'>pFIO_CoordinateVariableMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">CoordinateVariable_deserialize</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/coordinatevariable_deserialize.html#src">CoordinateVariable_deserialize</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine CoordinateVariable_deserialize(buffer, cv, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-buffer~24"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>buffer</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cv"></span>
+              type(<a href='../type/coordinatevariable.html'>CoordinateVariable</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cv</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~238"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~coordinatevariable_deserialize~~CallsGraph Pages: 1 -->
+<svg id="proccoordinatevariable_deserializeCallsGraph" width="355pt" height="242pt"
+ viewBox="0.00 0.00 355.00 242.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 238)">
+<title>proc~~coordinatevariable_deserialize~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 351,-238 351,4 -4,4"/>
+<!-- proc~coordinatevariable_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph_node1" class="node">
+<title>proc~coordinatevariable_deserialize</title>
+<polygon fill="none" stroke="black" points="178,-129 0,-129 0,-105 178,-105 178,-129"/>
+<text text-anchor="middle" x="89" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">CoordinateVariable_deserialize</text>
+</g>
+<!-- interface~deserialize_intrinsic -->
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph_node2" class="node">
+<title>interface~deserialize_intrinsic</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CallsGraph_node2"><a xlink:href="../interface/deserialize_intrinsic.html" xlink:title="deserialize_intrinsic">
+<polygon fill="#a7506f" stroke="#a7506f" points="339.5,-234 221.5,-234 221.5,-210 339.5,-210 339.5,-234"/>
+<text text-anchor="middle" x="280.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_intrinsic</text>
+</a>
+</g>
+</g>
+<!-- proc~coordinatevariable_deserialize&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph_edge1" class="edge">
+<title>proc~coordinatevariable_deserialize&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M104.8,-129.1C127.22,-146.94 171.68,-180.41 214,-201 217.97,-202.93 222.17,-204.75 226.43,-206.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="225.24,-209.72 235.83,-209.92 227.68,-203.16 225.24,-209.72"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph_node3" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CallsGraph_node3"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="320,-192 241,-192 241,-168 320,-168 320,-192"/>
+<text text-anchor="middle" x="280.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~coordinatevariable_deserialize&#45;&gt;interface~mapl_assert -->
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph_edge2" class="edge">
+<title>proc~coordinatevariable_deserialize&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M124.96,-129.01C149.77,-137.49 183.89,-149.07 214,-159 219.67,-160.87 225.62,-162.81 231.52,-164.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="230.78,-168.15 241.37,-167.89 232.92,-161.49 230.78,-168.15"/>
+</g>
+<!-- interface~serialize_buffer_length -->
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph_node4" class="node">
+<title>interface~serialize_buffer_length</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CallsGraph_node4"><a xlink:href="../interface/serialize_buffer_length.html" xlink:title="serialize_buffer_length">
+<polygon fill="#a7506f" stroke="#a7506f" points="347,-150 214,-150 214,-126 347,-126 347,-150"/>
+<text text-anchor="middle" x="280.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_buffer_length</text>
+</a>
+</g>
+</g>
+<!-- proc~coordinatevariable_deserialize&#45;&gt;interface~serialize_buffer_length -->
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph_edge3" class="edge">
+<title>proc~coordinatevariable_deserialize&#45;&gt;interface~serialize_buffer_length</title>
+<path fill="none" stroke="#ff0000" d="M178.09,-126.76C186.68,-127.71 195.34,-128.67 203.8,-129.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="203.66,-133.12 213.98,-130.74 204.43,-126.16 203.66,-133.12"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph_node5" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CallsGraph_node5"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="321.5,-108 239.5,-108 239.5,-84 321.5,-84 321.5,-108"/>
+<text text-anchor="middle" x="280.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~coordinatevariable_deserialize&#45;&gt;proc~mapl_return -->
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph_edge4" class="edge">
+<title>proc~coordinatevariable_deserialize&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M178.09,-107.24C195.69,-105.29 213.6,-103.3 229.38,-101.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="229.85,-105.02 239.41,-100.44 229.08,-98.07 229.85,-105.02"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph_node6" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CallsGraph_node6"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="318.5,-66 242.5,-66 242.5,-42 318.5,-42 318.5,-66"/>
+<text text-anchor="middle" x="280.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~coordinatevariable_deserialize&#45;&gt;proc~mapl_verify -->
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph_edge5" class="edge">
+<title>proc~coordinatevariable_deserialize&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M124.96,-104.99C149.77,-96.51 183.89,-84.93 214,-75 220.03,-73.01 226.38,-70.95 232.65,-68.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.96,-72.17 242.4,-65.78 231.81,-65.51 233.96,-72.17"/>
+</g>
+<!-- proc~variable_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph_node7" class="node">
+<title>proc~variable_deserialize</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CallsGraph_node7"><a xlink:href="../proc/variable_deserialize.html" xlink:title="Variable_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="340,-24 221,-24 221,0 340,0 340,-24"/>
+<text text-anchor="middle" x="280.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Variable_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~coordinatevariable_deserialize&#45;&gt;proc~variable_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CallsGraph_edge6" class="edge">
+<title>proc~coordinatevariable_deserialize&#45;&gt;proc~variable_deserialize</title>
+<path fill="none" stroke="#ff0000" d="M104.8,-104.9C127.22,-87.06 171.68,-53.59 214,-33 217.97,-31.07 222.17,-29.25 226.43,-27.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.68,-30.84 235.83,-24.08 225.24,-24.28 227.68,-30.84"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~coordinatevariable_deserialize~~CalledByGraph Pages: 1 -->
+<svg id="proccoordinatevariable_deserializeCalledByGraph" width="641pt" height="111pt"
+ viewBox="0.00 0.00 641.00 111.09" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph" class="graph" transform="scale(1.8 1.8) rotate(0) translate(4 196)">
+<title>proc~~coordinatevariable_deserialize~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 1150,-196 1150,4 -4,4"/>
+<!-- proc~coordinatevariable_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_node1" class="node">
+<title>proc~coordinatevariable_deserialize</title>
+<polygon fill="none" stroke="black" points="1146,-108 968,-108 968,-84 1146,-84 1146,-108"/>
+<text text-anchor="middle" x="1057" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">CoordinateVariable_deserialize</text>
+</g>
+<!-- proc~stringvariablemap_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_node2" class="node">
+<title>proc~stringvariablemap_deserialize</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CalledByGraph_node2"><a xlink:href="../proc/stringvariablemap_deserialize.html" xlink:title="StringVariableMap_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="932,-129 759,-129 759,-105 932,-105 932,-129"/>
+<text text-anchor="middle" x="845.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~stringvariablemap_deserialize&#45;&gt;proc~coordinatevariable_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_edge1" class="edge">
+<title>proc~stringvariablemap_deserialize&#45;&gt;proc~coordinatevariable_deserialize</title>
+<path fill="none" stroke="#ff0000" d="M932.01,-108.43C940.47,-107.58 949.1,-106.72 957.67,-105.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="958.1,-109.33 967.7,-104.85 957.4,-102.37 958.1,-109.33"/>
+</g>
+<!-- proc~test_serialize~2 -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_node3" class="node">
+<title>proc~test_serialize~2</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CalledByGraph_node3"><a xlink:href="../proc/test_serialize~2.html" xlink:title="test_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="886.5,-87 804.5,-87 804.5,-63 886.5,-63 886.5,-87"/>
+<text text-anchor="middle" x="845.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize~2&#45;&gt;proc~coordinatevariable_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_edge2" class="edge">
+<title>proc~test_serialize~2&#45;&gt;proc~coordinatevariable_deserialize</title>
+<path fill="none" stroke="#ff0000" d="M886.89,-79.05C907.06,-81.07 932.43,-83.61 957.34,-86.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="957.29,-89.62 967.59,-87.14 957.99,-82.66 957.29,-89.62"/>
+</g>
+<!-- proc~deserialize~20 -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_node4" class="node">
+<title>proc~deserialize~20</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CalledByGraph_node4"><a xlink:href="../proc/deserialize~20.html" xlink:title="ModifyMetadataMessage%deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="723,-150 511,-150 511,-126 723,-126 723,-150"/>
+<text text-anchor="middle" x="617" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ModifyMetadataMessage%deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~20&#45;&gt;proc~stringvariablemap_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_edge3" class="edge">
+<title>proc~deserialize~20&#45;&gt;proc~stringvariablemap_deserialize</title>
+<path fill="none" stroke="#ff0000" d="M723.29,-128.24C731.75,-127.45 740.27,-126.66 748.66,-125.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="749.18,-129.35 758.81,-124.94 748.53,-122.38 749.18,-129.35"/>
+</g>
+<!-- proc~filemetadata_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_node5" class="node">
+<title>proc~filemetadata_deserialize</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CalledByGraph_node5"><a xlink:href="../proc/filemetadata_deserialize.html" xlink:title="FileMetadata_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="689,-108 545,-108 545,-84 689,-84 689,-108"/>
+<text text-anchor="middle" x="617" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~filemetadata_deserialize&#45;&gt;proc~stringvariablemap_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_edge4" class="edge">
+<title>proc~filemetadata_deserialize&#45;&gt;proc~stringvariablemap_deserialize</title>
+<path fill="none" stroke="#ff0000" d="M689.04,-102.59C707.91,-104.34 728.6,-106.25 748.56,-108.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="748.32,-111.6 758.6,-109.04 748.97,-104.63 748.32,-111.6"/>
+</g>
+<!-- proc~deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_node6" class="node">
+<title>proc~deserialize</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CalledByGraph_node6"><a xlink:href="../proc/deserialize.html" xlink:title="ReplaceMetadataMessage%deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="475,-192 255,-192 255,-168 475,-168 475,-192"/>
+<text text-anchor="middle" x="365" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ReplaceMetadataMessage%deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize&#45;&gt;proc~filemetadata_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_edge5" class="edge">
+<title>proc~deserialize&#45;&gt;proc~filemetadata_deserialize</title>
+<path fill="none" stroke="#00ffff" d="M455.57,-167.95C462.35,-165.49 468.92,-162.53 475,-159 496.26,-146.65 489.78,-129.42 511,-117 518.46,-112.63 526.67,-109.16 535.12,-106.4"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="536.12,-109.75 544.73,-103.57 534.15,-103.03 536.12,-109.75"/>
+</g>
+<!-- proc~deserialize~10 -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_node7" class="node">
+<title>proc~deserialize~10</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CalledByGraph_node7"><a xlink:href="../proc/deserialize~10.html" xlink:title="AddHistCollectionMessage%deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="475,-150 255,-150 255,-126 475,-126 475,-150"/>
+<text text-anchor="middle" x="365" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AddHistCollectionMessage%deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~10&#45;&gt;proc~filemetadata_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_edge6" class="edge">
+<title>proc~deserialize~10&#45;&gt;proc~filemetadata_deserialize</title>
+<path fill="none" stroke="#00ffff" d="M437.64,-125.96C467.98,-120.87 503.47,-114.9 534.78,-109.65"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="535.5,-113.07 544.78,-107.96 534.34,-106.17 535.5,-113.07"/>
+</g>
+<!-- proc~historycollectionvector_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_node8" class="node">
+<title>proc~historycollectionvector_deserialize</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CalledByGraph_node8"><a xlink:href="../proc/historycollectionvector_deserialize.html" xlink:title="HistoryCollectionVector_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="465,-108 265,-108 265,-84 465,-84 465,-108"/>
+<text text-anchor="middle" x="365" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~historycollectionvector_deserialize&#45;&gt;proc~filemetadata_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_edge7" class="edge">
+<title>proc~historycollectionvector_deserialize&#45;&gt;proc~filemetadata_deserialize</title>
+<path fill="none" stroke="#00ffff" d="M465.17,-96C488.22,-96 512.5,-96 534.68,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="534.71,-99.5 544.71,-96 534.71,-92.5 534.71,-99.5"/>
+</g>
+<!-- proc~start_back -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_node9" class="node">
+<title>proc~start_back</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CalledByGraph_node9"><a xlink:href="../proc/start_back.html" xlink:title="MultiGroupServer%start_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="450,-66 280,-66 280,-42 450,-42 450,-66"/>
+<text text-anchor="middle" x="365" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiGroupServer%start_back</text>
+</a>
+</g>
+</g>
+<!-- proc~start_back&#45;&gt;proc~filemetadata_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_edge8" class="edge">
+<title>proc~start_back&#45;&gt;proc~filemetadata_deserialize</title>
+<path fill="none" stroke="#00ffff" d="M437.64,-66.04C467.98,-71.13 503.47,-77.1 534.78,-82.35"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="534.34,-85.83 544.78,-84.04 535.5,-78.93 534.34,-85.83"/>
+</g>
+<!-- proc~test_serialize~3 -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_node10" class="node">
+<title>proc~test_serialize~3</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CalledByGraph_node10"><a xlink:href="../proc/test_serialize~3.html" xlink:title="test_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="406,-24 324,-24 324,0 406,0 406,-24"/>
+<text text-anchor="middle" x="365" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize~3&#45;&gt;proc~filemetadata_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_edge9" class="edge">
+<title>proc~test_serialize~3&#45;&gt;proc~filemetadata_deserialize</title>
+<path fill="none" stroke="#00ffff" d="M406.15,-17.47C426.98,-20.88 452.67,-25.96 475,-33 513.83,-45.23 556.2,-65.12 584.25,-79.27"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="582.69,-82.41 593.19,-83.84 585.87,-76.17 582.69,-82.41"/>
+</g>
+<!-- proc~create_remote_win -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_node11" class="node">
+<title>proc~create_remote_win</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CalledByGraph_node11"><a xlink:href="../proc/create_remote_win.html" xlink:title="MultiCommServer%create_remote_win">
+<polygon fill="#d9534f" stroke="#d9534f" points="219,-108 0,-108 0,-84 219,-84 219,-108"/>
+<text text-anchor="middle" x="109.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiCommServer%create_remote_win</text>
+</a>
+</g>
+</g>
+<!-- proc~create_remote_win&#45;&gt;proc~historycollectionvector_deserialize -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_edge10" class="edge">
+<title>proc~create_remote_win&#45;&gt;proc~historycollectionvector_deserialize</title>
+<path fill="none" stroke="#00ff66" d="M219.11,-96C230.85,-96 242.81,-96 254.57,-96"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="254.83,-99.5 264.83,-96 254.83,-92.5 254.83,-99.5"/>
+</g>
+<!-- proc~start~7 -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_node12" class="node">
+<title>proc~start~7</title>
+<g id="a_proc~~coordinatevariable_deserialize~~CalledByGraph_node12"><a xlink:href="../proc/start~7.html" xlink:title="MultiGroupServer%start">
+<polygon fill="#d9534f" stroke="#d9534f" points="179,-66 40,-66 40,-42 179,-42 179,-66"/>
+<text text-anchor="middle" x="109.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiGroupServer%start</text>
+</a>
+</g>
+</g>
+<!-- proc~start~7&#45;&gt;proc~start_back -->
+<g id="proc~~coordinatevariable_deserialize~~CalledByGraph_edge11" class="edge">
+<title>proc~start~7&#45;&gt;proc~start_back</title>
+<path fill="none" stroke="#0066ff" d="M179.1,-54C207.03,-54 239.77,-54 269.87,-54"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="269.97,-57.5 279.97,-54 269.97,-50.5 269.97,-57.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccoordinatevariable_deserializeCalledByGraph = svgPanZoom('#proccoordinatevariable_deserializeCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">CoordinateVariable_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">CoordinateVariable</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cv</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize</span><span class="p">(</span><span class="n">cv</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">contains  </span>
+<span class="k">      </span>
+<span class="k">      subroutine </span><span class="n">deserialize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">CoordinateVariable</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="n">length</span><span class="p">,</span><span class="n">type_kind</span><span class="p">,</span><span class="w"> </span><span class="n">v_type</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">         </span><span class="kt">integer</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">INT32</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_int32</span><span class="p">(:)</span>
+<span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w">   </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_real32</span><span class="p">(:)</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">INT64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_int64</span><span class="p">(:)</span>
+<span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w">   </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_real64</span><span class="p">(:)</span>
+
+
+<span class="w">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">         </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">length</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">length</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;size not match&quot;</span><span class="p">)</span>
+
+<span class="w">         </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+<span class="w">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">length</span>
+<span class="w">         </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">v_type</span><span class="p">)</span>
+<span class="w">         </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">v_type</span><span class="p">)</span>
+<span class="w">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="o">+</span><span class="n">length</span>
+<span class="w">         </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">length</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">Variable_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:</span><span class="n">n</span><span class="o">+</span><span class="n">length</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="n">this</span><span class="p">%</span><span class="n">variable</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">length</span>
+<span class="w">         </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">type_kind</span><span class="p">)</span>
+<span class="w">         </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">type_kind</span><span class="p">)</span>
+<span class="w">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">length</span>
+<span class="w">         </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">coordinate_data</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">coordinate_data</span><span class="p">)</span>
+<span class="w">         </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">type_kind</span><span class="p">)</span>
+<span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_INT32</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">values_int32</span><span class="p">)</span>
+<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">coordinate_data</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">values_int32</span><span class="p">)</span><span class="w"> </span>
+<span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_INT64</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">values_int64</span><span class="p">)</span>
+<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">coordinate_data</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">values_int64</span><span class="p">)</span><span class="w"> </span>
+<span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_REAL32</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">values_REAL32</span><span class="p">)</span>
+<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">coordinate_data</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">values_real32</span><span class="p">)</span><span class="w"> </span>
+<span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_REAL64</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">values_REAL64</span><span class="p">)</span>
+<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">coordinate_data</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">values_real64</span><span class="p">)</span>
+<span class="w">         </span><span class="k">case </span><span class="n">default</span>
+<span class="w">            </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;not supportted type&quot;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end select</span>
+<span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">deserialize</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">CoordinateVariable_deserialize</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-07-17T18:51:37.893309             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

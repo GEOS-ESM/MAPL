@@ -1,0 +1,903 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_GetNumSubtiles &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_GetNumSubtiles
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">34 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericmod.html'>MAPL_GenericMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_GetNumSubtiles</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_getnumsubtiles.html#src">MAPL_GetNumSubtiles</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function MAPL_GetNumSubtiles(STATE, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-state~87"></span>
+              type(<a href='../type/mapl_metacomp.html'>MAPL_MetaComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>STATE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~366"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-mapl_getnumsubtiles"></span>
+          integer
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_getnumsubtiles~~CallsGraph Pages: 1 -->
+<svg id="procmapl_getnumsubtilesCallsGraph" width="641pt" height="187pt"
+ viewBox="0.00 0.00 641.00 186.63" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph" class="graph" transform="scale(1.34 1.34) rotate(0) translate(4 246.68)">
+<title>proc~~mapl_getnumsubtiles~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-246.68 857,-246.68 857,4 -4,4"/>
+<!-- proc~mapl_getnumsubtiles -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node1" class="node">
+<title>proc~mapl_getnumsubtiles</title>
+<polygon fill="none" stroke="black" points="132,-34.68 0,-34.68 0,-10.68 132,-10.68 132,-34.68"/>
+<text text-anchor="middle" x="66" y="-20.28" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GetNumSubtiles</text>
+</g>
+<!-- interface~mapl_varspecget -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node2" class="node">
+<title>interface~mapl_varspecget</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CallsGraph_node2"><a xlink:href="../interface/mapl_varspecget.html" xlink:title="MAPL_VarSpecGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="277,-137.68 168,-137.68 168,-113.68 277,-113.68 277,-137.68"/>
+<text text-anchor="middle" x="222.5" y="-123.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getnumsubtiles&#45;&gt;interface~mapl_varspecget -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_getnumsubtiles&#45;&gt;interface~mapl_varspecget</title>
+<path fill="none" stroke="#ff0000" d="M85.03,-34.7C111.98,-52.67 162.96,-86.66 194.41,-107.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.85,-110.79 203.11,-113.42 196.73,-104.97 192.85,-110.79"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CallsGraph_node3"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="591,-116.68 509,-116.68 509,-92.68 591,-92.68 591,-116.68"/>
+<text text-anchor="middle" x="550" y="-102.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getnumsubtiles&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_getnumsubtiles&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M132.12,-20.76C230.7,-18.68 412.71,-18.34 473,-41.68 496.33,-50.72 517.76,-69.93 531.88,-84.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="529.6,-87.47 538.93,-92.49 534.76,-82.75 529.6,-87.47"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node4" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CallsGraph_node4"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="588,-35.68 512,-35.68 512,-11.68 588,-11.68 588,-35.68"/>
+<text text-anchor="middle" x="550" y="-21.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getnumsubtiles&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_getnumsubtiles&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M132.06,-12.32C143.99,-10.81 156.34,-9.49 168,-8.68 303.23,0.64 338.09,4.5 473,-8.68 482.34,-9.6 492.23,-11.13 501.68,-12.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="501.23,-16.35 511.72,-14.82 502.57,-9.48 501.23,-16.35"/>
+</g>
+<!-- proc~mapl_varspecgetbundleptr -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node7" class="node">
+<title>proc~mapl_varspecgetbundleptr</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CallsGraph_node7"><a xlink:href="../proc/mapl_varspecgetbundleptr.html" xlink:title="MAPL_VarSpecGetBundlePtr">
+<polygon fill="#d9534f" stroke="#d9534f" points="473,-242.68 313,-242.68 313,-218.68 473,-218.68 473,-242.68"/>
+<text text-anchor="middle" x="393" y="-228.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGetBundlePtr</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetbundleptr -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge4" class="edge">
+<title>interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetbundleptr</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M233.11,-137.96C248.16,-156.35 279.09,-190.86 313,-209.68 316.46,-211.61 320.1,-213.36 323.85,-214.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="322.74,-218.28 333.33,-218.61 325.26,-211.75 322.74,-218.28"/>
+</g>
+<!-- proc~mapl_varspecgetfieldptr -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node8" class="node">
+<title>proc~mapl_varspecgetfieldptr</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CallsGraph_node8"><a xlink:href="../proc/mapl_varspecgetfieldptr.html" xlink:title="MAPL_VarSpecGetFieldPtr">
+<polygon fill="#d9534f" stroke="#d9534f" points="467,-200.68 319,-200.68 319,-176.68 467,-176.68 467,-200.68"/>
+<text text-anchor="middle" x="393" y="-186.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGetFieldPtr</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetfieldptr -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge5" class="edge">
+<title>interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetfieldptr</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M246.2,-137.72C264.01,-146.82 289.61,-159.17 313,-167.68 318.86,-169.82 325.04,-171.84 331.26,-173.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="330.43,-177.13 341.01,-176.57 332.39,-170.41 330.43,-177.13"/>
+</g>
+<!-- proc~mapl_varspecgetnew -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node9" class="node">
+<title>proc~mapl_varspecgetnew</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CallsGraph_node9"><a xlink:href="../proc/mapl_varspecgetnew.html" xlink:title="MAPL_VarSpecGetNew">
+<polygon fill="#d9534f" stroke="#d9534f" points="458.5,-158.68 327.5,-158.68 327.5,-134.68 458.5,-134.68 458.5,-158.68"/>
+<text text-anchor="middle" x="393" y="-144.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGetNew</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetnew -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge6" class="edge">
+<title>interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetnew</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M277.28,-132.39C289.94,-133.96 303.67,-135.68 317.07,-137.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="316.88,-140.85 327.24,-138.61 317.75,-133.9 316.88,-140.85"/>
+</g>
+<!-- proc~mapl_varspecgetregular -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node10" class="node">
+<title>proc~mapl_varspecgetregular</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CallsGraph_node10"><a xlink:href="../proc/mapl_varspecgetregular.html" xlink:title="MAPL_VarSpecGetRegular">
+<polygon fill="#d9534f" stroke="#d9534f" points="468,-116.68 318,-116.68 318,-92.68 468,-92.68 468,-116.68"/>
+<text text-anchor="middle" x="393" y="-102.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGetRegular</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetregular -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge7" class="edge">
+<title>interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetregular</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M277.28,-118.98C287.06,-117.76 297.47,-116.47 307.88,-115.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="308.35,-118.64 317.84,-113.93 307.49,-111.69 308.35,-118.64"/>
+</g>
+<!-- proc~mapl_varspecgetstateptr -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node11" class="node">
+<title>proc~mapl_varspecgetstateptr</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CallsGraph_node11"><a xlink:href="../proc/mapl_varspecgetstateptr.html" xlink:title="MAPL_VarSpecGetStatePtr">
+<polygon fill="#d9534f" stroke="#d9534f" points="468.5,-74.68 317.5,-74.68 317.5,-50.68 468.5,-50.68 468.5,-74.68"/>
+<text text-anchor="middle" x="393" y="-60.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGetStatePtr</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetstateptr -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetstateptr</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M246.2,-113.65C264.01,-104.54 289.61,-92.2 313,-83.68 318.86,-81.55 325.04,-79.53 331.26,-77.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="332.39,-80.96 341.01,-74.8 330.43,-74.24 332.39,-80.96"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node5" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CallsGraph_node5"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="751,-116.68 636,-116.68 636,-92.68 751,-92.68 751,-116.68"/>
+<text text-anchor="middle" x="693.5" y="-102.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff00" d="M591.17,-104.68C601.91,-104.68 613.82,-104.68 625.59,-104.68"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="625.86,-108.18 635.86,-104.68 625.86,-101.18 625.86,-108.18"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node6" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CallsGraph_node6"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="760,-45.68 627,-45.68 627,-21.68 760,-21.68 760,-45.68"/>
+<text text-anchor="middle" x="693.5" y="-31.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M575,-92.64C598.18,-81.01 633.46,-63.31 659.32,-50.33"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="661.01,-53.4 668.38,-45.79 657.87,-47.14 661.01,-53.4"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M588.18,-26.31C596.99,-26.93 606.71,-27.62 616.56,-28.32"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="616.62,-31.83 626.84,-29.04 617.11,-24.85 616.62,-31.83"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node12" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="851.5,-148.68 797.5,-148.68 797.5,-124.68 851.5,-124.68 851.5,-148.68"/>
+<text text-anchor="middle" x="824.5" y="-134.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge12" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M742.9,-116.69C757.6,-120.34 773.49,-124.28 787.24,-127.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="786.74,-131.17 797.29,-130.18 788.43,-124.38 786.74,-131.17"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node13" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="851.5,-106.68 797.5,-106.68 797.5,-82.68 851.5,-82.68 851.5,-106.68"/>
+<text text-anchor="middle" x="824.5" y="-92.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge13" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M751.08,-100.3C763.29,-99.35 775.89,-98.38 787.08,-97.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="787.62,-100.98 797.32,-96.71 787.08,-94 787.62,-100.98"/>
+</g>
+<!-- proc~initialize~6 -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_node14" class="node">
+<title>proc~initialize~6</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CallsGraph_node14"><a xlink:href="../proc/initialize~6.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="853,-45.68 796,-45.68 796,-21.68 853,-21.68 853,-45.68"/>
+<text text-anchor="middle" x="824.5" y="-31.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~6 -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~6</title>
+<path fill="none" stroke="#ffda00" d="M760.13,-33.68C768.88,-33.68 777.59,-33.68 785.63,-33.68"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="785.77,-37.18 795.77,-33.68 785.77,-30.18 785.77,-37.18"/>
+</g>
+<!-- proc~mapl_varspecgetbundleptr&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_varspecgetbundleptr&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#48ff00" d="M456.21,-218.61C462.14,-216.16 467.85,-213.22 473,-209.68 504.13,-188.29 527.12,-149.8 539.25,-125.84"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="542.4,-127.37 543.64,-116.85 536.11,-124.3 542.4,-127.37"/>
+</g>
+<!-- proc~mapl_varspecgetfieldptr&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_varspecgetfieldptr&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff91" d="M451.21,-176.65C458.74,-174.16 466.19,-171.2 473,-167.68 494.85,-156.42 516.07,-138 530.51,-123.98"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="533.19,-126.26 537.8,-116.72 528.25,-121.3 533.19,-126.26"/>
+</g>
+<!-- proc~mapl_varspecgetnew&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_varspecgetnew&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0091ff" d="M439.56,-134.66C450.51,-131.74 462.18,-128.62 473,-125.68 481.45,-123.39 490.42,-120.94 499.12,-118.54"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="500.08,-121.91 508.79,-115.87 498.22,-115.16 500.08,-121.91"/>
+</g>
+<!-- proc~mapl_varspecgetregular&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_varspecgetregular&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#4800ff" d="M468.32,-104.68C478.59,-104.68 488.94,-104.68 498.63,-104.68"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="498.87,-108.18 508.87,-104.68 498.87,-101.18 498.87,-108.18"/>
+</g>
+<!-- proc~mapl_varspecgetstateptr&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getnumsubtiles~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_varspecgetstateptr&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff00da" d="M439.56,-74.71C450.51,-77.63 462.18,-80.75 473,-83.68 481.45,-85.97 490.42,-88.43 499.12,-90.83"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="498.22,-94.21 508.79,-93.49 500.08,-87.46 498.22,-94.21"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_getnumsubtilesCallsGraph = svgPanZoom('#procmapl_getnumsubtilesCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_getnumsubtiles~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_getnumsubtilesCalledByGraph" width="612pt" height="284pt"
+ viewBox="0.00 0.00 612.00 284.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 280)">
+<title>proc~~mapl_getnumsubtiles~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-280 608,-280 608,4 -4,4"/>
+<!-- proc~mapl_getnumsubtiles -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_node1" class="node">
+<title>proc~mapl_getnumsubtiles</title>
+<polygon fill="none" stroke="black" points="604,-108 472,-108 472,-84 604,-84 604,-108"/>
+<text text-anchor="middle" x="538" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GetNumSubtiles</text>
+</g>
+<!-- proc~mapl_genericinitialize -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_node2" class="node">
+<title>proc~mapl_genericinitialize</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CalledByGraph_node2"><a xlink:href="../proc/mapl_genericinitialize.html" xlink:title="MAPL_GenericInitialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="436,-171 303,-171 303,-147 436,-147 436,-171"/>
+<text text-anchor="middle" x="369.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericInitialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericinitialize&#45;&gt;proc~mapl_getnumsubtiles -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_genericinitialize&#45;&gt;proc~mapl_getnumsubtiles</title>
+<path fill="none" stroke="#ff0000" d="M402.6,-146.85C429.18,-136.8 467.1,-122.45 495.89,-111.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="497.16,-114.82 505.28,-108 494.69,-108.27 497.16,-114.82"/>
+</g>
+<!-- proc~mapl_readforcingx -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_node3" class="node">
+<title>proc~mapl_readforcingx</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CalledByGraph_node3"><a xlink:href="../proc/mapl_readforcingx.html" xlink:title="MAPL_ReadForcingX">
+<polygon fill="#d9534f" stroke="#d9534f" points="429.5,-66 309.5,-66 309.5,-42 429.5,-42 429.5,-66"/>
+<text text-anchor="middle" x="369.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcingX</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_readforcingx&#45;&gt;proc~mapl_getnumsubtiles -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_readforcingx&#45;&gt;proc~mapl_getnumsubtiles</title>
+<path fill="none" stroke="#ff0000" d="M418.21,-66.04C437.28,-70.85 459.42,-76.43 479.38,-81.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="478.73,-84.91 489.28,-83.96 480.44,-78.12 478.73,-84.91"/>
+</g>
+<!-- proc~initialize_ -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_node4" class="node">
+<title>proc~initialize_</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CalledByGraph_node4"><a xlink:href="../proc/initialize_.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="238.5,-276 176.5,-276 176.5,-252 238.5,-252 238.5,-276"/>
+<text text-anchor="middle" x="207.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_edge3" class="edge">
+<title>proc~initialize_&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M238.54,-255.45C247.96,-252.19 258.19,-248.02 267,-243 298.61,-224.98 330.13,-196.92 349.47,-178.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="352.04,-180.63 356.73,-171.13 347.14,-175.63 352.04,-180.63"/>
+</g>
+<!-- proc~initialize_~2 -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_node5" class="node">
+<title>proc~initialize_~2</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CalledByGraph_node5"><a xlink:href="../proc/initialize_~2.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="238.5,-234 176.5,-234 176.5,-210 238.5,-210 238.5,-234"/>
+<text text-anchor="middle" x="207.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~2&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_edge4" class="edge">
+<title>proc~initialize_~2&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M238.66,-211.48C247.8,-208.21 257.84,-204.54 267,-201 288.31,-192.77 311.89,-183.05 330.96,-175.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="332.36,-178.24 340.21,-171.13 329.63,-171.8 332.36,-178.24"/>
+</g>
+<!-- proc~initialize_~4 -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_node6" class="node">
+<title>proc~initialize_~4</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CalledByGraph_node6"><a xlink:href="../proc/initialize_~4.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="238.5,-192 176.5,-192 176.5,-168 238.5,-168 238.5,-192"/>
+<text text-anchor="middle" x="207.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~4&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_edge5" class="edge">
+<title>proc~initialize_~4&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M238.59,-176.05C254.01,-174.03 273.55,-171.46 292.75,-168.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="293.28,-172.4 302.74,-167.63 292.37,-165.46 293.28,-172.4"/>
+</g>
+<!-- proc~initialize_~5 -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_node7" class="node">
+<title>proc~initialize_~5</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CalledByGraph_node7"><a xlink:href="../proc/initialize_~5.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="238.5,-150 176.5,-150 176.5,-126 238.5,-126 238.5,-150"/>
+<text text-anchor="middle" x="207.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~5&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_edge6" class="edge">
+<title>proc~initialize_~5&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M238.59,-141.95C254.01,-143.97 273.55,-146.54 292.75,-149.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="292.37,-152.54 302.74,-150.37 293.28,-145.6 292.37,-152.54"/>
+</g>
+<!-- proc~initialize~2 -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_node8" class="node">
+<title>proc~initialize~2</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CalledByGraph_node8"><a xlink:href="../proc/initialize~2.html" xlink:title="Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="236,-108 179,-108 179,-84 236,-84 236,-108"/>
+<text text-anchor="middle" x="207.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize~2&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_edge7" class="edge">
+<title>proc~initialize~2&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M236.28,-105.67C246.03,-109.14 257.03,-113.15 267,-117 288.31,-125.23 311.89,-134.95 330.96,-142.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="329.63,-146.2 340.21,-146.87 332.36,-139.76 329.63,-146.2"/>
+</g>
+<!-- proc~mapl_readforcing1 -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_node9" class="node">
+<title>proc~mapl_readforcing1</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CalledByGraph_node9"><a xlink:href="../proc/mapl_readforcing1.html" xlink:title="MAPL_ReadForcing1">
+<polygon fill="#d9534f" stroke="#d9534f" points="267,-66 148,-66 148,-42 267,-42 267,-66"/>
+<text text-anchor="middle" x="207.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcing1</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_readforcing1&#45;&gt;proc~mapl_readforcingx -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_edge8" class="edge">
+<title>proc~mapl_readforcing1&#45;&gt;proc~mapl_readforcingx</title>
+<path fill="none" stroke="#00ffff" d="M267.17,-54C277.58,-54 288.51,-54 299.18,-54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="299.3,-57.5 309.3,-54 299.3,-50.5 299.3,-57.5"/>
+</g>
+<!-- proc~mapl_readforcing2 -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_node10" class="node">
+<title>proc~mapl_readforcing2</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CalledByGraph_node10"><a xlink:href="../proc/mapl_readforcing2.html" xlink:title="MAPL_ReadForcing2">
+<polygon fill="#d9534f" stroke="#d9534f" points="267,-24 148,-24 148,0 267,0 267,-24"/>
+<text text-anchor="middle" x="207.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcing2</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_readforcing2&#45;&gt;proc~mapl_readforcingx -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_edge9" class="edge">
+<title>proc~mapl_readforcing2&#45;&gt;proc~mapl_readforcingx</title>
+<path fill="none" stroke="#00ffff" d="M254.35,-24.04C272.59,-28.82 293.75,-34.38 312.86,-39.4"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="312.08,-42.81 322.64,-41.96 313.86,-36.04 312.08,-42.81"/>
+</g>
+<!-- interface~mapl_readforcing -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_node11" class="node">
+<title>interface~mapl_readforcing</title>
+<g id="a_proc~~mapl_getnumsubtiles~~CalledByGraph_node11"><a xlink:href="../interface/mapl_readforcing.html" xlink:title="MAPL_ReadForcing">
+<polygon fill="#a7506f" stroke="#a7506f" points="112,-45 0,-45 0,-21 112,-21 112,-45"/>
+<text text-anchor="middle" x="56" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcing</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing1 -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_edge10" class="edge">
+<title>interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing1</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M112.24,-40.76C120.61,-41.94 129.33,-43.16 137.94,-44.37"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="137.58,-47.85 147.97,-45.78 138.56,-40.92 137.58,-47.85"/>
+</g>
+<!-- interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing2 -->
+<g id="proc~~mapl_getnumsubtiles~~CalledByGraph_edge11" class="edge">
+<title>interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing2</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M112.24,-25.24C120.61,-24.06 129.33,-22.84 137.94,-21.63"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="138.56,-25.08 147.97,-20.22 137.58,-18.15 138.56,-25.08"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="kt">integer </span><span class="k">function </span><span class="n">MAPL_GetNumSubtiles</span><span class="p">(</span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="w">       </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">STATE</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">        </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="o">=</span><span class="s2">&quot;MAPL_GetNumSubtiles&quot;</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">DIMS</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">NUM_SUBTILES</span>
+
+<span class="w">      </span><span class="n">MAPL_GetNumSubtiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">INTERNAL</span><span class="p">%</span><span class="n">OLD_VAR_SPECS</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         DO </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">INTERNAL</span><span class="p">%</span><span class="n">OLD_VAR_SPECS</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_VarSpecGet</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">INTERNAL</span><span class="p">%</span><span class="n">OLD_VAR_SPECS</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">DIMS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DIMS</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">NUM_SUBTILES</span><span class="o">=</span><span class="n">NUM_SUBTILES</span><span class="p">,</span><span class="w">                 </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w">  </span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileTile</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">MAPL_GetNumSubtiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NUM_SUBTILES</span>
+<span class="w">               </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">         END DO</span>
+<span class="k">      end if</span>
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="k">IMPORT</span><span class="p">%</span><span class="n">OLD_VAR_SPECS</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         DO </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="k">IMPORT</span><span class="p">%</span><span class="n">OLD_VAR_SPECS</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_VarSpecGet</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="k">IMPORT</span><span class="p">%</span><span class="n">OLD_VAR_SPECS</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">DIMS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DIMS</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">NUM_SUBTILES</span><span class="o">=</span><span class="n">NUM_SUBTILES</span><span class="p">,</span><span class="w">                 </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w">  </span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileTile</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">MAPL_GetNumSubtiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NUM_SUBTILES</span>
+<span class="w">               </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">         END DO</span>
+<span class="k">      end if</span>
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">MAPL_GetNumSubtiles</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-07-17T18:51:37.893309             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
