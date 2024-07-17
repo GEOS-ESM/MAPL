@@ -24,8 +24,9 @@ contains
       type(VerticalDimSpec) :: vertical_dim_spec
       type(StringVector) :: attributes
       call state_spec%add_item('A', &
-           FieldSpec(geom, vertical_geom, vertical_dim_spec, ESMF_TYPEKIND_R4, UngriddedDims(), &
-           '', '', 'unknown', attributes))
+           FieldSpec(geom=geom, vertical_geom=vertical_geom, vertical_dim_spec=vertical_dim_spec, &
+           typekind=ESMF_TYPEKIND_R4, ungridded_dims=UngriddedDims()))
+
 
    end subroutine test_add_one_field
    
@@ -45,10 +46,9 @@ contains
       type(ESMF_Geom) :: geom
       type(VerticalGeom) :: vertical_geom
       type(VerticalDimSpec) :: vertical_dim_spec
-      type(StringVector) :: attributes
 
-      field_spec = FieldSpec(geom, vertical_geom, vertical_dim_spec, ESMF_TYPEKIND_R4, UngriddedDims(), &
-           '', '', 'unknown', attributes)
+      field_spec = FieldSpec(geom=geom, vertical_geom=vertical_geom, vertical_dim_spec=vertical_dim_spec, &
+           typekind=ESMF_TYPEKIND_R4, ungridded_dims=UngriddedDims())
       call state_spec%add_item('A', field_spec)
 
       ! Different name/key
@@ -78,15 +78,14 @@ contains
       type(ESMF_Field) :: f
       integer :: rank
       integer :: status
-      type(StringVector) :: attributes
 
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', rc=status)
       call ESMF_InfoGetFromHost(grid, info, rc=status)
       call ESMF_InfoSet(info, '/MAPL/GEOM/VERTICAL', 'CENTER', rc=status)
       geom = ESMF_GeomCreate(grid, ESMF_STAGGERLOC_INVALID)
       vertical_dim_spec = VERTICAL_DIM_CENTER
-      field_spec = FieldSpec(geom, vertical_geom, vertical_dim_spec, ESMF_TYPEKIND_R4, UngriddedDims(), &
-           '', '', '', attributes)
+      field_spec = FieldSpec(geom=geom, vertical_geom=vertical_geom, vertical_dim_spec=vertical_dim_spec, &
+           typekind=ESMF_TYPEKIND_R4, ungridded_dims=UngriddedDims())
       call field_spec%create(rc=status)
       call field_spec%allocate(rc=status)
 

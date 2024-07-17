@@ -1,5 +1,8 @@
+#include "MAPL_TestErr.h"
+
 module Test_FieldSpec
    use funit
+   use mapl3g_geom_mgr
    use mapl3g_FieldSpec
    use mapl3g_UngriddedDims
    use mapl3g_UngriddedDim
@@ -11,12 +14,28 @@ module Test_FieldSpec
    use esmf
    implicit none
 
+   type(ESMF_Geom) :: geom
+
 contains
 
+   
+   @before
+   subroutine setup()
+      type(ESMF_HConfig) :: hconfig
+      type(MaplGeom) :: mapl_geom
+      type(GeomManager), pointer :: geom_mgr
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+      geom_mgr => get_geom_manager()
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom = mapl_geom%get_geom()
+   end subroutine setup
+
+   
    @test
    subroutine test_can_connect_typekind()
       type(FieldSpec) :: spec_r4, spec_r8, spec_mirror
-      type(ESMF_Geom) :: geom
       type(StringVector) :: import_attributes, export_attributes
 
       spec_r4 = FieldSpec( &
@@ -52,11 +71,9 @@ contains
    subroutine test_mismatched_attribute()
       type(FieldSpec) :: import_spec
       type(FieldSpec) :: export_spec
-      type(ESMF_Geom) :: geom
       type(StringVector) :: import_attributes, export_attributes
 
       call import_attributes%push_back('radius')
-
 
       import_spec = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
@@ -80,7 +97,6 @@ contains
    subroutine test_matched_attribute()
       type(FieldSpec) :: import_spec
       type(FieldSpec) :: export_spec
-      type(ESMF_Geom) :: geom
       type(StringVector) :: import_attributes, export_attributes
 
       call import_attributes%push_back('radius')
@@ -109,7 +125,6 @@ contains
    subroutine test_multiple_attribute()
       type(FieldSpec) :: import_spec
       type(FieldSpec) :: export_spec
-      type(ESMF_Geom) :: geom
       type(StringVector) :: import_attributes, export_attributes
 
       call import_attributes%push_back('radius')
@@ -142,7 +157,6 @@ contains
    subroutine test_mismatched_units()
       type(FieldSpec) :: import_spec
       type(FieldSpec) :: export_spec
-      type(ESMF_Geom) :: geom
 
       import_spec = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
@@ -166,7 +180,6 @@ contains
    subroutine test_convertible_units()
       type(FieldSpec) :: import_spec
       type(FieldSpec) :: export_spec
-      type(ESMF_Geom) :: geom
 
       import_spec = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
@@ -190,7 +203,6 @@ contains
    subroutine test_same_units()
       type(FieldSpec) :: import_spec
       type(FieldSpec) :: export_spec
-      type(ESMF_Geom) :: geom
 
       import_spec = FieldSpec( &
            geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
@@ -214,7 +226,6 @@ contains
    subroutine test_mirror_units()
       type(FieldSpec) :: import_spec
       type(FieldSpec) :: export_spec
-      type(ESMF_Geom) :: geom
 
 
       import_spec = FieldSpec( &
@@ -235,6 +246,51 @@ contains
    end subroutine test_mirror_units
 
    @test
+   subroutine test_mirror_geom()
+      type(FieldSpec) :: import_spec
+      type(FieldSpec) :: export_spec
+
+      
+      import_spec = FieldSpec( &
+           vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDims(), &
+           standard_name='A', long_name='AA', attributes=StringVector())
+
+      export_spec = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDims(), &
+           standard_name='A', long_name='AA', attributes=StringVector(), &
+           units='m')
+
+      @assert_that(import_spec%can_connect_to(export_spec), is(true()))
+
+   end subroutine test_mirror_geom
+
+   @test
+   subroutine test_mirror_geom_cost()
+      type(FieldSpec) :: import_spec
+      type(FieldSpec) :: export_spec
+
+      
+      import_spec = FieldSpec( &
+           vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDims(), &
+           standard_name='A', long_name='AA', attributes=StringVector())
+
+      export_spec = FieldSpec( &
+           geom=geom, vertical_geom=VerticalGeom(), vertical_dim_spec=VerticalDimSpec(), &
+           typekind=ESMF_TYPEKIND_R4, &
+           ungridded_dims = UngriddedDims(), &
+           standard_name='A', long_name='AA', attributes=StringVector(), &
+           units='m')
+
+      @assert_that(export_spec%extension_cost(import_spec), is(0))
+
+   end subroutine test_mirror_geom_cost
+
    subroutine test_mirror_ungridded_dims()
       type(FieldSpec) :: import_spec
       type(FieldSpec) :: export_spec

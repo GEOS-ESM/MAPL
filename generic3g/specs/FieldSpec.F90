@@ -90,6 +90,10 @@ module mapl3g_FieldSpec
       procedure :: match_ungridded_dims
    end interface match
 
+   interface can_match
+      procedure :: can_match_geom
+   end interface can_match
+
    interface get_cost
       procedure :: get_cost_geom
       procedure :: get_cost_typekind
@@ -105,12 +109,13 @@ module mapl3g_FieldSpec
 contains
 
 
-   function new_FieldSpec_geom(geom, vertical_geom, vertical_dim_spec, typekind, ungridded_dims, &
+   function new_FieldSpec_geom(unusable, geom, vertical_geom, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
         attributes, default_value) result(field_spec)
       type(FieldSpec) :: field_spec
 
-      type(ESMF_Geom), intent(in) :: geom
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_Geom), optional, intent(in) :: geom
       type(VerticalGeom), intent(in) :: vertical_geom
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       type(ESMF_Typekind_Flag), intent(in) :: typekind
@@ -124,7 +129,7 @@ contains
       ! optional args last
       real, optional, intent(in) :: default_value
 
-      field_spec%geom = geom
+      if (present(geom)) field_spec%geom = geom
       field_spec%vertical_geom = vertical_geom
       field_spec%vertical_dim_spec = vertical_dim_spec
       field_spec%typekind = typekind
@@ -133,7 +138,6 @@ contains
       if (present(standard_name)) field_spec%standard_name = standard_name
       if (present(long_name)) field_spec%long_name = long_name
       if (present(units)) field_spec%units = units
-
       if (present(attributes)) field_spec%attributes = attributes
       if (present(default_value)) field_spec%default_value = default_value
 
@@ -158,6 +162,7 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
+      _RETURN_UNLESS(allocated(this%geom))  ! mirror 
       call MAPL_FieldEmptySet(this%payload, this%geom, _RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -334,6 +339,7 @@ contains
 
       integer :: status
       interface mirror
+         procedure :: mirror_geom
          procedure :: mirror_typekind
          procedure :: mirror_string
          procedure :: mirror_real
@@ -348,6 +354,7 @@ contains
          ! ok
          call this%destroy(_RC)
          this%payload = src_spec%payload
+         call mirror(dst=this%geom, src=src_spec%geom)
          call mirror(dst=this%typekind, src=src_spec%typekind)
          call mirror(dst=this%units, src=src_spec%units)
          call mirror(dst=this%vertical_dim_spec, src=src_spec%vertical_dim_spec)
@@ -362,6 +369,26 @@ contains
       _UNUSED_DUMMY(actual_pt)
 
    contains
+
+      
+      subroutine mirror_geom(dst, src)
+         type(ESMF_Geom), allocatable, intent(inout) :: dst, src
+
+         _ASSERT(allocated(dst) .or. allocated(src), 'cannot double mirror')
+         if (allocated(dst) .and. .not. allocated(src)) then
+            src = dst
+            return
+         end if
+
+         if (allocated(src) .and. .not. allocated(dst)) then
+            dst = src
+            return
+         end if
+
+         _ASSERT(MAPL_SameGeom(dst, src), 'cannot connect mismatched geom without coupler.')
+
+      end subroutine mirror_geom
+
 
       subroutine mirror_typekind(dst, src)
          type(ESMF_TypeKind_Flag), intent(inout) :: dst, src
@@ -394,7 +421,7 @@ contains
             src = dst
          end if
 
-         _ASSERT(dst == src, 'unsupported typekind mismatch')
+         _ASSERT(dst == src, 'unsupported vertical_dim_spec mismatch')
       end subroutine mirror_vertical_dim_spec
 
       subroutine mirror_string(dst, src)
@@ -461,6 +488,7 @@ contains
       class is (FieldSpec)
          can_convert_units_ = can_connect_units(this%units, src_spec%units, _RC)
          can_connect_to = all ([ &
+              can_match(this%geom,src_spec%geom), &
               match(this%vertical_dim_spec,src_spec%vertical_dim_spec), &
               match(this%ungridded_dims,src_spec%ungridded_dims), &
               includes(this%attributes, src_spec%attributes), &
@@ -644,16 +672,37 @@ contains
       _RETURN(_SUCCESS)
    end function make_action
 
+   logical function can_match_geom(a, b) result(can_match)
+      type(ESMF_Geom), allocatable, intent(in) :: a, b
+
+      integer :: status
+      integer :: n_mirror
+
+      ! At most one geom can be mirror (unallocated).
+      ! Otherwise, assume ESMF can provide regrid
+      n_mirror = count([.not. allocated(a), .not. allocated(b)])
+      can_match = n_mirror <= 1
+
+   end function can_match_geom
+
    logical function match_geom(a, b) result(match)
       type(ESMF_Geom), allocatable, intent(in) :: a, b
 
       integer :: status
+      integer :: n_mirror
 
-      match = .false.
+      ! At most one geom can be mirror (unallocated).
+      ! Otherwise, assume ESMF can provide regrid
+      n_mirror = count([.not. allocated(a), .not. allocated(b)])
 
-      if (allocated(a) .and. allocated(b)) then
-         match = MAPL_SameGeom(a, b)
-      end if
+      select case (n_mirror)
+      case (0)
+         match = MAPL_SameGeom(a,b)
+      case (1)
+         match = .true.
+      case (2)
+         match = .true.
+      end select
 
    end function match_geom
 
@@ -735,7 +784,7 @@ contains
    integer function get_cost_geom(a, b) result(cost)
       type(ESMF_GEOM), allocatable, intent(in) :: a, b
       cost = 0
-      if (.not. match(a, b)) cost = 1
+      if (.not. match(a,b)) cost = 1
    end function get_cost_geom
 
    integer function get_cost_typekind(a, b) result(cost)
@@ -755,10 +804,19 @@ contains
       type(ESMF_GEOM), allocatable, intent(in) :: b
 
       update_item_geom = .false.
-      if (.not. match(a, b)) then
+
+      if (.not. allocated(b)) return ! nothing to do (no coupler)
+
+      if (.not. allocated(a)) then ! Fill-in ExtData (no coupler)
          a = b
-         update_item_geom = .true.
+         return
       end if
+
+      if (MAPL_SameGeom(a,b)) return
+      update_item_geom = .true.
+      a = b
+
+
    end function update_item_geom
 
    logical function update_item_typekind(a, b)
@@ -770,6 +828,7 @@ contains
          a = b
          update_item_typekind = .true.
       end if
+
    end function update_item_typekind
 
    logical function update_item_string(a, b)
