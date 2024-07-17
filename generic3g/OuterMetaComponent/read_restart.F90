@@ -26,6 +26,7 @@ contains
 
       driver => this%get_user_gc_driver()
       name = driver%get_name()
+      ! TODO: Need a better way of identifying a gridcomp that reads a restart
       if ((name /= "cap") .and. (name /= "HIST")) then
          gc = driver%get_gridcomp()
          geom = this%get_geom()
