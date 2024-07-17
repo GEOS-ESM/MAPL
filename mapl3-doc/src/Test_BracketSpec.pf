@@ -1,3 +1,5 @@
+#include "MAPL_TestErr.h"
+
 module Test_BracketSpec
    use funit
    use mapl3g_BracketSpec
@@ -8,16 +10,31 @@ module Test_BracketSpec
    use mapl3g_ActualConnectionPt
    use mapl3g_StateItemSpec
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
+   use mapl3g_geom_mgr
    use gftl2_StringVector
    use esmf
    implicit none
 
+   type(ESMF_Geom) :: geom
+
 contains
+
+   @before
+   subroutine setup()
+      type(ESMF_HConfig) :: hconfig
+      type(MaplGeom) :: mapl_geom
+      type(GeomManager), pointer :: geom_mgr
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+      geom_mgr => get_geom_manager()
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom = mapl_geom%get_geom()
+   end subroutine setup
 
    @test
    subroutine test_mirror_bracket_size()
       type(BracketSpec) :: spec_1, spec_2, spec_mirror
-      type(ESMF_Geom) :: geom
 
       spec_1 = BracketSpec( &
            field_spec=FieldSpec(geom=geom, vertical_geom=VerticalGeom(), &
@@ -60,16 +77,9 @@ contains
    ! specs with bracket size the same as first connection.
    subroutine test_connect_unique_mirror()
       type(BracketSpec) :: spec_1, spec_1b, spec_2, spec_mirror
-      type(ESMF_Geom) :: geom
       type(ActualConnectionPt) :: actual_pt
 
       integer :: status
-      type(ESMF_Grid) :: grid
-      type(ESMF_Info) :: info
-
-      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', rc=status)
-      call ESMF_InfoGetFromHost(grid, info, rc=status)
-      geom = ESMF_GeomCreate(grid, ESMF_STAGGERLOC_INVALID)
 
       spec_1 = BracketSpec( &
            field_spec=FieldSpec(geom=geom, vertical_geom=VerticalGeom(), &

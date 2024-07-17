@@ -25,6 +25,7 @@ module mapl3g_ConvertUnitsAction
       procedure new_converter
    end interface ConvertUnitsAction
 
+
 contains
 
 
@@ -34,6 +35,7 @@ contains
       character(*), intent(in) :: units_in, units_out
 
       integer :: status
+
       ! TODO: move to place where only called
       call UDUNITS_GetConverter(action%converter, from=units_in, to=units_out, rc=status)
       action%f_in = f_in
@@ -54,8 +56,7 @@ contains
 
 
       call ESMF_FieldGet(this%f_in, typekind=typekind, _RC)
-      
-      
+
       if (typekind == ESMF_TYPEKIND_R4) then
 
          call assign_fptr(this%f_in, x4_in, _RC)

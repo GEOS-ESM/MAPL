@@ -116,7 +116,6 @@ contains
       dst_pt = this%get_destination()
 
       dst_specs = dst_registry%get_actual_pt_SpecPtrs(dst_pt%v_pt, _RC)
-      src_specs = src_registry%get_actual_pt_SpecPtrs(src_pt%v_pt, _RC)
 
       src_actual_pts => src_registry%get_actual_pts(src_pt%v_pt)
       _ASSERT(src_actual_pts%size() > 0, 'Empty virtual point?  This should not happen.')
@@ -126,6 +125,7 @@ contains
 
          ! Connection is transitive -- if any src_specs can connect, all can connect.
          ! So we can just check this property on the 1st item.
+         src_specs = src_registry%get_actual_pt_SpecPtrs(src_pt%v_pt, _RC)
          src_spec => src_specs(1)%ptr
          _ASSERT(dst_spec%can_connect_to(src_spec), "impossible connection")
 
@@ -159,7 +159,7 @@ contains
          ! referenced in the dst registry so that gridcomps can do update()
          ! requests.
          if (lowest_cost >= 1) then
-            call dst_registry%add_import_coupler(ActualConnectionPt(dst_pt%v_pt), source_coupler)
+            call dst_registry%add_import_coupler(source_coupler)
          end if
 
          ! In the case of wildcard specs, we need to pass an actual_pt to

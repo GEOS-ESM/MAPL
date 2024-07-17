@@ -25,6 +25,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl3g_ComponentDriver
    use mapl3g_GriddedComponentDriver
+   use mapl3g_ComponentDriverVector
    use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMap
    use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMapIterator
    use mapl3g_GriddedComponentDriverMap, only: operator(/=)

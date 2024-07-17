@@ -47,9 +47,9 @@ contains
          type(VariableSpecVectorIterator) :: iter
          type(VariableSpec), pointer :: var_spec
 
-         if (this%component_spec%var_specs%size() > 0) then
-            _ASSERT(allocated(this%geom),'Component must define a geom to advertise variables.')
-         end if
+!#         if (this%component_spec%var_specs%size() > 0) then
+!#            _ASSERT(allocated(this%geom),'Component must define a geom to advertise variables.')
+!#         end if
          associate (e => this%component_spec%var_specs%end())
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
@@ -67,7 +67,7 @@ contains
       subroutine advertise_variable(var_spec, registry, geom, vertical_geom, unusable, rc)
          type(VariableSpec), intent(in) :: var_spec
          type(HierarchicalRegistry), intent(inout) :: registry
-         type(ESMF_Geom), intent(in) :: geom
+         type(ESMF_Geom), optional, intent(in) :: geom
          type(VerticalGeom), intent(in) :: vertical_geom
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc

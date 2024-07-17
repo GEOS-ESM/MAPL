@@ -20,9 +20,10 @@ contains
       integer :: phase
 
       type(ActualPtComponentDriverMap), pointer :: export_Couplers
-      type(ActualPtComponentDriverMap), pointer :: import_Couplers
+      type(ComponentDriverVector), pointer :: import_Couplers
       type(ActualPtComponentDriverMapIterator) :: iter
-      type(GriddedComponentDriver), pointer :: drvr
+      type(ComponentDriverVectorIterator) :: import_iter
+      class(ComponentDriver), pointer :: drvr
 
       run_phases => this%get_phases(ESMF_METHOD_RUN)
       phase = get_phase_index(run_phases, phase_name, found=found)
@@ -30,10 +31,10 @@ contains
 
       import_couplers => this%registry%get_import_couplers()
       associate (e => import_couplers%ftn_end())
-        iter = import_couplers%ftn_begin()
-        do while (iter /= e)
-           call iter%next()
-           drvr => iter%second()
+        import_iter = import_couplers%ftn_begin()
+        do while (import_iter /= e)
+           call import_iter%next()
+           drvr => import_iter%of()
            call drvr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
         end do
       end associate
