@@ -69,7 +69,6 @@ contains
 
          call o_clients%collective_stage_data(collection_id,filename, trim(field_names(i)), &
               ref, start=local_start, global_start=global_start, global_count=global_count)
-         ! call server_bounds%finalize()
       enddo
 
       _RETURN(_SUCCESS)
@@ -126,7 +125,6 @@ contains
               start=local_start, &
               global_start=global_start, &
               global_count=global_count)
-         call server_bounds%finalize()
       end do
 
       _RETURN(_SUCCESS)
