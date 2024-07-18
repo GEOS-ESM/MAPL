@@ -11,6 +11,7 @@ module mapl3g_RestartHandler
    use MAPL_FieldPointerUtilities, only: FieldGetCPtr, FieldGetLocalElementCount
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
    use pFIO, only: i_Clients, o_Clients, ArrayReference
+   use pFlogger, only: logger
 
    implicit none
    private
@@ -22,6 +23,7 @@ module mapl3g_RestartHandler
       character(len=ESMF_MAXSTR) :: gc_name
       type(ESMF_Geom) :: gc_geom
       type(ESMF_Time) :: current_time
+      class(logger), pointer :: lgr
    contains
       procedure, public :: write
       procedure, public :: read
@@ -35,10 +37,11 @@ module mapl3g_RestartHandler
 
 contains
 
-   function new_RestartHandler(gc_name, gc_geom, gc_clock, rc) result(restart_handler)
+   function new_RestartHandler(gc_name, gc_geom, gc_clock, lgr, rc) result(restart_handler)
       character(len=*), intent(in) :: gc_name
       type(ESMF_Geom), intent(in) :: gc_geom
       type(ESMF_Clock), intent(in) :: gc_clock
+      class(logger), pointer, intent(in) :: lgr
       integer, optional, intent(out) :: rc
       type(RestartHandler) :: restart_handler ! result
 
@@ -47,6 +50,7 @@ contains
       restart_handler%gc_name = ESMF_UtilStringLowerCase(trim(gc_name), _RC)
       call ESMF_Clockget(gc_clock, currTime = restart_handler%current_time, _RC)
       restart_handler%gc_geom = gc_geom
+      restart_handler%lgr => lgr
 
       _RETURN(_SUCCESS)
    end function new_RestartHandler
@@ -67,7 +71,7 @@ contains
       if (item_count > 0) then
          ! TODO: the file_name should come from OuterMetaComponents's hconfig
          file_name = trim(this%gc_name) // "_" // trim(state_type) // "_checkpoint.nc4"
-         print *, "Writing checkpoint: ", trim(file_name)
+         call this%lgr%info("Writing checkpoint: %a", trim(file_name))
          out_bundle = get_bundle_from_state_(state, _RC)
          call this%write_bundle_(out_bundle, file_name, rc)
       end if
@@ -94,10 +98,11 @@ contains
          inquire(file=trim(file_name), exist=file_exists)
          if (.not. file_exists) then
             ! TODO: Need to decide what happens in that case. Bootstrapping variables?
-            print *, "Restart file <" // trim(file_name) // "> does not exist. Skip reading!"
+            ! print *, "Restart file <" // trim(file_name) // "> does not exist. Skip reading!"
+            call this%lgr%info("Restart file < %a > does not exist. Skip reading!", trim(file_name))
             _RETURN(_SUCCESS)
          end if
-         print *, "Reading restart: ", trim(file_name)
+         call this%lgr%info("Reading restart: %a", trim(file_name))
          call this%read_fields_(file_name, state, _RC)
       end if
 
