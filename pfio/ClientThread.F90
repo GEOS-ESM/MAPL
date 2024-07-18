@@ -54,8 +54,8 @@ module pFIO_ClientThreadMod
       integer :: collective_counter = COLLECTIVE_MIN_ID
 
    contains
-      procedure :: add_read_data_collection
-      procedure :: add_write_data_collection
+      procedure :: add_ext_collection
+      procedure :: add_hist_collection
       procedure :: modify_metadata
       procedure :: replace_metadata
       procedure :: prefetch_data
@@ -106,10 +106,10 @@ contains
       _UNUSED_DUMMY(message)
    end subroutine handle_Id
 
-   function add_read_data_collection(this, file_template, rc) result(collection_id)
+   function add_ext_collection(this, template, rc) result(collection_id)
       integer :: collection_id
       class (ClientThread), intent(inout) :: this
-      character(len=*), intent(in) :: file_template
+      character(len=*), intent(in) :: template
       integer, optional, intent(out) :: rc
 
       class (AbstractMessage), allocatable :: message
@@ -117,7 +117,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(AddExtCollectionMessage(file_template),_RC)
+      call connection%send(AddExtCollectionMessage(template),_RC)
       call connection%receive(message, _RC)
 
       select type(message)
@@ -127,9 +127,9 @@ contains
         _FAIL( " should get id message")
       end select
       _RETURN(_SUCCESS)
-   end function add_read_data_collection
+   end function add_ext_collection
 
-   function add_write_data_collection(this, fmd, unusable,  mode, rc) result(hist_collection_id)
+   function add_hist_collection(this, fmd, unusable,  mode, rc) result(hist_collection_id)
       integer :: hist_collection_id
       class (ClientThread), target, intent(inout) :: this
       type(FileMetadata),intent(in) :: fmd
@@ -154,7 +154,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function add_write_data_collection
+   end function add_hist_collection
 
    function prefetch_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start, rc) result(request_id)

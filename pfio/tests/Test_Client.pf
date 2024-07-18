@@ -29,7 +29,7 @@ contains
       call c%set_connection(MockSocket(log))
       connection => c%get_connection()
 
-      handle_foo = c%add_read_data_collection(template='foo')
+      handle_foo = c%add_ext_collection(template='foo')
 
       select type (connection)
       type is (MockSocket)
@@ -55,8 +55,8 @@ contains
          call connection%add_message(IdMessage(2))
       end select
 
-      handle_foo = c%add_read_data_collection(template='foo')
-      handle_bar = c%add_read_data_collection(template='bar')
+      handle_foo = c%add_ext_collection(template='foo')
+      handle_bar = c%add_ext_collection(template='bar')
       @assertFalse(handle_foo == handle_bar)
       
    end subroutine test_addExtCollection_unique_handle
@@ -81,7 +81,7 @@ contains
          connection%q1 = q
       end select
 
-      collection_id = c%add_read_data_collection(template='foo')
+      collection_id = c%add_ext_collection(template='foo')
       request_id = c%prefetch_data(collection_id, 'foo', 'q', ArrayReference(q))
 
       expected_log = "send<AddExtCollection('foo')>"
@@ -124,7 +124,7 @@ contains
          connection%q2 = q2_expected
       end select
 
-      collection_id = c%add_read_data_collection(template='foo')
+      collection_id = c%add_ext_collection(template='foo')
       request_id1 = c%prefetch_data(collection_id, 'foo', 'q1', ArrayReference(q1))
       request_id2 = c%prefetch_data(collection_id, 'foo', 'q2', ArrayReference(q2))
 

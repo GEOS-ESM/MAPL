@@ -225,11 +225,11 @@ contains
       do i = 1,num_request
          tmp= ''
          write(tmp,'(I5.5)') i
-         collection_id = this%c%add_read_data_collection('collection-name'//tmp)
+         collection_id = this%c%add_ext_collection('collection-name'//tmp)
          !print*,"collection_id: ",collection_id
       enddo
       call system_clock(c2)
-      !print*," step  1 : add_read_data_collection"
+      !print*," step  1 : add_ext_collection"
 
       allocate(request_ids(this%vars%size(),num_request))      
 

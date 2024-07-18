@@ -106,7 +106,7 @@ module MAPL_ESMFFieldBundleWrite
             _VERIFY(status)
          end if
          if (present(output_file)) this%file_name = output_file
-         collection_id = o_clients%add_write_data_collection(this%cfio%metadata)
+         collection_id = o_clients%add_hist_collection(this%cfio%metadata)
          call this%cfio%set_param(write_collection_id=collection_id)
          _RETURN(_SUCCESS)
 
