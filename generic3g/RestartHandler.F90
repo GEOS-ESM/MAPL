@@ -76,7 +76,6 @@ contains
    end subroutine write
 
    subroutine read(this, state_type, state, rc)
-
       ! Arguments
       class(RestartHandler), intent(inout) :: this
       character(len=*), intent(in) :: state_type
