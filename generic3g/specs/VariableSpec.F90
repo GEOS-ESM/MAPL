@@ -190,7 +190,7 @@ contains
    function make_ItemSpec(this, geom, vertical_geom, registry, rc) result(item_spec)
       class(StateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: this
-      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_Geom), optional, intent(in) :: geom
       type(VerticalGeom), intent(in) :: vertical_geom
       type(HierarchicalRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
@@ -229,7 +229,7 @@ contains
    function make_BracketSpec(this, geom, vertical_geom, rc) result(bracket_spec)
       type(BracketSpec) :: bracket_spec
       class(VariableSpec), intent(in) :: this
-      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_Geom), optional, intent(in) :: geom
       type(VerticalGeom), intent(in) :: vertical_geom
       integer, optional, intent(out) :: rc
 
@@ -296,7 +296,7 @@ contains
    function make_FieldSpec(this, geom, vertical_geom, rc) result(field_spec)
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: this
-      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_Geom), optional, intent(in) :: geom
       type(VerticalGeom), intent(in) :: vertical_geom
       integer, optional, intent(out) :: rc
 
