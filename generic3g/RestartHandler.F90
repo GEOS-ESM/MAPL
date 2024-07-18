@@ -11,7 +11,7 @@ module mapl3g_RestartHandler
    use MAPL_FieldPointerUtilities, only: FieldGetCPtr, FieldGetLocalElementCount
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
    use pFIO, only: i_Clients, o_Clients, ArrayReference
-   use pFlogger, only: logger
+   use pFlogger, only: logging, logger
 
    implicit none
    private
@@ -37,11 +37,10 @@ module mapl3g_RestartHandler
 
 contains
 
-   function new_RestartHandler(gc_name, gc_geom, gc_clock, lgr, rc) result(restart_handler)
+   function new_RestartHandler(gc_name, gc_geom, gc_clock, rc) result(restart_handler)
       character(len=*), intent(in) :: gc_name
       type(ESMF_Geom), intent(in) :: gc_geom
       type(ESMF_Clock), intent(in) :: gc_clock
-      class(logger), pointer, intent(in) :: lgr
       integer, optional, intent(out) :: rc
       type(RestartHandler) :: restart_handler ! result
 
@@ -50,7 +49,7 @@ contains
       restart_handler%gc_name = ESMF_UtilStringLowerCase(trim(gc_name), _RC)
       call ESMF_Clockget(gc_clock, currTime = restart_handler%current_time, _RC)
       restart_handler%gc_geom = gc_geom
-      restart_handler%lgr => lgr
+      restart_handler%lgr => logging%get_logger('MAPL.GENERIC')
 
       _RETURN(_SUCCESS)
    end function new_RestartHandler
@@ -98,8 +97,7 @@ contains
          inquire(file=trim(file_name), exist=file_exists)
          if (.not. file_exists) then
             ! TODO: Need to decide what happens in that case. Bootstrapping variables?
-            ! print *, "Restart file <" // trim(file_name) // "> does not exist. Skip reading!"
-            call this%lgr%info("Restart file < %a > does not exist. Skip reading!", trim(file_name))
+            call this%lgr%info("Restart file << %a >> does not exist. Skip reading!", trim(file_name))
             _RETURN(_SUCCESS)
          end if
          call this%lgr%info("Reading restart: %a", trim(file_name))

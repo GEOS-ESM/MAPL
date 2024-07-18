@@ -33,7 +33,7 @@ contains
          states = driver%get_states()
          call states%get_state(import_state, "import", _RC)
          call states%get_state(internal_state, "internal", _RC)
-         restart_handler = RestartHandler(name, geom, clock, this%get_lgr(), _RC)
+         restart_handler = RestartHandler(name, geom, clock, _RC)
          call restart_handler%write("import", import_state, _RC)
          call restart_handler%write("internal", internal_state, _RC)
       end if
