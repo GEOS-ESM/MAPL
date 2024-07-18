@@ -102,7 +102,8 @@ contains
       type(VirtualConnectionPt), intent(in) :: v_pt
       character(*), intent(in) :: comp_name
 
-      new_v_pt = VirtualConnectionPt(v_pt%state_intent, v_pt%short_name, comp_name)
+      new_v_pt = VirtualConnectionPt(v_pt%state_intent, v_pt%short_name, comp_name=comp_name)
+
    end function new_VirtualPt_substate
 
    function add_comp_name(this, comp_name) result(v_pt)

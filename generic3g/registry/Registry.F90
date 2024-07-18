@@ -627,7 +627,6 @@ contains
       integer :: label
 
       _ASSERT(any([mode == 'user', mode == 'outer']), 'invalid mode: <' // mode // '>')
-
       associate (e => this%family_map%ftn_end())
 
         family_iter = this%family_map%ftn_begin()
