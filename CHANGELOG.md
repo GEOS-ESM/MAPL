@@ -13,12 +13,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improve mask sampler by adding an MPI step and a LS_chunk (intermediate step)
 - Update Baselibs in CI to 7.25.0
+- Update `components.yaml`
+  - ESMA_cmake v3.48.0
+    - Update `esma_add_fortran_submodules` function
+    - Move MPI detection out of FindBaselibs
 
 ### Fixed
 
 ### Removed
 
 ### Deprecated
+
+## [2.47.1] - 2024-07-17
+
+### Fixed
+
+- Fixed bug in FieldSet routines when passing R8 ESMF fields
 
 ## [2.47.0] - 2024-06-24
 
