@@ -1,3 +1,4 @@
+#define I_AM_MAIN
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
@@ -22,7 +23,7 @@ program main
 
    implicit none
    integer :: Inter_Comm
-   integer :: ierr
+   integer :: ierr, rc
    integer :: rank
    integer :: server_rank
 
@@ -41,10 +42,10 @@ program main
    type (StringNetCDF4_FileFormatterMapIterator) :: iter
    class (AbstractMessage), pointer :: msg
  
-   call MPI_Init(ierr)
-   call MPI_Comm_get_parent(Inter_Comm, ierr);
-   call MPI_Comm_rank(MPI_COMM_WORLD,rank, ierr)
-   call MPI_Comm_size(MPI_COMM_WORLD,n_workers, ierr)
+   call MPI_Init(_IERROR)
+   call MPI_Comm_get_parent(Inter_Comm, _IERROR);
+   call MPI_Comm_rank(MPI_COMM_WORLD,rank, _IERROR)
+   call MPI_Comm_size(MPI_COMM_WORLD,n_workers, _IERROR)
 
    allocate(busy(n_workers-1), source =0)
 
@@ -54,7 +55,7 @@ program main
          ! 1) captain node is waiting command from server
          call MPI_recv( command, 1, MPI_INTEGER, &
                 MPI_ANY_SOURCE, pFIO_s_tag, Inter_Comm, &
-                MPI_STAT, ierr)
+                MPI_STAT, _IERROR)
          server_rank = MPI_STAT(MPI_SOURCE)
 
          if (command == 1) then ! server is asking for a writing node 
@@ -73,27 +74,27 @@ program main
 
                call MPI_recv( idle, 1, MPI_INTEGER, &
                    MPI_ANY_SOURCE, pFIO_w_m_tag , MPI_COMM_WORLD, &
-                   MPI_STAT, ierr)
+                   MPI_STAT, _IERROR)
                idle_worker = idle
             endif
 
             ! tell server the idel_worker
-            call MPI_send(idle_worker, 1, MPI_INTEGER, server_rank, pFIO_s_tag, Inter_Comm, ierr)
+            call MPI_send(idle_worker, 1, MPI_INTEGER, server_rank, pFIO_s_tag, Inter_Comm, _IERROR)
             busy(idle_worker) = 1
             ! tell the idle_worker which server has work
-            call MPI_send(server_rank, 1, MPI_INTEGER, idle_worker, pFIO_m_w_tag, MPI_COMM_WORLD, ierr)
+            call MPI_send(server_rank, 1, MPI_INTEGER, idle_worker, pFIO_m_w_tag, MPI_COMM_WORLD, _IERROR)
 
          else ! command /=1, notify the worker to quit and finalize
             no_job = -1
             do i = 1, n_workers -1
                if ( busy(i) == 0) then
-                  call MPI_send(no_job, 1, MPI_INTEGER, i, pFIO_m_w_tag, MPI_COMM_WORLD, ierr)
+                  call MPI_send(no_job, 1, MPI_INTEGER, i, pFIO_m_w_tag, MPI_COMM_WORLD, _IERROR)
                else
                   call MPI_recv( idle, 1, MPI_INTEGER, &
                        i, pFIO_w_m_tag, MPI_COMM_WORLD, &
-                       MPI_STAT, ierr)
+                       MPI_STAT, _IERROR)
                    if (idle /= i ) stop ("idle should be i")
-                   call MPI_send(no_job, 1, MPI_INTEGER, i, pFIO_m_w_tag, MPI_COMM_WORLD, ierr)
+                   call MPI_send(no_job, 1, MPI_INTEGER, i, pFIO_m_w_tag, MPI_COMM_WORLD, _IERROR)
                endif  
             enddo  
             exit
@@ -107,7 +108,7 @@ program main
         ! 1) get server_rank from captain
         call MPI_recv( server_rank, 1, MPI_INTEGER, &
                0, pFIO_m_w_tag, MPI_COMM_WORLD, &
-               MPI_STAT, ierr)
+               MPI_STAT, _IERROR)
 
         if (server_rank == -1 ) exit
         !---------------------------------------------------
@@ -115,20 +116,20 @@ program main
         !---------------------------------------------------
         call MPI_recv( msg_size, 1, MPI_INTEGER,    &
             server_rank, pFIO_s_tag, Inter_comm, &
-               MPI_STAT, ierr)
+               MPI_STAT, _IERROR)
         allocate(bufferm(msg_size))
         call MPI_recv( bufferm, msg_size, MPI_INTEGER, &
              server_rank, pFIO_s_tag, Inter_comm,   &
-               MPI_STAT, ierr)
+               MPI_STAT, _IERROR)
 
         call MPI_recv( data_size, 1, MPI_INTEGER,&
              server_rank, pFIO_s_tag, Inter_comm,     &
-             MPI_STAT, ierr)
+             MPI_STAT, _IERROR)
 
         allocate(bufferd(data_size))
         call MPI_recv( bufferd, data_size, MPI_INTEGER, &
              server_rank, pFIO_s_tag, Inter_comm,   &
-               MPI_STAT, ierr)
+               MPI_STAT, _IERROR)
 
         ! deserilize message and data
         call deserialize_message_vector(bufferm, forwardVec)
@@ -167,21 +168,21 @@ program main
         deallocate(bufferd, bufferm)
  
         ! telling captain, I am the soldier that is ready to have more work
-        call MPI_send(rank, 1, MPI_INTEGER, 0, pFIO_w_m_tag, MPI_COMM_WORLD , ierr)
+        call MPI_send(rank, 1, MPI_INTEGER, 0, pFIO_w_m_tag, MPI_COMM_WORLD , _IERROR)
 
       enddo
    endif
 
-   call MPI_Barrier(MPI_COMM_WORLD, ierr)
+   call MPI_Barrier(MPI_COMM_WORLD, _IERROR)
 
    if ( rank == 0) then
       ! send done message to server
       ! this serves the syncronization with oserver
       command = -1
-      call MPI_send(command, 1, MPI_INTEGER, 0, pFIO_s_tag, Inter_Comm, ierr)
+      call MPI_send(command, 1, MPI_INTEGER, 0, pFIO_s_tag, Inter_Comm, _IERROR)
    endif
      
-   call MPI_Finalize(ierr)
+   call MPI_Finalize(_IERROR)
 
 contains
 

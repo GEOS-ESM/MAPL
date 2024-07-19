@@ -1,17 +1,20 @@
+#undef I_AM_MAIN
+#include "MAPL_ErrLog.h"
 program main
    use MPI
    use FLAP
    use pFIO
+   use MAPL_ErrorHandlingMod
    implicit none
 
-   integer :: ierror
+   integer :: ierror, rc
    type (command_line_interface) :: cli
    integer :: im
    integer :: lm
    integer :: n_fields
    character(:), allocatable :: output_filename
 
-   call MPI_Init(ierror)
+   call MPI_Init(_IERROR)
 
    call cli%init(description='potential reproducer of parallel netcdf problem on SCU12')
    call add_cli_options(cli)
@@ -19,7 +22,7 @@ program main
 
    call run(im, lm, n_fields, output_filename)
    
-   call MPI_Finalize(ierror)
+   call MPI_Finalize(_IERROR)
 
 contains
 
@@ -84,8 +87,8 @@ contains
       character(:), allocatable :: field_name
       character(3) :: field_idx_str
 
-      call mpi_comm_size(MPI_COMM_WORLD, npes, ierror)
-      call mpi_comm_rank(MPI_COMM_WORLD, rank, ierror)
+      call mpi_comm_size(MPI_COMM_WORLD, npes, _IERROR)
+      call mpi_comm_rank(MPI_COMM_WORLD, rank, _IERROR)
 
       jm = im*6 ! pseudo cubed sphere
       call metadata%add_dimension('IM_WORLD', im)
