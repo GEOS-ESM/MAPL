@@ -147,8 +147,7 @@ contains
                 mpiCommunicator=mpi_comm, rc=status)
         _VERIFY(status)
 
-        !call MPI_Comm_dup(mpi_comm, dup_comm, status)
-        !_VERIFY(status)
+        !call MPI_Comm_dup(mpi_comm, dup_comm, _IERROR)
         dup_comm = mpi_comm
 
         cap_params = get_cap_parameters_from_gc(model, status)
@@ -160,8 +159,7 @@ contains
         cap_options%comm = dup_comm
         ! cap_options%logging_config = "logging.yaml"
         cap_options%logging_config = ''
-        call MPI_Comm_size(dup_comm, cap_options%npes_model, status)
-        _VERIFY(status)
+        call MPI_Comm_size(dup_comm, cap_options%npes_model, _IERROR)
 
         allocate(cap)
         cap = MAPL_Cap(cap_params%name, cap_params%set_services,  &
