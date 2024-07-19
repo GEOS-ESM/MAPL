@@ -7,7 +7,6 @@ module grid_comp_creation_shared
    public :: to_characters
    public :: MAXSTR
    public :: JOIN
-   public :: R64
 
    integer, parameter :: MAXSTR = 256
    character(len=*), parameter :: JOIN = ', '

@@ -1,12 +1,11 @@
 #define I_AM_MAIN
-#include "MAPL_Generic.h"
+!#include "MAPL_Generic.h"
 program grid_comp_creation_tester
 
-   use, intrinsic :: iso_fortran_env, only: R64 => real64
    use grid_comp_creation_shared
    use grid_comp_creator
    use grid_comp_creator_memory_profiler
-   use mapl_ErrorHandlingMod
+!   use mapl_ErrorHandlingMod
 
    implicit none
 

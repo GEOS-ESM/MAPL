@@ -6,7 +6,7 @@ module grid_comp_creator
    use mapl_ErrorHandlingMod
    use esmf
    use mpi
-   use, intrinsic :: iso_fortran_env, only: I64 => int64
+   use, intrinsic :: iso_fortran_env, only: R64 => real64, I64 => int64
 
    implicit none
    private
@@ -16,10 +16,6 @@ module grid_comp_creator
    public :: finalize
    public :: run
    public :: assignment(=)
-
-   type :: GC_Container
-      type(ESMF_GridComp) :: gc
-   end type GC_Container
 
    type :: GridCompCreator
       integer :: ngc = -1
@@ -53,6 +49,7 @@ module grid_comp_creator
       module procedure :: assign_string_to_characters
    end interface assignment(=)
 
+   type(ESMF_LogKind_Flag), parameter :: LOG_KIND_FLAG = ESMF_LOGKIND_NONE
    character(len=*), parameter :: name = 'GridCompCreator'
    character(len=*), parameter :: BLANK = ''
 
@@ -108,7 +105,7 @@ contains
       integer :: status
       type(ESMF_VM) :: vm
 
-      call ESMF_Initialize(vm=vm, _RC)
+      call ESMF_Initialize(vm=vm,logKindFlag=LOG_KIND_FLAG, _RC)
       call ESMF_VMGet(vm, mpiCommunicator=creator%comm, _RC)
       call MPI_Comm_rank(creator%comm, creator%rank, _IERROR)
       call MPI_Comm_size(creator%comm, creator%npes, _IERROR)
@@ -141,7 +138,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
-      type(GC_Container), allocatable :: gcc(:)
+      type(ESMF_GridComp), allocatable :: gcc(:)
       integer(kind=I64) :: start, end_, count_rate
 
       _ASSERT(creator%ngc >= 0, 'Cannot create a negative number of gridcomps')
@@ -154,12 +151,12 @@ contains
 
       allocate(gcc(creator%ngc))
       do i = 1, size(gcc)
-         gcc(i) = make_container(i, _RC)
+         gcc(i) = make_gridcomp(i, _RC)
       end do
       call system_clock(count = end_, count_rate=count_rate)
       call profile_memory(creator%post_memory, _RC)
       creator%time = real(end_ - start, R64) / count_rate
-      call destroy_containers(gcc, _RC)
+      call destroy_gridcomps(gcc, _RC)
       if(allocated(gcc)) deallocate(gcc)
 
       _RETURN(_SUCCESS)
@@ -193,29 +190,29 @@ contains
 
    end function make_gc_name
 
-   function make_container(n, rc) result(gcc)
-      type(GC_Container) :: gcc
+   function make_gridcomp(n, rc) result(gc)
+      type(ESMF_GridComp) :: gc
       integer, intent(in) :: n
       integer, optional, intent(out) :: rc
       integer :: status
 
-      gcc%gc = ESMF_GridCompCreate(name=make_gc_name(n), _RC)
+      gc = ESMF_GridCompCreate(name=make_gc_name(n), _RC)
       _RETURN(_SUCCESS)
 
-   end function make_container
+   end function make_gridcomp
 
-   subroutine destroy_containers(gcc, rc)
-      type(GC_Container), intent(inout) :: gcc(:)
+   subroutine destroy_gridcomps(gc, rc)
+      type(ESMF_GridComp), intent(inout) :: gc(:)
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
       
-      do i=1, size(gcc)
-         call ESMF_GridCompDestroy(gcc(i)%gc, _RC)
+      do i=1, size(gc)
+         call ESMF_GridCompDestroy(gc(i), _RC)
       end do
       _RETURN(_SUCCESS)
 
-   end subroutine destroy_containers
+   end subroutine destroy_gridcomps
 
    subroutine write_creator_results(creator, results)
       class(GridCompCreator), intent(in) :: creator

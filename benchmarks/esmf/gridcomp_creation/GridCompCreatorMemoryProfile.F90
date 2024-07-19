@@ -4,6 +4,7 @@ module grid_comp_creator_memory_profiler
    use grid_comp_creation_shared
    use mapl_ErrorHandlingMod
    use MAPL_MemUtilsMod
+   use, intrinsic :: iso_fortran_env, only: R64 => real64
    implicit none
    private
 
