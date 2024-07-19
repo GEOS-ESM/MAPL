@@ -36,8 +36,9 @@ module mapl3g_VirtualConnectionPt
 
    ! Constructors
    interface VirtualConnectionPt
-      module procedure new_VirtualPt_basic
-      module procedure new_VirtualPt_string_intent
+      procedure new_VirtualPt_basic
+      procedure new_VirtualPt_string_intent
+      procedure new_VirtualPt_substate
    end interface VirtualConnectionPt
 
    interface operator(<)
@@ -95,6 +96,15 @@ contains
 
       _UNUSED_DUMMY(unusable)
    end function new_VirtualPt_string_intent
+
+   function new_VirtualPt_substate(v_pt, comp_name) result(new_v_pt)
+      type(VirtualConnectionPt) :: new_v_pt
+      type(VirtualConnectionPt), intent(in) :: v_pt
+      character(*), intent(in) :: comp_name
+
+      new_v_pt = VirtualConnectionPt(v_pt%state_intent, v_pt%short_name, comp_name=comp_name)
+
+   end function new_VirtualPt_substate
 
    function add_comp_name(this, comp_name) result(v_pt)
       type(VirtualConnectionPt) :: v_pt

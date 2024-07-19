@@ -222,6 +222,7 @@ contains
 
       dependencies = this%make_dependencies(_RC)
       call item_spec%set_dependencies(dependencies)
+      call item_spec%set_raw_dependencies(this%dependencies)
 
       _RETURN(_SUCCESS)
    end function make_ItemSpec
