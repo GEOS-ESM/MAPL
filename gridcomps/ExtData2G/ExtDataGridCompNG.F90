@@ -1587,7 +1587,7 @@ CONTAINS
 
      if (found_file) then
         call GetLevs(item,_RC)
-        item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file_template))
+        item%iclient_collection_id=i_clients%add_data_collection(trim(item%file_template))
         if (item%vartype == MAPL_FieldItem) then
 
            call ESMF_StateGet(ExtDataState, trim(item%name), field,_RC)

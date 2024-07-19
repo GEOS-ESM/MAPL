@@ -4197,7 +4197,7 @@ module NCIOMod
              iter = RstCollections%find(trim(fname_by_writer))
              if (iter == RstCollections%end()) then
                 call cf%add_attribute("Split_Cubed_Sphere", i, _RC)
-                arrdes%collection_id(i) = oClients%add_hist_collection(cf)
+                arrdes%collection_id(i) = oClients%add_data_collection(cf)
                 call RstCollections%insert(trim(fname_by_writer), arrdes%collection_id(i))
              else
                 arrdes%collection_id(i) = iter%second()
@@ -4210,7 +4210,7 @@ module NCIOMod
           if (.not.allocated(arrdes%collection_id)) allocate(arrdes%collection_id(1))
           iter = RstCollections%find(trim(BundleName))
           if (iter == RstCollections%end()) then
-             arrdes%collection_id(1) = oClients%add_hist_collection(cf)
+             arrdes%collection_id(1) = oClients%add_data_collection(cf)
              call RstCollections%insert(trim(BundleName), arrdes%collection_id(1))
           else
              arrdes%collection_id(1) = iter%second()

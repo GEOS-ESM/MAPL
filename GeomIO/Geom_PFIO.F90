@@ -91,7 +91,7 @@ contains
       integer :: status
 
       this%mapl_geom => mapl_geom
-      this%collection_id = o_Clients%add_hist_collection(metadata, _RC)
+      this%collection_id = o_Clients%add_data_collection(metadata, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine init_with_metadata
@@ -105,7 +105,7 @@ contains
       integer :: status
 
       this%mapl_geom => mapl_geom
-      this%collection_id = i_Clients%add_ext_collection(file_name, _RC)
+      this%collection_id = i_Clients%add_data_collection(file_name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine init_with_filename

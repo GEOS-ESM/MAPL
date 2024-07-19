@@ -215,9 +215,9 @@ contains
       !do i = 1,9999
       !   tmp= ''
       !   write(tmp,'(I4.4)') i
-      !collection_id = this%c%add_ext_collection('collection-name'//tmp)
+      !collection_id = this%c%add_data_collection('collection-name'//tmp)
       !enddo
-      collection_id = this%c%add_ext_collection('collection-name')
+      collection_id = this%c%add_data_collection('collection-name')
 
       select case (step)
       case (1) ! read 1st file; prefetch 2nd
