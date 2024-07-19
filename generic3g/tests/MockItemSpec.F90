@@ -137,8 +137,15 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      _FAIL('unimplemented')
+      type(ESMF_State) :: state
+      type(ESMF_Info) :: info
+      integer :: status
 
+      call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
+      call ESMF_InfoGetFromHost(state, info, _RC)
+      call ESMF_InfoSet(info, key=actual_pt%get_full_name(), value=.true., _RC)
+
+      _RETURN(_SUCCESS)
    end subroutine add_to_state
 
    subroutine add_to_bundle(this, bundle, rc)

@@ -125,7 +125,8 @@ module mapl3g_HierarchicalRegistry
    contains
       procedure(I_get), deferred :: get_source
       procedure(I_get), deferred :: get_destination
-      procedure(I_connect), deferred :: connect
+      procedure(I_connect), deferred :: connect_old
+      generic :: connect => connect_old
    end type Connection
 
    abstract interface

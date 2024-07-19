@@ -559,14 +559,14 @@ contains
 
       integer :: status
 
-      find_mismatch: select type (dst_spec)
+      select type (dst_spec)
       type is (FieldSpec)
          allocate(extension, source=this%make_extension_safely(dst_spec))
          call extension%create(_RC)
       class default
          extension=this
          _FAIL('Unsupported subclass.')
-      end select find_mismatch
+      end select
       _RETURN(_SUCCESS)
    end function make_extension
 
