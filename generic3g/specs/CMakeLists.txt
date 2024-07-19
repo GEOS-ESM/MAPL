@@ -1,13 +1,9 @@
 target_sources(MAPL.generic3g PRIVATE
-  LU_Bound.F90
   VariableSpec.F90
   StateItem.F90
   VariableSpecVector.F90
 
   GeometrySpec.F90
-  UngriddedDim.F90
-  UngriddedDimVector.F90
-  UngriddedDims.F90
 
   HorizontalDimsSpec.F90
   VerticalDimSpec.F90
