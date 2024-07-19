@@ -39,7 +39,6 @@ set(srcs
   ESMF_Utilities.F90
   ESMF_HConfigUtilities.F90
   RestartHandler.F90
-  OutputInfo.F90
   )
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
 #set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90
@@ -57,7 +56,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.regridder_mgr MAPL.geom_mgr MAPL.GeomIO MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
+  DEPENDENCIES MAPL.regridder_mgr MAPL.geom_mgr MAPL.GeomIO MAPL.esmf_utils MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
   TYPE SHARED
   )
 
