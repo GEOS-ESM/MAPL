@@ -162,7 +162,7 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
-      _RETURN_UNLESS(allocated(this%geom))  ! mirror 
+      _RETURN_UNLESS(allocated(this%geom))  ! mirror
       call MAPL_FieldEmptySet(this%payload, this%geom, _RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -236,59 +236,12 @@ contains
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
       if (allocated(this%default_value)) then
-         call set_field_default(_RC)
+         call FieldSet(this%payload, this%default_value, _RC)
       end if
 
       call this%set_info(this%payload, _RC)
 
       _RETURN(ESMF_SUCCESS)
-
-   contains
-
-      subroutine set_field_default(rc)
-         integer, intent(out), optional :: rc
-         real(kind=ESMF_KIND_R4), pointer :: x_r4_1d(:),x_r4_2d(:,:),x_r4_3d(:,:,:),x_r4_4d(:,:,:,:)
-         real(kind=ESMF_KIND_R8), pointer :: x_r8_1d(:),x_r8_2d(:,:),x_r8_3d(:,:,:),x_r8_4d(:,:,:,:)
-         integer :: status, rank
-
-         call ESMF_FieldGet(this%payload,rank=rank,_RC)
-         if (this%typekind == ESMF_TYPEKIND_R4) then
-            if (rank == 1) then
-               call ESMF_FieldGet(this%payload,farrayptr=x_r4_1d,_RC)
-               x_r4_1d = this%default_value
-            else if (rank == 2) then
-               call ESMF_FieldGet(this%payload,farrayptr=x_r4_2d,_RC)
-               x_r4_2d = this%default_value
-            else if (rank == 3) then
-               call ESMF_FieldGet(this%payload,farrayptr=x_r4_3d,_RC)
-               x_r4_3d = this%default_value
-            else if (rank == 4) then
-               call ESMF_FieldGet(this%payload,farrayptr=x_r4_4d,_RC)
-               x_r4_4d = this%default_value
-            else
-               _FAIL('unsupported rank')
-            end if
-         else if (this%typekind == ESMF_TYPEKIND_R8) then
-            if (rank == 1) then
-               call ESMF_FieldGet(this%payload,farrayptr=x_r8_1d,_RC)
-               x_r8_1d = this%default_value
-            else if (rank == 2) then
-               call ESMF_FieldGet(this%payload,farrayptr=x_r8_2d,_RC)
-               x_r8_2d = this%default_value
-            else if (rank == 3) then
-               call ESMF_FieldGet(this%payload,farrayptr=x_r8_3d,_RC)
-               x_r8_3d = this%default_value
-            else if (rank == 4) then
-               call ESMF_FieldGet(this%payload,farrayptr=x_r8_4d,_RC)
-               x_r8_4d = this%default_value
-            else
-               _FAIL('unsupported rank')
-            end if
-         else
-            _FAIL('unsupported typekind')
-         end if
-         _RETURN(ESMF_SUCCESS)
-      end subroutine set_field_default
 
    end subroutine allocate
 
@@ -370,7 +323,7 @@ contains
 
    contains
 
-      
+
       subroutine mirror_geom(dst, src)
          type(ESMF_Geom), allocatable, intent(inout) :: dst, src
 
