@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title="<p> 0.1% of total for derived types.</p>Including implementation: 51 statements,  0.0% of total for derived types.">11 statements</a>
+                 title="<p> 0.1% of total for derived types.</p>Including implementation: 68 statements,  0.1% of total for derived types.">14 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -136,8 +136,9 @@
       <div id="boundprocs-0" class="collapse">
         <div class="list-group list-group-flush">
             <a class="list-group-item" href="../type/geompfio.html#boundprocedure-get_collection_id">get_collection_id</a>
-            <a class="list-group-item" href="../type/geompfio.html#boundprocedure-initialize~10">initialize</a>
-            <a class="list-group-item" href="../type/geompfio.html#boundprocedure-stage_data_to_file">stage_data_to_file</a>
+            <a class="list-group-item" href="../type/geompfio.html#boundprocedure-initialize~9">initialize</a>
+            <a class="list-group-item" href="../type/geompfio.html#boundprocedure-request_data_from_file~3">request_data_from_file</a>
+            <a class="list-group-item" href="../type/geompfio.html#boundprocedure-stage_data_to_file~2">stage_data_to_file</a>
             <a class="list-group-item" href="../type/geompfio.html#boundprocedure-stage_time_to_file">stage_time_to_file</a>
             <a class="list-group-item" href="../type/geompfio.html#boundprocedure-update_time_on_server">update_time_on_server</a>
         </div>
@@ -408,17 +409,17 @@ large graphs.</div>
           <div class="row">
               <div class="card mt-3">
     <div class="card-header codesum">
-      <span class="anchor" id="boundprocedure-initialize~10"></span>
+      <span class="anchor" id="boundprocedure-initialize~9"></span>
       <h3>
-          procedure, public ::
-  <strong>initialize</strong>
+          generic, public ::
+  <strong>initialize</strong> => init_with_metadata, init_with_filename
         
       </h3>
     </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine initialize(this, metadata, mapl_geom, rc)  
+    private  subroutine init_with_metadata(this, metadata, mapl_geom, rc)  
 </h3>
 
   
@@ -499,6 +500,89 @@ large graphs.</div>
 
 
         </li>
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine init_with_filename(this, file_name, mapl_geom, rc)  
+</h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='geompfio.html'>GeomPFIO</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>file_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(MaplGeom),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>mapl_geom</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
     </ul>
   </div>
 
@@ -506,7 +590,105 @@ large graphs.</div>
           <div class="row">
               <div class="card mt-3">
     <div class="card-header codesum">
-      <span class="anchor" id="boundprocedure-stage_data_to_file"></span>
+      <span class="anchor" id="boundprocedure-request_data_from_file~3"></span>
+      <h3>
+          procedure(I_request_data_from_file), public, deferred ::
+  <strong>request_data_from_file</strong>
+        
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+     subroutine I_request_data_from_file(this, file_name, state, rc)  
+<small>Prototype</small></h3>
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='geompfio.html'>GeomPFIO</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>file_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>state</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-stage_data_to_file~2"></span>
       <h3>
           procedure(I_stage_data_to_file), public, deferred ::
   <strong>stage_data_to_file</strong>
@@ -807,11 +989,13 @@ large graphs.</div>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MaplGeom</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mapl_geom</span>
 <span class="w">   </span><span class="k">contains</span>
 <span class="k">      procedure</span><span class="p">(</span><span class="n">I_stage_data_to_file</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">stage_data_to_file</span>
-<span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">I_request_data_from_file</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">request_data_from_file</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">init_with_metadata</span>
+<span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">init_with_filename</span>
+<span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">init_with_metadata</span><span class="p">,</span><span class="w"> </span><span class="n">init_with_filename</span>
 <span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update_time_on_server</span>
 <span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">stage_time_to_file</span>
 <span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">non_overridable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_collection_id</span>
-
 <span class="w">   </span><span class="k">end type </span><span class="n">GeomPFIO</span>
 </pre></div>
 
@@ -835,7 +1019,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-07-19T12:18:01.752410             </p>
+ on 2024-07-19T13:10:25.410000             </p>
           </div>
         </div>
         <br>
