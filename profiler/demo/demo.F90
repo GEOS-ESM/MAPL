@@ -1,6 +1,9 @@
+#define I_AM_MAIN
+638 #include "MAPL_ErrLog.h"
 program main
    use MPI
    use MAPL_Profiler
+   use MAPL_ErrorHandlingMod
    implicit none
 
 
@@ -12,9 +15,9 @@ program main
 
    character(:), allocatable :: report_lines(:)
    integer :: i
-   integer :: ierror
+   integer :: ierror, rc, status
 
-   call MPI_Init(ierror)
+   call MPI_Init(_IERROR)
    main_prof = TimeProfiler('TOTAL')   ! timer 1
    call main_prof%start()
    lap_prof = TimeProfiler('Lap')
@@ -85,7 +88,7 @@ program main
    write(*,'(a)') ''
 
 
-   call MPI_Finalize(ierror)
+   call MPI_Finalize(_IERROR)
 
    !call mem_prof%finalize()
    !report_lines = mem_reporter%generate_report(mem_prof)
