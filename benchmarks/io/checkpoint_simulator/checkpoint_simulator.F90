@@ -97,9 +97,11 @@ contains
       this%data_volume = 0.d0
       this%time_writing = 0.d0
       this%mpi_time = 0.0
-      call MPI_COMM_SIZE(MPI_COMM_WORLD,comm_size,_IERROR)
+      call MPI_COMM_SIZE(MPI_COMM_WORLD,comm_size,status)
+      _VERIFY(status)
       if (comm_size /= (this%nx*this%ny*6)) then
-         call MPI_Abort(mpi_comm_world,error_code,_IERROR)
+         call MPI_Abort(mpi_comm_world,error_code,status)
+         _VERIFY(status)
       endif
 
       contains
@@ -181,7 +183,8 @@ contains
       integer :: seed_size
       integer, allocatable :: seeds(:)
 
-      call MPI_COMM_RANK(MPI_COMM_WORLD,rank,_IERROR)
+      call MPI_COMM_RANK(MPI_COMM_WORLD,rank,status)
+      _VERIFY(status)
       call random_seed(size=seed_size)
       allocate(seeds(seed_size))
       seeds = rank
@@ -204,8 +207,10 @@ contains
       integer, allocatable :: ims(:),jms(:)
       integer :: rank, status,comm_size,n,i,j,rank_counter,offset,index_offset,rc
 
-      call MPI_Comm_Rank(MPI_COMM_WORLD,rank,_IERROR)
-      call MPI_Comm_Size(MPI_COMM_WORLD,comm_size,_IERROR)
+      call MPI_Comm_Rank(MPI_COMM_WORLD,rank,status)
+      _VERIFY(status)
+      call MPI_Comm_Size(MPI_COMM_WORLD,comm_size,status)
+      _VERIFY(status)
       allocate(this%bundle(this%num_arrays))
       ims = this%compute_decomposition(axis=1)
       jms = this%compute_decomposition(axis=2)
@@ -257,13 +262,16 @@ contains
      integer :: myid,status,nx0,ny0,color,j,ny_by_writers,local_ny,key,rc
 
      local_ny = this%ny*6
-     call MPI_Comm_Rank(mpi_comm_world,myid,_IERROR)
+     call MPI_Comm_Rank(mpi_comm_world,myid,status)
+     _VERIFY(status)
      nx0 = mod(myid,this%nx) + 1
      ny0 = myid/this%nx + 1
      color = nx0
-     call MPI_Comm_Split(MPI_COMM_WORLD,color,myid,this%ycomm,_IERROR)
+     call MPI_Comm_Split(MPI_COMM_WORLD,color,myid,this%ycomm,status)
+     _VERIFY(status)
      color = ny0
-     call MPI_Comm_Split(MPI_COMM_WORLD,color,myid,this%xcomm,_IERROR)
+     call MPI_Comm_Split(MPI_COMM_WORLD,color,myid,this%xcomm,status)
+     _VERIFY(status)
 
 
      ny_by_writers = local_ny/this%num_writers
@@ -272,16 +280,19 @@ contains
      else
         color = MPI_UNDEFINED
      end if
-     call MPI_COMM_SPLIT(MPI_COMM_WORLD,color,myid,this%writers_comm,_IERROR)
+     call MPI_COMM_SPLIT(MPI_COMM_WORLD,color,myid,this%writers_comm,status)
+     _VERIFY(status)
 
      if (this%num_writers == local_ny) then
         this%gather_comm = this%xcomm
      else
         j = ny0 - mod(ny0-1,ny_by_writers)
-        call MPI_COMM_SPLIT(MPI_COMM_WORLD,j,myid,this%gather_comm, _IERROR)
+        call MPI_COMM_SPLIT(MPI_COMM_WORLD,j,myid,this%gather_comm, status)
+        _VERIFY(status)
      end if
 
-     call MPI_BARRIER(mpi_comm_world, _IERROR)
+     call MPI_BARRIER(mpi_comm_world, status)
+     _VERIFY(status)
 
 
   end subroutine
@@ -302,7 +313,8 @@ contains
            close(this%ncid)
         end if
      end if
-     call MPI_BARRIER(MPI_COMM_WORLD, _IERROR)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
      call system_clock(count=sub_end)
      this%close_file_time =  sub_end-sub_start
   end subroutine
@@ -325,16 +337,22 @@ contains
         create_mode = IOR(create_mode,NF90_NETCDF4)
         create_mode = IOR(create_mode,NF90_SHARE)
         create_mode = IOR(create_mode,NF90_MPIIO)
-        call MPI_INFO_CREATE(info, _IERROR)
-        call MPI_INFO_SET(info,"cb_buffer_size","16777216", _IERROR)
-        call MPI_INFO_SET(info,"romio_cb_write","enable", _IERROR)
+        call MPI_INFO_CREATE(info, status)
+        _VERIFY(status)
+        call MPI_INFO_SET(info,"cb_buffer_size","16777216", status)
+        _VERIFY(status)
+        call MPI_INFO_SET(info,"romio_cb_write","enable", status)
+        _VERIFY(status)
         if (this%extra_info) then
-           call MPI_INFO_SET(info,"IBM_largeblock_io","true", _IERROR)
-           call MPI_INFO_SET(info,"striping_unit","4194304", _IERROR)
+           call MPI_INFO_SET(info,"IBM_largeblock_io","true", status)
+           _VERIFY(status)
+           call MPI_INFO_SET(info,"striping_unit","4194304", status)
+           _VERIFY(status)
         end if
         if (this%writers_comm /= MPI_COMM_NULL) then
            if (this%split_file) then
-              call MPI_COMM_RANK(this%writers_comm,writer_rank, _IERROR)
+              call MPI_COMM_RANK(this%writers_comm,writer_rank, status)
+              _VERIFY(status)
               write(fc,'(I0.3)')writer_rank
               fname = "checkpoint_"//fc//".nc4"
               status = nf90_create(fname,ior(NF90_NETCDF4,NF90_CLOBBER), this%ncid)
@@ -371,14 +389,16 @@ contains
      else
         if (this%writers_comm /= MPI_COMM_NULL) then
            if (this%split_file) then
-              call MPI_COMM_RANK(this%writers_comm,writer_rank, _IERROR)
+              call MPI_COMM_RANK(this%writers_comm,writer_rank, status)
+              _VERIFY(status)
               write(fc,'(I0.3)')writer_rank
               fname = "checkpoint_"//fc//".bin"
               open(file=fname,newunit=this%ncid,status='replace',form='unformatted',access='sequential')
            end if
         end if
      end if
-     call MPI_BARRIER(MPI_COMM_WORLD, _IERROR)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
      call system_clock(count=sub_end)
      this%create_file_time = sub_end-sub_start
   end subroutine
@@ -390,9 +410,11 @@ contains
 
      integer(kind=INT64) :: sub_start,sub_end
 
-     call MPI_BARRIER(MPI_COMM_WORLD, _IERROR)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
      call system_clock(count=sub_start)
-     call MPI_BARRIER(MPI_COMM_WORLD, _IERROR)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
      do i=1,this%num_arrays
         if (this%gather_3d) then
            call this%write_variable(this%bundle(i)%field_name,this%bundle(i)%field)
@@ -402,11 +424,14 @@ contains
            enddo
         end if
      enddo
-     call MPI_BARRIER(MPI_COMM_WORLD, _IERROR)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
      call system_clock(count=sub_end)
-     call MPI_BARRIER(MPI_COMM_WORLD, _IERROR)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
      this%write_3d_time = sub_end-sub_start
-     call MPI_BARRIER(MPI_COMM_WORLD, _IERROR)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
   end subroutine
 
   subroutine write_variable(this,var_name,local_var)
@@ -430,9 +455,12 @@ contains
      jm_world = this%im_world*6
      ndes_x = size(this%in)
 
-       call mpi_comm_rank(this%ycomm,myrow, _IERROR)
-       call mpi_comm_rank(this%gather_comm,myiorank, _IERROR)
-       call mpi_comm_size(this%gather_comm,num_io_rows, _IERROR)
+       call mpi_comm_rank(this%ycomm,myrow, status)
+       _VERIFY(status)
+       call mpi_comm_rank(this%gather_comm,myiorank, status)
+       _VERIFY(status)
+       call mpi_comm_size(this%gather_comm,num_io_rows, status)
+       _VERIFY(status)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (recvcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
@@ -464,7 +492,10 @@ contains
                       0, this%gather_comm, status )
        call system_clock(count=end_mpi)
        this%time_mpi = this%mpi_time  + (end_mpi - start_mpi)
-       if (this%write_barrier) call MPI_Barrier(MPI_COMM_WORLD, _IERROR)
+       if (this%write_barrier) then
+          call MPI_Barrier(MPI_COMM_WORLD, status)
+          _VERIFY(status)
+       endif
 
        if(myiorank==0) then
 
@@ -543,9 +574,12 @@ contains
      jm_world = this%im_world*6
      ndes_x = size(this%in)
 
-       call mpi_comm_rank(this%ycomm,myrow, _IERROR)
-       call mpi_comm_rank(this%gather_comm,myiorank, _IERROR)
-       call mpi_comm_size(this%gather_comm,num_io_rows, _IERROR)
+       call mpi_comm_rank(this%ycomm,myrow, status)
+       _VERIFY(status)
+       call mpi_comm_rank(this%gather_comm,myiorank, status)
+       _VERIFY(status)
+       call mpi_comm_size(this%gather_comm,num_io_rows, status)
+       _VERIFY(status)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (recvcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
@@ -577,7 +611,10 @@ contains
                       0, this%gather_comm, status )
        call system_clock(count=end_mpi)
        this%mpi_time = this%mpi_time + (end_mpi - start_mpi)
-       if (this%write_barrier) call MPI_Barrier(MPI_COMM_WORLD, _IERROR)
+       if (this%write_barrier) then
+          call MPI_Barrier(MPI_COMM_WORLD, status)
+          _VERIFY(status)
+       endif
 
        if(myiorank==0) then
 
@@ -656,22 +693,30 @@ program checkpoint_tester
    real(kind=REAL64) :: std_throughput, std_fs_throughput
 
    call system_clock(count=start_app,count_rate=count_rate)
-   call MPI_Init(_IERROR)
-   call MPI_Barrier(MPI_COMM_WORLD,_IERROR)
+   call MPI_Init(status)
+   _VERIFY(status)
+   call MPI_Barrier(MPI_COMM_WORLD,status)
+   _VERIFY(status)
 
-   call MPI_Comm_Rank(MPI_COMM_WORLD,rank,_IERROR)
-   call MPI_Comm_Size(MPI_COMM_WORLD,comm_size,_IERROR)
+   call MPI_Comm_Rank(MPI_COMM_WORLD,rank,status)
+   _VERIFY(status)
+   call MPI_Comm_Size(MPI_COMM_WORLD,comm_size,status)
+   _VERIFY(status)
    call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE,mpiCommunicator=MPI_COMM_WORLD)
-   call MPI_Barrier(MPI_COMM_WORLD,_IERROR)
+   call MPI_Barrier(MPI_COMM_WORLD,status)
+   _VERIFY(status)
 
    call support%set_parameters("checkpoint_benchmark.rc")
-   call MPI_Barrier(MPI_COMM_WORLD,_IERROR)
+   call MPI_Barrier(MPI_COMM_WORLD,status)
+   _VERIFY(status)
 
    call support%create_arrays()
-   call MPI_Barrier(MPI_COMM_WORLD,_IERROR)
+   call MPI_Barrier(MPI_COMM_WORLD,status)
+   _VERIFY(status)
 
    call support%create_communicators()
-   call MPI_Barrier(MPI_COMM_WORLD,_IERROR)
+   call MPI_Barrier(MPI_COMM_WORLD,status)
+   _VERIFY(status)
 
    allocate(total_throughput(support%n_trials))
    allocate(all_proc_throughput(support%n_trials))
@@ -680,15 +725,19 @@ program checkpoint_tester
       call support%reset()
 
       call system_clock(count=start_write)
-      call MPI_Barrier(MPI_COMM_WORLD, _IERROR)
+      call MPI_Barrier(MPI_COMM_WORLD, status)
+      _VERIFY(status)
       if (support%do_writes) call support%create_file()
-      call MPI_Barrier(MPI_COMM_WORLD, _IERROR)
+      call MPI_Barrier(MPI_COMM_WORLD, status)
+      _VERIFY(status)
 
       call support%write_file()
-      call MPI_Barrier(MPI_COMM_WORLD, _IERROR)
+      call MPI_Barrier(MPI_COMM_WORLD, status)
+      _VERIFY(status)
 
       if (support%do_writes) call support%close_file()
-      call MPI_Barrier(MPI_COMM_WORLD, _IERROR)
+      call MPI_Barrier(MPI_COMM_WORLD, status)
+      _VERIFY(status)
 
       call system_clock(count=end_time)
       write_time = real(end_time-start_write,kind=REAL64)/real(count_rate,kind=REAL64)
@@ -699,11 +748,15 @@ program checkpoint_tester
       application_time = real(end_time - start_app,kind=REAL64)/real(count_rate,kind=REAL64)
 
       if (support%write_counter > 0) then
-         call MPI_COMM_SIZE(support%writers_comm,writer_size, _IERROR)
-         call MPI_COMM_RANK(support%writers_comm,writer_rank, _IERROR)
-         call MPI_AllReduce(support%data_volume,average_volume,1,MPI_DOUBLE_PRECISION,MPI_SUM,support%writers_comm, _IERROR)
+         call MPI_COMM_SIZE(support%writers_comm,writer_size, status)
+         _VERIFY(status)
+         call MPI_COMM_RANK(support%writers_comm,writer_rank, status)
+         _VERIFY(status)
+         call MPI_AllReduce(support%data_volume,average_volume,1,MPI_DOUBLE_PRECISION,MPI_SUM,support%writers_comm, status)
+         _VERIFY(status)
          average_volume = average_volume/real(writer_size,kind=REAL64)
-         call MPI_AllReduce(support%time_writing,average_time,1,MPI_DOUBLE_PRECISION,MPI_SUM,support%writers_comm, _IERROR)
+         call MPI_AllReduce(support%time_writing,average_time,1,MPI_DOUBLE_PRECISION,MPI_SUM,support%writers_comm, status)
+         _VERIFY(status)
          average_time = average_time/real(writer_size,kind=REAL64)
       end if
       if (rank == 0) then
