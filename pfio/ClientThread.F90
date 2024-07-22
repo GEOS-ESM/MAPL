@@ -2,6 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_ClientThreadMod
+
    use MAPL_ExceptionHandling
    use pFIO_AbstractMessageMod
    use pFIO_AbstractSocketMod
@@ -23,7 +24,7 @@ module pFIO_ClientThreadMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
    use pFIO_AddExtCollectionMessageMod
-   use pFIO_AddHistCollectionMessageMod
+   use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
    use pFIO_StageDataMessageMod
@@ -144,7 +145,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(AddHistCollectionMessage(file_metadata, mode=mode))
+      call connection%send(AddWriteDataCollectionMessage(file_metadata, mode=mode))
       call connection%receive(message, _RC)
 
       select type(message)

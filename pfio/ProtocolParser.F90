@@ -1,5 +1,6 @@
 #include "unused_dummy.H"
 module pFIO_ProtocolParserMod
+
    use pFIO_AbstractMessageMod
    use pFIO_IntegerMessageMapMod
    use pFIO_FileMetadataMod
@@ -11,7 +12,7 @@ module pFIO_ProtocolParserMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
    use pFIO_AddExtCollectionMessageMod
-   use pFIO_AddHistCollectionMessageMod
+   use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
    use pFIO_StageDataMessageMod
@@ -62,7 +63,7 @@ contains
       type (StageDoneMessage)              :: sdone
       type (CollectiveStageDoneMessage)    :: csdone
       type (AddExtCollectionMessage)  :: addExtCollection
-      type (AddHistCollectionMessage) :: addHistCollection
+      type (AddWriteDataCollectionMessage) :: addWriteDataCollection
       type (IdMessage):: IDid
       type (PrefetchDataMessage)    :: PrefetchData
       type (StageDataMessage) :: StageData
@@ -83,8 +84,8 @@ contains
       call add_prototype(sdone)
       call add_prototype(csdone)
       call add_prototype(addExtCollection)
-      addHistCollection = AddHistCollectionMessage(FileMetadata())
-      call add_prototype(addHistCollection)
+      addWriteDataCollection = AddWriteDataCollectionMessage(FileMetadata())
+      call add_prototype(addWriteDataCollection)
       call add_prototype(IDId)
       call add_prototype(PrefetchData)
       call add_prototype(CollectivePrefetchData)

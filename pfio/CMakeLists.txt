@@ -45,7 +45,7 @@ set (srcs
   StageDataMessage.F90
   CollectivePrefetchDataMessage.F90
   CollectiveStageDataMessage.F90
-  AddHistCollectionMessage.F90
+  AddWriteDataCollectionMessage.F90
   ModifyMetadataMessage.F90
   ReplaceMetadataMessage.F90
   ForwardDataAndMessage.F90
