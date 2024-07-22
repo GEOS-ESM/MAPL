@@ -43,7 +43,8 @@ contains
       block
         use MPI
         integer :: rank, ierror, status, rc
-        call MPI_Comm_rank(MPI_COMM_WORLD, rank, _IERROR)
+        call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
+        _VERIFY(ierror)
         allocate(character(4) :: tmp_file)
         write(tmp_file,'(i4.4)')rank
         tmp_file = 'tmp_' // tmp_file // '.dat'

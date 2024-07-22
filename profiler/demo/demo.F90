@@ -17,7 +17,8 @@ program main
    integer :: i
    integer :: ierror, rc, status
 
-   call MPI_Init(_IERROR)
+   call MPI_Init(ierror)
+   _VERIFY(ierror)
    main_prof = TimeProfiler('TOTAL')   ! timer 1
    call main_prof%start()
    lap_prof = TimeProfiler('Lap')
@@ -88,7 +89,7 @@ program main
    write(*,'(a)') ''
 
 
-   call MPI_Finalize(_IERROR)
+   call MPI_Finalize(ierror)
 
    !call mem_prof%finalize()
    !report_lines = mem_reporter%generate_report(mem_prof)

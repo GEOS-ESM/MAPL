@@ -20,8 +20,10 @@ program main
 
 !$   mem_prof = MemoryProfiler('TOTAL')
 
-   call MPI_Init(_IERROR)
-   call MPI_Comm_rank(MPI_COMM_WORLD, rank, _IERROR)
+   call MPI_Init(ierror)
+   _VERIFY(ierror)
+   call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
+   _VERIFY(ierror)
 
    main_prof = DistributedProfiler('TOTAL', MpiTimerGauge(), MPI_COMM_WORLD)   ! timer 1
    call main_prof%start()
@@ -111,7 +113,8 @@ program main
       end do
       write(*,'(a)') ''
    end if
-   call MPI_Barrier(MPI_COMM_WORLD, _IERROR)
+   call MPI_Barrier(MPI_COMM_WORLD, ierror)
+   _VERIFY(ierror)
    if (rank == 1) then
       write(*,'(a)')'Final profile (1)'
       write(*,'(a)')'================'
@@ -120,7 +123,8 @@ program main
       end do
       write(*,'(a)') ''
    end if
-   call MPI_Barrier(MPI_COMM_WORLD, _IERROR)
+   call MPI_Barrier(MPI_COMM_WORLD, ierror)
+   _VERIFY(ierror)
 
    report_lines = main_reporter%generate_report(main_prof)
    if (rank == 0) then
@@ -143,7 +147,7 @@ program main
 !$      write(*,'(a)') ''
 !$   end if
 
-   call MPI_Finalize(_IERROR)
+   call MPI_Finalize(ierror)
 
 contains
 
