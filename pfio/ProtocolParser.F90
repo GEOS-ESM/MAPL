@@ -11,7 +11,7 @@ module pFIO_ProtocolParserMod
    use pFIO_CollectivePrefetchDoneMessageMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
-   use pFIO_AddExtCollectionMessageMod
+   use pFIO_AddReadDataCollectionMessageMod
    use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
@@ -62,7 +62,7 @@ contains
       type (CollectivePrefetchDoneMessage) :: cpdone
       type (StageDoneMessage)              :: sdone
       type (CollectiveStageDoneMessage)    :: csdone
-      type (AddExtCollectionMessage)  :: addExtCollection
+      type (AddReadDataCollectionMessage)  :: addReadDataCollection
       type (AddWriteDataCollectionMessage) :: addWriteDataCollection
       type (IdMessage):: IDid
       type (PrefetchDataMessage)    :: PrefetchData
@@ -83,7 +83,7 @@ contains
       call add_prototype(cpdone)
       call add_prototype(sdone)
       call add_prototype(csdone)
-      call add_prototype(addExtCollection)
+      call add_prototype(addReadDataCollection)
       addWriteDataCollection = AddWriteDataCollectionMessage(FileMetadata())
       call add_prototype(addWriteDataCollection)
       call add_prototype(IDId)

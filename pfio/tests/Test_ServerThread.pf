@@ -1,4 +1,5 @@
 module Test_ServerThread
+
    use pfunit
    use, intrinsic :: iso_fortran_env, only: REAL32
    use pFIO_AbstractMessageMod
@@ -16,7 +17,7 @@ module Test_ServerThread
    use pFIO_TerminateMessageMod
    use pFIO_DoneMessageMod
    use pFIO_PrefetchDoneMessageMod
-   use pFIO_AddExtCollectionMessageMod
+   use pFIO_AddReadDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
    use pFIO_IntegerSocketMapMod
@@ -111,7 +112,7 @@ contains
    end subroutine test_return_on_terminate_b
 
    @test
-   subroutine test_handle_AddExtCollection()
+   subroutine test_handle_AddReadDataCollection()
       type (ServerThread) :: s
       character(len=:), allocatable :: expected
       type (MockSocketLog), target :: log
@@ -120,8 +121,8 @@ contains
       integer :: i
 
       client_socket = MockSocket(log)
-      call client_socket%add_message(AddExtCollectionMessage('foo'))
-      call client_socket%add_message(AddExtCollectionMessage('bar'))
+      call client_socket%add_message(AddReadDataCollectionMessage('foo'))
+      call client_socket%add_message(AddReadDataCollectionMessage('bar'))
       call client_socket%add_message(TerminateMessage())
       mock_server = MockServer()
       call s%init(client_socket, mock_server)
@@ -132,15 +133,15 @@ contains
       enddo
 
       expected = ""
-      expected = expected // "receive<AddExtCollection('foo')>"
+      expected = expected // "receive<AddReadDataCollection('foo')>"
       expected = expected // " :: send<Id(001)>"
-      expected = expected // " :: receive<AddExtCollection('bar')>"
+      expected = expected // " :: receive<AddReadDataCollection('bar')>"
       expected = expected // " :: send<Id(002)>"
       expected = expected // " :: receive<Terminate>"
 
       @assertEqual(expected, log%log)
 
-   end subroutine test_handle_AddExtCollection
+   end subroutine test_handle_AddReadDataCollection
 
    @test
    subroutine test_handle_PrefetchData()
@@ -159,7 +160,7 @@ contains
       reference_v = ArrayReference(v)
 
       client_socket = MockSocket(log)
-      call client_socket%add_message(AddExtCollectionMessage('foo'))
+      call client_socket%add_message(AddReadDataCollectionMessage('foo'))
       call client_socket%add_message(PrefetchDataMessage(1, 1, 'fake_data.nc4', 'a', reference_a))
       call client_socket%add_message(PrefetchDataMessage(2, 1, 'fake_data.nc4', 'u', reference_u, start=[1,1]))
       call client_socket%add_message(PrefetchDataMessage(3, 1, 'fake_data.nc4', 'v', reference_v, start=[1,1]))
@@ -175,7 +176,7 @@ contains
       enddo
 
       expected = ""
-      expected = expected // "receive<AddExtCollection('foo')>"
+      expected = expected // "receive<AddReadDataCollection('foo')>"
       expected = expected // " :: send<Id(001)>"
       expected = expected // " :: receive<PrefetchData('a')>"
       expected = expected // " :: send<Dummy>"

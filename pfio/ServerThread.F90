@@ -30,7 +30,7 @@ module pFIO_ServerThreadMod
    use pFIO_CollectivePrefetchDoneMessageMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
-   use pFIO_AddExtCollectionMessageMod
+   use pFIO_AddReadDataCollectionMessageMod
    use pFIO_DummyMessageMod
    use pFIO_HandShakeMessageMod
    use pFIO_IDMessageMod
@@ -89,7 +89,7 @@ module pFIO_ServerThreadMod
       procedure :: handle_Done_collective_prefetch
       procedure :: handle_Done_stage
       procedure :: handle_Done_collective_stage
-      procedure :: handle_AddExtCollection
+      procedure :: handle_AddReadDataCollection
       procedure :: handle_AddWriteDataCollection
       procedure :: handle_PrefetchData
       procedure :: handle_CollectivePrefetchData
@@ -475,9 +475,9 @@ contains
       _RETURN(_SUCCESS)
    end function read_and_share
 
-   subroutine handle_AddExtCollection(this, message, rc)
+   subroutine handle_AddReadDataCollection(this, message, rc)
       class (ServerThread), target, intent(inout) :: this
-      type (AddExtCollectionMessage), intent(in) :: message
+      type (AddReadDataCollectionMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
       integer :: n, status
@@ -513,7 +513,7 @@ contains
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Extcollection")
       _RETURN(_SUCCESS)
-   end subroutine handle_AddExtCollection
+   end subroutine handle_AddReadDataCollection
 
    subroutine handle_AddWriteDataCollection(this, message, rc)
       class (ServerThread), target, intent(inout) :: this

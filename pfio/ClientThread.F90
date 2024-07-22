@@ -23,7 +23,7 @@ module pFIO_ClientThreadMod
    use pFIO_CollectivePrefetchDoneMessageMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
-   use pFIO_AddExtCollectionMessageMod
+   use pFIO_AddReadDataCollectionMessageMod
    use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
@@ -119,7 +119,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(AddExtCollectionMessage(file_template),_RC)
+      call connection%send(AddReadDataCollectionMessage(file_template),_RC)
       call connection%receive(message, _RC)
 
       select type(message)

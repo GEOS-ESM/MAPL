@@ -17,7 +17,7 @@ module pFIO_MockClientThreadMod
 
    use pFIO_TerminateMessageMod
    use pFIO_DoneMessageMod
-   use pFIO_AddExtCollectionMessageMod
+   use pFIO_AddReadDataCollectionMessageMod
    use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod

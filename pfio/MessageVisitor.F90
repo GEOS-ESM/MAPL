@@ -10,7 +10,7 @@ module pFIO_MessageVisitorMod
    use pFIO_CollectivePrefetchDoneMessageMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
-   use pFIO_AddExtCollectionMessageMod
+   use pFIO_AddReadDataCollectionMessageMod
    use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
@@ -38,7 +38,7 @@ module pFIO_MessageVisitorMod
       procedure :: handle_Done_stage
       procedure :: handle_Done_collective_stage
 
-      procedure :: handle_AddExtCollection
+      procedure :: handle_AddReadDataCollection
       procedure :: handle_AddWriteDataCollection
       procedure :: handle_Id
       procedure :: handle_PrefetchData
@@ -55,7 +55,7 @@ module pFIO_MessageVisitorMod
       generic :: handle_cmd => handle_Done_collective_prefetch
       generic :: handle_cmd => handle_Done_stage
       generic :: handle_cmd => handle_Done_collective_stage
-      generic :: handle_cmd => handle_AddExtCollection
+      generic :: handle_cmd => handle_AddReadDataCollection
       generic :: handle_cmd => handle_AddWriteDataCollection
       generic :: handle_cmd => handle_Id
       generic :: handle_cmd => handle_PrefetchData
@@ -94,8 +94,8 @@ contains
          call this%handle_cmd(cmd,_RC)
        type is (CollectiveStageDoneMessage)
           call this%handle_cmd(cmd,_RC)
-      type is (AddExtCollectionMessage)
-        call this%handle_AddExtCollection(cmd,rc=status)
+      type is (AddReadDataCollectionMessage)
+        call this%handle_AddReadDataCollection(cmd,rc=status)
         _VERIFY(status)
       type is (AddWriteDataCollectionMessage)
         call this%handle_AddWriteDataCollection(cmd,rc=status)
@@ -208,14 +208,14 @@ contains
       _UNUSED_DUMMY(message)
    end subroutine handle_Done_collective_stage
 
-   subroutine handle_AddExtCollection(this, message, rc)
+   subroutine handle_AddReadDataCollection(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
-      type (AddExtCollectionMessage), intent(in) :: message
+      type (AddReadDataCollectionMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _FAIL( "Warning : dummy handle_AddExtCollection should not be called")
+      _FAIL( "Warning : dummy handle_AddReadDataCollection should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
-   end subroutine handle_AddExtCollection
+   end subroutine handle_AddReadDataCollection
 
    subroutine handle_AddWriteDataCollection(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
