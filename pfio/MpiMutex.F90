@@ -45,9 +45,12 @@ contains
       integer(kind=MPI_ADDRESS_KIND) :: baseaddr
 #endif
 
-      call MPI_Comm_dup(comm, lock%comm, _IERROR)
-      call MPI_Comm_rank(lock%comm, lock%rank, _IERROR)
-      call MPI_Comm_size(lock%comm, lock%npes, _IERROR)
+      call MPI_Comm_dup(comm, lock%comm, ierror)
+      _VERIFY(ierror)
+      call MPI_Comm_rank(lock%comm, lock%rank, ierror)
+      _VERIFY(ierror)
+      call MPI_Comm_size(lock%comm, lock%npes, ierror)
+      _VERIFY(ierror)
 
       ! This type is used to copy the status of locks on other PE's
       ! into a table that can be examined on the local process.
@@ -56,8 +59,10 @@ contains
         integer :: displs(2)
         blklens = [lock%rank, lock%npes - lock%rank - 1]
         displs = [0, lock%rank + 1]
-        call MPI_Type_indexed(2, blklens, displs, MPI_LOGICAL, lock%pe_locks_type, _IERROR);
-        call MPI_Type_commit(lock%pe_locks_type, _IERROR)
+        call MPI_Type_indexed(2, blklens, displs, MPI_LOGICAL, lock%pe_locks_type, ierror);
+        _VERIFY(ierror)
+        call MPI_Type_commit(lock%pe_locks_type, ierror)
+        _VERIFY(ierror)
       end block
 
       ! Create windows
@@ -67,12 +72,15 @@ contains
            logical, pointer :: scratchpad(:)
            integer :: sizeof_logical
 
-           call MPI_Type_extent(MPI_LOGICAL, sizeof_logical, _IERROR)
+           call MPI_Type_extent(MPI_LOGICAL, sizeof_logical, ierror)
+           _VERIFY(ierror)
            sz = lock%npes * sizeof_logical
 #if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
-           call MPI_Alloc_mem(sz, MPI_INFO_NULL, lock%locks_ptr, _IERROR)
+           call MPI_Alloc_mem(sz, MPI_INFO_NULL, lock%locks_ptr, ierror)
+           _VERIFY(ierror)
 #else
-           call MPI_Alloc_mem(sz, MPI_INFO_NULL, baseaddr, _IERROR)
+           call MPI_Alloc_mem(sz, MPI_INFO_NULL, baseaddr, ierror)
+           _VERIFY(ierror)
            lock%locks_ptr = transfer(baseaddr, lock%locks_ptr)
 #endif
 
@@ -80,14 +88,16 @@ contains
            scratchpad = .false.
 
            call MPI_Win_create(scratchpad, sz, sizeof_logical, &
-                & MPI_INFO_NULL, lock%comm, lock%window, _IERROR)
+                & MPI_INFO_NULL, lock%comm, lock%window, ierror)
+           _VERIFY(ierror)
          end block
 
       else ! local window memory is size 0, but have to pass something
          block
            logical :: buffer(1)
            sz = 0
-           call MPI_Win_create(buffer, sz, 1, MPI_INFO_NULL, lock%comm, lock%window, _IERROR)
+           call MPI_Win_create(buffer, sz, 1, MPI_INFO_NULL, lock%comm, lock%window, ierror)
+           _VERIFY(ierror)
          end block
       end if
 
@@ -102,20 +112,25 @@ contains
 
       integer :: ierror,rc,status
 
-      call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, this%window, _IERROR)
+      call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, this%window, ierror)
+      _VERIFY(ierror)
       call MPI_Get(this%local_data, this%npes-1, MPI_LOGICAL, 0, &
-           & 0_MPI_ADDRESS_KIND, 1, this%pe_locks_type, this%window, _IERROR)
+           & 0_MPI_ADDRESS_KIND, 1, this%pe_locks_type, this%window, ierror)
+      _VERIFY(ierror)
       call MPI_Put(.true., 1, MPI_LOGICAL, 0, int(this%rank,kind=MPI_ADDRESS_KIND), &
-           & 1, MPI_LOGICAL, this%window, _IERROR)
+           & 1, MPI_LOGICAL, this%window, ierror)
+      _VERIFY(ierror)
 
-      call MPI_Win_unlock(0, this%window, _IERROR)
+      call MPI_Win_unlock(0, this%window, ierror)
+      _VERIFY(ierror)
 
       ! Check other processes for holding the lock
       if (any(this%local_data)) then ! wait for signal from process with the lock
          block
            integer :: buffer ! unused
            call MPI_Recv(buffer, 0, MPI_LOGICAL, MPI_ANY_SOURCE, &
-                & LOCK_TAG, this%comm, MPI_STATUS_IGNORE, _IERROR)
+                & LOCK_TAG, this%comm, MPI_STATUS_IGNORE, ierror)
+           _VERIFY(ierror)
          end block
       end if
 
@@ -128,12 +143,16 @@ contains
 
       integer :: ierror,rc,status
 
-      call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, this%window, _IERROR)
+      call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, this%window, ierror)
+      _VERIFY(ierror)
       call MPI_Get(this%local_data, this%npes-1, MPI_LOGICAL, 0, &
-           & 0_MPI_ADDRESS_KIND, 1, this%pe_locks_type, this%window, _IERROR)
+           & 0_MPI_ADDRESS_KIND, 1, this%pe_locks_type, this%window, ierror)
+      _VERIFY(ierror)
       call MPI_Put(.false., 1, MPI_LOGICAL, 0, int(this%rank,kind=MPI_ADDRESS_KIND), &
-           & 1, MPI_LOGICAL, this%window, _IERROR)
-      call MPI_Win_unlock(0, this%window, _IERROR)
+           & 1, MPI_LOGICAL, this%window, ierror)
+      _VERIFY(ierror)
+      call MPI_Win_unlock(0, this%window, ierror)
+      _VERIFY(ierror)
 
       ! who needs the lock next (if anyone)?
       block
@@ -157,7 +176,8 @@ contains
 
         if (next_rank /= -1) then
            call MPI_Send(buffer, 0, MPI_LOGICAL, next_rank, &
-                & LOCK_TAG, this%comm, _IERROR)
+                & LOCK_TAG, this%comm, ierror)
+           _VERIFY(ierror)
         end if
       end block
 
@@ -170,14 +190,18 @@ contains
       integer :: ierror,rc,status
 
       ! Release resources
-      call MPI_Type_free(this%pe_locks_type, _IERROR)
-      call MPI_Win_free(this%window, _IERROR)
+      call MPI_Type_free(this%pe_locks_type, ierror)
+      _VERIFY(ierror)
+      call MPI_Win_free(this%window, ierror)
+      _VERIFY(ierror)
 
       if (this%rank == 0) then
          call c_f_pointer(this%locks_ptr, scratchpad, [this%npes])
-         call MPI_Free_mem(scratchpad, _IERROR)
+         call MPI_Free_mem(scratchpad, ierror)
+         _VERIFY(ierror)
       end if
-      call Mpi_comm_free(this%comm, _IERROR)
+      call Mpi_comm_free(this%comm, ierror)
+      _VERIFY(ierror)
 
    end subroutine free_mpi_resources
 

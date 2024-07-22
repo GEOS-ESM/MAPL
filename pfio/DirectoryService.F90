@@ -132,7 +132,8 @@ contains
 #endif
       integer :: ierror, rank, rc, status
 
-      call MPI_Comm_Rank(comm, rank, _IERROR)
+      call MPI_Comm_Rank(comm, rank, ierror)
+      _VERIFY(ierror)
 
       if (rank == 0)  then
          sz = sizeof_directory()
@@ -150,7 +151,8 @@ contains
          dir =>dirnull
       endif
 
-      call MPI_Win_create(dir, sz, 1, MPI_INFO_NULL, comm, win, _IERROR)
+      call MPI_Win_create(dir, sz, 1, MPI_INFO_NULL, comm, win, ierror)
+      _VERIFY(ierror)
 
    end function make_directory_window
 

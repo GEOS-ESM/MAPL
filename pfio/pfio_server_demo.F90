@@ -291,9 +291,12 @@ program main
    type (FakeExtData), target :: extData
    class(AbstractDirectoryService), pointer :: d_s=>null()
 
-   call MPI_init_thread(MPI_THREAD_MULTIPLE, provided, _IERROR)
-   call MPI_Comm_rank(MPI_COMM_WORLD, rank, _IERROR)
-   call MPI_Comm_size(MPI_COMM_WORLD, npes, _IERROR)
+   call MPI_init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
+   _VERIFY(ierror)
+   call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
+   _VERIFY(ierror)
+   call MPI_Comm_size(MPI_COMM_WORLD, npes, ierror)
+   _VERIFY(ierror)
 
    call process_command_line(options, rc=status)
 
@@ -305,7 +308,8 @@ program main
    end if
    key = 0
 
-   call MPI_Comm_split(MPI_COMM_WORLD, color, key, comm, _IERROR)
+   call MPI_Comm_split(MPI_COMM_WORLD, color, key, comm, ierror)
+   _VERIFY(ierror)
 
 !C$   num_threads = 20
    allocate(d_s, source = DirectoryService(MPI_COMM_WORLD))
@@ -335,7 +339,7 @@ program main
       !call global_directory_service%terminate_servers(comm)
    end if
 
-   call MPI_finalize(_IERROR)
+   call MPI_finalize(ierror)
 
 end program main
    

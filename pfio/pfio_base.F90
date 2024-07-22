@@ -11,7 +11,8 @@ contains
       integer :: rank, ierror, rc, status
 
       if (debug_unit == 0) then
-         call MPI_Comm_rank(MPI_Comm_world, rank, _IERROR)
+         call MPI_Comm_rank(MPI_Comm_world, rank, ierror)
+         _VERIFY(ierror)
          write(buf,'(i5.5)') rank
          open(newunit=debug_unit,file='pfio_debug.'//buf,status='unknown', form='formatted')
       end if

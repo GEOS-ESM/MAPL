@@ -323,9 +323,12 @@ program main
    type (FakeExtData), target :: extData
 
    required = MPI_THREAD_MULTIPLE
-   call MPI_init_thread(required, provided,  _IERROR)
-   call MPI_Comm_rank(MPI_COMM_WORLD, rank,  _IERROR)
-   call MPI_Comm_size(MPI_COMM_WORLD, npes,  _IERROR)
+   call MPI_init_thread(required, provided,  ierror)
+   _VERIFY(ierror)
+   call MPI_Comm_rank(MPI_COMM_WORLD, rank,  ierror)
+   _VERIFY(ierror)
+   call MPI_Comm_size(MPI_COMM_WORLD, npes,  ierror)
+   _VERIFY(ierror)
 
    call process_command_line(options, rc=status)
 
@@ -342,7 +345,8 @@ program main
    color = split_color(options%server_type,options%npes_server)
    key = 0
 
-   call MPI_Comm_split(MPI_COMM_WORLD, color, key, comm,  _IERROR)
+   call MPI_Comm_split(MPI_COMM_WORLD, color, key, comm,  ierror)
+   _VERIFY(ierror)
 
    if (color == SERVER_COLOR .or. color == BOTH_COLOR) then ! server
       
@@ -360,7 +364,7 @@ program main
  
    end if
 
-   call MPI_finalize(_IERROR)
+   call MPI_finalize(ierror)
 
 contains
 

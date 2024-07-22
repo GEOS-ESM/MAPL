@@ -14,7 +14,8 @@ program main
    integer :: n_fields
    character(:), allocatable :: output_filename
 
-   call MPI_Init(_IERROR)
+   call MPI_Init(ierror)
+   _VERIFY(ierror)
 
    call cli%init(description='potential reproducer of parallel netcdf problem on SCU12')
    call add_cli_options(cli)
@@ -22,7 +23,7 @@ program main
 
    call run(im, lm, n_fields, output_filename)
    
-   call MPI_Finalize(_IERROR)
+   call MPI_Finalize(ierror)
 
 contains
 
@@ -87,8 +88,10 @@ contains
       character(:), allocatable :: field_name
       character(3) :: field_idx_str
 
-      call mpi_comm_size(MPI_COMM_WORLD, npes, _IERROR)
-      call mpi_comm_rank(MPI_COMM_WORLD, rank, _IERROR)
+      call mpi_comm_size(MPI_COMM_WORLD, npes, ierror)
+      _VERIFY(ierror)
+      call mpi_comm_rank(MPI_COMM_WORLD, rank, ierror)
+      _VERIFY(ierror)
 
       jm = im*6 ! pseudo cubed sphere
       call metadata%add_dimension('IM_WORLD', im)
