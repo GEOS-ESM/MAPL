@@ -6,7 +6,7 @@ submodule (mapl3g_OuterMetaComponent) write_restart_smod
 contains
 
    module recursive subroutine write_restart(this, importState, exportState, clock, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock

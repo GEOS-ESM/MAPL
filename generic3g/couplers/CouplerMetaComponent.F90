@@ -206,6 +206,11 @@ contains
 
       integer :: status
 
+      !TODO: This block is a workaround for weird link error with NAG
+      !      7.2 Appears to be a collision in numbering of local
+      !      scopes.
+      block
+      end block
       _GET_NAMED_PRIVATE_STATE(gridcomp, CouplerMetaComponent, COUPLER_META_PRIVATE_STATE, meta)
 
       _RETURN(_SUCCESS)
