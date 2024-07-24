@@ -19,7 +19,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualPtVector
    use mapl3g_ConnectionVector
-   use mapl3g_HierarchicalRegistry
+   use mapl3g_StateRegistry, only: StateRegistry, Connection
    use mapl3g_StateExtension
    use mapl3g_ExtensionVector
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
@@ -65,7 +65,7 @@ module mapl3g_OuterMetaComponent
 
       ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
-      type(HierarchicalRegistry) :: registry
+      type(StateRegistry) :: registry
 
       class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
@@ -336,7 +336,7 @@ module mapl3g_OuterMetaComponent
       end subroutine finalize
    
       module recursive subroutine read_restart(this, importState, exportState, clock, unusable, rc)
-         class(OuterMetaComponent), intent(inout) :: this
+         class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_State) :: importState
          type(ESMF_State) :: exportState
          type(ESMF_Clock) :: clock
@@ -346,7 +346,7 @@ module mapl3g_OuterMetaComponent
       end subroutine read_restart
    
       module recursive subroutine write_restart(this, importState, exportState, clock, unusable, rc)
-         class(OuterMetaComponent), intent(inout) :: this
+         class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_State) :: importState
          type(ESMF_State) :: exportState
          type(ESMF_Clock) :: clock
@@ -377,7 +377,7 @@ module mapl3g_OuterMetaComponent
       end subroutine set_vertical_geom
     
       module function get_registry(this) result(registry)
-         type(HierarchicalRegistry), pointer :: registry
+         type(StateRegistry), pointer :: registry
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_registry
    
