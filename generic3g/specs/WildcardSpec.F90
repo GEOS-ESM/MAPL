@@ -126,7 +126,7 @@ contains
          spec => this%matched_items%of(actual_pt)
          call spec%create(_RC)
          call spec%connect_to(src_spec, actual_pt, _RC)
-         
+
          _RETURN(ESMF_SUCCESS)
       end subroutine with_target_attribute
    end subroutine connect_to
@@ -168,7 +168,8 @@ contains
          type(ActualConnectionPt), pointer :: effective_pt
          type(ActualConnectionPt) :: use_pt
          character(:), allocatable :: comp_name
-         
+         integer :: label
+
          associate (e => this%matched_items%ftn_end())
            iter = this%matched_items%ftn_begin()
            do while (iter /= e)
@@ -176,10 +177,15 @@ contains
               ! Ignore actual_pt argument and use internally recorded name
               effective_pt => iter%first()
               comp_name = actual_pt%get_comp_name()
+              label = actual_pt%get_label()
+              use_pt = effective_pt
+
+              if (label /= -1) then ! not primary
+                 use_pt = use_pt%extend()
+              end if
+
               if (comp_name /= '') then
-                 use_pt = effective_pt%add_comp_name(comp_name)
-              else
-                 use_pt = effective_pt
+                 use_pt = use_pt%add_comp_name(comp_name)
               end if
               spec_ptr => iter%second()
               call spec_ptr%add_to_state(multi_state, use_pt, _RC)

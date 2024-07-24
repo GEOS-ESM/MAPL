@@ -38,7 +38,7 @@ set(srcs
 
   ESMF_Utilities.F90
   ESMF_HConfigUtilities.F90
-  OutputInfo.F90
+  RestartHandler.F90
   )
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
 #set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90
@@ -56,7 +56,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.regridder_mgr MAPL.geom_mgr MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
+  DEPENDENCIES MAPL.regridder_mgr MAPL.geom_mgr MAPL.GeomIO MAPL.esmf_utils MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
   TYPE SHARED
   )
 
@@ -103,7 +103,7 @@ esma_add_fortran_submodules(
           get_clock.F90 set_clock.F90 run_export_couplers.F90
           run_import_couplers.F90 clock_advance.F90 new_GriddedComponentDriver.F90
           get_gridcomp.F90 get_name.F90 add_export_coupler.F90 
-          add_import_coupler.F90)
+          add_import_coupler.F90 read_restart.F90 write_restart.F90)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
@@ -112,4 +112,3 @@ target_link_libraries (${this} PUBLIC udunits2f MAPL.field_utils ESMF::ESMF NetC
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
-

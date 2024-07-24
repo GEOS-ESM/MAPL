@@ -20,7 +20,8 @@ set (test_srcs
 
   Test_ConnectionPt.pf
   Test_FieldDictionary.pf
-  Test_HierarchicalRegistry.pf
+
+  Test_StateRegistry.pf
 
   Test_Scenarios.pf
   Test_WriteYaml.pf

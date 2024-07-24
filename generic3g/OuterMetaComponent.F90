@@ -1,9 +1,9 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_OuterMetaComponent
+
    use mapl3g_geom_mgr
-   use mapl3g_UserSetServices
-   use mapl3g_UserSetServices,   only: AbstractUserSetServices
+   use mapl3g_UserSetServices, only: AbstractUserSetServices
    use mapl3g_VariableSpec
    use mapl3g_StateItem
    use mapl3g_MultiState
@@ -19,7 +19,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualPtVector
    use mapl3g_ConnectionVector
-   use mapl3g_HierarchicalRegistry
+   use mapl3g_StateRegistry, only: StateRegistry, Connection
    use mapl3g_StateExtension
    use mapl3g_ExtensionVector
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
@@ -39,6 +39,8 @@ module mapl3g_OuterMetaComponent
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
    use esmf
    use pflogger, only: logging, Logger
+   use mapl3g_RestartHandler, only: RestartHandler
+
    implicit none
    private
 
@@ -49,7 +51,7 @@ module mapl3g_OuterMetaComponent
 
    type :: OuterMetaComponent
       private
-      
+
       type(ESMF_GridComp)                         :: self_gridcomp
       type(GriddedComponentDriver)                :: user_gc_driver
       class(AbstractUserSetServices), allocatable :: user_setservices
@@ -63,8 +65,8 @@ module mapl3g_OuterMetaComponent
 
       ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
-      type(HierarchicalRegistry) :: registry
- 
+      type(StateRegistry) :: registry
+
       class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
       type(ComponentSpec)                         :: component_spec
@@ -278,6 +280,16 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine recurse_
    
+      module recursive subroutine recurse_read_restart_(this, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine recurse_read_restart_
+
+      module recursive subroutine recurse_write_restart_(this, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine recurse_write_restart_
+
       module subroutine apply_to_children_custom(this, oper, rc)
          class(OuterMetaComponent), intent(inout) :: this
          procedure(I_child_op) :: oper
@@ -323,8 +335,8 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine finalize
    
-      module subroutine read_restart(this, importState, exportState, clock, unusable, rc)
-         class(OuterMetaComponent), intent(inout) :: this
+      module recursive subroutine read_restart(this, importState, exportState, clock, unusable, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_State) :: importState
          type(ESMF_State) :: exportState
          type(ESMF_Clock) :: clock
@@ -333,8 +345,8 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine read_restart
    
-      module subroutine write_restart(this, importState, exportState, clock, unusable, rc)
-         class(OuterMetaComponent), intent(inout) :: this
+      module recursive subroutine write_restart(this, importState, exportState, clock, unusable, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_State) :: importState
          type(ESMF_State) :: exportState
          type(ESMF_Clock) :: clock
@@ -365,7 +377,7 @@ module mapl3g_OuterMetaComponent
       end subroutine set_vertical_geom
     
       module function get_registry(this) result(registry)
-         type(HierarchicalRegistry), pointer :: registry
+         type(StateRegistry), pointer :: registry
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_registry
    
@@ -415,6 +427,14 @@ module mapl3g_OuterMetaComponent
    interface recurse
       module procedure recurse_
    end interface recurse
+
+   interface recurse_read_restart
+      module procedure recurse_read_restart_
+   end interface recurse_read_restart
+
+   interface recurse_write_restart
+      module procedure recurse_write_restart_
+   end interface recurse_write_restart
 
    interface apply_to_children
       module procedure apply_to_children_custom

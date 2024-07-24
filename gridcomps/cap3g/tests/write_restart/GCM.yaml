@@ -1,0 +1,33 @@
+mapl:
+  states:
+    export:
+      EE_1:
+        standard_name: "NA"
+        units: "NA"
+        typekind: R4
+        default_value: 23.
+        vertical_dim_spec: NONE
+      EE_2:
+        standard_name: "NA"
+        units: "NA"
+        typekind: R4
+        default_value: 18.
+        vertical_dim_spec: NONE
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+  children:
+    AGCM:
+      dso: libconfigurable_leaf_gridcomp.dylib
+      setServices: setservices_
+      config_file: AGCM.yaml
+  connections:
+    # import to export
+    - src_name: EE_1
+      dst_name: IMP_1
+      src_comp: <self>
+      dst_comp: AGCM

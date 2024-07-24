@@ -2,9 +2,9 @@
 
 module mapl3g_ReexportConnection
    use mapl3g_StateItemSpec
+   use mapl3g_ExtensionFamily
    use mapl3g_ConnectionPt
-   use mapl3g_HierarchicalRegistry, only: Connection
-   use mapl3g_HierarchicalRegistry
+   use mapl3g_StateRegistry
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVec_Map
@@ -58,13 +58,13 @@ contains
       destination = this%destination
    end function get_destination
 
-   recursive subroutine connect(this, registry, rc)
+  recursive subroutine connect(this, registry, rc)
       class(ReexportConnection), intent(in) :: this
-      type(HierarchicalRegistry), target, intent(inout) :: registry
+      type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(HierarchicalRegistry), pointer :: src_registry
+      type(StateRegistry), pointer :: src_registry
       type(ConnectionPt) :: src_pt
 
       src_pt = this%get_source()
@@ -76,12 +76,12 @@ contains
       _RETURN(_SUCCESS)
    end subroutine connect
 
-
    ! Non-sibling connection: just propagate pointer "up"
-   subroutine connect_export_to_export(this, registry, src_registry, unusable, rc)
+   subroutine connect_export_to_export(this, dst_registry, src_registry, unusable, rc)
+      use mapl3g_ExtensionFamily
       class(ReexportConnection), intent(in) :: this
-      type(HierarchicalRegistry), intent(inout) :: registry
-      type(HierarchicalRegistry), intent(in) :: src_registry
+      type(StateRegistry), intent(inout) :: dst_registry
+      type(StateRegistry), intent(in) :: src_registry
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -93,27 +93,18 @@ contains
       integer :: status
       type(VirtualConnectionPt) :: src_pt, dst_pt
       type(ConnectionPt) :: src, dst
+      type(ExtensionFamily), pointer :: family
 
       src = this%get_source()
       dst = this%get_destination()
       src_pt = src%v_pt
       dst_pt = dst%v_pt
 
-      _ASSERT(.not. registry%has_item_spec(dst_pt), 'Specified virtual point already exists in this registry')
-      _ASSERT(src_registry%has_item_spec(src_pt), 'Specified virtual point does not exist.')
-      
-      actual_pts => src_registry%get_actual_pts(src_pt)
-      associate (e => actual_pts%ftn_end())
-        iter = actual_pts%ftn_begin()
-        do while (iter /= e)
-           call iter%next()
-           src_actual_pt => iter%of()
-           dst_actual_pt = ActualConnectionPt(dst_pt)
-           spec => src_registry%get_item_spec(src_actual_pt)
-           _ASSERT(associated(spec), 'This should not happen.')
-           call registry%link_item_spec(dst_pt, spec, dst_actual_pt, _RC)
-        end do
-      end associate
+      _ASSERT(.not. dst_registry%has_virtual_pt(dst_pt), 'Specified virtual point already exists in this registry')
+      _ASSERT(src_registry%has_virtual_pt(src_pt), 'Specified virtual point does not exist.')
+
+      family => src_registry%get_extension_family(src_pt, _RC)
+      call dst_registry%add_family(dst_pt, family, _RC)
     
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -134,5 +125,5 @@ contains
 
    end subroutine connect_export_to_export
 
- end module mapl3g_ReexportConnection
+  end module mapl3g_ReexportConnection
 
