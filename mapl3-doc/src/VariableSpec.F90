@@ -4,6 +4,7 @@
 module mapl3g_VariableSpec
    use mapl3g_StateItemSpec
    use mapl3g_StateItem
+   use mapl3g_StateItemExtension
    use mapl3g_UngriddedDims
    use mapl3g_VerticalDimSpec
    use mapl3g_HorizontalDimsSpec
@@ -18,7 +19,7 @@ module mapl3g_VariableSpec
    use mapl_KeywordEnforcerMod
    use mapl3g_ActualPtVector
    use mapl_ErrorHandling
-   use mapl3g_HierarchicalRegistry
+   use mapl3g_StateRegistry
    use esmf
    use gFTL2_StringVector
    use nuopc
@@ -54,10 +55,11 @@ module mapl3g_VariableSpec
       type(StringVector) :: dependencies
    contains
       procedure :: make_virtualPt
-      procedure :: make_ItemSpec
+      procedure :: make_ItemSpec_new
+      generic :: make_itemSpec => make_itemSpec_new
       procedure :: make_BracketSpec
       procedure :: make_FieldSpec
-      procedure :: make_ServiceSpec
+      procedure :: make_ServiceSpec_new
       procedure :: make_WildcardSpec
 
       procedure :: make_dependencies
@@ -187,12 +189,12 @@ contains
    ! This implementation ensures that an object is at least created
    ! even if failures are encountered.  This is necessary for
    ! robust error handling upstream.
-   function make_ItemSpec(this, geom, vertical_geom, registry, rc) result(item_spec)
+   function make_ItemSpec_new(this, geom, vertical_geom, registry, rc) result(item_spec)
       class(StateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       type(VerticalGeom), intent(in) :: vertical_geom
-      type(HierarchicalRegistry), intent(in) :: registry
+      type(StateRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -207,7 +209,7 @@ contains
 !!$         item_spec = this%make_FieldBundleSpec(geom, _RC)
       case (MAPL_STATEITEM_SERVICE%ot)
          allocate(ServiceSpec::item_spec)
-         item_spec = this%make_ServiceSpec(registry, _RC)
+         item_spec = this%make_ServiceSpec_new(registry, _RC)
       case (MAPL_STATEITEM_WILDCARD%ot)
          allocate(WildcardSpec::item_spec)
          item_spec = this%make_WildcardSpec(geom, vertical_geom,  _RC)
@@ -224,10 +226,14 @@ contains
       call item_spec%set_dependencies(dependencies)
       call item_spec%set_raw_dependencies(this%dependencies)
 
+      if (this%state_intent == ESMF_STATEINTENT_INTERNAL) then
+         call item_spec%set_active()
+      end if
+
       _RETURN(_SUCCESS)
-   end function make_ItemSpec
-   
-   function make_BracketSpec(this, geom, vertical_geom, rc) result(bracket_spec)
+   end function make_ItemSpec_new
+ 
+  function make_BracketSpec(this, geom, vertical_geom, rc) result(bracket_spec)
       type(BracketSpec) :: bracket_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -339,16 +345,17 @@ contains
    ! handled by the service.   Shallow copy of these will appear in the FieldBundle in the
    ! import state of the requesting gridcomp.
    ! ------
-   function make_ServiceSpec(this, registry, rc) result(service_spec)
+   function make_ServiceSpec_new(this, registry, rc) result(service_spec)
       type(ServiceSpec) :: service_spec
       class(VariableSpec), intent(in) :: this
-      type(HierarchicalRegistry), intent(in) :: registry
+      type(StateRegistry), target, intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: i, n
       type(StateItemSpecPtr), allocatable :: specs(:)
-      type(ActualConnectionPt) :: a_pt
+      type(VirtualConnectionPt) :: v_pt
+      type(StateItemExtension), pointer :: primary
 
       if (.not. valid(this)) then
          _RETURN(_FAILURE)
@@ -358,8 +365,10 @@ contains
       allocate(specs(n))
 
       do i = 1, n
-         a_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, this%service_items%of(i)))
-         specs(i)%ptr => registry%get_item_spec(a_pt, _RC)
+         v_pt = VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, this%service_items%of(i))
+         ! Internal items are always unique and "primary" (owned by user)
+         primary => registry%get_primary_extension(v_pt, _RC)
+         specs(i)%ptr => primary%get_spec()
       end do
       service_spec = ServiceSpec(specs)
 
@@ -376,9 +385,9 @@ contains
          
       end function valid
 
-   end function make_ServiceSpec
+   end function make_ServiceSpec_new
 
-   function make_WildcardSpec(this, geom, vertical_geom, rc) result(wildcard_spec)
+    function make_WildcardSpec(this, geom, vertical_geom, rc) result(wildcard_spec)
       type(WildcardSpec) :: wildcard_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), intent(in) :: geom

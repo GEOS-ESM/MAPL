@@ -121,13 +121,13 @@ contains
 
          status = 1
 
-         child_comp = outer_meta%get_child(child_name, rc=status)
+          child_comp = outer_meta%get_child(child_name, rc=status)
          if (status /= 0) then
             status = 2
             return
          end if
          
-         child_gc = child_comp%get_gridcomp()
+          child_gc = child_comp%get_gridcomp()
          child_meta => get_outer_meta(child_gc)
          user_component => child_meta%get_user_gc_driver()
          states = user_component%get_states()
@@ -136,7 +136,7 @@ contains
             status = 3
             return
          end if
-         
+
          do i = 1, size(expected_items)
             call ESMF_StateGet(state, trim(expected_items(i)), f, rc=status)
             if (status /= 0) then
@@ -312,7 +312,7 @@ contains
       call setup(outer_gc, states, status)
       @assert_that(status, is(0))
 
-      @assert_that(check(states, 'import', field_name='child_A/I_A1'), is(0))
+      @assert_that(check(states, 'import', field_name='I_A1(1)'), is(0))
       @assert_that(check(states, 'export', field_name='child_A/E_A1'), is(0))
       @assert_that(check(states, 'export', field_name='child_A/Z_A1'), is(0))
       @assert_that(check(states, 'export', field_name='child_B/E_B1'), is(0))
@@ -340,23 +340,24 @@ contains
          end if
 
          idx = scan(field_name, '/')
-         if (status /= 0) then
-            status = 6
-            return
-         end if
+         select case (idx)
+         case (1:)
 
-         call ESMF_StateGet(state, field_name(:idx-1), substate, rc=status)
-         if (status /= 0) then
-            status = 7
-            return
-         end if
-         
-         
+            call ESMF_StateGet(state, field_name(:idx-1), substate, rc=status)
+            if (status /= 0) then
+               status = 7
+               return
+            end if
+         case (0)
+            substate = state
+         end select
+
          call ESMF_StateGet(substate, field_name(idx+1:), itemtype, rc=status)
          if (status /= 0) then
             status = 4
             return
          end if
+
          if (itemtype == ESMF_STATEITEM_NOTFOUND) then
             status = 5
             return
@@ -522,7 +523,7 @@ contains
       @assert_that(status, is(0))
 
       ! Child A import is unsatisfied, so it should propagate up
-      call ESMF_StateGet(states%importState, 'child_A/I_A1', f, rc=status)
+      call ESMF_StateGet(states%importState, 'I_A1(1)', f, rc=status)
       @assert_that('Expected unsatisfied import in parent.', status, is(0))
       
    end subroutine test_propagate_imports

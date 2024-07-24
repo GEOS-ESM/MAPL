@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) run_user_smod
+   use mapl3g_ComponentDriverPtrVector
    implicit none
 
 contains
@@ -12,44 +13,36 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC, i
+      integer :: status, userRC
       integer :: phase_idx
       type(StateExtension), pointer :: extension
       type(StringVector), pointer :: run_phases
       logical :: found
       integer :: phase
 
-      type(ActualPtComponentDriverMap), pointer :: export_Couplers
-      type(ComponentDriverVector), pointer :: import_Couplers
-      type(ActualPtComponentDriverMapIterator) :: iter
-      type(ComponentDriverVectorIterator) :: import_iter
-      class(ComponentDriver), pointer :: drvr
+      type(ComponentDriverPtrVector) :: export_Couplers
+      type(ComponentDriverPtrVector) :: import_Couplers
+      type(ComponentDriverPtr) :: drvr
+      integer :: i
 
       run_phases => this%get_phases(ESMF_METHOD_RUN)
       phase = get_phase_index(run_phases, phase_name, found=found)
       _ASSERT(found, 'phase <'//phase_name//'> not found for gridcomp <'//this%get_name()//'>')
 
-      import_couplers => this%registry%get_import_couplers()
-      associate (e => import_couplers%ftn_end())
-        import_iter = import_couplers%ftn_begin()
-        do while (import_iter /= e)
-           call import_iter%next()
-           drvr => import_iter%of()
-           call drvr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
-        end do
-      end associate
+      import_couplers = this%registry%get_import_couplers()
+      do i = 1, import_couplers%size()
+         drvr = import_couplers%of(i)
+         call drvr%ptr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+      end do
+
 
       call this%user_gc_driver%run(phase_idx=phase, _RC)
 
-      export_couplers => this%registry%get_export_couplers()
-      associate (e => export_couplers%ftn_end())
-        iter = export_couplers%ftn_begin()
-        do while (iter /= e)
-           call iter%next()
-           drvr => iter%second()
-           call drvr%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC)
-        end do
-      end associate
+      export_couplers = this%registry%get_export_couplers()
+      do i = 1, export_couplers%size()
+         drvr = export_couplers%of(i)
+         call drvr%ptr%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC)
+      end do
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run_user

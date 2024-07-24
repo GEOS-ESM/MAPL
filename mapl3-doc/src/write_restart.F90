@@ -1,47 +1,33 @@
-#include "MAPL_Generic.h"
+#include "MAPL_ErrLog.h"
 
-submodule (mapl3g_OuterMetaComponent) write_restart_smod
+submodule(mapl3g_GriddedComponentDriver) write_restart_smod
+   use :: mapl_ErrorHandling
+   use :: mapl3g_OuterMetaComponent
+   use :: mapl3g_MethodPhasesMapUtils
    implicit none
 
 contains
 
-   module recursive subroutine write_restart(this, importState, exportState, clock, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_State) :: importState
-      type(ESMF_State) :: exportState
-      type(ESMF_Clock) :: clock
-      ! optional arguments
+   module recursive subroutine write_restart(this, unusable, phase_idx, rc)
+      class(GriddedComponentDriver), intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 
-      ! Locals
-      type(GriddedComponentDriver), pointer :: driver
-      type(ESMF_GridComp) :: gc
-      character(:), allocatable :: name
-      type(MultiState) :: states
-      type(ESMF_State) :: internal_state, import_state
-      type(ESMF_Geom) :: geom
-      type(RestartHandler) :: restart_handler
-      integer :: status
+      integer :: status, user_status
 
-      driver => this%get_user_gc_driver()
-      name = driver%get_name()
-      ! TODO: Need a better way of identifying a gridcomp that writes restart
-      if ((name /= "cap") .and. (name /= "HIST")) then
-         gc = driver%get_gridcomp()
-         geom = this%get_geom()
-         states = driver%get_states()
-         call states%get_state(import_state, "import", _RC)
-         call states%get_state(internal_state, "internal", _RC)
-         restart_handler = RestartHandler(name, geom, clock, _RC)
-         call restart_handler%write("import", import_state, _RC)
-         call restart_handler%write("internal", internal_state, _RC)
-      end if
-      if (name /= "HIST") then
-         call recurse_write_restart_(this, _RC)
-      end if
+      associate ( &
+           importState => this%states%importState, &
+           exportState => this%states%exportState)
 
-      _RETURN(ESMF_SUCCESS)
+        call ESMF_GridCompWriteRestart(this%gridcomp, &
+             importState=importState, exportState=exportState, clock=this%clock, &
+             phase=phase_idx, _USERRC)
+
+      end associate
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine write_restart
 
 end submodule write_restart_smod

@@ -9,7 +9,6 @@ module mapl3g_ServiceSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_ESMF_Utilities, only: get_substate
    use mapl_ErrorHandling
-   use mapl3g_HierarchicalRegistry
    use mapl3g_ActualPtSpecPtrMap
    use mapl3g_ActualPtVec_Map
    use mapl3g_ActualPtVector

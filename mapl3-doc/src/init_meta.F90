@@ -17,7 +17,7 @@ contains
       character(:), allocatable :: user_gc_name
 
       user_gc_name = this%user_gc_driver%get_name(_RC)
-      this%registry = HierarchicalRegistry(user_gc_name)
+      this%registry = StateRegistry(user_gc_name)
 
       this%lgr => logging%get_logger('MAPL.GENERIC')
 

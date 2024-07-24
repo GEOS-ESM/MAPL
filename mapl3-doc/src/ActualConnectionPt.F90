@@ -27,6 +27,7 @@ module mapl3g_ActualConnectionPt
 
       procedure :: get_state_intent
       procedure :: get_esmf_name
+      procedure :: get_label
       procedure :: get_full_name
       procedure :: get_comp_name
       procedure :: add_comp_name
@@ -92,7 +93,7 @@ contains
          return
       endif
       ! default
-      ext_pt%label = 0
+      ext_pt%label = 1
          
    end function extend_
 
@@ -114,6 +115,15 @@ contains
       state_intent = this%v_pt%get_state_intent()
 
    end function get_state_intent
+
+   function get_label(this) result(label)
+      integer :: label
+      class(ActualConnectionPt), intent(in) :: this
+
+      label = -1
+      if (allocated(this%label)) label = this%label
+
+   end function get_label
 
 
    ! Important that name is different if either comp_name or short_name differ
