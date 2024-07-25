@@ -169,12 +169,8 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  bf this%create_basic_grid'
       grid = this%create_basic_grid(_RC)
-      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%create_basic_grid'
       call this%add_horz_coordinates_from_file(grid,_RC)
-      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%add_horz_coordinates_from_file'
-
       _RETURN(_SUCCESS)
    end function make_new_grid
 
@@ -225,8 +221,8 @@ contains
       real(kind=ESMF_KIND_R8), allocatable :: lat_true(:,:)
       real(kind=ESMF_KIND_R8), allocatable :: time_true(:,:)
       real(kind=ESMF_KIND_R8), pointer :: arr_lon(:,:)
-      real(kind=ESMF_KIND_R8), pointer :: arr_lat(:,:)      
-      
+      real(kind=ESMF_KIND_R8), pointer :: arr_lat(:,:)
+
       integer :: i, j, k
       integer :: Xdim, Ydim
       integer :: Xdim_full, Ydim_full
@@ -243,19 +239,19 @@ contains
       integer :: mypet, petcount
       integer :: nsize, count
       integer :: mpic
-      
+
       _UNUSED_DUMMY(unusable)
 
       call ESMF_VMGetCurrent(vm,_RC)
 !!      call ESMF_VMGet(vm, mpiCommunicator=mpic, localPet=mypet, petCount=petCount, _RC)
-      
+
       Xdim=this%im_world
       Ydim=this%jm_world
       count = Xdim * Ydim
-      
+
       call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
       call MAPL_AllocateShared(arr_lon,[Xdim,Ydim],transroot=.true.,_RC)
-      call MAPL_AllocateShared(arr_lat,[Xdim,Ydim],transroot=.true.,_RC)      
+      call MAPL_AllocateShared(arr_lat,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
 
       if (mapl_am_i_root()) then
@@ -271,7 +267,7 @@ contains
          do j=this%epoch_index(3), this%epoch_index(4)
             k=k+1
             arr_lon(1:Xdim, k) = lon_true(1:Xdim, j)
-            arr_lat(1:Xdim, k) = lat_true(1:Xdim, j)             
+            arr_lat(1:Xdim, k) = lat_true(1:Xdim, j)
          enddo
          arr_lon=arr_lon*MAPL_DEGREES_TO_RADIANS_R8
          arr_lat=arr_lat*MAPL_DEGREES_TO_RADIANS_R8
@@ -280,13 +276,13 @@ contains
 !         write(6,*) 'in root'
 !         write(6,'(11x,100f10.1)')  arr_lon(::5,189)
       end if
-!      call MPI_Barrier(mpic, status)      
+!      call MPI_Barrier(mpic, status)
       call MAPL_SyncSharedMemory(_RC)
 
       call MAPL_BcastShared (VM, data=arr_lon, N=count, Root=MAPL_ROOT, RootOnly=.false., _RC)
-      call MAPL_BcastShared (VM, data=arr_lat, N=count, Root=MAPL_ROOT, RootOnly=.false., _RC)      
-      
-!      write(6,'(2x,a,2x,i5,4x,100f10.1)')  'PET', mypet, arr_lon(::5,189)      
+      call MAPL_BcastShared (VM, data=arr_lat, N=count, Root=MAPL_ROOT, RootOnly=.false., _RC)
+
+!      write(6,'(2x,a,2x,i5,4x,100f10.1)')  'PET', mypet, arr_lon(::5,189)
 !      call MPI_Barrier(mpic, status)
 
       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
@@ -301,10 +297,10 @@ contains
 
       if(MAPL_ShmInitialized) then
          call MAPL_DeAllocNodeArray(arr_lon,_RC)
-         call MAPL_DeAllocNodeArray(arr_lat,_RC)          
+         call MAPL_DeAllocNodeArray(arr_lat,_RC)
       else
          deallocate(arr_lon)
-         deallocate(arr_lat)          
+         deallocate(arr_lat)
       end if
 
 !      if (mapl_am_I_root()) then
@@ -318,7 +314,7 @@ contains
 !      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
 !         write(6,'(2x,a,2x,i10)')  'add_horz_coord: MAPL_AmNodeRoot:  mypet=', mypet
 !      end if
-      
+
       _RETURN(_SUCCESS)
 
    end subroutine add_horz_coordinates_from_file
@@ -479,12 +475,11 @@ contains
       call ESMF_ConfigGetAttribute(config, this%input_template, label=prefix//'GRID_FILE:', default='unknown.txt', _RC)
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
-
-      write(6,'(2x,a,100i10)') 'nail 2, nx,ny,im,jm,lm',&
-           this%nx,this%ny,this%im_world,this%jm_world,this%lm      
+      _ASSERT (this%lm /= MAPL_UNDEFINED_INTEGER, 'LM: is undefined in swath grid')
 
       call lgr%debug(' %a  %a', 'CurrTime =', trim(tmp))
-      
+
+
       if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
          call ESMF_TimeSet(currTime, timeString=tmp, _RC)
       else
@@ -499,20 +494,6 @@ contains
            label= prefix// 'obs_file_begin:', _RC)
       _ASSERT (trim(STR1)/='', 'obs_file_begin missing, critical for data with 5 min interval!')
       call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
-      !!disable using currTime as obsfile_start_time
-      !!if (trim(STR1)=='') then
-      !!   this%obsfile_start_time = currTime
-      !!   call ESMF_TimeGet(currTime, timestring=STR1, _RC)
-      !!   if (mapl_am_I_root()) then
-      !!      write(6,105) 'obs_file_begin missing, default = currTime :', trim(STR1)
-      !!   endif
-      !!else
-      !!   call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
-      !!   if (mapl_am_I_root()) then
-      !!      write(6,105) 'obs_file_begin provided: ', trim(STR1)
-      !!   end if
-      !!end if
-
 
       if (mapl_am_I_root()) then
          write(6,105) 'obs_file_begin provided: ', trim(STR1)
@@ -679,6 +660,12 @@ contains
               this%t_alongtrack(1), this%t_alongtrack(nend))
          call lgr%debug ('%a %i20 %i20', 'jt1, jt2 [final intercepted position]', jt1, jt2)
 
+         call lgr%debug ('%a %i20 %i20', 'nstart, nend', nstart, nend)
+         call lgr%debug ('%a %f20.1 %f20.1', 'j0[currT]    j1[T+Epoch]  w.r.t. timeunit ', jx0, jx1)
+         call lgr%debug ('%a %f20.1 %f20.1', 'x0[times(1)] xn[times(N)] w.r.t. timeunit ', &
+              this%t_alongtrack(1), this%t_alongtrack(nend))
+         call lgr%debug ('%a %i20 %i20', 'jt1, jt2 [final intercepted position]', jt1, jt2)
+
          if (jt1==jt2) then
             _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
          endif
@@ -728,6 +715,7 @@ contains
       endif
       ! ims is set at here
       call this%check_and_fill_consistency(_RC)
+      call lgr%debug(' %a  %i5  %i5', 'nx, ny (check_and_fill_consistency) = ', this%nx, this%ny)
 
       _RETURN(_SUCCESS)
 
@@ -874,7 +862,6 @@ contains
             call this%generate_newnxy(_RC)
          end if
       end if
-
       _RETURN(_SUCCESS)
 
    contains
@@ -1155,43 +1142,48 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: n
+      integer :: j, pet_count
 
       _UNUSED_DUMMY(unusable)
 
+      pet_count = this%nx * this%ny
       n = this%im_world/this%nx
       if (n < 2) then
-         this%nx = generate_new_decomp(this%im_world,this%nx)
-         deallocate(this%ims)
-         allocate(this%ims(0:this%nx-1))
-         call MAPL_DecomposeDim(this%im_world, this%ims, this%nx)
+         do j = this%im_world/2, 1, -1
+            if ( mod(pet_count, j) == 0 .and. this%im_world/j >= 2 ) then
+               exit  ! found a decomposition
+            end if
+         end do
+         this%nx = j
+         this%ny = pet_count/j
       end if
+
       n = this%jm_world/this%ny
       if (n < 2) then
-         this%ny = generate_new_decomp(this%jm_world,this%ny)
-         deallocate(this%jms)
-         allocate(this%jms(0:this%ny-1))
-         call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny)
+         do j = this%jm_world/2, 1, -1
+            if ( mod(pet_count, j) == 0 .and. this%jm_world/j >=2 ) then
+               exit  ! found a decomposition
+            end if
+         end do
+         this%ny = j
+         this%nx = pet_count/j
       end if
+
+      if ( this%im_world/this%nx < 2 .OR. this%jm_world/this%ny < 2 ) then
+         _FAIL ('Algorithm failed')
+      end if
+
+      if (allocated(this%ims)) deallocate(this%ims)
+      allocate(this%ims(0:this%nx-1))
+      call MAPL_DecomposeDim(this%im_world, this%ims, this%nx)
+      if (allocated(this%jms)) deallocate(this%jms)
+      allocate(this%jms(0:this%ny-1))
+      call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny)
 
       _RETURN(_SUCCESS)
 
    end subroutine generate_newnxy
 
-   function generate_new_decomp(im,nd) result(n)
-      integer, intent(in) :: im, nd
-      integer :: n
-      logical :: canNotDecomp
-
-      canNotDecomp = .true.
-      n = nd
-      do while(canNotDecomp)
-         if ( (im/n) < 2) then
-            n = n/2
-         else
-            canNotDecomp = .false.
-         end if
-      enddo
-   end function generate_new_decomp
 
    subroutine init_halo(this, unusable, rc)
       class (SwathGridFactory), target, intent(inout) :: this
@@ -1452,11 +1444,11 @@ contains
       ! debug
       type(ESMF_VM) :: vm
       integer :: mypet, petcount
-      integer :: mpic      
+      integer :: mpic
 
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMGet(vm, mpiCommunicator=mpic, localPet=mypet, petCount=petCount, _RC)
-      
+
       Xdim=this%im_world
       Ydim=this%jm_world
       count=Xdim*Ydim
@@ -1498,7 +1490,7 @@ contains
          call MAPL_DeAllocNodeArray(arr_time,_RC)
       else
          deallocate(arr_time)
-      end if      
+      end if
 
       _RETURN(_SUCCESS)
     end subroutine get_obs_time

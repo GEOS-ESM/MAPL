@@ -537,8 +537,7 @@ module MAPL_OpenMP_Support
 
         call ESMF_GridCompGet(GridComp, config=CF, name=comp_name, _RC)
         call ESMF_InternalStateGet(GridComp, labelList=labels, _RC)
-        if(myPET==0) print*,__FILE__,__LINE__, 'internal states labels : <',trim(comp_name), (trim(labels(i)),i=1,size(labels)), '>'
-        print*,__FILE__,__LINE__, 'splitting component: <',trim(comp_name),'>'
+
         do i = 1, num_grids
           associate (gc => subgridcomps(i) )
             gc = ESMF_GridCompCreate(name=trim(comp_name), config=CF, petlist=[myPet], &
@@ -595,6 +594,7 @@ module MAPL_OpenMP_Support
        type(CallbackMethodWrapper), pointer :: wrapper
        type(CallbackMap), pointer :: callbacks
        type(CallbackMapIterator) :: iter
+       procedure(), pointer :: userRoutine
 
        n_multi = size(multi_states)
        call get_callbacks(state, callbacks, _RC)
@@ -604,7 +604,8 @@ module MAPL_OpenMP_Support
           do while (iter /= e)
              wrapper => iter%second()
              do i = 1, n_multi
-                call ESMF_MethodAdd(multi_states(i), label=iter%first(), userRoutine=wrapper%userRoutine, _RC)
+                userRoutine => wrapper%userRoutine
+                call ESMF_MethodAdd(multi_states(i), label=iter%first(), userRoutine=userRoutine, _RC)
              end do
              call iter%next()
           end do

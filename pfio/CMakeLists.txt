@@ -13,6 +13,7 @@ set (srcs
   pFIO_Constants.F90
   UnlimitedEntity.F90
   Attribute.F90
+  IntArray.F90
   Variable.F90
   CoordinateVariable.F90
   StringVariableMap.F90
@@ -21,7 +22,7 @@ set (srcs
   FileMetadata.F90
   FileMetadataVector.F90
   NetCDF4_FileFormatter.F90
-  pfio_get_att_string.c
+  pfio_nf90_supplement.c 
   NetCDF_Supplement.F90
   pFIO_Utilities.F90
   pFIO.F90
