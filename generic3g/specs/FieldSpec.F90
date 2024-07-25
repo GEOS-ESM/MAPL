@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_FieldSpec
+
    use mapl3g_StateItemSpec
    use mapl3g_UngriddedDims
    use mapl3g_ActualConnectionPt
@@ -18,6 +19,7 @@ module mapl3g_FieldSpec
    use mapl3g_NullAction
    use mapl3g_CopyAction
    use mapl3g_RegridAction
+   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_ConvertUnitsAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use mapl3g_LU_Bound
@@ -34,6 +36,7 @@ module mapl3g_FieldSpec
    public :: new_FieldSpec_geom
 
    type, extends(StateItemSpec) :: FieldSpec
+
       private
 
       type(ESMF_Geom), allocatable :: geom
@@ -42,6 +45,7 @@ module mapl3g_FieldSpec
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(UngriddedDims) :: ungridded_dims
       type(StringVector) :: attributes
+      type(EsmfRegridderParam) :: regrid_param
 
       ! Metadata
       character(:), allocatable :: standard_name
@@ -56,6 +60,7 @@ module mapl3g_FieldSpec
       real, allocatable :: default_value
 
    contains
+
       procedure :: create
       procedure :: destroy
       procedure :: allocate
@@ -602,7 +607,9 @@ contains
 
          if (.not. MAPL_SameGeom(this%geom, dst_spec%geom)) then
             deallocate(action)
-            action = RegridAction(this%geom, this%payload, dst_spec%geom, dst_spec%payload)
+            action = RegridAction( &
+                 this%geom, this%payload, this%regrid_param, &
+                 dst_spec%geom, dst_spec%payload, dst_spec%regrid_param)
             _RETURN(_SUCCESS)
          end if
 
