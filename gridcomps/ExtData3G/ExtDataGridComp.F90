@@ -6,6 +6,7 @@ module mapl3g_ExtDataGridComp
    use pFlogger, only: logger
    use esmf
    use pfio
+   use mapl3g_ExtDataGridComp_private
    implicit none
    private
 
@@ -17,13 +18,15 @@ contains
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
-      type(ESMF_HConfig) :: hconfig
+      type(ESMF_HConfig) :: hconfig, merged_configs
       integer :: status
 
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_USER", _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+      merged_configs = ESMF_HConfigCreate(_RC)
+      call merge_config(merged_configs, hconfig, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine setServices
