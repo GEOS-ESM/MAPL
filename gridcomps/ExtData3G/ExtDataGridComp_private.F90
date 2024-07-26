@@ -29,6 +29,7 @@ contains
     
       if (ESMF_HConfigIsDefined(input_hconfig, keyString=SUBCONFIG_KEY)) then
          is_sequence = ESMF_HConfigIsSequence(input_hconfig, keyString=SUBCONFIG_KEY, _RC)
+         _ASSERT(is_sequence, "subconfig list in extdata not a sequence")
          sub_configs = ESMF_HConfigAsStringSeq(input_hconfig, ESMF_MAXPATHLEN, keyString=SUBCONFIG_KEY, _RC) 
          do i=1,size(sub_configs)
             sub_config = ESMF_HConfigCreate(filename=trim(sub_configs(i)), _RC)
