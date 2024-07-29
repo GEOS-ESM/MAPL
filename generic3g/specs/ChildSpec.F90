@@ -37,7 +37,7 @@ module mapl3g_ChildSpec
 
 contains
 
-   pure function new_ChildSpec(user_setservices, unusable, config_file) result(spec)
+   function new_ChildSpec(user_setservices, unusable, config_file) result(spec)
       type(ChildSpec) :: spec
       class(AbstractUserSetServices), intent(in) :: user_setservices
       class(KeywordEnforcer), optional, intent(in) :: unusable

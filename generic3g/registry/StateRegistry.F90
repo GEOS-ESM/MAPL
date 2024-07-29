@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 
-module mapl3g_Registry
+module mapl3g_StateRegistry
    use mapl3g_AbstractRegistry
    use mapl3g_RegistryPtr
    use mapl3g_RegistryPtrMap
@@ -16,23 +16,18 @@ module mapl3g_Registry
    use mapl3g_VirtualPtFamilyMap
    use mapl3g_StateItemVector
    use mapl3g_StateItemSpec
-   use mapl3g_HierarchicalRegistry, only: Connection
+   use mapl3g_ComponentDriver
    use mapl3g_ComponentDriverVector
+   use mapl3g_ComponentDriverPtrVector
    use mapl3g_GriddedComponentDriver
    use mapl_ErrorHandling
    implicit none
    private
 
-   public :: Registry
-   public :: newConnection
+   public :: StateRegistry
+   public :: Connection
 
-   type, abstract, extends(Connection) :: newConnection
-   contains
-      procedure(I_connect_new), deferred :: connect_new
-      generic :: connect => connect_new
-   end type newConnection
-
-   type, extends(AbstractRegistry) :: Registry
+   type, extends(AbstractRegistry) :: StateRegistry
       private
       character(:), allocatable :: name
       type(StateItemExtensionVector) :: owned_items ! specs and couplers
@@ -51,6 +46,7 @@ module mapl3g_Registry
       procedure :: link_extension
       procedure :: add_extension
       procedure :: add_spec
+      procedure :: add_family
 
 
       procedure :: propagate_unsatisfied_imports_all
@@ -87,45 +83,63 @@ module mapl3g_Registry
 
       procedure :: filter ! for MatchConnection
 
+      procedure :: get_export_couplers
+      procedure :: get_import_couplers
 
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
 
-   end type Registry
+   end type StateRegistry
 
-    abstract interface
-      subroutine I_connect_new(this, with_registry, rc)
-         import newConnection
-         import Registry
-         class(newConnection), intent(in) :: this
-         type(Registry), target, intent(inout) :: with_registry
+    type, abstract :: Connection
+   contains
+      procedure(I_get), deferred :: get_source
+      procedure(I_get), deferred :: get_destination
+      procedure(I_connect), deferred :: connect
+   end type Connection
+
+
+  abstract interface
+      function I_get(this) result(source)
+         use mapl3g_ConnectionPt
+         import Connection
+         type(ConnectionPt) :: source
+         class(Connection), intent(in) :: this
+      end function I_get
+
+      subroutine I_connect(this, registry, rc)
+         import Connection
+         import StateRegistry
+         class(Connection), intent(in) :: this
+         type(StateRegistry), target, intent(inout) :: registry
          integer, optional, intent(out) :: rc
-      end subroutine I_connect_new
+      end subroutine I_connect
+
    end interface
 
-  interface Registry
-      procedure new_Registry
-   end interface Registry
+  interface StateRegistry
+      procedure new_StateRegistry
+   end interface StateRegistry
 
    character(*), parameter :: SELF = "<self>"
    
 contains
 
-   function new_Registry(name) result(r)
-      type(Registry) :: r
+   function new_StateRegistry(name) result(r)
+      type(StateRegistry) :: r
       character(*), intent(in) :: name
 
       r%name = name
-   end function new_Registry
+   end function new_StateRegistry
 
    logical function has_virtual_pt(this, virtual_pt)
-      class(Registry), intent(in) :: this
+      class(StateRegistry), intent(in) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       has_virtual_pt = (this%family_map%count(virtual_pt) > 0)
    end function has_virtual_pt
 
    subroutine add_virtual_pt(this, virtual_pt, rc)
-      class(Registry), target, intent(inout) :: this
+      class(StateRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       integer, optional, intent(out) :: rc
 
@@ -137,31 +151,27 @@ contains
 
 
    integer function num_owned_items(this)
-      class(Registry), intent(in) :: this
+      class(StateRegistry), intent(in) :: this
       num_owned_items = this%owned_items%size()
    end function num_owned_items
 
-   subroutine add_primary_spec(this, virtual_pt, spec, rc)
-      class(Registry), target, intent(inout) :: this
+   subroutine add_family(this, virtual_pt, family, rc)
+      class(StateRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
-      class(StateItemSpec), intent(in) :: spec
+      type(ExtensionFamily), intent(in) :: family
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemExtension) :: extension
-      type(ExtensionFamily), pointer :: family
-
-      extension = StateItemExtension(spec)
-      call this%owned_items%push_back(extension)
-
-      ! New family (or else!)
+      type(ExtensionFamily), pointer :: new_family
+      
       call this%add_virtual_pt(virtual_pt, _RC)
-      family => this%family_map%at(virtual_pt, _RC)
+      new_family => this%family_map%at(virtual_pt, _RC)
 #ifndef __GFORTRAN__      
-      family = ExtensionFamily(this%owned_items%back())
+      new_family = family
 #else
-      call ridiculous(family, ExtensionFamily(this%owned_items%back()))
+      call ridiculous(new_family, family)
 #endif
+
       _RETURN(_SUCCESS)
 
 #ifdef __GFORTRAN__      
@@ -174,11 +184,32 @@ contains
       end subroutine ridiculous
 #endif
 
+   end subroutine add_family
+
+
+   subroutine add_primary_spec(this, virtual_pt, spec, rc)
+      class(StateRegistry), target, intent(inout) :: this
+      type(VirtualConnectionPt), intent(in) :: virtual_pt
+      class(StateItemSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateItemExtension) :: extension
+      type(ExtensionFamily) :: family
+
+      extension = StateItemExtension(spec)
+      call this%owned_items%push_back(extension)
+ 
+     family = ExtensionFamily(this%owned_items%back())
+      call this%add_family(virtual_pt, family, _RC)
+      
+      _RETURN(_SUCCESS)
+
    end subroutine add_primary_spec
 
    function get_primary_extension(this, virtual_pt, rc) result(primary)
       type(StateItemExtension), pointer :: primary
-      class(Registry), target, intent(in) :: this
+      class(StateRegistry), target, intent(in) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       integer, optional, intent(out) :: rc
 
@@ -189,11 +220,13 @@ contains
       _ASSERT(this%has_virtual_pt(virtual_pt), "Virtual connection point does not exist in registry")
       family => this%family_map%at(virtual_pt,_RC)
       primary => family%get_primary()
+
+      _RETURN(_SUCCESS)
    end function get_primary_extension
 
    function add_extension(this, virtual_pt, extension, rc) result(new_extension)
       type(StateItemExtension), pointer :: new_extension
-      class(Registry), target, intent(inout) :: this
+      class(StateRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       type(StateItemExtension), intent(in) :: extension
       integer, optional, intent(out) :: rc
@@ -210,7 +243,7 @@ contains
    end function add_extension
 
    subroutine add_spec(this, virtual_pt, spec, rc)
-      class(Registry), target, intent(inout) :: this
+      class(StateRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       class(StateItemSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
@@ -228,7 +261,7 @@ contains
    end subroutine add_spec
 
    subroutine link_extension(this, virtual_pt, extension, rc)
-      class(Registry), target, intent(inout) :: this
+      class(StateRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       type(StateItemExtension), pointer, intent(in) :: extension
       integer, optional, intent(out) :: rc
@@ -246,7 +279,7 @@ contains
 
    function get_extension_family(this, virtual_pt, rc) result(family)
       type(ExtensionFamily), pointer :: family
-      class(Registry), target, intent(in) :: this
+      class(StateRegistry), target, intent(in) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       integer, optional, intent(out) :: rc
 
@@ -259,7 +292,7 @@ contains
 
    function get_extensions(this, virtual_pt, rc) result(extensions)
       type(StateItemExtensionPtr), allocatable :: extensions(:)
-      class(Registry), target, intent(in) :: this
+      class(StateRegistry), target, intent(in) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       integer, optional, intent(out) :: rc
 
@@ -281,13 +314,13 @@ contains
 
    function get_name(this) result(name)
       character(:), allocatable :: name
-      class(Registry), intent(in) :: this
+      class(StateRegistry), intent(in) :: this
       name = this%name
    end function get_name
 
    subroutine add_subregistry(this, subregistry, rc)
-      class(Registry), target, intent(inout) :: this
-      class(Registry), target, intent(in) :: subregistry
+      class(StateRegistry), target, intent(inout) :: this
+      class(StateRegistry), target, intent(in) :: subregistry
       integer, optional, intent(out) :: rc
 
       character(:), allocatable :: name
@@ -302,8 +335,8 @@ contains
    end subroutine add_subregistry
 
    function get_subregistry_by_name(this, name, rc) result(subregistry)
-      type(Registry), pointer :: subregistry
-      class(Registry), target, intent(in) :: this
+      type(StateRegistry), pointer :: subregistry
+      class(StateRegistry), target, intent(in) :: this
       character(len=*), intent(in) :: name
       integer, optional, intent(out) :: rc
 
@@ -320,7 +353,7 @@ contains
       _ASSERT(associated(wrap%registry), 'null pointer encountered for subregistry.')
 
       select type (q => wrap%registry)
-      type is (Registry)
+      type is (StateRegistry)
          subregistry => q
          _RETURN(_SUCCESS)
       class default
@@ -330,8 +363,8 @@ contains
    end function get_subregistry_by_name
 
    function get_subregistry_by_conn_pt(this, conn_pt, rc) result(subregistry)
-      type(Registry), pointer :: subregistry
-      class(Registry), target, intent(in) :: this
+      type(StateRegistry), pointer :: subregistry
+      class(StateRegistry), target, intent(in) :: this
       type(ConnectionPt), intent(in) :: conn_pt
       integer, optional, intent(out) :: rc
 
@@ -343,18 +376,18 @@ contains
    end function get_subregistry_by_conn_pt
 
    logical function has_subregistry(this, name)
-      class(Registry), intent(in) :: this
+      class(StateRegistry), intent(in) :: this
       character(len=*), intent(in) :: name
       has_subregistry = (this%subregistries%count(name) > 0)
    end function has_subregistry
 
 
    subroutine propagate_unsatisfied_imports_all(this, rc)
-      class(Registry), target, intent(inout) :: this
+      class(StateRegistry), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(Registry), pointer :: subregistry
+      class(StateRegistry), pointer :: subregistry
       type(RegistryPtrMapIterator) :: iter
 
       associate (e => this%subregistries%ftn_end())
@@ -370,8 +403,8 @@ contains
    end subroutine propagate_unsatisfied_imports_all
 
    subroutine propagate_unsatisfied_imports_subregistry(this, subregistry, rc)
-      class(Registry), target, intent(inout) :: this
-      class(Registry), target, intent(in) :: subregistry
+      class(StateRegistry), target, intent(inout) :: this
+      class(StateRegistry), target, intent(in) :: subregistry
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -394,7 +427,7 @@ contains
    end subroutine propagate_unsatisfied_imports_subregistry
 
    subroutine propagate_unsatisfied_imports_virtual_pt(this, virtual_pt, family, rc)
-      class(Registry), target, intent(inout) :: this
+      class(StateRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       type(ExtensionFamily), intent(in) :: family
       integer, optional, intent(out) :: rc
@@ -436,11 +469,11 @@ contains
 
    ! Loop over subregistryren and propagate unsatisfied imports of each
    subroutine propagate_exports_all(this, rc)
-      class(Registry), target, intent(inout) :: this
+      class(StateRegistry), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(Registry), pointer :: subregistry
+      class(StateRegistry), pointer :: subregistry
       type(RegistryPtrMapIterator) :: iter
 
       associate (e => this%subregistries%ftn_end())
@@ -457,8 +490,8 @@ contains
 
 
    subroutine propagate_exports_subregistry(this, subregistry, rc)
-      class(Registry), target, intent(inout) :: this
-      type(Registry), target, intent(in) :: subregistry
+      class(StateRegistry), target, intent(inout) :: this
+      type(StateRegistry), target, intent(in) :: subregistry
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -476,7 +509,7 @@ contains
    end subroutine propagate_exports_subregistry
 
    subroutine propagate_exports_virtual_pt(this, subregistry_name, iter, rc)
-      class(Registry), target, intent(inout) :: this
+      class(StateRegistry), target, intent(inout) :: this
       character(*), intent(in) :: subregistry_name
       type(VirtualPtFamilyMapIterator), intent(in) :: iter
       integer, optional, intent(out) :: rc
@@ -489,7 +522,10 @@ contains
       virtual_pt => iter%first()
       _RETURN_UNLESS(virtual_pt%is_export())
 
-      new_virtual_pt = VirtualConnectionPt(virtual_pt, subregistry_name)
+      new_virtual_pt = virtual_pt
+      if (virtual_pt%get_comp_name() == '') then
+         new_virtual_pt = VirtualConnectionPt(virtual_pt, comp_name=subregistry_name)
+      end if
       call this%add_virtual_pt(new_virtual_pt, _RC)
       family => iter%second()
       call this%family_map%insert(new_virtual_pt, family)
@@ -499,8 +535,8 @@ contains
 
    ! Connect two _virtual_ connection points.
    recursive subroutine add_connection(this, conn, rc)
-      class(Registry), target, intent(inout) :: this
-      class(newConnection), intent(in) :: conn
+      class(StateRegistry), target, intent(inout) :: this
+      class(Connection), intent(in) :: conn
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -511,7 +547,7 @@ contains
    end subroutine add_connection
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
-      class(Registry), intent(in) :: this
+      class(StateRegistry), intent(in) :: this
       integer, intent(in) :: unit
       character(*), intent(in) :: iotype
       integer, intent(in) :: v_list(:)
@@ -531,7 +567,7 @@ contains
    contains
       
       subroutine write_header(this, iostat, iomsg)
-         class(Registry), target, intent(in) :: this
+         class(StateRegistry), target, intent(in) :: this
          integer, intent(out) :: iostat
          character(*), intent(inout) :: iomsg
 
@@ -559,7 +595,7 @@ contains
       end subroutine write_header
 
       subroutine write_virtual_pts(this, iostat, iomsg)
-         class(Registry), target, intent(in) :: this
+         class(StateRegistry), target, intent(in) :: this
          integer, intent(out) :: iostat
          character(*), intent(inout) :: iomsg
 
@@ -587,7 +623,7 @@ contains
    end subroutine write_formatted
 
    subroutine allocate(this, rc)
-      class(Registry), target, intent(inout) :: this
+      class(StateRegistry), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -609,7 +645,7 @@ contains
   subroutine add_to_states(this, multi_state, mode, rc)
       use esmf
       use mapl3g_MultiState
-      class(Registry), target, intent(inout) :: this
+      class(StateRegistry), target, intent(inout) :: this
       type(MultiState), intent(inout) :: multi_state
       character(*), intent(in) :: mode
       integer, optional, intent(out) :: rc
@@ -624,7 +660,7 @@ contains
       type(StateItemExtension), pointer :: primary
       type(StateItemExtensionPtrVectorIterator) :: ext_iter
       class(StateItemSpec), pointer :: spec
-      integer :: label
+      integer :: i, label
 
       _ASSERT(any([mode == 'user', mode == 'outer']), 'invalid mode: <' // mode // '>')
       associate (e => this%family_map%ftn_end())
@@ -647,23 +683,25 @@ contains
            case ('outer')
               associate (ext_e => extensions%ftn_end())
                 ext_iter = extensions%ftn_begin()
-                label = 0
+                i = 0
                 do while (ext_iter /= ext_e)
                    call ext_iter%next()
-                   label = label + 1
+                   i = i + 1
+
                    extension => ext_iter%of()
                    spec => extension%ptr%get_spec()
-                   if (label == 1 .and. family%has_primary()) then
-                      a_pt = ActualConnectionPt(v_pt)
-                      call spec%add_to_state(multi_state, a_pt, _RC)
-                      cycle
-                   end if
-                   a_pt = ActualConnectionPt(v_pt, label=label)
+
+                   label = i
+                   if (family%has_primary()) label = i-1
+
+                   a_pt = ActualConnectionPt(v_pt)
+                   if (label /= 0) a_pt = ActualConnectionPt(v_pt, label=label)
+
                    call spec%add_to_state(multi_state, a_pt, _RC)
                 end do
               end associate
            case default
-              _FAIL("Illegal mode in Registry::add_to_states()")
+              _FAIL("Illegal mode in StateRegistry::add_to_states()")
            end select
 
         end do
@@ -675,7 +713,7 @@ contains
    ! Used by connection subclasses to allow wildcard matches in names.
    function filter(this, pattern) result(matches)
       type(VirtualConnectionPtVector) :: matches
-      class(Registry), target, intent(in) :: this
+      class(StateRegistry), target, intent(in) :: this
       type(VirtualConnectionPt), intent(in) :: pattern
 
       type(VirtualConnectionPt), pointer :: v_pt
@@ -696,5 +734,55 @@ contains
 
    end function filter
 
-end module mapl3g_Registry
+   function get_export_couplers(this) result(export_couplers)
+      type(ComponentDriverPtrVector) :: export_couplers
+      class(StateRegistry), target, intent(in) :: this
+
+      type(ComponentDriverPtr) :: wrapper
+      type(StateItemExtension), pointer :: extension
+      type(StateItemExtensionVectorIterator) :: iter
+      
+      associate (e => this%owned_items%ftn_end())
+        iter = this%owned_items%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           extension => iter%of()
+
+           if (extension%has_producer()) then
+              wrapper%ptr => extension%get_producer()
+              call export_couplers%push_back(wrapper)
+              cycle
+           end if
+        end do
+      end associate
+
+   end function get_export_couplers
+
+   function get_import_couplers(this) result(import_couplers)
+      type(ComponentDriverPtrVector) :: import_couplers
+      class(StateRegistry), target, intent(in) :: this
+
+      integer :: i
+      type(ComponentDriverPtr) :: wrapper
+      type(StateItemExtension), pointer :: extension
+      type(StateItemExtensionVectorIterator) :: iter
+      type(ComponentDriverPtrVector), pointer :: consumers
+      
+      associate (e => this%owned_items%ftn_end())
+        iter = this%owned_items%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           extension => iter%of()
+
+           consumers => extension%get_consumers()
+           do i = 1, consumers%size()
+              wrapper = consumers%of(i) ! copy ptr
+              call import_couplers%push_back(wrapper)
+           end do
+        end do
+      end associate
+
+   end function get_import_couplers
+
+end module mapl3g_StateRegistry
 
