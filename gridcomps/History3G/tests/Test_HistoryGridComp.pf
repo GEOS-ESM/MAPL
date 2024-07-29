@@ -1,3 +1,4 @@
+#include "MAPL_TestErr.h"
 module Test_HistoryGridComp
    use pfunit
    use mapl3g_HistoryGridComp_private
@@ -28,23 +29,16 @@ contains
       integer :: status
 
       hconfig = ESMF_HConfigCreate( content=&
-           '{geoms: {geom1: &geom1 {class: latlon}}, collections: {c1: {geom: *geom1}}}', &
-           rc=status)
-      @assert_that(status, is(0))
+           '{geoms: {geom1: &geom1 {class: latlon}}, collections: {c1: {geom: *geom1}}}', _RC)
       expected_child_hconfig = ESMF_HConfigCreate(content=&
            '{collection_name: c1, geom: {class: latlon}}', rc=status)
-      @assert_that(status, is(0))
 
-      found_child_hconfig = make_child_hconfig(hconfig, 'c1', rc=status)
-      @assert_that(status, is(0))
+      found_child_hconfig = make_child_hconfig(hconfig, 'c1', _RC)
        @assertTrue(MAPL_HConfigMatch(found_child_hconfig, expected_child_hconfig))
       
-      call ESMF_HConfigDestroy(hconfig, rc=status)
-      @assert_that(status, is(0))
-      call ESMF_HConfigDestroy(expected_child_hconfig, rc=status)
-      @assert_that(status, is(0))
-      call ESMF_HConfigDestroy(found_child_hconfig, rc=status)
-      @assert_that(status, is(0))
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      call ESMF_HConfigDestroy(expected_child_hconfig, _RC)
+      call ESMF_HConfigDestroy(found_child_hconfig, _RC)
 
    end subroutine test_make_child_hconfig
 
