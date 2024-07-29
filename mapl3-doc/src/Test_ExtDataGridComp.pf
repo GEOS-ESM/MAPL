@@ -1,0 +1,57 @@
+module Test_ExtDataGridComp
+   use pfunit
+   use mapl3g_ExtDataGridComp_private
+   use generic3g, only: MAPL_HConfigMatch
+   use esmf
+   implicit none
+
+   private
+
+   public :: test_merge_hconfig
+
+contains
+
+
+   @test
+   subroutine test_merge_hconfig()
+      type(ESMF_HConfig) :: hc_main, hc_1, hc_2, expected_config, merged_config
+      integer :: status
+
+      hc_main = ESMF_HConfigCreate( content=&
+           '{subconfigs: [hc1.yaml, hc2.yaml]}',rc=status)
+      @assert_that(status, is(0))
+      hc_1 = ESMF_HConfigCreate(content='{Collections: {foo: {template: filea}}}', rc=status)
+      @assert_that(status, is(0))
+      call ESMF_HConfigFileSave(hc_1, "hc1.yaml", rc=status)
+      @assert_that(status, is(0))
+      hc_2 = ESMF_HConfigCreate(content='{Collections: {bar: {template: fileb}}}', rc=status)
+      @assert_that(status, is(0))
+      call ESMF_HConfigFileSave(hc_2, "hc2.yaml", rc=status)
+      @assert_that(status, is(0))
+
+
+      expected_config = ESMF_HConfigCreate(content= &
+          '{Collections: {foo: {template: filea}, bar: {template: fileb}}}' &
+           , rc=status)
+      @assert_that(status, is(0))
+
+      merged_config = ESMF_HConfigCreate(rc=status)  
+      @assert_that(status, is(0))
+      call merge_config(merged_config, hc_main, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(MAPL_HConfigMatch(merged_config, expected_config))
+      
+      call ESMF_HConfigDestroy(hc_main, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_HConfigDestroy(hc_1, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_HConfigDestroy(hc_2, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_HConfigDestroy(expected_config, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_HConfigDestroy(merged_config, rc=status)
+      @assert_that(status, is(0))
+
+   end subroutine test_merge_hconfig
+
+end module Test_ExtDataGridComp
