@@ -1,5 +1,5 @@
 module mapl3g_ConnectionVector
-   use mapl3g_StateRegistry, only: Connection
+   use mapl3g_Connection
 
 #define T Connection
 #define T_polymorphic

@@ -25,7 +25,6 @@ module mapl3g_StateRegistry
    private
 
    public :: StateRegistry
-   public :: Connection
 
    type, extends(AbstractRegistry) :: StateRegistry
       private
@@ -63,8 +62,6 @@ module mapl3g_StateRegistry
       generic :: propagate_exports => propagate_exports_subregistry
       generic :: propagate_exports => propagate_exports_virtual_pt
 
-      procedure :: add_connection
-
       procedure :: get_name
       procedure :: has_virtual_pt
       procedure :: num_owned_items
@@ -90,32 +87,6 @@ module mapl3g_StateRegistry
       generic :: write(formatted) => write_formatted
 
    end type StateRegistry
-
-    type, abstract :: Connection
-   contains
-      procedure(I_get), deferred :: get_source
-      procedure(I_get), deferred :: get_destination
-      procedure(I_connect), deferred :: connect
-   end type Connection
-
-
-  abstract interface
-      function I_get(this) result(source)
-         use mapl3g_ConnectionPt
-         import Connection
-         type(ConnectionPt) :: source
-         class(Connection), intent(in) :: this
-      end function I_get
-
-      subroutine I_connect(this, registry, rc)
-         import Connection
-         import StateRegistry
-         class(Connection), intent(in) :: this
-         type(StateRegistry), target, intent(inout) :: registry
-         integer, optional, intent(out) :: rc
-      end subroutine I_connect
-
-   end interface
 
   interface StateRegistry
       procedure new_StateRegistry
@@ -532,19 +503,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine propagate_exports_virtual_pt
-
-   ! Connect two _virtual_ connection points.
-   recursive subroutine add_connection(this, conn, rc)
-      class(StateRegistry), target, intent(inout) :: this
-      class(Connection), intent(in) :: conn
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      call conn%connect(this, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine add_connection
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
       class(StateRegistry), intent(in) :: this

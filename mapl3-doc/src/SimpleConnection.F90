@@ -2,6 +2,7 @@
 
 module mapl3g_SimpleConnection
    use mapl3g_StateItemSpec
+   use mapl3g_Connection
    use mapl3g_ConnectionPt
    use mapl3g_StateRegistry
    use mapl3g_VirtualConnectionPt

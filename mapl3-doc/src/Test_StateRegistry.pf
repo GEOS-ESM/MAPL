@@ -394,8 +394,7 @@ contains
       call r_b%add_primary_spec(cp_B, MockItemSpec('AI'))
 
       conn = SimpleConnection(CP('child_A', cp_A), CP('child_B', cp_B))
-      call r%add_connection(conn, rc=status)
-      @assert_that(status, is(0))
+      call conn%connect(r, _RC)
 
       ! Check that extension was created
       family => r_a%get_extension_family(cp_A, _RC)

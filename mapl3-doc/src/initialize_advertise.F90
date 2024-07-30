@@ -98,11 +98,13 @@ contains
 
         integer :: status
         type(ConnectionVectorIterator) :: iter
+        class(Connection), pointer :: c
 
         associate (e => this%component_spec%connections%end())
           iter = this%component_spec%connections%begin()
           do while (iter /= e)
-             call this%registry%add_connection(iter%of(), _RC)
+             c => iter%of()
+             call c%connect(this%registry, _RC)
              call iter%next()
           end do
         end associate

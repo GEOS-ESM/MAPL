@@ -2,6 +2,7 @@
 
 module mapl3g_MatchConnection
    use mapl3g_StateItemSpec
+   use mapl3g_Connection
    use mapl3g_ConnectionPt
    use mapl3g_StateRegistry
    use mapl3g_SimpleConnection
@@ -105,7 +106,9 @@ contains
             s_pt = ConnectionPt(src_pt%component_name, src_v_pt)
             d_pt = ConnectionPt(dst_pt%component_name, dst_pattern)
 
-            call registry%add_connection(SimpleConnection(s_pt, d_pt), _RC)
+            associate (c => SimpleConnection(s_pt, d_pt))
+              call c%connect(registry, _RC)
+            end associate
 
          end do
       end do
