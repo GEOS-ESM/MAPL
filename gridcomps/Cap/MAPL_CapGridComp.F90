@@ -1139,8 +1139,8 @@ contains
        ! Time Loop starts by checking for Segment Ending Time
        !-----------------------------------------------------
        if (cap%compute_throughput) then
-          call ESMF_VMBarrier(cap%vm,rc=status)
-          _VERIFY(status)
+         !call ESMF_VMBarrier(cap%vm,rc=status)
+         !_VERIFY(status)
           cap%starts%loop_start_timer = MPI_WTime()
           cap%started_loop_timer = .true.
        end if
@@ -1168,8 +1168,8 @@ contains
           ! initialization costs in the averageing.
           !-------------------------------------------
           if (n == 1 .and. cap%compute_throughput) then
-             call ESMF_VMBarrier(cap%vm,rc=status)
-             _VERIFY(status)
+            !call ESMF_VMBarrier(cap%vm,rc=status)
+            !_VERIFY(status)
              cap%starts%loop_start_timer = MPI_WTime()
           endif
 
@@ -1252,8 +1252,8 @@ contains
         _VERIFY(status)
 
         if (this%compute_throughput) then
-           call ESMF_VMBarrier(this%vm,rc=status)
-           _VERIFY(status)
+          !call ESMF_VMBarrier(this%vm,rc=status)
+          !_VERIFY(status)
            this%starts%start_run_timer = MPI_WTime()
         end if
 
@@ -1266,8 +1266,8 @@ contains
         integer :: status
 
         if (this%compute_throughput) then
-           call ESMF_VMBarrier(this%vm,rc=status)
-           _VERIFY(status)
+          !call ESMF_VMBarrier(this%vm,rc=status)
+          !_VERIFY(status)
            end_run_timer = MPI_WTime()
         end if
 
@@ -1325,8 +1325,8 @@ contains
         _VERIFY(status)
         delt=currTime-this%cap_restart_time
         ! Call system clock to estimate throughput simulated Days/Day
-        call ESMF_VMBarrier( this%vm, RC=STATUS )
-        _VERIFY(STATUS)
+       !call ESMF_VMBarrier( this%vm, RC=STATUS )
+       !_VERIFY(STATUS)
         END_TIMER = MPI_Wtime()
         n=this%get_step_counter()
         !GridCompRun Timer [Inst]
