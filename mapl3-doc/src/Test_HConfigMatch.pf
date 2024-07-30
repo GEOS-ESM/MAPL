@@ -1,0 +1,311 @@
+#include "MAPL_TestErr.h"
+module Test_HConfigMatch
+   use funit
+   use esmf
+   use mapl3g_ESMF_HConfigUtilities
+   implicit none
+
+contains
+
+
+   @test
+   subroutine test_match_type_mismatch()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='{a: 1}', _RC)
+      b = ESMF_HConfigCreate(content='[b, c]', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_type_mismatch
+
+   @test
+   subroutine test_match_scalar_mismatch()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='a', _RC)
+      b = ESMF_HConfigCreate(content='b', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_scalar_mismatch
+
+   @test
+   subroutine test_match_scalar_match()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='a', _RC)
+      b = ESMF_HConfigCreate(content='a', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(true()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_scalar_match
+
+   
+   @test
+   subroutine test_match_sequence_mismatch_size()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='[1]', _RC)
+      b = ESMF_HConfigCreate(content='[1, 2]', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_sequence_mismatch_size
+
+   @test
+   subroutine test_match_sequence_mismatch_content()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='[1, 3, 0]', _RC)
+      b = ESMF_HConfigCreate(content='[1, 2, 0]', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_sequence_mismatch_content
+   
+   @test
+   subroutine test_match_sequence_match()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='[1, 2, 0]', _RC)
+      b = ESMF_HConfigCreate(content='[1, 2, 0]', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(true()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_sequence_match
+   
+   @test
+   subroutine test_match_mapping_mismatch_size_1()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='{a: 1}', _RC)
+      b = ESMF_HConfigCreate(content='{a: 1, b: 2}', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_mapping_mismatch_size_1
+
+
+   @test
+   ! Reverse args to ensure that size check is both ways.
+   subroutine test_match_mapping_mismatch_size_2()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='{a: 1, b: 2}', _RC)
+      b = ESMF_HConfigCreate(content='{a: 1}', _RC)
+
+      match = MAPL_HConfigMatch(b, a, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_mapping_mismatch_size_2
+
+   @test
+   subroutine test_match_mapping_mismatch_keys_1()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='{a: 1}', _RC)
+      b = ESMF_HConfigCreate(content='{b: 1}', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_mapping_mismatch_keys_1
+   
+   @test
+   ! several keys, only one differs
+   subroutine test_match_mapping_mismatch_keys_2()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='{a: 1, b: 2, c: 3}', _RC)
+      b = ESMF_HConfigCreate(content='{a: 1, e: 2, c: 3}', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_mapping_mismatch_keys_2
+
+   @test
+   subroutine test_match_mapping_mismatch_values()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='{a: 1, b: 2, c: 3}', _RC)
+      b = ESMF_HConfigCreate(content='{a: 1, b: x, c: 3}', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_mapping_mismatch_values
+
+
+   @test
+   subroutine test_match_mapping_match()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='{a: 1, b: 2, c: 3}', _RC)
+      b = ESMF_HConfigCreate(content='{a: 1, b: 2, c: 3}', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(true()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_mapping_match
+
+   @test
+   subroutine test_reproducer_from_history()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='{geom: {class: latlon}, collection_name: c1}', _RC)
+      b = ESMF_HConfigCreate(content='{geom: {class: latlon}, collection_name: c1}', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(true()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_reproducer_from_history
+      
+   @test
+   subroutine test_match_bool()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='on', _RC)
+      b = ESMF_HConfigCreate(content='true', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(true()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_bool
+
+   @test
+   subroutine test_match_bool_mismatch()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='on', _RC)
+      b = ESMF_HConfigCreate(content='false', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_bool_mismatch
+
+   @test
+   subroutine test_match_int_ignore_sign()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='1', _RC)
+      b = ESMF_HConfigCreate(content='+1', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(true()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_int_ignore_sign
+
+   ! The remaining tests are disable for now because
+   ! of bug in ESMF_HConfig that prevents disambiguation
+   ! of quoted strings.
+   @test
+   @disable
+   ! YAML distinguish strings like `"no"` from bool `no`.
+   subroutine test_match_bool_str_mismatch()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='on', _RC)
+      b = ESMF_HConfigCreate(content='"on"', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_bool_str_mismatch
+
+   @test
+   @disable
+   subroutine test_match_int_str_mismatch()
+      type(ESMF_HConfig) :: a, b
+      logical :: match
+      integer :: status
+
+      a = ESMF_HConfigCreate(content='123', _RC)
+      b = ESMF_HConfigCreate(content='"123"', _RC)
+
+      match = MAPL_HConfigMatch(a, b, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_HConfigDestroy(a, _RC)
+      call ESMF_HConfigDestroy(b, _RC)
+   end subroutine test_match_int_str_mismatch
+
+
+end module Test_HConfigMatch
