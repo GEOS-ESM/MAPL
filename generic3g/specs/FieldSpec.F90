@@ -45,7 +45,7 @@ module mapl3g_FieldSpec
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(UngriddedDims) :: ungridded_dims
       type(StringVector) :: attributes
-      type(EsmfRegridderParam) :: regrid_param
+      type(EsmfRegridderParam), allocatable :: regrid_param
 
       ! Metadata
       character(:), allocatable :: standard_name
@@ -114,9 +114,11 @@ module mapl3g_FieldSpec
 contains
 
 
-   function new_FieldSpec_geom(unusable, geom, vertical_geom, vertical_dim_spec, typekind, ungridded_dims, &
+   function new_FieldSpec_geom( &
+        unusable, geom, &
+        vertical_geom, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
-        attributes, default_value) result(field_spec)
+        attributes, regrid_param, default_value) result(field_spec)
       type(FieldSpec) :: field_spec
 
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -125,11 +127,11 @@ contains
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       type(UngriddedDims), intent(in) :: ungridded_dims
-
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
       type(StringVector), optional, intent(in) :: attributes
+      type(EsmfRegridderParam), optional, intent(in) :: regrid_param
 
       ! optional args last
       real, optional, intent(in) :: default_value
@@ -144,6 +146,7 @@ contains
       if (present(long_name)) field_spec%long_name = long_name
       if (present(units)) field_spec%units = units
       if (present(attributes)) field_spec%attributes = attributes
+      if (present(regrid_param)) field_spec%regrid_param = regrid_param
       if (present(default_value)) field_spec%default_value = default_value
 
    end function new_FieldSpec_geom
@@ -608,8 +611,8 @@ contains
          if (.not. MAPL_SameGeom(this%geom, dst_spec%geom)) then
             deallocate(action)
             action = RegridAction( &
-                 this%geom, this%payload, this%regrid_param, &
-                 dst_spec%geom, dst_spec%payload, dst_spec%regrid_param)
+                 this%standard_name, this%geom, this%payload, this%regrid_param, &
+                 dst_spec%standard_name, dst_spec%geom, dst_spec%payload, dst_spec%regrid_param)
             _RETURN(_SUCCESS)
          end if
 
