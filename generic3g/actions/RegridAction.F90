@@ -52,11 +52,17 @@ contains
 
       type(RegridderSpec) :: spec
       type(RegridderManager), pointer :: regridder_manager
-      type(EsmfRegridderParam) :: regrid_param
+      type(EsmfRegridderParam), allocatable :: regrid_param
       integer :: status
 
       regridder_manager => get_regridder_manager()
-      regrid_param = choose_regrid_param_(stdname_src, param_src, stdname_dst, param_dst, _RC)
+      regrid_param = choose_regrid_param_(param_src, param_dst, _RC)
+      if (.not. allocated(regrid_param)) then
+         regrid_param = get_regrid_param_from_field_dictionary_(stdname_src, stdname_dst, _RC)
+      end if
+      if (.not. allocated(regrid_param)) then
+         regrid_param = EsmfRegridderParam()
+      end if
       spec = RegridderSpec(regrid_param, geom_src, geom_dst)
       action%regrdr => regridder_manager%get_regridder(spec, rc=status)
 
@@ -107,37 +113,31 @@ contains
 
    ! end subroutine run_bundle
 
-   function choose_regrid_param_(stdname_src, param_src, stdname_dst, param_dst, rc) result(param)
-      character(:), allocatable, intent(in) :: stdname_src
+   function choose_regrid_param_(param_src, param_dst, rc) result(param)
       type(EsmfRegridderParam), allocatable, intent(in) :: param_src
-      character(:), allocatable, intent(in) :: stdname_dst
       type(EsmfRegridderParam), allocatable, intent(in) :: param_dst
       integer, optional, intent(out) :: rc
-      type(EsmfRegridderParam) :: param ! result
+      type(EsmfRegridderParam), allocatable :: param ! return value
 
-      type(EsmfRegridderParam), allocatable :: tmp_param
-      integer :: status
-
-      tmp_param = choose_regrid_param_2_(param_src, param_dst, _RC)
-      ! One or both of param_src/dst are specified
-      if (allocated(tmp_param)) then
-         param = tmp_param
+      ! Exactly one of param_src/dst is specified
+      if ((allocated(param_src)) .and. (.not. allocated(param_dst))) then
+         allocate(param, source=param_src)
+         _RETURN(_SUCCESS)
+      end if
+      if ((.not. allocated(param_src)) .and. (allocated(param_dst))) then
+         allocate(param, source=param_dst)
          _RETURN(_SUCCESS)
       end if
 
-      ! If none of param_src/dst are specified
-      ! Step 1: Generate param from regridding method in field dictionary
-      tmp_param = get_regrid_param_from_field_dictionary_(stdname_src, stdname_dst, _RC)
-      if (allocated(tmp_param)) then
-         param = tmp_param
+      ! If both param_src/dst are specified, they need to be the same
+      if ((allocated(param_src)) .and. (allocated(param_dst))) then
+         _ASSERT(param_src == param_dst, "param_src /= param_dst")
+         allocate(param, source=param_src)
          _RETURN(_SUCCESS)
       end if
 
-      ! If none of param_src/dst are specified
-      ! Step 2: Generate param from default regridding method
-      param = EsmfRegridderParam()
-
-      _RETURN(_SUCCESS)
+      _HERE
+      _RETURN(_SUCCESS) ! return unallocated param
    end function choose_regrid_param_
 
    function get_regrid_param_from_field_dictionary_(stdname_src, stdname_dst, rc) result(param)
@@ -165,37 +165,10 @@ contains
       if (allocated(regrid_method_dst)) then
          tmp_param_dst = EsmfRegridderParam(regridmethod=regrid_method_dst)
       end if
-      param = choose_regrid_param_2_(tmp_param_src, tmp_param_dst, _RC)
+      param = choose_regrid_param_(tmp_param_src, tmp_param_dst, _RC)
 
       _HERE
       _RETURN(_SUCCESS) ! return unallocated param
    end function get_regrid_param_from_field_dictionary_
-
-   function choose_regrid_param_2_(param_src, param_dst, rc) result(param)
-      type(EsmfRegridderParam), allocatable, intent(in) :: param_src
-      type(EsmfRegridderParam), allocatable, intent(in) :: param_dst
-      integer, optional, intent(out) :: rc
-      type(EsmfRegridderParam), allocatable :: param ! return value
-
-      ! Exactly one of param_src/dst is specified
-      if ((allocated(param_src)) .and. (.not. allocated(param_dst))) then
-         allocate(param, source=param_src)
-         _RETURN(_SUCCESS)
-      end if
-      if ((.not. allocated(param_src)) .and. (allocated(param_dst))) then
-         allocate(param, source=param_dst)
-         _RETURN(_SUCCESS)
-      end if
-
-      ! If both param_src/dst are specified, they need to be the same
-      if ((allocated(param_src)) .and. (allocated(param_dst))) then
-         _ASSERT(param_src == param_dst, "param_src /= param_dst")
-         allocate(param, source=param_src)
-         _RETURN(_SUCCESS)
-      end if
-
-      _HERE
-      _RETURN(_SUCCESS) ! return unallocated param
-   end function choose_regrid_param_2_
 
 end module mapl3g_RegridAction
