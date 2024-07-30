@@ -7,10 +7,10 @@ module mapl3g_ComponentSpecParser
    use mapl3g_UserSetServices
    use mapl_ErrorHandling
    use mapl3g_VariableSpec
+   use mapl3g_Connection
    use mapl3g_ConnectionPt
    use mapl3g_VirtualConnectionPt
    use mapl3g_VariableSpecVector
-   use mapl3g_StateRegistry, only: Connection
    use mapl3g_SimpleConnection
    use mapl3g_MatchConnection
    use mapl3g_ReexportConnection

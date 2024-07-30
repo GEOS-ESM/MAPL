@@ -14,12 +14,13 @@ module mapl3g_OuterMetaComponent
    use mapl3g_InnerMetaComponent
    use mapl3g_MethodPhasesMap
    use mapl3g_StateItemSpec
+   use mapl3g_Connection
    use mapl3g_ConnectionPt
    use mapl3g_MatchConnection
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualPtVector
    use mapl3g_ConnectionVector
-   use mapl3g_StateRegistry, only: StateRegistry, Connection
+   use mapl3g_StateRegistry
    use mapl3g_StateExtension
    use mapl3g_ExtensionVector
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
