@@ -1,0 +1,1071 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>add_variable &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>add_variable
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">37 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/FileMetadata.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/filemetadata.f90.html'>FileMetadata.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_filemetadatamod.html'>pFIO_FileMetadataMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">add_variable</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/add_variable~2.html#src">add_variable</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine add_variable(this, var_name, var, unusable, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/filemetadata.html'>FileMetadata</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2700"></span>
+              class(<a href='../type/filemetadata.html'>FileMetadata</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var_name~79"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var~39"></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>var</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~238"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1106"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~add_variable~2~~CallsGraph Pages: 1 -->
+<svg id="procadd_variable2CallsGraph" width="641pt" height="354pt"
+ viewBox="0.00 0.00 641.00 354.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~add_variable~2~~CallsGraph" class="graph" transform="scale(0.62 0.62) rotate(0) translate(4 564.6)">
+<title>proc~~add_variable~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-564.6 1025,-564.6 1025,4 -4,4"/>
+<!-- proc~add_variable~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_node1" class="node">
+<title>proc~add_variable~2</title>
+<polygon fill="none" stroke="black" points="160,-297 0,-297 0,-273 160,-273 160,-297"/>
+<text text-anchor="middle" x="80" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50">FileMetadata%add_variable</text>
+</g>
+<!-- at -->
+<g id="proc~~add_variable~2~~CallsGraph_node2" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1019.5,-395 965.5,-395 965.5,-371 1019.5,-371 1019.5,-395"/>
+<text text-anchor="middle" x="992.5" y="-380.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~add_variable~2&#45;&gt;at -->
+<g id="proc~~add_variable~2~~CallsGraph_edge1" class="edge">
+<title>proc~add_variable~2&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M107.32,-297.04C130.23,-306.93 164.6,-320.35 196,-327 318.89,-353.03 352.38,-346 478,-346 478,-346 478,-346 686,-346 784.08,-346 898.59,-365.03 955.53,-375.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="954.99,-379.25 965.47,-377.7 956.31,-372.38 954.99,-379.25"/>
+</g>
+<!-- begin -->
+<g id="proc~~add_variable~2~~CallsGraph_node3" class="node">
+<title>begin</title>
+<polygon fill="#777777" stroke="#777777" points="298.5,-318 244.5,-318 244.5,-294 298.5,-294 298.5,-318"/>
+<text text-anchor="middle" x="271.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
+</g>
+<!-- proc~add_variable~2&#45;&gt;begin -->
+<g id="proc~~add_variable~2~~CallsGraph_edge2" class="edge">
+<title>proc~add_variable~2&#45;&gt;begin</title>
+<path fill="none" stroke="#ff0000" d="M160.27,-293.78C185.95,-296.63 213.19,-299.65 234.17,-301.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.9,-305.47 244.23,-303.09 234.67,-298.51 233.9,-305.47"/>
+</g>
+<!-- get -->
+<g id="proc~~add_variable~2~~CallsGraph_node4" class="node">
+<title>get</title>
+<polygon fill="#777777" stroke="#777777" points="298.5,-276 244.5,-276 244.5,-252 298.5,-252 298.5,-276"/>
+<text text-anchor="middle" x="271.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get</text>
+</g>
+<!-- proc~add_variable~2&#45;&gt;get -->
+<g id="proc~~add_variable~2~~CallsGraph_edge3" class="edge">
+<title>proc~add_variable~2&#45;&gt;get</title>
+<path fill="none" stroke="#ff0000" d="M160.27,-276.22C185.95,-273.37 213.19,-270.35 234.17,-268.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="234.67,-271.49 244.23,-266.91 233.9,-264.53 234.67,-271.49"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~add_variable~2~~CallsGraph_node5" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node5"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="518.5,-558 439.5,-558 439.5,-534 518.5,-534 518.5,-558"/>
+<text text-anchor="middle" x="479" y="-543.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;interface~mapl_assert -->
+<g id="proc~~add_variable~2~~CallsGraph_edge4" class="edge">
+<title>proc~add_variable~2&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M82.76,-297.16C89.26,-337.08 115.8,-464.68 196,-520 265.63,-568.03 369.04,-563.24 429.37,-554.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="430.01,-558.39 439.4,-553.47 429,-551.46 430.01,-558.39"/>
+</g>
+<!-- next -->
+<g id="proc~~add_variable~2~~CallsGraph_node6" class="node">
+<title>next</title>
+<polygon fill="#777777" stroke="#777777" points="298.5,-234 244.5,-234 244.5,-210 298.5,-210 298.5,-234"/>
+<text text-anchor="middle" x="271.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">next</text>
+</g>
+<!-- proc~add_variable~2&#45;&gt;next -->
+<g id="proc~~add_variable~2~~CallsGraph_edge5" class="edge">
+<title>proc~add_variable~2&#45;&gt;next</title>
+<path fill="none" stroke="#ff0000" d="M112.02,-272.95C135.04,-264.19 167.28,-252.28 196,-243 208.49,-238.97 222.29,-234.95 234.58,-231.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="235.78,-234.84 244.5,-228.81 233.93,-228.08 235.78,-234.84"/>
+</g>
+<!-- none~insert~20 -->
+<g id="proc~~add_variable~2~~CallsGraph_node7" class="node">
+<title>none~insert~20</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node7"><a xlink:href="../type/stringvariablemap.html#boundprocedure-insert~20" xlink:title="StringVariableMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="346.5,-192 196.5,-192 196.5,-168 346.5,-168 346.5,-192"/>
+<text text-anchor="middle" x="271.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%insert</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;none~insert~20 -->
+<g id="proc~~add_variable~2~~CallsGraph_edge6" class="edge">
+<title>proc~add_variable~2&#45;&gt;none~insert~20</title>
+<path fill="none" stroke="#ff0000" d="M94.13,-272.94C114.48,-254.84 155.54,-220.69 196,-201 200.23,-198.94 204.7,-197.05 209.26,-195.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="210.44,-198.62 218.71,-192.01 208.12,-192.02 210.44,-198.62"/>
+</g>
+<!-- proc~get_const_value -->
+<g id="proc~~add_variable~2~~CallsGraph_node8" class="node">
+<title>proc~get_const_value</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node8"><a xlink:href="../proc/get_const_value.html" xlink:title="Variable%get_const_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="347,-150 196,-150 196,-126 347,-126 347,-150"/>
+<text text-anchor="middle" x="271.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Variable%get_const_value</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;proc~get_const_value -->
+<g id="proc~~add_variable~2~~CallsGraph_edge7" class="edge">
+<title>proc~add_variable~2&#45;&gt;proc~get_const_value</title>
+<path fill="none" stroke="#ff0000" d="M88.6,-272.89C105.01,-247.74 146.35,-189.64 196,-159 198.95,-157.18 202.06,-155.51 205.27,-153.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="206.69,-157.19 214.52,-150.06 203.95,-150.75 206.69,-157.19"/>
+</g>
+<!-- proc~get_dimensions -->
+<g id="proc~~add_variable~2~~CallsGraph_node9" class="node">
+<title>proc~get_dimensions</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node9"><a xlink:href="../proc/get_dimensions.html" xlink:title="Variable%get_dimensions">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="346,-108 197,-108 197,-84 346,-84 346,-108"/>
+<text text-anchor="middle" x="271.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Variable%get_dimensions</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;proc~get_dimensions -->
+<g id="proc~~add_variable~2~~CallsGraph_edge8" class="edge">
+<title>proc~add_variable~2&#45;&gt;proc~get_dimensions</title>
+<path fill="none" stroke="#ff0000" d="M85.87,-272.69C98.8,-241.57 137.14,-159.26 196,-117 198.23,-115.4 200.57,-113.93 203,-112.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="204.67,-115.64 212.11,-108.09 201.59,-109.35 204.67,-115.64"/>
+</g>
+<!-- proc~get_shape -->
+<g id="proc~~add_variable~2~~CallsGraph_node10" class="node">
+<title>proc~get_shape</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node10"><a xlink:href="../proc/get_shape.html" xlink:title="UnlimitedEntity%get_shape">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="558,-478 400,-478 400,-454 558,-454 558,-478"/>
+<text text-anchor="middle" x="479" y="-463.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnlimitedEntity%get_shape</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;proc~get_shape -->
+<g id="proc~~add_variable~2~~CallsGraph_edge9" class="edge">
+<title>proc~add_variable~2&#45;&gt;proc~get_shape</title>
+<path fill="none" stroke="#ff0000" d="M88.79,-297.37C105.26,-322.42 146.23,-379.12 196,-407 255.49,-440.32 331.58,-454.88 389.73,-461.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="389.69,-464.73 400,-462.27 390.41,-457.77 389.69,-464.73"/>
+</g>
+<!-- proc~is_empty -->
+<g id="proc~~add_variable~2~~CallsGraph_node11" class="node">
+<title>proc~is_empty</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node11"><a xlink:href="../proc/is_empty.html" xlink:title="UnlimitedEntity%is_empty">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="347,-398 196,-398 196,-374 347,-374 347,-398"/>
+<text text-anchor="middle" x="271.5" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnlimitedEntity%is_empty</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;proc~is_empty -->
+<g id="proc~~add_variable~2~~CallsGraph_edge10" class="edge">
+<title>proc~add_variable~2&#45;&gt;proc~is_empty</title>
+<path fill="none" stroke="#ff0000" d="M97.01,-297.25C118.57,-313.31 158.56,-341.6 196,-360 203.86,-363.86 212.44,-367.42 220.89,-370.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="219.74,-373.88 230.34,-373.98 222.11,-367.3 219.74,-373.88"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~add_variable~2~~CallsGraph_node12" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node12"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="726,-474 644,-474 644,-450 726,-450 726,-474"/>
+<text text-anchor="middle" x="685" y="-459.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_variable~2~~CallsGraph_edge11" class="edge">
+<title>proc~add_variable~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M86.14,-297.26C99.44,-327.44 138.07,-405.6 196,-444 332.02,-534.16 539.39,-498.91 633.91,-475.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="634.93,-479.23 643.78,-473.41 633.23,-472.44 634.93,-479.23"/>
+</g>
+<!-- push_back -->
+<g id="proc~~add_variable~2~~CallsGraph_node13" class="node">
+<title>push_back</title>
+<polygon fill="#777777" stroke="#777777" points="306,-66 237,-66 237,-42 306,-42 306,-66"/>
+<text text-anchor="middle" x="271.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">push_back</text>
+</g>
+<!-- proc~add_variable~2&#45;&gt;push_back -->
+<g id="proc~~add_variable~2~~CallsGraph_edge12" class="edge">
+<title>proc~add_variable~2&#45;&gt;push_back</title>
+<path fill="none" stroke="#ff0000" d="M84.05,-272.88C93.75,-236.86 127.38,-129.62 196,-75 204.85,-67.95 215.95,-63.27 226.84,-60.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.86,-63.51 236.73,-57.72 226.18,-56.72 227.86,-63.51"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~add_variable~2~~CallsGraph_node17" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node17"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="752,-558 618,-558 618,-534 752,-534 752,-558"/>
+<text text-anchor="middle" x="685" y="-543.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~add_variable~2~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M518.85,-546C543.99,-546 577.55,-546 607.86,-546"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="608,-549.5 618,-546 608,-542.5 608,-549.5"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~add_variable~2~~CallsGraph_node18" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node18"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="759,-516 611,-516 611,-492 759,-492 759,-516"/>
+<text text-anchor="middle" x="685" y="-501.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~add_variable~2~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M518.85,-538C546.19,-532.37 583.52,-524.69 615.77,-518.05"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="616.51,-521.47 625.6,-516.02 615.1,-514.61 616.51,-521.47"/>
+</g>
+<!-- proc~m_insert_pair~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_node16" class="node">
+<title>proc~m_insert_pair~2</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node16"><a xlink:href="../proc/m_insert_pair~2.html" xlink:title="StringVariableMap%m_insert_pair">
+<polygon fill="#d9534f" stroke="#d9534f" points="575,-192 383,-192 383,-168 575,-168 575,-192"/>
+<text text-anchor="middle" x="479" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%m_insert_pair</text>
+</a>
+</g>
+</g>
+<!-- none~insert~20&#45;&gt;proc~m_insert_pair~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_edge15" class="edge">
+<title>none~insert~20&#45;&gt;proc~m_insert_pair~2</title>
+<path fill="none" stroke="#00ff7f" stroke-dasharray="5,2" d="M346.69,-180C355.12,-180 363.83,-180 372.56,-180"/>
+<polygon fill="#00ff7f" stroke="#00ff7f" points="372.81,-183.5 382.81,-180 372.81,-176.5 372.81,-183.5"/>
+</g>
+<!-- proc~get_shape&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_variable~2~~CallsGraph_edge16" class="edge">
+<title>proc~get_shape&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M558.29,-464.46C583.62,-463.97 611.02,-463.43 633.76,-462.99"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="633.92,-466.48 643.85,-462.79 633.78,-459.48 633.92,-466.48"/>
+</g>
+<!-- proc~is_empty&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_variable~2~~CallsGraph_edge18" class="edge">
+<title>proc~is_empty&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7f00ff" d="M335.3,-398.02C350.89,-400.97 367.55,-404.12 383,-407 471.12,-423.42 573.85,-442.09 633.64,-452.91"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="633.11,-456.37 643.57,-454.71 634.36,-449.48 633.11,-456.37"/>
+</g>
+<!-- proc~get_value -->
+<g id="proc~~add_variable~2~~CallsGraph_node15" class="node">
+<title>proc~get_value</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node15"><a xlink:href="../proc/get_value.html" xlink:title="UnlimitedEntity%get_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="556.5,-398 401.5,-398 401.5,-374 556.5,-374 556.5,-398"/>
+<text text-anchor="middle" x="479" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnlimitedEntity%get_value</text>
+</a>
+</g>
+</g>
+<!-- proc~is_empty&#45;&gt;proc~get_value -->
+<g id="proc~~add_variable~2~~CallsGraph_edge17" class="edge">
+<title>proc~is_empty&#45;&gt;proc~get_value</title>
+<path fill="none" stroke="#7f00ff" d="M347.27,-386C361.54,-386 376.58,-386 391.19,-386"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="391.21,-389.5 401.21,-386 391.21,-382.5 391.21,-389.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~add_variable~2~~CallsGraph_node14" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node14"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="919,-474 804,-474 804,-450 919,-450 919,-474"/>
+<text text-anchor="middle" x="861.5" y="-459.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~add_variable~2~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00ff" d="M726.03,-462C746.02,-462 770.73,-462 793.49,-462"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="793.79,-465.5 803.79,-462 793.79,-458.5 793.79,-465.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~add_variable~2~~CallsGraph_node19" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node19"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="928,-516 795,-516 795,-492 928,-492 928,-516"/>
+<text text-anchor="middle" x="861.5" y="-501.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~add_variable~2~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00ff" d="M726.03,-471.64C748.05,-476.94 775.82,-483.62 800.39,-489.53"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="799.8,-492.99 810.34,-491.93 801.44,-486.18 799.8,-492.99"/>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~add_variable~2~~CallsGraph_edge21" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M882.37,-449.83C903.93,-436.63 938.54,-415.44 962.99,-400.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="965.12,-403.26 971.82,-395.05 961.46,-397.29 965.12,-403.26"/>
+</g>
+<!-- insert -->
+<g id="proc~~add_variable~2~~CallsGraph_node20" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1019.5,-474 965.5,-474 965.5,-450 1019.5,-450 1019.5,-474"/>
+<text text-anchor="middle" x="992.5" y="-459.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~add_variable~2~~CallsGraph_edge22" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M919.08,-462C931.29,-462 943.89,-462 955.08,-462"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="955.32,-465.5 965.32,-462 955.32,-458.5 955.32,-465.5"/>
+</g>
+<!-- proc~get_value&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_variable~2~~CallsGraph_edge23" class="edge">
+<title>proc~get_value&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ffff00" d="M530.28,-398.12C544.86,-402.08 560.7,-406.8 575,-412 601.42,-421.6 630.29,-434.98 651.68,-445.49"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="650.14,-448.63 660.65,-449.94 653.25,-442.36 650.14,-448.63"/>
+</g>
+<!-- proc~s_insert~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_node22" class="node">
+<title>proc~s_insert~2</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node22"><a xlink:href="../proc/s_insert~2.html" xlink:title="set2%s_insert">
+<polygon fill="#d9534f" stroke="#d9534f" points="727.5,-192 642.5,-192 642.5,-168 727.5,-168 727.5,-192"/>
+<text text-anchor="middle" x="685" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%s_insert</text>
+</a>
+</g>
+</g>
+<!-- proc~m_insert_pair~2&#45;&gt;proc~s_insert~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_edge24" class="edge">
+<title>proc~m_insert_pair~2&#45;&gt;proc~s_insert~2</title>
+<path fill="none" stroke="#00ff00" d="M575.13,-180C594.66,-180 614.52,-180 631.84,-180"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="632.27,-183.5 642.27,-180 632.27,-176.5 632.27,-183.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~add_variable~2~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M736,-533.96C756.18,-529.11 779.62,-523.47 800.68,-518.4"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="801.58,-521.78 810.49,-516.04 799.95,-514.97 801.58,-521.78"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~add_variable~2~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0000ff" d="M736,-491.96C756.18,-487.11 779.62,-481.47 800.68,-476.4"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="801.58,-479.78 810.49,-474.04 799.95,-472.97 801.58,-479.78"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~add_variable~2~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M759.25,-504C767.67,-504 776.27,-504 784.72,-504"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="784.94,-507.5 794.94,-504 784.94,-500.5 784.94,-507.5"/>
+</g>
+<!-- proc~initialize~14 -->
+<g id="proc~~add_variable~2~~CallsGraph_node21" class="node">
+<title>proc~initialize~14</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node21"><a xlink:href="../proc/initialize~14.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1021,-516 964,-516 964,-492 1021,-492 1021,-516"/>
+<text text-anchor="middle" x="992.5" y="-501.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~14 -->
+<g id="proc~~add_variable~2~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~14</title>
+<path fill="none" stroke="#ff00ff" d="M928.13,-504C936.88,-504 945.59,-504 953.63,-504"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="953.77,-507.5 963.77,-504 953.77,-500.5 953.77,-507.5"/>
+</g>
+<!-- none~at~10 -->
+<g id="proc~~add_variable~2~~CallsGraph_node23" class="node">
+<title>none~at~10</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node23"><a xlink:href="../type/tvector~12.html#boundprocedure-at~10" xlink:title="tVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="896.5,-66 826.5,-66 826.5,-42 896.5,-42 896.5,-66"/>
+<text text-anchor="middle" x="861.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~2&#45;&gt;none~at~10 -->
+<g id="proc~~add_variable~2~~CallsGraph_edge29" class="edge">
+<title>proc~s_insert~2&#45;&gt;none~at~10</title>
+<path fill="none" stroke="#0000ff" d="M695.45,-167.77C712.86,-146.04 752.14,-100.6 795,-75 801.63,-71.04 809.09,-67.74 816.54,-65.02"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="817.87,-68.26 826.25,-61.77 815.65,-61.63 817.87,-68.26"/>
+</g>
+<!-- none~set~10 -->
+<g id="proc~~add_variable~2~~CallsGraph_node24" class="node">
+<title>none~set~10</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node24"><a xlink:href="../type/tvector~12.html#boundprocedure-set~10" xlink:title="tVector%set">
+<polygon fill="#a7506f" stroke="#a7506f" points="899.5,-24 823.5,-24 823.5,0 899.5,0 899.5,-24"/>
+<text text-anchor="middle" x="861.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tVector%set</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~2&#45;&gt;none~set~10 -->
+<g id="proc~~add_variable~2~~CallsGraph_edge30" class="edge">
+<title>proc~s_insert~2&#45;&gt;none~set~10</title>
+<path fill="none" stroke="#0000ff" d="M691.74,-167.71C705.5,-139.6 743.08,-70.18 795,-33 800.61,-28.98 807.02,-25.71 813.59,-23.05"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="815.03,-26.25 823.26,-19.57 812.66,-19.66 815.03,-26.25"/>
+</g>
+<!-- proc~exists~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_node25" class="node">
+<title>proc~exists~2</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node25"><a xlink:href="../proc/exists~2.html" xlink:title="exists">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="888.5,-318 834.5,-318 834.5,-294 888.5,-294 888.5,-318"/>
+<text text-anchor="middle" x="861.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">exists</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~2&#45;&gt;proc~exists~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_edge31" class="edge">
+<title>proc~s_insert~2&#45;&gt;proc~exists~2</title>
+<path fill="none" stroke="#0000ff" d="M695.45,-192.23C712.86,-213.96 752.14,-259.4 795,-285 804.07,-290.42 814.7,-294.6 824.72,-297.75"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="823.89,-301.16 834.47,-300.57 825.83,-294.43 823.89,-301.16"/>
+</g>
+<!-- proc~find_index~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_node26" class="node">
+<title>proc~find_index~2</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node26"><a xlink:href="../proc/find_index~2.html" xlink:title="set2%find_index">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="911,-276 812,-276 812,-252 911,-252 911,-276"/>
+<text text-anchor="middle" x="861.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%find_index</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~2&#45;&gt;proc~find_index~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_edge32" class="edge">
+<title>proc~s_insert~2&#45;&gt;proc~find_index~2</title>
+<path fill="none" stroke="#0000ff" d="M704.26,-192.19C725.41,-205.91 761.63,-228.21 795,-243 799.41,-244.95 804.05,-246.81 808.76,-248.56"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="807.83,-251.94 818.42,-251.98 810.16,-245.34 807.83,-251.94"/>
+</g>
+<!-- proc~rebalance~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_node27" class="node">
+<title>proc~rebalance~2</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node27"><a xlink:href="../proc/rebalance~2.html" xlink:title="set2%rebalance">
+<polygon fill="#d9534f" stroke="#d9534f" points="910.5,-234 812.5,-234 812.5,-210 910.5,-210 910.5,-234"/>
+<text text-anchor="middle" x="861.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%rebalance</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~2&#45;&gt;proc~rebalance~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_edge33" class="edge">
+<title>proc~s_insert~2&#45;&gt;proc~rebalance~2</title>
+<path fill="none" stroke="#0000ff" d="M727.8,-190.06C750.13,-195.44 777.97,-202.14 802.38,-208.01"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="801.71,-211.45 812.25,-210.39 803.35,-204.64 801.71,-211.45"/>
+</g>
+<!-- proc~s_lessthan~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_node28" class="node">
+<title>proc~s_lessthan~2</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node28"><a xlink:href="../proc/s_lessthan~2.html" xlink:title="s_lessThan">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="896.5,-192 826.5,-192 826.5,-168 896.5,-168 896.5,-192"/>
+<text text-anchor="middle" x="861.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">s_lessThan</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~2&#45;&gt;proc~s_lessthan~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_edge34" class="edge">
+<title>proc~s_insert~2&#45;&gt;proc~s_lessthan~2</title>
+<path fill="none" stroke="#0000ff" d="M727.8,-180C754.53,-180 789.16,-180 816.34,-180"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="816.36,-183.5 826.36,-180 816.36,-176.5 816.36,-183.5"/>
+</g>
+<!-- proc~s_ordereq~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_node29" class="node">
+<title>proc~s_ordereq~2</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node29"><a xlink:href="../proc/s_ordereq~2.html" xlink:title="s_orderEq">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="894.5,-150 828.5,-150 828.5,-126 894.5,-126 894.5,-150"/>
+<text text-anchor="middle" x="861.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">s_orderEq</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~2&#45;&gt;proc~s_ordereq~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_edge35" class="edge">
+<title>proc~s_insert~2&#45;&gt;proc~s_ordereq~2</title>
+<path fill="none" stroke="#0000ff" d="M727.8,-169.94C755.28,-163.33 791.1,-154.7 818.6,-148.08"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="819.42,-151.49 828.32,-145.74 817.78,-144.68 819.42,-151.49"/>
+</g>
+<!-- proc~tt_push_back~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_node30" class="node">
+<title>proc~tt_push_back~2</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node30"><a xlink:href="../proc/tt_push_back~2.html" xlink:title="tVector%tt_push_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="926,-108 797,-108 797,-84 926,-84 926,-108"/>
+<text text-anchor="middle" x="861.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tVector%tt_push_back</text>
+</a>
+</g>
+</g>
+<!-- proc~s_insert~2&#45;&gt;proc~tt_push_back~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_edge36" class="edge">
+<title>proc~s_insert~2&#45;&gt;proc~tt_push_back~2</title>
+<path fill="none" stroke="#0000ff" d="M704.26,-167.81C725.41,-154.09 761.63,-131.79 795,-117 799.41,-115.05 804.05,-113.19 808.76,-111.44"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="810.16,-114.66 818.42,-108.02 807.83,-108.06 810.16,-114.66"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocadd_variable2CallsGraph = svgPanZoom('#procadd_variable2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <table class="graph">
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/add_fvar.html">add_fvar</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td class="root" rowspan="65">FileMetadata%add_variable</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/add_metadata.html">add_metadata</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/create_file_metada.html">create_file_metada</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/create_metadata_variable.html">create_metadata_variable</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/append_metadata~6.html">CubedSphereGridFactory%append_metadata</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/run.html">FakeHistData%run</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/init~8.html">FakeHistData0%init</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/run~15.html">FakeHistData0%run</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/merge.html">FileMetadata%merge</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/initialize_.html">initialize_</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/append_metadata.html">LatLonGridFactory%append_metadata</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../program/main~9.html">main</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_bundlewritencpar.html">MAPL_BundleWriteNCPar</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/createvariable.html">MAPL_GriddedIO%CreateVariable</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/inq_variables.html">NetCDF4_FileFormatter%inq_variables</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/transfer_metadata.html">RegridSupport%transfer_metadata</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/run~4.html">run</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/setup.html">setUp</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/add_metadata_route_handle.html">StationSampler%add_metadata_route_handle</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/create_metadata_variable~2.html">StationSampler%create_metadata_variable</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/append_metadata~7.html">SwathGridFactory%append_metadata</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/test_add_variable.html">test_add_variable</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/test_equal_diff_variables.html">test_equal_diff_variables</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/test_merge_meta.html">test_merge_meta</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/test_serialize~6.html">test_serialize</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/test_var_dims_defined.html">test_var_dims_defined</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/test_write_read_simple_variable.html">test_write_read_simple_variable</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/test_write_read_variable_attribute.html">test_write_read_variable_attribute</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/add_time_to_metadata.html">timeData%add_time_to_metadata</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/append_metadata~2.html">TripolarGridFactory%append_metadata</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/append_vertical_metadata.html">verticalData%append_vertical_metadata</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/append_metadata~3.html">XYGridFactory%append_metadata</a></td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td></tr>
+<tr><td class="solidTop">w</td></tr>
+</table>
+          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">add_variable</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">var</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">Variable</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringVector</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dims</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dim_this</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dim_name</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">UnlimitedEntity</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">const_value_ptr</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">shp</span><span class="p">(:),</span><span class="w"> </span><span class="n">shp_const</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! ensure all of var&#39;s dimensions are defined</span>
+<span class="w">      </span><span class="n">shp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">empty</span>
+<span class="w">      </span><span class="n">dims</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">var</span><span class="p">%</span><span class="n">get_dimensions</span><span class="p">()</span>
+<span class="w">      </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dims</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">      </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">dims</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+
+<span class="w">         </span><span class="n">dim_name</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">         </span><span class="n">dim_this</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">dimensions</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">dim_name</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">dim_this</span><span class="p">),</span><span class="s2">&quot;FileMetadata::add_variable() - undefined dimension: &quot;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">dim_name</span><span class="p">)</span>
+<span class="w">         </span><span class="n">shp</span><span class="w"> </span><span class="o">=</span><span class="p">[</span><span class="n">shp</span><span class="p">,</span><span class="n">dim_this</span><span class="p">]</span>
+<span class="w">         </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="k">      </span><span class="n">const_value_ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">var</span><span class="p">%</span><span class="n">get_const_value</span><span class="p">()</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">const_value_ptr</span><span class="p">%</span><span class="n">is_empty</span><span class="p">()</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">shp_const</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">const_value_ptr</span><span class="p">%</span><span class="n">get_shape</span><span class="p">()</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="w"> </span><span class="k">all</span><span class="p">(</span><span class="n">shp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">shp_const</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;const_value shape does not match dims&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      call </span><span class="n">this</span><span class="p">%</span><span class="n">variables</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">var</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">order</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">var_name</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">add_variable</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-07-30T14:38:28.365825             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

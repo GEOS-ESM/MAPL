@@ -1,0 +1,662 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>finalize_gc &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>finalize_gc
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">45 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataDriverGridComp.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatadrivergridcomp.f90.html'>ExtDataDriverGridComp.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/extdata_drivergridcompmod.html'>ExtData_DriverGridCompMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">finalize_gc</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/finalize_gc~2.html#src">finalize_gc</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine finalize_gc(gc, import_state, export_state, clock, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc~30"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-import_state~16"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>import_state</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-export_state~16"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>export_state</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~64"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clock</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1749"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~finalize_gc~2~~CallsGraph Pages: 1 -->
+<svg id="procfinalize_gc2CallsGraph" width="590pt" height="284pt"
+ viewBox="0.00 0.00 590.00 284.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~finalize_gc~2~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 280)">
+<title>proc~~finalize_gc~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-280 586,-280 586,4 -4,4"/>
+<!-- proc~finalize_gc~2 -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node1" class="node">
+<title>proc~finalize_gc~2</title>
+<polygon fill="none" stroke="black" points="69,-150 0,-150 0,-126 69,-126 69,-150"/>
+<text text-anchor="middle" x="34.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50">finalize_gc</text>
+</g>
+<!-- ESMF_ConfigDestroy -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node2" class="node">
+<title>ESMF_ConfigDestroy</title>
+<g id="a_proc~~finalize_gc~2~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_configdestroy.html" xlink:title="ESMF_ConfigDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="244.5,-276 123.5,-276 123.5,-252 244.5,-252 244.5,-276"/>
+<text text-anchor="middle" x="184" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_gc~2&#45;&gt;ESMF_ConfigDestroy -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge1" class="edge">
+<title>proc~finalize_gc~2&#45;&gt;ESMF_ConfigDestroy</title>
+<path fill="none" stroke="#ff0000" d="M40.12,-150.15C49.11,-172.15 71.13,-218.59 105,-243 107.87,-245.07 110.94,-246.94 114.13,-248.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="112.87,-251.89 123.41,-252.89 115.79,-245.53 112.87,-251.89"/>
+</g>
+<!-- ESMF_GridCompFinalize -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node3" class="node">
+<title>ESMF_GridCompFinalize</title>
+<g id="a_proc~~finalize_gc~2~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_gridcompfinalize.html" xlink:title="ESMF_GridCompFinalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="254,-234 114,-234 114,-210 254,-210 254,-234"/>
+<text text-anchor="middle" x="184" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompFinalize</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_gc~2&#45;&gt;ESMF_GridCompFinalize -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge2" class="edge">
+<title>proc~finalize_gc~2&#45;&gt;ESMF_GridCompFinalize</title>
+<path fill="none" stroke="#ff0000" d="M45.53,-150.06C58.03,-164.31 80.7,-187.73 105,-201 108.5,-202.91 112.19,-204.66 115.97,-206.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.95,-209.61 125.54,-209.9 117.45,-203.07 114.95,-209.61"/>
+</g>
+<!-- interface~mapl_finalizeshmem -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node4" class="node">
+<title>interface~mapl_finalizeshmem</title>
+<g id="a_proc~~finalize_gc~2~~CallsGraph_node4"><a xlink:href="../interface/mapl_finalizeshmem.html" xlink:title="MAPL_FinalizeShmem">
+<polygon fill="#a7506f" stroke="#a7506f" points="247.5,-192 120.5,-192 120.5,-168 247.5,-168 247.5,-192"/>
+<text text-anchor="middle" x="184" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FinalizeShmem</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_gc~2&#45;&gt;interface~mapl_finalizeshmem -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge3" class="edge">
+<title>proc~finalize_gc~2&#45;&gt;interface~mapl_finalizeshmem</title>
+<path fill="none" stroke="#ff0000" d="M69.02,-148.35C80.42,-151.81 93.24,-155.64 105,-159 112.22,-161.06 119.83,-163.18 127.35,-165.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="126.59,-168.66 137.15,-167.91 128.42,-161.9 126.59,-168.66"/>
+</g>
+<!-- proc~get_capgridcomp_from_gc~2 -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node5" class="node">
+<title>proc~get_capgridcomp_from_gc~2</title>
+<g id="a_proc~~finalize_gc~2~~CallsGraph_node5"><a xlink:href="../proc/get_capgridcomp_from_gc~2.html" xlink:title="get_CapGridComp_from_gc">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="263,-150 105,-150 105,-126 263,-126 263,-150"/>
+<text text-anchor="middle" x="184" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_CapGridComp_from_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_gc~2&#45;&gt;proc~get_capgridcomp_from_gc~2 -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge4" class="edge">
+<title>proc~finalize_gc~2&#45;&gt;proc~get_capgridcomp_from_gc~2</title>
+<path fill="none" stroke="#ff0000" d="M69.34,-138C77.13,-138 85.76,-138 94.69,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="94.88,-141.5 104.88,-138 94.88,-134.5 94.88,-141.5"/>
+</g>
+<!-- proc~get_metacomp_from_gc -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node6" class="node">
+<title>proc~get_metacomp_from_gc</title>
+<g id="a_proc~~finalize_gc~2~~CallsGraph_node6"><a xlink:href="../proc/get_metacomp_from_gc.html" xlink:title="get_MetaComp_from_gc">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="254.5,-108 113.5,-108 113.5,-84 254.5,-84 254.5,-108"/>
+<text text-anchor="middle" x="184" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_MetaComp_from_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_gc~2&#45;&gt;proc~get_metacomp_from_gc -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge5" class="edge">
+<title>proc~finalize_gc~2&#45;&gt;proc~get_metacomp_from_gc</title>
+<path fill="none" stroke="#ff0000" d="M69.02,-127.65C80.42,-124.19 93.24,-120.36 105,-117 112.22,-114.94 119.83,-112.82 127.35,-110.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="128.42,-114.1 137.15,-108.09 126.59,-107.34 128.42,-114.1"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~finalize_gc~2~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="225,-66 143,-66 143,-42 225,-42 225,-66"/>
+<text text-anchor="middle" x="184" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_gc~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge6" class="edge">
+<title>proc~finalize_gc~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M45.53,-125.94C58.03,-111.69 80.7,-88.27 105,-75 113.59,-70.31 123.29,-66.62 132.86,-63.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.02,-67.04 142.73,-61 132.16,-60.29 134.02,-67.04"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~finalize_gc~2~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="222,-24 146,-24 146,0 222,0 222,-24"/>
+<text text-anchor="middle" x="184" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_gc~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge7" class="edge">
+<title>proc~finalize_gc~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M40.12,-125.85C49.11,-103.85 71.13,-57.41 105,-33 114.06,-26.47 125.03,-21.97 135.84,-18.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="136.83,-22.23 145.67,-16.4 135.12,-15.44 136.83,-22.23"/>
+</g>
+<!-- ESMF_UserCompGetInternalState -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node9" class="node">
+<title>ESMF_UserCompGetInternalState</title>
+<g id="a_proc~~finalize_gc~2~~CallsGraph_node9"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_usercompgetinternalstate.html" xlink:title="ESMF_UserCompGetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="489,-129 299,-129 299,-105 489,-105 489,-129"/>
+<text text-anchor="middle" x="394" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_UserCompGetInternalState</text>
+</a>
+</g>
+</g>
+<!-- proc~get_capgridcomp_from_gc~2&#45;&gt;ESMF_UserCompGetInternalState -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge8" class="edge">
+<title>proc~get_capgridcomp_from_gc~2&#45;&gt;ESMF_UserCompGetInternalState</title>
+<path fill="none" stroke="#00ff91" d="M263.04,-130.12C271.41,-129.28 280.02,-128.41 288.63,-127.54"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="289.13,-131 298.73,-126.52 288.43,-124.04 289.13,-131"/>
+</g>
+<!-- proc~get_metacomp_from_gc&#45;&gt;ESMF_UserCompGetInternalState -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge9" class="edge">
+<title>proc~get_metacomp_from_gc&#45;&gt;ESMF_UserCompGetInternalState</title>
+<path fill="none" stroke="#0091ff" d="M254.55,-103.02C265.51,-104.13 277.05,-105.29 288.59,-106.46"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="288.42,-109.96 298.72,-107.48 289.13,-102.99 288.42,-109.96"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node10" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~finalize_gc~2~~CallsGraph_node10"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="451.5,-66 336.5,-66 336.5,-42 451.5,-42 451.5,-66"/>
+<text text-anchor="middle" x="394" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#4800ff" d="M225.1,-54C253.67,-54 292.73,-54 325.99,-54"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="326.11,-57.5 336.11,-54 326.11,-50.5 326.11,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~finalize_gc~2~~CallsGraph_node11"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="460.5,-24 327.5,-24 327.5,0 460.5,0 460.5,-24"/>
+<text text-anchor="middle" x="394" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#4800ff" d="M225.1,-45.9C252.92,-40.29 290.69,-32.66 323.37,-26.06"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="324.22,-29.46 333.33,-24.05 322.83,-22.6 324.22,-29.46"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M222.19,-12C248.44,-12 284.55,-12 316.8,-12"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="317.12,-15.5 327.12,-12 317.12,-8.5 317.12,-15.5"/>
+</g>
+<!-- at -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node12" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="580.5,-108 526.5,-108 526.5,-84 580.5,-84 580.5,-108"/>
+<text text-anchor="middle" x="553.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge13" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ff00" d="M440.13,-66.04C464.25,-72.47 493.56,-80.28 516.19,-86.32"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="515.51,-89.76 526.08,-88.95 517.32,-82.99 515.51,-89.76"/>
+</g>
+<!-- insert -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node13" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="580.5,-66 526.5,-66 526.5,-42 580.5,-42 580.5,-66"/>
+<text text-anchor="middle" x="553.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge14" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ff00" d="M451.86,-54C473.27,-54 497.03,-54 516.08,-54"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="516.14,-57.5 526.14,-54 516.14,-50.5 516.14,-57.5"/>
+</g>
+<!-- proc~initialize~14 -->
+<g id="proc~~finalize_gc~2~~CallsGraph_node14" class="node">
+<title>proc~initialize~14</title>
+<g id="a_proc~~finalize_gc~2~~CallsGraph_node14"><a xlink:href="../proc/initialize~14.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="582,-24 525,-24 525,0 582,0 582,-24"/>
+<text text-anchor="middle" x="553.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~14 -->
+<g id="proc~~finalize_gc~2~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~14</title>
+<path fill="none" stroke="#0000ff" d="M460.88,-12C479.28,-12 498.63,-12 514.79,-12"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="514.9,-15.5 524.9,-12 514.9,-8.5 514.9,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">finalize_gc</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">import_state</span><span class="p">,</span><span class="w"> </span><span class="n">export_state</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_state</span><span class="p">,</span><span class="w"> </span><span class="n">export_state</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ExtData_DriverGridComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPLOBJ</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">import_state</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">export_state</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">clock</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">cap</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_CapGridComp_from_gc</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>
+<span class="w">    </span><span class="n">MAPLOBJ</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_MetaComp_from_gc</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridCompFinalize</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">gcs</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">),</span><span class="w"> </span><span class="n">importstate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">exportstate</span><span class="o">=</span><span class="n">cap</span><span class="p">%</span><span class="n">exports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">),</span><span class="w"> </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">userrc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">run_hist</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">ESMF_GridCompFinalize</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">gcs</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">history_id</span><span class="p">),</span><span class="w"> </span><span class="n">importstate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">history_id</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">exportstate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">exports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">history_id</span><span class="p">),</span><span class="w"> </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">userrc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_ConfigDestroy</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_hist</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">run_extdata</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">ESMF_GridCompFinalize</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">gcs</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="p">),</span><span class="w"> </span><span class="n">importstate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">exportstate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">exports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="p">),</span><span class="w"> </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">userrc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_ConfigDestroy</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_ext</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    call </span><span class="n">ESMF_ConfigDestroy</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">cf_root</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ConfigDestroy</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_FinalizeSHMEM</span><span class="w"> </span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">finalize_gc</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-07-30T14:38:28.365825             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

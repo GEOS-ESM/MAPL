@@ -1,0 +1,612 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MpiServer.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MpiServer.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">70 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MpiServer.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">MpiServer.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/pfio_mpiservermod.html">pFIO_MpiServerMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/mpiserver.f90.html#src">MpiServer.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mpiserver.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilempiserverf90EfferentGraph" width="301pt" height="410pt"
+ viewBox="0.00 0.00 301.00 410.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 406)">
+<title>sourcefile~~mpiserver.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-406 297,-406 297,4 -4,4"/>
+<!-- sourcefile~mpiserver.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~mpiserver.f90</title>
+<polygon fill="none" stroke="black" points="293,-213 205,-213 205,-189 293,-189 293,-213"/>
+<text text-anchor="middle" x="249" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50">MpiServer.F90</text>
+</g>
+<!-- sourcefile~abstractdatareference.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~abstractdatareference.f90</title>
+<g id="a_sourcefile~~mpiserver.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/abstractdatareference.f90.html" xlink:title="AbstractDataReference.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="164,-402 5,-402 5,-378 164,-378 164,-402"/>
+<text text-anchor="middle" x="84.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractDataReference.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~abstractdatareference.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~abstractdatareference.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M245.92,-213.35C239.98,-244.54 220.01,-327 169,-369 167.4,-370.32 165.73,-371.56 163.99,-372.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="161.85,-369.91 154.9,-377.91 165.32,-375.99 161.85,-369.91"/>
+</g>
+<!-- sourcefile~abstractdirectoryservice.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~abstractdirectoryservice.f90</title>
+<g id="a_sourcefile~~mpiserver.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/abstractdirectoryservice.f90.html" xlink:title="AbstractDirectoryService.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="168.5,-360 0.5,-360 0.5,-336 168.5,-336 168.5,-360"/>
+<text text-anchor="middle" x="84.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractDirectoryService.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~abstractdirectoryservice.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~abstractdirectoryservice.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M243.9,-213.23C234.75,-238.6 210.14,-297.09 169,-327 166.88,-328.54 164.67,-329.96 162.37,-331.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="160.56,-328.28 153.19,-335.89 163.7,-334.54 160.56,-328.28"/>
+</g>
+<!-- sourcefile~abstractserver.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~abstractserver.f90</title>
+<g id="a_sourcefile~~mpiserver.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/abstractserver.f90.html" xlink:title="AbstractServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="141,-318 28,-318 28,-294 141,-294 141,-318"/>
+<text text-anchor="middle" x="84.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~abstractserver.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~abstractserver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M240.1,-213.07C227.38,-231.49 200.59,-266.44 169,-285 163.42,-288.28 157.33,-291.05 151.08,-293.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="149.52,-290.22 141.16,-296.73 151.75,-296.86 149.52,-290.22"/>
+</g>
+<!-- sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~abstractsocket.f90</title>
+<g id="a_sourcefile~~mpiserver.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/abstractsocket.f90.html" xlink:title="AbstractSocket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="142,-276 27,-276 27,-252 142,-252 142,-276"/>
+<text text-anchor="middle" x="84.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractSocket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M228.5,-213.09C212.88,-222.34 190.16,-234.85 169,-243 163.23,-245.22 157.15,-247.27 151.01,-249.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="149.96,-245.81 141.33,-251.96 151.91,-252.53 149.96,-245.81"/>
+</g>
+<!-- sourcefile~abstractsocketvector.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~abstractsocketvector.f90</title>
+<g id="a_sourcefile~~mpiserver.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/abstractsocketvector.f90.html" xlink:title="AbstractSocketVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="158.5,-234 10.5,-234 10.5,-210 158.5,-210 158.5,-234"/>
+<text text-anchor="middle" x="84.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractSocketVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~abstractsocketvector.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~abstractsocketvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M204.88,-206.57C193.68,-208.02 181.22,-209.63 168.71,-211.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="168.15,-207.79 158.68,-212.54 169.04,-214.73 168.15,-207.79"/>
+</g>
+<!-- sourcefile~baseserver.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~baseserver.f90</title>
+<g id="a_sourcefile~~mpiserver.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/baseserver.f90.html" xlink:title="BaseServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="132,-192 37,-192 37,-168 132,-168 132,-192"/>
+<text text-anchor="middle" x="84.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~baseserver.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~baseserver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M204.88,-195.43C185.74,-192.95 162.94,-190.01 142.42,-187.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="142.61,-183.85 132.25,-186.04 141.72,-190.79 142.61,-183.85"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~mpiserver.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="169,-150 0,-150 0,-126 169,-126 169,-150"/>
+<text text-anchor="middle" x="84.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M228.5,-188.91C212.88,-179.66 190.16,-167.15 169,-159 163.23,-156.78 157.15,-154.73 151.01,-152.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="151.91,-149.47 141.33,-150.04 149.96,-156.19 151.91,-149.47"/>
+</g>
+<!-- sourcefile~mapl_profiler.f90~2 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~mapl_profiler.f90~2</title>
+<g id="a_sourcefile~~mpiserver.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/mapl_profiler.f90~2.html" xlink:title="MAPL_Profiler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="137,-108 32,-108 32,-84 137,-84 137,-108"/>
+<text text-anchor="middle" x="84.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Profiler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~mapl_profiler.f90~2 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~mapl_profiler.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M240.1,-188.93C227.38,-170.51 200.59,-135.56 169,-117 162.2,-113.01 154.66,-109.77 146.98,-107.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="147.79,-103.73 137.2,-104.13 145.73,-110.42 147.79,-103.73"/>
+</g>
+<!-- sourcefile~serverthread.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~serverthread.f90</title>
+<g id="a_sourcefile~~mpiserver.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/serverthread.f90.html" xlink:title="ServerThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="138.5,-66 30.5,-66 30.5,-42 138.5,-42 138.5,-66"/>
+<text text-anchor="middle" x="84.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M243.9,-188.77C234.75,-163.4 210.14,-104.91 169,-75 162.71,-70.43 155.53,-66.85 148.07,-64.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="149.13,-60.7 138.54,-60.89 146.93,-67.35 149.13,-60.7"/>
+</g>
+<!-- sourcefile~serverthreadvector.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~serverthreadvector.f90</title>
+<g id="a_sourcefile~~mpiserver.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/serverthreadvector.f90.html" xlink:title="ServerThreadVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="154.5,-24 14.5,-24 14.5,0 154.5,0 154.5,-24"/>
+<text text-anchor="middle" x="84.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~serverthreadvector.f90 -->
+<g id="sourcefile~~mpiserver.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~serverthreadvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M245.92,-188.65C239.98,-157.46 220.01,-75 169,-33 167.4,-31.68 165.73,-30.44 163.99,-29.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="165.32,-26.01 154.9,-24.09 161.85,-32.09 165.32,-26.01"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mpiserver.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilempiserverf90AfferentGraph" width="190pt" height="32pt"
+ viewBox="0.00 0.00 190.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mpiserver.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>sourcefile~~mpiserver.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 186,-28 186,4 -4,4"/>
+<!-- sourcefile~mpiserver.f90 -->
+<g id="sourcefile~~mpiserver.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~mpiserver.f90</title>
+<polygon fill="none" stroke="black" points="88,-24 0,-24 0,0 88,0 88,-24"/>
+<text text-anchor="middle" x="44" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MpiServer.F90</text>
+</g>
+<!-- sourcefile~pfio.f90 -->
+<g id="sourcefile~~mpiserver.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~pfio.f90</title>
+<g id="a_sourcefile~~mpiserver.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/pfio.f90.html" xlink:title="pFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="182,-24 124,-24 124,0 182,0 182,-24"/>
+<text text-anchor="middle" x="153" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pfio.f90&#45;&gt;sourcefile~mpiserver.f90 -->
+<g id="sourcefile~~mpiserver.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~pfio.f90&#45;&gt;sourcefile~mpiserver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M123.89,-12C116.05,-12 107.28,-12 98.5,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="98.25,-8.5 88.25,-12 98.25,-15.5 98.25,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">pFIO_MpiServerMod</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_ExceptionHandling</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_Profiler</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractDirectoryServiceMod</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_ServerThreadMod</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_ServerThreadVectorMod</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractSocketMod</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractSocketVectorMod</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractDataReferenceMod</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractServerMod</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_BaseServerMod</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="k">   private</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MpiServer</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="k">extends</span><span class="w"> </span><span class="p">(</span><span class="n">BaseServer</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MpiServer</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">port_name</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">start</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="k">end type </span><span class="n">MpiServer</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">   </span><span class="k">interface </span><span class="n">MpiServer</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_MpiServer</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">   </span><span class="k">end interface </span><span class="n">MpiServer</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="k">contains</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="k">   function </span><span class="n">new_MpiServer</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">port_name</span><span class="p">,</span><span class="w"> </span><span class="n">profiler_name</span><span class="p">,</span><span class="w"> </span><span class="n">with_profiler</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MpiServer</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">s</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">port_name</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">profiler_name</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">with_profiler</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="k">call </span><span class="n">s</span><span class="p">%</span><span class="n">init</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">port_name</span><span class="p">,</span><span class="w"> </span><span class="n">profiler_name</span><span class="o">=</span><span class="n">profiler_name</span><span class="p">,</span><span class="w"> </span><span class="n">with_profiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">with_profiler</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="n">s</span><span class="p">%</span><span class="n">port_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">port_name</span><span class="p">)</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="n">s</span><span class="p">%</span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ServerThreadVector</span><span class="p">()</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_MpiServer</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">start</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MpiServer</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ServerThread</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">thread_ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">client_size</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mask</span><span class="p">(:)</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="n">client_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">serverthread_done_msgs</span><span class="p">(</span><span class="n">client_size</span><span class="p">))</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">serverthread_done_msgs</span><span class="p">(:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">mask</span><span class="p">(</span><span class="n">client_size</span><span class="p">))</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="c">! loop untill terminate</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="k">do while</span><span class="w"> </span><span class="p">(.</span><span class="n">true</span><span class="p">.)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">client_size</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="k">cycle</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="k">            </span><span class="n">thread_ptr</span><span class="o">=&gt;</span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">            </span><span class="c">!handle the message</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">            </span><span class="k">call </span><span class="n">thread_ptr</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">            </span><span class="c">!delete the thread object if it terminates</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">thread_ptr</span><span class="p">%</span><span class="n">do_terminate</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="k">               </span><span class="n">mask</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">            </span><span class="k">endif</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="k">         enddo</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="n">mask</span><span class="p">))</span><span class="w"> </span><span class="k">exit</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="k">      enddo</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="k">      call </span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">clear</span><span class="p">()</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">report_profile</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">start</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="k">end module </span><span class="n">pFIO_MpiServerMod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-07-30T14:38:28.365825             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

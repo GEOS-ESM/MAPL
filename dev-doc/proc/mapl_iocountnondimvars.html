@@ -1,0 +1,698 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_IOCountNonDimVars &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_IOCountNonDimVars
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">23 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/NCIO.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/ncio.f90.html'>NCIO.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/nciomod.html'>NCIOMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_IOCountNonDimVars</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_iocountnondimvars.html#src">MAPL_IOCountNonDimVars</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_IOCountNonDimVars(cf, nvars, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cf~31"></span>
+              type(<a href='../type/filemetadata.html'>FileMetadata</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cf</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nvars~10"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nvars</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1831"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_iocountnondimvars~~CallsGraph Pages: 1 -->
+<svg id="procmapl_iocountnondimvarsCallsGraph" width="641pt" height="170pt"
+ viewBox="0.00 0.00 641.00 169.86" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph" class="graph" transform="scale(0.61 0.61) rotate(0) translate(4 272.39)">
+<title>proc~~mapl_iocountnondimvars~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-272.39 1039,-272.39 1039,4 -4,4"/>
+<!-- proc~mapl_iocountnondimvars -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node1" class="node">
+<title>proc~mapl_iocountnondimvars</title>
+<polygon fill="none" stroke="black" points="154,-134.39 0,-134.39 0,-110.39 154,-110.39 154,-134.39"/>
+<text text-anchor="middle" x="77" y="-119.99" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_IOCountNonDimVars</text>
+</g>
+<!-- at -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node2" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="891.5,-134.39 837.5,-134.39 837.5,-110.39 891.5,-110.39 891.5,-134.39"/>
+<text text-anchor="middle" x="864.5" y="-119.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_iocountnondimvars&#45;&gt;at -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_iocountnondimvars&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M154.03,-122.39C319.41,-122.39 706.64,-122.39 827.09,-122.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="827.25,-125.89 837.25,-122.39 827.25,-118.89 827.25,-125.89"/>
+</g>
+<!-- proc~get_dimensions~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node3" class="node">
+<title>proc~get_dimensions~2</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node3"><a xlink:href="../proc/get_dimensions~2.html" xlink:title="FileMetadata%get_dimensions">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="374,-212.39 200,-212.39 200,-188.39 374,-188.39 374,-212.39"/>
+<text text-anchor="middle" x="287" y="-197.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata%get_dimensions</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_iocountnondimvars&#45;&gt;proc~get_dimensions~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_iocountnondimvars&#45;&gt;proc~get_dimensions~2</title>
+<path fill="none" stroke="#ff0000" d="M101.11,-134.53C123.42,-145.92 158.38,-162.86 190,-174.39 201.28,-178.5 213.51,-182.3 225.35,-185.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="224.6,-189.07 235.17,-188.35 226.46,-182.32 224.6,-189.07"/>
+</g>
+<!-- proc~get_variables -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node4" class="node">
+<title>proc~get_variables</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node4"><a xlink:href="../proc/get_variables.html" xlink:title="FileMetadata%get_variables">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="368,-52.39 206,-52.39 206,-28.39 368,-28.39 368,-52.39"/>
+<text text-anchor="middle" x="287" y="-37.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata%get_variables</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_iocountnondimvars&#45;&gt;proc~get_variables -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_iocountnondimvars&#45;&gt;proc~get_variables</title>
+<path fill="none" stroke="#ff0000" d="M96.25,-110.33C117.81,-96.6 155.15,-74.39 190,-61.39 196.23,-59.07 202.79,-56.96 209.43,-55.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="210.44,-58.42 219.19,-52.44 208.62,-51.66 210.44,-58.42"/>
+</g>
+<!-- proc~m_begin~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node5" class="node">
+<title>proc~m_begin~2</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node5"><a xlink:href="../proc/m_begin~2.html" xlink:title="StringVariableMap%m_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="370,-254.39 204,-254.39 204,-230.39 370,-230.39 370,-254.39"/>
+<text text-anchor="middle" x="287" y="-239.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%m_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_iocountnondimvars&#45;&gt;proc~m_begin~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_iocountnondimvars&#45;&gt;proc~m_begin~2</title>
+<path fill="none" stroke="#ff0000" d="M88.01,-134.62C106.06,-155.81 146.26,-199.19 190,-221.39 194.05,-223.44 198.29,-225.3 202.64,-226.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="201.72,-230.35 212.31,-230.35 204.03,-223.75 201.72,-230.35"/>
+</g>
+<!-- proc~m_key~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node6" class="node">
+<title>proc~m_key~2</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node6"><a xlink:href="../proc/m_key~2.html" xlink:title="StringVariableMapIterator%m_key">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="384,-94.39 190,-94.39 190,-70.39 384,-70.39 384,-94.39"/>
+<text text-anchor="middle" x="287" y="-79.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMapIterator%m_key</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_iocountnondimvars&#45;&gt;proc~m_key~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_iocountnondimvars&#45;&gt;proc~m_key~2</title>
+<path fill="none" stroke="#ff0000" d="M140.41,-110.39C163.34,-105.98 189.5,-100.95 213.26,-96.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="214.12,-99.78 223.28,-94.45 212.8,-92.9 214.12,-99.78"/>
+</g>
+<!-- proc~m_next~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node7" class="node">
+<title>proc~m_next~2</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node7"><a xlink:href="../proc/m_next~2.html" xlink:title="StringVariableMapIterator%m_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="618,-175.39 420,-175.39 420,-151.39 618,-151.39 618,-175.39"/>
+<text text-anchor="middle" x="519" y="-160.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMapIterator%m_next</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_iocountnondimvars&#45;&gt;proc~m_next~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_iocountnondimvars&#45;&gt;proc~m_next~2</title>
+<path fill="none" stroke="#ff0000" d="M154.16,-132.35C166.15,-133.79 178.4,-135.19 190,-136.39 263.23,-143.98 345.84,-150.77 409.84,-155.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="409.71,-159.14 419.94,-156.41 410.24,-152.16 409.71,-159.14"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="560,-51.39 478,-51.39 478,-27.39 560,-27.39 560,-51.39"/>
+<text text-anchor="middle" x="519" y="-36.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_iocountnondimvars&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_iocountnondimvars&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M86.38,-110.11C102.96,-87.05 142.5,-37.91 190,-19.39 284.35,17.4 405.55,-6.45 471.01,-24.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="470.45,-28 481.02,-27.37 472.36,-21.27 470.45,-28"/>
+</g>
+<!-- proc~get_variables&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge8" class="edge">
+<title>proc~get_variables&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#48ff00" d="M368.12,-40.04C401.14,-39.9 438.4,-39.74 467.51,-39.61"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="467.86,-43.11 477.85,-39.56 467.83,-36.11 467.86,-43.11"/>
+</g>
+<!-- proc~s_begin~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node11" class="node">
+<title>proc~s_begin~2</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node11"><a xlink:href="../proc/s_begin~2.html" xlink:title="set2%s_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="561.5,-235.39 476.5,-235.39 476.5,-211.39 561.5,-211.39 561.5,-235.39"/>
+<text text-anchor="middle" x="519" y="-220.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%s_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~m_begin~2&#45;&gt;proc~s_begin~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge9" class="edge">
+<title>proc~m_begin~2&#45;&gt;proc~s_begin~2</title>
+<path fill="none" stroke="#00ff91" d="M370.06,-235.61C402.12,-232.96 437.9,-230.01 466.25,-227.67"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="466.66,-231.14 476.33,-226.83 466.08,-224.17 466.66,-231.14"/>
+</g>
+<!-- proc~s_next~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node12" class="node">
+<title>proc~s_next~2</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node12"><a xlink:href="../proc/s_next~2.html" xlink:title="s_iterator%s_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="773.5,-205.39 667.5,-205.39 667.5,-181.39 773.5,-181.39 773.5,-205.39"/>
+<text text-anchor="middle" x="720.5" y="-190.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">s_iterator%s_next</text>
+</a>
+</g>
+</g>
+<!-- proc~m_next~2&#45;&gt;proc~s_next~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge10" class="edge">
+<title>proc~m_next~2&#45;&gt;proc~s_next~2</title>
+<path fill="none" stroke="#4800ff" d="M599.99,-175.42C619.02,-178.28 639.05,-181.29 657.15,-184.01"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="656.87,-187.51 667.28,-185.54 657.91,-180.59 656.87,-187.51"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node9" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node9"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="778,-92.39 663,-92.39 663,-68.39 778,-68.39 778,-92.39"/>
+<text text-anchor="middle" x="720.5" y="-77.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00da" d="M560.37,-47.69C586.87,-53.13 622.15,-60.38 652.75,-66.67"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="652.44,-70.18 662.94,-68.77 653.85,-63.32 652.44,-70.18"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node10" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node10"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="787,-50.39 654,-50.39 654,-26.39 787,-26.39 787,-50.39"/>
+<text text-anchor="middle" x="720.5" y="-35.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M560.37,-39.19C584.2,-39.07 615.14,-38.91 643.39,-38.77"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="643.68,-42.27 653.66,-38.72 643.64,-35.27 643.68,-42.27"/>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge13" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M762.19,-92.43C782.8,-98.52 807.61,-105.86 827.52,-111.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="826.56,-115.12 837.15,-114.6 828.55,-108.4 826.56,-115.12"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node13" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="891.5,-92.39 837.5,-92.39 837.5,-68.39 891.5,-68.39 891.5,-92.39"/>
+<text text-anchor="middle" x="864.5" y="-77.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge14" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M778.03,-80.39C794.46,-80.39 811.97,-80.39 826.84,-80.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="827.14,-83.89 837.14,-80.39 827.14,-76.89 827.14,-83.89"/>
+</g>
+<!-- proc~initialize~14 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node15" class="node">
+<title>proc~initialize~14</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node15"><a xlink:href="../proc/initialize~14.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="893,-50.39 836,-50.39 836,-26.39 893,-26.39 893,-50.39"/>
+<text text-anchor="middle" x="864.5" y="-35.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~14 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~14</title>
+<path fill="none" stroke="#7fff00" d="M787.1,-38.39C800.23,-38.39 813.61,-38.39 825.42,-38.39"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="825.78,-41.89 835.78,-38.39 825.78,-34.89 825.78,-41.89"/>
+</g>
+<!-- proc~s_begin~2&#45;&gt;proc~s_next~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge16" class="edge">
+<title>proc~s_begin~2&#45;&gt;proc~s_next~2</title>
+<path fill="none" stroke="#00ffff" d="M561.82,-217.1C589.44,-212.95 626.11,-207.43 657.14,-202.77"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="658.06,-206.17 667.43,-201.22 657.02,-199.25 658.06,-206.17"/>
+</g>
+<!-- proc~advpos~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node14" class="node">
+<title>proc~advpos~2</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node14"><a xlink:href="../proc/advpos~2.html" xlink:title="set2%advpos">
+<polygon fill="#d9534f" stroke="#d9534f" points="906,-205.39 823,-205.39 823,-181.39 906,-181.39 906,-205.39"/>
+<text text-anchor="middle" x="864.5" y="-190.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%advpos</text>
+</a>
+</g>
+</g>
+<!-- proc~s_next~2&#45;&gt;proc~advpos~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge17" class="edge">
+<title>proc~s_next~2&#45;&gt;proc~advpos~2</title>
+<path fill="none" stroke="#7f00ff" d="M773.57,-193.39C786.18,-193.39 799.66,-193.39 812.24,-193.39"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="812.55,-196.89 822.55,-193.39 812.55,-189.89 812.55,-196.89"/>
+</g>
+<!-- none~at~8 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node16" class="node">
+<title>none~at~8</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node16"><a xlink:href="../type/ivector~12.html#boundprocedure-at~8" xlink:title="iVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="1023.5,-268.39 953.5,-268.39 953.5,-244.39 1023.5,-244.39 1023.5,-268.39"/>
+<text text-anchor="middle" x="988.5" y="-253.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~advpos~2&#45;&gt;none~at~8 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge18" class="edge">
+<title>proc~advpos~2&#45;&gt;none~at~8</title>
+<path fill="none" stroke="#00ff00" d="M886.72,-205.56C901.96,-214.17 923.06,-225.84 942,-235.39 944.95,-236.88 948.03,-238.39 951.13,-239.88"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="949.87,-243.15 960.4,-244.26 952.86,-236.83 949.87,-243.15"/>
+</g>
+<!-- proc~exists~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node17" class="node">
+<title>proc~exists~2</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node17"><a xlink:href="../proc/exists~2.html" xlink:title="exists">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1015.5,-226.39 961.5,-226.39 961.5,-202.39 1015.5,-202.39 1015.5,-226.39"/>
+<text text-anchor="middle" x="988.5" y="-211.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">exists</text>
+</a>
+</g>
+</g>
+<!-- proc~advpos~2&#45;&gt;proc~exists~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge19" class="edge">
+<title>proc~advpos~2&#45;&gt;proc~exists~2</title>
+<path fill="none" stroke="#00ff00" d="M906.12,-200.38C920.74,-202.9 937.11,-205.72 951.32,-208.16"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="950.78,-211.62 961.23,-209.87 951.97,-204.72 950.78,-211.62"/>
+</g>
+<!-- proc~get_child~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node18" class="node">
+<title>proc~get_child~2</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node18"><a xlink:href="../proc/get_child~2.html" xlink:title="set2%get_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1035,-184.39 942,-184.39 942,-160.39 1035,-160.39 1035,-184.39"/>
+<text text-anchor="middle" x="988.5" y="-169.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%get_child</text>
+</a>
+</g>
+</g>
+<!-- proc~advpos~2&#45;&gt;proc~get_child~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge20" class="edge">
+<title>proc~advpos~2&#45;&gt;proc~get_child~2</title>
+<path fill="none" stroke="#00ff00" d="M906.12,-186.4C914.29,-184.99 923.02,-183.49 931.6,-182.01"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="932.32,-185.44 941.58,-180.29 931.13,-178.54 932.32,-185.44"/>
+</g>
+<!-- proc~opposite~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_node19" class="node">
+<title>proc~opposite~2</title>
+<g id="a_proc~~mapl_iocountnondimvars~~CallsGraph_node19"><a xlink:href="../proc/opposite~2.html" xlink:title="opposite">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1017.5,-142.39 959.5,-142.39 959.5,-118.39 1017.5,-118.39 1017.5,-142.39"/>
+<text text-anchor="middle" x="988.5" y="-127.99" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">opposite</text>
+</a>
+</g>
+</g>
+<!-- proc~advpos~2&#45;&gt;proc~opposite~2 -->
+<g id="proc~~mapl_iocountnondimvars~~CallsGraph_edge21" class="edge">
+<title>proc~advpos~2&#45;&gt;proc~opposite~2</title>
+<path fill="none" stroke="#00ff00" d="M886.72,-181.22C901.96,-172.61 923.06,-160.94 942,-151.39 944.95,-149.9 948.03,-148.39 951.13,-146.9"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="952.86,-149.96 960.4,-142.52 949.87,-143.63 952.86,-149.96"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_iocountnondimvarsCallsGraph = svgPanZoom('#procmapl_iocountnondimvarsCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_IOCountNonDimVars</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="n">nvars</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cf</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nvars</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">StringVariableMap</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vars</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">StringVariableMapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">StringIntegerMap</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dims</span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dimsize</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+
+<span class="w">  </span><span class="n">nvars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="n">dims</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">cf</span><span class="p">%</span><span class="n">get_dimensions</span><span class="p">()</span>
+<span class="w">  </span><span class="n">vars</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">cf</span><span class="p">%</span><span class="n">get_variables</span><span class="p">()</span>
+<span class="w">  </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vars</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">  </span><span class="k">do while</span><span class="p">(</span><span class="n">iter</span><span class="o">/=</span><span class="n">vars</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+
+<span class="w">     </span><span class="n">name</span><span class="w"> </span><span class="o">=&gt;</span><span class="w">  </span><span class="n">iter</span><span class="p">%</span><span class="n">key</span><span class="p">()</span>
+<span class="w">     </span><span class="n">dimsize</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">dims</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">associated</span><span class="p">(</span><span class="n">dimsize</span><span class="p">))</span><span class="w"> </span><span class="n">nvars</span><span class="o">=</span><span class="n">nvars</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">dimsize</span><span class="p">))</span><span class="w"> </span><span class="k">nullify</span><span class="p">(</span><span class="n">dimsize</span><span class="p">)</span>
+
+<span class="w">     </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">  </span><span class="k">end do</span>
+
+<span class="k">  </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_IOCountNonDimVars</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-07-30T14:38:28.365825             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
