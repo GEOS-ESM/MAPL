@@ -24,6 +24,7 @@ module mapl3g_FieldSpec
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use mapl3g_LU_Bound
    use mapl3g_geom_mgr, only: MAPL_SameGeom
+   use mapl3g_FieldDictionary
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -135,6 +136,7 @@ contains
       real, optional, intent(in) :: default_value
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
+      integer :: status
 
       if (present(geom)) field_spec%geom = geom
       field_spec%vertical_geom = vertical_geom
@@ -149,7 +151,7 @@ contains
 
       ! regrid_param
       field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
-      regrid_method = get_regrid_method_(field_spec%standard_name, _RC)
+      regrid_method = get_regrid_method_(field_spec%standard_name)
       if (allocated(regrid_method)) then
          field_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
       end if
@@ -160,7 +162,7 @@ contains
    end function new_FieldSpec_geom
 
    function get_regrid_method_(stdname, rc) result(regrid_method)
-      character(len=*), allocatable, intent(in) :: stdname
+      character(:), allocatable, intent(in) :: stdname
       integer, optional, intent(out) :: rc
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method ! result
 
@@ -172,8 +174,8 @@ contains
       if (allocated(stdname)) then
          inquire(file=trim(field_dictionary_file), exist=file_exists)
          if (file_exists) then
-            field_dict = FieldDictionary(filename=field_dictionary_yml, _RC)
-            regrid_method = field_dict%get_regrid_method(stdname_src)
+            field_dict = FieldDictionary(filename=field_dictionary_file, _RC)
+            regrid_method = field_dict%get_regrid_method(stdname)
          end if
       end if
 
@@ -623,35 +625,35 @@ contains
 
    ! Return an atomic action that tranforms payload of "this"
    ! to payload of "dst".
-   function make_action(this, dst, rc) result(action)
+   function make_action(this, dst_spec, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(FieldSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst
+      class(StateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       action = NullAction() ! default
 
-      select type (dst)
+      select type (dst_spec)
       type is (FieldSpec)
 
-         if (.not. MAPL_SameGeom(this%geom, dst%geom)) then
+         if (.not. MAPL_SameGeom(this%geom, dst_spec%geom)) then
             deallocate(action)
-            _ASSERT(this%regrid_param == dst%regrid_param, "src param /= dst param")
-            action = RegridAction(this%geom, this%payload, dst%geom, dst%payload, dst%regrid_param)
+            _ASSERT(this%regrid_param == dst_spec%regrid_param, "src param /= dst param")
+            action = RegridAction(this%geom, this%payload, dst_spec%geom, dst_spec%payload, dst_spec%regrid_param)
             _RETURN(_SUCCESS)
          end if
 
-         if (this%typekind /= dst%typekind) then
+         if (this%typekind /= dst_spec%typekind) then
             deallocate(action)
-            action = CopyAction(this%payload, dst%payload)
+            action = CopyAction(this%payload, dst_spec%payload)
             _RETURN(_SUCCESS)
          end if
 
-         if (.not. match(this%units,dst%units)) then
+         if (.not. match(this%units,dst_spec%units)) then
             deallocate(action)
-            action = ConvertUnitsAction(this%payload, this%units, dst%payload, dst%units)
+            action = ConvertUnitsAction(this%payload, this%units, dst_spec%payload, dst_spec%units)
             _RETURN(_SUCCESS)
          end if
 
