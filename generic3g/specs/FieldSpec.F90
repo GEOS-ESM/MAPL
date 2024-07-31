@@ -45,7 +45,7 @@ module mapl3g_FieldSpec
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(UngriddedDims) :: ungridded_dims
       type(StringVector) :: attributes
-      type(EsmfRegridderParam), allocatable :: regrid_param
+      type(EsmfRegridderParam) :: regrid_param
 
       ! Metadata
       character(:), allocatable :: standard_name
@@ -114,9 +114,7 @@ module mapl3g_FieldSpec
 contains
 
 
-   function new_FieldSpec_geom( &
-        unusable, geom, &
-        vertical_geom, vertical_dim_spec, typekind, ungridded_dims, &
+   function new_FieldSpec_geom(unusable, geom, vertical_geom, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
         attributes, regrid_param, default_value) result(field_spec)
       type(FieldSpec) :: field_spec
@@ -136,6 +134,8 @@ contains
       ! optional args last
       real, optional, intent(in) :: default_value
 
+      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
+
       if (present(geom)) field_spec%geom = geom
       field_spec%vertical_geom = vertical_geom
       field_spec%vertical_dim_spec = vertical_dim_spec
@@ -146,11 +146,39 @@ contains
       if (present(long_name)) field_spec%long_name = long_name
       if (present(units)) field_spec%units = units
       if (present(attributes)) field_spec%attributes = attributes
+
+      ! regrid_param
+      field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
+      regrid_method = get_regrid_method_(field_spec%standard_name, _RC)
+      if (allocated(regrid_method)) then
+         field_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
+      end if
       if (present(regrid_param)) field_spec%regrid_param = regrid_param
+
       if (present(default_value)) field_spec%default_value = default_value
 
    end function new_FieldSpec_geom
 
+   function get_regrid_method_(stdname, rc) result(regrid_method)
+      character(len=*), allocatable, intent(in) :: stdname
+      integer, optional, intent(out) :: rc
+      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method ! result
+
+      character(len=*), parameter :: field_dictionary_file = "field_dictionary.yml"
+      type(FieldDictionary) :: field_dict
+      logical :: file_exists
+      integer :: status
+
+      if (allocated(stdname)) then
+         inquire(file=trim(field_dictionary_file), exist=file_exists)
+         if (file_exists) then
+            field_dict = FieldDictionary(filename=field_dictionary_yml, _RC)
+            regrid_method = field_dict%get_regrid_method(stdname_src)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+   end function get_regrid_method_
 
 !#   function new_FieldSpec_defaults(ungridded_dims, geom, units) result(field_spec)
 !#      type(FieldSpec) :: field_spec
@@ -594,37 +622,36 @@ contains
     end function make_extension_safely
 
    ! Return an atomic action that tranforms payload of "this"
-   ! to payload of "goal".
-   function make_action(this, dst_spec, rc) result(action)
+   ! to payload of "dst".
+   function make_action(this, dst, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(FieldSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), intent(in) :: dst
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       action = NullAction() ! default
 
-      select type (dst_spec)
+      select type (dst)
       type is (FieldSpec)
 
-         if (.not. MAPL_SameGeom(this%geom, dst_spec%geom)) then
+         if (.not. MAPL_SameGeom(this%geom, dst%geom)) then
             deallocate(action)
-            action = RegridAction( &
-                 this%standard_name, this%geom, this%payload, this%regrid_param, &
-                 dst_spec%standard_name, dst_spec%geom, dst_spec%payload, dst_spec%regrid_param)
+            _ASSERT(this%regrid_param == dst%regrid_param, "src param /= dst param")
+            action = RegridAction(this%geom, this%payload, dst%geom, dst%payload, dst%regrid_param)
             _RETURN(_SUCCESS)
          end if
 
-         if (this%typekind /= dst_spec%typekind) then
+         if (this%typekind /= dst%typekind) then
             deallocate(action)
-            action = CopyAction(this%payload, dst_spec%payload)
+            action = CopyAction(this%payload, dst%payload)
             _RETURN(_SUCCESS)
          end if
 
-         if (.not. match(this%units,dst_spec%units)) then
+         if (.not. match(this%units,dst%units)) then
             deallocate(action)
-            action = ConvertUnitsAction(this%payload, this%units, dst_spec%payload, dst_spec%units)
+            action = ConvertUnitsAction(this%payload, this%units, dst%payload, dst%units)
             _RETURN(_SUCCESS)
          end if
 
