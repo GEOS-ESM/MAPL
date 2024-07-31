@@ -839,18 +839,20 @@ contains
                                       label=trim(string) // 'quantize_algorithm:' ,_RC )
 
        ! Uppercase the algorithm string just to allow for any case
+       ! CF Conventions will prefer 'bitgroom', 'bitround', and 'granular_bitround'
+       ! but we will allow 'GranularBR' in MAPL2, deprecate it, and remove it in MAPL3
        uppercase_algorithm = ESMF_UtilStringUpperCase(list(n)%quantize_algorithm_string,_RC)
        select case (trim(uppercase_algorithm))
        case ('NONE')
           list(n)%quantize_algorithm = MAPL_Quantize_Disabled
        case ('BITGROOM')
           list(n)%quantize_algorithm = MAPL_Quantize_BitGroom
-       case ('GRANULARBR')
-          list(n)%quantize_algorithm = MAPL_Quantize_GranularBR
+       case ('GRANULARBR', 'GRANULAR_BITROUND')
+          list(n)%quantize_algorithm = MAPL_Quantize_Granular_BitRound
        case ('BITROUND')
           list(n)%quantize_algorithm = MAPL_Quantize_BitRound
        case default
-          _FAIL('Invalid quantize_algorithm. Allowed values are NONE, BitGroom, GranularBR, BitRound')
+          _FAIL('Invalid quantize_algorithm. Allowed values are NONE, bitgroom, granular_bitround, granularbr (deprecated), and bitround')
        end select
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_level, default=0, &

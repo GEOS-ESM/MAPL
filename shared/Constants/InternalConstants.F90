@@ -170,7 +170,7 @@ module MAPL_InternalConstantsMod
    enum, bind(c)
       enumerator MAPL_Quantize_Disabled
       enumerator MAPL_Quantize_BitGroom
-      enumerator MAPL_Quantize_GranularBR
+      enumerator MAPL_Quantize_Granular_BitRound
       enumerator MAPL_Quantize_BitRound
    endenum
    ! Constant masking

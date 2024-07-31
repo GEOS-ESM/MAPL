@@ -190,7 +190,6 @@ module MAPL_GriddedIOMod
         call this%timeInfo%add_time_to_metadata(this%metadata,rc=status)
         _VERIFY(status)
 
-        iter = this%items%begin()
         if (.not.allocated(this%chunking)) then
            call this%set_default_chunking(rc=status)
            _VERIFY(status)
@@ -198,11 +197,11 @@ module MAPL_GriddedIOMod
            call this%check_chunking(this%vdata%lm,_RC)
         end if
 
-
         order = this%metadata%get_order(rc=status)
         _VERIFY(status)
         metadataVarsSize = order%size()
 
+        iter = this%items%begin()
         do while (iter /= this%items%end())
            item => iter%get()
            if (item%itemType == ItemTypeScalar) then
@@ -423,6 +422,27 @@ module MAPL_GriddedIOMod
 #else
         call v%add_attribute('regrid_method', regrid_method_int_to_string(this%regrid_method))
 #endif
+        ! The CF Convention will soon support quantization. This requires three new attributes
+        ! if enabled:
+        ! 1. quantization --> Will point to a quantization_info containter with the quantization algorithm
+        ! 2a. quantization_nsb --> Number of significant bits (only for bitround)
+        ! 2b. quantization_nsd --> Number of significant digits (only for bitgroom and granular_bitgroom)
+        ! 3. quantization_maximum_relative_error --> Maximum relative error (defined as 2^(-nsb) for bitround, and UNDEFINED? for bitgroom and granular_bitgroom)
+
+        ! Bitround ==> 1
+        if (this%quantizeAlgorithm == 1) then
+           call v%add_attribute('quantization', 'quantization_info')
+           call v%add_attribute('quantization_nsb', this%quantizeLevel)
+           call v%add_attribute('quantization_maximum_relative_error', 0.5 * 2.0**(-this%quantizeLevel))
+        end if
+        ! granular_bitgroom ==> 2, bitgroom ==> 3
+        if (this%quantizeAlgorithm == 2 .or. this%quantizeAlgorithm == 3) then
+           call v%add_attribute('quantization', 'quantization_info')
+           call v%add_attribute('quantization_nsd', this%quantizeLevel)
+           ! For now, don't add this until we know what to do
+           !call v%add_attribute('quantization_maximum_relative_error', 0.5 * 2.0**(-this%quantizeLevel))
+        end if
+
         call factory%append_variable_metadata(v)
         call this%metadata%add_variable(trim(varName),v,rc=status)
         _VERIFY(status)
