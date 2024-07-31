@@ -3,6 +3,7 @@
 module mapl3g_ReexportConnection
    use mapl3g_StateItemSpec
    use mapl3g_ExtensionFamily
+   use mapl3g_Connection
    use mapl3g_ConnectionPt
    use mapl3g_StateRegistry
    use mapl3g_VirtualConnectionPt
