@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Added Fortran interface to UDUNITS2
 - Improve mask sampler by adding an MPI step and a LS_chunk (intermediate step)
 - Update Baselibs in CI to 7.25.0
   - NOTE: The docker image also updates to Intel 2024.2 and Intel MPI 2021.13
