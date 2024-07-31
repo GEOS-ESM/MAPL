@@ -166,12 +166,12 @@ module MAPL_InternalConstantsMod
 
    integer, parameter :: MAPL_NBITS_NOT_SET = 1000
    integer, parameter :: MAPL_NBITS_UPPER_LIMIT = 24
-   ! Constants for netCDF quantize
+   ! Constants for netCDF quantize (these echo the values in the netcdf-fortran library)
    enum, bind(c)
-      enumerator MAPL_Quantize_Disabled
-      enumerator MAPL_Quantize_BitGroom
-      enumerator MAPL_Quantize_Granular_BitRound
-      enumerator MAPL_Quantize_BitRound
+      enumerator MAPL_NOQUANTIZE
+      enumerator MAPL_QUANTIZE_BITGROOM
+      enumerator MAPL_QUANTIZE_GRANULAR_BITROUND
+      enumerator MAPL_QUANTIZE_BITROUND
    endenum
    ! Constant masking
    enum, bind(c)

@@ -28,7 +28,7 @@ module pFIO_VariableMod
       type (StringAttributeMap) :: attributes
       type (UnlimitedEntity) :: const_value
       integer :: deflation = 0 ! default no compression
-      integer :: quantize_algorithm = 0 ! default no quantize_algorithm
+      integer :: quantize_algorithm = 0 ! default no quantization
       integer :: quantize_level = 0 ! default no quantize_level
       integer, allocatable :: chunksizes(:)
    contains

@@ -51,7 +51,7 @@ module MAPL_GriddedIOMod
      type(VerticalData) :: vdata
      type(GriddedIOitemVector) :: items
      integer :: deflateLevel = 0
-     integer :: quantizeAlgorithm = 1
+     integer :: quantizeAlgorithm = MAPL_NOQUANTIZE
      integer :: quantizeLevel = 0
      integer, allocatable :: chunking(:)
      logical :: itemOrderAlphabetical = .true.
@@ -60,6 +60,7 @@ module MAPL_GriddedIOMod
      contains
         procedure :: CreateFileMetaData
         procedure :: CreateVariable
+        procedure :: CreateQuantizationInfo
         procedure :: modifyTime
         procedure :: modifyTimeIncrement
         procedure :: bundlePost
@@ -200,6 +201,12 @@ module MAPL_GriddedIOMod
         order = this%metadata%get_order(rc=status)
         _VERIFY(status)
         metadataVarsSize = order%size()
+
+        ! If quantize algorithm is set, create a quantization_info variable
+        if (this%quantizeAlgorithm /= MAPL_NOQUANTIZE) then
+           call this%CreateQuantizationInfo(rc=status)
+           _VERIFY(status)
+        end if
 
         iter = this%items%begin()
         do while (iter /= this%items%end())
@@ -424,23 +431,25 @@ module MAPL_GriddedIOMod
 #endif
         ! The CF Convention will soon support quantization. This requires three new attributes
         ! if enabled:
-        ! 1. quantization --> Will point to a quantization_info containter with the quantization algorithm
+        ! 1. quantization --> Will point to a quantization_info container with the quantization algorithm
+        !                     (NOTE: this will need to be programmatic when per-variable quantization is enabled)
         ! 2a. quantization_nsb --> Number of significant bits (only for bitround)
-        ! 2b. quantization_nsd --> Number of significant digits (only for bitgroom and granular_bitgroom)
-        ! 3. quantization_maximum_relative_error --> Maximum relative error (defined as 2^(-nsb) for bitround, and UNDEFINED? for bitgroom and granular_bitgroom)
+        ! 2b. quantization_nsd --> Number of significant digits (only for bitgroom and granular_bitround)
+        ! 3. quantization_maximum_relative_error --> Maximum relative error (defined as 2^(-nsb) for bitround, and UNDEFINED? for bitgroom and granular_bitround)
 
-        ! Bitround ==> 1
-        if (this%quantizeAlgorithm == 1) then
+        ! Bitround
+        if (this%quantizeAlgorithm == MAPL_QUANTIZE_BITROUND) then
            call v%add_attribute('quantization', 'quantization_info')
            call v%add_attribute('quantization_nsb', this%quantizeLevel)
            call v%add_attribute('quantization_maximum_relative_error', 0.5 * 2.0**(-this%quantizeLevel))
         end if
-        ! granular_bitgroom ==> 2, bitgroom ==> 3
-        if (this%quantizeAlgorithm == 2 .or. this%quantizeAlgorithm == 3) then
+        ! granular_bitround and bitgroom
+        if (this%quantizeAlgorithm == MAPL_QUANTIZE_BITGROOM .or. this%quantizeAlgorithm == MAPL_QUANTIZE_GRANULAR_BITROUND) then
            call v%add_attribute('quantization', 'quantization_info')
            call v%add_attribute('quantization_nsd', this%quantizeLevel)
            ! For now, don't add this until we know what to do
-           !call v%add_attribute('quantization_maximum_relative_error', 0.5 * 2.0**(-this%quantizeLevel))
+           ! Add something for testing
+           call v%add_attribute('quantization_maximum_relative_error', 0.5 * 10.0**(-this%quantizeLevel))
         end if
 
         call factory%append_variable_metadata(v)
@@ -461,6 +470,54 @@ module MAPL_GriddedIOMod
         _RETURN(_SUCCESS)
 
      end subroutine CreateVariable
+
+     subroutine CreateQuantizationInfo(this,rc)
+        class (MAPL_GriddedIO), intent(inout) :: this
+        integer, optional, intent(out) :: rc
+
+        integer :: status
+
+        class (AbstractGridFactory), pointer :: factory
+        character(len=:), allocatable :: varName
+        type(Variable) :: v
+
+        factory => get_factory(this%output_grid,rc=status)
+        _VERIFY(status)
+
+        v = Variable(type=PFIO_CHAR)
+
+        ! In the future when we can do per variable quantization, we will need
+        ! to do things like quantization_info1, quantization_info2, etc.
+        ! For now, we will just use quantization_info as it is per collection
+        varName = "quantization_info"
+
+        ! We need to convert the quantization algorithm to a string
+        select case (this%quantizeAlgorithm)
+        case (MAPL_QUANTIZE_BITGROOM)
+           call v%add_attribute('algorithm', 'bitgroom')
+        case (MAPL_QUANTIZE_BITROUND)
+           call v%add_attribute('algorithm', 'bitround')
+        case (MAPL_QUANTIZE_GRANULAR_BITROUND)
+           call v%add_attribute('algorithm', 'granular_bitround')
+        case default
+           _FAIL('Unknown quantization algorithm')
+        end select
+
+        ! Next add the implementation details
+        ! 3. implementation: This property contains free-form text
+        ! that concisely conveys the algorithm provenance, including the
+        ! name of the library or client that performed the quantization,
+        ! the software version, and the name of the author(s) if deemed
+        ! relevant.
+        call v%add_attribute('implementation', 'MAPL')
+
+        call factory%append_variable_metadata(v)
+        call this%metadata%add_variable(trim(varName),v,rc=status)
+        _VERIFY(status)
+
+        _RETURN(_SUCCESS)
+
+     end subroutine CreateQuantizationInfo
 
      subroutine modifyTime(this, oClients, rc)
         class(MAPL_GriddedIO), intent(inout) :: this

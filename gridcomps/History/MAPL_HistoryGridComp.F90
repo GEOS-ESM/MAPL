@@ -838,38 +838,34 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_algorithm_string, default='NONE', &
                                       label=trim(string) // 'quantize_algorithm:' ,_RC )
 
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_level, default=0, &
+                                      label=trim(string) // 'quantize_level:' ,_RC )
+
        ! Uppercase the algorithm string just to allow for any case
        ! CF Conventions will prefer 'bitgroom', 'bitround', and 'granular_bitround'
        ! but we will allow 'GranularBR' in MAPL2, deprecate it, and remove it in MAPL3
        uppercase_algorithm = ESMF_UtilStringUpperCase(list(n)%quantize_algorithm_string,_RC)
        select case (trim(uppercase_algorithm))
        case ('NONE')
-          list(n)%quantize_algorithm = MAPL_Quantize_Disabled
+          list(n)%quantize_algorithm = MAPL_NOQUANTIZE
+          ! If quantize_algorithm is 0, then quantize_level must be 0
+          _ASSERT( list(n)%quantize_level == 0, 'quantize_algorithm is none, so quantize_level must be "none"')
        case ('BITGROOM')
-          list(n)%quantize_algorithm = MAPL_Quantize_BitGroom
+          list(n)%quantize_algorithm = MAPL_QUANTIZE_BITGROOM
        case ('GRANULARBR', 'GRANULAR_BITROUND')
-          list(n)%quantize_algorithm = MAPL_Quantize_Granular_BitRound
+          list(n)%quantize_algorithm = MAPL_QUANTIZE_GRANULAR_BITROUND
        case ('BITROUND')
-          list(n)%quantize_algorithm = MAPL_Quantize_BitRound
+          list(n)%quantize_algorithm = MAPL_QUANTIZE_BITROUND
        case default
-          _FAIL('Invalid quantize_algorithm. Allowed values are NONE, bitgroom, granular_bitround, granularbr (deprecated), and bitround')
+          _FAIL('Invalid quantize_algorithm. Allowed values are none, bitgroom, granular_bitround, granularbr (deprecated), and bitround')
        end select
-
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_level, default=0, &
-                                      label=trim(string) // 'quantize_level:' ,_RC )
 
        ! If nbits_to_keep < MAPL_NBITS_UPPER_LIMIT (24) and quantize_algorithm greater than 0, then a user might be doing different
        ! shaving algorithms. We do not allow this
-       _ASSERT( .not. ( (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) .and. (list(n)%quantize_algorithm > 0) ), 'nbits < 24 and quantize_algorithm > 0 is not allowed. Choose one bit grooming method.')
-
-       ! quantize_algorithm must be between 0 and 3 where 0 means not enabled
-       _ASSERT( (list(n)%quantize_algorithm >= 0) .and. (list(n)%quantize_algorithm <= 3), 'quantize_algorithm must be between 0 and 3, where 0 means not enabled')
+       _ASSERT( .not. ( (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) .and. (list(n)%quantize_algorithm > MAPL_NOQUANTIZE) ), 'nbits < 24 and quantize_algorithm not "none" is not allowed. Choose a supported quantization method.')
 
        ! Now we test in the case that a valid quantize algorithm is chosen
-       if (list(n)%quantize_algorithm == 0) then
-         ! If quantize_algorithm is 0, then quantize_level must be 0
-          _ASSERT( list(n)%quantize_level == 0, 'quantize_algorithm is 0, so quantize_level must be 0')
-       else
+       if (list(n)%quantize_algorithm /= MAPL_NOQUANTIZE) then
          ! If quantize_algorithm is greater than 0, then quantize_level must be greater than or equal to 0
          _ASSERT( list(n)%quantize_level >= 0, 'netCDF quantize has been enabled, so quantize_level must be greater than or equal to 0')
        end if
