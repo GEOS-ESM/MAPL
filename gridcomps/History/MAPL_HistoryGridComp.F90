@@ -425,6 +425,7 @@ contains
     logical :: has_conservative_keyword, has_regrid_keyword
     integer :: create_mode
     character(len=:), allocatable :: uppercase_algorithm
+    character(len=2) :: tmpchar
 
 ! Begin
 !------
@@ -872,13 +873,15 @@ contains
 
        ! If a user has chosen MAPL_QUANTIZE_BITROUND, then we allow a maximum of 23 bits to be kept
        if (list(n)%quantize_algorithm == MAPL_QUANTIZE_BITROUND) then
-         _ASSERT( list(n)%quantize_level <= 23, 'netCDF bitround has been enabled, so number of significant bits (quantize_level) must be less than or equal to 23')
+          write(tmpchar, '(I2)') MAPL_QUANTIZE_MAX_NSB
+         _ASSERT( list(n)%quantize_level <= MAPL_QUANTIZE_MAX_NSB, 'netCDF bitround has been enabled, so number of significant bits (quantize_level) must be less than or equal to ' // trim(tmpchar))
        end if
 
        ! For MAPL_QUANTIZE_GRANULAR_BITROUND and MAPL_QUANTIZE_BITGROOM, these use number of
        ! significant digits, so for single precision, we allow a maximum of 7 digits to be kept
        if (list(n)%quantize_algorithm == MAPL_QUANTIZE_GRANULAR_BITROUND .or. list(n)%quantize_algorithm == MAPL_QUANTIZE_BITGROOM) then
-         _ASSERT( list(n)%quantize_level <= 7, 'netCDF granular bitround or bitgroom has been enabled, so number of significant digits (quantize_level) must be less than or equal to 7')
+          write(tmpchar, '(I2)') MAPL_QUANTIZE_MAX_NSD
+         _ASSERT( list(n)%quantize_level <= MAPL_QUANTIZE_MAX_NSD, 'netCDF granular bitround or bitgroom has been enabled, so number of significant digits (quantize_level) must be less than or equal to ' // trim(tmpchar))
        end if
 
        tm_default = -1

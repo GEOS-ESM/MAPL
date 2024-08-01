@@ -173,6 +173,10 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_QUANTIZE_GRANULAR_BITROUND
       enumerator MAPL_QUANTIZE_BITROUND
    endenum
+   ! Maximum number of significant digits for quantization (bitgroom, granular_bitround)
+   integer, parameter :: MAPL_QUANTIZE_MAX_NSD = 7
+   ! Maximum number of significant bits for quantization (bitround)
+   integer, parameter :: MAPL_QUANTIZE_MAX_NSB = 23
    ! Constant masking
    enum, bind(c)
       enumerator MAPL_MASK_OUT

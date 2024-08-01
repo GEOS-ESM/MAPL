@@ -485,12 +485,9 @@ module MAPL_GriddedIOMod
 
         mae_base = 4.0 * (1.0/16.0)**floor(real(nsd)/2.0) * (1.0/8.0)**ceiling(real(nsd)/2.0)
 
-        if (nsd > 2 .and. mod(nsd, 2) == 0) then
+        correction = 1
+        if ( (nsd > 2 .and. mod(nsd, 2) == 0) .or. nsd == 7 ) then
            correction = 2
-        else if (nsd == 7) then
-           correction = 2
-        else
-           correction = 1
         end if
 
         mae = mae_base * correction
