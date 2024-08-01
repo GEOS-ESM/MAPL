@@ -479,7 +479,6 @@ module MAPL_GriddedIOMod
         ! This function is based on Table 3 of doi 10.5194/gmd-12-4099-2019
         ! The algorithm is weird, but it does duplicate the table
 
-        implicit none
         integer, intent(in) :: nsd
         real(kind=REAL32) :: mae
         real(kind=REAL32) :: mae_base
