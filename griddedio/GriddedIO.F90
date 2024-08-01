@@ -507,8 +507,7 @@ module MAPL_GriddedIOMod
         character(len=:), allocatable :: varName, netcdf_version
         type(Variable) :: v
 
-        factory => get_factory(this%output_grid,rc=status)
-        _VERIFY(status)
+        factory => get_factory(this%output_grid,_RC)
 
         v = Variable(type=PFIO_CHAR)
 
