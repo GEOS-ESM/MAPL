@@ -1,5 +1,8 @@
 module mapl3g_FieldDictionaryItem
+
    use gftl2_StringVector
+   use esmf
+
    implicit none
    private
 
@@ -9,15 +12,14 @@ module mapl3g_FieldDictionaryItem
       private
       character(:), allocatable :: long_name
       character(:), allocatable :: canonical_units
+      type(ESMF_RegridMethod_Flag) :: regrid_method
       type(StringVector) :: aliases
 !!$      character(:), allocatable :: physical_dimensions
-
    contains
-
       procedure :: get_long_name
       procedure :: get_units
       procedure :: get_aliases
-      
+      procedure :: get_regrid_method
    end type FieldDictionaryItem
 
    !************************
@@ -33,9 +35,7 @@ module mapl3g_FieldDictionaryItem
       module procedure new_FieldDictionaryItem_vector
    end interface
 
-
 contains
-
 
    function new_FieldDictionaryItem_(long_name, canonical_units) result(item)
       type(FieldDictionaryItem) :: item
@@ -81,13 +81,12 @@ contains
 
       item%long_name = long_name
       item%canonical_units = canonical_units
+      item%regrid_method = ESMF_REGRIDMETHOD_BILINEAR
       item%aliases = aliases
       
    end function new_FieldDictionaryItem_vector
 
-
    ! accessors
-
 
    pure function get_long_name(this) result(long_name)
       character(len=:), allocatable :: long_name
@@ -106,5 +105,11 @@ contains
       class(FieldDictionaryItem), intent(in) :: this
       aliases = this%aliases
    end function get_aliases
+
+   pure function get_regrid_method(this) result(regrid_method)
+      type(ESMF_RegridMethod_Flag) :: regrid_method
+      class(FieldDictionaryItem), intent(in) :: this
+      regrid_method = this%regrid_method
+   end function get_regrid_method
 
 end module mapl3g_FieldDictionaryItem
