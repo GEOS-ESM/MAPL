@@ -547,8 +547,7 @@ module MAPL_GriddedIOMod
         ! need a different implementation string
 
         call factory%append_variable_metadata(v)
-        call this%metadata%add_variable(trim(varName),v,rc=status)
-        _VERIFY(status)
+        call this%metadata%add_variable(trim(varName),v,_RC)
 
         _RETURN(_SUCCESS)
 
