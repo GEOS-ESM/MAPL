@@ -205,8 +205,7 @@ module MAPL_GriddedIOMod
 
         ! If quantize algorithm is set, create a quantization_info variable
         if (this%quantizeAlgorithm /= MAPL_NOQUANTIZE) then
-           call this%CreateQuantizationInfo(rc=status)
-           _VERIFY(status)
+           call this%CreateQuantizationInfo(_RC)
         end if
 
         iter = this%items%begin()
