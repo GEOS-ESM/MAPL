@@ -224,10 +224,10 @@ contains
    end function get_standard_name
 
    function get_regrid_method(this, standard_name, rc) result(regrid_method)
+      type(ESMF_RegridMethod_Flag) :: regrid_method
       class(FieldDictionary), target, intent(in) :: this
       character(*), intent(in) :: standard_name
       integer, optional, intent(out) :: rc
-      type(ESMF_RegridMethod_Flag) :: regrid_method ! result
 
       type(FieldDictionaryItem), pointer :: item
       integer :: status

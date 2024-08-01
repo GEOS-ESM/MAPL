@@ -160,9 +160,9 @@ contains
    end function new_FieldSpec_geom
 
    function get_regrid_method_(stdname, rc) result(regrid_method)
+      type(ESMF_RegridMethod_Flag) :: regrid_method
       character(:), allocatable, intent(in) :: stdname
       integer, optional, intent(out) :: rc
-      type(ESMF_RegridMethod_Flag) :: regrid_method ! result
 
       character(len=*), parameter :: field_dictionary_file = "field_dictionary.yml"
       type(FieldDictionary) :: field_dict

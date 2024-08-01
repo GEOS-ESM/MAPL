@@ -107,8 +107,8 @@ contains
    end function get_aliases
 
    pure function get_regrid_method(this) result(regrid_method)
+      type(ESMF_RegridMethod_Flag) :: regrid_method
       class(FieldDictionaryItem), intent(in) :: this
-      type(ESMF_RegridMethod_Flag) :: regrid_method ! result
       regrid_method = this%regrid_method
    end function get_regrid_method
 
