@@ -449,7 +449,7 @@ module MAPL_GriddedIOMod
            call v%add_attribute('quantization', 'quantization_info')
            call v%add_attribute('quantization_nsd', this%quantizeLevel)
            ! Per czender, these have maximum_absolute_error. We use the calculate_mae function below
-           ! which replicates a table in doi:10.5194/gmd-12-4099-2019
+           ! which replicates a table in doi 10.5194/gmd-12-4099-2019
            ! NOTE: This might not be the right formula. As the CF Convention draft is updated,
            ! we will update this code.
            call v%add_attribute('quantization_maximum_absolute_error', calculate_mae(this%quantizeLevel))
@@ -476,7 +476,7 @@ module MAPL_GriddedIOMod
 
      function calculate_mae(nsd) result(mae)
 
-        ! This function is based on Table 3 of doi:10.5194/gmd-12-4099-2019
+        ! This function is based on Table 3 of doi 10.5194/gmd-12-4099-2019
         ! The algorithm is weird, but it does duplicate the table
 
         implicit none
