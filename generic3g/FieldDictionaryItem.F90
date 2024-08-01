@@ -35,9 +35,7 @@ module mapl3g_FieldDictionaryItem
       module procedure new_FieldDictionaryItem_vector
    end interface
 
-
 contains
-
 
    function new_FieldDictionaryItem_(long_name, canonical_units) result(item)
       type(FieldDictionaryItem) :: item
@@ -83,6 +81,7 @@ contains
 
       item%long_name = long_name
       item%canonical_units = canonical_units
+      item%regrid_method = ESMF_REGRIDMETHOD_BILINEAR
       item%aliases = aliases
       
    end function new_FieldDictionaryItem_vector
@@ -109,10 +108,8 @@ contains
 
    pure function get_regrid_method(this) result(regrid_method)
       class(FieldDictionaryItem), intent(in) :: this
-      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method ! result
-      if (allocated(this%regrid_method)) then
-         allocate(regrid_method, source=this%regrid_method)
-      end if
+      type(ESMF_RegridMethod_Flag) :: regrid_method ! result
+      regrid_method = this%regrid_method
    end function get_regrid_method
 
 end module mapl3g_FieldDictionaryItem

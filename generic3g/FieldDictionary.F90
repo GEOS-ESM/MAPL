@@ -227,7 +227,7 @@ contains
       class(FieldDictionary), target, intent(in) :: this
       character(*), intent(in) :: standard_name
       integer, optional, intent(out) :: rc
-      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method ! result
+      type(ESMF_RegridMethod_Flag) :: regrid_method ! result
 
       type(FieldDictionaryItem), pointer :: item
       integer :: status

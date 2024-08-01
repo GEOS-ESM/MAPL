@@ -164,18 +164,19 @@ contains
    function get_regrid_method_(stdname, rc) result(regrid_method)
       character(:), allocatable, intent(in) :: stdname
       integer, optional, intent(out) :: rc
-      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method ! result
+      type(ESMF_RegridMethod_Flag) :: regrid_method ! result
 
       character(len=*), parameter :: field_dictionary_file = "field_dictionary.yml"
       type(FieldDictionary) :: field_dict
       logical :: file_exists
       integer :: status
 
+      regrid_method = ESMF_REGRIDMETHOD_BILINEAR
       if (allocated(stdname)) then
          inquire(file=trim(field_dictionary_file), exist=file_exists)
          if (file_exists) then
             field_dict = FieldDictionary(filename=field_dictionary_file, _RC)
-            regrid_method = field_dict%get_regrid_method(stdname)
+            regrid_method = field_dict%get_regrid_method(stdname, _RC)
          end if
       end if
 
@@ -624,7 +625,7 @@ contains
     end function make_extension_safely
 
    ! Return an atomic action that tranforms payload of "this"
-   ! to payload of "dst".
+   ! to payload of "dst_spec".
    function make_action(this, dst_spec, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(FieldSpec), intent(in) :: this
