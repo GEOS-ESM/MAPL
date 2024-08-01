@@ -1,12 +1,11 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-module Test_Registry
-!#   use mapl3g_AbstractRegistry
+module Test_StateRegistry
    use mapl3g_StateItemSpec
    use mapl3g_StateItemExtension
    use mapl3g_StateItemExtensionPtrVector
-   use mapl3g_Registry
+   use mapl3g_StateRegistry
    use mapl3g_MultiState
    use mapl3g_ConnectionPt
    use mapl3g_VirtualConnectionPt
@@ -27,11 +26,11 @@ contains
    ! Simple bootstrap test to get the implementation started.
    @test
    subroutine test_add_virtual_pt()
-      type(Registry) :: r
+      type(StateRegistry) :: r
       type(VirtualConnectionPt) :: x
       integer :: status
 
-      r = Registry('A')
+      r = StateRegistry('A')
       x = VirtualConnectionPt(state_intent='import', short_name='x')
       @assert_that(r%has_virtual_pt(x), is(false()))
       call r%add_virtual_pt(x, _RC)
@@ -46,14 +45,14 @@ contains
    ! component, but may also be an item in a substate for propagated
    ! imports and exports.
    subroutine test_add_primary_spec()
-      type(Registry), target :: r
+      type(StateRegistry), target :: r
       type(VirtualConnectionPt) :: x
       integer :: status
       type(ExtensionFamily), pointer :: family
       type(StateItemExtension), pointer :: primary
       class(StateItemSpec), pointer :: spec
 
-      r = Registry('A')
+      r = StateRegistry('A')
       x = VirtualConnectionPt(state_intent='import', short_name='x')
 
       call r%add_primary_spec(x, MockItemSpec('x'), _RC)
@@ -79,7 +78,7 @@ contains
    ! other entry.  This tests verifies that the count of items goes up
    ! with each requested addition.
    subroutine test_add_extension_spec()
-      type(Registry), target :: r
+      type(StateRegistry), target :: r
       type(VirtualConnectionPt) :: x
       integer :: status
       type(ExtensionFamily), pointer :: family
@@ -88,7 +87,7 @@ contains
       type(StateItemExtension), pointer :: extension
       type(StateItemExtensionPtrVector) :: extensions
 
-      r = Registry('A')
+      r = StateRegistry('A')
       x = VirtualConnectionPt(state_intent='import', short_name='x')
       call r%add_virtual_pt(x, _RC)
 
@@ -131,12 +130,12 @@ contains
    ! by the registry.  Linked from some other registry.
    @test
    subroutine test_link_extension()
-      type(Registry), target :: r
+      type(StateRegistry), target :: r
       type(VirtualConnectionPt) :: x
       integer :: status
       type(StateItemExtension), target :: extension
 
-      r = Registry('A')
+      r = StateRegistry('A')
       x = VirtualConnectionPt(state_intent='import', short_name='x')
       call r%add_virtual_pt(x, _RC)
 
@@ -147,7 +146,7 @@ contains
    end subroutine test_link_extension
 
    subroutine test_link_extension_spec()
-      type(Registry), target :: r
+      type(StateRegistry), target :: r
       type(VirtualConnectionPt) :: x
       integer :: status
       type(ExtensionFamily), pointer :: family
@@ -158,7 +157,7 @@ contains
       type(StateItemExtension), target :: ext_x, ext_y
       type(StateItemExtension), pointer :: ext
 
-      r = Registry('A')
+      r = StateRegistry('A')
       x = VirtualConnectionPt(state_intent='import', short_name='x')
       call r%add_virtual_pt(x, _RC)
 
@@ -203,12 +202,12 @@ contains
 
    @test
    subroutine test_get_subregistry()
-      type(Registry), target :: child_registry
-      type(Registry), target :: r
-      class(Registry), pointer :: ptr
+      type(StateRegistry), target :: child_registry
+      type(StateRegistry), target :: r
+      class(StateRegistry), pointer :: ptr
       
-      r = Registry('parent')
-      child_registry = Registry('child')
+      r = StateRegistry('parent')
+      child_registry = StateRegistry('child')
       call r%add_subregistry(child_registry)
 
       ptr => r%get_subregistry('child')
@@ -231,13 +230,13 @@ contains
    ! 1. Not owned by parent
    ! 2. Not primary in parent
    subroutine test_propagate_import()
-      type(Registry), target :: r_child, r_parent
+      type(StateRegistry), target :: r_child, r_parent
       integer :: status
       type(VirtualConnectionPt) :: v_pt
       type(ExtensionFamily), pointer :: family
 
-      r_parent = Registry('parent')
-      r_child = Registry('child')
+      r_parent = StateRegistry('parent')
+      r_child = StateRegistry('child')
       call r_parent%add_subregistry(r_child)
 
       v_pt = VirtualConnectionPt(state_intent='import', short_name='T')
@@ -256,13 +255,13 @@ contains
    ! Verify that unsatisfied import is propagated to parent
    ! even when parent also has same named import.
    subroutine test_propagate_duplicate_import()
-      type(Registry), target :: r_child, r_parent
+      type(StateRegistry), target :: r_child, r_parent
       integer :: status
       type(VirtualConnectionPt) :: v_pt
       type(ExtensionFamily), pointer :: family
 
-      r_parent = Registry('parent')
-      r_child = Registry('child')
+      r_parent = StateRegistry('parent')
+      r_child = StateRegistry('child')
       call r_parent%add_subregistry(r_child)
 
       v_pt = VirtualConnectionPt(state_intent='import', short_name='T')
@@ -283,13 +282,13 @@ contains
    @test
    ! Verify that _satisfied_ import is not propagated to parent.
    subroutine test_do_not_propagate_satisfied_import()
-      type(Registry), target :: r_child, r_parent
+      type(StateRegistry), target :: r_child, r_parent
       integer :: status
       type(VirtualConnectionPt) :: v_pt
       type(MockItemSpec), target :: spec
       
-      r_parent = Registry('parent')
-      r_child = Registry('child')
+      r_parent = StateRegistry('parent')
+      r_child = StateRegistry('child')
       call r_parent%add_subregistry(r_child)
 
       v_pt = VirtualConnectionPt(state_intent='import', short_name='T')
@@ -306,13 +305,13 @@ contains
    @test
    ! Verify that exports are not propagated to parent.
    subroutine test_do_not_propagate_export_as_import()
-      type(Registry), target :: r_child, r_parent
+      type(StateRegistry), target :: r_child, r_parent
       integer :: status
       type(VirtualConnectionPt) :: v_pt
       type(MockItemSpec), target :: spec
       
-      r_parent = Registry('parent')
-      r_child = Registry('child')
+      r_parent = StateRegistry('parent')
+      r_child = StateRegistry('child')
       call r_parent%add_subregistry(r_child)
 
       v_pt = VirtualConnectionPt(state_intent='export', short_name='T')
@@ -327,13 +326,13 @@ contains
 
    @test
    subroutine test_propagate_export()
-      type(Registry), target :: r_child, r_parent
+      type(StateRegistry), target :: r_child, r_parent
       integer :: status
       type(VirtualConnectionPt) :: v_pt, new_v_pt
       type(ExtensionFamily), pointer :: family
       
-      r_parent = Registry('parent')
-      r_child = Registry('child')
+      r_parent = StateRegistry('parent')
+      r_child = StateRegistry('child')
       call r_parent%add_subregistry(r_child)
 
       v_pt = VirtualConnectionPt(state_intent='export', short_name='T')
@@ -351,12 +350,12 @@ contains
 
    @test
    subroutine test_do_not_propagate_import()
-      type(Registry), target :: r_child, r_parent
+      type(StateRegistry), target :: r_child, r_parent
       integer :: status
       type(VirtualConnectionPt) :: v_pt, new_v_pt
       
-      r_parent = Registry('parent')
-      r_child = Registry('child')
+      r_parent = StateRegistry('parent')
+      r_child = StateRegistry('child')
       call r_parent%add_subregistry(r_child)
 
       v_pt = VirtualConnectionPt(state_intent='import', short_name='T')
@@ -375,16 +374,16 @@ contains
    ! under-theshood, and thus needs a proper vm.
    subroutine test_connect(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(Registry) :: r
-      type(Registry), target :: r_A, r_B ! child registries
+      type(StateRegistry) :: r
+      type(StateRegistry), target :: r_A, r_B ! child registries
       type(VirtualConnectionPt) :: cp_A, cp_B
       type(SimpleConnection) :: conn
       type(ExtensionFamily), pointer :: family
       integer :: status
 
-      r = Registry('P')
-      r_a = Registry('child_A')
-      r_b = Registry('child_B')
+      r = StateRegistry('P')
+      r_a = StateRegistry('child_A')
+      r_b = StateRegistry('child_B')
       call r%add_subregistry(r_a)
       call r%add_subregistry(r_b)
 
@@ -395,8 +394,7 @@ contains
       call r_b%add_primary_spec(cp_B, MockItemSpec('AI'))
 
       conn = SimpleConnection(CP('child_A', cp_A), CP('child_B', cp_B))
-      call r%add_connection(conn, rc=status)
-      @assert_that(status, is(0))
+      call conn%connect(r, _RC)
 
       ! Check that extension was created
       family => r_a%get_extension_family(cp_A, _RC)
@@ -410,16 +408,16 @@ contains
    subroutine test_add_to_state(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(Registry), target :: r
-      type(Registry), target :: r_A ! child registry
+      type(StateRegistry), target :: r
+      type(StateRegistry), target :: r_A ! child registry
       type(VirtualConnectionPt) :: cp_e1, cp_e2
       type(VirtualConnectionPt) :: cp_i1, cp_i2
       integer :: status
       type(MultiState) :: user_states, outer_states
       type(ESMF_Info) :: info
 
-      r = Registry('P')
-      r_a = Registry('child_A')
+      r = StateRegistry('P')
+      r_a = StateRegistry('child_A')
       call r%add_subregistry(r_a)
 
       cp_e1 = VirtualConnectionPt(state_intent='export', short_name='e1')
@@ -459,9 +457,9 @@ contains
       call ESMF_InfoGetFromHost(outer_states%importstate, info, _RC)
       @assert_that(ESMF_InfoIsPresent(info, 'i2'), is(true()))
       @assert_that(ESMF_InfoIsPresent(info, 'i1'), is(true()))
-      @assert_that(ESMF_InfoIsPresent(info, 'i1(2)'), is(true()))
+      @assert_that(ESMF_InfoIsPresent(info, 'i1(1)'), is(true()))
 
       _UNUSED_DUMMY(this)
    end subroutine test_add_to_state
 
-end module Test_Registry
+end module Test_StateRegistry

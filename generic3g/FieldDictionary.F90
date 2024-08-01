@@ -13,12 +13,14 @@
 ! as to which entry a short name is referring.
 
 module mapl3g_FieldDictionary
+
    use esmf
    use mapl_ErrorHandling
    use gftl2_StringVector
    use gftl2_StringStringMap
    use mapl3g_FieldDictionaryItem
    use mapl3g_FieldDictionaryItemMap
+
    implicit none
    private
 
@@ -29,17 +31,15 @@ module mapl3g_FieldDictionary
       type(FieldDictionaryItemMap) :: entries
       type(StringStringMap) :: alias_map  ! For efficiency
    contains
-
       procedure :: add_item
       procedure :: add_aliases
-
       ! accessors
       procedure :: get_item   ! returns a pointer
       procedure :: get_units
       procedure :: get_long_name
       procedure :: get_standard_name
+      procedure :: get_regrid_method
       procedure :: size
-
    end type FieldDictionary
 
    interface FieldDictionary
@@ -55,7 +55,7 @@ contains
       integer, optional, intent(out) :: rc
 
       type(ESMF_HConfig), target :: node
-      type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
+      type(ESMF_HConfigIter) :: hconfigIter, hconfigIterBegin, hconfigIterEnd
       integer :: status
       character(:), allocatable :: standard_name
       type(FieldDictionaryItem) :: item
@@ -88,7 +88,6 @@ contains
       _RETURN(_SUCCESS)
 
    contains
-
 
       function to_item(item_node, rc) result(item)
          type(FieldDictionaryItem) :: item
@@ -149,7 +148,6 @@ contains
       type(StringVector), intent(in) :: aliases
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(StringVectorIterator) :: iter
       character(:), pointer :: alias
 
@@ -166,7 +164,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_aliases
       
-
    ! This accessor returns a copy for safety reasons.  Returning a
    ! pointer would be more efficient, but it would allow client code
    ! to modify the dictionary.
@@ -183,7 +180,6 @@ contains
       _RETURN(_SUCCESS)
    end function get_item
 
-
    function get_units(this, standard_name, rc) result(canonical_units)
       character(:), allocatable :: canonical_units
       class(FieldDictionary), target, intent(in) :: this
@@ -198,7 +194,6 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_units
-
 
    function get_long_name(this, standard_name, rc) result(long_name)
       character(:), allocatable :: long_name
@@ -215,7 +210,6 @@ contains
       _RETURN(_SUCCESS)
    end function get_long_name
 
-
    function get_standard_name(this, alias, rc) result(standard_name)
       character(:), allocatable :: standard_name
       class(FieldDictionary), target, intent(in) :: this
@@ -229,11 +223,24 @@ contains
       _RETURN(_SUCCESS)
    end function get_standard_name
 
+   function get_regrid_method(this, standard_name, rc) result(regrid_method)
+      type(ESMF_RegridMethod_Flag) :: regrid_method
+      class(FieldDictionary), target, intent(in) :: this
+      character(*), intent(in) :: standard_name
+      integer, optional, intent(out) :: rc
+
+      type(FieldDictionaryItem), pointer :: item
+      integer :: status
+
+      item => this%entries%at(standard_name, _RC)
+      regrid_method = item%get_regrid_method()
+
+      _RETURN(_SUCCESS)
+   end function get_regrid_method
 
    integer function size(this)
       class(FieldDictionary), intent(in) :: this
       size = this%entries%size()
    end function size
-
    
 end module mapl3g_FieldDictionary

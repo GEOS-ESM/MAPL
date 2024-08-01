@@ -8,15 +8,14 @@ target_sources(MAPL.generic3g PRIVATE
   ActualPtStateItemSpecMap.F90
   StateItemVector.F90
 
-  AbstractRegistry.F90
   RegistryPtr.F90
   RegistryPtrMap.F90
   ActualPtVector.F90
   ActualPtSpecPtrMap.F90
   ActualPtVec_Map.F90
-  HierarchicalRegistry.F90
 
-  Registry.F90
+  AbstractRegistry.F90
+  StateRegistry.F90
   StateItemExtension.F90
   StateItemExtensionVector.F90
   StateItemExtensionPtrVector.F90

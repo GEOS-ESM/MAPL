@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_FieldSpec
+
    use mapl3g_StateItemSpec
    use mapl3g_UngriddedDims
    use mapl3g_ActualConnectionPt
@@ -18,10 +19,12 @@ module mapl3g_FieldSpec
    use mapl3g_NullAction
    use mapl3g_CopyAction
    use mapl3g_RegridAction
+   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_ConvertUnitsAction
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use mapl3g_LU_Bound
    use mapl3g_geom_mgr, only: MAPL_SameGeom
+   use mapl3g_FieldDictionary
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -34,6 +37,7 @@ module mapl3g_FieldSpec
    public :: new_FieldSpec_geom
 
    type, extends(StateItemSpec) :: FieldSpec
+
       private
 
       type(ESMF_Geom), allocatable :: geom
@@ -42,6 +46,7 @@ module mapl3g_FieldSpec
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(UngriddedDims) :: ungridded_dims
       type(StringVector) :: attributes
+      type(EsmfRegridderParam) :: regrid_param
 
       ! Metadata
       character(:), allocatable :: standard_name
@@ -56,6 +61,7 @@ module mapl3g_FieldSpec
       real, allocatable :: default_value
 
    contains
+
       procedure :: create
       procedure :: destroy
       procedure :: allocate
@@ -111,7 +117,7 @@ contains
 
    function new_FieldSpec_geom(unusable, geom, vertical_geom, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
-        attributes, default_value) result(field_spec)
+        attributes, regrid_param, default_value) result(field_spec)
       type(FieldSpec) :: field_spec
 
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -120,14 +126,17 @@ contains
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       type(UngriddedDims), intent(in) :: ungridded_dims
-
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
       type(StringVector), optional, intent(in) :: attributes
+      type(EsmfRegridderParam), optional, intent(in) :: regrid_param
 
       ! optional args last
       real, optional, intent(in) :: default_value
+
+      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
+      integer :: status
 
       if (present(geom)) field_spec%geom = geom
       field_spec%vertical_geom = vertical_geom
@@ -139,10 +148,38 @@ contains
       if (present(long_name)) field_spec%long_name = long_name
       if (present(units)) field_spec%units = units
       if (present(attributes)) field_spec%attributes = attributes
+
+      ! regrid_param
+      field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
+      regrid_method = get_regrid_method_(field_spec%standard_name)
+      field_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
+      if (present(regrid_param)) field_spec%regrid_param = regrid_param
+
       if (present(default_value)) field_spec%default_value = default_value
 
    end function new_FieldSpec_geom
 
+   function get_regrid_method_(stdname, rc) result(regrid_method)
+      type(ESMF_RegridMethod_Flag) :: regrid_method
+      character(:), allocatable, intent(in) :: stdname
+      integer, optional, intent(out) :: rc
+
+      character(len=*), parameter :: field_dictionary_file = "field_dictionary.yml"
+      type(FieldDictionary) :: field_dict
+      logical :: file_exists
+      integer :: status
+
+      regrid_method = ESMF_REGRIDMETHOD_BILINEAR ! default value
+      if (allocated(stdname)) then
+         inquire(file=trim(field_dictionary_file), exist=file_exists)
+         if (file_exists) then
+            field_dict = FieldDictionary(filename=field_dictionary_file, _RC)
+            regrid_method = field_dict%get_regrid_method(stdname, _RC)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+   end function get_regrid_method_
 
 !#   function new_FieldSpec_defaults(ungridded_dims, geom, units) result(field_spec)
 !#      type(FieldSpec) :: field_spec
@@ -586,7 +623,7 @@ contains
     end function make_extension_safely
 
    ! Return an atomic action that tranforms payload of "this"
-   ! to payload of "goal".
+   ! to payload of "dst_spec".
    function make_action(this, dst_spec, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(FieldSpec), intent(in) :: this
@@ -602,7 +639,8 @@ contains
 
          if (.not. MAPL_SameGeom(this%geom, dst_spec%geom)) then
             deallocate(action)
-            action = RegridAction(this%geom, this%payload, dst_spec%geom, dst_spec%payload)
+            _ASSERT(this%regrid_param == dst_spec%regrid_param, "src param /= dst param")
+            action = RegridAction(this%geom, this%payload, dst_spec%geom, dst_spec%payload, dst_spec%regrid_param)
             _RETURN(_SUCCESS)
          end if
 

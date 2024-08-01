@@ -30,9 +30,9 @@
 #endif
 
 
-#define _DECLARE_WRAPPER(T) \
+#define _DECLARE_WRAPPER(T)  \
   type :: PrivateWrapper;    \
-  type(T), pointer :: ptr;   \
+    type(T), pointer :: ptr; \
   end type PrivateWrapper
 
 

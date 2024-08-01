@@ -6,7 +6,7 @@ submodule (mapl3g_OuterMetaComponent) read_restart_smod
 contains
 
    module recursive subroutine read_restart(this, importState, exportState, clock, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
@@ -27,7 +27,7 @@ contains
       driver => this%get_user_gc_driver()
       name = driver%get_name()
       ! TODO: Need a better way of identifying a gridcomp that reads a restart
-      if ((name /= "cap") .and. (name /= "HIST")) then
+      if ((name /= "cap") .and. (name /= "HIST") .and. (name /= "EXTDATA")) then
          gc = driver%get_gridcomp()
          geom = this%get_geom()
          states = driver%get_states()
