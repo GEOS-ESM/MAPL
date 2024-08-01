@@ -870,6 +870,17 @@ contains
          _ASSERT( list(n)%quantize_level >= 0, 'netCDF quantize has been enabled, so quantize_level must be greater than or equal to 0')
        end if
 
+       ! If a user has chosen MAPL_QUANTIZE_BITROUND, then we allow a maximum of 23 bits to be kept
+       if (list(n)%quantize_algorithm == MAPL_QUANTIZE_BITROUND) then
+         _ASSERT( list(n)%quantize_level <= 23, 'netCDF bitround has been enabled, so number of significant bits (quantize_level) must be less than or equal to 23')
+       end if
+
+       ! For MAPL_QUANTIZE_GRANULAR_BITROUND and MAPL_QUANTIZE_BITGROOM, these use number of
+       ! significant digits, so for single precision, we allow a maximum of 7 digits to be kept
+       if (list(n)%quantize_algorithm == MAPL_QUANTIZE_GRANULAR_BITROUND .or. list(n)%quantize_algorithm == MAPL_QUANTIZE_BITGROOM) then
+         _ASSERT( list(n)%quantize_level <= 7, 'netCDF granular bitround or bitgroom has been enabled, so number of significant digits (quantize_level) must be less than or equal to 7')
+       end if
+
        tm_default = -1
        call ESMF_ConfigGetAttribute ( cfg, list(n)%tm, default=tm_default, &
                                       label=trim(string) // 'tm:', _RC )

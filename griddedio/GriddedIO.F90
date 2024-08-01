@@ -26,6 +26,7 @@ module MAPL_GriddedIOMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   use ieee_arithmetic, only: isnan => ieee_is_nan
+  use netcdf, only: nf90_inq_libvers
   implicit none
 
   private
@@ -447,9 +448,11 @@ module MAPL_GriddedIOMod
         if (this%quantizeAlgorithm == MAPL_QUANTIZE_BITGROOM .or. this%quantizeAlgorithm == MAPL_QUANTIZE_GRANULAR_BITROUND) then
            call v%add_attribute('quantization', 'quantization_info')
            call v%add_attribute('quantization_nsd', this%quantizeLevel)
-           ! For now, don't add this until we know what to do
-           ! Add something for testing
-           call v%add_attribute('quantization_maximum_relative_error', 0.5 * 10.0**(-this%quantizeLevel))
+           ! Per czender, these have maximum_absolute_error. We use the calculate_mae function below
+           ! which replicates a table in doi:10.5194/gmd-12-4099-2019
+           ! NOTE: This might not be the right formula. As the CF Convention draft is updated,
+           ! we will update this code.
+           call v%add_attribute('quantization_maximum_absolute_error', calculate_mae(this%quantizeLevel))
         end if
 
         call factory%append_variable_metadata(v)
@@ -471,6 +474,30 @@ module MAPL_GriddedIOMod
 
      end subroutine CreateVariable
 
+     function calculate_mae(nsd) result(mae)
+
+        ! This function is based on Table 3 of doi:10.5194/gmd-12-4099-2019
+        ! The algorithm is weird, but it does duplicate the table
+
+        implicit none
+        integer, intent(in) :: nsd
+        real(kind=REAL32) :: mae
+        real(kind=REAL32) :: mae_base
+        integer :: correction
+
+        mae_base = 4.0 * (1.0/16.0)**floor(real(nsd)/2.0) * (1.0/8.0)**ceiling(real(nsd)/2.0)
+
+        if (nsd > 2 .and. mod(nsd, 2) == 0) then
+           correction = 2
+        else if (nsd == 7) then
+           correction = 2
+        else
+           correction = 1
+        end if
+
+        mae = mae_base * correction
+     end function calculate_mae
+
      subroutine CreateQuantizationInfo(this,rc)
         class (MAPL_GriddedIO), intent(inout) :: this
         integer, optional, intent(out) :: rc
@@ -478,7 +505,7 @@ module MAPL_GriddedIOMod
         integer :: status
 
         class (AbstractGridFactory), pointer :: factory
-        character(len=:), allocatable :: varName
+        character(len=:), allocatable :: varName, netcdf_version
         type(Variable) :: v
 
         factory => get_factory(this%output_grid,rc=status)
@@ -509,7 +536,16 @@ module MAPL_GriddedIOMod
         ! name of the library or client that performed the quantization,
         ! the software version, and the name of the author(s) if deemed
         ! relevant.
-        call v%add_attribute('implementation', 'MAPL')
+        !
+        ! In the current case, all algorithms are from libnetcdf
+        ! we make a string using nf90_inq_libvers()
+
+        netcdf_version = 'libnetcdf ' // nf90_inq_libvers()
+        call v%add_attribute('implementation', netcdf_version)
+
+        ! NOTE: In the future if we add the MAPL bit-shaving
+        ! to use the quantization parts of the code, it will
+        ! need a different implementation string
 
         call factory%append_variable_metadata(v)
         call this%metadata%add_variable(trim(varName),v,rc=status)
