@@ -12,7 +12,7 @@ module mapl3g_FieldDictionaryItem
       private
       character(:), allocatable :: long_name
       character(:), allocatable :: canonical_units
-      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
+      type(ESMF_RegridMethod_Flag) :: regrid_method
       type(StringVector) :: aliases
 !!$      character(:), allocatable :: physical_dimensions
    contains

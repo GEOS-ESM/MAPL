@@ -152,9 +152,7 @@ contains
       ! regrid_param
       field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
       regrid_method = get_regrid_method_(field_spec%standard_name)
-      if (allocated(regrid_method)) then
-         field_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
-      end if
+      field_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
       if (present(regrid_param)) field_spec%regrid_param = regrid_param
 
       if (present(default_value)) field_spec%default_value = default_value
@@ -171,7 +169,7 @@ contains
       logical :: file_exists
       integer :: status
 
-      regrid_method = ESMF_REGRIDMETHOD_BILINEAR
+      regrid_method = ESMF_REGRIDMETHOD_BILINEAR ! default value
       if (allocated(stdname)) then
          inquire(file=trim(field_dictionary_file), exist=file_exists)
          if (file_exists) then

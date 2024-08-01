@@ -36,8 +36,10 @@ contains
 
    function new_ScalarRegridAction(geom_src, f_src, geom_dst, f_dst, param_dst, rc) result (action)
       type(ScalarRegridAction) :: action
-      type(ESMF_Geom), intent(in) :: geom_src, geom_dst
-      type(ESMF_Field), intent(in) :: f_src, f_dst
+      type(ESMF_Geom), intent(in) :: geom_src
+      type(ESMF_Field), intent(in) :: f_src
+      type(ESMF_Geom), intent(in) :: geom_dst
+      type(ESMF_Field), intent(in) :: f_dst
       type(EsmfRegridderParam), intent(in) :: param_dst
       integer, optional, intent(out) :: rc
 
