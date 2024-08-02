@@ -277,7 +277,7 @@ contains
       select case (step)
       case (1) ! read the file
          icPtr => this%ic_vec%at(1)
-         collection_id = icPtr%add_ext_collection('collection-i')
+         collection_id = icPtr%add_data_collection('collection-i')
          allocate(prefetch_ids(this%vars%size()))
 
          call MPI_barrier(this%comm,ierr)
@@ -372,7 +372,7 @@ contains
          ocPtr=> this%oc_vec%at(1)
 
          do i = 1, this%num_collection
-            this%hist_collection_ids(i) = ocPtr%add_hist_collection(fmd)
+            this%hist_collection_ids(i) = ocPtr%add_data_collection(fmd)
          enddo
 
          ! create file and put changes into var_map

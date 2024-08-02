@@ -343,7 +343,7 @@ CONTAINS
       call fmd%add_attribute('Title', 'Sample code to test PFIO')
       call fmd%add_attribute('HISTORY', 'File writtem by PFIO vx.x.x')
 
-      hist_id = o_clients%add_hist_collection(fmd)
+      hist_id = o_clients%add_data_collection(fmd)
    end subroutine create_file_metada
 !------------------------------------------------------------------------------
 !>

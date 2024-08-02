@@ -2,6 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_ClientThreadMod
+
    use MAPL_ExceptionHandling
    use pFIO_AbstractMessageMod
    use pFIO_AbstractSocketMod
@@ -22,8 +23,8 @@ module pFIO_ClientThreadMod
    use pFIO_CollectivePrefetchDoneMessageMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
-   use pFIO_AddExtCollectionMessageMod
-   use pFIO_AddHistCollectionMessageMod
+   use pFIO_AddReadDataCollectionMessageMod
+   use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
    use pFIO_StageDataMessageMod
@@ -54,8 +55,9 @@ module pFIO_ClientThreadMod
       integer :: collective_counter = COLLECTIVE_MIN_ID
 
    contains
-      procedure :: add_ext_collection
-      procedure :: add_hist_collection
+      procedure, private :: add_read_data_collection
+      procedure, private :: add_write_data_collection
+      generic :: add_data_collection => add_read_data_collection, add_write_data_collection
       procedure :: modify_metadata
       procedure :: replace_metadata
       procedure :: prefetch_data
@@ -106,10 +108,10 @@ contains
       _UNUSED_DUMMY(message)
    end subroutine handle_Id
 
-   function add_ext_collection(this, template, rc) result(collection_id)
+   function add_read_data_collection(this, file_template, rc) result(collection_id)
       integer :: collection_id
       class (ClientThread), intent(inout) :: this
-      character(len=*), intent(in) :: template
+      character(len=*), intent(in) :: file_template
       integer, optional, intent(out) :: rc
 
       class (AbstractMessage), allocatable :: message
@@ -117,7 +119,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(AddExtCollectionMessage(template),_RC)
+      call connection%send(AddReadDataCollectionMessage(file_template),_RC)
       call connection%receive(message, _RC)
 
       select type(message)
@@ -126,13 +128,14 @@ contains
       class default
         _FAIL( " should get id message")
       end select
-      _RETURN(_SUCCESS)
-   end function add_ext_collection
 
-   function add_hist_collection(this, fmd, unusable,  mode, rc) result(hist_collection_id)
-      integer :: hist_collection_id
+      _RETURN(_SUCCESS)
+   end function add_read_data_collection
+
+   function add_write_data_collection(this, file_metadata, unusable,  mode, rc) result(collection_id)
+      integer :: collection_id
       class (ClientThread), target, intent(inout) :: this
-      type(FileMetadata),intent(in) :: fmd
+      type(FileMetadata),intent(in) :: file_metadata
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(in) :: mode
       integer, optional, intent(out) :: rc
@@ -142,19 +145,19 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(AddHistCollectionMessage(fmd, mode=mode))
-
+      call connection%send(AddWriteDataCollectionMessage(file_metadata, mode=mode))
       call connection%receive(message, _RC)
+
       select type(message)
       type is(IDMessage)
-        hist_collection_id = message%id
+        collection_id = message%id
       class default
         _FAIL( " should get id message")
       end select
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function add_hist_collection
+   end function add_write_data_collection
 
    function prefetch_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start, rc) result(request_id)

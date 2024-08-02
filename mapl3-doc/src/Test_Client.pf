@@ -1,4 +1,5 @@
 module test_Client
+
    use pfunit
    use pFIO_MockClientThreadMod
    use pFIO_AbstractSocketMod
@@ -8,7 +9,7 @@ module test_Client
    use pFIO_ArrayReferenceMod
    use pFIO_TerminateMessageMod
    use pFIO_DoneMessageMod
-   use pFIO_AddExtCollectionMessageMod
+   use pFIO_AddReadDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
 
@@ -20,7 +21,7 @@ contains
 
 
    @test
-   subroutine test_addExtCollection_send_message()
+   subroutine test_addReadDataCollection_send_message()
       type (MockClientThread) :: c
       class (AbstractSocket), pointer :: connection
       integer :: handle_foo
@@ -29,18 +30,18 @@ contains
       call c%set_connection(MockSocket(log))
       connection => c%get_connection()
 
-      handle_foo = c%add_ext_collection(template='foo')
+      handle_foo = c%add_data_collection(file_template='foo')
 
       select type (connection)
       type is (MockSocket)
-         @assertEqual("send<AddExtCollection('foo')>", log%log)
+         @assertEqual("send<AddReadDataCollection('foo')>", log%log)
       end select
 
-   end subroutine test_addExtCollection_send_message
+   end subroutine test_addReadDataCollection_send_message
 
 
    @test
-   subroutine test_addExtCollection_unique_handle()
+   subroutine test_addReadDataCollection_unique_handle()
       type (MockClientThread) :: c
       class (AbstractSocket), pointer :: connection
       integer :: handle_foo
@@ -55,11 +56,11 @@ contains
          call connection%add_message(IdMessage(2))
       end select
 
-      handle_foo = c%add_ext_collection(template='foo')
-      handle_bar = c%add_ext_collection(template='bar')
+      handle_foo = c%add_data_collection(file_template='foo')
+      handle_bar = c%add_data_collection(file_template='bar')
       @assertFalse(handle_foo == handle_bar)
       
-   end subroutine test_addExtCollection_unique_handle
+   end subroutine test_addReadDataCollection_unique_handle
    
    @test
    subroutine test_prefetch_data()
@@ -81,10 +82,10 @@ contains
          connection%q1 = q
       end select
 
-      collection_id = c%add_ext_collection(template='foo')
+      collection_id = c%add_data_collection(file_template='foo')
       request_id = c%prefetch_data(collection_id, 'foo', 'q', ArrayReference(q))
 
-      expected_log = "send<AddExtCollection('foo')>"
+      expected_log = "send<AddReadDataCollection('foo')>"
       expected_log = expected_log // " :: send<PrefetchData('q')> :: get()"
 
       select type (connection)
@@ -124,7 +125,7 @@ contains
          connection%q2 = q2_expected
       end select
 
-      collection_id = c%add_ext_collection(template='foo')
+      collection_id = c%add_data_collection(file_template='foo')
       request_id1 = c%prefetch_data(collection_id, 'foo', 'q1', ArrayReference(q1))
       request_id2 = c%prefetch_data(collection_id, 'foo', 'q2', ArrayReference(q2))
 
@@ -133,7 +134,7 @@ contains
 
       @assertTrue (request_id1 /= request_id2)
 
-      expected_log = "send<AddExtCollection('foo')>"
+      expected_log = "send<AddReadDataCollection('foo')>"
       expected_log = expected_log // " :: send<PrefetchData('q1')>"
       expected_log = expected_log // " :: get()"
       expected_log = expected_log // " :: send<PrefetchData('q2')>"
