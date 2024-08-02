@@ -26,6 +26,7 @@ module grid_comp_creator
       character(len=:), allocatable, private :: name
       integer, private :: npes = -1
       integer, private :: comm = MPI_COMM_WORLD
+      type(ESMF_GridComp), pointer :: gc => null()
    end type GridCompCreator
 
    interface GridCompCreator
@@ -56,14 +57,6 @@ module grid_comp_creator
    type(String), allocatable :: module_creator_results(:)
 
 contains
-
-   function get_creator_results() result(results)
-      type(String), allocatable :: results(:)
-      
-      allocate(results(0))
-      if(allocated(module_creator_results)) results = module_creator_results
-
-   end function get_creator_results
 
    function construct_string(ch) result(s)
       type(String) :: s
@@ -196,7 +189,8 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      gc = ESMF_GridCompCreate(name=make_gc_name(n), _RC)
+      gc = ESMF_GridCompCreate(name=make_gc_name(n), &
+         contextflag=ESMF_CONTEXT_PARENT_VM, _RC)
       _RETURN(_SUCCESS)
 
    end function make_gridcomp
@@ -213,6 +207,19 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine destroy_gridcomps
+
+   subroutine write_results(creator)
+      class(GridCompCreator), intent(in) :: creator
+      integer :: i
+      type(String), allocatable :: results(:)
+      
+      if(creator%rank /= 0) return
+      results = get_creator_results()
+      do i = 1, size(results)
+         write(*, '(A)') results(i)%characters
+      end do
+
+   end subroutine write_results
 
    subroutine write_creator_results(creator, results)
       class(GridCompCreator), intent(in) :: creator
@@ -246,17 +253,12 @@ contains
 
    end subroutine write_creator_results
 
-   subroutine write_results(creator)
-      class(GridCompCreator), intent(in) :: creator
-      integer :: i
+   function get_creator_results() result(results)
       type(String), allocatable :: results(:)
       
-      if(creator%rank /= 0) return
-      results = get_creator_results()
-      do i = 1, size(results)
-         write(*, '(A)') results(i)%characters
-      end do
+      allocate(results(0))
+      if(allocated(module_creator_results)) results = module_creator_results
 
-   end subroutine write_results
+   end function get_creator_results
 
 end module grid_comp_creator
