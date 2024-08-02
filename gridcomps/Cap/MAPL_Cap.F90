@@ -15,6 +15,7 @@ module MAPL_CapMod
    use MAPL_CapOptionsMod
    use MAPL_ServerManager
    use MAPL_ApplicationSupport
+   use MAPL_MemUtilsMod
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64, OUTPUT_UNIT
    implicit none
    private
@@ -106,6 +107,7 @@ contains
 
       call cap%initialize_mpi(rc=status)
       _VERIFY(status)
+      call MAPL_MemReport(cap%comm_world,__FILE__,__LINE__,'after mpi init')
 
       call MAPL_Initialize(comm=cap%comm_world, &
                            logging_config=cap%cap_options%logging_config, &
@@ -294,11 +296,13 @@ contains
 
       ! If the file exists, we pass it into ESMF_Initialize, else, we
       ! use the one from the command line arguments
+      call MAPL_MemReport(comm,__FILE__,__LINE__,'before esmf init ')
       if (file_exists) then
          call ESMF_Initialize (configFileName='ESMF.rc', mpiCommunicator=comm, vm=vm, _RC)
       else
          call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, vm=vm, _RC)
       end if
+      call MAPL_MemReport(comm,__FILE__,__LINE__,'after esmf init ')
 
       ! We check to see if ESMF_COMM was built as mpiuni which is not allowed for MAPL
       call ESMF_VmGet(vm, esmfComm = esmfComm, _RC)

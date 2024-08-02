@@ -5,6 +5,7 @@ module mapl_checkpoint_support_mod
    use MPI
    use NetCDF
    use MAPL_ErrorHandlingMod
+   use MAPL_MemUtilsMod
    use, intrinsic :: iso_fortran_env, only: INT64, REAL64, REAL32
    implicit none
 
@@ -55,7 +56,7 @@ module mapl_checkpoint_support_mod
          procedure :: write_level
          procedure :: write_variable
          procedure :: reset
-   end type 
+   end type
 
 contains
 
@@ -98,7 +99,7 @@ contains
       this%mpi_time = 0.0
       call MPI_COMM_SIZE(MPI_COMM_WORLD,comm_size,status)
       if (comm_size /= (this%nx*this%ny*6)) call MPI_Abort(mpi_comm_world,error_code,status)
-      
+
       contains
 
       function get_logical_key(config,label,default_val) result(val)
@@ -115,7 +116,7 @@ contains
             val = default_val
          end if
       end function
-      
+
       function get_integer_key(config,label,default_val) result(val)
          integer :: val
          type(ESMF_Config), intent(Inout)  :: config
@@ -130,7 +131,7 @@ contains
             val = default_val
          end if
       end function
-      
+
    end subroutine
 
    subroutine reset(this)
@@ -144,7 +145,7 @@ contains
       this%time_writing = 0.d0
       this%mpi_time = 0.0
    end subroutine
-      
+
    function compute_decomposition(this,axis) result(decomp)
       integer, allocatable :: decomp(:)
       class(test_support), intent(inout) :: this
@@ -172,7 +173,7 @@ contains
       class(test_support), intent(inout) :: this
       integer, intent(in) :: im
       integer, intent(in) :: jm
-      
+
       integer :: n,rank,status
       character(len=3) :: formatted_int
       integer :: seed_size
@@ -201,7 +202,7 @@ contains
       integer, allocatable :: ims(:),jms(:)
       integer :: rank, status,comm_size,n,i,j,rank_counter,offset,index_offset
 
-      call MPI_Comm_Rank(MPI_COMM_WORLD,rank,status) 
+      call MPI_Comm_Rank(MPI_COMM_WORLD,rank,status)
       call MPI_Comm_Size(MPI_COMM_WORLD,comm_size,status)
       allocate(this%bundle(this%num_arrays))
       ims = this%compute_decomposition(axis=1)
@@ -244,13 +245,13 @@ contains
                rank_counter = rank_counter + 1
            enddo
         enddo
-     enddo 
-      
+     enddo
+
   end subroutine
 
   subroutine create_communicators(this)
      class(test_support), intent(inout) :: this
- 
+
      integer :: myid,status,nx0,ny0,color,j,ny_by_writers,local_ny,key
 
      local_ny = this%ny*6
@@ -280,7 +281,7 @@ contains
 
      call MPI_BARRIER(mpi_comm_world,status)
 
-     
+
   end subroutine
 
   subroutine close_file(this)
@@ -344,7 +345,7 @@ contains
            status = nf90_def_dim(this%ncid,"lon",this%im_world,xdim)
            if (this%split_file) then
               y_size = this%im_world*6/this%num_writers
-           else 
+           else
               y_size = this%im_world*6
            end if
            status = nf90_def_dim(this%ncid,"lat",y_size,ydim)
@@ -384,7 +385,7 @@ contains
   subroutine write_file(this)
      class(test_support), intent(inout) :: this
      integer :: status,i,l
-    
+
      integer(kind=INT64) :: sub_start,sub_end
 
      call MPI_BARRIER(MPI_COMM_WORLD,status)
@@ -619,7 +620,7 @@ contains
           io_time = end_time-start_time
           this%data_volume = this%data_volume+byte_to_mega*4.d0*size(var,kind=INT64)
           this%time_writing = this%time_writing + real(io_time,kind=REAL64)/real(count_rate,kind=REAL64)
-          
+
           deallocate(VAR, stat=status)
 
        endif ! myiorank
@@ -652,6 +653,7 @@ program checkpoint_tester
 
    call system_clock(count=start_app,count_rate=count_rate)
    call MPI_Init(status)
+   call MAPL_MemReport(MPI_COMM_WORLD, __FILE__, __LINE__, "After mpi_init ")
    call MPI_Barrier(MPI_COMM_WORLD,status)
 
    call MPI_Comm_Rank(MPI_COMM_WORLD,rank,status)
@@ -679,8 +681,10 @@ program checkpoint_tester
       call support%create_file()
       call MPI_Barrier(MPI_COMM_WORLD,status)
 
+      call MAPL_MemReport(MPI_COMM_WORLD, __FILE__, __LINE__, "Before gather ")
       call support%write_file()
       call MPI_Barrier(MPI_COMM_WORLD,status)
+      call MAPL_MemReport(MPI_COMM_WORLD, __FILE__, __LINE__, "After gather ")
 
       call support%close_file()
       call MPI_Barrier(MPI_COMM_WORLD,status)
@@ -707,7 +711,7 @@ program checkpoint_tester
          all_proc_throughput(i) = real(support%num_writers,kind=REAL32)*average_volume/average_time
       end if
    enddo
-       
+
    call system_clock(count=end_app)
    application_time = real(end_app - start_app,kind=REAL64)/real(count_rate,kind=REAL64)
    if (rank == 0) then
@@ -718,7 +722,7 @@ program checkpoint_tester
       write(*,'(A,G16.8)')"Total data volume in megabytes: ",data_volume
       write(*,'(A,I3)')"Num writers:  ",support%num_writers
       write(*,'(A,I6)')"Total cores:  ",comm_size
-      write(*,'(A,I6,I6)')"Cube size:  ",support%im_world,support%lm
+      write(*,'(A,I6,I6)')"Cube size/LM:  ",support%im_world,support%lm
       write(*,'(A,7(L1))')"Split file, 3D_gather, chunk, extra, netcdf output, write barrier, do writes:  ",&
          support%split_file, support%gather_3d, &
          support%do_chunking,support%extra_info, &
@@ -741,7 +745,7 @@ program checkpoint_tester
       std_fs_throughput = sqrt(std_fs_throughput/real(support%n_trials,kind=REAL64))
       write(*,'(G16.8,G16.8,G16.8,G16.8)')mean_throughput,std_throughput,mean_fs_throughput,std_fs_throughput
    end if
-   
-     
+
+
    call MPI_Finalize(status)
 end program

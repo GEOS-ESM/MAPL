@@ -777,22 +777,56 @@ subroutine MAPL_MemReport(comm,file_name,line,decorator,rc)
 
     real :: mem_total,mem_used,percent_used
     real :: committed_total,committed,percent_committed
-    integer :: rank,status
+    integer :: rank,status,node_comm,rank_on_node,node_id,npes,node_root_comm, mrank
+    integer :: info = MPI_INFO_NULL
     character(len=:), allocatable :: extra_message
+    integer, allocatable :: node_ranks(:)
 
 #ifdef sysDarwin
     _RETURN(ESMF_SUCCESS)
 #endif
-    call MPI_Barrier(comm,status)
     if (present(decorator)) then
        extra_message = decorator
     else
        extra_message = ""
     end if
-    call MAPL_MemUsed(mem_total,mem_used,percent_used)
-    call MAPL_MemCommited(committed_total,committed,percent_committed)
-    call MPI_Comm_Rank(comm,rank,status)
-    if (rank == 0) write(*,'("Mem report ",A20," ",A30," ",i7," ",f5.1,"% : ",f5.1,"% Mem Comm:Used")')trim(extra_message),file_name,line,percent_committed,percent_used
+    call MPI_Barrier(comm,status)
+    call MPI_Comm_rank(comm, rank, status)
+    call MPI_Comm_size(comm, npes, status)
+
+    call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, 0, info, node_comm, status)
+    call MPI_Comm_rank(node_comm, rank_on_node, status)
+    call MPI_Comm_split(comm, rank_on_node, rank, node_root_comm, status)
+    if (rank_on_node == 0) then
+       call MPI_Comm_rank(node_root_comm, mrank, status)
+       call MAPL_MemUsed(mem_total,mem_used,percent_used)
+       call MAPL_MemCommited(committed_total,committed,percent_committed)
+       if (mrank == 0) write(*,'("Mem report node 1 ",A20," , ",A30," , ",i7," , ",f5.1,"% , ",f5.1,"% , Mem Comm:Used")')trim(extra_message),file_name,line,percent_committed,percent_used
+       if (mrank == 1) write(*,'("Mem report node 2 ",A20," , ",A30," , ",i7," , ",f5.1,"% , ",f5.1,"% , Mem Comm:Used")')trim(extra_message),file_name,line,percent_committed,percent_used
+    end if
+    call MPI_Comm_free(node_comm, status)
+    call MPI_Comm_free(node_root_comm, status)
+    call MPI_Barrier(comm,status)
+
+    !!old algorithm
+    !allocate(node_ranks(0:npes-1))
+    !call MPI_Allgather(rank_on_node, 1, MPI_INTEGER, node_ranks, 1, MPI_INTEGER, comm, status)
+    !if (rank_on_node == 0) then
+       !node_id = 1 + count(node_ranks(0:rank-1) == 0)
+    !end if
+    !call MPI_Bcast(node_id, 1, MPI_INTEGER, 0, node_comm, status)
+    !call MPI_Barrier(comm,status)
+    !if (present(decorator)) then
+       !extra_message = decorator
+    !else
+       !extra_message = ""
+    !end if
+
+    !call MAPL_MemUsed(mem_total,mem_used,percent_used)
+    !call MAPL_MemCommited(committed_total,committed,percent_committed)
+    !call MPI_Comm_Rank(comm,rank,status)
+    !if ((node_id == 1) .and. (rank_on_node == 0)) write(*,'("Mem report node 1 ",A20," , ",A30," , ",i7," , ",f5.1,"% , ",f5.1,"% , Mem Comm:Used")')trim(extra_message),file_name,line,percent_committed,percent_used
+    !if ((node_id == 2) .and. (rank_on_node == 0)) write(*,'("Mem report node 2 ",A20," , ",A30," , ",i7," , ",f5.1,"% , ",f5.1,"% , Mem Comm:Used")')trim(extra_message),file_name,line,percent_committed,percent_used
 
 end subroutine
 

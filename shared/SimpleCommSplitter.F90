@@ -15,7 +15,7 @@ module MAPL_SimpleCommSplitterMod
    use MAPL_SplitCommunicatorMod
    use MPI
    implicit none
-   
+
    private
    public :: SimpleCommSplitter
 
@@ -60,7 +60,7 @@ contains
       else
          splitter%base_name = ''
       end if
-      
+
    end function new_SimpleCommSplitter
 
    function ensemble_comm_splitter(communicator, n_members, npes_member, unusable, isolate_nodes, base_name) result(splitter)
@@ -79,7 +79,7 @@ contains
       do i = 1, n_members
          call splitter%add_group(npes=npes_member, isolate_nodes=isolate_nodes)
       end do
-      
+
    end function ensemble_comm_splitter
 
 
@@ -100,7 +100,7 @@ contains
 
       color = this%compute_color(rc=status)
       _VERIFY(status)
-      
+
       call MPI_Comm_split(this%get_shared_communicator(), color, 0, subcommunicator, ierror)
       _VERIFY(ierror)
 
@@ -147,7 +147,7 @@ contains
       if (present(isolate_nodes)) then
          isolate_nodes_ = isolate_nodes
       endif
- 
+
       npes_ = 0
       if (present(npes)) npes_ = npes
 
@@ -166,7 +166,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine add_group_simple
-   
+
    integer function compute_color(this, unusable, rc) result(color)
       class (SimpleCommSplitter), intent(in) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -208,9 +208,9 @@ contains
       do color_ = 1, this%group_descriptions%size()
 
          group_descr => this%group_descriptions%at(color_)
-         
+
          call group_descr%comm_group_range(node_id, rank_on_node, node_sizes, start_node, start_rank, next_node, next_rank, IamInGroup)
-         
+
          start_node = next_node
          start_rank = next_rank
 
@@ -224,7 +224,7 @@ contains
       _VERIFY(ierror)
 
       _RETURN(_SUCCESS)
-      
+
    end function compute_color
 
 
@@ -242,7 +242,7 @@ contains
       integer :: rank_on_node
       integer, allocatable :: node_ranks(:)
       integer :: info = MPI_INFO_NULL
-      
+
       _UNUSED_DUMMY(unusable)
 
       shared_communicator = this%get_shared_communicator()
@@ -284,11 +284,11 @@ contains
       integer :: info = MPI_INFO_NULL
 
       _UNUSED_DUMMY(unusable)
-     
+
       shared_communicator = this%get_shared_communicator()
       call MPI_Comm_split_type(shared_communicator, MPI_COMM_TYPE_SHARED, 0, info, node_comm, ierror)
       _VERIFY(ierror)
- 
+
       call MPI_Comm_size(shared_communicator, npes, ierror); _VERIFY(ierror)
       allocate(node_sizes(0:npes-1), stat=status);  _VERIFY(status)
 
@@ -322,7 +322,7 @@ contains
      class (SimpleCommSplitter), intent(inout) :: this
      type (SimpleCommSplitter), intent(in) :: from
      integer :: rank, comm, ierror
-     
+
      comm = from%get_shared_communicator()
 
      if (from%is_split) then
@@ -339,7 +339,7 @@ contains
      this%is_split = from%is_split
      this%sub_comm = from%sub_comm
 
-  end subroutine assign 
+  end subroutine assign
 
 end module MAPL_SimpleCommSplitterMod
 

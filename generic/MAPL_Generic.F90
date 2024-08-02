@@ -529,13 +529,22 @@ contains
       ! ---------------
       type (MAPL_MetaComp), pointer     :: meta
       type(ESMF_GridComp), pointer :: gridcomp
+      type(ESMF_VM) :: my_vm
+      integer :: my_comm
+      character(len=ESMF_MAXSTR) :: my_comp_name
 
       !=============================================================================
       ! Begin...
 
       ! Create the generic state, intializing its configuration and grid.
       !----------------------------------------------------------
+      call ESMF_GridCompGet(gc, name=my_comp_name, _RC)
+      call ESMF_VMGetCurrent(my_vm, _RC)
+      call ESMF_VMGet(my_vm, mpiCommunicator=my_comm,_RC)
+
       call MAPL_InternalStateRetrieve( GC, meta, _RC)
+
+      call MAPL_MemReport(my_comm,__FILE__,__LINE__,'start ss '//trim(my_comp_name))
 
       call meta%t_profiler%start('generic',_RC)
 
@@ -545,6 +554,7 @@ contains
 
       call process_spec_dependence(meta, _RC)
       call meta%t_profiler%stop('generic',_RC)
+      call MAPL_MemReport(my_comm,__FILE__,__LINE__,'end ss '//trim(my_comp_name))
 
       _RETURN(ESMF_SUCCESS)
 
@@ -939,6 +949,8 @@ contains
       call ESMF_VmGet(VM, localPet=MYGRID%MYID, petCount=ndes, _RC)
       call ESMF_VmGet(VM, mpicommunicator=comm, _RC)
 
+      call MAPL_MemReport(comm,__FILE__,__LINE__,'start init '//trim(comp_name))
+
       ! TODO: esmfgrid should be obtained separately
       isGridValid = grid_is_valid(gc, mygrid%esmfgrid, _RC)
 
@@ -1099,6 +1111,8 @@ contains
       call initialize_children_and_couplers(_RC)
       call MAPL_TimerOn(STATE,"generic")
 
+
+      call MAPL_MemReport(comm,__FILE__,__LINE__,'before read '//trim(comp_name))
       call create_import_and_initialize_state_variables(_RC)
 
       call ESMF_AttributeSet(import,'POSITIVE',trim(positive),_RC)
@@ -1106,6 +1120,7 @@ contains
       call create_internal_and_initialize_state_variables(_RC)
 
       call create_export_state_variables(_RC)
+      call MAPL_MemReport(comm,__FILE__,__LINE__,'after read '//trim(comp_name))
 
       ! Create forcing state
       STATE%FORCING = ESMF_StateCreate(name = trim(comp_name) // "_FORCING", &
@@ -1132,7 +1147,7 @@ contains
 
       call MAPL_TimerOff(STATE,"generic", _RC)
 
-
+      call MAPL_MemReport(comm,__FILE__,__LINE__,'end init '//trim(comp_name))
       _RETURN(ESMF_SUCCESS)
 
    contains

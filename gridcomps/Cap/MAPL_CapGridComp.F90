@@ -547,6 +547,7 @@ contains
     root_set_services => cap%root_set_services
 
     call t_p%start('SetService')
+    call MAPL_MemReport(comm,__FILE__,__LINE__,'cap before addchild')
     if (.not.allocated(cap%root_dso)) then
        cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)
        _VERIFY(status)
@@ -555,6 +556,7 @@ contains
        cap%root_id = MAPL_AddChild(MAPLOBJ, root_name, 'setservices_', sharedObj=sharedObj, rc=status)
        _VERIFY(status)
     end if
+    call MAPL_MemReport(comm,__FILE__,__LINE__,'cap after addchild')
     root_gc => maplobj%get_child_gridcomp(cap%root_id)
     call MAPL_GetObjectFromGC(root_gc, root_obj, rc=status)
     _ASSERT(cap%n_run_phases <= SIZE(root_obj%phase_run),"n_run_phases in cap_gc should not exceed n_run_phases in root")
