@@ -15,8 +15,8 @@ module pFIO_AbstractMessageMod
    public :: CollectivePrefetchDone_ID
    public :: StageDone_ID
    public :: CollectiveStageDone_ID
-   public :: ADDEXTCOLLECTION_ID
-   public :: ADDHISTCOLLECTION_ID
+   public :: ADD_READATA_COLLECTION_ID
+   public :: ADD_WRITEDATA_COLLECTION_ID
    public :: ID_ID
    public :: PrefetchData_ID
    public :: StageData_ID
@@ -35,8 +35,8 @@ module pFIO_AbstractMessageMod
       enumerator :: CollectivePrefetchDone_ID
       enumerator :: StageDone_ID
       enumerator :: CollectiveStageDone_ID
-      enumerator :: ADDEXTCOLLECTION_ID
-      enumerator :: ADDHISTCOLLECTION_ID
+      enumerator :: ADD_READATA_COLLECTION_ID
+      enumerator :: ADD_WRITEDATA_COLLECTION_ID
       enumerator :: ID_ID
       enumerator :: PrefetchData_ID
       enumerator :: COLLECTIVEPrefetchData_ID
@@ -56,7 +56,6 @@ module pFIO_AbstractMessageMod
       procedure (serialize),   deferred :: serialize
       procedure (deserialize), deferred :: deserialize
       procedure :: dispatch
-
    end type AbstractMessage
 
    type, abstract :: SurrogateMessageVisitor

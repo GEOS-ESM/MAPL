@@ -1,7 +1,8 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
-module pFIO_AddHistCollectionMessageMod
+module pFIO_AddWriteDataCollectionMessageMod
+
    use MAPL_ExceptionHandling
    use pFIO_UtilitiesMod
    use pFIO_AbstractMessageMod
@@ -10,9 +11,9 @@ module pFIO_AddHistCollectionMessageMod
    implicit none
    private
 
-   public :: AddHistCollectionMessage
+   public :: AddWriteDataCollectionMessage
 
-   type, extends(AbstractMessage) :: AddHistCollectionMessage
+   type, extends(AbstractMessage) :: AddWriteDataCollectionMessage
       type(FileMetadata) :: fmd
       integer :: create_mode
    contains
@@ -20,31 +21,31 @@ module pFIO_AddHistCollectionMessageMod
       procedure :: get_length
       procedure :: serialize
       procedure :: deserialize
-   end type AddHistCollectionMessage
+   end type AddWriteDataCollectionMessage
 
-   interface AddHistCollectionMessage
-      module procedure new_AddHistCollectionMessage
-   end interface AddHistCollectionMessage
+   interface AddWriteDataCollectionMessage
+      module procedure new_AddWriteDataCollectionMessage
+   end interface AddWriteDataCollectionMessage
 
 contains
 
-   function new_AddHistCollectionMessage(fmd, mode) result(message)
-      type (AddHistCollectionMessage) :: message
+   function new_AddWriteDataCollectionMessage(fmd, mode) result(message)
+      type (AddWriteDataCollectionMessage) :: message
       type(FileMetadata), intent(in) :: fmd
       integer, optional, intent(in) :: mode
       message%fmd = fmd
       message%create_mode = PFIO_NOCLOBBER
       if( present(mode)) message%create_mode = mode
-   end function new_AddHistCollectionMessage
+   end function new_AddWriteDataCollectionMessage
 
    
    integer function get_type_id() result(type_id)
-      type_id = ADDHISTCOLLECTION_ID
+      type_id = ADD_WRITEDATA_COLLECTION_ID
    end function get_type_id
 
 
    integer function get_length(this) result(length)
-      class (AddHistCollectionMessage), intent(in) :: this
+      class (AddWriteDataCollectionMessage), intent(in) :: this
       integer,allocatable :: buffer(:) ! no-op
       call this%fmd%serialize(buffer)
       length = size(buffer) + 1 ! 1 is the create_mode
@@ -52,7 +53,7 @@ contains
 
 
    subroutine serialize(this, buffer, rc)
-      class (AddHistCollectionMessage), intent(in) :: this
+      class (AddWriteDataCollectionMessage), intent(in) :: this
       integer, intent(inout) :: buffer(:) ! no-op
       integer, optional, intent(out) :: rc
 
@@ -66,7 +67,7 @@ contains
 
 
    subroutine deserialize(this, buffer,rc)
-      class (AddHistCollectionMessage), intent(inout) :: this
+      class (AddWriteDataCollectionMessage), intent(inout) :: this
       integer, intent(in) :: buffer(:)
       integer, optional, intent(out) :: rc
       integer :: n, length, status
@@ -80,4 +81,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine deserialize
 
-end module pFIO_AddHistCollectionMessageMod
+end module pFIO_AddWriteDataCollectionMessageMod

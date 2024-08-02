@@ -313,7 +313,7 @@ Note how the dimension information is passed to define the variable.
 Now we need to 
 
 ```fortran
-   hist_id = o_clients%add_hist_collection(fmd)
+   hist_id = o_clients%add_data_collection(fmd)
 ```
 
 All the above operations are done during initialization procedures.
