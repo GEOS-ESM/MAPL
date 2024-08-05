@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix profiler PercentageColumn test for GCC 14
+
 ### Removed
 
 ### Deprecated
