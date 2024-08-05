@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix profiler PercentageColumn test for GCC 14
+- Fix bug in ExtData Tests. CMake was overwriting the `EXTDATA2G_SMALL_TESTS` LABEL with `ESSENTIAL`
 
 ### Removed
 
