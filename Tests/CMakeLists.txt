@@ -1,17 +1,18 @@
+esma_set_this (OVERRIDE MAPL.test_utilities)
+
 set(MODULE_DIRECTORY "${esma_include}/Tests")
 
 set (srcs
-    ExtDataDriverGridComp.F90
     ExtDataRoot_GridComp.F90
-    ExtDataDriver.F90
-    ExtDataDriverMod.F90
     VarspecDescription.F90
     )
 
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
+
 if (BUILD_WITH_FARGPARSE)
 
-  ecbuild_add_executable (TARGET ExtDataDriver.x SOURCES ${srcs})
-  target_link_libraries (ExtDataDriver.x PRIVATE MAPL FARGPARSE::fargparse ESMF::ESMF)
+  ecbuild_add_executable (TARGET ExtDataDriver.x SOURCES ExtDataDriver.F90 ExtDataDriverGridComp.F90 ExtDataDriverMod.F90)
+  target_link_libraries (ExtDataDriver.x PRIVATE MAPL MAPL.test_utilities FARGPARSE::fargparse ESMF::ESMF)
   # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
   if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
     target_link_libraries(ExtDataDriver.x PRIVATE OpenMP::OpenMP_Fortran)
@@ -35,8 +36,8 @@ if (BUILD_WITH_FARGPARSE)
   endif ()
   set_target_properties(MAPL_demo_fargparse.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
-  ecbuild_add_executable (TARGET CapDriver.x SOURCES CapDriver.F90 ExtDataRoot_GridComp.F90 VarspecDescription.F90)
-  target_link_libraries (CapDriver.x PRIVATE MAPL FARGPARSE::fargparse ESMF::ESMF)
+  ecbuild_add_executable (TARGET CapDriver.x SOURCES CapDriver.F90)
+  target_link_libraries (CapDriver.x PRIVATE MAPL MAPL.test_utilities FARGPARSE::fargparse ESMF::ESMF)
   # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
   if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
     target_link_libraries(CapDriver.x PRIVATE OpenMP::OpenMP_Fortran)
