@@ -35,4 +35,12 @@ if (BUILD_WITH_FARGPARSE)
   endif ()
   set_target_properties(MAPL_demo_fargparse.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
+  ecbuild_add_executable (TARGET CapDriver.x SOURCES CapDriver.F90 ExtDataRoot_GridComp.F90 VarspecDescription.F90)
+  target_link_libraries (CapDriver.x PRIVATE MAPL FARGPARSE::fargparse ESMF::ESMF)
+  # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+  if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
+    target_link_libraries(CapDriver.x PRIVATE OpenMP::OpenMP_Fortran)
+  endif ()
+  set_target_properties(CapDriver.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+
 endif ()
