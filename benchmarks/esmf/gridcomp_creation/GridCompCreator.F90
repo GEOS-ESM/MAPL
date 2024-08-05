@@ -3,6 +3,7 @@ module grid_comp_creator
 
    use grid_comp_creation_shared
    use grid_comp_creator_memory_profiler
+   use strings
    use mapl_ErrorHandlingMod
    use esmf
    use mpi
@@ -17,6 +18,16 @@ module grid_comp_creator
    public :: run
    public :: assignment(=)
 
+   ! This should be changed into a parent component.
+   ! Then the program calls a driver procedure that creates
+   ! the parent grid component, sets services (initialize,
+   ! run, and finalize). Then it calls initialize, run, and
+   ! finalize. Initialize includes setting up the profiling
+   ! structures as internal state.
+   ! Child components are created in parent run
+   ! which also includes profiling. finalize collects the
+   ! information for the driver procedure and returns it
+   ! to the program which outputs it.
    type :: GridCompCreator
       integer :: ngc = -1
       real(R64) :: time = -1.0
@@ -37,51 +48,42 @@ module grid_comp_creator
       module procedure :: run_creator
    end interface run
 
-   type :: String
-      character(len=:), allocatable :: characters
-   end type String
-
-   interface String
-      module procedure :: construct_string
-   end interface String
-
-   interface assignment(=)
-      module procedure :: assign_characters_to_string
-      module procedure :: assign_string_to_characters
-   end interface assignment(=)
-
    type(ESMF_LogKind_Flag), parameter :: LOG_KIND_FLAG = ESMF_LOGKIND_NONE
    character(len=*), parameter :: name = 'GridCompCreator'
    character(len=*), parameter :: BLANK = ''
-
    type(String), allocatable :: module_creator_results(:)
+   type(ESMF_GridComp), pointer :: gc_ptr => null()
 
 contains
 
-   function construct_string(ch) result(s)
-      type(String) :: s
-      character(len=*), optional, intent(in) :: ch
+   subroutine creation_driver(num_gc, rc)
+      integer, intent(in) :: num_gc
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_GridComp), target :: gc
 
-      s%characters = BLANK
-      if(present(ch)) s%characters = trim(ch)
+      gc = create_creator_gridcomp(num_gc, _RC)
+      gc_ptr => gc
+      ! need to set services
+      ! need to initialize gridcomp
+      ! need to run gridcomp
+      ! need to finalize gridcomp
+   end subroutine creation_driver
 
-   end function construct_string
+   function create_creator_gridcomp(num_gc, rc) result(gc)
+      integer, intent(in) :: num_gc
+      type(ESMF_GridComp) :: gc
+      integer, optional, intent(out) :: rc
+      integer :: status
 
-   subroutine assign_characters_to_string(s, ch)
-      type(String), intent(out) :: s
-      character(len=*), intent(in) :: ch
+      if(num_gc < 1) then
+         _RETURN(_FAILURE)
+         return
+      end if
 
-      s = String(ch)
+      gc = make_gridcomp(is_parent = .TRUE., _RC)
 
-   end subroutine assign_characters_to_string
-
-   subroutine assign_string_to_characters(ch, s)
-      character(len=*), intent(out) :: ch
-      type(String), intent(in) :: s
-
-      ch = s%characters
-
-   end subroutine assign_string_to_characters
+   end function create_creator_gridcomp
 
    function construct_creator(num_gc) result(creator)
       type(GridCompCreator) :: creator
@@ -170,27 +172,43 @@ contains
 
    function make_gc_name(n, rc) result(gc_name)
       character(len=:), allocatable :: gc_name
-      integer, intent(in) :: n
+      integer, optional, intent(in) :: n
       integer, optional, intent(out) :: rc
       integer :: status
       character(len=*), parameter :: FMT_ = '(I0)'
       character(len=MAXSTR) :: raw
 
-      write(raw, fmt=FMT_, iostat=status) n
+      raw = '_'
+      if(present(n)) write(raw, fmt=FMT_, iostat=status) n
       _ASSERT(status == _SUCCESS, 'Unable to make gridcomp name')
       gc_name = "GC" // trim(raw)
       _RETURN(_SUCCESS)
 
    end function make_gc_name
 
-   function make_gridcomp(n, rc) result(gc)
+   function make_gridcomp(n, is_parent, rc) result(gc)
       type(ESMF_GridComp) :: gc
       integer, intent(in) :: n
+      logical, optional, intent(in) :: is_parent
       integer, optional, intent(out) :: rc
       integer :: status
+      type(ESMF_Context_Flag) :: contextflag
+      character(len=:), allocatable :: name
+      
+      context_flag = ESMF_CONTEXT_PARENT_VM
+      if(present(is_parent)) then
+         if(is_parent) then
+            context_flag = ESMF_CONTEXT_OWN_VM
+            raw = make_gc_name()
+         end if
+      end if
+      
+      if(.not. allocated(name)) then
+         name = make_gc_name(n, _RC)
+      end if
 
-      gc = ESMF_GridCompCreate(name=make_gc_name(n), &
-         contextflag=ESMF_CONTEXT_PARENT_VM, _RC)
+      gc = ESMF_GridCompCreate(name=name, contextflag=context_flag, _RC)
+
       _RETURN(_SUCCESS)
 
    end function make_gridcomp

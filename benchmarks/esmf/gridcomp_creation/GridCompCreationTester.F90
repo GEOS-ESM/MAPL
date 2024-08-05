@@ -10,11 +10,11 @@ program grid_comp_creation_tester
    implicit none
 
    integer, parameter :: SUCCESS = 0
-   integer, parameter :: NGC_NOT_SET = 1
-   integer, parameter :: RUN_FAILED  = 2
-   integer, parameter :: GENERAL_ERROR = -1
+   integer, parameter :: GENERAL_ERROR = 1
+   integer, parameter :: NGC_NOT_SET = 2*GENERAL_ERROR
+   integer, parameter :: RUN_FAILED  = 2*NGC_NOT_SET
 
-   integer :: status, rc
+   integer :: rc, status
    integer :: ngc
    character(len=MAXSTR) :: raw
    type(GridCompCreator) :: creator
@@ -25,21 +25,27 @@ program grid_comp_creation_tester
    ngc = -1
    do i = 1, command_argument_count()
       call get_command_argument(i, value=raw, status=status)
-      if(status /= 0) cycle
+      if(status /= SUCCESS) cycle
       raw = adjustl(raw)
       read(raw, fmt='(I32)', iostat=status) n
-      if(status == 0) ngc = n
-   end do   
+      if(status == SUCCESS) ngc = n
+   end do
 
-   if(ngc < 0) rc = rc + NGC_NOT_SET
-   if(rc /= SUCCESS) error stop rc, QUIET=is_silent
-
-   creator = GridCompCreator(ngc)
-   call run(creator, status)
-   if(status /= 0) rc = rc + RUN_FAILED
-   if(rc /= SUCCESS) error stop rc, QUIET=is_silent
-   call write_results(creator)
-   call finalize(rc=status)
-   stop rc, QUIET=is_silent
+   if(ngc < 0) then
+      rc = rc + NGC_NOT_SET
+      error stop rc, QUIET=is_silent
+   end if
+   
+   call creation_driver(ngc, status)
+   if(status == SUCCESS) then
+      call write_results()
+   else
+      rc = rc + RUN_FAILED
+   end if
+   call finalize(rc=rc)
+   if(rc == SUCCESS) stop rc, QUIET=is_silent
+   error stop rc, QUIET=is_silent
+!   creator = GridCompCreator(ngc)
+!   call run(creator, rc)
 
 end program grid_comp_creation_tester
