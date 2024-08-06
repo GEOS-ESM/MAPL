@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Added new driver, CapDriver.x, to excerise the MAPL_Cap with the configuratable component also used by ExtDataDriver.x
 - Added Fortran interface to UDUNITS2
   - NOTE: This now means MAPL depends on UDUNITS2 (and transitively, expat)
 - Improve mask sampler by adding an MPI step and a LS_chunk (intermediate step)
