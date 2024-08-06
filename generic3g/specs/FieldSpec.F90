@@ -199,8 +199,6 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
-      _RETURN_UNLESS(allocated(this%geom))  ! mirror
-      call MAPL_FieldEmptySet(this%payload, this%geom, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -260,8 +258,11 @@ contains
 
       _RETURN_UNLESS(this%is_active())
 
+
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
+
+      call MAPL_FieldEmptySet(this%payload, this%geom, _RC)
 
       bounds = get_ungridded_bounds(this, _RC)
       call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
@@ -341,9 +342,15 @@ contains
 
       select type (src_spec)
       class is (FieldSpec)
-         ! ok
+         ! Import fields are preemptively created just so that they
+         ! can still be queried even when not satisfied.  It is
+         ! possible that such is not really necessary.  But for now
+         ! when an import is ultimately connected we must destroy the
+         ! ESMF_Field object before copying the payload from the
+         ! source spec.
          call this%destroy(_RC)
          this%payload = src_spec%payload
+
          call mirror(dst=this%geom, src=src_spec%geom)
          call mirror(dst=this%typekind, src=src_spec%typekind)
          call mirror(dst=this%units, src=src_spec%units)
