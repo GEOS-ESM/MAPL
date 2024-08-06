@@ -102,12 +102,15 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ESMF_Clock) :: user_clock
       type(GriddedComponentDriver) :: user_gc_driver
+      type(ESMF_Context_Flag) :: contextFlag
       integer :: status
 
-      gridcomp = ESMF_GridCompCreate(name=outer_name(name), petlist=petlist,  _RC)
+      contextFlag = ESMF_CONTEXT_PARENT_VM
+      if(present(petlist)) contextFlag = ESMF_CONTEXT_OWN_VM
+      gridcomp = ESMF_GridCompCreate(name=outer_name(name), petlist=petlist, contextFlag=contextFlag, _RC)
       call set_is_generic(gridcomp, _RC)
 
-      user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist,  _RC)
+      user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist, contextFlag=contextFlag, _RC)
       call set_is_generic(user_gridcomp, .false., _RC)
 
       call attach_outer_meta(gridcomp, _RC)

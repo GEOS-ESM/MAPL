@@ -25,7 +25,7 @@ contains
       integer :: status
       type(CouplerMetaComponent), pointer :: coupler_meta
 
-      coupler_gridcomp = ESMF_GridCompCreate(name='coupler', _RC)
+      coupler_gridcomp = ESMF_GridCompCreate(name='coupler', contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
       call attach_coupler_meta(coupler_gridcomp, _RC)
       coupler_meta => get_coupler_meta(coupler_gridcomp, _RC)
 #ifndef __GFORTRAN__
