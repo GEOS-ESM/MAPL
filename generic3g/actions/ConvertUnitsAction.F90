@@ -16,6 +16,7 @@ module mapl3g_ConvertUnitsAction
       private
       type(UDUNITS_converter) :: converter
       type(ESMF_Field) :: f_in, f_out
+      character(:), allocatable :: src_units, dst_units
    contains
       procedure :: run
    end type ConvertUnitsAction
@@ -23,25 +24,36 @@ module mapl3g_ConvertUnitsAction
 
    interface ConvertUnitsAction
       procedure new_converter
+      procedure new_converter2
    end interface ConvertUnitsAction
 
 
 contains
 
 
-   function new_converter(f_in, units_in, f_out, units_out) result(action)
+   function new_converter(f_in, src_units, f_out, dst_units) result(action)
       type(ConvertUnitsAction) :: action
       type(ESMF_Field), intent(in) :: f_in, f_out
-      character(*), intent(in) :: units_in, units_out
+      character(*), intent(in) :: src_units, dst_units
 
       integer :: status
 
       ! TODO: move to place where only called
-      call UDUNITS_GetConverter(action%converter, from=units_in, to=units_out, rc=status)
+      call UDUNITS_GetConverter(action%converter, from=src_units, to=dst_units, rc=status)
       action%f_in = f_in
       action%f_out = f_out
       
    end function new_converter
+
+   function new_converter2(src_units, dst_units) result(action)
+      type(ConvertUnitsAction) :: action
+      character(*), intent(in) :: src_units, dst_units
+
+      action%src_units = src_units
+      action%dst_units = dst_units
+
+   end function new_converter2
+
 
    subroutine run(this, rc)
       class(ConvertUnitsAction), intent(inout) :: this

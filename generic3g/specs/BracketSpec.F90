@@ -47,6 +47,7 @@ module mapl3g_BracketSpec
 
       procedure :: extension_cost
       procedure :: make_extension
+      procedure :: new_make_extension
       procedure :: make_action
    end type BracketSpec
 
@@ -296,6 +297,20 @@ contains
       _RETURN(_SUCCESS)
    end function make_extension
 
+   subroutine new_make_extension(this, dst_spec, new_spec, action, rc)
+      class(BracketSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), allocatable, intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      action = NullAction() ! default
+      new_spec = this
+
+      _FAIL('not implemented')
+   end subroutine new_make_extension
 
    ! Return an atomic action that tranforms payload of "this"
    ! to payload of "goal".

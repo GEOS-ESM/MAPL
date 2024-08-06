@@ -31,6 +31,7 @@ module mapl3g_WildcardSpec
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: make_extension
+      procedure :: new_make_extension
       procedure :: make_action
       procedure :: add_to_state
       procedure :: add_to_bundle
@@ -216,6 +217,21 @@ contains
 
       _FAIL('wildcard cannot be extended - only used for imports')
    end function make_extension
+
+   subroutine new_make_extension(this, dst_spec, new_spec, action, rc)
+      class(WildcardSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), allocatable, intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      action = NullAction() ! default
+      new_spec = this
+
+      _FAIL('not implemented')
+   end subroutine new_make_extension
 
    function make_action(this, dst_spec, rc) result(action)
       class(ExtensionAction), allocatable :: action

@@ -76,6 +76,7 @@ module mapl3g_FieldSpec
 
       procedure :: extension_cost
       procedure :: make_extension
+      procedure :: new_make_extension
       procedure :: make_extension_safely
       procedure :: make_action
 
@@ -624,6 +625,8 @@ contains
       extension = this
 
       if (update_item(extension%geom, dst_spec%geom)) return
+!#      if (update_item(extension%v_grid, dst_spec%v_grid)) return
+!#      if (update_item(extension%freq_spec, dst_spec%freq_spec)) return
       if (update_item(extension%typekind, dst_spec%typekind)) return
       if (update_item(extension%units, dst_spec%units)) return
 
@@ -669,6 +672,102 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_action
+
+
+   subroutine new_make_extension(this, dst_spec, new_spec, action, rc)
+      class(FieldSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), allocatable, intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(FieldSpec) :: tmp_spec
+
+      new_spec = this ! plus one modification from below
+      action = NullAction() ! need default in case of premature return
+
+      select type(dst_spec)
+      type is (FieldSpec)
+         call new_make_extension_safely(this, dst_spec, tmp_spec, action, _RC)
+         deallocate(new_spec) ! gfortran workaround
+         new_spec = tmp_spec
+      class default
+         _FAIL('Unsupported subclass.')
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine new_make_extension
+
+   subroutine new_make_extension_safely(this, dst_spec, new_spec, action, rc)
+      class(FieldSpec), intent(in) :: this
+      type(FieldSpec), intent(in) :: dst_spec
+      type(FieldSpec), intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      new_spec = this ! plus one modification from below
+      action = NullAction() ! need default in case of premature return
+
+      _ASSERT(allocated(this%geom), 'Source spec must specify a valid geom.')
+      if (.not. same_geom(this%geom, dst_spec%geom)) then
+         action = RegridAction(this%geom, dst_spec%geom, dst_spec%regrid_param)
+         new_spec%geom = dst_spec%geom
+      end if
+      
+!#   _ASSERT(allocated(this%v_grid), 'Source spec must specify a valid vertical grid.')
+!#   if (.not. same_vgrid(this%v_grid, dst_spec%v_grid)) then
+!#      action = VerticalRegridAction(this%v_grid, dst_spec%v_grid)
+!#      new_spec%v_grid = dst_spec%v_grid
+!#   end if
+      
+!#   if (.not. same_freq_spec(this%freq_spec, dst_spec%freq_spec)) then
+!#      action = VerticalRegridAction(this%freq_spec, dst_spec%freq_spec
+!#      new_spec%freq_spec = dst_spec%freq_spec
+!#   end if
+      
+      if (this%typekind  /=  dst_spec%typekind) then
+         action = CopyAction(this%typekind, dst_spec%typekind)
+         new_spec%typekind = dst_spec%typekind
+      end if
+      
+      if (.not. same_units(this%units, dst_spec%units)) then
+         action = ConvertUnitsAction(this%units, dst_spec%units)
+         new_spec%units = dst_spec%units
+      end if
+      
+      _FAIL('No extensions found for this.')
+   
+   contains
+
+      
+      logical function same_geom(src_geom, dst_geom)
+         type(ESMF_Geom), intent(in) :: src_geom
+         type(ESMF_Geom), allocatable, intent(in) :: dst_geom
+         
+         same_geom = .true.
+         if (.not. allocated(dst_geom)) return ! mirror geom
+         
+         same_geom = MAPL_SameGeom(src_geom, dst_geom)
+         
+      end function same_geom
+      
+      logical function same_units(src_units, dst_units)
+         character(*), intent(in) :: src_units
+         character(:), allocatable, intent(in) :: dst_units
+         
+         same_units = .true.
+         if (.not. allocated(dst_units)) return ! mirror units
+      
+         same_units = (src_units == dst_units)
+         
+      end function same_units
+      
+   end subroutine new_make_extension_safely
+
+
 
    logical function can_match_geom(a, b) result(can_match)
       type(ESMF_Geom), allocatable, intent(in) :: a, b

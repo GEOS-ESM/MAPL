@@ -8,6 +8,7 @@ module MockItemSpecMod
    use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVector
    use mapl3g_ExtensionAction
+   use mapl3g_NullAction
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
@@ -29,6 +30,7 @@ module MockItemSpecMod
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: make_extension
+      procedure :: new_make_extension
       procedure :: make_extension_typesafe
       procedure :: extension_cost
       procedure :: add_to_state
@@ -236,7 +238,57 @@ contains
       _RETURN(_SUCCESS)
    end function make_extension_typesafe
 
-   integer function extension_cost(this, src_spec, rc) result(cost)
+    subroutine new_make_extension(this, dst_spec, new_spec, action, rc)
+      class(MockItemSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), allocatable, intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(MockItemSpec) :: tmp_spec
+
+      action = NullAction() ! default
+      new_spec = this
+
+       select type(dst_spec)
+       type is (MockItemSpec)
+          call new_make_extension_typesafe(this, dst_spec, tmp_spec, action, _RC)
+          deallocate(new_spec)
+          new_spec = tmp_spec
+      class default
+         _FAIL('incompatible spec')
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine new_make_extension
+
+   subroutine new_make_extension_typesafe(this, dst_spec, new_spec, action, rc)
+      class(MockItemSpec), intent(in) :: this
+      type(MockItemSpec), intent(in) :: dst_spec
+      class(MockItemSpec), intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      if (this%name /= dst_spec%name) then
+         new_spec%name = dst_spec%name
+         _RETURN(_SUCCESS)
+      end if
+      
+      if (allocated(dst_spec%subtype) .and. allocated(this%subtype)) then
+         if (this%subtype /= dst_spec%subtype) then
+            new_spec%subtype = dst_spec%subtype
+            _RETURN(_SUCCESS)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+
+   end subroutine new_make_extension_typesafe
+ 
+  integer function extension_cost(this, src_spec, rc) result(cost)
       class(MockItemSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc

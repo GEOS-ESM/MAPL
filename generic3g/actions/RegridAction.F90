@@ -13,6 +13,8 @@ module mapl3g_RegridAction
    public :: RegridAction
 
    type, extends(ExtensionAction) :: ScalarRegridAction
+      type(ESMF_Geom) :: src_geom
+      type(ESMF_Geom) :: dst_geom
       class(Regridder), pointer :: regrdr
       type(ESMF_Field) :: f_src, f_dst
    contains
@@ -28,6 +30,7 @@ module mapl3g_RegridAction
 
    interface RegridAction
       module procedure :: new_ScalarRegridAction
+      module procedure :: new_ScalarRegridAction2
 !#      module procedure :: new_RegridAction_vector
 !#      module procedure :: new_RegridAction_bundle
    end interface RegridAction
@@ -55,6 +58,21 @@ contains
       action%f_dst = f_dst
 
    end function new_ScalarRegridAction
+
+  function new_ScalarRegridAction2(src_geom, dst_geom, dst_param) result(action)
+      type(ScalarRegridAction) :: action
+      type(ESMF_Geom), intent(in) :: src_geom
+      type(ESMF_Geom), intent(in) :: dst_geom
+      type(EsmfRegridderParam), intent(in) :: dst_param
+
+      type(RegridderSpec) :: spec
+      type(RegridderManager), pointer :: regridder_manager
+      integer :: status
+
+      action%src_geom = src_geom
+      action%dst_geom = dst_geom
+
+   end function new_ScalarRegridAction2
 
 !#   function new_RegridAction_vector(uv_src, uv_dst) then (action)
 !#      use mapl_RegridderManager

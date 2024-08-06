@@ -11,6 +11,8 @@ module mapl3g_CopyAction
 
    type, extends(ExtensionAction) :: CopyAction
       private
+      type(ESMF_TypeKind_Flag) :: src_typekind
+      type(ESMF_TypeKind_Flag) :: dst_typekind
       type(ESMF_Field) :: f_in, f_out
    contains
       procedure :: run
@@ -18,6 +20,7 @@ module mapl3g_CopyAction
 
    interface CopyAction
       module procedure new_CopyAction
+      module procedure new_CopyAction2
    end interface CopyAction
 
 contains
@@ -30,6 +33,19 @@ contains
       action%f_in = f_in
       action%f_out = f_out
    end function new_CopyAction
+
+   ! We don't really need to know the typekind as the low level conversion routines
+   ! will accept whatever is handed. So these arguments are more to preserve
+   ! a consistent form for constructions across Action subclasses.
+   function new_CopyAction2(src_typekind, dst_typekind) result(action)
+      type(CopyAction) :: action
+      type(ESMF_Typekind_Flag), intent(in) :: src_typekind
+      type(ESMF_Typekind_Flag), intent(in) :: dst_typekind
+
+      action%src_typekind = src_typekind
+      action%dst_typekind = dst_typekind
+
+   end function new_CopyAction2
 
    subroutine run(this, rc)
       class(CopyAction), intent(inout) :: this
