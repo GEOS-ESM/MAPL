@@ -76,8 +76,6 @@ module mapl3g_FieldSpec
 
       procedure :: extension_cost
       procedure :: make_extension
-      procedure :: make_extension_safely
-      procedure :: make_action
 
       procedure :: set_info
 
@@ -199,8 +197,6 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
-      _RETURN_UNLESS(allocated(this%geom))  ! mirror
-      call MAPL_FieldEmptySet(this%payload, this%geom, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -260,8 +256,11 @@ contains
 
       _RETURN_UNLESS(this%is_active())
 
+
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
+
+      call MAPL_FieldEmptySet(this%payload, this%geom, _RC)
 
       bounds = get_ungridded_bounds(this, _RC)
       call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
@@ -341,9 +340,15 @@ contains
 
       select type (src_spec)
       class is (FieldSpec)
-         ! ok
+         ! Import fields are preemptively created just so that they
+         ! can still be queried even when not satisfied.  It is
+         ! possible that such is not really necessary.  But for now
+         ! when an import is ultimately connected we must destroy the
+         ! ESMF_Field object before copying the payload from the
+         ! source spec.
          call this%destroy(_RC)
          this%payload = src_spec%payload
+
          call mirror(dst=this%geom, src=src_spec%geom)
          call mirror(dst=this%typekind, src=src_spec%typekind)
          call mirror(dst=this%units, src=src_spec%units)
@@ -588,80 +593,100 @@ contains
       _RETURN(_SUCCESS)
    end function extension_cost
 
-   function make_extension(this, dst_spec, rc) result(extension)
-      class(StateItemSpec), allocatable :: extension
+
+   subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(FieldSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), allocatable, intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(FieldSpec) :: tmp_spec
 
-      select type (dst_spec)
+      select type(dst_spec)
       type is (FieldSpec)
-         allocate(extension, source=this%make_extension_safely(dst_spec))
-         call extension%create(_RC)
+         call make_extension_safely(this, dst_spec, tmp_spec, action, _RC)
+         allocate(new_spec, source=tmp_spec)
       class default
-         extension=this
          _FAIL('Unsupported subclass.')
       end select
-      _RETURN(_SUCCESS)
-   end function make_extension
 
-   function make_extension_safely(this, dst_spec) result(extension)
-      type(FieldSpec) :: extension
+      _RETURN(_SUCCESS)
+   end subroutine make_extension
+
+   subroutine make_extension_safely(this, dst_spec, new_spec, action, rc)
       class(FieldSpec), intent(in) :: this
       type(FieldSpec), intent(in) :: dst_spec
-
-      logical :: found
-
-      extension = this
-
-      if (update_item(extension%geom, dst_spec%geom)) return
-      if (update_item(extension%typekind, dst_spec%typekind)) return
-      if (update_item(extension%units, dst_spec%units)) return
-
-    end function make_extension_safely
-
-   ! Return an atomic action that tranforms payload of "this"
-   ! to payload of "dst_spec".
-   function make_action(this, dst_spec, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(FieldSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
+      type(FieldSpec), intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      action = NullAction() ! default
+      new_spec = this ! plus one modification from below
+      _ASSERT(allocated(this%geom), 'Source spec must specify a valid geom.')
+      if (.not. same_geom(this%geom, dst_spec%geom)) then
+         action = RegridAction(this%geom, dst_spec%geom, dst_spec%regrid_param)
+         new_spec%geom = dst_spec%geom
+         _RETURN(_SUCCESS)
+      end if
+      
+!#   _ASSERT(allocated(this%v_grid), 'Source spec must specify a valid vertical grid.')
+!#   if (.not. same_vgrid(this%v_grid, dst_spec%v_grid)) then
+!#      action = VerticalRegridAction(this%v_grid, dst_spec%v_grid)
+!#      new_spec%v_grid = dst_spec%v_grid
+!!$         _RETURN(_SUCCESS)
+!#   end if
+      
+!#   if (.not. same_freq_spec(this%freq_spec, dst_spec%freq_spec)) then
+!#      action = VerticalRegridAction(this%freq_spec, dst_spec%freq_spec
+!#      new_spec%freq_spec = dst_spec%freq_spec
+!!$         _RETURN(_SUCCESS)
+!#   end if
+      
+      if (this%typekind  /=  dst_spec%typekind) then
+         action = CopyAction(this%typekind, dst_spec%typekind)
+         new_spec%typekind = dst_spec%typekind
+         _RETURN(_SUCCESS)
+      end if
+      
+      if (.not. same_units(this%units, dst_spec%units)) then
+         action = ConvertUnitsAction(this%units, dst_spec%units)
+         new_spec%units = dst_spec%units
+         _RETURN(_SUCCESS)
+      end if
+      
+      _FAIL('No extensions found for this.')
+   
+   contains
 
-      select type (dst_spec)
-      type is (FieldSpec)
+      
+      logical function same_geom(src_geom, dst_geom)
+         type(ESMF_Geom), intent(in) :: src_geom
+         type(ESMF_Geom), allocatable, intent(in) :: dst_geom
+         
+         same_geom = .true.
+         if (.not. allocated(dst_geom)) return ! mirror geom
+         
+         same_geom = MAPL_SameGeom(src_geom, dst_geom)
+         
+      end function same_geom
+      
+      logical function same_units(src_units, dst_units)
+         character(*), intent(in) :: src_units
+         character(:), allocatable, intent(in) :: dst_units
+         
+         same_units = .true.
+         if (.not. allocated(dst_units)) return ! mirror units
+      
+         same_units = (src_units == dst_units)
+         
+      end function same_units
+      
+   end subroutine make_extension_safely
 
-         if (.not. MAPL_SameGeom(this%geom, dst_spec%geom)) then
-            deallocate(action)
-            _ASSERT(this%regrid_param == dst_spec%regrid_param, "src param /= dst param")
-            action = RegridAction(this%geom, this%payload, dst_spec%geom, dst_spec%payload, dst_spec%regrid_param)
-            _RETURN(_SUCCESS)
-         end if
 
-         if (this%typekind /= dst_spec%typekind) then
-            deallocate(action)
-            action = CopyAction(this%payload, dst_spec%payload)
-            _RETURN(_SUCCESS)
-         end if
-
-         if (.not. match(this%units,dst_spec%units)) then
-            deallocate(action)
-            action = ConvertUnitsAction(this%payload, this%units, dst_spec%payload, dst_spec%units)
-            _RETURN(_SUCCESS)
-         end if
-
-      class default
-         _FAIL('Dst spec is incompatible with FieldSpec.')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function make_action
 
    logical function can_match_geom(a, b) result(can_match)
       type(ESMF_Geom), allocatable, intent(in) :: a, b
