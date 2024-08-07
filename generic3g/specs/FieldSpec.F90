@@ -607,7 +607,7 @@ contains
       select type(dst_spec)
       type is (FieldSpec)
          call make_extension_safely(this, dst_spec, tmp_spec, action, _RC)
-         new_spec = tmp_spec
+         allocate(new_spec, source=tmp_spec)
       class default
          _FAIL('Unsupported subclass.')
       end select
