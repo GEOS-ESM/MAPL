@@ -9,6 +9,8 @@ module mapl3g_StateSpec
    use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVector
    use mapl_ErrorHandling
+   use mapl3g_ExtensionAction
+   use mapl3g_NullAction
    use ESMF
    use mapl_KeywordEnforcer
    implicit none
@@ -170,14 +172,21 @@ contains
    end subroutine add_to_bundle
    
 
-   function make_extension(this, dst_spec, rc) result(extension)
-      class(StateItemSpec), allocatable :: extension
+   subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(StateSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), allocatable, intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
       integer, optional, intent(out) :: rc
-      _RETURN(_SUCCESS)
-   end function make_extension
-   
+
+      integer :: status
+
+      action = NullAction() ! default
+      new_spec = this
+
+      _FAIL('not implemented')
+   end subroutine make_extension
+
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(StateSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec

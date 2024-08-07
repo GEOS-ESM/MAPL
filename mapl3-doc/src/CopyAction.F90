@@ -11,13 +11,18 @@ module mapl3g_CopyAction
 
    type, extends(ExtensionAction) :: CopyAction
       private
+      type(ESMF_TypeKind_Flag) :: src_typekind
+      type(ESMF_TypeKind_Flag) :: dst_typekind
       type(ESMF_Field) :: f_in, f_out
    contains
-      procedure :: run
+      procedure :: initialize
+      procedure :: run_old
+      procedure :: run_new
    end type CopyAction
 
    interface CopyAction
       module procedure new_CopyAction
+      module procedure new_CopyAction2
    end interface CopyAction
 
 contains
@@ -31,7 +36,35 @@ contains
       action%f_out = f_out
    end function new_CopyAction
 
-   subroutine run(this, rc)
+   ! We don't really need to know the typekind as the low level conversion routines
+   ! will accept whatever is handed. So these arguments are more to preserve
+   ! a consistent form for constructions across Action subclasses.
+   function new_CopyAction2(src_typekind, dst_typekind) result(action)
+      type(CopyAction) :: action
+      type(ESMF_Typekind_Flag), intent(in) :: src_typekind
+      type(ESMF_Typekind_Flag), intent(in) :: dst_typekind
+
+      action%src_typekind = src_typekind
+      action%dst_typekind = dst_typekind
+
+   end function new_CopyAction2
+
+   subroutine initialize(this, importState, exportState, clock, rc)
+      use esmf
+      class(CopyAction), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      ! No-op
+
+      _RETURN(_SUCCESS)
+   end subroutine initialize
+
+   subroutine run_old(this, rc)
       class(CopyAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
@@ -40,6 +73,26 @@ contains
       call FieldCopy(this%f_in, this%f_out, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine run
+   end subroutine run_old
+
+   subroutine run_new(this, importState, exportState, clock, rc)
+      use esmf
+      class(CopyAction), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: f_in, f_out
+
+      call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
+      call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
+
+      call FieldCopy(f_in, f_out, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine run_new
+
 
 end module mapl3g_CopyAction

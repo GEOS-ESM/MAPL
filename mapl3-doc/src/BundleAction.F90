@@ -13,7 +13,9 @@ module mapl3g_BundleAction
       private
       type(ActionVector) :: actions
    contains
-      procedure :: run
+      procedure :: initialize
+      procedure :: run_old
+      procedure :: run_new
       procedure :: add_action
    end type BundleAction
 
@@ -28,7 +30,30 @@ contains
       action%actions = ActionVector()
    end function new_BundleAction
 
-   subroutine run(this, rc)
+   ! BundleAction may not make sense with a shared import/export state.
+   subroutine initialize(this, importState, exportState, clock, rc)
+      use esmf
+      class(BundleAction), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ActionVectorIterator) :: iter
+
+!#      associate (e => this%actions%ftn_end())
+!#        iter = this%actions%ftn_begin()
+!#        do while (iter /= e)
+!#           call iter%next()
+!#           subaction => iter%of()
+!#           call subaction%initialize(importState, exportState, clock, _RC)
+!#        end do
+!#      end associate
+      _FAIL('Not implemented')
+   end subroutine initialize
+
+   subroutine run_old(this, rc)
       class(BundleAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
       
@@ -42,8 +67,31 @@ contains
       end do
       
       _RETURN(_SUCCESS)
-   end subroutine run
+   end subroutine run_old
    
+   ! BundleAction may not make sense with a shared import/export state.
+   subroutine run_new(this, importState, exportState, clock, rc)
+      use esmf
+      class(BundleAction), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ActionVectorIterator) :: iter
+
+!#      associate (e => this%actions%ftn_end())
+!#        iter = this%actions%ftn_begin()
+!#        do while (iter /= e)
+!#           call iter%next()
+!#           subaction => iter%of()
+!#           call subaction%initialize(importState, exportState, clock, _RC)
+!#        end do
+!#      end associate
+      _FAIL('Not implemented')
+   end subroutine run_new
+
    subroutine add_action(this, action)
       class(BundleAction), intent(inout) :: this
       class(ExtensionAction), intent(in) :: action

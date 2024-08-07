@@ -13,10 +13,17 @@ module mapl3g_RegridAction
    public :: RegridAction
 
    type, extends(ExtensionAction) :: ScalarRegridAction
+      type(ESMF_Geom) :: src_geom
+      type(ESMF_Geom) :: dst_geom
+      type(EsmfRegridderParam) :: dst_param
+
       class(Regridder), pointer :: regrdr
+      ! old
       type(ESMF_Field) :: f_src, f_dst
    contains
-      procedure :: run => run_scalar
+      procedure :: initialize
+      procedure :: run_old => run_scalar
+      procedure :: run_new
    end type ScalarRegridAction
 
 !#   type, extends(AbstractAction) :: VectorRegridAction
@@ -28,6 +35,7 @@ module mapl3g_RegridAction
 
    interface RegridAction
       module procedure :: new_ScalarRegridAction
+      module procedure :: new_ScalarRegridAction2
 !#      module procedure :: new_RegridAction_vector
 !#      module procedure :: new_RegridAction_bundle
    end interface RegridAction
@@ -56,6 +64,22 @@ contains
 
    end function new_ScalarRegridAction
 
+  function new_ScalarRegridAction2(src_geom, dst_geom, dst_param) result(action)
+      type(ScalarRegridAction) :: action
+      type(ESMF_Geom), intent(in) :: src_geom
+      type(ESMF_Geom), intent(in) :: dst_geom
+      type(EsmfRegridderParam), intent(in) :: dst_param
+
+      type(RegridderSpec) :: spec
+      type(RegridderManager), pointer :: regridder_manager
+      integer :: status
+
+      action%src_geom = src_geom
+      action%dst_geom = dst_geom
+      action%dst_param = dst_param
+
+   end function new_ScalarRegridAction2
+
 !#   function new_RegridAction_vector(uv_src, uv_dst) then (action)
 !#      use mapl_RegridderManager
 !#
@@ -71,7 +95,28 @@ contains
 !#   end function new_RegridAction_scalar
 !#
 !#
-   subroutine run_scalar(this, rc)
+ 
+   subroutine initialize(this, importState, exportState, clock, rc)
+      use esmf
+      class(ScalarRegridAction), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(RegridderSpec) :: spec
+      type(RegridderManager), pointer :: regridder_manager
+
+      regridder_manager => get_regridder_manager()
+      spec = RegridderSpec(this%dst_param, this%src_geom, this%dst_geom)
+      this%regrdr => regridder_manager%get_regridder(spec, rc=status)
+
+      _RETURN(_SUCCESS)
+   end subroutine initialize
+
+
+  subroutine run_scalar(this, rc)
       class(ScalarRegridAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
       type(ESMF_Field) :: f_src, f_dst
@@ -80,6 +125,25 @@ contains
       call this%regrdr%regrid(this%f_src, this%f_dst, _RC)
       _RETURN(_SUCCESS)
    end subroutine run_scalar
+
+   subroutine run_new(this, importState, exportState, clock, rc)
+      use esmf
+      class(ScalarRegridAction), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: f_in, f_out
+
+      call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
+      call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
+      call this%regrdr%regrid(f_in, f_out, _RC)
+
+
+      _RETURN(_SUCCESS)
+   end subroutine run_new
 
 !#   subroutine run_vector(this, importState, exporState)
 !#

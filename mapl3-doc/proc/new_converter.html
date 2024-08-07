@@ -144,7 +144,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  function new_converter(f_in, units_in, f_out, units_out) result(action)  
+    <h2>public  function new_converter(f_in, src_units, f_out, dst_units) result(action)  
 </h2>
     
 
@@ -163,7 +163,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-f_in~3"></span>
+              <span class="anchor" id="variable-f_in~17"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
             </td>
 <td>intent(in)</td>
@@ -178,7 +178,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-units_in"></span>
+              <span class="anchor" id="variable-src_units~4"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -186,14 +186,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>units_in</strong></td>
+            <td><strong>src_units</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-f_out~3"></span>
+              <span class="anchor" id="variable-f_out~17"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
             </td>
 <td>intent(in)</td>
@@ -208,7 +208,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-units_out"></span>
+              <span class="anchor" id="variable-dst_units~4"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -216,7 +216,7 @@
               
             </td>
             <td>::</td>
-            <td><strong>units_out</strong></td>
+            <td><strong>dst_units</strong></td>
             <td>
                 
             </td>
@@ -226,7 +226,7 @@
 
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-action"></span>
+          <span class="anchor" id="variable-action~25"></span>
           type(<a href='../type/convertunitsaction.html'>ConvertUnitsAction</a>)
         </small>
       </h3>
@@ -501,15 +501,15 @@ large graphs.</div>
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">new_converter</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span><span class="w"> </span><span class="n">units_in</span><span class="p">,</span><span class="w"> </span><span class="n">f_out</span><span class="p">,</span><span class="w"> </span><span class="n">units_out</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">new_converter</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span><span class="w"> </span><span class="n">src_units</span><span class="p">,</span><span class="w"> </span><span class="n">f_out</span><span class="p">,</span><span class="w"> </span><span class="n">dst_units</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ConvertUnitsAction</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">action</span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f_in</span><span class="p">,</span><span class="w"> </span><span class="n">f_out</span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">units_in</span><span class="p">,</span><span class="w"> </span><span class="n">units_out</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_units</span><span class="p">,</span><span class="w"> </span><span class="n">dst_units</span>
 
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
 
 <span class="w">      </span><span class="c">! TODO: move to place where only called</span>
-<span class="w">      </span><span class="k">call </span><span class="n">UDUNITS_GetConverter</span><span class="p">(</span><span class="n">action</span><span class="p">%</span><span class="n">converter</span><span class="p">,</span><span class="w"> </span><span class="n">from</span><span class="o">=</span><span class="n">units_in</span><span class="p">,</span><span class="w"> </span><span class="n">to</span><span class="o">=</span><span class="n">units_out</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">UDUNITS_GetConverter</span><span class="p">(</span><span class="n">action</span><span class="p">%</span><span class="n">converter</span><span class="p">,</span><span class="w"> </span><span class="n">from</span><span class="o">=</span><span class="n">src_units</span><span class="p">,</span><span class="w"> </span><span class="n">to</span><span class="o">=</span><span class="n">dst_units</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
 <span class="w">      </span><span class="n">action</span><span class="p">%</span><span class="n">f_in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f_in</span>
 <span class="w">      </span><span class="n">action</span><span class="p">%</span><span class="n">f_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f_out</span>
 <span class="w">      </span>
@@ -537,7 +537,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-08-07T16:06:32.774087             </p>
+ on 2024-08-07T18:35:51.083659             </p>
           </div>
         </div>
         <br>

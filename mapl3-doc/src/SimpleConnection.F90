@@ -13,6 +13,7 @@ module mapl3g_SimpleConnection
    use mapl3g_StateItemExtension
    use mapl3g_StateItemExtensionVector
    use mapl3g_StateItemExtensionPtrVector
+   use mapl3g_MultiState
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use gFTL2_StringVector, only: StringVector
@@ -111,12 +112,15 @@ contains
       type(StateItemExtension) :: extension
       type(StateItemExtension), pointer :: new_extension
       class(StateItemSpec), pointer :: last_spec
+      class(StateItemSpec), pointer :: new_spec
       class(StateItemSpec), pointer :: best_spec
       type(ActualConnectionPt) :: effective_pt
 
       type(GriddedComponentDriver), pointer :: coupler
       type(ActualPtVector), pointer :: src_actual_pts
       type(ActualConnectionPt), pointer :: best_pt
+      type(ActualConnectionPt) :: a_pt
+      type(MultiState) :: coupler_states
 
       src_pt = this%get_source()
       dst_pt = this%get_destination()
@@ -145,6 +149,19 @@ contains
             extension = last_extension%make_extension(dst_spec, _RC)
             new_extension => src_registry%add_extension(src_pt%v_pt, extension, _RC)
             coupler => new_extension%get_producer()
+
+            ! WARNING TO FUTURE DEVELOPERS: There may be issues if
+            ! some spec needs to be a bit different in import and
+            ! export roles.  Here we use "last_extension" as an export
+            ! of src and an import of coupler.
+            coupler_states = coupler%get_states()
+            a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name='import[1]'))
+            last_spec => last_extension%get_spec()
+            call last_spec%add_to_state(coupler_states, a_pt, _RC)
+            a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='export[1]'))
+            new_spec => new_extension%get_spec()
+            call new_spec%add_to_state(coupler_states, a_pt, _RC)
+            
             call last_extension%add_consumer(coupler)
             last_extension => new_extension
          end do

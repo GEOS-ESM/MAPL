@@ -5,9 +5,10 @@ module mapl3g_InvalidSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
-
+   use mapl3g_ExtensionAction
    use mapl3g_ActualPtVector
    use mapl3g_ActualPtSpecPtrMap
+   use mapl3g_NullAction
    use esmf, only: ESMF_FieldBundle
    use esmf, only: ESMF_Geom
    use esmf, only: ESMF_State
@@ -128,16 +129,20 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   function make_extension(this, dst_spec, rc) result(extension)
-      class(StateItemSpec), allocatable :: extension
+   subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(InvalidSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), allocatable, intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
       integer, optional, intent(out) :: rc
 
       integer :: status
-      _FAIL('Attempt to use item of type InvalidSpec')
 
-   end function make_extension
+      action = NullAction() ! default
+      new_spec = this
+
+      _FAIL('attempt to use item of type InvalidSpec')
+   end subroutine make_extension
 
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(InvalidSpec), intent(in) :: this
