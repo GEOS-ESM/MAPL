@@ -424,6 +424,7 @@ CONTAINS
          call t_prof%stop("Read")
 
          call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
+         _VERIFY(status)
 
          call t_prof%start("write")
 

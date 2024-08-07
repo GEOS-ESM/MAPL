@@ -285,12 +285,14 @@ contains
       ! Look for a file called "ESMF.rc" but we want to do this on root and then
       ! broadcast the result to the other ranks
 
-      call MPI_COMM_RANK(comm, rank, ierror)
+      call MPI_COMM_RANK(comm, rank, status)
+      _VERIFY(status)
 
       if (rank == 0) then
          inquire(file='ESMF.rc', exist=file_exists)
       end if
-      call MPI_BCAST(file_exists, 1, MPI_LOGICAL, 0, comm, ierror)
+      call MPI_BCAST(file_exists, 1, MPI_LOGICAL, 0, comm, status)
+      _VERIFY(status)
 
       ! If the file exists, we pass it into ESMF_Initialize, else, we
       ! use the one from the command line arguments
@@ -452,15 +454,17 @@ contains
       call  ESMF_InitializePreMPI(_RC)
 
       if (.not. this%mpi_already_initialized) then
-         call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
+         call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, status)
+         _VERIFY(status)
          _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supported by this MPI.')
-!         call MPI_Init_thread(MPI_THREAD_SINGLE, provided, ierror)
-!         _VERIFY(ierror)
+!         call MPI_Init_thread(MPI_THREAD_SINGLE, provided, status)
 !         _ASSERT(provided == MPI_THREAD_SINGLE, "MPI_THREAD_SINGLE not supported by this MPI.")
       end if
 
-      call MPI_Comm_rank(this%comm_world, this%rank, ierror); _VERIFY(ierror)
-      call MPI_Comm_size(this%comm_world, npes_world, ierror); _VERIFY(ierror)
+      call MPI_Comm_rank(this%comm_world, this%rank, status)
+      _VERIFY(status)
+      call MPI_Comm_size(this%comm_world, npes_world, status)
+      _VERIFY(status)
 
       if ( this%cap_options%npes_model == -1) then
          ! just a feed back to cap_options to maintain integrity

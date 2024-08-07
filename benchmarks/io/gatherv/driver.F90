@@ -10,13 +10,15 @@ program main
    type(GathervSpec) :: spec
    integer :: status
       
-   call mpi_init(_IERROR)
+   call mpi_init(status)
+   _VERIFY(status)
    spec = make_GathervSpec() ! CLI
 
    call run(spec, _RC)
 
-   call MPI_Barrier(MPI_COMM_WORLD, _IERROR)
-   call mpi_finalize(_IERROR)
+   call MPI_Barrier(MPI_COMM_WORLD, status)
+   _VERIFY(status)
+   call mpi_finalize(status)
 
    stop
 
@@ -42,14 +44,19 @@ contains
       real :: t
 
       integer :: color, rank, npes
-      call MPI_Comm_rank(MPI_COMM_WORLD, rank, _IERROR)
-      call MPI_Comm_size(MPI_COMM_WORLD, npes, _IERROR)
+      call MPI_Comm_rank(MPI_COMM_WORLD, rank, status)
+      _VERIFY(status)
+      call MPI_Comm_size(MPI_COMM_WORLD, npes, status)
+      _VERIFY(status)
 
       color = (rank*spec%n_writers) / npes
-      call MPI_Comm_split(MPI_COMM_WORLD, color, 0, gather_comm, _IERROR)
+      call MPI_Comm_split(MPI_COMM_WORLD, color, 0, gather_comm, status)
+      _VERIFY(status)
       
-      call MPI_Comm_rank(gather_comm, rank, _IERROR)
-      call MPI_Comm_split(MPI_COMM_WORLD, rank, 0, writer_comm, _IERROR)
+      call MPI_Comm_rank(gather_comm, rank, status)
+      _VERIFY(status)
+      call MPI_Comm_split(MPI_COMM_WORLD, rank, 0, writer_comm, status)
+      _VERIFY(status)
 
       kernel = make_GathervKernel(spec, gather_comm, _RC)
 
@@ -85,10 +92,12 @@ contains
       integer :: status
       real :: t0, t1
 
-      call MPI_Barrier(comm, _IERROR)
+      call MPI_Barrier(comm, status)
+      _VERIFY(status)
       t0 = MPI_Wtime()
       call kernel%run(_RC)
-      call MPI_Barrier(comm, _IERROR)
+      call MPI_Barrier(comm, status)
+      _VERIFY(status)
       t1 = MPI_Wtime()
 
       time = t1 - t0
@@ -103,7 +112,8 @@ contains
       integer :: status
       integer :: rank
 
-      call MPI_Comm_rank(comm, rank, _IERROR)
+      call MPI_Comm_rank(comm, rank, status)
+      _VERIFY(status)
       _RETURN_UNLESS(rank == 0)
       
       write(*,'(4(a6,","),3(a15,:,","))',iostat=status) 'NX', '# levs', '# writers', 'group size', 'Time (s)', 'Rel. Std. dev.', 'BW (GB/sec)'
@@ -126,10 +136,12 @@ contains
       real :: bw_gb
       integer, parameter :: WORD=4
 
-      call MPI_Comm_rank(comm, rank, _IERROR)
+      call MPI_Comm_rank(comm, rank, status)
+      _VERIFY(status)
       _RETURN_UNLESS(rank == 0)
 
-      call MPI_Comm_size(MPI_COMM_WORLD, npes, _IERROR)
+      call MPI_Comm_size(MPI_COMM_WORLD, npes, status)
+      _VERIFY(status)
       group = npes /spec%n_writers
 
       bw_gb = 1.e-9 * WORD * (spec%nx**2)*6*spec%n_levs / avg_time
