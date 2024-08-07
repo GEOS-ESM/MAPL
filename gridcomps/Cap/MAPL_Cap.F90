@@ -286,11 +286,13 @@ contains
       ! broadcast the result to the other ranks
 
       call MPI_COMM_RANK(comm, rank, ierror)
+      _VERIFY(ierror)
 
       if (rank == 0) then
          inquire(file='ESMF.rc', exist=file_exists)
       end if
       call MPI_BCAST(file_exists, 1, MPI_LOGICAL, 0, comm, ierror)
+      _VERIFY(ierror)
 
       ! If the file exists, we pass it into ESMF_Initialize, else, we
       ! use the one from the command line arguments

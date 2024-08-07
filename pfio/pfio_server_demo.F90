@@ -117,7 +117,9 @@ contains
 
 end module server_demo_CLI
 
+#include "MAPL_ErrLog.h"
 module FakeExtDataMod_server
+   use MAPL_ErrorHandlingMod
    use server_demo_CLI
    use pFIO
    use gFTL_StringVector
@@ -165,7 +167,7 @@ contains
       integer, intent(in) :: comm
       class (AbstractDirectoryService), target,intent(inout) :: d_s
 
-      integer :: ierror
+      integer :: ierror, rc
       type (FileMetadata) :: file_metadata
       type (NetCDF4_FileFormatter) :: formatter
       type (StringIntegerMap) :: dims
@@ -179,7 +181,9 @@ contains
 
       this%comm = comm
       call MPI_Comm_rank(comm,this%rank,ierror)
+      _VERIFY(ierror)
       call MPI_Comm_size(comm,this%npes,ierror)
+      _VERIFY(ierror)
 
       allocate(this%bundle(this%vars%size()))
 
@@ -285,8 +289,11 @@ program main
    class(AbstractDirectoryService), pointer :: d_s=>null()
 
    call MPI_init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
+   !_VERIFY(ierror)
    call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
+   !_VERIFY(ierror)
    call MPI_Comm_size(MPI_COMM_WORLD, npes, ierror)
+   !_VERIFY(ierror)
 
    call process_command_line(options, rc=status)
 
@@ -299,6 +306,7 @@ program main
    key = 0
 
    call MPI_Comm_split(MPI_COMM_WORLD, color, key, comm, ierror)
+   !_VERIFY(ierror)
 
 !C$   num_threads = 20
    allocate(d_s, source = DirectoryService(MPI_COMM_WORLD))

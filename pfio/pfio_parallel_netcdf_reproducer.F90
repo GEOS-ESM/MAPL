@@ -85,7 +85,9 @@ contains
       character(3) :: field_idx_str
 
       call mpi_comm_size(MPI_COMM_WORLD, npes, ierror)
+      _VERIFY(ieeror)
       call mpi_comm_rank(MPI_COMM_WORLD, rank, ierror)
+      _VERIFY(ieeror)
 
       jm = im*6 ! pseudo cubed sphere
       call metadata%add_dimension('IM_WORLD', im)

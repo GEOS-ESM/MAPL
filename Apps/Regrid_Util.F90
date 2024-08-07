@@ -4,6 +4,7 @@
 
    use ESMF
    use MAPL
+   use MAPL_BaseMod
    use gFTL_StringVector
 
    implicit NONE

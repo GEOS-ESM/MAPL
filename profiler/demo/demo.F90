@@ -15,6 +15,7 @@ program main
    integer :: ierror
 
    call MPI_Init(ierror)
+   _VERIFY(ierror)
    main_prof = TimeProfiler('TOTAL')   ! timer 1
    call main_prof%start()
    lap_prof = TimeProfiler('Lap')

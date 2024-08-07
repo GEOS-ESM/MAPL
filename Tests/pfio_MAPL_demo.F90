@@ -92,6 +92,7 @@ program main
       call initialize_mpi(MPI_COMM_WORLD)
 
       call MPI_Comm_size(MPI_COMM_WORLD, npes, ierror)
+      _VERIFY(ierror)
       if ( cap_options%npes_model == -1) then
           cap_options%npes_model = npes
       endif
@@ -113,9 +114,11 @@ program main
 
             ! Get the number of PEs used for the model
             call MPi_Comm_size(client_comm, npes, ierror)
+            _VERIFY(ierror)
 
             ! Get the PE id
             call MPI_Comm_rank(client_comm, pe_id, ierror)
+            _VERIFY(ierror)
             if (npes /= cap_options%npes_model) stop "sanity check failed"
 
             !------------------------------------------------
@@ -194,6 +197,7 @@ CONTAINS
       integer :: provided
 
       call MPI_Initialized(mpi_already_initialized, ierror)
+      _VERIFY(ierror)
       if (.not. mpi_already_initialized) then
          call MPI_Init_thread(MPI_THREAD_SINGLE, provided, ierror)
          _VERIFY(ierror)

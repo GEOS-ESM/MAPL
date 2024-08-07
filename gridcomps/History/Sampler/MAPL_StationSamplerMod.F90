@@ -287,10 +287,12 @@ contains
     call MPI_Scatterv( sampler%lons, sendcount, &
          displs, MPI_REAL8,  lons_chunk, &
          recvcount, MPI_REAL8, 0, mpic, ierr)
+    _VERIFY(ierr)
 
     call MPI_Scatterv( sampler%lats, sendcount, &
          displs, MPI_REAL8,  lats_chunk, &
          recvcount, MPI_REAL8, 0, mpic, ierr)
+    _VERIFY(ierr)
 
     ! -- root
     sampler%LSF   = LocStreamFactory(sampler%lons, sampler%lats, _RC)
@@ -618,6 +620,7 @@ contains
              call MPI_gatherv ( p_chunk_2d, nsend, MPI_REAL, &
                   p_rt_2d, recvcount, displs, MPI_REAL,&
                   iroot, mpic, ierr )
+             _VERIFY(ierr)
 
              call MAPL_TimerOn(this%GENSTATE,"put2D")
              if (mapl_am_i_root()) then
@@ -664,6 +667,7 @@ contains
                 call MPI_gatherv ( p_chunk_3d, nsend_v, MPI_REAL, &
                      p_rt_3d, recvcount_v, displs_v, MPI_REAL,&
                      iroot, mpic, ierr )
+                _VERIFY(ierr)
              end if
              call MAPL_TimerOff(this%GENSTATE,"gatherv")
 

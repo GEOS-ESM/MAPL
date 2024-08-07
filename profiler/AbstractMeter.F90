@@ -1,6 +1,8 @@
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 module MAPL_AbstractMeter
    use, intrinsic :: iso_fortran_env, only: REAL64
+   use mapl_ErrorHandlingMod
    implicit none
    private
 
@@ -65,9 +67,13 @@ module MAPL_AbstractMeter
         ierror = 0
         if (dist_initialized) then
            call MPI_type_free(type_dist_struct, ierror)
+           _VERIFY(ierror)
            call MPI_type_free(type_dist_real64, ierror)
+           _VERIFY(ierror)
            call MPI_type_free(type_dist_integer, ierror)
+           _VERIFY(ierror)
            call MPI_Op_free(dist_reduce_op,ierror)
+           _VERIFY(ierror)
            dist_initialized = .false.
         endif
         if (present(rc)) rc = ierror

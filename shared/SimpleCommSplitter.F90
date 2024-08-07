@@ -315,6 +315,7 @@ contains
      integer :: ierror
      if (this%is_split) then
         call MPI_Comm_free(this%sub_comm, ierror)
+        !_VERIFY(ierror)
      endif
   end subroutine free_sub_comm
 
@@ -327,6 +328,7 @@ contains
 
      if (from%is_split) then
        call MPI_Comm_rank(comm, rank, ierror)
+       !_VERIFY(ierror)
        if (rank == 0) print*, "WARNING, try not to duplicate a splitter that has been split. Only one split splitter should be called free_sub_comm"
      endif
      call this%set_shared_communicator(comm)
