@@ -604,15 +604,10 @@ contains
       integer :: status
       type(FieldSpec) :: tmp_spec
 
-      new_spec = this ! plus one modification from below
-      action = NullAction() ! need default in case of premature return
-
       select type(dst_spec)
       type is (FieldSpec)
          call make_extension_safely(this, dst_spec, tmp_spec, action, _RC)
-         deallocate(new_spec) ! gfortran workaround
-         allocate(new_spec, source=tmp_spec)
-!#         new_spec = tmp_spec
+         new_spec = tmp_spec
       class default
          _FAIL('Unsupported subclass.')
       end select
@@ -630,8 +625,6 @@ contains
       integer :: status
 
       new_spec = this ! plus one modification from below
-      action = NullAction() ! need default in case of premature return
-
       _ASSERT(allocated(this%geom), 'Source spec must specify a valid geom.')
       if (.not. same_geom(this%geom, dst_spec%geom)) then
          action = RegridAction(this%geom, dst_spec%geom, dst_spec%regrid_param)
@@ -643,11 +636,13 @@ contains
 !#   if (.not. same_vgrid(this%v_grid, dst_spec%v_grid)) then
 !#      action = VerticalRegridAction(this%v_grid, dst_spec%v_grid)
 !#      new_spec%v_grid = dst_spec%v_grid
+!!$         _RETURN(_SUCCESS)
 !#   end if
       
 !#   if (.not. same_freq_spec(this%freq_spec, dst_spec%freq_spec)) then
 !#      action = VerticalRegridAction(this%freq_spec, dst_spec%freq_spec
 !#      new_spec%freq_spec = dst_spec%freq_spec
+!!$         _RETURN(_SUCCESS)
 !#   end if
       
       if (this%typekind  /=  dst_spec%typekind) then
