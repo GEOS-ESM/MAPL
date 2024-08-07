@@ -8,6 +8,7 @@ module mapl3g_LatLonGeomFactory
    use gftl2_StringVector
    use pfio
    use esmf
+   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    implicit none
    private
 
@@ -124,6 +125,20 @@ module mapl3g_LatLonGeomFactory
          integer, optional, intent(in) :: chunksizes(:)
          integer, optional, intent(out) :: rc
       end function make_file_metadata
+
+      module function typesafe_make_file_metadata(geom_spec, unusable, chunksizes, rc) result(file_metadata)
+         type(FileMetadata) :: file_metadata
+         type(LatLonGeomSpec), intent(in) :: geom_spec
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(in) :: chunksizes(:)
+         integer, optional, intent(out) :: rc
+      end function typesafe_make_file_metadata
+
+      module function typesafe_make_geom(spec, rc) result(geom)
+         type(ESMF_Geom) :: geom
+         class(LatLonGeomSpec), intent(in) :: spec
+         integer, optional, intent(out) :: rc
+      end function typesafe_make_geom
 
    end interface
 end module mapl3g_LatLonGeomFactory

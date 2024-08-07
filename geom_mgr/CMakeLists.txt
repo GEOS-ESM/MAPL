@@ -30,7 +30,7 @@ esma_add_library(${this}
 
 add_subdirectory(MaplGeom)
 add_subdirectory(CoordinateAxis)
-add_subdirectory(latlon)
+add_subdirectory(LatLon)
 add_subdirectory(GeomManager)
 add_subdirectory(VectorBasis)
 add_subdirectory(CubedSphere)
