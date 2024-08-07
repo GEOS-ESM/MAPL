@@ -114,13 +114,11 @@ contains
       type(ESMF_GridComp) :: coupler_gridcomp
       type(ESMF_Clock) :: fake_clock
 
-      call this%spec%new_make_extension(goal, new_spec, action, _RC)
-!#      new_spec = this%spec%make_extension(goal, _RC)
+      call this%spec%make_extension(goal, new_spec, action, _RC)
       call new_spec%create(_RC)
       call new_spec%set_active()
       call this%spec%set_active
 
-!#      action = this%spec%make_action(new_spec, _RC)
       coupler_gridcomp = make_coupler(action, _RC)
       producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
 

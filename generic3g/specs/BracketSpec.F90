@@ -47,8 +47,6 @@ module mapl3g_BracketSpec
 
       procedure :: extension_cost
       procedure :: make_extension
-      procedure :: new_make_extension
-      procedure :: make_action
    end type BracketSpec
 
    interface BracketSpec
@@ -279,25 +277,7 @@ contains
       _RETURN(_SUCCESS)
    end function extension_cost
 
-   function make_extension(this, dst_spec, rc) result(extension)
-      class(StateItemSpec), allocatable :: extension
-      class(BracketSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer :: i
-
-!#      extension = this
-!#      do i = 1, this%bracket_size
-!#         extension%field_specs(i) = this%field_specs(i)%make_extension(dst_spec, _RC)
-!#      end do
-!#      call extension%create(_RC)
-
-      _RETURN(_SUCCESS)
-   end function make_extension
-
-   subroutine new_make_extension(this, dst_spec, new_spec, action, rc)
+   subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(BracketSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
       class(StateItemSpec), allocatable, intent(out) :: new_spec
@@ -310,41 +290,7 @@ contains
       new_spec = this
 
       _FAIL('not implemented')
-   end subroutine new_make_extension
-
-   ! Return an atomic action that tranforms payload of "this"
-   ! to payload of "goal".
-   function make_action(this, dst_spec, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(BracketSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      class(ExtensionAction), allocatable :: subaction
-      integer :: i
-      type(BundleAction) :: bundle_action
-
-      action = NullAction() ! default
-
-      select type (dst_spec)
-      type is (BracketSpec)
-         _ASSERT(this%bracket_size == dst_spec%bracket_size, 'bracket size mismatch')
-         bundle_action = BundleAction()
-         do i = 1, this%bracket_size
-            subaction = this%field_specs(i)%make_action(dst_spec%field_specs(i), _RC)
-            call bundle_action%add_action(subaction)
-         end do
-!##ifdef __GFORTRAN__
-!#         deallocate(action)
-!##endif
-         action = bundle_action
-      class default
-         _FAIL('Dst_spec is incompatible with BracketSpec.')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function make_action
+   end subroutine make_extension
 
 
 end module mapl3g_BracketSpec

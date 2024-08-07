@@ -76,9 +76,6 @@ module mapl3g_FieldSpec
 
       procedure :: extension_cost
       procedure :: make_extension
-      procedure :: new_make_extension
-      procedure :: make_extension_safely
-      procedure :: make_action
 
       procedure :: set_info
 
@@ -596,85 +593,8 @@ contains
       _RETURN(_SUCCESS)
    end function extension_cost
 
-   function make_extension(this, dst_spec, rc) result(extension)
-      class(StateItemSpec), allocatable :: extension
-      class(FieldSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
 
-      integer :: status
-
-      select type (dst_spec)
-      type is (FieldSpec)
-         allocate(extension, source=this%make_extension_safely(dst_spec))
-         call extension%create(_RC)
-      class default
-         extension=this
-         _FAIL('Unsupported subclass.')
-      end select
-      _RETURN(_SUCCESS)
-   end function make_extension
-
-   function make_extension_safely(this, dst_spec) result(extension)
-      type(FieldSpec) :: extension
-      class(FieldSpec), intent(in) :: this
-      type(FieldSpec), intent(in) :: dst_spec
-
-      logical :: found
-
-      extension = this
-
-      if (update_item(extension%geom, dst_spec%geom)) return
-!#      if (update_item(extension%v_grid, dst_spec%v_grid)) return
-!#      if (update_item(extension%freq_spec, dst_spec%freq_spec)) return
-      if (update_item(extension%typekind, dst_spec%typekind)) return
-      if (update_item(extension%units, dst_spec%units)) return
-
-    end function make_extension_safely
-
-   ! Return an atomic action that tranforms payload of "this"
-   ! to payload of "dst_spec".
-   function make_action(this, dst_spec, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(FieldSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      action = NullAction() ! default
-
-      select type (dst_spec)
-      type is (FieldSpec)
-
-         if (.not. MAPL_SameGeom(this%geom, dst_spec%geom)) then
-            deallocate(action)
-            _ASSERT(this%regrid_param == dst_spec%regrid_param, "src param /= dst param")
-            action = RegridAction(this%geom, this%payload, dst_spec%geom, dst_spec%payload, dst_spec%regrid_param)
-            _RETURN(_SUCCESS)
-         end if
-
-         if (this%typekind /= dst_spec%typekind) then
-            deallocate(action)
-            action = CopyAction(this%payload, dst_spec%payload)
-            _RETURN(_SUCCESS)
-         end if
-
-         if (.not. match(this%units,dst_spec%units)) then
-            deallocate(action)
-            action = ConvertUnitsAction(this%payload, this%units, dst_spec%payload, dst_spec%units)
-            _RETURN(_SUCCESS)
-         end if
-
-      class default
-         _FAIL('Dst spec is incompatible with FieldSpec.')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function make_action
-
-
-   subroutine new_make_extension(this, dst_spec, new_spec, action, rc)
+   subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(FieldSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
       class(StateItemSpec), allocatable, intent(out) :: new_spec
@@ -689,7 +609,7 @@ contains
 
       select type(dst_spec)
       type is (FieldSpec)
-         call new_make_extension_safely(this, dst_spec, tmp_spec, action, _RC)
+         call make_extension_safely(this, dst_spec, tmp_spec, action, _RC)
          deallocate(new_spec) ! gfortran workaround
          allocate(new_spec, source=tmp_spec)
 !#         new_spec = tmp_spec
@@ -698,9 +618,9 @@ contains
       end select
 
       _RETURN(_SUCCESS)
-   end subroutine new_make_extension
+   end subroutine make_extension
 
-   subroutine new_make_extension_safely(this, dst_spec, new_spec, action, rc)
+   subroutine make_extension_safely(this, dst_spec, new_spec, action, rc)
       class(FieldSpec), intent(in) :: this
       type(FieldSpec), intent(in) :: dst_spec
       type(FieldSpec), intent(out) :: new_spec
@@ -769,7 +689,7 @@ contains
          
       end function same_units
       
-   end subroutine new_make_extension_safely
+   end subroutine make_extension_safely
 
 
 

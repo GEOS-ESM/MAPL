@@ -35,9 +35,7 @@ module mapl3g_ServiceSpec
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: make_extension
-      procedure :: new_make_extension
       procedure :: extension_cost
-      procedure :: make_action
       procedure :: add_to_state
       procedure :: add_to_bundle
 !!$      procedure :: check_complete
@@ -177,28 +175,7 @@ contains
    end subroutine destroy
 
 
-   function make_action(this, dst_spec, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(ServiceSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      action = NullAction()
-
-      _RETURN(_SUCCESS)
-   end function make_action
-
-   function make_extension(this, dst_spec, rc) result(extension)
-      class(StateItemSpec), allocatable :: extension
-      class(ServiceSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
-      _FAIL('not implemented')
-   end function make_extension
-   
-   subroutine new_make_extension(this, dst_spec, new_spec, action, rc)
+   subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(ServiceSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
       class(StateItemSpec), allocatable, intent(out) :: new_spec
@@ -211,7 +188,7 @@ contains
       new_spec = this
 
       _FAIL('not implemented')
-   end subroutine new_make_extension
+   end subroutine make_extension
 
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(ServiceSpec), intent(in) :: this

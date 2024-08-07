@@ -28,7 +28,6 @@ module mapl3g_StateItemSpec
       procedure(I_can_connect), deferred :: can_connect_to
       procedure(I_make_extension), deferred :: make_extension
       procedure(I_extension_cost), deferred :: extension_cost
-      procedure(I_new_make_extension), deferred :: new_make_extension
 
       procedure(I_add_to_state), deferred :: add_to_state
       procedure(I_add_to_bundle), deferred :: add_to_bundle
@@ -38,7 +37,6 @@ module mapl3g_StateItemSpec
       procedure, non_overridable :: is_active
       procedure, non_overridable :: set_active
 
-      procedure :: make_action
       procedure :: get_dependencies
       procedure :: get_raw_dependencies
       procedure :: set_dependencies
@@ -88,15 +86,7 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_allocate
 
-      function I_make_extension(this, dst_spec, rc) result(extension)
-         import StateItemSpec
-         class(StateItemSpec), allocatable :: extension
-         class(StateItemSpec), intent(in) :: this
-         class(StateItemSpec), intent(in) :: dst_spec
-         integer, optional, intent(out) :: rc
-      end function I_make_extension
-         
-      subroutine I_new_make_extension(this, dst_spec, new_spec, action, rc)
+      subroutine I_make_extension(this, dst_spec, new_spec, action, rc)
          use mapl3g_ExtensionAction
          import StateItemSpec
          class(StateItemSpec), intent(in) :: this
@@ -104,7 +94,7 @@ module mapl3g_StateItemSpec
          class(StateItemSpec), allocatable, intent(out) :: new_spec
          class(ExtensionAction), allocatable, intent(out) :: action
          integer, optional, intent(out) :: rc
-      end subroutine I_new_make_extension
+      end subroutine I_make_extension
 
       integer function I_extension_cost(this, src_spec, rc) result(cost)
          import StateItemSpec
@@ -178,19 +168,6 @@ contains
       class(StateItemSpec), intent(in) :: this
       is_active = this%active
    end function is_active
-
-
-   function make_action(this, dst_spec, rc) result(action)
-      use mapl3g_ExtensionAction
-      use mapl3g_NullAction
-      class(ExtensionAction), allocatable :: action
-      class(StateItemSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
-
-      action = NullAction()
-      _FAIL('Subclass has not implemented make_action')
-   end function make_action
 
    function get_dependencies(this) result(dependencies)
       type(ActualPtVector) :: dependencies

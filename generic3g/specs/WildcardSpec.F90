@@ -31,8 +31,6 @@ module mapl3g_WildcardSpec
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: make_extension
-      procedure :: new_make_extension
-      procedure :: make_action
       procedure :: add_to_state
       procedure :: add_to_bundle
       procedure :: extension_cost
@@ -209,16 +207,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   function make_extension(this, dst_spec, rc) result(extension)
-      class(StateItemSpec), allocatable :: extension
-      class(WildcardSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
-
-      _FAIL('wildcard cannot be extended - only used for imports')
-   end function make_extension
-
-   subroutine new_make_extension(this, dst_spec, new_spec, action, rc)
+   subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(WildcardSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
       class(StateItemSpec), allocatable, intent(out) :: new_spec
@@ -231,19 +220,7 @@ contains
       new_spec = this
 
       _FAIL('not implemented')
-   end subroutine new_make_extension
-
-   function make_action(this, dst_spec, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(WildcardSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      action = NullAction()
-      _FAIL('wildcard cannot be extended - only used for imports')
-   end function make_action
+   end subroutine make_extension
 
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(WildcardSpec), intent(in) :: this

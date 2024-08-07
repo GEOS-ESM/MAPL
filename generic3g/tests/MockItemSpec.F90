@@ -30,12 +30,9 @@ module MockItemSpecMod
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: make_extension
-      procedure :: new_make_extension
-      procedure :: make_extension_typesafe
       procedure :: extension_cost
       procedure :: add_to_state
       procedure :: add_to_bundle
-      procedure :: make_action
    end type MockItemSpec
 
    type, extends(ExtensionAction) :: MockAction
@@ -173,22 +170,6 @@ contains
       end if
    end function new_MockAction
 
-   function make_action(this, dst_spec, rc) result(action)
-      use mapl3g_ExtensionAction
-      class(ExtensionAction), allocatable :: action
-      class(MockItemSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
-
-      select type (dst_spec)
-      type is (Mockitemspec)
-         action = MockAction(this, dst_spec)
-      class default
-         _FAIL('unsupported subclass')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function make_action
 
    subroutine mock_run(this, rc)
       class(MockAction), intent(inout) :: this
@@ -197,50 +178,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine mock_run
 
-   function make_extension(this, dst_spec, rc) result(extension)
-      class(StateItemSpec), allocatable :: extension
-      class(MockItemSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(MockItemSpec) :: tmp
-      
-      select type(dst_spec)
-      type is (MockItemSpec)
-         tmp = this%make_extension_typesafe(dst_spec, _RC)
-         allocate(extension, source=tmp)
-      class default
-         _FAIL('incompatible spec')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function make_extension
-
-   function make_extension_typesafe(this, src_spec, rc) result(extension)
-      type(MockItemSpec) :: extension
-      class(MockItemSpec), intent(in) :: this
-      class(MockItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-     if (this%name /= src_spec%name) then
-         extension%name = src_spec%name
-         _RETURN(_SUCCESS)
-      end if
-
-      if (allocated(src_spec%subtype) .and. allocated(this%subtype)) then
-         if (this%subtype /= src_spec%subtype) then
-            extension%subtype = src_spec%subtype
-            _RETURN(_SUCCESS)
-         end if
-      end if
-
-      _RETURN(_SUCCESS)
-   end function make_extension_typesafe
-
-    subroutine new_make_extension(this, dst_spec, new_spec, action, rc)
+   subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(MockItemSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
       class(StateItemSpec), allocatable, intent(out) :: new_spec
@@ -254,7 +193,7 @@ contains
       new_spec = this
        select type(dst_spec)
        type is (MockItemSpec)
-          call new_make_extension_typesafe(this, dst_spec, tmp_spec, action, _RC)
+          call make_extension_typesafe(this, dst_spec, tmp_spec, action, _RC)
           deallocate(new_spec)
           allocate(new_spec, source=tmp_spec)
           new_spec = tmp_spec
@@ -263,9 +202,9 @@ contains
       end select
 
       _RETURN(_SUCCESS)
-   end subroutine new_make_extension
+   end subroutine make_extension
 
-   subroutine new_make_extension_typesafe(this, dst_spec, new_spec, action, rc)
+   subroutine make_extension_typesafe(this, dst_spec, new_spec, action, rc)
       class(MockItemSpec), intent(in) :: this
       type(MockItemSpec), intent(in) :: dst_spec
       class(MockItemSpec), intent(out) :: new_spec
@@ -290,7 +229,7 @@ contains
 
       _RETURN(_SUCCESS)
 
-   end subroutine new_make_extension_typesafe
+   end subroutine make_extension_typesafe
  
   integer function extension_cost(this, src_spec, rc) result(cost)
       class(MockItemSpec), intent(in) :: this
