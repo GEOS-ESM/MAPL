@@ -691,7 +691,8 @@ contains
       type is (FieldSpec)
          call new_make_extension_safely(this, dst_spec, tmp_spec, action, _RC)
          deallocate(new_spec) ! gfortran workaround
-         new_spec = tmp_spec
+         allocate(new_spec, source=tmp_spec)
+!#         new_spec = tmp_spec
       class default
          _FAIL('Unsupported subclass.')
       end select
@@ -715,6 +716,7 @@ contains
       if (.not. same_geom(this%geom, dst_spec%geom)) then
          action = RegridAction(this%geom, dst_spec%geom, dst_spec%regrid_param)
          new_spec%geom = dst_spec%geom
+         _RETURN(_SUCCESS)
       end if
       
 !#   _ASSERT(allocated(this%v_grid), 'Source spec must specify a valid vertical grid.')
@@ -731,11 +733,13 @@ contains
       if (this%typekind  /=  dst_spec%typekind) then
          action = CopyAction(this%typekind, dst_spec%typekind)
          new_spec%typekind = dst_spec%typekind
+         _RETURN(_SUCCESS)
       end if
       
       if (.not. same_units(this%units, dst_spec%units)) then
          action = ConvertUnitsAction(this%units, dst_spec%units)
          new_spec%units = dst_spec%units
+         _RETURN(_SUCCESS)
       end if
       
       _FAIL('No extensions found for this.')

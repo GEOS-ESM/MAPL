@@ -41,7 +41,9 @@ module MockItemSpecMod
    type, extends(ExtensionAction) :: MockAction
       character(:), allocatable :: details
    contains
-      procedure :: run => mock_run
+      procedure :: initialize
+      procedure :: run_old => mock_run
+      procedure :: run_new
    end type MockAction
 
    interface MockItemSpec
@@ -250,11 +252,11 @@ contains
 
       action = NullAction() ! default
       new_spec = this
-
        select type(dst_spec)
        type is (MockItemSpec)
           call new_make_extension_typesafe(this, dst_spec, tmp_spec, action, _RC)
           deallocate(new_spec)
+          allocate(new_spec, source=tmp_spec)
           new_spec = tmp_spec
       class default
          _FAIL('incompatible spec')
@@ -271,6 +273,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+
+      action = NullAction()
 
       if (this%name /= dst_spec%name) then
          new_spec%name = dst_spec%name
@@ -309,4 +313,24 @@ contains
       _RETURN(_SUCCESS)
    end function extension_cost
 
+   subroutine initialize(this, importState, exportState, clock, rc)
+      use esmf
+      class(MockAction), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+      _FAIL('This procedure should not be called.')
+   end subroutine initialize
+
+   subroutine run_new(this, importState, exportState, clock, rc)
+      use esmf
+      class(MockAction), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+      _FAIL('This procedure should not be called.')
+   end subroutine run_new
+   
 end module MockItemSpecMod
