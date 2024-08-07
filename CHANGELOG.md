@@ -90,6 +90,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Update `esma_add_fortran_submodules` function
     - Move MPI detection out of FindBaselibs
     - Add SMOD to submodule generator
+- Add support for preliminary CF Conventions quantization properties
+  - Add new quantization keyword `granular_bitround` to History. This will be the preferred keyword for quantization in the future
+    replacing `GranularBR`
 
 ### Fixed
 
@@ -99,6 +102,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+- Deprecate `GranularBR` as a quantization method keyword in History. We will prefer `granular_bitround` in the future to match
+  draft CF conventions. This will be removed in MAPL 3.
 
 ## [2.47.1] - 2024-07-17
 
