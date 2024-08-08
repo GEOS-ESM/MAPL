@@ -5,7 +5,6 @@ program grid_comp_creation_tester
    use grid_comp_creation_shared
    use grid_comp_creator
    use grid_comp_creator_memory_profiler
-!   use mapl_ErrorHandlingMod
 
    implicit none
 
@@ -14,12 +13,16 @@ program grid_comp_creation_tester
    integer, parameter :: NGC_NOT_SET = 2*GENERAL_ERROR
    integer, parameter :: RUN_FAILED  = 2*NGC_NOT_SET
 
+   character(len=*), parameter :: OPTION_USE_OWN_VM = '--use-own-vm'
+
    integer :: rc, status
    integer :: ngc
    character(len=MAXSTR) :: raw
    type(GridCompCreator) :: creator
    integer :: i, n
    logical :: is_silent = .TRUE.
+   logical :: use_own_vm = .FALSE.
+   character(len=:), allocatable :: results(:)
 
    rc = SUCCESS
    ngc = -1
@@ -27,6 +30,10 @@ program grid_comp_creation_tester
       call get_command_argument(i, value=raw, status=status)
       if(status /= SUCCESS) cycle
       raw = adjustl(raw)
+      if(raw == OPTION_USE_OWN_VM) then
+         use_own_vm = .TRUE.
+         cycle
+      end if
       read(raw, fmt='(I32)', iostat=status) n
       if(status == SUCCESS) ngc = n
    end do
@@ -36,16 +43,28 @@ program grid_comp_creation_tester
       error stop rc, QUIET=is_silent
    end if
    
-   call creation_driver(ngc, status)
+   call run(ngc, results, use_own_vm, status)
    if(status == SUCCESS) then
-      call write_results()
+      call write_results(results)
    else
       rc = rc + RUN_FAILED
    end if
-   call finalize(rc=rc)
+   rc = finalize()
    if(rc == SUCCESS) stop rc, QUIET=is_silent
    error stop rc, QUIET=is_silent
-!   creator = GridCompCreator(ngc)
-!   call run(creator, rc)
+
+contains
+
+   subroutine write_results(results)
+      character(len=:), allocatable, intent(in) :: results(:)
+      integer :: i
+
+      if(allocated(results)) then
+         do i = 1, size(results)
+            write(*, fmt='(A)') results(i)
+         end do
+      end if
+
+   end subroutine write_results
 
 end program grid_comp_creation_tester

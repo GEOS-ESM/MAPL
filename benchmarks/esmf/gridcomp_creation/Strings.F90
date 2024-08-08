@@ -6,6 +6,7 @@ module strings
 
    public :: String
    public :: assignment(=)
+   public :: len
 
    type :: String
       character(len=:), allocatable :: characters
@@ -20,6 +21,11 @@ module strings
       module procedure :: assign_string_to_characters
    end interface assignment(=)
 
+   interface len
+      module procedure :: len_string
+      module procedure :: len_strings
+   end interface
+
    character(len=*), parameter :: BLANK = ''
 
 contains
@@ -32,6 +38,27 @@ contains
       if(present(ch)) s%characters = trim(ch)
 
    end function construct_string
+
+   integer function len_string(s)
+      class(String), intent(in) :: s
+
+      len_string = len(s%characters)
+
+   end function len_string
+
+   integer function len_strings(s)
+      class(String), intent(in) :: s(:)
+      integer :: clen
+      integer :: i
+
+      clen = 0
+      do i = 1, size(s)
+         clen = max(clen, s(i))
+      end do
+
+      len_strings = clen
+
+   end function len_strings
 
    subroutine assign_characters_to_string(s, ch)
       type(String), intent(out) :: s
@@ -50,4 +77,3 @@ contains
    end subroutine assign_string_to_characters
 
 end module strings
-

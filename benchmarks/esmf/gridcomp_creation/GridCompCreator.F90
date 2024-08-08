@@ -12,201 +12,300 @@ module grid_comp_creator
    implicit none
    private
 
-   public :: GridCompCreator
-   public :: write_results
-   public :: finalize
    public :: run
-   public :: assignment(=)
+   public :: finalize
 
-   ! This should be changed into a parent component.
-   ! Then the program calls a driver procedure that creates
-   ! the parent grid component, sets services (initialize,
-   ! run, and finalize). Then it calls initialize, run, and
-   ! finalize. Initialize includes setting up the profiling
-   ! structures as internal state.
-   ! Child components are created in parent run
-   ! which also includes profiling. finalize collects the
-   ! information for the driver procedure and returns it
-   ! to the program which outputs it.
-   type :: GridCompCreator
-      integer :: ngc = -1
-      real(R64) :: time = -1.0
-      integer :: rank = -1
-      type(MemoryProfile), allocatable :: prior_memory
-      type(MemoryProfile), allocatable :: post_memory
-      character(len=:), allocatable, private :: name
-      integer, private :: npes = -1
-      integer, private :: comm = MPI_COMM_WORLD
-      type(ESMF_GridComp), pointer :: gc => null()
-   end type GridCompCreator
+   type :: CreatorData
+      ! parameters
+      integer (in) :: ngc = -1
+      type(ESMF_Context_Flag) :: contextflag = ESMF_CONTEXT_PARENT_VM
+      ! result data
+      integer(kind=I64) :: start_time = -1_I64
+      integer(kind=I64) :: end_time = -1_I64
+      integer(kind=I64) :: count_rate = -1_I64
+      type(MemoryProfile), allocatable :: prior
+      type(MemoryProfile), allocatable :: post
+      type(String), allocatable = results(:)
+      logical :: valid = .FALSE.
+   end type CreatorData
 
-   interface GridCompCreator
-      module procedure :: construct_creator
-   end interface GridCompCreator
+   type :: Wrapper
+      type(CreatorData), pointer :: ptr = null()
+   end type Wrapper
+
+   interface CreatorData
+      module procedure :: construct_creator_data
+   end interface CreatorData
 
    interface run
-      module procedure :: run_creator
+      module procedure :: creation_driver
    end interface run
-
-   type(ESMF_LogKind_Flag), parameter :: LOG_KIND_FLAG = ESMF_LOGKIND_NONE
-   character(len=*), parameter :: name = 'GridCompCreator'
-   character(len=*), parameter :: BLANK = ''
-   type(String), allocatable :: module_creator_results(:)
-   type(ESMF_GridComp), pointer :: gc_ptr => null()
 
 contains
 
-   subroutine creation_driver(num_gc, rc)
+   function construct_creator_data(num_gc, use_own_vm) results(r)
+      type(CreatorData) :: r
       integer, intent(in) :: num_gc
+      logical, intent(in) :: use_own_vm
+
+      r%prior = MemoryProfile()
+      r%post = MemoryProfile()
+      r%results = String(0)
+      r%valid = num_gc >= 0
+      if(.not. r%valid) return
+      r%ngc = num_gc
+      if(use_own_vm) r%contextflag = ESMF_CONTEXT_OWN_VM
+
+   end function construct_creator_data
+
+   subroutine creation_driver(num_gc, results, use_own_vm, rc)
+      integer, intent(in) :: num_gc
+      character(len=:), allocatable, intent(out) :: results
+      logical, optional, intent(in) :: use_own_vm
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_GridComp), target :: gc
+      type(CreatorData) :: internal
+      logical :: use_own_vm_
+      integer :: ngc = -1
+      type(ESMF_GridComp) :: gc
+      type(ESMF_VM) :: vm
+      type(ESMF_State) :: defaultState
+      type(ESMF_Clock) :: defaultClock
 
-      gc = create_creator_gridcomp(num_gc, _RC)
-      gc_ptr => gc
-      ! need to set services
-      ! need to initialize gridcomp
-      ! need to run gridcomp
-      ! need to finalize gridcomp
+      use_own_vm_ = .FALSE.
+      if(present(use_own_vm)) use_own_vm_ = use_own_vm
+      internal = CreatorData(num_gc, use_own_vm_)   
+      _ASSERT(internal%valid, 'Number of gridcomponents is negative.')
+
+      defaultState = ESMF_StateCreate(name='defaultState', _RC)
+      defaultClock = make_clock(_RC)
+
+      call initialize(_RC)
+      gc = ESMF_GridCompCreate(name='GC_', context_flag=ESMF_CONTEXT_OWN_VM, _RC)
+      call ESMF_GridCompSetServices(gc, userRoutine=GC_SetServices, _RC)
+      call GC_SetInternal(gc, internal, _RC)
+
+      call ESMF_GridCompInitialize(gc, importState=defaultstate, &
+         exportState=defaultstate, clock=defaultClock, rc=localrc)
+      call ESMF_GridCompRun(gc, importState=defaultstate, &
+         exportState=defaultstate, clock=defaultClock, rc=localrc)
+      call ESMF_GridCompFinalize(gc, importState=defaultstate, &
+         exportState=defaultstate, clock=defaultClock, rc=localrc)
+      call get_results(gc, results)
+      _RETURN(_SUCCESS)
+
    end subroutine creation_driver
 
-   function create_creator_gridcomp(num_gc, rc) result(gc)
-      integer, intent(in) :: num_gc
+   function make_clock(rc) result(clock)
+      type(ESMF_Clock) :: clock
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_Time) :: startTime
+
+      call ESMF_TimeIntervalSet(timeStep, s=1, _RC)
+      call ESMF_TimeSet(startTime, yy=2024, mm=1, dd=1, _RC)
+      clock = ESMF_ClockCreate(timeStep, startTime, _RC)
+
+   end function make_clock
+
+   subroutine GC_SetServices(gc, rc)
       type(ESMF_GridComp) :: gc
+      integer, intent(out) :: rc
+      integer :: status
+      type(CreatorData), pointer :: internal
+      type(Wrapper) :: wrap
+
+      allocate(internal, stat=status)
+      _VERIFY(status)
+      wrap%ptr => internal
+      call ESMF_GridCompSetInternalState(gc, wrap, _RC)
+      call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, GC_Initialize, _RC)
+      call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, GC_Run, _RC)
+      call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, GC_Final, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine GC_SetServices 
+
+   subroutine GC_SetInternal(gc, internal, rc)
+      type(ESMF_GridComp) :: gc
+      class(CreatorData), target, intent(out) :: internal
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(Wrapper) :: wrap
+
+      call ESMF_GridCompGetInternalState(gc, wrap, _RC)
+      wrap%ptr => internal
+      _RETURN(_SUCCESS)
+
+   end subroutine GC_SetInternal
+
+   subroutine GC_GetInternal(gc, internal, rc)
+      type(ESMF_GridComp) :: gc
+      type(CreatorData), pointer, intent(out) :: internal
       integer, optional, intent(out) :: rc
       integer :: status
 
-      if(num_gc < 1) then
-         _RETURN(_FAILURE)
-         return
+      call ESMF_GridCompGetInternalState(gc, wrap, _RC)
+      internal => wrap%ptr
+      _RETURN(_SUCCESS)
+
+   end subroutine GC_GetInternal
+
+   subroutine GC_Initialize(gc, importState, exportState, parentclock, rc)
+      type(ESMF_GridComp) :: gc
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: parentclock
+      integer, intent(out) :: rc
+      type(CreatorData), pointer :: internal
+      type(Wrapper) :: wrap
+
+      call GC_GetInternal(gc, internal, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine GC_Initialize
+
+   subroutine GC_Run(gc, importState, exportState, clock, rc)
+      type(ESMF_GridComp) :: gc 
+      type(ESMF_State) :: importState 
+      type(ESMF_State) :: exportState 
+      type(ESMF_Clock) :: clock 
+      integer, intent(out) :: rc 
+      integer :: status
+      type(CreatorData), pointer :: cdata
+      integer(I64) :: start_time, end_time, count_rate
+      type(MemoryProfile) :: prior, post
+      integer :: rank
+
+      call GC_GetInternal(gc, cdata, _RC)
+
+      if(.not. allocated(prior)) then
+         call profile_memory(prior, _RC)
       end if
 
-      gc = make_gridcomp(is_parent = .TRUE., _RC)
+      call system_clock(count = start_time, count_rate=count_rate)
 
-   end function create_creator_gridcomp
-
-   function construct_creator(num_gc) result(creator)
-      type(GridCompCreator) :: creator
-      integer, intent(in) :: num_gc
-
-      creator%name = name
-      creator%ngc = num_gc
-
-   end function construct_creator
-
-   subroutine initialize_creator(creator, rc)
-      class(GridCompCreator), intent(inout) :: creator
-      integer, optional, intent(out) :: rc
-      integer :: status
-      type(ESMF_VM) :: vm
-
-      call ESMF_Initialize(vm=vm,logKindFlag=LOG_KIND_FLAG, _RC)
-      call ESMF_VMGet(vm, mpiCommunicator=creator%comm, _RC)
-      call MPI_Comm_rank(creator%comm, creator%rank, _IERROR)
-      call MPI_Comm_size(creator%comm, creator%npes, _IERROR)
-      _RETURN(_SUCCESS)
-
-   end subroutine initialize_creator
-
-   subroutine finalize(rc)
-      integer, optional, intent(out) :: rc
-
-      call ESMF_Finalize()
-      _RETURN(_SUCCESS)
-
-   end subroutine finalize
-
-   subroutine run_creator(creator, rc)
-      class(GridCompCreator), intent(inout) :: creator
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      call initialize_creator(creator, _RC)
-      call run_gridcomp_creation(creator, _RC)
-      if(creator%rank == 0) call write_creator_results(creator, module_creator_results)
-      _RETURN(_SUCCESS)
-
-   end subroutine run_creator
-
-   subroutine run_gridcomp_creation(creator, rc)
-      class(GridCompCreator), intent(inout) :: creator
-      integer, optional, intent(out) :: rc
-      integer :: status
-      integer :: i
-      type(ESMF_GridComp), allocatable :: gcc(:)
-      integer(kind=I64) :: start, end_, count_rate
-
-      _ASSERT(creator%ngc >= 0, 'Cannot create a negative number of gridcomps')
-
-      if(.not. allocated(creator%prior_memory)) then
-         call profile_memory(creator%prior_memory, _RC)
-      end if
-
-      call system_clock(count = start, count_rate=count_rate)
-
-      allocate(gcc(creator%ngc))
+      allocate(gcc(cdata%ngc))
       do i = 1, size(gcc)
-         gcc(i) = make_gridcomp(i, _RC)
+         gcc(i) = make_gridcomp(i, cdata%contextflag, _RC)
       end do
-      call system_clock(count = end_, count_rate=count_rate)
-      call profile_memory(creator%post_memory, _RC)
-      creator%time = real(end_ - start, R64) / count_rate
+      call system_clock(count = end_time, count_rate=count_rate)
+      call profile_memory(post, _RC)
       call destroy_gridcomps(gcc, _RC)
       if(allocated(gcc)) deallocate(gcc)
 
-      _RETURN(_SUCCESS)
-      
-   end subroutine run_gridcomp_creation
+      call get_rank(gc, rank, _RC)
+      if(rank == 0) then
+         cdata%start_time = start_time
+         cdata%end_time = end_time
+         cdata%count_rate = count_rate
+         cdata%prior = prior
+         cdata%post = post
+      end if
 
-   function memory_delta(creator, rc) result(diff)
-      type(MemoryProfile) :: diff
-      class(GridCompCreator), intent(in) :: creator
+      _RETURN(_SUCCESS)
+
+   end subroutine GC_Run
+
+   subroutine GC_Final(gc, importState, exportState, clock, rc)
+      type(ESMF_GridComp) :: gc 
+      type(ESMF_State) :: importState 
+      type(ESMF_State) :: exportState 
+      type(ESMF_Clock) :: clock 
+      integer, intent(out) :: rc 
+      integer :: status
+      type(CreatorData), pointer :: cdata
+      integer :: rank
+
+      call get_rank(gc, rank, _RC)
+      if(rank == 0) then
+         call GC_GetInternal(gc, cdata, _RC)
+         call write_creator_results(cdata)
+      end if
+
+      _RETURN(_SUCCESS)
+
+   end subroutine GC_Final
+
+   subroutine get_rank(gc, rank, rc)
+      type(ESMF_GridComp) :: gc 
+      integer, intent(out) :: rank
       integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_VM) :: vm
+      integer :: comm
 
-      _ASSERT(allocated(creator%prior_memory), 'prior memory is not allocated.')
-      _ASSERT(allocated(creator%post_memory), 'post memory is not allocated.')
-      diff = creator%post_memory - creator%prior_memory
+      call ESMF_GridCompGet(gc, vm=vm, _RC)
+      call ESMF_VMGet(vm, mpiCommunicator=comm, _RC)
+      call MPI_Comm_rank(comm, rank, _IERROR)
       _RETURN(_SUCCESS)
 
-   end function memory_delta
+   end subroutine get_rank
+
+   subroutine initialize(vm, rc)
+      type(ESMF_VM), intent(out) :: vm
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call ESMF_Initialize(vm=vm,logKindFlag=ESMF_LOGKIND_NONE, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize
+
+   subroutine get_results(gc, results, rc)
+      type(ESMF_GridComp) :: gc
+      character(len=:), allocatable, intent(out) :: results(:)
+      integer, optional, intent(out) :: rc
+      integer :: rank, clen
+      type(CreatorData), pointer :: cdata
+
+      cdata => null()
+      if(allocated(results)) deallocate(results)
+      call get_rank(gc, rank, _RC)
+      if(rank == 0) then
+         call GC_GetInternal(gc, cdata, _RC)
+         associate(r=>cdata%results)
+            clen = len(r)
+            allocate(character(len=len(r) :: results(size(r))
+            do i = 1, size(results)
+               results(i) = r(i)
+            end do
+         end associate
+      end if
+
+      _RETURN(_SUCCESS)
+
+   end subroutine get_results
+
+   integer function finalize() result(rc)
+      call ESMF_Finalize(rc=rc)
+   end function finalize
 
    function make_gc_name(n, rc) result(gc_name)
       character(len=:), allocatable :: gc_name
-      integer, optional, intent(in) :: n
+      integer, intent(in) :: n
       integer, optional, intent(out) :: rc
       integer :: status
-      character(len=*), parameter :: FMT_ = '(I0)'
       character(len=MAXSTR) :: raw
 
-      raw = '_'
-      if(present(n)) write(raw, fmt=FMT_, iostat=status) n
+      write(raw, fmt='(I0)', iostat=status) n
       _ASSERT(status == _SUCCESS, 'Unable to make gridcomp name')
-      gc_name = "GC" // trim(raw)
+      gc_name = "GC" // raw
       _RETURN(_SUCCESS)
 
    end function make_gc_name
 
-   function make_gridcomp(n, is_parent, rc) result(gc)
+   function make_gridcomp(n, vm, rc) result(gc)
       type(ESMF_GridComp) :: gc
       integer, intent(in) :: n
-      logical, optional, intent(in) :: is_parent
+      type(ESMF_Context_Flag), intent(in) :: contextflag
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_Context_Flag) :: contextflag
       character(len=:), allocatable :: name
-      
-      context_flag = ESMF_CONTEXT_PARENT_VM
-      if(present(is_parent)) then
-         if(is_parent) then
-            context_flag = ESMF_CONTEXT_OWN_VM
-            raw = make_gc_name()
-         end if
-      end if
-      
-      if(.not. allocated(name)) then
-         name = make_gc_name(n, _RC)
-      end if
+      logical :: child
 
+      name = make_gc_name(n, _RC)
       gc = ESMF_GridCompCreate(name=name, contextflag=context_flag, _RC)
 
       _RETURN(_SUCCESS)
@@ -218,30 +317,16 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
-      
+
       do i=1, size(gc)
-         call ESMF_GridCompDestroy(gc(i), _RC)
+      call ESMF_GridCompDestroy(gc(i), _RC)
       end do
       _RETURN(_SUCCESS)
 
    end subroutine destroy_gridcomps
 
-   subroutine write_results(creator)
-      class(GridCompCreator), intent(in) :: creator
-      integer :: i
-      type(String), allocatable :: results(:)
-      
-      if(creator%rank /= 0) return
-      results = get_creator_results()
-      do i = 1, size(results)
-         write(*, '(A)') results(i)%characters
-      end do
-
-   end subroutine write_results
-
-   subroutine write_creator_results(creator, results)
-      class(GridCompCreator), intent(in) :: creator
-      type(String), allocatable, intent(out) :: results(:)
+   subroutine write_creator_results(cdata)
+      class(CreatorData), pointer, intent(in) :: cdata
       character(len=*), parameter :: NGC_TIME_HEADER = 'num_components, time(s)'
       type(MemoryProfile) :: diff
       character(len=:), allocatable :: line
@@ -249,34 +334,22 @@ contains
       integer, parameter :: INDENT_SIZE = 4
       character(len=*), parameter :: indent = repeat(' ', INDENT_SIZE)
       character(len=2), parameter :: COMMENT = '# '
+      real(R64) :: time
 
-      allocate(results(4))
-      results(1) = COMMENT // NGC_TIME_HEADER // JOIN // MEMORY_PROFILE_HEADER
-      line = to_characters(creator%ngc) // JOIN // to_characters(creator%time)
-      results(2) = line // JOIN // print_memory_profile(creator%prior_memory) // ' ' // COMMENT // 'BEFORE'
-      results(3) = line // JOIN // print_memory_profile(creator%post_memory) // ' ' // COMMENT // 'AFTER'
-      if(creator%post_memory == creator%prior_memory) then
-         results(4) = COMMENT // 'Memory profile did not change.'
-         return
-      end if
-
-      diff = memory_delta(creator, rc=status)
-
-      if(status /= 0) then
-         results(4) = COMMENT // 'Unable to find delta'
-         return
-      end if
-
-      results(4) = line // JOIN // print_memory_profile(diff)
+      associate(ngc=>cdata%ngc, r=>cdata%results, pr=>cdata%prior, pst=>cdata%post,&
+            & st=>cdata%start_time, et=>cdata%end_time, rate=>cdata%count_rate)
+         allocate(r(4))
+         time = real(et - st, R64)/rate
+         r(1) = COMMENT // NGC_TIME_HEADER // JOIN // MEMORY_PROFILE_HEADER
+         line = to_characters(ngc) // JOIN // to_characters(time) // JOIN
+         r(2) = line // print_memory_profile(pr) // ' ' // COMMENT // 'BEFORE'
+         r(3) = line // print_memory_profile(pst) // ' ' // COMMENT // 'AFTER'
+         r(4) = COMMENT // 'Memory profile did not change.'
+         if(pst == pr) return
+         diff = pst - pr
+         r(4) = line // JOIN // print_memory_profile(diff)
+      end associate
 
    end subroutine write_creator_results
-
-   function get_creator_results() result(results)
-      type(String), allocatable :: results(:)
-      
-      allocate(results(0))
-      if(allocated(module_creator_results)) results = module_creator_results
-
-   end function get_creator_results
 
 end module grid_comp_creator
