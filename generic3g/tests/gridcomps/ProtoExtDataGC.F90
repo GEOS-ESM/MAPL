@@ -95,7 +95,7 @@ contains
                s_pt = ConnectionPt('collection_1', export_v_pt)
                d_pt = ConnectionPt('<self>', import_v_pt)
                conn = SimpleConnection(source=s_pt, destination=d_pt)
-               call registry%add_connection(conn, _RC)
+               call conn%connect(registry, _RC)
             end do
          end if
       end if

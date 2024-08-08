@@ -2,7 +2,7 @@
 
 module mapl3g_ComponentSpec
    use mapl3g_ConnectionVector
-   use mapl3g_StateRegistry, only: Connection
+   use mapl3g_Connection
    use mapl3g_VariableSpec
    use mapl3g_VariableSpecVector
    use mapl3g_ChildSpecMap
