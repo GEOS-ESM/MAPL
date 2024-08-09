@@ -256,7 +256,6 @@ contains
 
       _RETURN_UNLESS(this%is_active())
 
-
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 

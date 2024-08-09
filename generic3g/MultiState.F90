@@ -20,6 +20,8 @@ module mapl3g_MultiState
 
       procedure :: write_multistate
       generic :: write(formatted) => write_multistate
+
+      procedure :: destroy
    end type MultiState
 
    interface MultiState
@@ -125,5 +127,18 @@ contains
       write(unit,*, iostat=iostat, iomsg=iomsg) 'EXPORT:', this%exportState
 #endif
    end subroutine write_multistate
+
+   subroutine destroy(this, rc)
+      class(MultiState), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call ESMF_StateDestroy(this%importState, _RC)
+      call ESMF_StateDestroy(this%exportState, _RC)
+      call ESMF_StateDestroy(this%internalState, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy
 
  end module mapl3g_MultiState

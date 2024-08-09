@@ -31,6 +31,7 @@ set (test_srcs
   Test_GenericGridComp.pf
 
   Test_ModelVerticalGrid.pf
+  Test_FixedLevelsVerticalGrid.pf
 
   )
 

@@ -3,8 +3,21 @@
 module mapl3g_ModelVerticalGrid
    use mapl3g_VerticalGrid
    use mapl3g_StateRegistry
+   use mapl3g_MultiState
+   use mapl3g_VirtualConnectionPt
+   use mapl3g_ActualConnectionPt
+   use mapl3g_StateItemSpec
+   use mapl3g_FieldSpec
+   use mapl3g_UngriddedDims
+   use mapl3g_StateItemExtension
+   use mapl3g_ExtensionFamily
+   use mapl3g_ExtensionAction
+   use mapl3g_VerticalDimSpec
+   use mapl3g_StateItemExtensionPtrVector
    use mapl_ErrorHandling
+   use mapl3g_GriddedComponentDriver
    use gftl2_StringVector
+   use esmf
    implicit none
    private
 
@@ -21,6 +34,7 @@ module mapl3g_ModelVerticalGrid
       type(StateRegistry), pointer :: registry => null()
    contains
       procedure :: get_num_levels
+      procedure :: get_coordinate_field
 
       ! subclass-specific methods
       procedure :: add_variant
@@ -83,5 +97,87 @@ contains
        type(StateRegistry), pointer :: registry
        registry => this%registry
     end function get_registry
+
+
+    function get_coordinate_field(this, standard_name, geom, typekind, units, rc) result(field)
+       type(ESMF_Field) :: field
+       class(ModelVerticalGrid), intent(inout) :: this
+       character(*), intent(in) :: standard_name
+       type(ESMF_Geom), intent(in) :: geom
+       type(ESMF_TypeKind_Flag), intent(in) :: typekind
+       character(*), intent(in) :: units
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+       type(VirtualConnectionPt) :: v_pt
+       type(ActualConnectionPt) :: a_pt
+       type(GriddedComponentDriver), pointer :: coupler
+       integer :: cost, lowest_cost
+       type(StateItemExtensionPtr), pointer :: extensionPtr
+       type(StateItemExtension) :: tmp_extension
+       type(StateItemExtension), pointer :: best_extension
+       type(StateItemExtension), pointer :: new_extension
+       type(StateItemExtensionPtrVector), pointer :: extensions
+       class(StateItemSpec), pointer :: spec, new_spec
+       type(ExtensionFamily), pointer :: family
+       type(MultiState) :: multi_state
+       type(FieldSpec) :: goal_spec
+       type(MultiState) :: coupler_states
+       integer :: i
+
+       v_pt = VirtualConnectionPt(state_intent='export', short_name=this%variants%of(1))
+
+       family => this%registry%get_extension_family(v_pt, _RC)
+       extensions => family%get_extensions()
+
+       goal_spec = FieldSpec(geom=geom, vertical_grid=this, vertical_dim_spec=VERTICAL_DIM_EDGE, &
+            typekind=typekind, standard_name=standard_name, units=units, &
+            ungridded_dims=UngriddedDims())
+
+       lowest_cost = huge(1)
+       best_extension => null()
+       do i = 1, extensions%size()
+          extensionPtr => extensions%of(i)
+          spec => extensionPtr%ptr%get_spec()
+          cost = goal_spec%extension_cost(spec, _RC)
+          if (cost < lowest_cost) then
+             lowest_cost = cost
+             best_extension => extensionPtr%ptr
+          end if
+       end do
+          
+
+       do
+          spec => best_extension%get_spec()
+          call spec%set_active()
+          cost = goal_spec%extension_cost(spec, _RC)
+          if (cost == 0) exit
+
+          tmp_extension = best_extension%make_extension(goal_spec, _RC)
+          new_extension => this%registry%add_extension(v_pt, tmp_extension, _RC)
+          coupler => new_extension%get_producer()
+          
+          coupler_states = coupler%get_states()
+          a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name='import[1]'))
+          call spec%add_to_state(coupler_states, a_pt, _RC)
+          a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='export[1]'))
+          new_spec => new_extension%get_spec()
+          call new_spec%add_to_state(coupler_states, a_pt, _RC)
+
+            
+          call best_extension%add_consumer(coupler)
+          best_extension => new_extension
+
+       end do
+
+       spec => best_extension%get_spec()
+       call spec%set_active()
+       multi_state = MultiState()
+       a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='vcoord'))
+       call spec%add_to_state(multi_state, a_pt, _RC)
+       call ESMF_StateGet(multi_state%exportState, itemName='vcoord', field=field, _RC)
+       _RETURN(_SUCCESS)
+
+    end function get_coordinate_field
 
 end module mapl3g_ModelVerticalGrid
