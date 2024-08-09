@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve mask sampler by adding an MPI step and a LS_chunk (intermediate step)
 - Update Baselibs in CI to 7.25.0
   - NOTE: The docker image also updates to Intel 2024.2 and Intel MPI 2021.13
+- Update to circleci-tools orb v4
+  - This adds a new `ifx` CI test
 - Update `components.yaml`
   - ESMA_env v4.30.0
     - Update to Baselibs 7.25.0

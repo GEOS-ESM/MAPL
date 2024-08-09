@@ -21,7 +21,7 @@ bcs_version: &bcs_version v11.5.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
 orbs:
-  ci: geos-esm/circleci-tools@2
+  ci: geos-esm/circleci-tools@dev:7a293ebb2b990390aa4559ce69af7682bfca2cc1
 
 workflows:
   build-and-test-MAPL:
@@ -33,7 +33,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
               cmake_generator: ['Unix Makefiles','Ninja']
           baselibs_version: *baselibs_version
           repo: MAPL
@@ -49,7 +49,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -67,7 +67,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
               tutorial_name:
                 - hello_world
                 - parent_no_children
@@ -89,7 +89,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
           baselibs_version: *baselibs_version
           repo: GEOSgcm
           checkout_fixture: true
@@ -104,7 +104,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
           requires:
             - build-GEOSgcm-on-<< matrix.compiler >>
           repo: GEOSgcm
@@ -118,7 +118,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
           requires:
             - build-GEOSgcm-on-<< matrix.compiler >>
           repo: GEOSgcm
@@ -136,7 +136,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran,ifort]
+              compiler: [gfortran, ifort, ifx]
           baselibs_version: *baselibs_version
           repo: GEOSldas
           mepodevelop: false
