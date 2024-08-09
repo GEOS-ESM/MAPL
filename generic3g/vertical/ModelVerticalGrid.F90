@@ -99,9 +99,10 @@ contains
     end function get_registry
 
 
-    function get_coordinate_field(this, standard_name, geom, typekind, units, rc) result(field)
-       type(ESMF_Field) :: field
+    subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
        class(ModelVerticalGrid), intent(inout) :: this
+       type(ESMF_Field), intent(out) :: field
+       type(GriddedComponentDriver), pointer, intent(out) :: coupler
        character(*), intent(in) :: standard_name
        type(ESMF_Geom), intent(in) :: geom
        type(ESMF_TypeKind_Flag), intent(in) :: typekind
@@ -111,7 +112,6 @@ contains
        integer :: status
        type(VirtualConnectionPt) :: v_pt
        type(ActualConnectionPt) :: a_pt
-       type(GriddedComponentDriver), pointer :: coupler
        integer :: cost, lowest_cost
        type(StateItemExtensionPtr), pointer :: extensionPtr
        type(StateItemExtension) :: tmp_extension
@@ -164,12 +164,12 @@ contains
           new_spec => new_extension%get_spec()
           call new_spec%add_to_state(coupler_states, a_pt, _RC)
 
-            
           call best_extension%add_consumer(coupler)
           best_extension => new_extension
 
        end do
 
+       coupler => best_extension%get_producer()
        spec => best_extension%get_spec()
        call spec%set_active()
        multi_state = MultiState()
@@ -178,6 +178,6 @@ contains
        call ESMF_StateGet(multi_state%exportState, itemName='vcoord', field=field, _RC)
        _RETURN(_SUCCESS)
 
-    end function get_coordinate_field
+    end subroutine get_coordinate_field
 
 end module mapl3g_ModelVerticalGrid

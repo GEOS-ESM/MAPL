@@ -633,9 +633,10 @@ contains
       
 !#   _ASSERT(allocated(this%v_grid), 'Source spec must specify a valid vertical grid.')
 !#   if (.not. same_vgrid(this%v_grid, dst_spec%v_grid)) then
-!#      action = VerticalRegridAction(this%v_grid, dst_spec%v_grid)
-!#      new_spec%v_grid = dst_spec%v_grid
-!!$         _RETURN(_SUCCESS)
+!#      v_coord_in = this%v_grid%get_coordinate_field('ignore', this%geom, this%typekind, this%units, _RC)
+!#      v_coord_out = v_grid%get_coordinate_field('ignore', dst_spec%geom, dst_spec%typekind, dst_spec%units, _RC)
+!#      action = VerticalRegridAction(v_coord_in, v_coord_out)
+!#      _RETURN(_SUCCESS)
 !#   end if
       
 !#   if (.not. same_freq_spec(this%freq_spec, dst_spec%freq_spec)) then

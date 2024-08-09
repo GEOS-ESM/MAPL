@@ -14,6 +14,7 @@ module Test_ModelVerticalGrid
    use mapl3g_ActualConnectionPt
    use mapl3g_StateItemSpec
    use mapl3g_StateItemExtension
+   use mapl3g_GriddedComponentDriver
    use mapl3g_ComponentDriver
    use mapl3g_ComponentDriverVector
    use mapl3g_ComponentDriverPtrVector
@@ -155,7 +156,7 @@ contains
    subroutine test_get_coordinate_field_simple(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ModelVerticalGrid) :: vgrid
-
+      type(GriddedComponentDriver), pointer :: coupler 
       type(ESMF_Field) :: vcoord
       type(ESMF_Geom) :: geom
       integer :: status
@@ -163,7 +164,10 @@ contains
 
       call setup(vgrid, _RC)
       geom = make_geom(_RC)
-      vcoord = vgrid%get_coordinate_field('air_pressure', geom, typekind=ESMF_TYPEKIND_R4, units='hPa', _RC)
+           
+      call vgrid%get_coordinate_field(vcoord, coupler, &
+           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, units='hPa', _RC)
+      @assert_that(associated(coupler), is(false()))
 
       call ESMF_FieldGet(vcoord, fArrayPtr=a, _RC)
       @assert_that(a, every_item(is(equal_to(3.))))
@@ -183,11 +187,14 @@ contains
       real(ESMF_KIND_R4), pointer :: a(:,:,:)
       type(ComponentDriverPtrVector) :: couplers
       type(ComponentDriverPtr) :: driver
+      type(GriddedComponentDriver), pointer :: coupler 
       integer :: i
 
       call setup(vgrid, _RC)
       geom = make_geom(_RC)
-      vcoord = vgrid%get_coordinate_field('air_pressure', geom, typekind=ESMF_TYPEKIND_R4, units='Pa', _RC)
+      call vgrid%get_coordinate_field(vcoord, coupler, &
+           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, units='Pa', _RC)
+      @assert_that(associated(coupler), is(true()))
 
       call r%allocate(_RC)
 
