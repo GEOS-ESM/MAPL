@@ -188,4 +188,65 @@ module mapl3g_GeomManager
       end function find_factory
    end interface
 
+   CONTAINS
+
+   module function get_geom_from_id(this, id, rc) result(geom)
+      type(ESMF_Geom) :: geom
+      class(GeomManager), target, intent(inout) :: this
+      integer, intent(in) :: id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(MaplGeom), pointer :: mapl_geom
+
+      mapl_geom => this%mapl_geoms%at(id, _RC)
+      geom = mapl_geom%get_geom()
+
+      _RETURN(_SUCCESS)
+   end function get_geom_from_id
+
+   module function get_mapl_geom_from_hconfig(this, hconfig, rc) result(mapl_geom)
+      type(MaplGeom), pointer :: mapl_geom
+      class(GeomManager), target, intent(inout) :: this
+      type(ESMF_HConfig), intent(inout) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      class(GeomSpec), allocatable :: geom_spec
+      integer :: status
+
+      geom_spec = this%make_geom_spec(hconfig, _RC)
+      mapl_geom => this%get_mapl_geom(geom_spec, _RC)
+
+      _RETURN(_SUCCESS)
+   end function get_mapl_geom_from_hconfig
+
+   module function get_mapl_geom_from_id(this, id, rc) result(mapl_geom)
+      type(MaplGeom), pointer :: mapl_geom
+      class(GeomManager), target, intent(inout) :: this
+      integer, intent(in) :: id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      mapl_geom => this%mapl_geoms%at(id, _RC)
+
+      _RETURN(_SUCCESS)
+   end function get_mapl_geom_from_id
+
+   module function get_mapl_geom_from_metadata(this, metadata, rc) result(mapl_geom)
+      type(MaplGeom), pointer :: mapl_geom
+      class(GeomManager), target, intent(inout) :: this
+      type(FileMetadata), intent(in) :: metadata
+      integer, optional, intent(out) :: rc
+
+      class(GeomSpec), allocatable :: geom_spec
+      integer :: status
+
+      geom_spec = this%make_geom_spec(metadata, _RC)
+      mapl_geom => this%get_mapl_geom(geom_spec, _RC)
+
+      _RETURN(_SUCCESS)
+   end function get_mapl_geom_from_metadata
+
+
 end module mapl3g_GeomManager

@@ -100,6 +100,38 @@ module mapl3g_MaplGeom
 
    end interface
 
+   CONTAINS
+
+   module function get_factory(this) result(factory)
+     class(GeomFactory), allocatable :: factory
+      class(MaplGEOM), intent(in) :: this
+      factory = this%factory
+   end function get_factory
+
+   module function get_file_metadata(this) result(file_metadata)
+     type(FileMetadata) :: file_metadata
+      class(MaplGeom), intent(in) :: this
+      file_metadata = this%file_metadata
+   end function get_file_metadata
+
+   module function get_geom(this) result(geom)
+      type(ESMF_Geom) :: geom
+      class(MaplGeom), intent(in) :: this
+      geom = this%geom
+   end function get_geom
+
+   module function get_gridded_dims(this) result(gridded_dims)
+      type(StringVector) :: gridded_dims
+      class(MaplGeom), intent(in) :: this
+      gridded_dims = this%gridded_dims
+   end function get_gridded_dims
+
+   module function get_spec(this) result(spec)
+      class(GeomSpec), allocatable :: spec
+      class(MaplGeom), intent(in) :: this
+      spec = this%spec
+   end function get_spec
+
 end module mapl3g_MaplGeom
 
 

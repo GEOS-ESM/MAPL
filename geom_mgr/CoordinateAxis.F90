@@ -106,5 +106,32 @@ module mapl3g_CoordinateAxis
 
    end interface
 
+   CONTAINS
+
+   pure module function get_centers(this) result(centers)
+      real(kind=R8), allocatable :: centers(:)
+      class(CoordinateAxis), intent(in) :: this
+ 
+      centers = this%centers
+     
+   end function get_centers
+
+   pure module function get_corners(this) result(corners)
+      real(kind=R8), allocatable :: corners(:)
+      class(CoordinateAxis), intent(in) :: this
+
+      corners = this%corners
+
+   end function get_corners
+
+   ! Accessors
+   !----------
+   ! Note that size(this%corners) might be one larger for non-periodic
+   pure module function get_extent(this) result(extent)
+      class(CoordinateAxis), intent(in) :: this
+      integer :: extent
+      extent = size(this%centers)
+   end function get_extent
+
 end module mapl3g_CoordinateAxis
 

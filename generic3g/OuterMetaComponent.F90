@@ -443,4 +443,116 @@ module mapl3g_OuterMetaComponent
 
    integer, save :: counter = 0
 
+   CONTAINS
+
+   module function get_component_spec(this) result(component_spec)
+      type(ComponentSpec), pointer :: component_spec
+      class(OuterMetaComponent), target, intent(in) :: this
+      component_spec => this%component_spec
+   end function get_component_spec
+
+   module function get_geom(this) result(geom)
+      type(ESMF_Geom) :: geom
+      class(OuterMetaComponent), intent(inout) :: this
+
+      geom = this%geom
+
+   end function get_geom
+
+   module function get_gridcomp(this) result(gridcomp)
+      type(ESMF_GridComp) :: gridcomp
+      class(OuterMetaComponent), intent(in) :: this
+      gridcomp = this%self_gridcomp
+   end function get_gridcomp
+
+    module function get_hconfig(this) result(hconfig)
+      type(ESMF_Hconfig) :: hconfig
+      class(OuterMetaComponent), intent(inout) :: this
+
+      hconfig = this%hconfig
+
+   end function get_hconfig
+
+   !TODO: put "user" in procedure name
+   module function get_internal_state(this) result(internal_state)
+      type(ESMF_State) :: internal_state
+      class(OuterMetaComponent), intent(in) :: this
+
+      type(MultiState) :: user_states
+
+      user_states = this%user_gc_driver%get_states()
+      internal_state = user_states%internalState
+
+   end function get_internal_state
+
+   module function get_lgr(this) result(lgr)
+      class(Logger), pointer :: lgr
+      class(OuterMetaComponent), target, intent(in) :: this
+
+      lgr => this%lgr
+
+   end function get_lgr
+
+   module function get_name(this, rc) result(name)
+      character(:), allocatable :: name
+      class(OuterMetaComponent), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(len=ESMF_MAXSTR) :: buffer
+
+      call ESMF_GridCompGet(this%self_gridcomp, name=buffer, _RC)
+      name=trim(buffer)
+
+      _RETURN(ESMF_SUCCESS)
+   end function get_name
+
+   module function get_phases(this, method_flag) result(phases)
+      type(StringVector), pointer :: phases
+      class(OuterMetaComponent), target, intent(inout):: this
+      type(ESMF_Method_Flag), intent(in) :: method_flag
+
+      phases => this%user_phases_map%of(method_flag)
+
+   end function get_phases
+
+   module function get_registry(this) result(registry)
+      type(StateRegistry), pointer :: registry
+      class(OuterMetaComponent), target, intent(in) :: this
+
+      registry => this%registry
+   end function get_registry
+
+   module function get_user_gc_driver(this) result(user_gc_driver)
+      type(GriddedComponentDriver), pointer :: user_gc_driver
+      class(OuterMetaComponent), target, intent(in) :: this
+      user_gc_driver => this%user_gc_driver
+   end function get_user_gc_driver
+
+   module subroutine set_geom(this, geom)
+      class(OuterMetaComponent), intent(inout) :: this
+      type(ESMF_Geom), intent(in) :: geom
+
+      this%geom = geom
+
+   end subroutine set_geom
+
+   module subroutine set_hconfig(this, hconfig)
+      class(OuterMetaComponent), intent(inout) :: this
+      type(ESMF_HConfig), intent(in) :: hconfig
+
+      this%hconfig = hconfig
+
+   end subroutine set_hconfig
+
+   module subroutine set_vertical_geom(this, vertical_geom)
+      class(OuterMetaComponent), intent(inout) :: this
+      type(VerticalGeom), intent(in) :: verticaL_geom
+
+      this%vertical_geom = vertical_geom
+
+   end subroutine set_vertical_geom
+
+
+
 end module mapl3g_OuterMetaComponent
