@@ -10,7 +10,7 @@ module Test_SimpleParentGridComp
    use mapl3g_OuterMetaComponent, only: get_outer_meta
    use mapl3g_MultiState
    use mapl3g_GriddedComponentDriver
-   use mapl3g_VerticalGeom
+   use mapl3g_BasicVerticalGrid
    use mapl_KeywordEnforcer
    use esmf
    use nuopc
@@ -30,7 +30,7 @@ contains
       type(ESMF_Grid) :: grid
       type(ESMF_HConfig) :: config
       integer :: i
-      type(VerticalGeom) :: vertical_geom
+      type(BasicVerticalGrid) :: vertical_grid
       type(ESMF_Time) :: t
       type(ESMF_TimeInterval) :: dt
       type(ESMF_Clock) :: clock
@@ -50,8 +50,8 @@ contains
       _VERIFY(userRC)
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       call MAPL_GridCompSetGeom(outer_gc, grid, _RC)
-      vertical_geom = VerticalGeom(4)
-      call MAPL_GridCompSetVerticalGeom(outer_gc, vertical_geom, _RC)
+      vertical_grid = BasicVerticalGrid(4)
+      call MAPL_GridCompSetVerticalGrid(outer_gc, vertical_grid, _RC)
 
       associate (import => states%importState, export => states%exportState)
         import = ESMF_StateCreate(_RC)

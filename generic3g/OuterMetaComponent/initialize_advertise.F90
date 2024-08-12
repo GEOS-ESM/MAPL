@@ -54,7 +54,7 @@ contains
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
               var_spec => iter%of()
-              call advertise_variable (var_spec, this%registry, this%geom, this%vertical_geom,  _RC)
+              call advertise_variable (var_spec, this%registry, this%geom, this%vertical_grid,  _RC)
               call iter%next()
            end do
          end associate
@@ -64,11 +64,11 @@ contains
       end subroutine self_advertise
 
 
-      subroutine advertise_variable(var_spec, registry, geom, vertical_geom, unusable, rc)
+      subroutine advertise_variable(var_spec, registry, geom, vertical_grid, unusable, rc)
          type(VariableSpec), intent(in) :: var_spec
          type(StateRegistry), intent(inout) :: registry
          type(ESMF_Geom), optional, intent(in) :: geom
-         type(VerticalGeom), intent(in) :: vertical_geom
+         class(VerticalGrid), intent(in) :: vertical_grid
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
@@ -79,8 +79,7 @@ contains
 
          _ASSERT(var_spec%itemtype /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 
-!#         item_spec = var_spec%make_ItemSpec(geom, vertical_geom, registry, _RC)
-         allocate(item_spec, source=var_spec%make_ItemSpec(geom, vertical_geom, registry, rc=status)); _VERIFY(status)
+         allocate(item_spec, source=var_spec%make_ItemSpec(geom, vertical_grid, registry, rc=status)); _VERIFY(status)
          call item_spec%create(_RC)
 
          virtual_pt = var_spec%make_virtualPt()
