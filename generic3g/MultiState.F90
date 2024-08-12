@@ -1,9 +1,10 @@
 #include "MAPL_ErrLog.h"
 
 module mapl3g_MultiState
-   use esmf
+   use mapl3g_ESMF_Utilities, only: write(formatted)
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
+   use esmf
    implicit none
    private
 
@@ -109,7 +110,6 @@ contains
    end subroutine get_state_by_esmf_intent
 
    subroutine write_multistate(this, unit, iotype, v_list, iostat, iomsg)
-      use mapl3g_ESMF_Utilities
       class(MultiState), intent(in) :: this
       integer, intent(in)         :: unit
       character(*), intent(in)    :: iotype
