@@ -10,6 +10,7 @@ contains
    
    elemental logical module function equal_to(a, b)
       type(CoordinateAxis), intent(in) :: a, b
+      INTRINSIC SIZE
 
       ! Do the fast checks first
       equal_to = size(a%centers) == size(b%centers)

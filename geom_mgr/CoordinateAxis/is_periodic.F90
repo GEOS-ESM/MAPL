@@ -13,6 +13,7 @@ contains
 
       real(kind=R8) :: span, spacing
       real(kind=R8), parameter :: tolerance = 0.01
+      INTRINSIC SIZE
       
       associate (corners => this%corners)
         associate (n => size(corners))
