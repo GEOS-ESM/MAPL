@@ -69,12 +69,8 @@ esma_add_library(${this}
   )
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
-target_link_libraries (${this} PUBLIC ESMF::ESMF NetCDF::NetCDF_Fortran)
-
-# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
-endif ()
+target_link_libraries (${this} PUBLIC ESMF::ESMF NetCDF::NetCDF_Fortran
+  PRIVATE OpenMP::OpenMP_Fortran)
 
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
