@@ -14,7 +14,9 @@ module mapl3g_NullAction
 
    type, extends(ExtensionAction) :: NullAction
    contains
-      procedure :: run
+      procedure :: initialize
+      procedure :: run_old
+      procedure :: run_new
    end type NullAction
 
    interface NullAction
@@ -27,10 +29,30 @@ contains
       type(NullAction) :: action
    end function new_NullAction
 
-   subroutine run(this, rc)
+   subroutine initialize(this, importState, exportState, clock, rc)
+      use esmf
+      class(NullAction), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+      _FAIL('This procedure should not be called.')
+   end subroutine initialize
+
+   subroutine run_old(this, rc)
       class(NullAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
       _FAIL('This procedure should not be called.')
-   end subroutine run
+   end subroutine run_old
+
+   subroutine run_new(this, importState, exportState, clock, rc)
+      use esmf
+      class(NullAction), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+      _FAIL('This procedure should not be called.')
+   end subroutine run_new
 
 end module mapl3g_NullAction

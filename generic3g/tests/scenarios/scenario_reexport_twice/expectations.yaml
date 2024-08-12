@@ -5,57 +5,57 @@
 
 - component: parent/child_A/<user>
   import:
-    I_A1: {status: gridset}
+    I_A1: {status: empty}
   export:
-    E_A1: {status: gridset}
+    E_A1: {status: empty}
   internal:
     Z_A1: {status: complete}
 
 - component: parent/child_A
   import:
-    I_A1: {status: gridset}
+    I_A1: {status: empty}
   export:
-    E_A1: {status: gridset}
+    E_A1: {status: empty}
 
 - component: parent/child_B/<user>
   import:
-    I_B1: {status: gridset}
+    I_B1: {status: empty}
   export:
-    E_B1: {status: gridset}
+    E_B1: {status: empty}
   internal:
     Z_B1: {status: complete}
 - component: parent/child_B
   import:
-    I_B1: {status: gridset}
+    I_B1: {status: empty}
   export:
-    E_B1: {status: gridset}
+    E_B1: {status: empty}
 
 - component: parent/<user>
   import: {}
   export:
-    Eparent_B1: {status: gridset} # re-export
+    Eparent_B1: {status: empty} # re-export
   internal: {}
 
 - component: parent
   import:
-    "child_A/I_A1": {status: gridset}  # unsatisfied
-    "child_B/I_B1": {status: gridset}  # unsatisfied
+    "I_A1(1)": {status: empty}  # unsatisfied
+    "I_B1(1)": {status: empty}  # unsatisfied
   export:
-    "child_A/E_A1": {status: gridset}
-    "child_B/E_B1": {status: gridset} # re-export
-    Eparent_B1: {status: gridset} # re-export
+    "child_A/E_A1": {status: empty}
+    "child_B/E_B1": {status: empty} # re-export
+    Eparent_B1: {status: empty} # re-export
 
 - component: <user>
   import: {}
   export:
-    Egrandparent_B1: {status: gridset} # re-export
+    Egrandparent_B1: {status: empty} # re-export
   internal: {}
 
 - component: <root>
   import:
-    "child_A/I_A1": {status: gridset}  # unsatisfied
-    "child_B/I_B1": {status: gridset}  # unsatisfied
+    "I_A1(1)": {status: empty}  # unsatisfied
+    "I_B1(1)": {status: empty}  # unsatisfied
   export:
-    "child_A/E_A1": {status: gridset}
-    "child_B/E_B1": {status: gridset} # re-export
-    Egrandparent_B1: {status: gridset} # re-export
+    "child_A/E_A1": {status: empty}
+    "child_B/E_B1": {status: empty} # re-export
+    Egrandparent_B1: {status: empty} # re-export

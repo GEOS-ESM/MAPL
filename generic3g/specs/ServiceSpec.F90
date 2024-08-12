@@ -9,7 +9,6 @@ module mapl3g_ServiceSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_ESMF_Utilities, only: get_substate
    use mapl_ErrorHandling
-   use mapl3g_HierarchicalRegistry
    use mapl3g_ActualPtSpecPtrMap
    use mapl3g_ActualPtVec_Map
    use mapl3g_ActualPtVector
@@ -37,7 +36,6 @@ module mapl3g_ServiceSpec
       procedure :: can_connect_to
       procedure :: make_extension
       procedure :: extension_cost
-      procedure :: make_action
       procedure :: add_to_state
       procedure :: add_to_bundle
 !!$      procedure :: check_complete
@@ -177,27 +175,21 @@ contains
    end subroutine destroy
 
 
-   function make_action(this, dst_spec, rc) result(action)
-      class(ExtensionAction), allocatable :: action
+   subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(ServiceSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), allocatable, intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      action = NullAction()
+      action = NullAction() ! default
+      new_spec = this
 
-      _RETURN(_SUCCESS)
-   end function make_action
+      _FAIL('not implemented')
+   end subroutine make_extension
 
-   function make_extension(this, dst_spec, rc) result(extension)
-      class(StateItemSpec), allocatable :: extension
-      class(ServiceSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
-      _RETURN(_SUCCESS)
-   end function make_extension
-   
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(ServiceSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec

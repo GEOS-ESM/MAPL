@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed all ESMF_AttributeGet and ESMF_AttributeSet to ESMF_InfoGet and ESMF_InfoSet respectively as old calls will be deprecated soon.
 - Update executables using FLAP to use fArgParse
 - Update `Findudunits.cmake` to link with libdl and look for the `udunits2.xml` file (as some MAPL tests require it)
+- Modified `ESMF_GridComp` creation in `GenericGridComp` to use `ESMF_CONTEXT_PARENT_VM` by default.
 
 ### Fixed
 
@@ -63,17 +64,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Added new driver, CapDriver.x, to excerise the MAPL_Cap with the configuratable component also used by ExtDataDriver.x
+- Added Fortran interface to UDUNITS2
+  - NOTE: This now means MAPL depends on UDUNITS2 (and transitively, expat)
 - Improve mask sampler by adding an MPI step and a LS_chunk (intermediate step)
+- Update Baselibs in CI to 7.25.0
+  - NOTE: The docker image also updates to Intel 2024.2 and Intel MPI 2021.13
 - Update `components.yaml`
-  - ESMA_cmake v3.48.0
+  - ESMA_env v4.30.0
+    - Update to Baselibs 7.25.0
+      - ESMF 8.6.1
+      - GFE v1.16.0
+        - gFTL v1.14.0
+        - gFTL-shared v1.9.0
+        - fArgParse v1.8.0
+        - pFUnit v4.10.0
+        - yaFyaml v1.4.0
+      - curl 8.8.0
+      - NCO 5.2.6
+      - Other various fixes from the v8 branch
+    - Move to use Intel ifort 2021.13 at NCCS SLES15, NAS, and GMAO Desktops
+    - Move to use Intel MPI at NCCS SLES15 and GMAO Desktops
+    - Move to GEOSpyD Min24.4.4 Python 3.11
+  - ESMA_cmake v3.49.0
     - Update `esma_add_fortran_submodules` function
     - Move MPI detection out of FindBaselibs
+    - Add SMOD to submodule generator
+- Add support for preliminary CF Conventions quantization properties
+  - Add new quantization keyword `granular_bitround` to History. This will be the preferred keyword for quantization in the future
+    replacing `GranularBR`
 
 ### Fixed
+
+- Fix profiler PercentageColumn test for GCC 14
+- Fix bug in ExtData Tests. CMake was overwriting the `EXTDATA2G_SMALL_TESTS` LABEL with `ESSENTIAL`
 
 ### Removed
 
 ### Deprecated
+
+- Deprecate `GranularBR` as a quantization method keyword in History. We will prefer `granular_bitround` in the future to match
+  draft CF conventions. This will be removed in MAPL 3.
+
+## [2.47.1] - 2024-07-17
+
+### Fixed
+
+- Fixed bug in FieldSet routines when passing R8 ESMF fields
 
 ## [2.47.0] - 2024-06-24
 

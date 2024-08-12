@@ -28,7 +28,7 @@ module mapl3g_Generic
    use :: mapl3g_ESMF_Interfaces, only: I_Run
    use :: mapl3g_StateItemSpec
    use :: mapl3g_VerticalGeom
-   use :: mapl3g_HierarchicalRegistry
+   use mapl3g_StateRegistry, only: StateRegistry
    use mapl_InternalConstantsMod
    use :: esmf, only: ESMF_Info
    use :: esmf, only: ESMF_InfoGetFromHost
@@ -217,7 +217,7 @@ contains
       type(ESMF_Hconfig), optional, intent(out) :: hconfig
       type(OuterMetaComponent), pointer, optional, intent(out) :: outer_meta
       class(Logger_t), optional, pointer, intent(out) :: logger
-      type(HierarchicalRegistry), optional, pointer, intent(out) :: registry
+      type(StateRegistry), optional, pointer, intent(out) :: registry
       type(ESMF_Geom), optional, intent(out) :: geom
       integer, optional, intent(out) :: rc
 

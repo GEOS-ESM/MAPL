@@ -34,6 +34,7 @@ module mapl3g_CouplerMetaComponent
       logical :: stale = .true.
    contains
       ! ESMF methods
+      procedure :: initialize
       procedure :: update
       procedure :: invalidate
       procedure :: clock_advance
@@ -86,6 +87,19 @@ contains
 
    end function new_CouplerMetaComponent
 
+  recursive subroutine initialize(this, importState, exportState, clock, rc)
+      class(CouplerMetaComponent), intent(inout) :: this
+      type(ESMF_State), intent(inout) :: importState
+      type(ESMF_State), intent(inout) :: exportState
+      type(ESMF_Clock), intent(inout) :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call this%action%initialize(importState, exportState, clock, _RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine initialize
 
    recursive subroutine update(this, importState, exportState, clock, rc)
       class(CouplerMetaComponent), intent(inout) :: this
@@ -101,7 +115,7 @@ contains
 !#      call this%propagate_attributes(_RC)
       call this%update_sources(_RC)
       
-      call this%action%run(_RC)
+      call this%action%run(importState, exportState, clock, _RC)
       call this%set_up_to_date()
 
       _RETURN(_SUCCESS)
@@ -206,6 +220,11 @@ contains
 
       integer :: status
 
+      !TODO: This block is a workaround for weird link error with NAG
+      !      7.2 Appears to be a collision in numbering of local
+      !      scopes.
+      block
+      end block
       _GET_NAMED_PRIVATE_STATE(gridcomp, CouplerMetaComponent, COUPLER_META_PRIVATE_STATE, meta)
 
       _RETURN(_SUCCESS)

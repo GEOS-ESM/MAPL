@@ -2,6 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_ServerThreadMod
+
    use, intrinsic :: iso_c_binding, only: c_ptr
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
@@ -29,11 +30,11 @@ module pFIO_ServerThreadMod
    use pFIO_CollectivePrefetchDoneMessageMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
-   use pFIO_AddExtCollectionMessageMod
+   use pFIO_AddReadDataCollectionMessageMod
    use pFIO_DummyMessageMod
    use pFIO_HandShakeMessageMod
    use pFIO_IDMessageMod
-   use pFIO_AddHistCollectionMessageMod
+   use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_AbstractDataMessageMod
    use pFIO_PrefetchDataMessageMod
    use pFIO_CollectivePrefetchDataMessageMod
@@ -88,8 +89,8 @@ module pFIO_ServerThreadMod
       procedure :: handle_Done_collective_prefetch
       procedure :: handle_Done_stage
       procedure :: handle_Done_collective_stage
-      procedure :: handle_AddExtCollection
-      procedure :: handle_AddHistCollection
+      procedure :: handle_AddReadDataCollection
+      procedure :: handle_AddWriteDataCollection
       procedure :: handle_PrefetchData
       procedure :: handle_CollectivePrefetchData
       procedure :: handle_StageData
@@ -474,9 +475,9 @@ contains
       _RETURN(_SUCCESS)
    end function read_and_share
 
-   subroutine handle_AddExtCollection(this, message, rc)
+   subroutine handle_AddReadDataCollection(this, message, rc)
       class (ServerThread), target, intent(inout) :: this
-      type (AddExtCollectionMessage), intent(in) :: message
+      type (AddReadDataCollectionMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
       integer :: n, status
@@ -512,11 +513,11 @@ contains
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Extcollection")
       _RETURN(_SUCCESS)
-   end subroutine handle_AddExtCollection
+   end subroutine handle_AddReadDataCollection
 
-   subroutine handle_AddHistCollection(this, message, rc)
+   subroutine handle_AddWriteDataCollection(this, message, rc)
       class (ServerThread), target, intent(inout) :: this
-      type (AddHistCollectionMessage), intent(in) :: message
+      type (AddWriteDataCollectionMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
       integer :: n, status
@@ -533,7 +534,7 @@ contains
       call connection%send(IdMessage(n),_RC)
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Histcollection")
       _RETURN(_SUCCESS)
-   end subroutine handle_AddHistCollection
+   end subroutine handle_AddWriteDataCollection
 
    subroutine handle_PrefetchData(this, message, rc)
       class (ServerThread), target, intent(inout) :: this

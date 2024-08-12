@@ -1,53 +1,54 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
-module pFIO_AddExtCollectionMessageMod
+module pFIO_AddReadDataCollectionMessageMod
+
    use MAPL_ExceptionHandling
    use pFIO_UtilitiesMod
    use pFIO_AbstractMessageMod
    implicit none
    private
 
-   public :: AddExtCollectionMessage
+   public :: AddReadDataCollectionMessage
 
-   type, extends(AbstractMessage) :: AddExtCollectionMessage
+   type, extends(AbstractMessage) :: AddReadDataCollectionMessage
       character(len=:), allocatable :: template
    contains
       procedure, nopass :: get_type_id
       procedure :: get_length
       procedure :: serialize
       procedure :: deserialize
-   end type AddExtCollectionMessage
+   end type AddReadDataCollectionMessage
 
-   interface AddExtCollectionMessage
-      module procedure new_AddExtCollectionMessage
-   end interface AddExtCollectionMessage
+   interface AddReadDataCollectionMessage
+      module procedure new_AddReadDataCollectionMessage
+   end interface AddReadDataCollectionMessage
 
 
 contains
 
 
-   function new_AddExtCollectionMessage(template) result(message)
-      type (AddExtCollectionMessage) :: message
+   function new_AddReadDataCollectionMessage(template) result(message)
+      type (AddReadDataCollectionMessage) :: message
       character(len=*), intent(in) :: template
 
       message%template = template
-   end function new_AddExtCollectionMessage
+   end function new_AddReadDataCollectionMessage
 
    
    integer function get_type_id() result(type_id)
-      type_id = ADDEXTCOLLECTION_ID
+      type_id = ADD_READATA_COLLECTION_ID
    end function get_type_id
 
 
    integer function get_length(this) result(length)
-      class (AddExtCollectionMessage), intent(in) :: this
+      class (AddReadDataCollectionMessage), intent(in) :: this
       length = serialize_buffer_length(this%template)
    end function get_length
 
 
    subroutine serialize(this, buffer, rc)
-      class (AddExtCollectionMessage), intent(in) :: this
+      class (AddReadDataCollectionMessage), intent(in) :: this
       integer, intent(inout) :: buffer(:) ! no-op
       integer, optional, intent(out) :: rc
       buffer = serialize_intrinsic(this%template)
@@ -56,7 +57,7 @@ contains
 
 
    subroutine deserialize(this, buffer, rc)
-      class (AddExtCollectionMessage), intent(inout) :: this
+      class (AddReadDataCollectionMessage), intent(inout) :: this
       integer, intent(in) :: buffer(:)
       integer, optional, intent(out) :: rc
 
@@ -64,4 +65,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine deserialize
 
-end module pFIO_AddExtCollectionMessageMod
+end module pFIO_AddReadDataCollectionMessageMod

@@ -2,13 +2,18 @@
 
 module mapl3g_SimpleConnection
    use mapl3g_StateItemSpec
+   use mapl3g_Connection
    use mapl3g_ConnectionPt
-   use mapl3g_HierarchicalRegistry
+   use mapl3g_StateRegistry
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVec_Map
    use mapl3g_ActualPtVector
    use mapl3g_GriddedComponentDriver
+   use mapl3g_StateItemExtension
+   use mapl3g_StateItemExtensionVector
+   use mapl3g_StateItemExtensionPtrVector
+   use mapl3g_MultiState
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use gFTL2_StringVector, only: StringVector
@@ -60,10 +65,10 @@ contains
 
    recursive subroutine connect(this, registry, rc)
       class(SimpleConnection), intent(in) :: this
-      type(HierarchicalRegistry), target, intent(inout) :: registry
+      type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
-      type(HierarchicalRegistry), pointer :: src_registry, dst_registry
+      type(StateRegistry), pointer :: src_registry, dst_registry
       integer :: status
       type(VirtualConnectionPt) :: s_v_pt
       type(VirtualConnectionPt), pointer :: d_v_pt
@@ -85,89 +90,87 @@ contains
       _RETURN(_SUCCESS)
    end subroutine connect
 
+
    recursive subroutine connect_sibling(this, dst_registry, src_registry, unusable, rc)
       class(SimpleConnection), intent(in) :: this
-      type(HierarchicalRegistry), target, intent(inout) :: dst_registry
-      type(HierarchicalRegistry), target, intent(inout) :: src_registry
+      type(StateRegistry), target, intent(inout) :: dst_registry
+      type(StateRegistry), target, intent(inout) :: src_registry
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(StateItemSpecPtr), target, allocatable :: src_specs(:), dst_specs(:)
+
+      type(StateItemExtensionPtr), target, allocatable :: src_extensions(:), dst_extensions(:)
+      type(StateItemExtension), pointer :: src_extension, dst_extension
       class(StateItemSpec), pointer :: src_spec, dst_spec
       integer :: i, j
       integer :: status
       type(ConnectionPt) :: src_pt, dst_pt
       integer :: i_extension
       integer :: cost, lowest_cost
-      class(StateItemSpec), pointer :: best_spec
+      type(StateItemExtension), pointer :: best_extension
+      type(StateItemExtension), pointer :: last_extension
+      type(StateItemExtension) :: extension
+      type(StateItemExtension), pointer :: new_extension
       class(StateItemSpec), pointer :: last_spec
-      class(StateItemSpec), target, allocatable :: old_spec
-      class(StateItemSpec), allocatable, target :: new_spec
+      class(StateItemSpec), pointer :: new_spec
+      class(StateItemSpec), pointer :: best_spec
       type(ActualConnectionPt) :: effective_pt
-      type(ActualConnectionPt) :: extension_pt
 
-
-      type(GriddedComponentDriver), pointer :: source_coupler
+      type(GriddedComponentDriver), pointer :: coupler
       type(ActualPtVector), pointer :: src_actual_pts
       type(ActualConnectionPt), pointer :: best_pt
-      
+      type(ActualConnectionPt) :: a_pt
+      type(MultiState) :: coupler_states
 
       src_pt = this%get_source()
       dst_pt = this%get_destination()
 
-      dst_specs = dst_registry%get_actual_pt_SpecPtrs(dst_pt%v_pt, _RC)
+      dst_extensions = dst_registry%get_extensions(dst_pt%v_pt, _RC)
+      src_extensions = src_registry%get_extensions(src_pt%v_pt, _RC)
 
-      src_actual_pts => src_registry%get_actual_pts(src_pt%v_pt)
-      _ASSERT(src_actual_pts%size() > 0, 'Empty virtual point?  This should not happen.')
-
-      do i = 1, size(dst_specs)
-         dst_spec => dst_specs(i)%ptr
+      do i = 1, size(dst_extensions)
+         dst_extension => dst_extensions(i)%ptr
+         dst_spec => dst_extension%get_spec()
 
          ! Connection is transitive -- if any src_specs can connect, all can connect.
          ! So we can just check this property on the 1st item.
-         src_specs = src_registry%get_actual_pt_SpecPtrs(src_pt%v_pt, _RC)
-         src_spec => src_specs(1)%ptr
+         src_extension => src_extensions(1)%ptr
+         src_spec => src_extension%get_spec()
          _ASSERT(dst_spec%can_connect_to(src_spec), "impossible connection")
 
-         call find_closest_spec(dst_spec, src_specs, src_actual_pts, closest_spec=best_spec, closest_pt=best_pt, lowest_cost=lowest_cost, _RC)
+         call find_closest_extension(dst_extension, src_extensions, closest_extension=best_extension, lowest_cost=lowest_cost, _RC)
+         best_spec => best_extension%get_spec()
          call best_spec%set_active()
-         call activate_dependencies(best_spec, src_registry, _RC)
+         call activate_dependencies(best_extension, src_registry, _RC)
 
-         ! Now build out sequence of extensions that form a chain to
-         ! dst_spec.  This includes creating couplers (handled inside
-         ! registry.)
-         last_spec => best_spec
-         old_spec = best_spec
-         source_coupler => null()
+         last_extension => best_extension
+
          do i_extension = 1, lowest_cost
-            new_spec = old_spec%make_extension(dst_spec, _RC)
-            call new_spec%set_active()
-            extension_pt = src_registry%extend(src_pt%v_pt, old_spec, new_spec, source_coupler=source_coupler, _RC)
-            source_coupler => src_registry%get_export_coupler(extension_pt)
-            ! ifort 2021.6 does something odd with the following move_alloc
-!!$            call move_alloc(from=new_spec, to=old_spec)
-            deallocate(old_spec)
-            allocate(old_spec, source=new_spec)
-            deallocate(new_spec)
+            extension = last_extension%make_extension(dst_spec, _RC)
+            new_extension => src_registry%add_extension(src_pt%v_pt, extension, _RC)
+            coupler => new_extension%get_producer()
 
-            last_spec => old_spec
+            ! WARNING TO FUTURE DEVELOPERS: There may be issues if
+            ! some spec needs to be a bit different in import and
+            ! export roles.  Here we use "last_extension" as an export
+            ! of src and an import of coupler.
+            coupler_states = coupler%get_states()
+            a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name='import[1]'))
+            last_spec => last_extension%get_spec()
+            call last_spec%add_to_state(coupler_states, a_pt, _RC)
+            a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='export[1]'))
+            new_spec => new_extension%get_spec()
+            call new_spec%add_to_state(coupler_states, a_pt, _RC)
+            
+            call last_extension%add_consumer(coupler)
+            last_extension => new_extension
          end do
-
-         call dst_spec%set_active()
-
-         ! If couplers were needed, then the final coupler must also be
-         ! referenced in the dst registry so that gridcomps can do update()
-         ! requests.
-         if (lowest_cost >= 1) then
-            call dst_registry%add_import_coupler(source_coupler)
-         end if
 
          ! In the case of wildcard specs, we need to pass an actual_pt to
          ! the dst_spec to support multiple matches.  A bit of a kludge.
          effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
-              src_pt%v_pt%get_esmf_name(), comp_name=src_pt%v_pt%get_comp_name()))
-         effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
               src_pt%v_pt%get_comp_name()//'/'//src_pt%v_pt%get_esmf_name()))
+         last_spec => last_extension%get_spec()
          call dst_spec%connect_to(last_spec, effective_pt, _RC)
          call dst_spec%set_active()
             
@@ -177,57 +180,68 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine connect_sibling
 
-   subroutine activate_dependencies(spec, registry, rc)
-      class(StateItemSpec), intent(in) :: spec
-      type(HierarchicalRegistry), target, intent(in) :: registry
+   ! This activates _within_ the user gridcomp.   Some exports may require
+   ! other exports to be computed even when no external connection is made to those
+   ! exports.
+   subroutine activate_dependencies(extension, registry, rc)
+      type(StateItemExtension), intent(in) :: extension
+      type(StateRegistry), target, intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: i
-      type(ActualPtVector) :: dependencies
+      type(StringVector) :: dependencies
+      class(StateItemExtension), pointer :: dep_extension
+      class(StateItemSpec), pointer :: spec
       class(StateItemSpec), pointer :: dep_spec
 
-      dependencies = spec%get_dependencies()
+      spec => extension%get_spec()
+      dependencies = spec%get_raw_dependencies()
       do i = 1, dependencies%size()
-         dep_spec => registry%get_item_spec(dependencies%of(i), _RC)
+         associate (v_pt => VirtualConnectionPt(state_intent='export', short_name=dependencies%of(i)) )
+           dep_extension => registry%get_primary_extension(v_pt, _RC)
+         end associate
+         dep_spec => dep_extension%get_spec()
          call dep_spec%set_active()
       end do
 
       _RETURN(_SUCCESS)
    end subroutine activate_dependencies
 
-   subroutine find_closest_spec(goal_spec, candidate_specs, candidate_pts, closest_spec, closest_pt, lowest_cost, rc)
-      class(StateItemSpec), intent(in) :: goal_spec
-      type(StateItemSpecPtr), target, intent(in) :: candidate_specs(:)
-      type(ActualPtVector), target, intent(in) :: candidate_pts
-      class(StateItemSpec), pointer :: closest_Spec
-      type(ActualConnectionPt), pointer :: closest_pt
+   subroutine find_closest_extension(goal_extension, candidate_extensions, closest_extension, lowest_cost, rc)
+      type(StateItemExtension), intent(in) :: goal_extension
+      type(StateItemExtensionPtr), target, intent(in) :: candidate_extensions(:)
+      type(StateItemExtension), pointer :: closest_extension
       integer, intent(out) :: lowest_cost
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(StateItemExtension), pointer :: extension
       class(StateItemSpec), pointer :: spec
+      class(StateItemSpec), pointer :: goal_spec
       integer :: cost
       integer :: j
       
-      _ASSERT(size(candidate_specs) > 0, 'no candidates found')
+      _ASSERT(size(candidate_extensions) > 0, 'no candidates found')
 
-      closest_spec => candidate_specs(1)%ptr
-      closest_pt => candidate_pts%of(1)
-      lowest_cost = goal_spec%extension_cost(closest_spec, _RC)
-      do j = 2, size(candidate_specs)
+      goal_spec => goal_extension%get_spec()
+      closest_extension => candidate_extensions(1)%ptr
+      spec => closest_extension%get_spec()
+      lowest_cost = goal_spec%extension_cost(spec, _RC)
+      do j = 2, size(candidate_extensions)
          if (lowest_cost == 0) exit
 
-         spec => candidate_specs(j)%ptr
+         extension => candidate_extensions(j)%ptr
+         spec => closest_extension%get_spec()
          cost = goal_spec%extension_cost(spec)
          if (cost < lowest_cost) then
             lowest_cost = cost
-            closest_spec => spec
-            closest_pt => candidate_pts%of(j)
+            closest_extension => extension
          end if
 
       end do
 
-   end subroutine find_closest_spec
+   end subroutine find_closest_extension
 
 end module mapl3g_SimpleConnection
+

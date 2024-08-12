@@ -1,6 +1,7 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 module MockSocketMod
+
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use MAPL_ExceptionHandling
@@ -13,7 +14,7 @@ module MockSocketMod
    use pFIO_DoneMessageMod
    use pFIO_PrefetchDoneMessageMod
    use pFIO_DummyMessageMod
-   use pFIO_AddExtCollectionMessageMod
+   use pFIO_AddReadDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
    use pFIO_AbstractDataReferenceMod
@@ -126,8 +127,8 @@ contains
             call this%prefix('receive<Done>')
          type is (PrefetchDoneMessage)
             call this%prefix('receive<Done_prefetch>')
-         type is (AddExtCollectionMessage)
-            call this%prefix("receive<AddExtCollection('"//message%template//"')>")  
+         type is (AddReadDataCollectionMessage)
+            call this%prefix("receive<AddReadDataCollection('"//message%template//"')>")  
          type is (PrefetchDataMessage)
             call this%prefix("receive<PrefetchData('"//message%var_name//"')>")  
          end select
@@ -150,8 +151,8 @@ contains
       type is (IdMessage)
          write(buffer,'("(",i3.3,")")') message%id
          call this%prefix('send<Id'//trim(buffer)//'>')
-      type is (AddExtCollectionMessage)
-         call this%prefix("send<AddExtCollection('" // message%template // "')>")
+      type is (AddReadDataCollectionMessage)
+         call this%prefix("send<AddReadDataCollection('" // message%template // "')>")
          this%collection_counter = this%collection_counter + 1
          call this%messages%push_back(IdMessage(this%collection_counter))
       type is (PrefetchDataMessage)

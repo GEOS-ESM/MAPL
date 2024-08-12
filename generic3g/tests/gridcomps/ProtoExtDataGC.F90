@@ -8,12 +8,13 @@ module ProtoExtDataGC
    use mapl3g_OuterMetaComponent
    use mapl3g_Generic
    use mapl3g_UserSetServices
-   use mapl3g_HierarchicalRegistry
+   use mapl3g_StateRegistry, only: StateRegistry
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
    use mapl3g_ConnectionPt
    use mapl3g_SimpleConnection
    use mapl3g_StateItemSpec
+   use mapl3g_StateItemExtension
    use mapl3g_ESMF_Subset
 
    implicit none
@@ -50,12 +51,13 @@ contains
       type(ActualConnectionPt) :: a_pt
       type(ConnectionPt) :: s_pt, d_pt
       type(SimpleConnection) :: conn
-      type(HierarchicalRegistry), pointer :: registry
+      type(StateRegistry), pointer :: registry
       class(StateItemSpec), pointer :: export_spec
       class(StateItemSpec), pointer :: import_spec
       type(ESMF_HConfig) :: hconfig, states_spec, state_spec, mapl_config
       type(ESMF_HConfigIter) :: iter,e,b
       character(:), allocatable :: var_name
+      type(StateItemExtension), pointer :: primary
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, registry=registry, _RC)
 
@@ -76,20 +78,24 @@ contains
                export_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, var_name)
                import_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, var_name)
                a_pt = ActualConnectionPt(export_v_pt)
-               export_spec => registry%get_item_spec(a_pt, _RC)
+!#               export_spec => registry%get_item_spec(a_pt, _RC)
+               primary => registry%get_primary_extension(export_v_pt, _RC)
+               export_spec => primary%get_spec()
+               
+               
 
                allocate(import_spec, source=export_spec)
 
                ! Need new payload ... (but maybe not as it will get tossed at connect() anyway.)
                call import_spec%create(_RC)
-               call registry%add_item_spec(import_v_pt, import_spec)
+               call registry%add_primary_spec(import_v_pt, import_spec)
 
                ! And now connect
                export_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, var_name)
                s_pt = ConnectionPt('collection_1', export_v_pt)
                d_pt = ConnectionPt('<self>', import_v_pt)
                conn = SimpleConnection(source=s_pt, destination=d_pt)
-               call registry%add_connection(conn, _RC)
+               call conn%connect(registry, _RC)
             end do
          end if
       end if

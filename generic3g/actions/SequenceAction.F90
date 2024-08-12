@@ -12,12 +12,24 @@ module mapl3g_SequenceAction
    type, extends(ExtensionAction) :: SequenceAction
       type(ActionVector) :: actions
    contains
-      procedure :: run
+      procedure :: initialize
+      procedure :: run_old
+      procedure :: run_new
    end type SequenceAction
 
 contains
 
-   subroutine run(this, rc)
+   subroutine initialize(this, importState, exportState, clock, rc)
+      use esmf
+      class(SequenceAction), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+      _FAIL('Not implemented')
+   end subroutine initialize
+
+subroutine run_old(this, rc)
       class(SequenceAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
@@ -32,6 +44,16 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-   end subroutine run
+   end subroutine run_old
+
+   subroutine run_new(this, importState, exportState, clock, rc)
+      use esmf
+      class(SequenceAction), intent(inout) :: this
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, optional, intent(out) :: rc
+      _FAIL('Not implemented')
+   end subroutine run_new
 
 end module mapl3g_SequenceAction

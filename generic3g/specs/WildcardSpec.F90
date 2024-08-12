@@ -31,7 +31,6 @@ module mapl3g_WildcardSpec
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: make_extension
-      procedure :: make_action
       procedure :: add_to_state
       procedure :: add_to_bundle
       procedure :: extension_cost
@@ -126,7 +125,7 @@ contains
          spec => this%matched_items%of(actual_pt)
          call spec%create(_RC)
          call spec%connect_to(src_spec, actual_pt, _RC)
-         
+
          _RETURN(ESMF_SUCCESS)
       end subroutine with_target_attribute
    end subroutine connect_to
@@ -168,7 +167,8 @@ contains
          type(ActualConnectionPt), pointer :: effective_pt
          type(ActualConnectionPt) :: use_pt
          character(:), allocatable :: comp_name
-         
+         integer :: label
+
          associate (e => this%matched_items%ftn_end())
            iter = this%matched_items%ftn_begin()
            do while (iter /= e)
@@ -176,10 +176,15 @@ contains
               ! Ignore actual_pt argument and use internally recorded name
               effective_pt => iter%first()
               comp_name = actual_pt%get_comp_name()
+              label = actual_pt%get_label()
+              use_pt = effective_pt
+
+              if (label /= -1) then ! not primary
+                 use_pt = use_pt%extend()
+              end if
+
               if (comp_name /= '') then
-                 use_pt = effective_pt%add_comp_name(comp_name)
-              else
-                 use_pt = effective_pt
+                 use_pt = use_pt%add_comp_name(comp_name)
               end if
               spec_ptr => iter%second()
               call spec_ptr%add_to_state(multi_state, use_pt, _RC)
@@ -202,26 +207,20 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   function make_extension(this, dst_spec, rc) result(extension)
-      class(StateItemSpec), allocatable :: extension
+   subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(WildcardSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
-
-      _FAIL('wildcard cannot be extended - only used for imports')
-   end function make_extension
-
-   function make_action(this, dst_spec, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(WildcardSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), allocatable, intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      action = NullAction()
-      _FAIL('wildcard cannot be extended - only used for imports')
-   end function make_action
+      action = NullAction() ! default
+      new_spec = this
+
+      _FAIL('not implemented')
+   end subroutine make_extension
 
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(WildcardSpec), intent(in) :: this

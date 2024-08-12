@@ -25,7 +25,7 @@ contains
       integer :: status
       type(CouplerMetaComponent), pointer :: coupler_meta
 
-      coupler_gridcomp = ESMF_GridCompCreate(name='coupler', _RC)
+      coupler_gridcomp = ESMF_GridCompCreate(name='coupler', contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
       call attach_coupler_meta(coupler_gridcomp, _RC)
       coupler_meta => get_coupler_meta(coupler_gridcomp, _RC)
 #ifndef __GFORTRAN__
@@ -56,7 +56,7 @@ contains
 
       integer :: status
 
-      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, initialize, phase=GENERIC_COUPLER_INITIALIZE, _RC)
+      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_COUPLER_INITIALIZE, _RC)
 
       call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, update, phase=GENERIC_COUPLER_UPDATE, _RC)
       call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, invalidate, phase=GENERIC_COUPLER_INVALIDATE, _RC)
@@ -77,7 +77,7 @@ contains
       type(CouplerMetaComponent), pointer :: meta
 
       meta => get_coupler_meta(gridcomp, _RC)
-!#      call meta%initialize(importState, exportState, clock, _RC)
+      call meta%initialize(importState, exportState, clock, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine initialize

@@ -3,24 +3,27 @@
 module mapl3g_GeomPFIO
    use mapl_ErrorHandling
    use ESMF
-   use PFIO
+   use PFIO, only: i_Clients, o_Clients
    use mapl3g_geom_mgr
    use mapl3g_SharedIO
    implicit none
    private
 
    public :: GeomPFIO
+
    type, abstract :: GeomPFIO
       private
       integer :: collection_id
       type(MaplGeom), pointer :: mapl_geom
    contains
       procedure(I_stage_data_to_file), deferred :: stage_data_to_file
-      procedure :: initialize
+      procedure(I_request_data_from_file), deferred :: request_data_from_file
+      procedure, private :: init_with_metadata
+      procedure, private :: init_with_filename
+      generic :: initialize => init_with_metadata, init_with_filename
       procedure :: update_time_on_server
       procedure :: stage_time_to_file
       procedure, non_overridable :: get_collection_id
-
    end type GeomPFIO
 
    abstract interface
@@ -34,6 +37,15 @@ module mapl3g_GeomPFIO
         integer, intent(in) :: time_index
         integer, intent(out), optional :: rc
      end subroutine I_stage_data_to_file
+
+     subroutine I_request_data_from_file(this, file_name, state, rc)
+        use esmf
+        import GeomPFIO
+        class(GeomPFIO), intent(inout) :: this
+        character(len=*), intent(in) :: file_name
+        type(ESMF_State), intent(inout) :: state
+        integer, intent(out), optional :: rc
+     end subroutine I_request_data_from_file
 
    end interface
 
@@ -66,11 +78,11 @@ contains
       type(ArrayReference) :: ref
 
       ref = ArrayReference(times)
-      call o_Clients%stage_nondistributed_data(this%collection_id, filename, 'time', ref)
+      call o_Clients%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
 
    end subroutine
 
-   subroutine initialize(this, metadata, mapl_geom,  rc)
+   subroutine init_with_metadata(this, metadata, mapl_geom,  rc)
       class(GeomPFIO), intent(inout) :: this
       type(FileMetadata), intent(in) :: metadata
       type(MaplGeom), intent(in), pointer :: mapl_geom
@@ -79,9 +91,24 @@ contains
       integer :: status
 
       this%mapl_geom => mapl_geom
-      this%collection_id = o_Clients%add_hist_collection(metadata)
+      this%collection_id = o_Clients%add_data_collection(metadata, _RC)
+
       _RETURN(_SUCCESS)
-   end subroutine initialize
+   end subroutine init_with_metadata
+
+   subroutine init_with_filename(this, file_name, mapl_geom,  rc)
+      class(GeomPFIO), intent(inout) :: this
+      character(len=*), intent(in) :: file_name
+      type(MaplGeom), intent(in), pointer :: mapl_geom
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      this%mapl_geom => mapl_geom
+      this%collection_id = i_Clients%add_data_collection(file_name, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine init_with_filename
 
    pure integer function get_collection_id(this)
       class(GeomPFIO), intent(in) :: this

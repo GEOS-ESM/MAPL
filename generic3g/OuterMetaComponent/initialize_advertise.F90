@@ -66,7 +66,7 @@ contains
 
       subroutine advertise_variable(var_spec, registry, geom, vertical_geom, unusable, rc)
          type(VariableSpec), intent(in) :: var_spec
-         type(HierarchicalRegistry), intent(inout) :: registry
+         type(StateRegistry), intent(inout) :: registry
          type(ESMF_Geom), optional, intent(in) :: geom
          type(VerticalGeom), intent(in) :: vertical_geom
          class(KE), optional, intent(in) :: unusable
@@ -84,7 +84,8 @@ contains
          call item_spec%create(_RC)
 
          virtual_pt = var_spec%make_virtualPt()
-         call registry%add_item_spec(virtual_pt, item_spec)
+!#         call registry%add_item_spec(virtual_pt, item_spec)
+         call registry%add_primary_spec(virtual_pt, item_spec)
 
          _RETURN(_SUCCESS)
          _UNUSED_DUMMY(unusable)
@@ -97,11 +98,13 @@ contains
 
         integer :: status
         type(ConnectionVectorIterator) :: iter
+        class(Connection), pointer :: c
 
         associate (e => this%component_spec%connections%end())
           iter = this%component_spec%connections%begin()
           do while (iter /= e)
-             call this%registry%add_connection(iter%of(), _RC)
+             c => iter%of()
+             call c%connect(this%registry, _RC)
              call iter%next()
           end do
         end associate

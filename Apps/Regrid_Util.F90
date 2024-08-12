@@ -96,7 +96,7 @@
     this%lat_range=uninit
     this%shave=64
     this%deflate=0
-    this%quantize_algorithm=1
+    this%quantize_algorithm=0
     this%quantize_level=0
     this%use_weights = .false.
     nargs = command_argument_count()
