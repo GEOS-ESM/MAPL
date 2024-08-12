@@ -73,8 +73,10 @@ contains
    function get_producer(this) result(producer)
       class(StateItemExtension), target, intent(in) :: this
       type(GriddedComponentDriver), pointer :: producer
+
       if (.not. allocated(this%producer)) then
          producer => null()
+         return
       end if
       
       producer => this%producer

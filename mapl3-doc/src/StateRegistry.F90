@@ -1,6 +1,5 @@
 #include "MAPL_Generic.h"
 
-
 module mapl3g_StateRegistry
    use mapl3g_AbstractRegistry
    use mapl3g_RegistryPtr

@@ -7,7 +7,7 @@ module Test_SimpleLeafGridComp
    use mapl3g_GenericGridComp, only: setServices
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use mapl3g_OuterMetaComponent, only: get_outer_meta
-   use mapl3g_VerticalGeom
+   use mapl3g_BasicVerticalGrid
    use esmf
    use nuopc
    use pFunit
@@ -169,7 +169,7 @@ contains
       integer :: i
       type(ESMF_Field) :: f
       type(ESMF_Grid) :: grid
-      type(VerticalGeom) :: vertical_geom
+      type(BasicVerticalGrid) :: vertical_grid
 
       call NUOPC_FieldDictionarySetup('./scenarios/FieldDictionary.yml', rc=status)
       @assert_that(status, is(0))
@@ -182,10 +182,10 @@ contains
 
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', rc=status)
       @assert_that(status, is(0))
-      vertical_geom = VerticalGeom(4)
+      vertical_grid = BasicVerticalGrid(4)
       call MAPL_GridCompSetGeom(outer_gc, grid, rc=status)
       @assert_that(status, is(0))
-      call MAPL_GridCompSetVerticalGeom(outer_gc, vertical_geom, rc=status)
+      call MAPL_GridCompSetVerticalGrid(outer_gc, vertical_grid, rc=status)
       @assert_that(status, is(0))
 
       importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, rc=status)

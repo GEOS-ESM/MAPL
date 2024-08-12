@@ -34,7 +34,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_INVALIDATE
    use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_UPDATE
    use mapl_ErrorHandling
-   use mapl3g_VerticalGeom
+   use mapl3g_VerticalGrid
    use mapl3g_GeometrySpec
    use gFTL2_StringVector
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
@@ -60,7 +60,7 @@ module mapl3g_OuterMetaComponent
       type(ESMF_HConfig)                          :: hconfig
 
       type(ESMF_Geom), allocatable                :: geom
-      type(VerticalGeom), allocatable             :: vertical_geom
+      class(VerticalGrid), allocatable            :: vertical_grid
 
       type(InnerMetaComponent), allocatable       :: inner_meta
 
@@ -123,7 +123,7 @@ module mapl3g_OuterMetaComponent
       procedure :: get_component_spec
       procedure :: get_internal_state
 
-      procedure :: set_vertical_geom
+      procedure :: set_vertical_grid
 
       procedure :: connect_all
 
@@ -372,10 +372,10 @@ module mapl3g_OuterMetaComponent
          type(ESMF_Geom), intent(in) :: geom
       end subroutine set_geom
    
-      module subroutine set_vertical_geom(this, vertical_geom)
+      module subroutine set_vertical_grid(this, vertical_grid)
          class(OuterMetaComponent), intent(inout) :: this
-         type(VerticalGeom), intent(in) :: verticaL_geom
-      end subroutine set_vertical_geom
+         class(VerticalGrid), intent(in) :: verticaL_grid
+      end subroutine set_vertical_grid
     
       module function get_registry(this) result(registry)
          type(StateRegistry), pointer :: registry

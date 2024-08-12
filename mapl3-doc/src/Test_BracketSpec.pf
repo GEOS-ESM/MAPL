@@ -6,7 +6,8 @@ module Test_BracketSpec
    use mapl3g_FieldSpec
    use mapl3g_UngriddedDims
    use mapl3g_VerticalDimSpec
-   use mapl3g_VerticalGeom
+   use mapl3g_VerticalGrid
+   use mapl3g_BasicVerticalGrid
    use mapl3g_ActualConnectionPt
    use mapl3g_StateItemSpec
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
@@ -37,21 +38,21 @@ contains
       type(BracketSpec) :: spec_1, spec_2, spec_mirror
 
       spec_1 = BracketSpec( &
-           field_spec=FieldSpec(geom=geom, vertical_geom=VerticalGeom(), &
+           field_spec=FieldSpec(geom=geom, vertical_grid=BasicVerticalGrid(), &
            vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', units='barn'), &
            bracket_size=1)
       spec_2 = BracketSpec( &
-           field_spec=FieldSpec(geom=geom, vertical_geom=VerticalGeom(), &
+           field_spec=FieldSpec(geom=geom, vertical_grid=BasicVerticalGrid(), &
            vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', units='barn'), &
            bracket_size=2)
       spec_mirror = BracketSpec( &
-           field_spec=FieldSpec(geom=geom, vertical_geom=VerticalGeom(), &
+           field_spec=FieldSpec(geom=geom, vertical_grid=BasicVerticalGrid(), &
            vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDims(), &
@@ -82,7 +83,7 @@ contains
       integer :: status
 
       spec_1 = BracketSpec( &
-           field_spec=FieldSpec(geom=geom, vertical_geom=VerticalGeom(), &
+           field_spec=FieldSpec(geom=geom, vertical_grid=BasicVerticalGrid(), &
            vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDims(), &
@@ -91,14 +92,14 @@ contains
       spec_1b = spec_1
 
       spec_2 = BracketSpec( &
-           field_spec=FieldSpec(geom=geom, vertical_geom=VerticalGeom(), &
+           field_spec=FieldSpec(geom=geom, vertical_grid=BasicVerticalGrid(), &
            vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDims(), &
            standard_name='A', long_name='AA', units='barn'), &
            bracket_size=2)
       spec_mirror = BracketSpec( &
-           field_spec=FieldSpec(geom=geom, vertical_geom=VerticalGeom(), &
+           field_spec=FieldSpec(geom=geom, vertical_grid=BasicVerticalGrid(), &
            vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims = UngriddedDims(), &

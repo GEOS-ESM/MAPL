@@ -5,11 +5,12 @@ module mapl3g_HistoryCollectionGridComp
    use generic3g
    use mapl3g_esmf_utilities
    use mapl3g_HistoryCollectionGridComp_private
-   use esmf
+   use mapl3g_BasicVerticalGrid
    use mapl3g_geomio
    use mapl3g_geom_mgr
    use mapl_StringTemplate
    use pfio
+   use esmf
    
    implicit none
    private
@@ -39,7 +40,7 @@ contains
       character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
       integer :: status
 
-      type(VerticalGeom) :: vertical_geom
+      type(BasicVerticalGrid) :: vertical_grid
       type(OuterMetaComponent), pointer :: outer_meta
 
       ! Set entry points
@@ -51,8 +52,8 @@ contains
       _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp,_RC)
-      vertical_geom = VerticalGeom(4)
-      call outer_meta%set_vertical_geom(vertical_geom)
+      vertical_grid = BasicVerticalGrid(4)
+      call outer_meta%set_vertical_grid(vertical_grid)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       call register_imports(gridcomp,hconfig,_RC)
 

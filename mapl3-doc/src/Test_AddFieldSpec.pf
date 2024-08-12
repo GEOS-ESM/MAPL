@@ -7,7 +7,7 @@ module Test_AddFieldSpec
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
    use mapl3g_StateItemSpec
-   use mapl3g_VerticalGeom
+   use mapl3g_BasicVerticalGrid
    use gftl2_StringVector
    use ESMF
    implicit none
@@ -20,11 +20,11 @@ contains
    subroutine test_add_one_field()
       type(StateSpec) :: state_spec
       type(ESMF_Geom) :: geom
-      type(VerticalGeom) :: vertical_geom
+      type(BasicVerticalGrid) :: vertical_grid
       type(VerticalDimSpec) :: vertical_dim_spec
       type(StringVector) :: attributes
       call state_spec%add_item('A', &
-           FieldSpec(geom=geom, vertical_geom=vertical_geom, vertical_dim_spec=vertical_dim_spec, &
+           FieldSpec(geom=geom, vertical_grid=vertical_grid, vertical_dim_spec=vertical_dim_spec, &
            typekind=ESMF_TYPEKIND_R4, ungridded_dims=UngriddedDims()))
 
 
@@ -44,10 +44,10 @@ contains
 
       type(FieldSpec) :: field_spec
       type(ESMF_Geom) :: geom
-      type(VerticalGeom) :: vertical_geom
+      type(BasicVerticalGrid) :: vertical_grid
       type(VerticalDimSpec) :: vertical_dim_spec
 
-      field_spec = FieldSpec(geom=geom, vertical_geom=vertical_geom, vertical_dim_spec=vertical_dim_spec, &
+      field_spec = FieldSpec(geom=geom, vertical_grid=vertical_grid, vertical_dim_spec=vertical_dim_spec, &
            typekind=ESMF_TYPEKIND_R4, ungridded_dims=UngriddedDims())
       call state_spec%add_item('A', field_spec)
 
@@ -70,7 +70,7 @@ contains
 
       type(ESMF_Grid) :: grid
       type(ESMF_Geom) :: geom
-      type(VerticalGeom) :: vertical_geom
+      type(BasicVerticalGrid) :: vertical_grid
       type(VerticalDimSpec) :: vertical_dim_spec
       type(ESMF_Info) :: info
       type(ESMF_State) :: state
@@ -84,7 +84,7 @@ contains
       call ESMF_InfoSet(info, '/MAPL/GEOM/VERTICAL', 'CENTER', rc=status)
       geom = ESMF_GeomCreate(grid, ESMF_STAGGERLOC_INVALID)
       vertical_dim_spec = VERTICAL_DIM_CENTER
-      field_spec = FieldSpec(geom=geom, vertical_geom=vertical_geom, vertical_dim_spec=vertical_dim_spec, &
+      field_spec = FieldSpec(geom=geom, vertical_grid=vertical_grid, vertical_dim_spec=vertical_dim_spec, &
            typekind=ESMF_TYPEKIND_R4, ungridded_dims=UngriddedDims())
       call field_spec%create(rc=status)
       call field_spec%allocate(rc=status)
