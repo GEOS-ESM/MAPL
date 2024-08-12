@@ -100,7 +100,7 @@ contains
 
 
     subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
-       class(ModelVerticalGrid), intent(inout) :: this
+       class(ModelVerticalGrid), intent(in) :: this
        type(ESMF_Field), intent(out) :: field
        type(GriddedComponentDriver), pointer, intent(out) :: coupler
        character(*), intent(in) :: standard_name

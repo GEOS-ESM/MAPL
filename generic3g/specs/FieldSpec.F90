@@ -14,6 +14,7 @@ module mapl3g_FieldSpec
    use mapl_KeywordEnforcer
    use mapl3g_ExtensionAction
    use mapl3g_VerticalGrid
+   use mapl3g_VerticalRegridAction
    use mapl3g_VerticalDimSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_NullAction
@@ -25,6 +26,7 @@ module mapl3g_FieldSpec
    use mapl3g_LU_Bound
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use mapl3g_FieldDictionary
+   use mapl3g_GriddedComponentDriver
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -622,6 +624,9 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(GriddedComponentDriver), pointer :: v_in_coupler
+      type(GriddedComponentDriver), pointer :: v_out_coupler
+      type(ESMF_Field) :: v_in_coord, v_out_coord
 
       new_spec = this ! plus one modification from below
       _ASSERT(allocated(this%geom), 'Source spec must specify a valid geom.')
@@ -631,13 +636,16 @@ contains
          _RETURN(_SUCCESS)
       end if
       
-!#   _ASSERT(allocated(this%v_grid), 'Source spec must specify a valid vertical grid.')
-!#   if (.not. same_vgrid(this%v_grid, dst_spec%v_grid)) then
-!#      v_coord_in = this%v_grid%get_coordinate_field('ignore', this%geom, this%typekind, this%units, _RC)
-!#      v_coord_out = v_grid%get_coordinate_field('ignore', dst_spec%geom, dst_spec%typekind, dst_spec%units, _RC)
-!#      action = VerticalRegridAction(v_coord_in, v_coord_out)
-!#      _RETURN(_SUCCESS)
-!#   end if
+   _ASSERT(allocated(this%vertical_grid), 'Source spec must specify a valid vertical grid.')
+   if (.not. same_vertical_grid(this%vertical_grid, dst_spec%vertical_grid)) then
+      _HERE
+      call this%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
+           'ignore', this%geom, this%typekind, this%units, _RC)
+      call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
+           'ignore', dst_spec%geom, dst_spec%typekind, dst_spec%units, _RC)
+      action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, VERTICAL_REGRID_LINEAR)
+      _RETURN(_SUCCESS)
+   end if
       
 !#   if (.not. same_freq_spec(this%freq_spec, dst_spec%freq_spec)) then
 !#      action = VerticalRegridAction(this%freq_spec, dst_spec%freq_spec
@@ -672,6 +680,17 @@ contains
          same_geom = MAPL_SameGeom(src_geom, dst_geom)
          
       end function same_geom
+ 
+     logical function same_vertical_grid(src_grid, dst_grid)
+        class(VerticalGrid), intent(in) :: src_grid
+        class(VerticalGrid), allocatable, intent(in) :: dst_grid
+         
+         same_vertical_grid = .true.
+         if (.not. allocated(dst_grid)) return ! mirror geom
+         
+         same_vertical_grid = src_grid%same_id(dst_grid)
+         
+      end function same_vertical_grid
       
       logical function same_units(src_units, dst_units)
          character(*), intent(in) :: src_units

@@ -12,6 +12,9 @@ module mapl3g_VerticalGrid
       integer :: id = -1
    contains
       procedure(I_get_num_levels), deferred :: get_num_levels
+      procedure(I_get_coordinate_field), deferred :: get_coordinate_field
+
+
       procedure :: set_id
       procedure :: get_id
       procedure :: same_id
@@ -25,6 +28,22 @@ module mapl3g_VerticalGrid
          import VerticalGrid
          class(VerticalGrid), intent(in) :: this
       end function I_get_num_levels
+
+      subroutine I_get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
+         use mapl3g_GriddedComponentDriver
+         use esmf, only: ESMF_Geom, ESMF_TypeKind_Flag, ESMF_Field
+         import VerticalGrid
+         
+       class(VerticalGrid), intent(in) :: this
+       type(ESMF_Field), intent(out) :: field
+       type(GriddedComponentDriver), pointer, intent(out) :: coupler
+       character(*), intent(in) :: standard_name
+       type(ESMF_Geom), intent(in) :: geom
+       type(ESMF_TypeKind_Flag), intent(in) :: typekind
+       character(*), intent(in) :: units
+       integer, optional, intent(out) :: rc
+    end subroutine I_get_coordinate_field
+      
    end interface
 
 contains
