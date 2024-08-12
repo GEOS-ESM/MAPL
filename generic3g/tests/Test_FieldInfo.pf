@@ -2,7 +2,7 @@
 module Test_FieldInfo
    use mapl3g_FieldSpec
    use mapl3g_VerticalDimSpec
-   use mapl3g_VerticalGeom
+   use mapl3g_BasicVerticalGrid
    use mapl3g_UngriddedDims
    use mapl3g_UngriddedDim
    use esmf
@@ -16,7 +16,7 @@ contains
       type(FieldSpec) :: spec
       type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
-      type(VerticalGeom) :: vertical_geom
+      type(BasicVerticalGrid) :: vertical_grid
       type(ESMF_Field) :: f
       type(ESMF_Info) :: info
       type(UngriddedDims) :: ungridded_dims
@@ -28,12 +28,12 @@ contains
 
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
-      vertical_geom = VerticalGeom(4)
+      vertical_grid = BasicVerticalGrid(4)
 
       call ungridded_dims%add_dim(UngriddedDim([1.,2.], name='a', units='m'))
       call ungridded_dims%add_dim(UngriddedDim([1.,2.,3.], name='b', units='s'))
 
-      spec = FieldSpec(geom=geom, vertical_geom=vertical_geom, &
+      spec = FieldSpec(geom=geom, vertical_grid=vertical_grid, &
            vertical_dim_spec=VERTICAL_DIM_CENTER, &
            typekind=ESMF_TYPEKIND_R4, ungridded_dims=ungridded_dims, &
            standard_name='t', long_name='p', units='unknown')
@@ -48,11 +48,11 @@ contains
       found = ESMF_InfoIsPresent(info, key='MAPL/vertical_dim/vloc', _RC)
       @assert_that(found, is(true()))
 
-      found = ESMF_InfoIsPresent(info, key='MAPL/vertical_geom', _RC)
+      found = ESMF_InfoIsPresent(info, key='MAPL/vertical_grid', _RC)
       @assert_that(found, is(true()))
-      found = ESMF_InfoIsPresent(info, key='MAPL/vertical_geom/num_levels', _RC)
+      found = ESMF_InfoIsPresent(info, key='MAPL/vertical_grid/num_levels', _RC)
       @assert_that(found, is(true()))
-      call ESMF_InfoGet(info, 'MAPL/vertical_geom/num_levels',temp_int , _RC)
+      call ESMF_InfoGet(info, 'MAPL/vertical_grid/num_levels',temp_int , _RC)
       @assert_that(temp_int, equal_to(4))
 
       found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims', _RC)

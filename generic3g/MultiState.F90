@@ -1,9 +1,10 @@
 #include "MAPL_ErrLog.h"
 
 module mapl3g_MultiState
-   use esmf
+   use mapl3g_ESMF_Utilities, only: write(formatted)
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
+   use esmf
    implicit none
    private
 
@@ -20,6 +21,8 @@ module mapl3g_MultiState
 
       procedure :: write_multistate
       generic :: write(formatted) => write_multistate
+
+      procedure :: destroy
    end type MultiState
 
    interface MultiState
@@ -107,7 +110,6 @@ contains
    end subroutine get_state_by_esmf_intent
 
    subroutine write_multistate(this, unit, iotype, v_list, iostat, iomsg)
-      use mapl3g_ESMF_Utilities
       class(MultiState), intent(in) :: this
       integer, intent(in)         :: unit
       character(*), intent(in)    :: iotype
@@ -125,5 +127,18 @@ contains
       write(unit,*, iostat=iostat, iomsg=iomsg) 'EXPORT:', this%exportState
 #endif
    end subroutine write_multistate
+
+   subroutine destroy(this, rc)
+      class(MultiState), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call ESMF_StateDestroy(this%importState, _RC)
+      call ESMF_StateDestroy(this%exportState, _RC)
+      call ESMF_StateDestroy(this%internalState, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy
 
  end module mapl3g_MultiState
