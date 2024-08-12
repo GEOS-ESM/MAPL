@@ -57,14 +57,15 @@ contains
       call vgrid%set_registry(r) ! MAPL_SetVerticalGrid(...)
 
       ple_pt = VirtualConnectionPt(state_intent='export', short_name='PLE')
-      var_spec = VariableSpec(&
+     var_spec = VariableSpec(&
            short_name='PLE', &
            state_intent=ESMF_STATEINTENT_EXPORT, &
            standard_name='air_pressure', &
            units='hPa', &
            vertical_dim_spec=VERTICAL_DIM_EDGE, &
            default_value=3.)
-      ple_spec = var_spec%make_itemSpec(geom=geom, vertical_grid=vgrid, registry=r, _RC)
+     allocate(ple_spec, source=var_spec%make_itemSpec(geom=geom, vertical_grid=vgrid, registry=r, rc=status))
+     _VERIFY(status)
       call r%add_primary_spec(ple_pt, ple_spec)
 
       extension => r%get_primary_extension(ple_pt, _RC)
@@ -138,7 +139,7 @@ contains
       ple_pt = VirtualConnectionPt(state_intent='export', short_name='PLE')
       extension => r%get_primary_extension(ple_pt, _RC)
       spec => extension%get_spec()
- 
+
       multi_state = MultiState()
       call spec%add_to_state(multi_state, ActualConnectionPt(ple_pt), _RC)
       call ESMF_StateGet(multi_state%exportState, itemName='PLE', field=ple, _RC)
