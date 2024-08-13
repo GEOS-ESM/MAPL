@@ -21,8 +21,6 @@ module mapl3g_OuterMetaComponent
    use mapl3g_ActualPtVector
    use mapl3g_ConnectionVector
    use mapl3g_StateRegistry
-   use mapl3g_StateExtension
-   use mapl3g_ExtensionVector
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl3g_ComponentDriver
    use mapl3g_GriddedComponentDriver

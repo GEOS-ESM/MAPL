@@ -15,7 +15,6 @@ contains
 
       integer :: status, userRC
       integer :: phase_idx
-      type(StateExtension), pointer :: extension
       type(StringVector), pointer :: run_phases
       logical :: found
       integer :: phase
