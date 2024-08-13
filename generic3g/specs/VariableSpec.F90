@@ -15,7 +15,7 @@ module mapl3g_VariableSpec
    use mapl3g_InvalidSpec
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
-   use mapl3g_VerticalGeom
+   use mapl3g_VerticalGrid
    use mapl_KeywordEnforcerMod
    use mapl3g_ActualPtVector
    use mapl_ErrorHandling
@@ -189,11 +189,11 @@ contains
    ! This implementation ensures that an object is at least created
    ! even if failures are encountered.  This is necessary for
    ! robust error handling upstream.
-   function make_ItemSpec_new(this, geom, vertical_geom, registry, rc) result(item_spec)
+   function make_ItemSpec_new(this, geom, vertical_grid, registry, rc) result(item_spec)
       class(StateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
-      type(VerticalGeom), intent(in) :: vertical_geom
+      class(VerticalGrid), intent(in) :: vertical_grid
       type(StateRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
 
@@ -203,7 +203,7 @@ contains
       select case (this%itemtype%ot)
       case (MAPL_STATEITEM_FIELD%ot)
          allocate(FieldSpec::item_spec)
-         item_spec = this%make_FieldSpec(geom, vertical_geom,  _RC)
+         item_spec = this%make_FieldSpec(geom, vertical_grid,  _RC)
 !!$      case (MAPL_STATEITEM_FIELDBUNDLE)
 !!$         allocate(FieldBundleSpec::item_spec)
 !!$         item_spec = this%make_FieldBundleSpec(geom, _RC)
@@ -212,10 +212,10 @@ contains
          item_spec = this%make_ServiceSpec_new(registry, _RC)
       case (MAPL_STATEITEM_WILDCARD%ot)
          allocate(WildcardSpec::item_spec)
-         item_spec = this%make_WildcardSpec(geom, vertical_geom,  _RC)
+         item_spec = this%make_WildcardSpec(geom, vertical_grid,  _RC)
       case (MAPL_STATEITEM_BRACKET%ot)
          allocate(BracketSpec::item_spec)
-         item_spec = this%make_BracketSpec(geom, vertical_geom,  _RC)
+         item_spec = this%make_BracketSpec(geom, vertical_grid,  _RC)
       case default
          ! Fail, but still need to allocate a result.
          allocate(InvalidSpec::item_spec)
@@ -233,11 +233,11 @@ contains
       _RETURN(_SUCCESS)
    end function make_ItemSpec_new
  
-  function make_BracketSpec(this, geom, vertical_geom, rc) result(bracket_spec)
+  function make_BracketSpec(this, geom, vertical_grid, rc) result(bracket_spec)
       type(BracketSpec) :: bracket_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
-      type(VerticalGeom), intent(in) :: vertical_geom
+      class(VerticalGrid), intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -250,7 +250,7 @@ contains
 
       call fill_units(this, units, _RC)
 
-      field_spec = FieldSpec(geom=geom, vertical_geom=vertical_geom, vertical_dim_spec=this%vertical_dim_spec, ungridded_dims=this%ungridded_dims, &
+      field_spec = FieldSpec(geom=geom, vertical_grid=vertical_grid, vertical_dim_spec=this%vertical_dim_spec, ungridded_dims=this%ungridded_dims, &
            typekind=this%typekind, &
            standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value)
 
@@ -300,11 +300,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine fill_units
 
-   function make_FieldSpec(this, geom, vertical_geom, rc) result(field_spec)
+   function make_FieldSpec(this, geom, vertical_grid, rc) result(field_spec)
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
-      type(VerticalGeom), intent(in) :: vertical_geom
+      class(VerticalGrid), intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -317,7 +317,7 @@ contains
       _ASSERT(this%vertical_dim_spec /= VERTICAL_DIM_UNKNOWN, 'must provide a vertical dim spec')
       call fill_units(this, units, _RC)
 
-      field_spec = FieldSpec(geom=geom, vertical_geom=vertical_geom, vertical_dim_spec=this%vertical_dim_spec, ungridded_dims=this%ungridded_dims, &
+      field_spec = FieldSpec(geom=geom, vertical_grid=vertical_grid, vertical_dim_spec=this%vertical_dim_spec, ungridded_dims=this%ungridded_dims, &
            typekind=this%typekind, &
            standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value)
 
@@ -387,17 +387,17 @@ contains
 
    end function make_ServiceSpec_new
 
-    function make_WildcardSpec(this, geom, vertical_geom, rc) result(wildcard_spec)
+    function make_WildcardSpec(this, geom, vertical_grid, rc) result(wildcard_spec)
       type(WildcardSpec) :: wildcard_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), intent(in) :: geom
-      type(VerticalGeom), intent(in) :: vertical_geom
+      class(VerticalGrid), intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(FieldSpec) :: field_spec
 
-      field_spec = new_FieldSpec_geom(geom=geom, vertical_geom=vertical_geom, &
+      field_spec = new_FieldSpec_geom(geom=geom, vertical_grid=vertical_grid, &
            vertical_dim_spec=this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
            attributes=this%attributes, default_value=this%default_value)
       wildcard_spec = WildCardSpec(field_spec)

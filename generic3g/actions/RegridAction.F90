@@ -22,8 +22,7 @@ module mapl3g_RegridAction
       type(ESMF_Field) :: f_src, f_dst
    contains
       procedure :: initialize
-      procedure :: run_old => run_scalar
-      procedure :: run_new
+      procedure :: run
    end type ScalarRegridAction
 
 !#   type, extends(AbstractAction) :: VectorRegridAction
@@ -116,17 +115,7 @@ contains
    end subroutine initialize
 
 
-  subroutine run_scalar(this, rc)
-      class(ScalarRegridAction), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-      type(ESMF_Field) :: f_src, f_dst
-      integer :: status
-
-      call this%regrdr%regrid(this%f_src, this%f_dst, _RC)
-      _RETURN(_SUCCESS)
-   end subroutine run_scalar
-
-   subroutine run_new(this, importState, exportState, clock, rc)
+   subroutine run(this, importState, exportState, clock, rc)
       use esmf
       class(ScalarRegridAction), intent(inout) :: this
       type(ESMF_State)      :: importState
@@ -143,7 +132,7 @@ contains
 
 
       _RETURN(_SUCCESS)
-   end subroutine run_new
+   end subroutine run
 
 !#   subroutine run_vector(this, importState, exporState)
 !#

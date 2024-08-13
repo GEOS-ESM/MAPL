@@ -32,8 +32,6 @@ set(srcs
   MAPL3_Deprecated.F90
   Validation.F90
 
-  VerticalGeom.F90
-
   # ComponentSpecBuilder.F90
 
   ESMF_Utilities.F90
@@ -65,6 +63,7 @@ add_subdirectory(registry)
 add_subdirectory(connection)
 add_subdirectory(actions)
 add_subdirectory(couplers)
+add_subdirectory(vertical)
 
 esma_add_fortran_submodules(
   TARGET MAPL.generic3g

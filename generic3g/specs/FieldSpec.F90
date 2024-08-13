@@ -13,7 +13,8 @@ module mapl3g_FieldSpec
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use mapl3g_ExtensionAction
-   use mapl3g_VerticalGeom
+   use mapl3g_VerticalGrid
+   use mapl3g_VerticalRegridAction
    use mapl3g_VerticalDimSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_NullAction
@@ -25,6 +26,7 @@ module mapl3g_FieldSpec
    use mapl3g_LU_Bound
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use mapl3g_FieldDictionary
+   use mapl3g_GriddedComponentDriver
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -41,7 +43,7 @@ module mapl3g_FieldSpec
       private
 
       type(ESMF_Geom), allocatable :: geom
-      type(VerticalGeom) :: vertical_geom
+      class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(UngriddedDims) :: ungridded_dims
@@ -113,14 +115,14 @@ module mapl3g_FieldSpec
 contains
 
 
-   function new_FieldSpec_geom(unusable, geom, vertical_geom, vertical_dim_spec, typekind, ungridded_dims, &
+   function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
         attributes, regrid_param, default_value) result(field_spec)
       type(FieldSpec) :: field_spec
 
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
-      type(VerticalGeom), intent(in) :: vertical_geom
+      class(VerticalGrid), intent(in) :: vertical_grid
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       type(UngriddedDims), intent(in) :: ungridded_dims
@@ -137,7 +139,7 @@ contains
       integer :: status
 
       if (present(geom)) field_spec%geom = geom
-      field_spec%vertical_geom = vertical_geom
+      field_spec%vertical_grid = vertical_grid
       field_spec%vertical_dim_spec = vertical_dim_spec
       field_spec%typekind = typekind
       field_spec%ungridded_dims = ungridded_dims
@@ -256,7 +258,6 @@ contains
 
       _RETURN_UNLESS(this%is_active())
 
-
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
@@ -295,23 +296,23 @@ contains
       bounds = this%ungridded_dims%get_bounds()
       if (this%vertical_dim_spec == VERTICAL_DIM_NONE) return
 
-      vertical_bounds = get_vertical_bounds(this%vertical_dim_spec, this%vertical_geom, _RC)
+      vertical_bounds = get_vertical_bounds(this%vertical_dim_spec, this%vertical_grid, _RC)
       bounds = [vertical_bounds, bounds]
 
       _RETURN(_SUCCESS)
    end function get_ungridded_bounds
 
-   function get_vertical_bounds(vertical_dim_spec, vertical_geom, rc) result(bounds)
+   function get_vertical_bounds(vertical_dim_spec, vertical_grid, rc) result(bounds)
       type(LU_Bound) :: bounds
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
-      type(VerticalGeom), intent(in) :: vertical_geom
+      class(VerticalGrid), intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       _ASSERT(vertical_dim_spec /= VERTICAL_DIM_UNKNOWN, 'vertical_dim_spec has not been specified')
       bounds%lower = 1
-      bounds%upper = vertical_geom%get_num_levels()
+      bounds%upper = vertical_grid%get_num_levels()
 
       if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
          bounds%upper = bounds%upper + 1
@@ -623,6 +624,9 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(GriddedComponentDriver), pointer :: v_in_coupler
+      type(GriddedComponentDriver), pointer :: v_out_coupler
+      type(ESMF_Field) :: v_in_coord, v_out_coord
 
       new_spec = this ! plus one modification from below
       _ASSERT(allocated(this%geom), 'Source spec must specify a valid geom.')
@@ -632,12 +636,16 @@ contains
          _RETURN(_SUCCESS)
       end if
       
-!#   _ASSERT(allocated(this%v_grid), 'Source spec must specify a valid vertical grid.')
-!#   if (.not. same_vgrid(this%v_grid, dst_spec%v_grid)) then
-!#      action = VerticalRegridAction(this%v_grid, dst_spec%v_grid)
-!#      new_spec%v_grid = dst_spec%v_grid
-!!$         _RETURN(_SUCCESS)
-!#   end if
+   _ASSERT(allocated(this%vertical_grid), 'Source spec must specify a valid vertical grid.')
+   if (.not. same_vertical_grid(this%vertical_grid, dst_spec%vertical_grid)) then
+      _HERE
+      call this%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
+           'ignore', this%geom, this%typekind, this%units, _RC)
+      call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
+           'ignore', dst_spec%geom, dst_spec%typekind, dst_spec%units, _RC)
+      action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, VERTICAL_REGRID_LINEAR)
+      _RETURN(_SUCCESS)
+   end if
       
 !#   if (.not. same_freq_spec(this%freq_spec, dst_spec%freq_spec)) then
 !#      action = VerticalRegridAction(this%freq_spec, dst_spec%freq_spec
@@ -672,6 +680,17 @@ contains
          same_geom = MAPL_SameGeom(src_geom, dst_geom)
          
       end function same_geom
+ 
+     logical function same_vertical_grid(src_grid, dst_grid)
+        class(VerticalGrid), intent(in) :: src_grid
+        class(VerticalGrid), allocatable, intent(in) :: dst_grid
+         
+         same_vertical_grid = .true.
+         if (.not. allocated(dst_grid)) return ! mirror geom
+         
+         same_vertical_grid = src_grid%same_id(dst_grid)
+         
+      end function same_vertical_grid
       
       logical function same_units(src_units, dst_units)
          character(*), intent(in) :: src_units
@@ -872,7 +891,7 @@ contains
       integer :: status
       type(ESMF_Info) :: ungridded_dims_info
       type(ESMF_Info) :: vertical_dim_info
-      type(ESMF_Info) :: vertical_geom_info
+      type(ESMF_Info) :: vertical_grid_info
 
       type(ESMF_Info) :: field_info
 
@@ -886,9 +905,9 @@ contains
       call ESMF_InfoSet(field_info, key='MAPL/vertical_dim', value=vertical_dim_info, _RC)
       call ESMF_InfoDestroy(vertical_dim_info, _RC)
 
-      vertical_geom_info = this%vertical_geom%make_info(_RC)
-      call ESMF_InfoSet(field_info, key='MAPL/vertical_geom', value=vertical_geom_info, _RC)
-      call ESMF_InfoDestroy(vertical_geom_info, _RC)
+      vertical_grid_info = this%vertical_grid%make_info(_RC)
+      call ESMF_InfoSet(field_info, key='MAPL/vertical_grid', value=vertical_grid_info, _RC)
+      call ESMF_InfoDestroy(vertical_grid_info, _RC)
 
       if (allocated(this%units)) then
          call ESMF_InfoSet(field_info, key='MAPL/units', value=this%units, _RC)
