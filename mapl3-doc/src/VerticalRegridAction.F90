@@ -33,8 +33,7 @@ module mapl3g_VerticalRegridAction
       type(Vertical_RegridMethod_Flag) :: method = VERTICAL_REGRID_UNKNOWN
    contains
       procedure :: initialize
-      procedure :: run_old
-      procedure :: run_new
+      procedure :: run
    end type VerticalRegridAction
 
    interface VerticalRegridAction
@@ -91,18 +90,7 @@ contains
    end subroutine initialize
 
 
-  subroutine run_old(this, rc)
-      class(VerticalRegridAction), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-      type(ESMF_Field) :: f_src, f_dst
-      integer :: status
-
-      _FAIL('not implemented')
-
-      _RETURN(_SUCCESS)
-   end subroutine run_old
-
-   subroutine run_new(this, importState, exportState, clock, rc)
+   subroutine run(this, importState, exportState, clock, rc)
       use esmf
       class(VerticalRegridAction), intent(inout) :: this
       type(ESMF_State)      :: importState
@@ -148,7 +136,7 @@ contains
             
 
       _RETURN(_SUCCESS)
-   end subroutine run_new
+   end subroutine run
 
 
    pure logical function equal_to(a, b)
