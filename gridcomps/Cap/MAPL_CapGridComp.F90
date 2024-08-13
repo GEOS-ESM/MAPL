@@ -425,7 +425,7 @@ contains
     cap%cf_root = ESMF_ConfigCreate(_RC )
     call ESMF_ConfigLoadFile(cap%cf_root, ROOT_CF, _RC )
 
-    call ESMF_ConfigGetAttribute(cap%cf_root, value=RUN_DT, Label="RUN_DT:", _RC)
+    call ESMF_ConfigGetAttribute(cap%cf_root, value=RUN_DT, Label="RUN_DT:", rc=status)
     if (STATUS == ESMF_SUCCESS) then
        if (heartbeat_dt /= run_dt) then
           call lgr%error('inconsistent values of HEARTBEAT_DT (%g0) and root RUN_DT (%g0)', heartbeat_dt, run_dt)
@@ -506,7 +506,7 @@ contains
     cap%cf_ext = ESMF_ConfigCreate(_RC )
     call ESMF_ConfigLoadFile(cap%cf_ext, EXTDATA_CF, _RC )
 
-    call ESMF_ConfigGetAttribute(cap%cf_ext, value=RUN_DT, Label="RUN_DT:", _RC)
+    call ESMF_ConfigGetAttribute(cap%cf_ext, value=RUN_DT, Label="RUN_DT:", rc=status)
     if (STATUS == ESMF_SUCCESS) then
        if (heartbeat_dt /= run_dt) then
           call lgr%error('inconsistent values of HEARTBEAT_DT (%g0) and ExtData RUN_DT (%g0)', heartbeat_dt, run_dt)
@@ -652,18 +652,13 @@ contains
        do while(iter /= cap_exports_vec%end())
           component_name = iter%get()
           component_name = trim(component_name(index(component_name, ",")+1:))
-
           field_name = iter%get()
           field_name = trim(field_name(1:index(field_name, ",")-1))
-
           call MAPL_ExportStateGet([cap%child_exports(cap%root_id)], component_name, &
                component_state, status)
           _VERIFY(status)
-
           call ESMF_StateGet(component_state, trim(field_name), field, _RC)
-
           call MAPL_StateAdd(cap%export_state, field, _RC)
-
           call iter%next()
        end do
     end if
@@ -699,7 +694,6 @@ contains
        else
           state = cap%child_exports(cap%extdata_id)
        end if
-
        if (item_types(i) == ESMF_StateItem_Field) then
           call ESMF_StateGet(root_imports, item_names(i), field, _RC)
           call MAPL_AddAttributeToFields(root_gc,trim(item_names(i)),'RESTART',MAPL_RestartSkip,_RC)
@@ -993,6 +987,7 @@ contains
           if (trim(cap_import) /= "::") call vec%push_back(trim(cap_import))
        end do
     end if
+    _RETURN(_SUCCESS)
 
   end function get_vec_from_config
 
@@ -1342,7 +1337,7 @@ contains
      external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, _RC)
      mapl_grid = grid_manager%make_grid(external_grid_factory, _RC)
      ! grid_type is an optional parameter that allows GridType to be set explicitly.
-     call ESMF_ConfigGetAttribute(this%config, value = grid_type_, Label="GridType:", default="", _RC)
+     call ESMF_ConfigGetAttribute(this%config, value = grid_type_, Label="GridType:", default="", rc=status)
      if (status == ESMF_RC_OBJ_NOT_CREATED) then
        grid_type_ = ""
      else
