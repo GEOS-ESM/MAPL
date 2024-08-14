@@ -66,24 +66,6 @@ module mapl3g_CoordinateAxis
          type(CoordinateAxis), intent(in) :: a, b
       end function not_equal_to
 
-      ! Accessors
-      !----------
-      ! Note that size(this%corners) might be one larger for non-periodic
-      pure module function get_extent(this) result(extent)
-         class(CoordinateAxis), intent(in) :: this
-         integer :: extent
-      end function get_extent
-
-      pure module function get_centers(this) result(centers)
-         real(kind=R8), allocatable :: centers(:)
-         class(CoordinateAxis), intent(in) :: this
-      end function get_centers
-
-      pure module function get_corners(this) result(corners)
-         real(kind=R8), allocatable :: corners(:)
-         class(CoordinateAxis), intent(in) :: this
-      end function get_corners
-
       pure logical module function is_periodic(this)
          class(CoordinateAxis), intent(in) :: this
       end function is_periodic
@@ -103,8 +85,34 @@ module mapl3g_CoordinateAxis
          integer, optional, intent(out) :: rc
       end function get_coordinates_dim
 
-
    end interface
+
+   CONTAINS
+
+   pure function get_centers(this) result(centers)
+      real(kind=R8), allocatable :: centers(:)
+      class(CoordinateAxis), intent(in) :: this
+ 
+      centers = this%centers
+            
+   end function get_centers
+ 
+   pure function get_corners(this) result(corners)
+      real(kind=R8), allocatable :: corners(:)
+      class(CoordinateAxis), intent(in) :: this
+ 
+      corners = this%corners
+ 
+   end function get_corners
+ 
+   ! Accessors
+   !----------
+   ! Note that size(this%corners) might be one larger for non-periodic
+   pure function get_extent(this) result(extent)
+      class(CoordinateAxis), intent(in) :: this
+      integer :: extent
+      extent = size(this%centers)
+   end function get_extent
 
 end module mapl3g_CoordinateAxis
 
