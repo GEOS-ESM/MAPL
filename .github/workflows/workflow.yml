@@ -13,11 +13,29 @@ on:
       - ".editorconfig"
 
 jobs:
+  check-ford-docs:
+    name: Build Ford Docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and Deploy Docs
+        uses: ./.github/actions/deploy-ford-docs
+        with:
+          # Due to a bug in ford, for now we do *not* want to use
+          # the full path to the ford input file. Rather, the
+          # action will cd into docs/Ford and then run ford
+          # relative path to the ford input file.
+          ford-input: ford-ci.md
+          doc-folder: docs/Ford/ci-doc
+          token: ${{ secrets.GITHUB_TOKEN }}
+
   build_test_mapl:
     name: Build and Test MAPL GNU
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu20-geos-env-mkl:v7.23.0-openmpi_5.0.0-gcc_12.1.0
+      image: gmao/ubuntu20-geos-env-mkl:v7.24.0-openmpi_5.0.2-gcc_13.2.0
       # Per https://github.com/actions/virtual-environments/issues/1445#issuecomment-713861495
       # It seems like we might not need secrets on GitHub Actions which is good for forked
       # pull requests
@@ -68,7 +86,7 @@ jobs:
     name: Build and Test MAPL Intel
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu20-geos-env:v7.23.0-intelmpi_2021.6.0-intel_2022.1.0
+      image: gmao/ubuntu20-geos-env:v7.24.0-intelmpi_2021.6.0-intel_2022.1.0
       # Per https://github.com/actions/virtual-environments/issues/1445#issuecomment-713861495
       # It seems like we might not need secrets on GitHub Actions which is good for forked
       # pull requests

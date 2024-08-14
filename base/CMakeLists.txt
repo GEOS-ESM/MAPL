@@ -47,7 +47,7 @@ set (srcs
   ESMF_CFIOPtrVectorMod.F90
   CFIOCollection.F90                    MAPL_CFIO.F90
   regex_module.F90 StringTemplate.F90 MAPL_SphericalGeometry.F90
-  regex_F.c
+  regex_F.c  MAPL_ObsUtil.c
   c_mapl_locstream_F.c  getrss.c  memuse.c
   Base/Base_Base.F90 Base/Base_Base_implementation.F90
   TimeStringConversion.F90
