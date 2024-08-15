@@ -1,20 +1,19 @@
-esma_set_this (OVERRIDE MAPL.profiler)
+esma_set_this(OVERRIDE MAPL.profiler)
 
-set (srcs
+set(
+  srcs
   AbstractMeter.F90
   AbstractMeterNode.F90
   AbstractMeterFactory.F90
   MeterNodeVector.F90
   MeterNodePtr.F90
   MeterNodeStack.F90
-
   # Low-level measures
   AbstractGauge.F90
   MpiTimerGauge.F90
   FortranTimerGauge.F90
   RssMemoryGauge.F90
   VmstatMemoryGauge.F90
-
   AdvancedMeter.F90
   DistributedMeter.F90
   MeterNode.F90
@@ -22,7 +21,6 @@ set (srcs
   TimeProfiler.F90
   MemoryProfiler.F90
   DistributedProfiler.F90
-
   reporting/ProfileReporter.F90
   reporting/AbstractColumn.F90
   reporting/SimpleColumn.F90
@@ -44,16 +42,15 @@ set (srcs
   reporting/ColumnVector.F90
   reporting/TextColumnVector.F90
   reporting/MultiColumn.F90
-
   # The package
   MAPL_Profiler.F90
-  )
+)
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v1 GFTL::gftl-v2 MAPL.shared MPI::MPI_Fortran TYPE ${MAPL_LIBRARY_TYPE})
-target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
+esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v1 GFTL::gftl-v2 MAPL.shared MPI::MPI_Fortran TYPE ${MAPL_LIBRARY_TYPE})
+target_include_directories(${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
 target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 
-add_subdirectory (demo EXCLUDE_FROM_ALL)
-if (PFUNIT_FOUND)
-  add_subdirectory (tests EXCLUDE_FROM_ALL)
-endif ()
+add_subdirectory(demo EXCLUDE_FROM_ALL)
+if(PFUNIT_FOUND)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif()

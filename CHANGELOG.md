@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add support for preliminary CF Conventions quantization properties
   - Add new quantization keyword `granular_bitround` to History. This will be the preferred keyword for quantization in the future
     replacing `GranularBR`
+- Reformatted `CMakeLists.txt` files with `gersemi`
+  - Added `.gersemirc` file to control formatting
 
 ### Fixed
 
