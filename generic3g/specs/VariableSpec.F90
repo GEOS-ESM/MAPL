@@ -205,7 +205,7 @@ contains
       type(ActualPtVector) :: dependencies
 
       if (present(geom) .and. allocated(this%geom)) then
-         _ASSERT(MAPL_SameGeom(geom, this%geom), "specified geom is different from existing one")
+         _FAIL("Cannot pass in geom when VariableSpec contains its own geom")
       end if
 
       select case (this%itemtype%ot)
@@ -397,7 +397,7 @@ contains
     function make_WildcardSpec(this, geom, vertical_grid, rc) result(wildcard_spec)
       type(WildcardSpec) :: wildcard_spec
       class(VariableSpec), intent(in) :: this
-      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
 
