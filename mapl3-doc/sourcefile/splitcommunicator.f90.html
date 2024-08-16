@@ -1,0 +1,779 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>SplitCommunicator.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>SplitCommunicator.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">43 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/SplitCommunicator.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">SplitCommunicator.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_splitcommunicatormod.html">MAPL_SplitCommunicatorMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/splitcommunicator.f90.html#src">SplitCommunicator.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~splitcommunicator.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilesplitcommunicatorf90AfferentGraph" width="641pt" height="311pt"
+ viewBox="0.00 0.00 641.00 311.46" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph" class="graph" transform="scale(0.7 0.7) rotate(0) translate(4 444)">
+<title>sourcefile~~splitcommunicator.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-444 918,-444 918,4 -4,4"/>
+<!-- sourcefile~splitcommunicator.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~splitcommunicator.f90</title>
+<polygon fill="none" stroke="black" points="136,-202 0,-202 0,-178 136,-178 136,-202"/>
+<text text-anchor="middle" x="68" y="-187.6" font-family="Helvetica,sans-Serif" font-size="10.50">SplitCommunicator.F90</text>
+</g>
+<!-- sourcefile~base.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~base.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/base.f90.html" xlink:title="Base.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="628.5,-213 567.5,-213 567.5,-189 628.5,-189 628.5,-213"/>
+<text text-anchor="middle" x="598" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base.f90&#45;&gt;sourcefile~splitcommunicator.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~base.f90&#45;&gt;sourcefile~splitcommunicator.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M567.49,-195.14C552.37,-191.64 533.86,-186.59 518,-180 500.9,-172.89 499.55,-164.91 482,-159 431.72,-142.06 296.41,-116.87 245,-130"/>
+</g>
+<!-- sourcefile~servermanager.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~servermanager.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/servermanager.f90.html" xlink:title="ServerManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="475,-112 359,-112 359,-88 475,-88 475,-112"/>
+<text text-anchor="middle" x="417" y="-97.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base.f90&#45;&gt;sourcefile~servermanager.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~base.f90&#45;&gt;sourcefile~servermanager.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M567.44,-198.24C551.6,-195.57 532.42,-190.33 518,-180 494.55,-163.21 504.35,-144.23 482,-126 477.64,-122.45 472.74,-119.32 467.63,-116.59"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="468.81,-113.28 458.29,-112.09 465.77,-119.58 468.81,-113.28"/>
+</g>
+<!-- sourcefile~simplecommsplitter.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~simplecommsplitter.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/simplecommsplitter.f90.html" xlink:title="SimpleCommSplitter.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="316,-202 172,-202 172,-178 316,-178 316,-202"/>
+<text text-anchor="middle" x="244" y="-187.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleCommSplitter.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base.f90&#45;&gt;sourcefile~simplecommsplitter.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~base.f90&#45;&gt;sourcefile~simplecommsplitter.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M567.18,-201.98C521.03,-203.28 429.52,-204.97 352,-201 343.62,-200.57 334.89,-199.95 326.19,-199.23"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="326.27,-195.72 316,-198.33 325.66,-202.69 326.27,-195.72"/>
+</g>
+<!-- sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~mapl_cap.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/mapl_cap.f90.html" xlink:title="MAPL_Cap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="643,-45 553,-45 553,-21 643,-21 643,-45"/>
+<text text-anchor="middle" x="598" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cap.f90&#45;&gt;sourcefile~splitcommunicator.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~mapl_cap.f90&#45;&gt;sourcefile~splitcommunicator.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M552.87,-35.09C515.95,-37.9 462.36,-44.5 418,-60"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M416,-60C387.99,-69.79 379.7,-68.36 352,-79 302.82,-97.89 296.1,-117.2 245,-130"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M243,-130C195.68,-141.85 142.93,-160.9 108.05,-174.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="106.75,-171.1 98.7,-177.99 109.29,-177.63 106.75,-171.1"/>
+</g>
+<!-- sourcefile~mapl_cap.f90&#45;&gt;sourcefile~servermanager.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~mapl_cap.f90&#45;&gt;sourcefile~servermanager.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M552.91,-42.66C541.36,-45.75 529.06,-49.54 518,-54 501.03,-60.85 498.51,-66.1 482,-74 474.77,-77.46 466.96,-80.88 459.36,-84.06"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="457.84,-80.9 449.91,-87.92 460.49,-87.38 457.84,-80.9"/>
+</g>
+<!-- sourcefile~mapl_cap.f90&#45;&gt;sourcefile~simplecommsplitter.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~mapl_cap.f90&#45;&gt;sourcefile~simplecommsplitter.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M416,-60C387.99,-69.79 375.13,-60.42 352,-79 326.26,-99.68 338.53,-119.86 316,-144 305.44,-155.32 291.53,-165.12 278.83,-172.73"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="276.8,-169.86 269.86,-177.87 280.28,-175.93 276.8,-169.86"/>
+</g>
+<!-- sourcefile~maplshared.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~maplshared.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/maplshared.f90.html" xlink:title="MaplShared.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="466,-356 368,-356 368,-332 466,-332 466,-356"/>
+<text text-anchor="middle" x="417" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplShared.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~splitcommunicator.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~splitcommunicator.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M367.8,-333.31C333.38,-325.4 286.09,-313.97 245,-302"/>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~simplecommsplitter.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~simplecommsplitter.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M368.71,-331.98C362.83,-329.49 357.1,-326.53 352,-323 329.28,-307.28 282.89,-243.9 259.36,-210.63"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="261.99,-208.27 253.37,-202.1 256.26,-212.3 261.99,-208.27"/>
+</g>
+<!-- sourcefile~multicommserver.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~multicommserver.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/multicommserver.f90.html" xlink:title="MultiCommServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="482,-272 352,-272 352,-248 482,-248 482,-272"/>
+<text text-anchor="middle" x="417" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiCommServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multicommserver.f90&#45;&gt;sourcefile~splitcommunicator.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~multicommserver.f90&#45;&gt;sourcefile~splitcommunicator.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M376.11,-272.02C329.63,-285.69 257.55,-305.65 245,-302"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M243,-302C180.94,-283.93 120.17,-235.94 89.52,-209.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="91.84,-206.38 82.05,-202.33 87.18,-211.6 91.84,-206.38"/>
+</g>
+<!-- sourcefile~multicommserver.f90&#45;&gt;sourcefile~simplecommsplitter.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~multicommserver.f90&#45;&gt;sourcefile~simplecommsplitter.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M386.36,-247.99C375.54,-243.6 363.21,-238.58 352,-234 329.37,-224.75 304.07,-214.35 283.75,-205.98"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="285.09,-202.75 274.51,-202.17 282.42,-209.22 285.09,-202.75"/>
+</g>
+<!-- sourcefile~multigroupserver.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~multigroupserver.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/multigroupserver.f90.html" xlink:title="MultiGroupServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="480.5,-314 353.5,-314 353.5,-290 480.5,-290 480.5,-314"/>
+<text text-anchor="middle" x="417" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiGroupServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multigroupserver.f90&#45;&gt;sourcefile~splitcommunicator.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~multigroupserver.f90&#45;&gt;sourcefile~splitcommunicator.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M353.48,-310.3C320.57,-312.6 279.92,-312.17 245,-302"/>
+</g>
+<!-- sourcefile~multigroupserver.f90&#45;&gt;sourcefile~simplecommsplitter.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~multigroupserver.f90&#45;&gt;sourcefile~simplecommsplitter.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M371.66,-289.95C364.89,-287.41 358.12,-284.43 352,-281 317.26,-261.53 283.3,-229.86 263.26,-209.49"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="265.51,-206.78 256.04,-202.03 260.48,-211.65 265.51,-206.78"/>
+</g>
+<!-- sourcefile~servermanager.f90&#45;&gt;sourcefile~splitcommunicator.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~servermanager.f90&#45;&gt;sourcefile~splitcommunicator.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M358.93,-107.78C325.46,-112.89 282.53,-120.41 245,-130"/>
+</g>
+<!-- sourcefile~servermanager.f90&#45;&gt;sourcefile~simplecommsplitter.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge35" class="edge">
+<title>sourcefile~servermanager.f90&#45;&gt;sourcefile~simplecommsplitter.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M392.94,-112.14C363.02,-127.88 310.69,-155.43 276.95,-173.18"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="275.19,-170.16 267.97,-177.91 278.45,-176.35 275.19,-170.16"/>
+</g>
+<!-- sourcefile~simplecommsplitter.f90&#45;&gt;sourcefile~splitcommunicator.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~simplecommsplitter.f90&#45;&gt;sourcefile~splitcommunicator.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M171.98,-190C163.47,-190 154.74,-190 146.15,-190"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="146.15,-186.5 136.15,-190 146.15,-193.5 146.15,-186.5"/>
+</g>
+<!-- sourcefile~componentdriver.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~componentdriver.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/componentdriver.f90.html" xlink:title="ComponentDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="662.5,-356 533.5,-356 533.5,-332 662.5,-332 662.5,-356"/>
+<text text-anchor="middle" x="598" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentdriver.f90&#45;&gt;sourcefile~maplshared.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~componentdriver.f90&#45;&gt;sourcefile~maplshared.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M533.39,-344C514.82,-344 494.63,-344 476.4,-344"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="476.21,-340.5 466.21,-344 476.21,-347.5 476.21,-340.5"/>
+</g>
+<!-- sourcefile~cubedspheregeomspec_smod.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~cubedspheregeomspec_smod.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/cubedspheregeomspec_smod.f90.html" xlink:title="CubedSphereGeomSpec_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="914,-108 714,-108 714,-84 914,-84 914,-108"/>
+<text text-anchor="middle" x="814" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CubedSphereGeomSpec_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cubedspheregeomspec_smod.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~cubedspheregeomspec_smod.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M729.66,-108.04C724.12,-110.52 718.83,-113.48 714,-117 687.95,-136.01 703.56,-160.34 678,-180 666.8,-188.62 652.35,-193.71 638.88,-196.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="638.01,-193.32 628.84,-198.63 639.32,-200.19 638.01,-193.32"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~extdatadrivermod.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/extdatadrivermod.f90.html" xlink:title="ExtDataDriverMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="664.5,-87 531.5,-87 531.5,-63 664.5,-63 664.5,-87"/>
+<text text-anchor="middle" x="598" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~servermanager.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~servermanager.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M531.36,-84.17C516.37,-86.26 500.4,-88.49 485.34,-90.6"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="484.49,-87.18 475.07,-92.03 485.46,-94.11 484.49,-87.18"/>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~extdataroot_gridcomp.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/extdataroot_gridcomp.f90.html" xlink:title="ExtDataRoot_GridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="678,-314 518,-314 518,-290 678,-290 678,-314"/>
+<text text-anchor="middle" x="598" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataRoot_GridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~maplshared.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~maplshared.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M545.71,-314.04C523.93,-319.15 498.43,-325.13 475.98,-330.4"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="475.16,-326.99 466.23,-332.68 476.76,-333.81 475.16,-326.99"/>
+</g>
+<!-- sourcefile~fieldunits.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~fieldunits.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/fieldunits.f90.html" xlink:title="FieldUnits.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="641,-440 555,-440 555,-416 641,-416 641,-440"/>
+<text text-anchor="middle" x="598" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUnits.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldunits.f90&#45;&gt;sourcefile~maplshared.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~fieldunits.f90&#45;&gt;sourcefile~maplshared.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M554.79,-419.29C542.65,-416.12 529.58,-412.05 518,-407 490.43,-394.99 461.66,-376.08 442.09,-362.11"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="443.93,-359.12 433.78,-356.08 439.82,-364.79 443.93,-359.12"/>
+</g>
+<!-- sourcefile~latlongeomspec_smod.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~latlongeomspec_smod.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/latlongeomspec_smod.f90.html" xlink:title="LatLonGeomSpec_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="896,-360 732,-360 732,-336 896,-336 896,-360"/>
+<text text-anchor="middle" x="814" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomSpec_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~latlongeomspec_smod.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~latlongeomspec_smod.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M731.53,-337.78C725.21,-334.93 719.26,-331.39 714,-327 681.56,-299.91 706.97,-269.76 678,-239 667.23,-227.57 652.31,-219.18 638.33,-213.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="639.46,-209.91 628.87,-209.5 636.89,-216.43 639.46,-209.91"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="846,-318 782,-318 782,-294 846,-294 846,-318"/>
+<text text-anchor="middle" x="814" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M781.95,-304.87C761.34,-302.86 734.42,-297.74 714,-285 691.98,-271.26 698.23,-255.27 678,-239 666.17,-229.48 651.56,-221.61 638.13,-215.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="639.19,-212.19 628.62,-211.45 636.43,-218.62 639.19,-212.19"/>
+</g>
+<!-- sourcefile~mapl_bundleio_test.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~mapl_bundleio_test.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/mapl_bundleio_test.f90.html" xlink:title="mapl_bundleio_test.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="667.5,-171 528.5,-171 528.5,-147 667.5,-147 667.5,-171"/>
+<text text-anchor="middle" x="598" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_bundleio_test.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_bundleio_test.f90&#45;&gt;sourcefile~servermanager.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~mapl_bundleio_test.f90&#45;&gt;sourcefile~servermanager.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M548.31,-146.9C538.23,-144.16 527.73,-141.13 518,-138 497.62,-131.44 475.32,-123.08 456.95,-115.87"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="458.06,-112.55 447.47,-112.12 455.48,-119.05 458.06,-112.55"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="653.5,-398 542.5,-398 542.5,-374 653.5,-374 653.5,-398"/>
+<text text-anchor="middle" x="598" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~maplshared.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~maplshared.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M545.71,-373.96C523.93,-368.85 498.43,-362.87 475.98,-357.6"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="476.76,-354.19 466.23,-355.32 475.16,-361.01 476.76,-354.19"/>
+</g>
+<!-- sourcefile~mapl_gridcomps.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~mapl_gridcomps.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/mapl_gridcomps.f90.html" xlink:title="MAPL_GridComps.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="878,-24 750,-24 750,0 878,0 878,-24"/>
+<text text-anchor="middle" x="814" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridComps.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridcomps.f90&#45;&gt;sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~mapl_gridcomps.f90&#45;&gt;sourcefile~mapl_cap.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M749.95,-18.19C719.29,-21.2 682.8,-24.78 653.38,-27.66"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="652.9,-24.19 643.29,-28.65 653.59,-31.16 652.9,-24.19"/>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~mapl_nuopcwrappermod.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/mapl_nuopcwrappermod.f90.html" xlink:title="MAPL_NUOPCWrapperMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="901,-66 727,-66 727,-42 901,-42 901,-66"/>
+<text text-anchor="middle" x="814" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NUOPCWrapperMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M726.99,-66.03C722.33,-68.54 717.95,-71.51 714,-75 677.07,-107.71 714.09,-146.37 678,-180 667.31,-189.97 652.43,-195.31 638.47,-198.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="637.83,-194.7 628.53,-199.79 638.97,-201.61 637.83,-194.7"/>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~mapl_cap.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M726.88,-45.55C702.01,-43.11 675.56,-40.51 653.22,-38.32"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="653.55,-34.84 643.26,-37.34 652.87,-41.8 653.55,-34.84"/>
+</g>
+<!-- sourcefile~pfio.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~pfio.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/pfio.f90.html" xlink:title="pFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="627,-272 569,-272 569,-248 627,-248 627,-272"/>
+<text text-anchor="middle" x="598" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pfio.f90&#45;&gt;sourcefile~multicommserver.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~pfio.f90&#45;&gt;sourcefile~multicommserver.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M568.64,-260C548.09,-260 519.32,-260 492.42,-260"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="492.22,-256.5 482.22,-260 492.22,-263.5 492.22,-256.5"/>
+</g>
+<!-- sourcefile~pfio.f90&#45;&gt;sourcefile~multigroupserver.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~pfio.f90&#45;&gt;sourcefile~multigroupserver.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M568.64,-266.66C544.72,-272.27 509.66,-280.49 479.37,-287.6"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="478.24,-284.27 469.31,-289.96 479.84,-291.08 478.24,-284.27"/>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~pfio_mapl_demo.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/pfio_mapl_demo.f90.html" xlink:title="pfio_MAPL_demo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="479,-192 355,-192 355,-168 479,-168 479,-192"/>
+<text text-anchor="middle" x="417" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pfio_MAPL_demo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~simplecommsplitter.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge34" class="edge">
+<title>sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~simplecommsplitter.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M354.75,-183.58C345.43,-184.13 335.69,-184.7 326.03,-185.26"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="325.79,-181.77 316.02,-185.85 326.2,-188.76 325.79,-181.77"/>
+</g>
+<!-- sourcefile~regrid_util.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~regrid_util.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/regrid_util.f90.html" xlink:title="Regrid_Util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="644,-129 552,-129 552,-105 644,-105 644,-129"/>
+<text text-anchor="middle" x="598" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regrid_util.f90&#45;&gt;sourcefile~servermanager.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~regrid_util.f90&#45;&gt;sourcefile~servermanager.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M551.83,-112.71C531.62,-110.79 507.38,-108.49 485.11,-106.37"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="485.33,-102.88 475.04,-105.42 484.67,-109.85 485.33,-102.88"/>
+</g>
+<!-- sourcefile~test_cfio_bundle.pf -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~test_cfio_bundle.pf</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/test_cfio_bundle.pf.html" xlink:title="Test_CFIO_Bundle.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="873.5,-276 754.5,-276 754.5,-252 873.5,-252 873.5,-276"/>
+<text text-anchor="middle" x="814" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_CFIO_Bundle.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_cfio_bundle.pf&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~test_cfio_bundle.pf&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M754.29,-252.98C740.96,-250.08 726.92,-246.71 714,-243 688.2,-235.59 659.86,-225.27 637.77,-216.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="638.99,-213.43 628.4,-213.04 636.44,-219.95 638.99,-213.43"/>
+</g>
+<!-- sourcefile~tstqsat.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~tstqsat.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/tstqsat.f90.html" xlink:title="tstqsat.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="849,-234 779,-234 779,-210 849,-210 849,-234"/>
+<text text-anchor="middle" x="814" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tstqsat.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~tstqsat.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~tstqsat.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M778.62,-218.63C740.47,-214.88 679,-208.85 638.8,-204.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="639.1,-201.42 628.81,-203.93 638.42,-208.39 639.1,-201.42"/>
+</g>
+<!-- sourcefile~ut_extdata.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~ut_extdata.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/ut_extdata.f90.html" xlink:title="ut_ExtData.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="860.5,-192 767.5,-192 767.5,-168 860.5,-168 860.5,-192"/>
+<text text-anchor="middle" x="814" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ExtData.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ut_extdata.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~ut_extdata.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M767.35,-184.48C729.26,-188.22 675.48,-193.49 639.04,-197.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="638.4,-193.62 628.79,-198.08 639.08,-200.58 638.4,-193.62"/>
+</g>
+<!-- sourcefile~utcfio_bundle.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~utcfio_bundle.f90</title>
+<g id="a_sourcefile~~splitcommunicator.f90~~AfferentGraph_node26"><a xlink:href="../sourcefile/utcfio_bundle.f90.html" xlink:title="utCFIO_Bundle.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="870.5,-150 757.5,-150 757.5,-126 870.5,-126 870.5,-150"/>
+<text text-anchor="middle" x="814" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO_Bundle.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~utcfio_bundle.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~splitcommunicator.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~utcfio_bundle.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M757.37,-146.56C742.98,-149.64 727.69,-153.71 714,-159 696.72,-165.67 695.1,-172.89 678,-180 665.49,-185.2 651.32,-189.44 638.47,-192.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="637.4,-189.38 628.51,-195.14 639.05,-196.18 637.4,-189.38"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilesplitcommunicatorf90AfferentGraph = svgPanZoom('#sourcefilesplitcommunicatorf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">MAPL_SplitCommunicatorMod</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">   private</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SplitCommunicator</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NULL_SUBCOMMUNICATOR_NAME</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SplitCommunicator</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="k">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">subcommunicator</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">color</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_subcommunicator</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_color</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_name</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">end type </span><span class="n">SplitCommunicator</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NULL_SUBCOMMUNICATOR_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;NULL&#39;</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">interface </span><span class="n">SplitCommunicator</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_SplitCommunicator</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">end interface </span><span class="n">SplitCommunicator</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a>
+<a id="ln-25" name="ln-25" href="#ln-25"></a>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="k">contains</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="k">   function </span><span class="n">new_SplitCommunicator</span><span class="p">(</span><span class="n">subcommunicator</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">split</span><span class="p">)</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">SplitCommunicator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">split</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">subcommunicator</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">color</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="n">split</span><span class="p">%</span><span class="n">subcommunicator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">subcommunicator</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="n">split</span><span class="p">%</span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">color</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="n">split</span><span class="p">%</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_SplitCommunicator</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">   </span><span class="kt">integer </span><span class="k">function </span><span class="n">get_subcommunicator</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">subcommunicator</span><span class="p">)</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">SplitCommunicator</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="n">subcommunicator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">subcommunicator</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_subcommunicator</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">   </span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">   </span><span class="kt">integer </span><span class="k">function </span><span class="n">get_color</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">SplitCommunicator</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">color</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_color</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">   </span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">   </span><span class="k">function </span><span class="n">get_name</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">SplitCommunicator</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">name</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_name</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">   </span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="k">end module </span><span class="n">MAPL_SplitCommunicatorMod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-08-16T15:30:38.434208             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
