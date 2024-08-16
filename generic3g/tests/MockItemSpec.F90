@@ -39,8 +39,7 @@ module MockItemSpecMod
       character(:), allocatable :: details
    contains
       procedure :: initialize
-      procedure :: run_old => mock_run
-      procedure :: run_new
+      procedure :: run
    end type MockAction
 
    interface MockItemSpec
@@ -171,14 +170,6 @@ contains
    end function new_MockAction
 
 
-   subroutine mock_run(this, rc)
-      class(MockAction), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      _RETURN(_SUCCESS)
-   end subroutine mock_run
-
-
    subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(MockItemSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
@@ -262,7 +253,7 @@ contains
       _FAIL('This procedure should not be called.')
    end subroutine initialize
 
-   subroutine run_new(this, importState, exportState, clock, rc)
+   subroutine run(this, importState, exportState, clock, rc)
       use esmf
       class(MockAction), intent(inout) :: this
       type(ESMF_State)      :: importState
@@ -270,6 +261,6 @@ contains
       type(ESMF_Clock)      :: clock      
       integer, optional, intent(out) :: rc
       _FAIL('This procedure should not be called.')
-   end subroutine run_new
+   end subroutine run
    
 end module MockItemSpecMod

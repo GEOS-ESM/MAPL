@@ -6,7 +6,7 @@ set (srcs
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL TYPE SHARED)
 
-target_link_libraries(${this} PRIVATE ESMF::ESMF)
+target_link_libraries(${this} PRIVATE ESMF::ESMF OpenMP::OpenMP_Fortran)
 
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
@@ -15,7 +15,3 @@ set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${t
 mapl_acg (${this}   ACG_StateSpecs.rc
           IMPORT_SPECS EXPORT_SPECS
           GET_POINTERS DECLARE_POINTERS)
-
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-  target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
-endif ()
