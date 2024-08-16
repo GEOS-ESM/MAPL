@@ -79,20 +79,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for procedures.">35 statements</a>
+                 title=" 0.0% of total for procedures.">23 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/ExtDataGridCompMod.F90"> Source File</a>
+              <a href="../src/ExtDataGridCompNG.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/extdatagridcompmod.f90.html'>ExtDataGridCompMod.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/mapl_extdatagridcompmod.html'>MAPL_ExtDataGridCompMod</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatagridcompng.f90.html'>ExtDataGridCompNG.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatagridcomp2g.html'>MAPL_ExtDataGridComp2G</a></li>
             <li class="breadcrumb-item active" aria-current="page">Finalize_</li>
           </ol>
         </nav>
@@ -148,12 +148,7 @@
 </h2>
     
 
-    <p><code>Finalize_</code> &mdash; Finalize MAPL_ExtData</p>
-<p>This is a simple ESMF wrapper.</p>
-<h4 id="history">History</h4>
-<ul>
-<li>12Dec2009  da Silva  Design and first implementation.</li>
-</ul>
+    <p>Finalize the <code>MAPL_ExtData</code> component.</p>
 
 
     <h3>Arguments</h3>
@@ -169,7 +164,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-gc~13"></span>
+              <span class="anchor" id="variable-gc~11"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
             </td>
 <td>intent(inout)</td>
@@ -184,7 +179,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-import~8"></span>
+              <span class="anchor" id="variable-import~6"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td>intent(inout)</td>
@@ -199,7 +194,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-export~8"></span>
+              <span class="anchor" id="variable-export~6"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td>intent(inout)</td>
@@ -214,7 +209,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~22"></span>
+              <span class="anchor" id="variable-clock~11"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
             </td>
 <td>intent(inout)</td>
@@ -229,7 +224,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~602"></span>
+              <span class="anchor" id="variable-rc~869"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -285,18 +280,18 @@
 <path fill="none" stroke="#ff0000" d="M39.57,-108.36C51.08,-122.46 71.66,-145.32 94,-159 96.8,-160.72 99.76,-162.31 102.81,-163.79"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="101.57,-167.07 112.14,-167.88 104.39,-160.66 101.57,-167.07"/>
 </g>
-<!-- proc~extract_~2 -->
+<!-- proc~extract_ -->
 <g id="proc~~finalize_~2~~CallsGraph_node3" class="node">
-<title>proc~extract_~2</title>
-<g id="a_proc~~finalize_~2~~CallsGraph_node3"><a xlink:href="../proc/extract_~2.html" xlink:title="extract_">
+<title>proc~extract_</title>
+<g id="a_proc~~finalize_~2~~CallsGraph_node3"><a xlink:href="../proc/extract_.html" xlink:title="extract_">
 <polygon fill="#d9534f" stroke="#d9534f" points="185.5,-150 130.5,-150 130.5,-126 185.5,-126 185.5,-150"/>
 <text text-anchor="middle" x="158" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">extract_</text>
 </a>
 </g>
 </g>
-<!-- proc~finalize_~2&#45;&gt;proc~extract_~2 -->
+<!-- proc~finalize_~2&#45;&gt;proc~extract_ -->
 <g id="proc~~finalize_~2~~CallsGraph_edge2" class="edge">
-<title>proc~finalize_~2&#45;&gt;proc~extract_~2</title>
+<title>proc~finalize_~2&#45;&gt;proc~extract_</title>
 <path fill="none" stroke="#ff0000" d="M58.19,-105.32C76.56,-111.4 100.73,-119.39 120.56,-125.95"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="119.6,-129.32 130.2,-129.14 121.8,-122.67 119.6,-129.32"/>
 </g>
@@ -444,15 +439,9 @@ large graphs.</div>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">SUBROUTINE </span><span class="n">Finalize_</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="k">IMPORT</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
 
-<span class="c">! !USES:</span>
+<span class="w">   </span><span class="k">implicit NONE</span>
 
-<span class="w">  </span><span class="k">implicit NONE</span>
-
-<span class="c">! !INPUT PARAMETERS:</span>
-
-<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span><span class="w">      </span><span class="c">!! The clock</span>
-
-<span class="c">! !OUTPUT PARAMETERS:</span>
+<span class="k">   type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span><span class="w">     </span><span class="c">!! The clock</span>
 
 <span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span><span class="w">     </span><span class="c">!! Grid Component</span>
 <span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">IMPORT</span><span class="w">     </span><span class="c">!! Import State</span>
@@ -460,24 +449,19 @@ large graphs.</div>
 <span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">rc</span><span class="w">                   </span><span class="c">!! Error return code:</span>
 <span class="w">                                                 </span><span class="c">!!  0 - all is well</span>
 <span class="w">                                                 </span><span class="c">!!  1 -</span>
-<span class="c">!</span>
+
 <span class="c">!-------------------------------------------------------------------------</span>
 
 <span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_ExtData_state</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">self</span><span class="w">        </span><span class="c">! Legacy state</span>
 <span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">)</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">CF</span><span class="w">          </span><span class="c">! Universal Config</span>
 
 <span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">comp_name</span>
-<span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span>
 <span class="w">   </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
-
-<span class="w">   </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
 
 
 <span class="c">!  Get my name and set-up traceback handle</span>
 <span class="c">!  ---------------------------------------</span>
-<span class="w">   </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Finalize_&#39;</span>
 <span class="w">   </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">comp_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
-<span class="w">   </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">comp_name</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">Iam</span><span class="p">)</span>
 
 <span class="c">!  Finalize MAPL Generic</span>
 <span class="c">!  ---------------------</span>
@@ -487,26 +471,11 @@ large graphs.</div>
 <span class="c">!  ------------------------------------</span>
 <span class="w">   </span><span class="k">call </span><span class="n">extract_</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
-<span class="c">!  Free the memory used for the bracketing arrays</span>
-<span class="c">!  -----------------------------------------------------------</span>
-<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">active</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">      do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">nItems</span>
-
-<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">isConst</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
-
-<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">refresh_time</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">            deallocate</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">refresh_time</span><span class="p">)</span>
-<span class="w">         </span><span class="k">end if</span>
-
-<span class="k">      end do</span>
-
-
 <span class="c">!  Free the memory used to hold the primary export items</span>
 <span class="c">!  -----------------------------------------------------</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         deallocate</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">)</span>
-<span class="w">      </span><span class="k">end if</span>
-<span class="k">   end if</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">      deallocate</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end if</span>
 
 
 <span class="c">!  All done</span>
@@ -537,7 +506,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-08-16T15:27:52.832604             </p>
+ on 2024-08-16T15:32:59.332696             </p>
           </div>
         </div>
         <br>
