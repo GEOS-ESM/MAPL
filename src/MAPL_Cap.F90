@@ -447,17 +447,19 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      !call MPI_Initialized(this%mpi_already_initialized, ierror)
-      !_VERIFY(ierror)
-      call  ESMF_InitializePreMPI(_RC)
+      call MPI_Initialized(this%mpi_already_initialized, ierror)
+      _VERIFY(ierror)
 
       if (.not. this%mpi_already_initialized) then
+         call ESMF_InitializePreMPI(_RC)
          call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
-         _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supported by this MPI.')
-!         call MPI_Init_thread(MPI_THREAD_SINGLE, provided, ierror)
-!         _VERIFY(ierror)
-!         _ASSERT(provided == MPI_THREAD_SINGLE, "MPI_THREAD_SINGLE not supported by this MPI.")
+      else
+         ! If we are here, then MPI has already been initialized by the user
+         ! and we are just using it. But we need to make sure that the user
+         ! has initialized MPI with the correct threading level.
+         call MPI_Query_thread(provided, ierror)
       end if
+      _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supported by this MPI.')
 
       call MPI_Comm_rank(this%comm_world, this%rank, ierror); _VERIFY(ierror)
       call MPI_Comm_size(this%comm_world, npes_world, ierror); _VERIFY(ierror)
