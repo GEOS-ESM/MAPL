@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.46.3] - 2024-08-19
+
+### Fixed
+
+- Fix bug in supporting externally initialized MPI
+
 ## [2.46.2] - 2024-05-31
 
 ### Removed
