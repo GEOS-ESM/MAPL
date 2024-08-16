@@ -7,6 +7,8 @@ module HistoryTrajectoryMod
   use LocStreamFactoryMod
   use MAPL_LocstreamRegridderMod
   use MAPL_ObsUtilMod
+  use MAPL_GenericMod, only : MAPL_MetaComp
+
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
 
@@ -26,6 +28,7 @@ module HistoryTrajectoryMod
      real(kind=REAL64), allocatable :: times_R8(:)
      integer,           allocatable :: obstype_id(:)
      integer,           allocatable :: location_index_ioda(:)   ! location index in its own ioda file
+     type(MAPL_MetaComp), pointer   :: GENSTATE
 
      type(ESMF_FieldBundle) :: bundle
      type(ESMF_FieldBundle) :: output_bundle
@@ -70,7 +73,7 @@ module HistoryTrajectoryMod
      integer                        :: obsfile_Ts_index     ! for epoch
      integer                        :: obsfile_Te_index
      logical                        :: active               ! case: when no obs. exist
-     logical                        :: level_by_level = .true.
+     logical                        :: level_by_level = .false.
      ! note
      ! for MPI_GATHERV of 3D data in procedure :: append_file
      ! we have choice LEVEL_BY_LEVEL or ALL_AT_ONCE  (timing in sec below for extdata)
@@ -97,11 +100,12 @@ module HistoryTrajectoryMod
 
 
   interface
-     module function HistoryTrajectory_from_config(config,string,clock,rc) result(traj)
+     module function HistoryTrajectory_from_config(config,string,clock,GENSTATE,rc) result(traj)
        type(HistoryTrajectory) :: traj
        type(ESMF_Config), intent(inout)        :: config
        character(len=*),  intent(in)           :: string
        type(ESMF_Clock),  intent(in)           :: clock
+       type(MAPL_MetaComp), pointer, intent(in), optional  :: GENSTATE
        integer, optional, intent(out)          :: rc
      end function HistoryTrajectory_from_config
 

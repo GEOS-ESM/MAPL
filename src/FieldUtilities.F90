@@ -64,7 +64,7 @@ subroutine FieldSet_r8(field,constant_val,rc)
    if (type_kind == ESMF_TYPEKIND_R4) then
       call assign_fptr(field,f_ptr_r4,_RC)
       f_ptr_r4 = constant_val
-   else if (type_kind == ESMF_TYPEKIND_R4) then
+   else if (type_kind == ESMF_TYPEKIND_R8) then
       call assign_fptr(field,f_ptr_r8,_RC)
       f_ptr_r8 = constant_val
    else
@@ -87,7 +87,7 @@ subroutine FieldSet_r4(field,constant_val,rc)
    if (type_kind == ESMF_TYPEKIND_R4) then
       call assign_fptr(field,f_ptr_r4,_RC)
       f_ptr_r4 = constant_val
-   else if (type_kind == ESMF_TYPEKIND_R4) then
+   else if (type_kind == ESMF_TYPEKIND_R8) then
       call assign_fptr(field,f_ptr_r8,_RC)
       f_ptr_r8 = constant_val
    else

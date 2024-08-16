@@ -51,6 +51,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
          traj%clock=clock
+         if (present(GENSTATE)) traj%GENSTATE => GENSTATE
          call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
          call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(string)//'Epoch:', default=0, _RC)
          _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
@@ -1105,7 +1106,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         if (nx>0) then
                            do ig = 1, this%obs(k)%ngeoval
                               if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                 call lgr%debug('%a %a', 'append:2d inner put_var item%xname', trim(item%xname))
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
                                       start=[is],count=[nx])
                               end if
@@ -1173,7 +1173,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         if (nx>0) then
                            do ig = 1, this%obs(k)%ngeoval
                               if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                 call lgr%debug('%a %a', 'append:3d inner put_var item%xname', trim(item%xname))
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
                                       start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
                               end if

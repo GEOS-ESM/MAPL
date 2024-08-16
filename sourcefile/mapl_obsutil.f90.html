@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.4% of total for source files.">758 statements</a>
+                 title=" 0.4% of total for source files.">763 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -2040,17 +2040,22 @@ large graphs.</div>
 <a id="ln-941" name="ln-941" href="#ln-941"></a>
 <a id="ln-942" name="ln-942" href="#ln-942"></a><span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="kt">C_CHAR</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">c_search_name</span>
 <a id="ln-943" name="ln-943" href="#ln-943"></a><span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="kt">C_CHAR</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">c_filename</span>
-<a id="ln-944" name="ln-944" href="#ln-944"></a><span class="w">    </span><span class="kt">integer </span><span class="n">slen</span>
+<a id="ln-944" name="ln-944" href="#ln-944"></a><span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">slen</span><span class="p">,</span><span class="w"> </span><span class="n">lenmax</span>
 <a id="ln-945" name="ln-945" href="#ln-945"></a>
 <a id="ln-946" name="ln-946" href="#ln-946"></a><span class="w">    </span><span class="n">c_search_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">search_name</span><span class="p">)</span><span class="o">//</span><span class="nb">C_NULL_CHAR</span>
 <a id="ln-947" name="ln-947" href="#ln-947"></a><span class="nb">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f_call_c_glob</span><span class="p">(</span><span class="n">c_search_name</span><span class="p">,</span><span class="w"> </span><span class="n">c_filename</span><span class="p">,</span><span class="w"> </span><span class="n">slen</span><span class="p">)</span>
 <a id="ln-948" name="ln-948" href="#ln-948"></a><span class="w">    </span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
-<a id="ln-949" name="ln-949" href="#ln-949"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">slen</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">filename</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">slen</span><span class="p">)</span><span class="o">=</span><span class="n">c_filename</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">slen</span><span class="p">)</span>
-<a id="ln-950" name="ln-950" href="#ln-950"></a>
-<a id="ln-951" name="ln-951" href="#ln-951"></a><span class="w">    </span><span class="k">return</span>
-<a id="ln-952" name="ln-952" href="#ln-952"></a><span class="k">  end subroutine </span><span class="n">fglob</span>
-<a id="ln-953" name="ln-953" href="#ln-953"></a>
-<a id="ln-954" name="ln-954" href="#ln-954"></a><span class="k">end module </span><span class="n">MAPL_ObsUtilMod</span>
+<a id="ln-949" name="ln-949" href="#ln-949"></a><span class="w">    </span><span class="n">lenmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+<a id="ln-950" name="ln-950" href="#ln-950"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lenmax</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">slen</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-951" name="ln-951" href="#ln-951"></a><span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_AM_I_ROOT</span><span class="p">())</span><span class="w">  </span><span class="k">write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;pathlen vs filename_max_char_len: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">slen</span><span class="p">,</span><span class="w"> </span><span class="n">lenmax</span>
+<a id="ln-952" name="ln-952" href="#ln-952"></a><span class="w">       </span><span class="err">_</span><span class="n">FAIL</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;PATHLEN is greater than filename_max_char_len&#39;</span><span class="p">)</span>
+<a id="ln-953" name="ln-953" href="#ln-953"></a><span class="w">    </span><span class="k">end if</span>
+<a id="ln-954" name="ln-954" href="#ln-954"></a><span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="n">slen</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">filename</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">slen</span><span class="p">)</span><span class="o">=</span><span class="n">c_filename</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">slen</span><span class="p">)</span>
+<a id="ln-955" name="ln-955" href="#ln-955"></a>
+<a id="ln-956" name="ln-956" href="#ln-956"></a><span class="w">    </span><span class="k">return</span>
+<a id="ln-957" name="ln-957" href="#ln-957"></a><span class="k">  end subroutine </span><span class="n">fglob</span>
+<a id="ln-958" name="ln-958" href="#ln-958"></a>
+<a id="ln-959" name="ln-959" href="#ln-959"></a><span class="k">end module </span><span class="n">MAPL_ObsUtilMod</span>
 </pre></div>
 
       </section>
@@ -2072,7 +2077,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-08-16T15:03:35.822822             </p>
+ on 2024-08-16T15:28:14.173144             </p>
           </div>
         </div>
         <br>
