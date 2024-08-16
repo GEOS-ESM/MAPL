@@ -1,0 +1,945 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_GridCompGetFriendlies2 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_GridCompGetFriendlies2
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">16 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericmod.html'>MAPL_GenericMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_GridCompGetFriendlies2</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_gridcompgetfriendlies2.html#src">MAPL_GridCompGetFriendlies2</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_GridCompGetFriendlies2(GC, TO, BUNDLE, AddGCPrefix, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc~66"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GC</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-to~8"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TO</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bundle~19"></span>
+              type(ESMF_FieldBundle),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>BUNDLE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-addgcprefix~3"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>AddGCPrefix</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~164"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_gridcompgetfriendlies2~~CallsGraph Pages: 1 -->
+<svg id="procmapl_gridcompgetfriendlies2CallsGraph" width="641pt" height="531pt"
+ viewBox="0.00 0.00 641.00 530.90" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph" class="graph" transform="scale(0.75 0.75) rotate(0) translate(4 700)">
+<title>proc~~mapl_gridcompgetfriendlies2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-700 846,-700 846,4 -4,4"/>
+<!-- proc~mapl_gridcompgetfriendlies2 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node1" class="node">
+<title>proc~mapl_gridcompgetfriendlies2</title>
+<polygon fill="none" stroke="black" points="177,-654 0,-654 0,-630 177,-630 177,-654"/>
+<text text-anchor="middle" x="88.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GridCompGetFriendlies2</text>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node2" class="node">
+<title>proc~mapl_gridcompgetfriendlies0</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node2"><a xlink:href="../proc/mapl_gridcompgetfriendlies0.html" xlink:title="MAPL_GridCompGetFriendlies0">
+<polygon fill="#d9534f" stroke="#d9534f" points="390,-381 213,-381 213,-357 390,-357 390,-381"/>
+<text text-anchor="middle" x="301.5" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompGetFriendlies0</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies2&#45;&gt;proc~mapl_gridcompgetfriendlies0 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_gridcompgetfriendlies2&#45;&gt;proc~mapl_gridcompgetfriendlies0</title>
+<path fill="none" stroke="#ff0000" d="M98.84,-629.92C131.85,-587.2 243.31,-443 284.78,-389.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="287.68,-391.31 291.03,-381.25 282.15,-387.02 287.68,-391.31"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node3"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="590.5,-696 508.5,-696 508.5,-672 590.5,-672 590.5,-696"/>
+<text text-anchor="middle" x="549.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies2&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_gridcompgetfriendlies2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M177.17,-652.26C189.2,-653.58 201.4,-654.86 213,-656 314.18,-665.95 432.76,-675.31 498.38,-680.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="498.21,-683.78 508.44,-681.04 498.73,-676.8 498.21,-683.78"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node4" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node4"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="587.5,-654 511.5,-654 511.5,-630 587.5,-630 587.5,-654"/>
+<text text-anchor="middle" x="549.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_gridcompgetfriendlies2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M177.19,-642C273.61,-642 424.97,-642 501.23,-642"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="501.48,-645.5 511.48,-642 501.48,-638.5 501.48,-645.5"/>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M303.58,-381.23C308.29,-426.78 331.29,-587.74 426,-663 446.18,-679.03 474.19,-684.68 498.34,-686.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="498.29,-689.64 508.42,-686.52 498.56,-682.64 498.29,-689.64"/>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M304.48,-381.2C311.89,-422.52 341.94,-558.09 426,-621 447.31,-636.95 476.54,-642.4 501.09,-643.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="501.18,-647.28 511.3,-644.13 501.42,-640.28 501.18,-647.28"/>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node5" class="node">
+<title>ESMF_AttributeGet</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_attributeget.html" xlink:title="ESMF_AttributeGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="605,-360 494,-360 494,-336 605,-336 605,-360"/>
+<text text-anchor="middle" x="549.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AttributeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#ff0000" d="M390.27,-361.51C420.99,-358.88 454.92,-355.99 483.45,-353.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="484.04,-357.02 493.7,-352.68 483.44,-350.04 484.04,-357.02"/>
+</g>
+<!-- ESMF_GridCompGet -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node6" class="node">
+<title>ESMF_GridCompGet</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_gridcompget.html" xlink:title="ESMF_GridCompGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="609,-318 490,-318 490,-294 609,-294 609,-318"/>
+<text text-anchor="middle" x="549.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;ESMF_GridCompGet -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;ESMF_GridCompGet</title>
+<path fill="none" stroke="#ff0000" d="M333.56,-356.91C358.29,-347.66 393.95,-335.14 426,-327 443.22,-322.63 462.04,-318.89 479.64,-315.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="480.56,-319.23 489.84,-314.12 479.4,-312.33 480.56,-319.23"/>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node7" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="610,-276 489,-276 489,-252 610,-252 610,-276"/>
+<text text-anchor="middle" x="549.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#ff0000" d="M316.16,-356.74C337.79,-338.05 381.99,-302.76 426,-285 442.48,-278.35 461.03,-273.81 478.61,-270.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="479.53,-274.1 488.83,-269.03 478.4,-267.19 479.53,-274.1"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node8" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="592,-234 507,-234 507,-210 592,-210 592,-234"/>
+<text text-anchor="middle" x="549.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;esmf_fieldget -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M310.37,-356.86C327.78,-331.13 372.28,-271.15 426,-243 447.55,-231.71 473.87,-226.29 496.59,-223.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="497.12,-227.23 506.74,-222.79 496.46,-220.26 497.12,-227.23"/>
+</g>
+<!-- esmf_stateget -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node9" class="node">
+<title>esmf_stateget</title>
+<polygon fill="#777777" stroke="#777777" points="593.5,-192 505.5,-192 505.5,-168 593.5,-168 593.5,-192"/>
+<text text-anchor="middle" x="549.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateget</text>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;esmf_stateget -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#ff0000" d="M307.53,-356.76C321.25,-325.09 362.56,-240.19 426,-201 446.54,-188.31 472.52,-182.71 495.26,-180.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="495.77,-183.88 505.45,-179.58 495.2,-176.9 495.77,-183.88"/>
+</g>
+<!-- interface~mapl_fieldbundleget -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node10" class="node">
+<title>interface~mapl_fieldbundleget</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node10"><a xlink:href="../interface/mapl_fieldbundleget.html" xlink:title="MAPL_FieldBundleGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="613,-150 486,-150 486,-126 613,-126 613,-150"/>
+<text text-anchor="middle" x="549.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FieldBundleGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;interface~mapl_fieldbundleget -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;interface~mapl_fieldbundleget</title>
+<path fill="none" stroke="#ff0000" d="M305.73,-356.78C316.12,-320.01 352.4,-209.84 426,-159 440.54,-148.95 458.32,-143.19 475.78,-139.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="476.66,-143.39 485.99,-138.39 475.57,-136.48 476.66,-143.39"/>
+</g>
+<!-- interface~mapl_fieldcreate -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node11" class="node">
+<title>interface~mapl_fieldcreate</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node11"><a xlink:href="../interface/mapl_fieldcreate.html" xlink:title="MAPL_FieldCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="602.5,-108 496.5,-108 496.5,-84 602.5,-84 602.5,-108"/>
+<text text-anchor="middle" x="549.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FieldCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;interface~mapl_fieldcreate -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;interface~mapl_fieldcreate</title>
+<path fill="none" stroke="#ff0000" d="M304.48,-356.8C311.89,-315.48 341.94,-179.91 426,-117 443.15,-104.17 465.41,-98.13 486.25,-95.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="486.73,-99.01 496.34,-94.54 486.04,-92.05 486.73,-99.01"/>
+</g>
+<!-- interface~mapl_gridcompgetfriendlies -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node12" class="node">
+<title>interface~mapl_gridcompgetfriendlies</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node12"><a xlink:href="../interface/mapl_gridcompgetfriendlies.html" xlink:title="MAPL_GridCompGetFriendlies">
+<polygon fill="#a7506f" stroke="#a7506f" points="634.5,-66 464.5,-66 464.5,-42 634.5,-42 634.5,-66"/>
+<text text-anchor="middle" x="549.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompGetFriendlies</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;interface~mapl_gridcompgetfriendlies -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;interface~mapl_gridcompgetfriendlies</title>
+<path fill="none" stroke="#ff0000" d="M303.58,-356.77C308.29,-311.22 331.29,-150.26 426,-75 434.47,-68.27 444.33,-63.37 454.69,-59.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="455.75,-63.18 464.34,-56.97 453.75,-56.47 455.75,-63.18"/>
+</g>
+<!-- interface~write_parallel -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node13" class="node">
+<title>interface~write_parallel</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node13"><a xlink:href="../interface/write_parallel.html" xlink:title="WRITE_PARALLEL">
+<polygon fill="#a7506f" stroke="#a7506f" points="602,-24 497,-24 497,0 602,0 602,-24"/>
+<text text-anchor="middle" x="549.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WRITE_PARALLEL</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;interface~write_parallel -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;interface~write_parallel</title>
+<path fill="none" stroke="#ff0000" d="M302.87,-356.8C305.1,-307.43 320.44,-120.87 426,-33 442.82,-19 465.55,-12.79 486.85,-10.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="487.18,-13.89 496.84,-9.55 486.58,-6.92 487.18,-13.89"/>
+</g>
+<!-- proc~am_i_friendly_ -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node14" class="node">
+<title>proc~am_i_friendly_</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node14"><a xlink:href="../proc/am_i_friendly_.html" xlink:title="Am_I_Friendly_">
+<polygon fill="#d9534f" stroke="#d9534f" points="595,-612 504,-612 504,-588 595,-588 595,-612"/>
+<text text-anchor="middle" x="549.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Am_I_Friendly_</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~am_i_friendly_ -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~am_i_friendly_</title>
+<path fill="none" stroke="#ff0000" d="M305.73,-381.22C316.12,-417.99 352.4,-528.16 426,-579 445.55,-592.51 470.95,-598.28 493.55,-600.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="493.47,-603.97 503.71,-601.24 494,-596.99 493.47,-603.97"/>
+</g>
+<!-- proc~am_i_friendly__ -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node15" class="node">
+<title>proc~am_i_friendly__</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node15"><a xlink:href="../proc/am_i_friendly__.html" xlink:title="Am_I_Friendly__">
+<polygon fill="#d9534f" stroke="#d9534f" points="598,-570 501,-570 501,-546 598,-546 598,-570"/>
+<text text-anchor="middle" x="549.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Am_I_Friendly__</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~am_i_friendly__ -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~am_i_friendly__</title>
+<path fill="none" stroke="#ff0000" d="M307.53,-381.24C321.25,-412.91 362.56,-497.81 426,-537 445.18,-548.84 469.1,-554.52 490.7,-557.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="490.47,-560.58 500.76,-558.09 491.16,-553.62 490.47,-560.58"/>
+</g>
+<!-- proc~get_child_gridcomp -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node16" class="node">
+<title>proc~get_child_gridcomp</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node16"><a xlink:href="../proc/get_child_gridcomp.html" xlink:title="MAPL_MetaComp%get_child_gridcomp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="658.5,-528 440.5,-528 440.5,-504 658.5,-504 658.5,-528"/>
+<text text-anchor="middle" x="549.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_child_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~get_child_gridcomp -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~get_child_gridcomp</title>
+<path fill="none" stroke="#ff0000" d="M310.37,-381.14C327.78,-406.87 372.28,-466.85 426,-495 429.76,-496.97 433.67,-498.76 437.68,-500.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="436.61,-503.73 447.2,-503.91 439.03,-497.16 436.61,-503.73"/>
+</g>
+<!-- proc~get_internal_state -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node18" class="node">
+<title>proc~get_internal_state</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node18"><a xlink:href="../proc/get_internal_state.html" xlink:title="MaplGenericComponent%get_internal_state">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="673,-486 426,-486 426,-462 673,-462 673,-486"/>
+<text text-anchor="middle" x="549.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGenericComponent%get_internal_state</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~get_internal_state -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~get_internal_state</title>
+<path fill="none" stroke="#ff0000" d="M316.16,-381.26C337.79,-399.95 381.99,-435.24 426,-453 431.78,-455.33 437.81,-457.4 443.97,-459.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="443.15,-462.65 453.73,-461.96 445.03,-455.91 443.15,-462.65"/>
+</g>
+<!-- proc~mapl_internalstateget -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node19" class="node">
+<title>proc~mapl_internalstateget</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node19"><a xlink:href="../proc/mapl_internalstateget.html" xlink:title="MAPL_InternalStateGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="616.5,-444 482.5,-444 482.5,-420 616.5,-420 616.5,-444"/>
+<text text-anchor="middle" x="549.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_InternalStateGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~mapl_internalstateget -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~mapl_internalstateget</title>
+<path fill="none" stroke="#ff0000" d="M333.56,-381.09C358.29,-390.34 393.95,-402.86 426,-411 440.84,-414.77 456.86,-418.06 472.28,-420.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="471.84,-424.33 482.3,-422.62 473.05,-417.44 471.84,-424.33"/>
+</g>
+<!-- proc~putfieldinbundle__ -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node21" class="node">
+<title>proc~putfieldinbundle__</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node21"><a xlink:href="../proc/putfieldinbundle__.html" xlink:title="PutFieldInBundle__">
+<polygon fill="#d9534f" stroke="#d9534f" points="605.5,-402 493.5,-402 493.5,-378 605.5,-378 605.5,-402"/>
+<text text-anchor="middle" x="549.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PutFieldInBundle__</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~putfieldinbundle__ -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;proc~putfieldinbundle__</title>
+<path fill="none" stroke="#ff0000" d="M390.27,-376.49C420.87,-379.1 454.65,-381.99 483.11,-384.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="483.08,-387.93 493.34,-385.29 483.67,-380.95 483.08,-387.93"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node17" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node17"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="833,-696 718,-696 718,-672 833,-672 833,-696"/>
+<text text-anchor="middle" x="775.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff00" d="M590.55,-684C623.12,-684 669.78,-684 707.96,-684"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="707.97,-687.5 717.97,-684 707.97,-680.5 707.97,-687.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node20" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CallsGraph_node20"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="842,-654 709,-654 709,-630 842,-630 842,-654"/>
+<text text-anchor="middle" x="775.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M590.56,-677.49C614.52,-673.51 645.54,-668.19 673,-663 684.35,-660.85 696.39,-658.46 708.06,-656.09"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="709.1,-659.45 718.2,-654.01 707.7,-652.59 709.1,-659.45"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M587.74,-642C617.76,-642 660.97,-642 698.27,-642"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="698.61,-645.5 708.61,-642 698.61,-638.5 698.61,-645.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_gridcompgetfriendlies2CallsGraph = svgPanZoom('#procmapl_gridcompgetfriendlies2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_gridcompgetfriendlies2~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_gridcompgetfriendlies2CalledByGraph" width="641pt" height="79pt"
+ viewBox="0.00 0.00 641.00 79.24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph" class="graph" transform="scale(0.78 0.78) rotate(0) translate(4 97)">
+<title>proc~~mapl_gridcompgetfriendlies2~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-97 813,-97 813,4 -4,4"/>
+<!-- proc~mapl_gridcompgetfriendlies2 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_node1" class="node">
+<title>proc~mapl_gridcompgetfriendlies2</title>
+<polygon fill="none" stroke="black" points="177,-44 0,-44 0,-20 177,-20 177,-44"/>
+<text text-anchor="middle" x="88.5" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GridCompGetFriendlies2</text>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_node3" class="node">
+<title>proc~mapl_gridcompgetfriendlies0</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_node3"><a xlink:href="../proc/mapl_gridcompgetfriendlies0.html" xlink:title="MAPL_GridCompGetFriendlies0">
+<polygon fill="#d9534f" stroke="#d9534f" points="390,-64 213,-64 213,-40 390,-40 390,-64"/>
+<text text-anchor="middle" x="301.5" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompGetFriendlies0</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies2&#45;&gt;proc~mapl_gridcompgetfriendlies0 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_gridcompgetfriendlies2&#45;&gt;proc~mapl_gridcompgetfriendlies0</title>
+<path fill="none" stroke="#ff0000" d="M177.15,-40.31C185.61,-41.11 194.24,-41.93 202.79,-42.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="202.5,-46.23 212.78,-43.69 203.16,-39.26 202.5,-46.23"/>
+</g>
+<!-- interface~mapl_gridcompgetfriendlies -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_node2" class="node">
+<title>interface~mapl_gridcompgetfriendlies</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_node2"><a xlink:href="../interface/mapl_gridcompgetfriendlies.html" xlink:title="MAPL_GridCompGetFriendlies">
+<polygon fill="#a7506f" stroke="#a7506f" points="596,-24 426,-24 426,0 596,0 596,-24"/>
+<text text-anchor="middle" x="511" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompGetFriendlies</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_gridcompgetfriendlies&#45;&gt;proc~mapl_gridcompgetfriendlies2 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_edge1" class="edge">
+<title>interface~mapl_gridcompgetfriendlies&#45;&gt;proc~mapl_gridcompgetfriendlies2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M425.7,-16.01C356.84,-19.28 259.42,-23.92 187.16,-27.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.96,-23.86 177.14,-27.83 187.29,-30.85 186.96,-23.86"/>
+</g>
+<!-- interface~mapl_gridcompgetfriendlies&#45;&gt;proc~mapl_gridcompgetfriendlies0 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_edge6" class="edge">
+<title>interface~mapl_gridcompgetfriendlies&#45;&gt;proc~mapl_gridcompgetfriendlies0</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M474.76,-24.01C454.14,-29.09 427,-34.83 400.36,-39.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="399.39,-36.5 390.2,-41.77 400.67,-43.38 399.39,-36.5"/>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies1 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_node4" class="node">
+<title>proc~mapl_gridcompgetfriendlies1</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_node4"><a xlink:href="../proc/mapl_gridcompgetfriendlies1.html" xlink:title="MAPL_GridCompGetFriendlies1">
+<polygon fill="#d9534f" stroke="#d9534f" points="809,-42 632,-42 632,-18 809,-18 809,-42"/>
+<text text-anchor="middle" x="720.5" y="-27.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompGetFriendlies1</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_gridcompgetfriendlies&#45;&gt;proc~mapl_gridcompgetfriendlies1 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_edge7" class="edge">
+<title>interface~mapl_gridcompgetfriendlies&#45;&gt;proc~mapl_gridcompgetfriendlies1</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M596.1,-19.3C604.58,-20.03 613.24,-20.78 621.84,-21.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="621.64,-25.02 631.9,-22.4 622.24,-18.05 621.64,-25.02"/>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies3 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_node5" class="node">
+<title>proc~mapl_gridcompgetfriendlies3</title>
+<g id="a_proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_node5"><a xlink:href="../proc/mapl_gridcompgetfriendlies3.html" xlink:title="MAPL_GridCompGetFriendlies3">
+<polygon fill="#d9534f" stroke="#d9534f" points="809,-93 632,-93 632,-69 809,-69 809,-93"/>
+<text text-anchor="middle" x="720.5" y="-78.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCompGetFriendlies3</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_gridcompgetfriendlies&#45;&gt;proc~mapl_gridcompgetfriendlies3 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_edge8" class="edge">
+<title>interface~mapl_gridcompgetfriendlies&#45;&gt;proc~mapl_gridcompgetfriendlies3</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M548.14,-24.02C582.89,-35.57 635.56,-53.09 673.33,-65.65"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="672.48,-69.05 683.07,-68.89 674.69,-62.41 672.48,-69.05"/>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies0&#45;&gt;interface~mapl_gridcompgetfriendlies -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_gridcompgetfriendlies0&#45;&gt;interface~mapl_gridcompgetfriendlies</title>
+<path fill="none" stroke="#ff0000" d="M337.7,-40C359.22,-34.7 387.87,-28.67 415.62,-23.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="416.58,-26.85 425.78,-21.59 415.31,-19.97 416.58,-26.85"/>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies1&#45;&gt;proc~mapl_gridcompgetfriendlies0 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_edge3" class="edge">
+<title>proc~mapl_gridcompgetfriendlies1&#45;&gt;proc~mapl_gridcompgetfriendlies0</title>
+<path fill="none" stroke="#ff0000" d="M631.95,-34.62C564.24,-38.19 470.52,-43.14 400.35,-46.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="399.97,-43.35 390.17,-47.37 400.34,-50.34 399.97,-43.35"/>
+</g>
+<!-- proc~mapl_gridcompgetfriendlies3&#45;&gt;proc~mapl_gridcompgetfriendlies0 -->
+<g id="proc~~mapl_gridcompgetfriendlies2~~CalledByGraph_edge5" class="edge">
+<title>proc~mapl_gridcompgetfriendlies3&#45;&gt;proc~mapl_gridcompgetfriendlies0</title>
+<path fill="none" stroke="#ff0000" d="M631.95,-74.91C564.24,-70.2 470.52,-63.68 400.35,-58.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="400.39,-55.3 390.17,-58.1 399.9,-62.28 400.39,-55.3"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_gridcompgetfriendlies2CalledByGraph = svgPanZoom('#procmapl_gridcompgetfriendlies2CalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">MAPL_GridCompGetFriendlies2</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">TO</span><span class="p">,</span><span class="w"> </span><span class="n">BUNDLE</span><span class="p">,</span><span class="w"> </span><span class="n">AddGCPrefix</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! !ARGUMENTS:</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">              </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">TO</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="w">  </span><span class="p">),</span><span class="w">      </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">BUNDLE</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">             </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">AddGCPrefix</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">             </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="w">      </span><span class="c">!=============================================================================</span>
+<span class="w">      </span><span class="c">!</span>
+<span class="w">      </span><span class="c">! ErrLog Variables</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">I</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">TO_</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">TO_</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TO</span>
+<span class="w">      </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">GC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_GridCompGetFriendlies0</span><span class="p">(</span><span class="n">GC</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">TO_</span><span class="p">,</span><span class="w"> </span><span class="n">BUNDLE</span><span class="p">,</span><span class="w"> </span><span class="n">AddGCPrefix</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_GridCompGetFriendlies2</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-08-16T15:27:52.832604             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

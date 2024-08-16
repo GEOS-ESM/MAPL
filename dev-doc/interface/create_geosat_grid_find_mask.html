@@ -1,0 +1,896 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>create_Geosat_grid_find_mask &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>create_Geosat_grid_find_mask
+      <small>Interface</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">52 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_GeosatMaskMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_geosatmaskmod.f90.html'>MAPL_GeosatMaskMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/masksamplergeosatmod.html'>MaskSamplerGeosatMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">create_Geosat_grid_find_mask</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+    <em>None</em>
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2>interface</h2>
+      <p>module function create_new_bundle(this,rc) result(new_bundle)
+  class(MaskSamplerGeosat), intent(inout) :: this
+  type(ESMF_FieldBundle)                  :: new_bundle
+  integer, optional, intent(out)          :: rc
+end function create_new_bundle</p>
+<p>module subroutine  add_metadata(this,currTime,rc)</p>
+      <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: interface~~create_geosat_grid_find_mask~~CallsGraph Pages: 1 -->
+<svg id="interfacecreate_geosat_grid_find_maskCallsGraph" width="641pt" height="949pt"
+ viewBox="0.00 0.00 641.00 949.25" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph" class="graph" transform="scale(0.84 0.84) rotate(0) translate(4 1120)">
+<title>interface~~create_geosat_grid_find_mask~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1120 755,-1120 755,4 -4,4"/>
+<!-- interface~create_geosat_grid_find_mask -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node1" class="node">
+<title>interface~create_geosat_grid_find_mask</title>
+<polygon fill="none" stroke="black" points="294,-570 0,-570 0,-546 294,-546 294,-570"/>
+<text text-anchor="middle" x="147" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50">MaskSamplerGeosat%create_Geosat_grid_find_mask</text>
+</g>
+<!-- proc~create_geosat_grid_find_mask -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node2" class="node">
+<title>proc~create_geosat_grid_find_mask</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node2"><a xlink:href="../proc/create_geosat_grid_find_mask.html" xlink:title="create_Geosat_grid_find_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="505,-570 330,-570 330,-546 505,-546 505,-570"/>
+<text text-anchor="middle" x="417.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">create_Geosat_grid_find_mask</text>
+</a>
+</g>
+</g>
+<!-- interface~create_geosat_grid_find_mask&#45;&gt;proc~create_geosat_grid_find_mask -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge1" class="edge">
+<title>interface~create_geosat_grid_find_mask&#45;&gt;proc~create_geosat_grid_find_mask</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M294.04,-558C302.69,-558 311.28,-558 319.66,-558"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="319.77,-561.5 329.77,-558 319.77,-554.5 319.77,-561.5"/>
+</g>
+<!-- ESMF_FieldHalo -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node3" class="node">
+<title>ESMF_FieldHalo</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_fieldhalo.html" xlink:title="ESMF_FieldHalo">
+<polygon fill="#d9534f" stroke="#d9534f" points="694,-1116 598,-1116 598,-1092 694,-1092 694,-1116"/>
+<text text-anchor="middle" x="646" y="-1101.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_FieldHalo</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;ESMF_FieldHalo -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge2" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;ESMF_FieldHalo</title>
+<path fill="none" stroke="#ff0000" d="M419.6,-570.35C426.27,-642.42 463.59,-1007.88 541,-1083 553.49,-1095.12 570.92,-1101.15 587.95,-1103.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="587.52,-1107.42 597.88,-1105.23 588.42,-1100.47 587.52,-1107.42"/>
+</g>
+<!-- ESMF_FieldHaloStore -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node4" class="node">
+<title>ESMF_FieldHaloStore</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_fieldhalostore.html" xlink:title="ESMF_FieldHaloStore">
+<polygon fill="#d9534f" stroke="#d9534f" points="708,-1074 584,-1074 584,-1050 708,-1050 708,-1074"/>
+<text text-anchor="middle" x="646" y="-1059.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_FieldHaloStore</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;ESMF_FieldHaloStore -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge3" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;ESMF_FieldHaloStore</title>
+<path fill="none" stroke="#ff0000" d="M419.85,-570.25C427.66,-638.65 469.1,-972.55 541,-1041 550.11,-1049.67 561.75,-1055.21 573.93,-1058.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="573.23,-1062.1 583.77,-1061.02 574.86,-1055.29 573.23,-1062.1"/>
+</g>
+<!-- ESMF_FieldRedist -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node5" class="node">
+<title>ESMF_FieldRedist</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_fieldredist.html" xlink:title="ESMF_FieldRedist">
+<polygon fill="#d9534f" stroke="#d9534f" points="697.5,-1032 594.5,-1032 594.5,-1008 697.5,-1008 697.5,-1032"/>
+<text text-anchor="middle" x="646" y="-1017.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_FieldRedist</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;ESMF_FieldRedist -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge4" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;ESMF_FieldRedist</title>
+<path fill="none" stroke="#ff0000" d="M420.14,-570.03C429.13,-634.37 474.55,-937.15 541,-999 552.72,-1009.91 568.48,-1015.83 584.18,-1018.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="584.02,-1022.42 594.45,-1020.52 585.12,-1015.5 584.02,-1022.42"/>
+</g>
+<!-- ESMF_FieldRedistRelease -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node6" class="node">
+<title>ESMF_FieldRedistRelease</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_fieldredistrelease.html" xlink:title="ESMF_FieldRedistRelease">
+<polygon fill="#d9534f" stroke="#d9534f" points="718.5,-990 573.5,-990 573.5,-966 718.5,-966 718.5,-990"/>
+<text text-anchor="middle" x="646" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_FieldRedistRelease</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;ESMF_FieldRedistRelease -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge5" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;ESMF_FieldRedistRelease</title>
+<path fill="none" stroke="#ff0000" d="M418.12,-570.04C417.14,-624.27 420.71,-848.02 541,-957 547.6,-962.98 555.41,-967.44 563.74,-970.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="562.74,-974.12 573.33,-974.03 565,-967.49 562.74,-974.12"/>
+</g>
+<!-- ESMF_FieldRedistStore -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node7" class="node">
+<title>ESMF_FieldRedistStore</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node7"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_fieldrediststore.html" xlink:title="ESMF_FieldRedistStore">
+<polygon fill="#a7506f" stroke="#a7506f" points="711.5,-948 580.5,-948 580.5,-924 711.5,-924 711.5,-948"/>
+<text text-anchor="middle" x="646" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_FieldRedistStore</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;ESMF_FieldRedistStore -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge6" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;ESMF_FieldRedistStore</title>
+<path fill="none" stroke="#ff0000" d="M418.62,-570.14C419.82,-621.06 431.61,-819.11 541,-915 549.38,-922.34 559.6,-927.39 570.33,-930.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="569.72,-934.28 580.29,-933.52 571.56,-927.52 569.72,-934.28"/>
+</g>
+<!-- ESMF_GridGetCoord -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node8" class="node">
+<title>ESMF_GridGetCoord</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node8"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridgetcoord.html" xlink:title="ESMF_GridGetCoord">
+<polygon fill="#a7506f" stroke="#a7506f" points="706,-906 586,-906 586,-882 706,-882 706,-906"/>
+<text text-anchor="middle" x="646" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGetCoord</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;ESMF_GridGetCoord -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge7" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;ESMF_GridGetCoord</title>
+<path fill="none" stroke="#ff0000" d="M419.23,-570C422.75,-616.99 442.23,-789.88 541,-873 551,-881.41 563.43,-886.77 576.2,-890.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="575.46,-893.55 585.98,-892.33 576.99,-886.72 575.46,-893.55"/>
+</g>
+<!-- ESMF_VMAllFullReduce -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node9" class="node">
+<title>ESMF_VMAllFullReduce</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node9"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_vmallfullreduce.html" xlink:title="ESMF_VMAllFullReduce">
+<polygon fill="#a7506f" stroke="#a7506f" points="713,-864 579,-864 579,-840 713,-840 713,-864"/>
+<text text-anchor="middle" x="646" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMAllFullReduce</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;ESMF_VMAllFullReduce -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge8" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;ESMF_VMAllFullReduce</title>
+<path fill="none" stroke="#ff0000" d="M420.03,-570.18C426.15,-613.4 452.93,-760.63 541,-831 549.18,-837.54 558.85,-842.2 568.95,-845.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="568.16,-848.92 578.73,-848.28 570.07,-842.19 568.16,-848.92"/>
+</g>
+<!-- ESMF_VMBarrier -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node10" class="node">
+<title>ESMF_VMBarrier</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node10"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_vmbarrier.html" xlink:title="ESMF_VMBarrier">
+<polygon fill="#d9534f" stroke="#d9534f" points="696,-822 596,-822 596,-798 696,-798 696,-822"/>
+<text text-anchor="middle" x="646" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMBarrier</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;ESMF_VMBarrier -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge9" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;ESMF_VMBarrier</title>
+<path fill="none" stroke="#ff0000" d="M421.09,-570.19C430.01,-609.08 463.33,-731.03 541,-789 553.84,-798.58 569.95,-804.08 585.63,-807.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="585.4,-810.66 595.84,-808.85 586.55,-803.76 585.4,-810.66"/>
+</g>
+<!-- ESMF_VMGet -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node11" class="node">
+<title>ESMF_VMGet</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node11"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_vmget.html" xlink:title="ESMF_VMGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="687,-780 605,-780 605,-756 687,-756 687,-780"/>
+<text text-anchor="middle" x="646" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGet</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;ESMF_VMGet -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge10" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#ff0000" d="M422.54,-570.12C434.54,-604.15 473.44,-701.03 541,-747 556.67,-757.66 576.54,-763.14 594.7,-765.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="594.51,-769.39 604.87,-767.18 595.39,-762.45 594.51,-769.39"/>
+</g>
+<!-- ESMF_VMGetCurrent -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node12" class="node">
+<title>ESMF_VMGetCurrent</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node12"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_vmgetcurrent.html" xlink:title="ESMF_VMGetCurrent">
+<polygon fill="#d9534f" stroke="#d9534f" points="706.5,-738 585.5,-738 585.5,-714 706.5,-714 706.5,-738"/>
+<text text-anchor="middle" x="646" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGetCurrent</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;ESMF_VMGetCurrent -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge11" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#ff0000" d="M424.86,-570.28C440.41,-598.98 483.36,-670.63 541,-705 551.38,-711.19 563.28,-715.59 575.22,-718.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="574.71,-722.18 585.24,-721.03 576.29,-715.36 574.71,-722.18"/>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node13" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="706.5,-696 585.5,-696 585.5,-672 706.5,-672 706.5,-696"/>
+<text text-anchor="middle" x="646" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;esmf_fieldbundleget -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge12" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#ff0000" d="M428.88,-570.33C448.39,-592.64 492.92,-639.54 541,-663 551.67,-668.21 563.56,-672.12 575.38,-675.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="574.73,-678.51 585.26,-677.32 576.29,-671.68 574.73,-678.51"/>
+</g>
+<!-- esmf_fieldcreate -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node14" class="node">
+<title>esmf_fieldcreate</title>
+<polygon fill="#777777" stroke="#777777" points="696.5,-654 595.5,-654 595.5,-630 696.5,-630 696.5,-654"/>
+<text text-anchor="middle" x="646" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldcreate</text>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;esmf_fieldcreate -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge13" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;esmf_fieldcreate</title>
+<path fill="none" stroke="#ff0000" d="M438.11,-570.25C461.69,-584.46 502.86,-607.63 541,-621 555.05,-625.93 570.6,-629.83 585.3,-632.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="584.82,-636.35 595.31,-634.85 586.18,-629.48 584.82,-636.35"/>
+</g>
+<!-- esmf_fielddestroy -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node15" class="node">
+<title>esmf_fielddestroy</title>
+<polygon fill="#777777" stroke="#777777" points="699,-612 593,-612 593,-588 699,-588 699,-612"/>
+<text text-anchor="middle" x="646" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fielddestroy</text>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;esmf_fielddestroy -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge14" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;esmf_fielddestroy</title>
+<path fill="none" stroke="#ff0000" d="M483.41,-570.04C514.53,-575.81 551.65,-582.69 582.46,-588.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="582.18,-591.91 592.65,-590.29 583.45,-585.03 582.18,-591.91"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node16" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="688.5,-570 603.5,-570 603.5,-546 688.5,-546 688.5,-570"/>
+<text text-anchor="middle" x="646" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;esmf_fieldget -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge15" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M505.1,-558C534.87,-558 567.24,-558 593.34,-558"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="593.38,-561.5 603.38,-558 593.38,-554.5 593.38,-561.5"/>
+</g>
+<!-- esmf_fieldgetbounds -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node17" class="node">
+<title>esmf_fieldgetbounds</title>
+<polygon fill="#777777" stroke="#777777" points="708,-528 584,-528 584,-504 708,-504 708,-528"/>
+<text text-anchor="middle" x="646" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldgetbounds</text>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;esmf_fieldgetbounds -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge16" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;esmf_fieldgetbounds</title>
+<path fill="none" stroke="#ff0000" d="M483.41,-545.96C511.7,-540.72 544.96,-534.55 573.92,-529.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="574.78,-532.58 583.97,-527.32 573.5,-525.7 574.78,-532.58"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node18" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node18"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="697,-486 595,-486 595,-462 697,-462 697,-486"/>
+<text text-anchor="middle" x="646" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;interface~mapl_am_i_root -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge17" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#ff0000" d="M438.11,-545.75C461.69,-531.54 502.86,-508.37 541,-495 554.91,-490.12 570.29,-486.24 584.86,-483.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="585.65,-486.62 594.78,-481.25 584.3,-479.76 585.65,-486.62"/>
+</g>
+<!-- interface~mapl_gethorzijindex -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node19" class="node">
+<title>interface~mapl_gethorzijindex</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node19"><a xlink:href="../interface/mapl_gethorzijindex.html" xlink:title="MAPL_GetHorzIJIndex">
+<polygon fill="#a7506f" stroke="#a7506f" points="708,-444 584,-444 584,-420 708,-420 708,-444"/>
+<text text-anchor="middle" x="646" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetHorzIJIndex</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;interface~mapl_gethorzijindex -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge18" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;interface~mapl_gethorzijindex</title>
+<path fill="none" stroke="#ff0000" d="M428.88,-545.67C448.39,-523.36 492.92,-476.46 541,-453 551.24,-448 562.61,-444.19 573.96,-441.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="574.96,-444.65 583.9,-438.97 573.37,-437.84 574.96,-444.65"/>
+</g>
+<!-- mpi_gatherv -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node20" class="node">
+<title>mpi_gatherv</title>
+<polygon fill="#777777" stroke="#777777" points="685.5,-402 606.5,-402 606.5,-378 685.5,-378 685.5,-402"/>
+<text text-anchor="middle" x="646" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_gatherv</text>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;mpi_gatherv -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge19" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;mpi_gatherv</title>
+<path fill="none" stroke="#ff0000" d="M424.86,-545.72C440.41,-517.02 483.36,-445.37 541,-411 557.55,-401.13 577.95,-395.82 596.28,-392.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="596.76,-396.46 606.21,-391.66 595.84,-389.52 596.76,-396.46"/>
+</g>
+<!-- none~get_logger~4 -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node21" class="node">
+<title>none~get_logger~4</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node21"><a xlink:href="../type/loggermanager.html#boundprocedure-get_logger~4" xlink:title="LoggerManager%get_logger">
+<polygon fill="#a7506f" stroke="#a7506f" points="728,-360 564,-360 564,-336 728,-336 728,-360"/>
+<text text-anchor="middle" x="646" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LoggerManager%get_logger</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;none~get_logger~4 -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge20" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;none~get_logger~4</title>
+<path fill="none" stroke="#ff0000" d="M422.54,-545.88C434.54,-511.85 473.44,-414.97 541,-369 545.22,-366.13 549.75,-363.63 554.47,-361.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="555.8,-364.7 563.74,-357.68 553.16,-358.21 555.8,-364.7"/>
+</g>
+<!-- proc~abi_xy_2_lonlat -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node22" class="node">
+<title>proc~abi_xy_2_lonlat</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node22"><a xlink:href="../proc/abi_xy_2_lonlat.html" xlink:title="ABI_XY_2_lonlat">
+<polygon fill="#d9534f" stroke="#d9534f" points="694.5,-318 597.5,-318 597.5,-294 694.5,-294 694.5,-318"/>
+<text text-anchor="middle" x="646" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ABI_XY_2_lonlat</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;proc~abi_xy_2_lonlat -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge21" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;proc~abi_xy_2_lonlat</title>
+<path fill="none" stroke="#ff0000" d="M421.09,-545.81C430.01,-506.92 463.33,-384.97 541,-327 554.32,-317.05 571.18,-311.51 587.43,-308.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="588.08,-311.94 597.42,-306.94 587,-305.03 588.08,-311.94"/>
+</g>
+<!-- proc~create_locstream -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node23" class="node">
+<title>proc~create_locstream</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node23"><a xlink:href="../proc/create_locstream.html" xlink:title="LocStreamFactory%create_locstream">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="751,-276 541,-276 541,-252 751,-252 751,-276"/>
+<text text-anchor="middle" x="646" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LocStreamFactory%create_locstream</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;proc~create_locstream -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge22" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;proc~create_locstream</title>
+<path fill="none" stroke="#ff0000" d="M420.03,-545.82C426.15,-502.6 452.93,-355.37 541,-285 542.78,-283.58 544.64,-282.24 546.55,-280.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="548.33,-284 555.29,-276.01 544.87,-277.92 548.33,-284"/>
+</g>
+<!-- proc~get_att_real_netcdf -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node24" class="node">
+<title>proc~get_att_real_netcdf</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node24"><a xlink:href="../proc/get_att_real_netcdf.html" xlink:title="get_att_real_netcdf">
+<polygon fill="#d9534f" stroke="#d9534f" points="703,-234 589,-234 589,-210 703,-210 703,-234"/>
+<text text-anchor="middle" x="646" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_att_real_netcdf</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;proc~get_att_real_netcdf -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge23" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;proc~get_att_real_netcdf</title>
+<path fill="none" stroke="#ff0000" d="M419.23,-546C422.75,-499.01 442.23,-326.12 541,-243 551.72,-233.98 565.24,-228.47 578.97,-225.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="579.85,-228.56 588.95,-223.15 578.46,-221.7 579.85,-228.56"/>
+</g>
+<!-- proc~get_ncfile_dimension -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node25" class="node">
+<title>proc~get_ncfile_dimension</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node25"><a xlink:href="../proc/get_ncfile_dimension.html" xlink:title="get_ncfile_dimension">
+<polygon fill="#d9534f" stroke="#d9534f" points="708.5,-192 583.5,-192 583.5,-168 708.5,-168 708.5,-192"/>
+<text text-anchor="middle" x="646" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_ncfile_dimension</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;proc~get_ncfile_dimension -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge24" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;proc~get_ncfile_dimension</title>
+<path fill="none" stroke="#ff0000" d="M418.62,-545.86C419.82,-494.94 431.61,-296.89 541,-201 550.14,-192.98 561.49,-187.71 573.29,-184.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="574.4,-187.62 583.27,-181.83 572.72,-180.82 574.4,-187.62"/>
+</g>
+<!-- proc~get_v1d_netcdf_r8_complete -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node26" class="node">
+<title>proc~get_v1d_netcdf_r8_complete</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node26"><a xlink:href="../proc/get_v1d_netcdf_r8_complete.html" xlink:title="get_v1d_netcdf_R8_complete">
+<polygon fill="#d9534f" stroke="#d9534f" points="730.5,-150 561.5,-150 561.5,-126 730.5,-126 730.5,-150"/>
+<text text-anchor="middle" x="646" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_v1d_netcdf_R8_complete</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;proc~get_v1d_netcdf_r8_complete -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge25" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;proc~get_v1d_netcdf_r8_complete</title>
+<path fill="none" stroke="#ff0000" d="M418.12,-545.96C417.14,-491.73 420.71,-267.98 541,-159 544.43,-155.89 548.2,-153.19 552.19,-150.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="553.91,-153.9 561.26,-146.27 550.76,-147.65 553.91,-153.9"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node27" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node27"><a xlink:href="../proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="690,-108 602,-108 602,-84 690,-84 690,-108"/>
+<text text-anchor="middle" x="646" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;proc~mapl_gridget -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge26" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M420.14,-545.97C429.13,-481.63 474.55,-178.85 541,-117 554.59,-104.35 573.6,-98.41 591.65,-95.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="592.27,-99.3 601.83,-94.73 591.51,-92.34 592.27,-99.3"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node28" class="node">
+<title>proc~mapl_return</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node28"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="687,-66 605,-66 605,-42 687,-42 687,-66"/>
+<text text-anchor="middle" x="646" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;proc~mapl_return -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge27" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M419.85,-545.75C427.66,-477.35 469.1,-143.45 541,-75 555.25,-61.43 575.71,-55.53 594.72,-53.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="595.14,-56.74 604.79,-52.37 594.51,-49.77 595.14,-56.74"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_node29" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CallsGraph_node29"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="684,-24 608,-24 608,0 684,0 684,-24"/>
+<text text-anchor="middle" x="646" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;proc~mapl_verify -->
+<g id="interface~~create_geosat_grid_find_mask~~CallsGraph_edge28" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M419.6,-545.65C426.27,-473.58 463.59,-108.12 541,-33 555.91,-18.53 577.89,-12.73 597.79,-10.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="598.23,-14.26 607.97,-10.08 597.75,-7.27 598.23,-14.26"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var paninterfacecreate_geosat_grid_find_maskCallsGraph = svgPanZoom('#interfacecreate_geosat_grid_find_maskCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: interface~~create_geosat_grid_find_mask~~CalledByGraph Pages: 1 -->
+<svg id="interfacecreate_geosat_grid_find_maskCalledByGraph" width="617pt" height="32pt"
+ viewBox="0.00 0.00 617.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~create_geosat_grid_find_mask~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>interface~~create_geosat_grid_find_mask~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 613,-28 613,4 -4,4"/>
+<!-- interface~create_geosat_grid_find_mask -->
+<g id="interface~~create_geosat_grid_find_mask~~CalledByGraph_node1" class="node">
+<title>interface~create_geosat_grid_find_mask</title>
+<polygon fill="none" stroke="black" points="609,-24 315,-24 315,0 609,0 609,-24"/>
+<text text-anchor="middle" x="462" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MaskSamplerGeosat%create_Geosat_grid_find_mask</text>
+</g>
+<!-- proc~initialize_~2 -->
+<g id="interface~~create_geosat_grid_find_mask~~CalledByGraph_node2" class="node">
+<title>proc~initialize_~2</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CalledByGraph_node2"><a xlink:href="../proc/initialize_~2.html" xlink:title="initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="279,-24 217,-24 217,0 279,0 279,-24"/>
+<text text-anchor="middle" x="248" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~2&#45;&gt;interface~create_geosat_grid_find_mask -->
+<g id="interface~~create_geosat_grid_find_mask~~CalledByGraph_edge1" class="edge">
+<title>proc~initialize_~2&#45;&gt;interface~create_geosat_grid_find_mask</title>
+<path fill="none" stroke="#ff0000" d="M279.37,-12C286.86,-12 295.39,-12 304.58,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="304.8,-15.5 314.8,-12 304.8,-8.5 304.8,-15.5"/>
+</g>
+<!-- interface~initialize_~2 -->
+<g id="interface~~create_geosat_grid_find_mask~~CalledByGraph_node3" class="node">
+<title>interface~initialize_~2</title>
+<g id="a_interface~~create_geosat_grid_find_mask~~CalledByGraph_node3"><a xlink:href="../interface/initialize_~2.html" xlink:title="MaskSamplerGeosat%initialize_">
+<polygon fill="#a7506f" stroke="#a7506f" points="181,-24 0,-24 0,0 181,0 181,-24"/>
+<text text-anchor="middle" x="90.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSamplerGeosat%initialize_</text>
+</a>
+</g>
+</g>
+<!-- interface~initialize_~2&#45;&gt;proc~initialize_~2 -->
+<g id="interface~~create_geosat_grid_find_mask~~CalledByGraph_edge2" class="edge">
+<title>interface~initialize_~2&#45;&gt;proc~initialize_~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M181.05,-12C189.97,-12 198.68,-12 206.69,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="206.78,-15.5 216.78,-12 206.78,-8.5 206.78,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+      <h2>private module subroutine create_Geosat_grid_find_mask(this, rc)  
+    <a href="../proc/create_geosat_grid_find_mask.html"><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
+</h2>
+
+    
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~4088"></span>
+              class(<a href='../type/masksamplergeosat.html'>MaskSamplerGeosat</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1657"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+
+ </div>
+</div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-08-16T15:27:52.832604             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

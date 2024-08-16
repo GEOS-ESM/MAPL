@@ -1,0 +1,722 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Initialize_ &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Initialize_
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">201 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataGridCompNG.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatagridcompng.f90.html'>ExtDataGridCompNG.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatagridcomp2g.html'>MAPL_ExtDataGridComp2G</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Initialize_</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/initialize_~4.html#src">Initialize_</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine Initialize_(GC, IMPORT, EXPORT, CLOCK, rc)  
+</h2>
+    
+
+    <p>Initialize the <code>MAPL_ExtData</code> component.</p>
+<p>check for PS</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc~86"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GC</strong></td>
+            <td>
+                <p>Grid Component</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-import~25"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>IMPORT</strong></td>
+            <td>
+                <p>Import State</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-export~26"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>EXPORT</strong></td>
+            <td>
+                <p>Export State</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~42"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLOCK</strong></td>
+            <td>
+                <p>The clock</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1354"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                <p>Error return code:
+ 0 - all is well
+ 1 -</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <table class="graph">
+<tr><td class="root" rowspan="75">Initialize_</td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">at</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">begin</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/create_holding_field.html">create_holding_field</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/create_primary_field.html">create_primary_field</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_clockget.html">ESMF_ClockGet</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="https://mathomp4.github.io/esmf/interface/esmf_configgetattribute.html">ESMF_ConfigGetAttribute</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_gridcompget.html">ESMF_GridCompGet</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">esmf_statecreate</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">esmf_stateget</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_vmbarrier.html">ESMF_VMBarrier</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/count_rules_for_item.html">ExtDataConfig%count_rules_for_item</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/get_extra_derived_items.html">ExtDataConfig%get_extra_derived_items</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/get_item_type.html">ExtDataConfig%get_item_type</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/get_time_range.html">ExtDataConfig%get_time_range</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/fillin_derived.html">ExtDataOldTypesCreator%fillin_derived</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/fillin_primary.html">ExtDataOldTypesCreator%fillin_primary</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/extract_~3.html">extract_</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">get</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/get_global_options.html">get_global_options</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/debug.html">Logger%debug</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/error.html">Logger%error</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/info.html">Logger%info</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_assert.html">MAPL_Assert</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/mapl_dataaddcollection.html">MAPL_DataAddCollection</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_genericinitialize.html">MAPL_GenericInitialize</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_getlogger.html">MAPL_GetLogger</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_getobjectfromgc.html">MAPL_GetObjectFromGC</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_return.html">MAPL_Return</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_stateadd.html">MAPL_StateAdd</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_timeroff.html">MAPL_TimerOff</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_timeron.html">MAPL_TimerOn</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/mapl_verify.html">MAPL_Verify</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/new_extdataoldtypescreator.html">new_ExtDataOldTypesCreator</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">next</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/get_item_index.html">PrimaryExports%get_item_index</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">push_back</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/string_in_stringvector.html">string_in_stringVector</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+</table>
+          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">SUBROUTINE </span><span class="n">Initialize_</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="k">IMPORT</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">implicit NONE</span>
+
+<span class="k">   type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span><span class="w">   </span><span class="c">!! The clock</span>
+
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span><span class="w">      </span><span class="c">!! Grid Component</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="k">IMPORT</span><span class="w">  </span><span class="c">!! Import State</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">EXPORT</span><span class="w">  </span><span class="c">!! Export State</span>
+<span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">      </span><span class="c">!! Error return code:</span>
+<span class="w">                                                 </span><span class="c">!!  0 - all is well</span>
+<span class="w">                                                 </span><span class="c">!!  1 -</span>
+
+<span class="c">!-------------------------------------------------------------------------</span>
+
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_ExtData_state</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">self</span><span class="w">        </span><span class="c">! Legacy state</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">)</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">CF_master</span><span class="w">          </span><span class="c">! Universal Config</span>
+
+<span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">comp_name</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">Status</span>
+
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">PrimaryExport</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">item</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">j</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">ItemCount</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">PrimaryItemCount</span><span class="p">,</span><span class="w"> </span><span class="n">DerivedItemCount</span>
+
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
+
+<span class="nb">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span>
+<span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_StateItem_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">ITEMTYPES</span><span class="p">(:)</span>
+<span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">ITEMNAMES</span><span class="p">(:)</span>
+
+<span class="w">   </span><span class="kt">integer</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">idx</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPLSTATE</span>
+
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataOldTypesCreator</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config_yaml</span>
+<span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_rc_file</span>
+<span class="w">   </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">found_in_config</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_primary</span><span class="p">,</span><span class="n">num_derived</span><span class="p">,</span><span class="n">num_rules</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">item_type</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unsatisfied_imports</span><span class="p">,</span><span class="n">extra_variables_needed</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">StringVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">siter</span>
+<span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">current_base_name</span><span class="p">,</span><span class="n">extra_var</span>
+<span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">primary_var_name</span><span class="p">,</span><span class="n">derived_var_name</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_ranges</span><span class="p">(:)</span>
+<span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sidx</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_StateItem_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state_item_type</span>
+<span class="w">   </span><span class="c">!class(logger), pointer :: lgr</span>
+
+<span class="c">!  Get my name and set-up traceback handle</span>
+<span class="c">!  ---------------------------------------</span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">comp_name</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="o">=</span><span class="n">CF_master</span><span class="p">,</span><span class="w"> </span><span class="n">vm</span><span class="o">=</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_GetLogger</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">extdata_lgr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="c">!  Extract relevant runtime information</span>
+<span class="c">!  ------------------------------------</span>
+<span class="w">   </span><span class="k">call </span><span class="n">extract_</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">CF_master</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">   </span><span class="n">self</span><span class="p">%</span><span class="n">CF</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CF_master</span>
+
+<span class="c">!  Start Some Timers</span>
+<span class="c">!  -----------------</span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_GetObjectFromGC</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;TOTAL&quot;</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;Initialize&quot;</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">cf_master</span><span class="p">,</span><span class="n">new_rc_file</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;EXTDATA_YAML_FILE:&quot;</span><span class="p">,</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;extdata.yaml&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">get_global_options</span><span class="p">(</span><span class="n">new_rc_file</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">active</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">file_weights</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_ClockGet</span><span class="p">(</span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">currTIME</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="c">! Get information from export state</span>
+<span class="c">!----------------------------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">ITEMCOUNT</span><span class="o">=</span><span class="n">ItemCount</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! no need to run ExtData if there are no imports to fill</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ItemCount</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">self</span><span class="p">%</span><span class="n">active</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">self</span><span class="p">%</span><span class="n">active</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;Initialize&quot;</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;TOTAL&quot;</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    call </span><span class="n">new_ExtDataOldTypesCreator</span><span class="p">(</span><span class="n">config_yaml</span><span class="p">,</span><span class="w"> </span><span class="n">new_rc_file</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">ITEMNAMES</span><span class="p">(</span><span class="n">ITEMCOUNT</span><span class="p">),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">ITEMTYPES</span><span class="p">(</span><span class="n">ITEMCOUNT</span><span class="p">),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">ITEMNAMELIST</span><span class="o">=</span><span class="n">ITEMNAMES</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">ITEMTYPELIST</span><span class="o">=</span><span class="n">ITEMTYPES</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="c">!                               --------</span>
+<span class="c">!  Initialize MAPL Generic</span>
+<span class="c">!  -----------------------</span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_GenericInitialize</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="k">IMPORT</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+
+<span class="c">!                         ---------------------------</span>
+<span class="c">!                         Parse ExtData Resource File</span>
+<span class="c">!                         ---------------------------</span>
+<span class="w">   </span><span class="n">self</span><span class="p">%</span><span class="n">ExtDataState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_StateCreate</span><span class="p">(</span><span class="n">Name</span><span class="o">=</span><span class="s2">&quot;ExtDataNameSpace&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">   </span><span class="n">num_primary</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">   </span><span class="n">num_derived</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">   </span><span class="n">primaryitemcount</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">   </span><span class="n">deriveditemcount</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">   </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">itemnames</span><span class="p">)</span>
+<span class="w">      </span><span class="n">item_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config_yaml</span><span class="p">%</span><span class="n">get_item_type</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">itemnames</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="n">found_in_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">item_type</span><span class="o">/=</span><span class="w"> </span><span class="n">ExtData_not_found</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">found_in_config</span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">unsatisfied_imports</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">itemnames</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">derived_type</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">self</span><span class="p">%</span><span class="n">derived</span><span class="p">%</span><span class="n">import_names</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">itemnames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+<span class="w">         </span><span class="n">deriveditemcount</span><span class="o">=</span><span class="n">deriveditemcount</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">item_type</span><span class="o">==</span><span class="n">Primary_Type_Scalar</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">item_type</span><span class="o">==</span><span class="n">Primary_Type_Vector_comp1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">import_names</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">itemnames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+<span class="w">         </span><span class="n">primaryitemcount</span><span class="o">=</span><span class="n">primaryitemcount</span><span class="o">+</span><span class="n">config_yaml</span><span class="p">%</span><span class="n">count_rules_for_item</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">itemnames</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">   enddo</span>
+<span class="k">   </span><span class="n">extra_variables_needed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config_yaml</span><span class="p">%</span><span class="n">get_extra_derived_items</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">import_names</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">derived</span><span class="p">%</span><span class="n">import_names</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">   </span><span class="n">siter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">extra_variables_needed</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">   </span><span class="k">do while</span><span class="p">(</span><span class="n">siter</span><span class="o">/=</span><span class="n">extra_variables_needed</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">      </span><span class="n">extra_var</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">siter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">      </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">extra_var</span><span class="p">,</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">primary_var_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">extra_var</span><span class="p">(:</span><span class="n">idx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">derived_var_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">extra_var</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">string_in_stringVector</span><span class="p">(</span><span class="n">primary_var_name</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">import_names</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">create_holding_field</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">ExtDataState</span><span class="p">,</span><span class="n">primary_var_name</span><span class="p">,</span><span class="n">derived_var_name</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">import_names</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">primary_var_name</span><span class="p">)</span>
+<span class="w">         </span><span class="n">primaryItemCount</span><span class="o">=</span><span class="n">primaryItemCount</span><span class="o">+</span><span class="n">config_yaml</span><span class="p">%</span><span class="n">count_rules_for_item</span><span class="p">(</span><span class="n">primary_var_name</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      call </span><span class="n">siter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">   </span><span class="k">enddo</span>
+<span class="k">   call </span><span class="n">ESMF_VMBarrier</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">unsatisfied_imports</span><span class="p">%</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">      do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">unsatisfied_imports</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">         </span><span class="k">call </span><span class="n">extdata_lgr</span><span class="p">%</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;In ExtData resource file, could not find: &quot;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">unsatisfied_imports</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+<span class="w">      </span><span class="k">enddo</span>
+<span class="k">      </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s2">&quot;Unsatisfied imports in ExtData&quot;</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end if</span>
+
+<span class="k">   allocate</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">PrimaryItemCount</span><span class="p">),</span><span class="err">__</span><span class="n">STAT__</span><span class="p">)</span>
+<span class="w">   </span><span class="k">allocate</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">derived</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">DerivedItemCount</span><span class="p">),</span><span class="err">__</span><span class="n">STAT__</span><span class="p">)</span>
+<span class="w">   </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">nitems</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PrimaryItemCount</span>
+<span class="w">   </span><span class="n">self</span><span class="p">%</span><span class="n">derived</span><span class="p">%</span><span class="n">nitems</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DerivedItemCount</span>
+
+<span class="w">   </span><span class="n">num_primary</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">   </span><span class="n">num_derived</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">   </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">import_names</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">      </span><span class="n">current_base_name</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">import_names</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">      </span><span class="n">num_rules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config_yaml</span><span class="p">%</span><span class="n">count_rules_for_item</span><span class="p">(</span><span class="n">current_base_name</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">num_rules</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;no rule found for &quot;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">current_base_name</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">number_of_rules</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">num_rules</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">export_id_start</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">num_primary</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">num_rules</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">time_ranges</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">time_ranges</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">time_ranges</span><span class="p">(</span><span class="n">num_rules</span><span class="p">))</span>
+<span class="w">         </span><span class="n">time_ranges</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config_yaml</span><span class="p">%</span><span class="n">get_time_range</span><span class="p">(</span><span class="n">current_base_name</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">num_rules</span>
+<span class="w">            </span><span class="n">num_primary</span><span class="o">=</span><span class="n">num_primary</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">            </span><span class="k">write</span><span class="p">(</span><span class="n">sidx</span><span class="p">,</span><span class="s1">&#39;(I1)&#39;</span><span class="p">)</span><span class="n">j</span>
+<span class="w">            </span><span class="k">call </span><span class="n">config_yaml</span><span class="p">%</span><span class="n">fillin_primary</span><span class="p">(</span><span class="n">current_base_name</span><span class="o">//</span><span class="s2">&quot;+&quot;</span><span class="o">//</span><span class="n">sidx</span><span class="p">,</span><span class="n">current_base_name</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">num_primary</span><span class="p">),</span><span class="nb">time</span><span class="p">,</span><span class="n">clock</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">status</span><span class="o">==</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ExtData multi-rule problem with BASE NAME &quot;</span><span class="o">//</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">current_base_name</span><span class="p">))</span>
+<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">num_primary</span><span class="p">)%</span><span class="n">start_end_time</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="w">            </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">num_primary</span><span class="p">)%</span><span class="n">start_end_time</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">time_ranges</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+<span class="w">            </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">num_primary</span><span class="p">)%</span><span class="n">start_end_time</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="n">time_ranges</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">         </span><span class="k">enddo</span>
+<span class="k">      else</span>
+<span class="k">         </span><span class="n">num_primary</span><span class="o">=</span><span class="n">num_primary</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">         </span><span class="k">call </span><span class="n">config_yaml</span><span class="p">%</span><span class="n">fillin_primary</span><span class="p">(</span><span class="n">current_base_name</span><span class="p">,</span><span class="n">current_base_name</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">num_primary</span><span class="p">),</span><span class="nb">time</span><span class="p">,</span><span class="n">clock</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">status</span><span class="o">==</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ExtData single-rule problem with BASE NAME &quot;</span><span class="o">//</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">current_base_name</span><span class="p">))</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">Export</span><span class="p">,</span><span class="n">current_base_name</span><span class="p">,</span><span class="n">state_item_type</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">state_item_type</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">ESMF_STATEITEM_NOTFOUND</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">Export</span><span class="p">,</span><span class="n">current_base_name</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_StateAdd</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">ExtDataState</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">item_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config_yaml</span><span class="p">%</span><span class="n">get_item_type</span><span class="p">(</span><span class="n">current_base_name</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Primary_Type_Vector_comp1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">Export</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">num_primary</span><span class="p">)%</span><span class="n">vcomp2</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_StateAdd</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">ExtDataState</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end if</span>
+<span class="k">   enddo</span>
+<span class="k">   do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">derived</span><span class="p">%</span><span class="n">import_names</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">      </span><span class="n">current_base_name</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">derived</span><span class="p">%</span><span class="n">import_names</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">      </span><span class="n">num_derived</span><span class="o">=</span><span class="n">num_derived</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">      </span><span class="k">call </span><span class="n">config_yaml</span><span class="p">%</span><span class="n">fillin_derived</span><span class="p">(</span><span class="n">current_base_name</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">derived</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">num_derived</span><span class="p">),</span><span class="nb">time</span><span class="p">,</span><span class="n">clock</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">Export</span><span class="p">,</span><span class="n">current_base_name</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_StateAdd</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">ExtDataState</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">   </span><span class="k">enddo</span>
+
+<span class="k">   </span><span class="n">PrimaryLoop</span><span class="p">:</span><span class="w"> </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">import_names</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+
+<span class="w">      </span><span class="n">current_base_name</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">import_names</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">      </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">get_item_index</span><span class="p">(</span><span class="n">current_base_name</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">item</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">item</span><span class="p">%</span><span class="n">pfioCOllection_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_DataAddCollection</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">file_template</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">create_primary_field</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">ExtDataState</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end do </span><span class="n">PrimaryLoop</span>
+
+<span class="c">! Check if we have any files that would need to be vertically interpolated</span>
+<span class="c">! if so ensure that PS is done first</span>
+<span class="c">!!  check for PS</span>
+<span class="w">   </span><span class="c">!idx = -1</span>
+<span class="w">   </span><span class="c">!if (any(self%primary%item%do_VertInterp .eqv. .true.)) then</span>
+<span class="w">      </span><span class="c">!do i=1,size(self%primary%item)</span>
+<span class="w">         </span><span class="c">!if (self%primary%item(i)%name==&#39;PS&#39;) then</span>
+<span class="w">            </span><span class="c">!idx =i</span>
+<span class="w">         </span><span class="c">!end if</span>
+<span class="w">      </span><span class="c">!enddo</span>
+<span class="w">      </span><span class="c">!_ASSERT(idx/=-1,&#39;Surface pressure not present for vertical interpolation&#39;)</span>
+<span class="w">      </span><span class="c">!self%primary%item(idx)%units = ESMF_UtilStringUppercase(self%primary%item(idx)%units,rc=status)</span>
+<span class="w">      </span><span class="c">!_ASSERT(trim(self%primary%item(idx)%units)==&quot;PA&quot;,&#39;PS must be in units of PA&#39;)</span>
+<span class="w">   </span><span class="c">!end if</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">extdata_lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;*******************************************************&#39;</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">extdata_lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;** Variables to be provided by the ExtData Component **&#39;</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">extdata_lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;*******************************************************&#39;</span><span class="p">)</span>
+<span class="w">   </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ItemCount</span>
+<span class="w">      </span><span class="k">call </span><span class="n">extdata_lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;---- %i0.5~: %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">ItemNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+<span class="w">   </span><span class="k">end do</span>
+<span class="k">   call </span><span class="n">extdata_lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;*******************************************************\n&#39;</span><span class="p">)</span>
+
+<span class="c">! Clean up</span>
+<span class="c">! --------</span>
+<span class="w">   </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ItemTypes</span><span class="p">)</span>
+<span class="w">   </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ItemNames</span><span class="p">)</span>
+
+<span class="c">!  Set has run to false to we know when we first go to run method it is first call</span>
+<span class="w">   </span><span class="n">hasRun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;Initialize&quot;</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;TOTAL&quot;</span><span class="p">)</span>
+<span class="c">!  All done</span>
+<span class="c">!  --------</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">extdata_lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;ExtData Initialize_(): End&#39;</span><span class="p">)</span>
+
+<span class="w">   </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">END SUBROUTINE </span><span class="n">Initialize_</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-08-16T15:27:52.832604             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

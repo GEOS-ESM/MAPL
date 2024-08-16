@@ -1,0 +1,1067 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_file_bracket &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_file_bracket
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">210 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataClimFileHandler.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdataclimfilehandler.f90.html'>ExtDataClimFileHandler.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdataclimfilehandler.html'>MAPL_ExtdataClimFileHandler</a></li>
+            <li class="breadcrumb-item active" aria-current="page">get_file_bracket</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_file_bracket.html#src">get_file_bracket</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine get_file_bracket(this, input_time, source_time, bracket, fail_on_missing_file, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/extdataclimfilehandler.html'>ExtDataClimFileHandler</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~4581"></span>
+              class(<a href='../type/extdataclimfilehandler.html'>ExtDataClimFileHandler</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-input_time~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>input_time</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-source_time~3"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>source_time</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bracket~2"></span>
+              type(<a href='../type/extdatabracket.html'>ExtDataBracket</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bracket</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fail_on_missing_file~3"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fail_on_missing_file</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1931"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_file_bracket~~CallsGraph Pages: 1 -->
+<svg id="procget_file_bracketCallsGraph" width="641pt" height="374pt"
+ viewBox="0.00 0.00 641.00 374.15" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_file_bracket~~CallsGraph" class="graph" transform="scale(0.54 0.54) rotate(0) translate(4 687.09)">
+<title>proc~~get_file_bracket~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-687.09 1180,-687.09 1180,4 -4,4"/>
+<!-- proc~get_file_bracket -->
+<g id="proc~~get_file_bracket~~CallsGraph_node1" class="node">
+<title>proc~get_file_bracket</title>
+<polygon fill="none" stroke="black" points="234,-342 0,-342 0,-318 234,-318 234,-342"/>
+<text text-anchor="middle" x="117" y="-327.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataClimFileHandler%get_file_bracket</text>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~get_file_bracket~~CallsGraph_node2" class="node">
+<title>ESMF_TimeGet</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html" xlink:title="ESMF_TimeGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="976,-664 885,-664 885,-640 976,-640 976,-664"/>
+<text text-anchor="middle" x="930.5" y="-649.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file_bracket&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge1" class="edge">
+<title>proc~get_file_bracket&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#ff0000" d="M121.77,-342.06C134.99,-382.31 183.2,-513.25 270,-579 453.55,-718.03 752.52,-684.46 874.78,-663.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="875.44,-666.49 884.66,-661.29 874.2,-659.6 875.44,-666.49"/>
+</g>
+<!-- ESMF_TimeIntervalSet -->
+<g id="proc~~get_file_bracket~~CallsGraph_node3" class="node">
+<title>ESMF_TimeIntervalSet</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="463,-66 333,-66 333,-42 463,-42 463,-66"/>
+<text text-anchor="middle" x="398" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file_bracket&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge2" class="edge">
+<title>proc~get_file_bracket&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#ff0000" d="M121.49,-317.94C133.96,-277.09 180.48,-143 270,-80 285.45,-69.13 304.41,-62.59 322.93,-58.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="323.66,-62.14 332.85,-56.87 322.38,-55.26 323.66,-62.14"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~get_file_bracket~~CallsGraph_node4" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node4"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="729.5,-420 650.5,-420 650.5,-396 729.5,-396 729.5,-420"/>
+<text text-anchor="middle" x="690" y="-405.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file_bracket&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge3" class="edge">
+<title>proc~get_file_bracket&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M140.91,-342.08C170,-356.74 222.18,-380.75 270,-391 401.49,-419.18 561.36,-415.54 640.2,-411.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="640.54,-414.82 650.32,-410.77 640.14,-407.83 640.54,-414.82"/>
+</g>
+<!-- proc~get_file -->
+<g id="proc~~get_file_bracket~~CallsGraph_node5" class="node">
+<title>proc~get_file</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node5"><a xlink:href="../proc/get_file.html" xlink:title="ExtDataClimFileHandler%get_file">
+<polygon fill="#d9534f" stroke="#d9534f" points="492,-518 304,-518 304,-494 492,-494 492,-518"/>
+<text text-anchor="middle" x="398" y="-503.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataClimFileHandler%get_file</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file_bracket&#45;&gt;proc~get_file -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge4" class="edge">
+<title>proc~get_file_bracket&#45;&gt;proc~get_file</title>
+<path fill="none" stroke="#ff0000" d="M137.18,-342.1C185.46,-372.55 312.21,-452.51 368.9,-488.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="367.36,-491.44 377.69,-493.82 371.1,-485.52 367.36,-491.44"/>
+</g>
+<!-- proc~get_time_on_file -->
+<g id="proc~~get_file_bracket~~CallsGraph_node6" class="node">
+<title>proc~get_time_on_file</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node6"><a xlink:href="../proc/get_time_on_file.html" xlink:title="ExtDataAbstractFileHandler%get_time_on_file">
+<polygon fill="#d9534f" stroke="#d9534f" points="526,-284 270,-284 270,-260 526,-260 526,-284"/>
+<text text-anchor="middle" x="398" y="-269.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataAbstractFileHandler%get_time_on_file</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file_bracket&#45;&gt;proc~get_time_on_file -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge5" class="edge">
+<title>proc~get_file_bracket&#45;&gt;proc~get_time_on_file</title>
+<path fill="none" stroke="#ff0000" d="M175.81,-317.98C220.42,-308.71 282.24,-295.86 329.18,-286.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="330.19,-289.46 339.27,-284 328.76,-282.61 330.19,-289.46"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~get_file_bracket~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="971.5,-342 889.5,-342 889.5,-318 971.5,-318 971.5,-342"/>
+<text text-anchor="middle" x="930.5" y="-327.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file_bracket&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge6" class="edge">
+<title>proc~get_file_bracket&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M234.27,-330C413.94,-330 751.64,-330 879.09,-330"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="879.33,-333.5 889.33,-330 879.33,-326.5 879.33,-333.5"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~get_file_bracket~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="968.5,-283 892.5,-283 892.5,-259 968.5,-259 968.5,-283"/>
+<text text-anchor="middle" x="930.5" y="-268.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file_bracket&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge7" class="edge">
+<title>proc~get_file_bracket&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M138.74,-317.77C200.46,-282.24 389.42,-179.73 562,-151 674.23,-132.31 713.7,-105.54 818,-151 864.38,-171.21 900.14,-221.28 917.65,-249.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="914.77,-251.95 922.87,-258.78 920.79,-248.39 914.77,-251.95"/>
+</g>
+<!-- proc~set_node~2 -->
+<g id="proc~~get_file_bracket~~CallsGraph_node9" class="node">
+<title>proc~set_node~2</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node9"><a xlink:href="../proc/set_node~2.html" xlink:title="ExtDataBracket%set_node">
+<polygon fill="#d9534f" stroke="#d9534f" points="475,-382 321,-382 321,-358 475,-358 475,-382"/>
+<text text-anchor="middle" x="398" y="-367.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataBracket%set_node</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file_bracket&#45;&gt;proc~set_node~2 -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge8" class="edge">
+<title>proc~get_file_bracket&#45;&gt;proc~set_node~2</title>
+<path fill="none" stroke="#ff0000" d="M201.71,-342C236.19,-346.94 276.11,-352.67 310.84,-357.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="310.56,-361.14 320.96,-359.1 311.56,-354.21 310.56,-361.14"/>
+</g>
+<!-- proc~swap_node_fields -->
+<g id="proc~~get_file_bracket~~CallsGraph_node10" class="node">
+<title>proc~swap_node_fields</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node10"><a xlink:href="../proc/swap_node_fields.html" xlink:title="ExtDataBracket%swap_node_fields">
+<polygon fill="#d9534f" stroke="#d9534f" points="789.5,-104 590.5,-104 590.5,-80 789.5,-80 789.5,-104"/>
+<text text-anchor="middle" x="690" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataBracket%swap_node_fields</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file_bracket&#45;&gt;proc~swap_node_fields -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge9" class="edge">
+<title>proc~get_file_bracket&#45;&gt;proc~swap_node_fields</title>
+<path fill="none" stroke="#ff0000" d="M122.38,-317.75C136.65,-279.91 185.79,-164.59 270,-118 321.35,-89.59 473.93,-86.63 580.04,-88.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="580.1,-91.85 590.16,-88.53 580.22,-84.85 580.1,-91.85"/>
+</g>
+<!-- proc~swap_year -->
+<g id="proc~~get_file_bracket~~CallsGraph_node11" class="node">
+<title>proc~swap_year</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node11"><a xlink:href="../proc/swap_year.html" xlink:title="swap_year">
+<polygon fill="#d9534f" stroke="#d9534f" points="724.5,-622 655.5,-622 655.5,-598 724.5,-598 724.5,-622"/>
+<text text-anchor="middle" x="690" y="-607.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">swap_year</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file_bracket&#45;&gt;proc~swap_year -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge10" class="edge">
+<title>proc~get_file_bracket&#45;&gt;proc~swap_year</title>
+<path fill="none" stroke="#ff0000" d="M123.52,-342.12C140.12,-377.08 193.21,-478.7 270,-527 390,-602.47 564.43,-611.51 645.08,-611.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="645.39,-614.75 655.36,-611.16 645.33,-607.75 645.39,-614.75"/>
+</g>
+<!-- proc~time_in_bracket -->
+<g id="proc~~get_file_bracket~~CallsGraph_node12" class="node">
+<title>proc~time_in_bracket</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node12"><a xlink:href="../proc/time_in_bracket.html" xlink:title="ExtDataBracket%time_in_bracket">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="493,-24 303,-24 303,0 493,0 493,-24"/>
+<text text-anchor="middle" x="398" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataBracket%time_in_bracket</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file_bracket&#45;&gt;proc~time_in_bracket -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge11" class="edge">
+<title>proc~get_file_bracket&#45;&gt;proc~time_in_bracket</title>
+<path fill="none" stroke="#ff0000" d="M120.19,-317.87C129.15,-271.98 167.56,-107.82 270,-33 277.08,-27.83 284.97,-23.75 293.26,-20.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="294.44,-23.84 302.77,-17.3 292.18,-17.22 294.44,-23.84"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~get_file_bracket~~CallsGraph_node22" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node22"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="997.5,-402 863.5,-402 863.5,-378 997.5,-378 997.5,-402"/>
+<text text-anchor="middle" x="930.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge12" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M729.58,-405.09C762.96,-402.57 812.19,-398.85 853.45,-395.74"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="853.78,-399.23 863.48,-394.98 853.25,-392.24 853.78,-399.23"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~get_file_bracket~~CallsGraph_node23" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node23"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1004.5,-444 856.5,-444 856.5,-420 1004.5,-420 1004.5,-444"/>
+<text text-anchor="middle" x="930.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M729.58,-411.88C761.06,-415.05 806.66,-419.64 846.36,-423.63"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="846.01,-427.12 856.31,-424.64 846.71,-420.15 846.01,-427.12"/>
+</g>
+<!-- proc~get_file&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge14" class="edge">
+<title>proc~get_file&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#5cff00" d="M409.75,-518.16C433.88,-544.46 495.47,-606.29 562,-631 667.28,-670.1 801.19,-665.42 874.82,-658.63"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="875.18,-662.12 884.8,-657.67 874.51,-655.15 875.18,-662.12"/>
+</g>
+<!-- proc~get_file&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge16" class="edge">
+<title>proc~get_file&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#5cff00" d="M422.14,-493.88C453.19,-478.06 510.42,-450.46 562,-434 587.42,-425.89 616.54,-419.71 640.47,-415.42"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="641.13,-418.86 650.38,-413.7 639.93,-411.96 641.13,-418.86"/>
+</g>
+<!-- proc~get_file&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge18" class="edge">
+<title>proc~get_file&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#5cff00" d="M492.15,-501.33C607.71,-494.75 792.69,-481.36 818,-462 853.2,-435.07 824.39,-401.98 854,-369 862.32,-359.74 873.35,-352.34 884.41,-346.59"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="886.16,-349.64 893.65,-342.15 883.12,-343.33 886.16,-349.64"/>
+</g>
+<!-- proc~get_file&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge19" class="edge">
+<title>proc~get_file&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#5cff00" d="M437.84,-493.92C470.65,-484.1 519.02,-470.53 562,-462 618.26,-450.83 774.27,-466.12 818,-429 860.45,-392.97 818.22,-351.66 854,-309 861.81,-299.69 872.47,-292.43 883.31,-286.86"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="884.85,-290 892.41,-282.58 881.87,-283.67 884.85,-290"/>
+</g>
+<!-- proc~get_file&#45;&gt;proc~swap_year -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge20" class="edge">
+<title>proc~get_file&#45;&gt;proc~swap_year</title>
+<path fill="none" stroke="#5cff00" d="M429.26,-518.02C455.47,-528.85 494.09,-545.83 526,-564 542.93,-573.64 543.95,-581.68 562,-589 588.48,-599.74 620.2,-604.99 645.31,-607.56"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="645,-611.05 655.28,-608.47 645.64,-604.07 645,-611.05"/>
+</g>
+<!-- ESMF_TimeIntervalGet -->
+<g id="proc~~get_file_bracket~~CallsGraph_node15" class="node">
+<title>ESMF_TimeIntervalGet</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node15"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalget.html" xlink:title="ESMF_TimeIntervalGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="756,-538 624,-538 624,-514 756,-514 756,-538"/>
+<text text-anchor="middle" x="690" y="-523.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalGet</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file&#45;&gt;ESMF_TimeIntervalGet -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge15" class="edge">
+<title>proc~get_file&#45;&gt;ESMF_TimeIntervalGet</title>
+<path fill="none" stroke="#5cff00" d="M492.35,-512.44C531.55,-515.14 576.55,-518.24 613.59,-520.8"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="613.6,-524.31 623.82,-521.5 614.08,-517.32 613.6,-524.31"/>
+</g>
+<!-- proc~fill_grads_template -->
+<g id="proc~~get_file_bracket~~CallsGraph_node18" class="node">
+<title>proc~fill_grads_template</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node18"><a xlink:href="../proc/fill_grads_template.html" xlink:title="fill_grads_template">
+<polygon fill="#d9534f" stroke="#d9534f" points="747,-580 633,-580 633,-556 747,-556 747,-580"/>
+<text text-anchor="middle" x="690" y="-565.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fill_grads_template</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file&#45;&gt;proc~fill_grads_template -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge17" class="edge">
+<title>proc~get_file&#45;&gt;proc~fill_grads_template</title>
+<path fill="none" stroke="#5cff00" d="M442.7,-518.04C475.4,-526.79 521.29,-538.53 562,-547 581.66,-551.09 603.16,-554.9 622.79,-558.11"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="622.43,-561.6 632.86,-559.74 623.55,-554.69 622.43,-561.6"/>
+</g>
+<!-- proc~get_time_on_file&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge21" class="edge">
+<title>proc~get_time_on_file&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff2e" d="M424.74,-284.07C476.87,-308.52 594.99,-363.91 654.03,-391.6"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="652.78,-394.88 663.32,-395.96 655.75,-388.54 652.78,-394.88"/>
+</g>
+<!-- proc~get_time_on_file&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge24" class="edge">
+<title>proc~get_time_on_file&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff2e" d="M519.63,-284.01C603.39,-292.52 717.54,-304.42 818,-316 838.04,-318.31 860.09,-321.04 879.25,-323.47"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="878.91,-326.96 889.27,-324.75 879.79,-320.01 878.91,-326.96"/>
+</g>
+<!-- proc~get_time_on_file&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge25" class="edge">
+<title>proc~get_time_on_file&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff2e" d="M526.07,-271.76C640.62,-271.54 802.89,-271.24 882.18,-271.09"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="882.36,-274.59 892.35,-271.07 882.34,-267.59 882.36,-274.59"/>
+</g>
+<!-- proc~get_time_info -->
+<g id="proc~~get_file_bracket~~CallsGraph_node20" class="node">
+<title>proc~get_time_info</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node20"><a xlink:href="../proc/get_time_info.html" xlink:title="FileMetadataUtils%get_time_info">
+<polygon fill="#d9534f" stroke="#d9534f" points="782.5,-226 597.5,-226 597.5,-202 782.5,-202 782.5,-226"/>
+<text text-anchor="middle" x="690" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtils%get_time_info</text>
+</a>
+</g>
+</g>
+<!-- proc~get_time_on_file&#45;&gt;proc~get_time_info -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge22" class="edge">
+<title>proc~get_time_on_file&#45;&gt;proc~get_time_info</title>
+<path fill="none" stroke="#00ff2e" d="M459.09,-259.98C505.65,-250.67 570.25,-237.75 619.12,-227.98"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="619.87,-231.4 628.99,-226 618.5,-224.53 619.87,-231.4"/>
+</g>
+<!-- proc~make_metadata -->
+<g id="proc~~get_file_bracket~~CallsGraph_node21" class="node">
+<title>proc~make_metadata</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node21"><a xlink:href="../proc/make_metadata.html" xlink:title="ExtDataAbstractFileHandler%make_metadata">
+<polygon fill="#d9534f" stroke="#d9534f" points="818,-184 562,-184 562,-160 818,-160 818,-184"/>
+<text text-anchor="middle" x="690" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataAbstractFileHandler%make_metadata</text>
+</a>
+</g>
+</g>
+<!-- proc~get_time_on_file&#45;&gt;proc~make_metadata -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge23" class="edge">
+<title>proc~get_time_on_file&#45;&gt;proc~make_metadata</title>
+<path fill="none" stroke="#00ff2e" d="M419.3,-259.78C449.38,-242.23 508.05,-210.14 562,-193 569.96,-190.47 578.3,-188.23 586.75,-186.25"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="587.69,-189.63 596.69,-184.05 586.17,-182.8 587.69,-189.63"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~get_file_bracket~~CallsGraph_node19" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node19"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1167,-342 1052,-342 1052,-318 1167,-318 1167,-342"/>
+<text text-anchor="middle" x="1109.5" y="-327.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffb9" d="M971.66,-330C992.28,-330 1017.94,-330 1041.45,-330"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="1041.72,-333.5 1051.72,-330 1041.72,-326.5 1041.72,-333.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~get_file_bracket~~CallsGraph_node24" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node24"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1176,-292 1043,-292 1043,-268 1176,-268 1176,-292"/>
+<text text-anchor="middle" x="1109.5" y="-277.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffb9" d="M971.66,-318.65C996.65,-311.6 1029.04,-302.45 1056.04,-294.82"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="1057.04,-298.17 1065.71,-292.09 1055.14,-291.44 1057.04,-298.17"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00b9ff" d="M968.61,-272.89C987.24,-273.83 1010.53,-275.02 1032.73,-276.15"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="1032.67,-279.65 1042.83,-276.66 1033.02,-272.66 1032.67,-279.65"/>
+</g>
+<!-- proc~set_node~2&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge29" class="edge">
+<title>proc~set_node~2&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#002eff" d="M475.19,-379.98C527.35,-386.82 594.97,-395.68 640.06,-401.59"/>
+<polygon fill="#002eff" stroke="#002eff" points="639.8,-405.08 650.17,-402.91 640.71,-398.14 639.8,-405.08"/>
+</g>
+<!-- proc~set_node~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge30" class="edge">
+<title>proc~set_node~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#002eff" d="M475.19,-366.72C559.24,-362.76 698.45,-355.2 818,-344 838.09,-342.12 860.14,-339.47 879.29,-336.99"/>
+<polygon fill="#002eff" stroke="#002eff" points="879.85,-340.44 889.31,-335.67 878.94,-333.5 879.85,-340.44"/>
+</g>
+<!-- proc~swap_node_fields&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge33" class="edge">
+<title>proc~swap_node_fields&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#5c00ff" d="M741.17,-104.06C767.61,-112.89 798.51,-127.53 818,-151 859.32,-200.76 813.47,-241.6 854,-292 861.25,-301.02 871.21,-308.09 881.51,-313.56"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="880.06,-316.75 890.59,-317.95 883.11,-310.45 880.06,-316.75"/>
+</g>
+<!-- proc~swap_node_fields&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge34" class="edge">
+<title>proc~swap_node_fields&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#5c00ff" d="M788.28,-104.03C798.77,-107.59 808.91,-112.16 818,-118 868.86,-150.7 904.2,-215.42 920.06,-249.25"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="917.03,-251.03 924.36,-258.68 923.4,-248.13 917.03,-251.03"/>
+</g>
+<!-- ESMF_FieldIsCreated -->
+<g id="proc~~get_file_bracket~~CallsGraph_node14" class="node">
+<title>ESMF_FieldIsCreated</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node14"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_fieldiscreated.html" xlink:title="ESMF_FieldIsCreated">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="991,-125 870,-125 870,-101 991,-101 991,-125"/>
+<text text-anchor="middle" x="930.5" y="-110.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_FieldIsCreated</text>
+</a>
+</g>
+</g>
+<!-- proc~swap_node_fields&#45;&gt;ESMF_FieldIsCreated -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge31" class="edge">
+<title>proc~swap_node_fields&#45;&gt;ESMF_FieldIsCreated</title>
+<path fill="none" stroke="#5c00ff" d="M789.73,-100.69C813.18,-102.76 837.73,-104.92 859.59,-106.84"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="859.49,-110.35 869.76,-107.74 860.1,-103.38 859.49,-110.35"/>
+</g>
+<!-- interface~assign_fptr -->
+<g id="proc~~get_file_bracket~~CallsGraph_node17" class="node">
+<title>interface~assign_fptr</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node17"><a xlink:href="../interface/assign_fptr.html" xlink:title="assign_fptr">
+<polygon fill="#a7506f" stroke="#a7506f" points="965.5,-83 895.5,-83 895.5,-59 965.5,-59 965.5,-83"/>
+<text text-anchor="middle" x="930.5" y="-68.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assign_fptr</text>
+</a>
+</g>
+</g>
+<!-- proc~swap_node_fields&#45;&gt;interface~assign_fptr -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge32" class="edge">
+<title>proc~swap_node_fields&#45;&gt;interface~assign_fptr</title>
+<path fill="none" stroke="#5c00ff" d="M789.73,-83.31C822.88,-80.39 858.21,-77.28 885.05,-74.91"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="885.61,-78.38 895.27,-74.01 885,-71.4 885.61,-78.38"/>
+</g>
+<!-- proc~swap_year&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge36" class="edge">
+<title>proc~swap_year&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#e700ff" d="M724.67,-615.93C763.66,-622.8 828.47,-634.21 874.75,-642.36"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="874.16,-645.81 884.62,-644.1 875.37,-638.91 874.16,-645.81"/>
+</g>
+<!-- proc~swap_year&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge38" class="edge">
+<title>proc~swap_year&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#e700ff" d="M724.68,-614.3C753.46,-615.95 793.92,-613.12 818,-589 888,-518.88 795.78,-449.17 854,-369 860.84,-359.58 870.63,-352.27 880.91,-346.65"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="882.6,-349.72 890.01,-342.14 879.49,-343.45 882.6,-349.72"/>
+</g>
+<!-- proc~swap_year&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge39" class="edge">
+<title>proc~swap_year&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#e700ff" d="M724.6,-614.49C753.53,-616.3 794.26,-613.61 818,-589 905.11,-498.7 781.49,-411.39 854,-309 861.16,-298.9 871.8,-291.32 882.85,-285.71"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="884.52,-288.79 892.16,-281.45 881.61,-282.43 884.52,-288.79"/>
+</g>
+<!-- ESMF_CalendarIsLeapYear -->
+<g id="proc~~get_file_bracket~~CallsGraph_node13" class="node">
+<title>ESMF_CalendarIsLeapYear</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node13"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_calendarisleapyear.html" xlink:title="ESMF_CalendarIsLeapYear">
+<polygon fill="#a7506f" stroke="#a7506f" points="1007,-622 854,-622 854,-598 1007,-598 1007,-622"/>
+<text text-anchor="middle" x="930.5" y="-607.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CalendarIsLeapYear</text>
+</a>
+</g>
+</g>
+<!-- proc~swap_year&#45;&gt;ESMF_CalendarIsLeapYear -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge35" class="edge">
+<title>proc~swap_year&#45;&gt;ESMF_CalendarIsLeapYear</title>
+<path fill="none" stroke="#e700ff" d="M724.67,-610C755.51,-610 802.49,-610 843.69,-610"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="843.75,-613.5 853.75,-610 843.75,-606.5 843.75,-613.5"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~get_file_bracket~~CallsGraph_node16" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_proc~~get_file_bracket~~CallsGraph_node16"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="975.5,-580 885.5,-580 885.5,-556 975.5,-556 975.5,-580"/>
+<text text-anchor="middle" x="930.5" y="-565.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~swap_year&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~get_file_bracket~~CallsGraph_edge37" class="edge">
+<title>proc~swap_year&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#e700ff" d="M724.73,-604.63C750.34,-600.51 786.42,-594.58 818,-589 836.74,-585.69 857.21,-581.88 875.45,-578.43"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="876.15,-581.86 885.32,-576.56 874.84,-574.98 876.15,-581.86"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_file_bracketCallsGraph = svgPanZoom('#procget_file_bracketCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">get_file_bracket</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">input_time</span><span class="p">,</span><span class="w"> </span><span class="n">source_time</span><span class="p">,</span><span class="w"> </span><span class="n">bracket</span><span class="p">,</span><span class="w"> </span><span class="n">fail_on_missing_file</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtdataClimFileHandler</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">input_time</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source_time</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataBracket</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bracket</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fail_on_missing_file</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
+<span class="nb">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_index</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXPATHLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">current_file</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">zero</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">target_time</span><span class="p">,</span><span class="w"> </span><span class="n">clim_target_time</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">target_year</span><span class="p">,</span><span class="w"> </span><span class="n">original_year</span><span class="p">,</span><span class="n">clim_shift</span><span class="p">,</span><span class="n">valid_years</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source_years</span><span class="p">(:)</span>
+
+
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">fail_on_missing_file</span><span class="p">,</span><span class="s2">&quot;Failure on missing file not allowed when rule is climatology&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bracket</span><span class="p">%</span><span class="n">time_in_bracket</span><span class="p">(</span><span class="n">input_time</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">target_time</span><span class="o">=</span><span class="n">input_time</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Valid time is not defined so can not do any extrapolation or climatology&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">yy</span><span class="o">=</span><span class="n">valid_years</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">yy</span><span class="o">=</span><span class="n">valid_years</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">source_time</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         allocate</span><span class="p">(</span><span class="n">source_years</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">source_time</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">yy</span><span class="o">=</span><span class="n">source_years</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">source_time</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">yy</span><span class="o">=</span><span class="n">source_years</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">source_time</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="s1">&#39;source time outside valid range&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">source_time</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w">  </span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="s1">&#39;source time outside valid range&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">source_time</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w">  </span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="s1">&#39;source time outside valid range&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">source_time</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="s1">&#39;source time outside valid range&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! shift target year to request source time if specified</span>
+<span class="w">      </span><span class="c">! is TS1 &lt; TM &lt; TS2, if not then extrapolate beyond that</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">target_time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">target_year</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">original_year</span><span class="o">=</span><span class="n">target_year</span>
+
+<span class="w">      </span><span class="c">!if (size(source_years)&gt;0) then</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">source_years</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">input_time</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">source_time</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">target_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">source_years</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">clim_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">target_year</span>
+<span class="w">         </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">input_time</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">source_time</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">target_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">source_years</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">clim_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">target_year</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">         call </span><span class="n">swap_year</span><span class="p">(</span><span class="n">target_time</span><span class="p">,</span><span class="n">target_year</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">input_time</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">target_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">valid_years</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">clim_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">target_year</span>
+<span class="w">            </span><span class="k">call </span><span class="n">swap_year</span><span class="p">(</span><span class="n">target_time</span><span class="p">,</span><span class="n">target_year</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">input_time</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">target_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">valid_years</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">clim_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">target_year</span>
+<span class="w">            </span><span class="k">call </span><span class="n">swap_year</span><span class="p">(</span><span class="n">target_time</span><span class="p">,</span><span class="n">target_year</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end if</span>
+<span class="k">      </span><span class="n">clim_target_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">target_time</span>
+
+<span class="w">      </span><span class="c">! the target time is contained in the dataset and we are not extrapolating outside of source time selection based on available data</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">clim_year</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CLIM_NULL</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">         call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">zero</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">frequency</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">zero</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">current_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_template</span>
+<span class="w">            </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">input_time</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">time_index</span><span class="o">/=</span><span class="n">time_not_found</span><span class="p">,</span><span class="s2">&quot;Time not found on file&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_node</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">current_file</span><span class="p">,</span><span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bracket</span><span class="p">%</span><span class="n">left_node</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bracket</span><span class="p">%</span><span class="n">right_node</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">bracket</span><span class="p">%</span><span class="n">swap_node_fields</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               </span><span class="n">bracket</span><span class="p">%</span><span class="n">new_file_left</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">            call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">input_time</span><span class="p">,</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">time_index</span><span class="o">/=</span><span class="n">time_not_found</span><span class="p">,</span><span class="s2">&quot;Time not found on file&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_node</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">current_file</span><span class="p">,</span><span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="n">bracket</span><span class="p">%</span><span class="n">new_file_right</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">         </span><span class="k">else</span>
+<span class="k">            call </span><span class="n">this</span><span class="p">%</span><span class="n">get_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">time_index</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">time_not_found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">this</span><span class="p">%</span><span class="n">get_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">time_index</span><span class="o">/=</span><span class="n">time_not_found</span><span class="p">,</span><span class="s2">&quot;Time not found on file&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">            call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_node</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">current_file</span><span class="p">,</span><span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bracket</span><span class="p">%</span><span class="n">left_node</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bracket</span><span class="p">%</span><span class="n">right_node</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">bracket</span><span class="p">%</span><span class="n">swap_node_fields</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               </span><span class="n">bracket</span><span class="p">%</span><span class="n">new_file_left</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">            </span><span class="k">end if</span>
+
+<span class="k">            </span><span class="n">target_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clim_target_time</span>
+<span class="w">            </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">time_index</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">time_not_found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">this</span><span class="p">%</span><span class="n">get_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">time_index</span><span class="o">/=</span><span class="n">time_not_found</span><span class="p">,</span><span class="s2">&quot;Time not found on file&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">            call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_node</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">current_file</span><span class="p">,</span><span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="n">bracket</span><span class="p">%</span><span class="n">new_file_right</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! the target time has been specified to be a climatology for the year; either we</span>
+<span class="w">      </span><span class="c">! are outside the dataset or we have requested a source time range and are on</span>
+<span class="w">      </span><span class="c">! or outside either end</span>
+<span class="w">      </span><span class="k">else</span>
+
+<span class="k">         call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">zero</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">frequency</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">zero</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">current_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_template</span>
+<span class="w">            </span><span class="n">clim_shift</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">            </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">wrap</span><span class="o">=</span><span class="n">clim_shift</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">time_index</span><span class="o">/=</span><span class="n">time_not_found</span><span class="p">,</span><span class="s2">&quot;Time not found on file&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">swap_year</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">original_year</span><span class="o">+</span><span class="n">clim_shift</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_node</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">current_file</span><span class="p">,</span><span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bracket</span><span class="p">%</span><span class="n">left_node</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bracket</span><span class="p">%</span><span class="n">right_node</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">bracket</span><span class="p">%</span><span class="n">swap_node_fields</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               </span><span class="n">bracket</span><span class="p">%</span><span class="n">new_file_left</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">            </span><span class="k">end if</span>
+
+<span class="k">            </span><span class="n">clim_shift</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">            </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">wrap</span><span class="o">=</span><span class="n">clim_shift</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">time_index</span><span class="o">/=</span><span class="n">time_not_found</span><span class="p">,</span><span class="s2">&quot;Time not found on file&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">swap_year</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">original_year</span><span class="o">+</span><span class="n">clim_shift</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_node</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">current_file</span><span class="p">,</span><span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="n">bracket</span><span class="p">%</span><span class="n">new_file_right</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+
+<span class="w">         </span><span class="k">else</span>
+
+<span class="k">            call </span><span class="n">this</span><span class="p">%</span><span class="n">get_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">time_index</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">time_not_found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">this</span><span class="p">%</span><span class="n">get_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">time_index</span><span class="o">/=</span><span class="n">time_not_found</span><span class="p">,</span><span class="s2">&quot;Time not found on file&quot;</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">target_time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">target_year</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">target_year</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">clim_year</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  call </span><span class="n">swap_year</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">original_year</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="k">else</span>
+<span class="k">                  call </span><span class="n">swap_year</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">original_year</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="k">end if</span>
+<span class="k">            else</span>
+<span class="k">               call </span><span class="n">swap_year</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">original_year</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">            if</span><span class="w"> </span><span class="p">(</span><span class="n">bracket</span><span class="p">%</span><span class="n">left_node</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bracket</span><span class="p">%</span><span class="n">right_node</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">bracket</span><span class="p">%</span><span class="n">swap_node_fields</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               </span><span class="n">bracket</span><span class="p">%</span><span class="n">new_file_left</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">            call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_node</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">current_file</span><span class="p">,</span><span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">            </span><span class="n">target_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clim_target_time</span>
+<span class="w">            </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">time_index</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">time_not_found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">this</span><span class="p">%</span><span class="n">get_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">get_time_on_file</span><span class="p">(</span><span class="n">current_file</span><span class="p">,</span><span class="n">target_time</span><span class="p">,</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">time_index</span><span class="o">/=</span><span class="n">time_not_found</span><span class="p">,</span><span class="s2">&quot;Time not found on file&quot;</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">target_time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">target_year</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">target_year</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">clim_year</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  call </span><span class="n">swap_year</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">original_year</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="k">else</span>
+<span class="k">                  call </span><span class="n">swap_year</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">original_year</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="k">end if</span>
+<span class="k">            else</span>
+<span class="k">               call </span><span class="n">swap_year</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">original_year</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">            call </span><span class="n">bracket</span><span class="p">%</span><span class="n">set_node</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="n">current_file</span><span class="p">,</span><span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span><span class="nb">time</span><span class="o">=</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="n">bracket</span><span class="p">%</span><span class="n">new_file_right</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="k">      end if</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">get_file_bracket</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-08-16T15:27:52.832604             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
