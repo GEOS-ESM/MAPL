@@ -1,0 +1,900 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>evalf &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>evalf
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">48 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_NewArthParser.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_newarthparser.f90.html'>MAPL_NewArthParser.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_newarthparsermod.html'>MAPL_NewArthParserMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">evalf</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/evalf.html#src">evalf</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine evalf(Comp, state, FieldNames, ResField, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-comp~2"></span>
+              type(<a href='../type/tcomp.html'>tComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Comp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-state~40"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>state</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fieldnames"></span>
+              character(len=ESMF_MAXSTR),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>FieldNames</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-resfield"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ResField</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1775"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~evalf~~CallsGraph Pages: 1 -->
+<svg id="procevalfCallsGraph" width="216pt" height="326pt"
+ viewBox="0.00 0.00 216.00 326.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~evalf~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 322)">
+<title>proc~~evalf~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-322 212,-322 212,4 -4,4"/>
+<!-- proc~evalf -->
+<g id="proc~~evalf~~CallsGraph_node1" class="node">
+<title>proc~evalf</title>
+<polygon fill="none" stroke="black" points="54,-171 0,-171 0,-147 54,-147 54,-171"/>
+<text text-anchor="middle" x="27" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50">evalf</text>
+</g>
+<!-- esmf_stateget -->
+<g id="proc~~evalf~~CallsGraph_node2" class="node">
+<title>esmf_stateget</title>
+<polygon fill="#777777" stroke="#777777" points="193,-318 105,-318 105,-294 193,-294 193,-318"/>
+<text text-anchor="middle" x="149" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateget</text>
+</g>
+<!-- proc~evalf&#45;&gt;esmf_stateget -->
+<g id="proc~~evalf~~CallsGraph_edge1" class="edge">
+<title>proc~evalf&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#ff0000" d="M30.76,-171.27C36.97,-196.2 54.41,-253.12 90,-285 91.92,-286.72 93.99,-288.3 96.17,-289.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="94.57,-292.87 105,-294.76 98.02,-286.78 94.57,-292.87"/>
+</g>
+<!-- interface~fieldcopybroadcast -->
+<g id="proc~~evalf~~CallsGraph_node3" class="node">
+<title>interface~fieldcopybroadcast</title>
+<g id="a_proc~~evalf~~CallsGraph_node3"><a xlink:href="../interface/fieldcopybroadcast.html" xlink:title="FieldCopyBroadcast">
+<polygon fill="#a7506f" stroke="#a7506f" points="208,-276 90,-276 90,-252 208,-252 208,-276"/>
+<text text-anchor="middle" x="149" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldCopyBroadcast</text>
+</a>
+</g>
+</g>
+<!-- proc~evalf&#45;&gt;interface~fieldcopybroadcast -->
+<g id="proc~~evalf~~CallsGraph_edge2" class="edge">
+<title>proc~evalf&#45;&gt;interface~fieldcopybroadcast</title>
+<path fill="none" stroke="#ff0000" d="M33.92,-171.05C43.38,-189.14 63.56,-223.27 90,-243 92.03,-244.51 94.17,-245.93 96.4,-247.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="94.82,-250.37 105.31,-251.87 98.05,-244.15 94.82,-250.37"/>
+</g>
+<!-- interface~fieldset -->
+<g id="proc~~evalf~~CallsGraph_node4" class="node">
+<title>interface~fieldset</title>
+<g id="a_proc~~evalf~~CallsGraph_node4"><a xlink:href="../interface/fieldset.html" xlink:title="FieldSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="176.5,-234 121.5,-234 121.5,-210 176.5,-210 176.5,-234"/>
+<text text-anchor="middle" x="149" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSet</text>
+</a>
+</g>
+</g>
+<!-- proc~evalf&#45;&gt;interface~fieldset -->
+<g id="proc~~evalf~~CallsGraph_edge3" class="edge">
+<title>proc~evalf&#45;&gt;interface~fieldset</title>
+<path fill="none" stroke="#ff0000" d="M43.64,-171.2C55.79,-180.27 73.32,-192.5 90,-201 96.82,-204.48 104.36,-207.65 111.68,-210.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.84,-213.84 121.43,-213.93 113.21,-207.25 110.84,-213.84"/>
+</g>
+<!-- proc~field_binary -->
+<g id="proc~~evalf~~CallsGraph_node5" class="node">
+<title>proc~field_binary</title>
+<g id="a_proc~~evalf~~CallsGraph_node5"><a xlink:href="../proc/field_binary.html" xlink:title="field_binary">
+<polygon fill="#d9534f" stroke="#d9534f" points="186.5,-192 111.5,-192 111.5,-168 186.5,-168 186.5,-192"/>
+<text text-anchor="middle" x="149" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">field_binary</text>
+</a>
+</g>
+</g>
+<!-- proc~evalf&#45;&gt;proc~field_binary -->
+<g id="proc~~evalf~~CallsGraph_edge4" class="edge">
+<title>proc~evalf&#45;&gt;proc~field_binary</title>
+<path fill="none" stroke="#ff0000" d="M54.04,-163.56C67.72,-165.95 84.92,-168.96 100.85,-171.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.63,-175.26 111.09,-173.54 101.84,-168.37 100.63,-175.26"/>
+</g>
+<!-- proc~field_unary -->
+<g id="proc~~evalf~~CallsGraph_node6" class="node">
+<title>proc~field_unary</title>
+<g id="a_proc~~evalf~~CallsGraph_node6"><a xlink:href="../proc/field_unary.html" xlink:title="field_unary">
+<polygon fill="#d9534f" stroke="#d9534f" points="185,-150 113,-150 113,-126 185,-126 185,-150"/>
+<text text-anchor="middle" x="149" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">field_unary</text>
+</a>
+</g>
+</g>
+<!-- proc~evalf&#45;&gt;proc~field_unary -->
+<g id="proc~~evalf~~CallsGraph_edge5" class="edge">
+<title>proc~evalf&#45;&gt;proc~field_unary</title>
+<path fill="none" stroke="#ff0000" d="M54.04,-154.44C68.31,-151.95 86.4,-148.78 102.89,-145.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="103.66,-149.31 112.91,-144.14 102.45,-142.42 103.66,-149.31"/>
+</g>
+<!-- proc~fieldnegate -->
+<g id="proc~~evalf~~CallsGraph_node7" class="node">
+<title>proc~fieldnegate</title>
+<g id="a_proc~~evalf~~CallsGraph_node7"><a xlink:href="../proc/fieldnegate.html" xlink:title="FieldNegate">
+<polygon fill="#d9534f" stroke="#d9534f" points="187,-108 111,-108 111,-84 187,-84 187,-108"/>
+<text text-anchor="middle" x="149" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldNegate</text>
+</a>
+</g>
+</g>
+<!-- proc~evalf&#45;&gt;proc~fieldnegate -->
+<g id="proc~~evalf~~CallsGraph_edge6" class="edge">
+<title>proc~evalf&#45;&gt;proc~fieldnegate</title>
+<path fill="none" stroke="#ff0000" d="M43.64,-146.8C55.79,-137.73 73.32,-125.5 90,-117 93.7,-115.11 97.62,-113.31 101.59,-111.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="102.94,-114.85 110.91,-107.87 100.32,-108.36 102.94,-114.85"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~evalf~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~evalf~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="190,-66 108,-66 108,-42 190,-42 190,-66"/>
+<text text-anchor="middle" x="149" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~evalf&#45;&gt;proc~mapl_return -->
+<g id="proc~~evalf~~CallsGraph_edge7" class="edge">
+<title>proc~evalf&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M33.92,-146.95C43.38,-128.86 63.56,-94.73 90,-75 92.66,-73.01 95.53,-71.2 98.51,-69.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.27,-72.59 107.73,-65.06 97.2,-66.29 100.27,-72.59"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~evalf~~CallsGraph_node9" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~evalf~~CallsGraph_node9"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="187,-24 111,-24 111,0 187,0 187,-24"/>
+<text text-anchor="middle" x="149" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~evalf&#45;&gt;proc~mapl_verify -->
+<g id="proc~~evalf~~CallsGraph_edge8" class="edge">
+<title>proc~evalf&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M30.76,-146.73C36.97,-121.8 54.41,-64.88 90,-33 93.46,-29.9 97.41,-27.25 101.59,-24.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="103.4,-28 110.99,-20.61 100.45,-21.65 103.4,-28"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~evalf~~CalledByGraph Pages: 1 -->
+<svg id="procevalfCalledByGraph" width="641pt" height="180pt"
+ viewBox="0.00 0.00 641.00 180.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~evalf~~CalledByGraph" class="graph" transform="scale(0.64 0.64) rotate(0) translate(4 276)">
+<title>proc~~evalf~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-276 992,-276 992,4 -4,4"/>
+<!-- proc~evalf -->
+<g id="proc~~evalf~~CalledByGraph_node1" class="node">
+<title>proc~evalf</title>
+<polygon fill="none" stroke="black" points="988,-150 934,-150 934,-126 988,-126 988,-150"/>
+<text text-anchor="middle" x="961" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50">evalf</text>
+</g>
+<!-- proc~mapl_stateeval -->
+<g id="proc~~evalf~~CalledByGraph_node2" class="node">
+<title>proc~mapl_stateeval</title>
+<g id="a_proc~~evalf~~CalledByGraph_node2"><a xlink:href="../proc/mapl_stateeval.html" xlink:title="MAPL_StateEval">
+<polygon fill="#d9534f" stroke="#d9534f" points="898,-150 801,-150 801,-126 898,-126 898,-150"/>
+<text text-anchor="middle" x="849.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateEval</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateeval&#45;&gt;proc~evalf -->
+<g id="proc~~evalf~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_stateeval&#45;&gt;proc~evalf</title>
+<path fill="none" stroke="#ff0000" d="M898.21,-138C906.71,-138 915.43,-138 923.55,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="923.8,-141.5 933.8,-138 923.8,-134.5 923.8,-141.5"/>
+</g>
+<!-- proc~calcderivedfield -->
+<g id="proc~~evalf~~CalledByGraph_node3" class="node">
+<title>proc~calcderivedfield</title>
+<g id="a_proc~~evalf~~CalledByGraph_node3"><a xlink:href="../proc/calcderivedfield.html" xlink:title="CalcDerivedField">
+<polygon fill="#d9534f" stroke="#d9534f" points="711,-272 608,-272 608,-248 711,-248 711,-272"/>
+<text text-anchor="middle" x="659.5" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CalcDerivedField</text>
+</a>
+</g>
+</g>
+<!-- proc~calcderivedfield&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~evalf~~CalledByGraph_edge2" class="edge">
+<title>proc~calcderivedfield&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M711.06,-253.85C729.04,-250.05 748.82,-243.91 765,-234 795.99,-215.03 821.63,-180.8 836,-158.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="839.07,-160.45 841.45,-150.13 833.15,-156.71 839.07,-160.45"/>
+</g>
+<!-- proc~evaluate_box_mask -->
+<g id="proc~~evalf~~CalledByGraph_node4" class="node">
+<title>proc~evaluate_box_mask</title>
+<g id="a_proc~~evalf~~CalledByGraph_node4"><a xlink:href="../proc/evaluate_box_mask.html" xlink:title="ExtDataMask%evaluate_box_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="757.5,-192 561.5,-192 561.5,-168 757.5,-168 757.5,-192"/>
+<text text-anchor="middle" x="659.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_box_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~evalf~~CalledByGraph_edge3" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M722.77,-168C736.69,-165.17 751.37,-162.08 765,-159 773.89,-156.99 783.28,-154.75 792.42,-152.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="793.36,-155.87 802.22,-150.06 791.67,-149.08 793.36,-155.87"/>
+</g>
+<!-- proc~evaluate_derived_field -->
+<g id="proc~~evalf~~CalledByGraph_node5" class="node">
+<title>proc~evaluate_derived_field</title>
+<g id="a_proc~~evalf~~CalledByGraph_node5"><a xlink:href="../proc/evaluate_derived_field.html" xlink:title="DerivedExport%evaluate_derived_field">
+<polygon fill="#d9534f" stroke="#d9534f" points="310,-201 90,-201 90,-177 310,-177 310,-201"/>
+<text text-anchor="middle" x="200" y="-186.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DerivedExport%evaluate_derived_field</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_derived_field&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~evalf~~CalledByGraph_edge4" class="edge">
+<title>proc~evaluate_derived_field&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M250.96,-201.05C351.46,-222.94 583.91,-261.65 765,-201 790.51,-192.45 814.47,-172.7 830.12,-157.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="832.92,-159.71 837.51,-150.16 827.97,-154.77 832.92,-159.71"/>
+</g>
+<!-- proc~evaluate_mask -->
+<g id="proc~~evalf~~CalledByGraph_node10" class="node">
+<title>proc~evaluate_mask</title>
+<g id="a_proc~~evalf~~CalledByGraph_node10"><a xlink:href="../proc/evaluate_mask.html" xlink:title="ExtDataMask%evaluate_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="518,-171 346,-171 346,-147 518,-147 518,-171"/>
+<text text-anchor="middle" x="432" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_derived_field&#45;&gt;proc~evaluate_mask -->
+<g id="proc~~evalf~~CalledByGraph_edge16" class="edge">
+<title>proc~evaluate_derived_field&#45;&gt;proc~evaluate_mask</title>
+<path fill="none" stroke="#ff0000" d="M293.22,-176.97C307.2,-175.15 321.65,-173.26 335.69,-171.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="336.37,-174.87 345.83,-170.11 335.47,-167.93 336.37,-174.87"/>
+</g>
+<!-- proc~evaluate_region_mask -->
+<g id="proc~~evalf~~CalledByGraph_node6" class="node">
+<title>proc~evaluate_region_mask</title>
+<g id="a_proc~~evalf~~CalledByGraph_node6"><a xlink:href="../proc/evaluate_region_mask.html" xlink:title="ExtDataMask%evaluate_region_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="765,-150 554,-150 554,-126 765,-126 765,-150"/>
+<text text-anchor="middle" x="659.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_region_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~evalf~~CalledByGraph_edge5" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M765.22,-138C773.99,-138 782.64,-138 790.85,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="790.99,-141.5 800.99,-138 790.99,-134.5 790.99,-141.5"/>
+</g>
+<!-- proc~evaluate_zone_mask -->
+<g id="proc~~evalf~~CalledByGraph_node7" class="node">
+<title>proc~evaluate_zone_mask</title>
+<g id="a_proc~~evalf~~CalledByGraph_node7"><a xlink:href="../proc/evaluate_zone_mask.html" xlink:title="ExtDataMask%evaluate_zone_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="760.5,-108 558.5,-108 558.5,-84 760.5,-84 760.5,-108"/>
+<text text-anchor="middle" x="659.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_zone_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~evalf~~CalledByGraph_edge6" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M722.77,-108C736.69,-110.83 751.37,-113.92 765,-117 773.89,-119.01 783.28,-121.25 792.42,-123.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="791.67,-126.92 802.22,-125.94 793.36,-120.13 791.67,-126.92"/>
+</g>
+<!-- proc~fillstate -->
+<g id="proc~~evalf~~CalledByGraph_node8" class="node">
+<title>proc~fillstate</title>
+<g id="a_proc~~evalf~~CalledByGraph_node8"><a xlink:href="../proc/fillstate.html" xlink:title="FillState">
+<polygon fill="#d9534f" stroke="#d9534f" points="687,-66 632,-66 632,-42 687,-42 687,-66"/>
+<text text-anchor="middle" x="659.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FillState</text>
+</a>
+</g>
+</g>
+<!-- proc~fillstate&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~evalf~~CalledByGraph_edge7" class="edge">
+<title>proc~fillstate&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M687.27,-56.07C709,-58.51 740.02,-63.77 765,-75 789.12,-85.84 812.82,-104.73 828.77,-119.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="826.63,-121.8 836.36,-125.99 831.37,-116.64 826.63,-121.8"/>
+</g>
+<!-- proc~mapl_runexpression -->
+<g id="proc~~evalf~~CalledByGraph_node9" class="node">
+<title>proc~mapl_runexpression</title>
+<g id="a_proc~~evalf~~CalledByGraph_node9"><a xlink:href="../proc/mapl_runexpression.html" xlink:title="MAPL_RunExpression">
+<polygon fill="#d9534f" stroke="#d9534f" points="721.5,-24 597.5,-24 597.5,0 721.5,0 721.5,-24"/>
+<text text-anchor="middle" x="659.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_RunExpression</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_runexpression&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~evalf~~CalledByGraph_edge8" class="edge">
+<title>proc~mapl_runexpression&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M721.76,-16.95C736.68,-20.09 752.05,-25.09 765,-33 798.53,-53.5 824.14,-92.6 837.7,-116.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="834.78,-118.83 842.61,-125.97 840.94,-115.5 834.78,-118.83"/>
+</g>
+<!-- proc~evaluate_mask&#45;&gt;proc~evaluate_box_mask -->
+<g id="proc~~evalf~~CalledByGraph_edge10" class="edge">
+<title>proc~evaluate_mask&#45;&gt;proc~evaluate_box_mask</title>
+<path fill="none" stroke="#ffda00" d="M518.25,-166.94C529.04,-167.94 540.19,-168.98 551.27,-170.01"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="551.13,-173.52 561.41,-170.96 551.78,-166.55 551.13,-173.52"/>
+</g>
+<!-- proc~evaluate_mask&#45;&gt;proc~evaluate_region_mask -->
+<g id="proc~~evalf~~CalledByGraph_edge12" class="edge">
+<title>proc~evaluate_mask&#45;&gt;proc~evaluate_region_mask</title>
+<path fill="none" stroke="#00ff91" d="M518.25,-151.06C526.59,-150.28 535.14,-149.49 543.71,-148.69"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="544.12,-152.17 553.76,-147.75 543.48,-145.2 544.12,-152.17"/>
+</g>
+<!-- proc~evaluate_mask&#45;&gt;proc~evaluate_zone_mask -->
+<g id="proc~~evalf~~CalledByGraph_edge13" class="edge">
+<title>proc~evaluate_mask&#45;&gt;proc~evaluate_zone_mask</title>
+<path fill="none" stroke="#0091ff" d="M463.97,-146.94C488.21,-137.83 522.89,-125.48 554,-117 562.85,-114.59 572.19,-112.32 581.5,-110.24"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="582.54,-113.59 591.57,-108.05 581.05,-106.75 582.54,-113.59"/>
+</g>
+<!-- proc~run_ -->
+<g id="proc~~evalf~~CalledByGraph_node11" class="node">
+<title>proc~run_</title>
+<g id="a_proc~~evalf~~CalledByGraph_node11"><a xlink:href="../proc/run_.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="459,-66 405,-66 405,-42 459,-42 459,-66"/>
+<text text-anchor="middle" x="432" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~fillstate -->
+<g id="proc~~evalf~~CalledByGraph_edge14" class="edge">
+<title>proc~run_&#45;&gt;proc~fillstate</title>
+<path fill="none" stroke="#4800ff" d="M459.31,-54C499.4,-54 575.95,-54 621.59,-54"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="621.66,-57.5 631.66,-54 621.66,-50.5 621.66,-57.5"/>
+</g>
+<!-- proc~run_~2 -->
+<g id="proc~~evalf~~CalledByGraph_node12" class="node">
+<title>proc~run_~2</title>
+<g id="a_proc~~evalf~~CalledByGraph_node12"><a xlink:href="../proc/run_~2.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-201 0,-201 0,-177 54,-177 54,-201"/>
+<text text-anchor="middle" x="27" y="-186.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~2&#45;&gt;proc~evaluate_derived_field -->
+<g id="proc~~evalf~~CalledByGraph_edge11" class="edge">
+<title>proc~run_~2&#45;&gt;proc~evaluate_derived_field</title>
+<path fill="none" stroke="#48ff00" d="M54.34,-189C61.77,-189 70.37,-189 79.6,-189"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="79.84,-192.5 89.84,-189 79.84,-185.5 79.84,-192.5"/>
+</g>
+<!-- proc~run_~5 -->
+<g id="proc~~evalf~~CalledByGraph_node13" class="node">
+<title>proc~run_~5</title>
+<g id="a_proc~~evalf~~CalledByGraph_node13"><a xlink:href="../proc/run_~5.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="459,-272 405,-272 405,-248 459,-248 459,-272"/>
+<text text-anchor="middle" x="432" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~5&#45;&gt;proc~calcderivedfield -->
+<g id="proc~~evalf~~CalledByGraph_edge9" class="edge">
+<title>proc~run_~5&#45;&gt;proc~calcderivedfield</title>
+<path fill="none" stroke="#ff0000" d="M459.31,-260C492.94,-260 552.21,-260 597.38,-260"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="597.66,-263.5 607.66,-260 597.66,-256.5 597.66,-263.5"/>
+</g>
+<!-- proc~run~2 -->
+<g id="proc~~evalf~~CalledByGraph_node14" class="node">
+<title>proc~run~2</title>
+<g id="a_proc~~evalf~~CalledByGraph_node14"><a xlink:href="../proc/run~2.html" xlink:title="Run">
+<polygon fill="#d9534f" stroke="#d9534f" points="459,-24 405,-24 405,0 459,0 459,-24"/>
+<text text-anchor="middle" x="432" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~2&#45;&gt;proc~mapl_runexpression -->
+<g id="proc~~evalf~~CalledByGraph_edge15" class="edge">
+<title>proc~run~2&#45;&gt;proc~mapl_runexpression</title>
+<path fill="none" stroke="#ff00da" d="M459.31,-12C490.39,-12 543.38,-12 586.9,-12"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="587.16,-15.5 597.16,-12 587.16,-8.5 587.16,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocevalfCalledByGraph = svgPanZoom('#procevalfCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">evalf</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">State</span><span class="p">,</span><span class="w"> </span><span class="n">FieldNames</span><span class="p">,</span><span class="w"> </span><span class="n">ResField</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
+<span class="w">    </span><span class="c">! Evaluate bytecode of ith function for the values passed in array Val(:)</span>
+<span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
+<span class="w">    </span><span class="k">IMPLICIT NONE</span>
+<span class="k">    TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">tComp</span><span class="p">),</span><span class="w">                   </span><span class="k">INTENT</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Comp</span>
+<span class="w">    </span><span class="k">TYPE</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w">               </span><span class="k">INTENT</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span>
+<span class="w">    </span><span class="kt">CHARACTER</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FieldNames</span><span class="p">(:)</span>
+<span class="w">    </span><span class="k">TYPE</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w">               </span><span class="k">INTENT</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ResField</span>
+<span class="w">    </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="p">,</span><span class="w">              </span><span class="k">INTENT</span><span class="p">(</span><span class="n">out</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">    </span><span class="kt">INTEGER</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">IP</span><span class="p">,</span><span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! Instruction pointer</span>
+<span class="w">                                          </span><span class="n">DP</span><span class="p">,</span><span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! Data pointer</span>
+<span class="w">                                          </span><span class="n">SP</span><span class="w">                 </span><span class="c">! Stack pointer</span>
+<span class="w">    </span><span class="kt">INTEGER</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">CurrByte</span><span class="p">,</span><span class="n">ValNumber</span>
+<span class="w">    </span><span class="k">TYPE</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">state_field</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
+<span class="w">    </span><span class="n">DP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="n">SP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">    </span><span class="k">DO </span><span class="n">IP</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">Comp</span><span class="p">%</span><span class="n">ByteCodeSize</span>
+<span class="w">       </span><span class="n">CurrByte</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Comp</span><span class="p">%</span><span class="n">ByteCode</span><span class="p">(</span><span class="n">IP</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CurrByte</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cImmed</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">SP</span><span class="o">=</span><span class="n">SP</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">          </span><span class="k">call </span><span class="n">FieldSet</span><span class="p">(</span><span class="n">comp</span><span class="p">%</span><span class="n">stack</span><span class="p">(</span><span class="n">sp</span><span class="p">),</span><span class="n">comp</span><span class="p">%</span><span class="n">immed</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="n">DP</span><span class="o">=</span><span class="n">DP</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">CurrByte</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cNeg</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">FieldNegate</span><span class="p">(</span><span class="n">comp</span><span class="p">%</span><span class="n">stack</span><span class="p">(</span><span class="n">sp</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">CurrByte</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">cAdd</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">CurrByte</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">cPow</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">field_binary</span><span class="p">(</span><span class="n">Comp</span><span class="p">%</span><span class="n">stack</span><span class="p">(</span><span class="n">SP</span><span class="p">),</span><span class="n">Comp</span><span class="p">%</span><span class="n">stack</span><span class="p">(</span><span class="n">SP</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="n">CurrByte</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="n">SP</span><span class="o">=</span><span class="n">SP</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">CurrByte</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nb">cAbs</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">CurrByte</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">cHeav</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">field_unary</span><span class="p">(</span><span class="n">comp</span><span class="p">%</span><span class="n">stack</span><span class="p">(</span><span class="n">sp</span><span class="p">),</span><span class="n">currByte</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">CurrByte</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">cHeav</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">SP</span><span class="o">=</span><span class="n">SP</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">          </span><span class="n">ValNumber</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CurrByte</span><span class="o">-</span><span class="n">VarBegin</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="n">FieldNames</span><span class="p">(</span><span class="n">ValNumber</span><span class="p">),</span><span class="n">state_field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">FieldCopyBroadcast</span><span class="p">(</span><span class="n">state_field</span><span class="p">,</span><span class="n">comp</span><span class="p">%</span><span class="n">stack</span><span class="p">(</span><span class="n">sp</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">    END DO</span>
+<span class="k">    call </span><span class="n">FieldCopyBroadcast</span><span class="p">(</span><span class="n">comp</span><span class="p">%</span><span class="n">stack</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ResField</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">evalf</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-08-16T15:03:35.704682             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
