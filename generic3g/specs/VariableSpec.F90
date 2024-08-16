@@ -206,11 +206,6 @@ contains
       type(ActualPtVector) :: dependencies
       type(ESMF_Geom), allocatable :: geom_local
 
-      ! if (present(geom) .and. allocated(this%geom)) then
-      !    _FAIL("Cannot pass in geom when VariableSpec contains its own geom")
-      ! end if
-      ! if (present(geom)) geom_local = geom
-      ! if (allocated(this%geom)) geom_local = this%geom
       call this%pick_geom_(geom, geom_local, _RC)
 
       select case (this%itemtype%ot)
