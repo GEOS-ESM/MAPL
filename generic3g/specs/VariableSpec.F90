@@ -21,7 +21,6 @@ module mapl3g_VariableSpec
    use mapl3g_ActualPtVector
    use mapl_ErrorHandling
    use mapl3g_StateRegistry
-   use mapl3g_GeomUtilities, only: MAPL_SameGeom
    use esmf
    use gFTL2_StringVector
    use nuopc
