@@ -21,15 +21,11 @@ if (DUSTY)
 endif ()
 
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared ESMF::ESMF NetCDF::NetCDF_Fortran
-                               PRIVATE MPI::MPI_Fortran
+                               PRIVATE MPI::MPI_Fortran OpenMP::OpenMP_Fortran
                                $<$<BOOL:${BUILD_WITH_FARGPARSE}>:FARGPARSE::fargparse>)
 
 target_compile_definitions (${this} PRIVATE $<$<BOOL:${USE_EXTDATA2G}>:BUILD_WITH_EXTDATA2G>)
 
-# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
-endif ()
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})

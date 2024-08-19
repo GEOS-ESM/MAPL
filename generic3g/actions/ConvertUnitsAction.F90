@@ -19,8 +19,7 @@ module mapl3g_ConvertUnitsAction
       character(:), allocatable :: src_units, dst_units
    contains
       procedure :: initialize
-      procedure :: run_old
-      procedure :: run_new
+      procedure :: run
    end type ConvertUnitsAction
 
 
@@ -71,38 +70,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine initialize
 
-   subroutine run_old(this, rc)
-      class(ConvertUnitsAction), intent(inout) :: this
-      integer, optional, intent(out) :: rc
       
-      integer :: status
-      type(ESMF_TypeKind_Flag) :: typekind
-      real(kind=ESMF_KIND_R4), pointer :: x4_in(:)
-      real(kind=ESMF_KIND_R4), pointer :: x4_out(:)
-      real(kind=ESMF_KIND_R8), pointer :: x8_in(:)
-      real(kind=ESMF_KIND_R8), pointer :: x8_out(:)
-
-      call ESMF_FieldGet(this%f_in, typekind=typekind, _RC)
-
-      if (typekind == ESMF_TYPEKIND_R4) then
-
-         call assign_fptr(this%f_in, x4_in, _RC)
-         call assign_fptr(this%f_out, x4_out, _RC)
-
-         x4_out = this%converter%convert(x4_in)
-
-      elseif (typekind == ESMF_TYPEKIND_R8) then
-
-         call assign_fptr(this%f_in, x8_in, _RC)
-         call assign_fptr(this%f_out, x8_out, _RC)
-
-         x8_out = this%converter%convert(x8_in)
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine run_old
-      
-   subroutine run_new(this, importState, exportState, clock, rc)
+   subroutine run(this, importState, exportState, clock, rc)
       use esmf
       class(ConvertUnitsAction), intent(inout) :: this
       type(ESMF_State)      :: importState
@@ -138,6 +107,6 @@ contains
 
       _FAIL('unsupported typekind')
 
-   end subroutine run_new
+   end subroutine run
    
 end module mapl3g_ConvertUnitsAction

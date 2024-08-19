@@ -9,7 +9,8 @@ module Test_Scenarios
    use mapl3g_GenericGridComp, generic_setservices => setservices
    use mapl3g_UserSetServices
    use mapl3g_ESMF_Utilities
-   use mapl3g_VerticalGeom
+   use mapl3g_VerticalGrid
+   use mapl3g_BasicVerticalGrid
    use esmf
    use nuopc
    ! testing framework
@@ -142,7 +143,7 @@ contains
       integer :: i
       type(ESMF_State) :: importState, exportState
       character(:), allocatable :: file_name
-      type(VerticalGeom) :: vertical_geom
+      type(BasicVerticalGrid) :: vertical_grid
       type(ESMF_Time) :: t
       type(ESMF_TimeInterval) :: dt
       type(ESMF_Clock) :: clock
@@ -162,8 +163,8 @@ contains
         outer_gc = create_grid_comp('ROOT', user_setservices('libsimple_parent_gridcomp'), config, clock, _RC)
         call ESMF_GridCompSetServices(outer_gc, generic_setServices, userRC=user_status, _RC)
         _VERIFY(user_status)
-        vertical_geom = VerticalGeom(4)
-        call MAPL_GridCompSetVerticalGeom(outer_gc,vertical_geom,_RC)
+        vertical_grid = BasicVerticalGrid(4)
+        call MAPL_GridCompSetVerticalGrid(outer_gc, vertical_grid,_RC)
 
         importState = ESMF_StateCreate(_RC)
         exportState = ESMF_StateCreate(_RC)

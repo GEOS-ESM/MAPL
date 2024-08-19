@@ -55,11 +55,7 @@ set (srcs
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v1 GFTL::gftl-v2 PFLOGGER::pflogger MAPL.shared MPI::MPI_Fortran TYPE SHARED)
 target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
-
-# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
-endif ()
+target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 
 add_subdirectory (demo EXCLUDE_FROM_ALL)
 if (PFUNIT_FOUND)

@@ -12,8 +12,7 @@ module mapl3g_BracketSpec
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use mapl3g_ExtensionAction
-   use mapl3g_BundleAction
-   use mapl3g_VerticalGeom
+   use mapl3g_VerticalGrid
    use mapl3g_VerticalDimSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_NullAction

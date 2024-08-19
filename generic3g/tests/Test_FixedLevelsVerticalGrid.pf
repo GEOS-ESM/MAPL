@@ -1,0 +1,21 @@
+module Test_FixedLevelsVerticalGrid
+   use mapl3g_FixedLevelsVerticalGrid
+   ! testing framework
+   use ESMF_TestMethod_mod
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_num_levels()
+      type(FixedLevelsVerticalGrid) :: vgrid
+
+      real, parameter :: levels(*) = [1.,5.,7.]
+
+      vgrid = FixedLevelsVerticalGrid(standard_name='air_pressure', levels=levels)
+      @assert_that(vgrid%get_num_levels(), is(size(levels)))
+
+   end subroutine test_num_levels
+   
+end module Test_FixedLevelsVerticalGrid
