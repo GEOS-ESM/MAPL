@@ -18,14 +18,23 @@ module grid_comp_creation_shared
    
 contains
 
-   function real_to_characters(t, rc) result(chars)
+   function real_to_characters(t, fixed, rc) result(chars)
       character(len=:), allocatable :: chars
       real(R64), intent(in) :: t
+      logical, optional, intent(in) :: fixed
       integer, optional, intent(out) :: rc
       integer :: status
+      integer, parameter :: TW = 12
+      character(len=TW), parameter :: SF = '(  ES24.16 )'
+      character(len=TW), parameter :: FD = '(     F8.4 )'
+      character(len=TW) :: FMT_
       character(len=MAXSTR) :: raw
 
-      write(raw, fmt='(ES24.16)', iostat=status) t
+      FMT_ = SF
+      if(present(fixed)) then
+         if(fixed) FMT_ = FD
+      end if
+      write(raw, fmt=FMT_, iostat=status) t
       if(present(rc)) rc = status
       chars = trim(adjustl(raw))
 

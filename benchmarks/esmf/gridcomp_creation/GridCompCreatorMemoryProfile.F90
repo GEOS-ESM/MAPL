@@ -88,7 +88,7 @@ contains
    end function equals_memory_profile
 
    subroutine profile_memory(mem, rc)
-      type(MemoryProfile), allocatable, intent(out) :: mem
+      type(MemoryProfile), intent(out) :: mem
       integer, optional, intent(out) :: rc
       integer :: status
       real :: total, used, committed, percent_used, percent_committed
@@ -97,7 +97,6 @@ contains
       call MAPL_MemUsed(memtotal=total, used=used, percent_used=percent_used, _RC)
       ! Get committed memory
       call MAPL_MemCommited(memtotal=total, committed_as=committed, percent_committed=percent_committed, _RC)
-      mem = MemoryProfile()
       mem%total = total
       mem%used = used
       mem%committed = committed
@@ -116,8 +115,8 @@ contains
       values = to_characters(mem%total, rc=status)
       values = values // JOIN // to_characters(mem%used, rc=status)
       values = values // JOIN // to_characters(mem%committed, rc=status)
-      values = values // JOIN // to_characters(mem%percent_used, rc=status)
-      values = values // JOIN // to_characters(mem%percent_committed, rc=status)
+      values = values // JOIN // to_characters(mem%percent_used, fixed=.TRUE., rc=status)
+      values = values // JOIN // to_characters(mem%percent_committed, fixed=.TRUE., rc=status)
 
    end function print_memory_profile
 
