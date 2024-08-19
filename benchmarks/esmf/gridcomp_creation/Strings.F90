@@ -53,7 +53,7 @@ contains
 
       clen = 0
       do i = 1, size(s)
-         clen = max(clen, s(i))
+         clen = max(clen, len(s(i)))
       end do
 
       len_strings = clen
