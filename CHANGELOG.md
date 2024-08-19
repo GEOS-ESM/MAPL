@@ -54,6 +54,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deprecate `GranularBR` as a quantization method keyword in History. We will prefer `granular_bitround` in the future to match
   draft CF conventions. This will be removed in MAPL 3.
 
+## [2.47.2] - 2024-08-16
+
+### Fixed
+
+- Fix bug in supporting externally initialized MPI
+
 ## [2.47.1] - 2024-07-17
 
 ### Fixed
