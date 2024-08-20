@@ -553,6 +553,7 @@ contains
       !
       call ESMF_VMGet(vm, mpiCommunicator=mpic, _RC)
       call MPI_COMM_RANK(mpic, irank, ierror)
+      _VERIFY(ierror)
 
       if (irank==0) &
            write(6,'(10(2x,a20,2x,a40,/))') &
@@ -692,14 +693,21 @@ contains
 
 
       call MPI_bcast(this%M_file, 1, MPI_INTEGER, 0, mpic, ierror)
+      _VERIFY(ierror)
       do i=1, this%M_file
          call MPI_bcast(this%filenames(i), ESMF_MAXSTR, MPI_CHARACTER, 0, mpic, ierror)
+         _VERIFY(ierror)
       end do
       call MPI_bcast(this%epoch_index, 4, MPI_INTEGER8, 0, mpic, ierror)
+      _VERIFY(ierror)
       call MPI_bcast(this%im_world, 1, MPI_INTEGER, 0, mpic, ierror)
+      _VERIFY(ierror)
       call MPI_bcast(this%jm_world, 1, MPI_INTEGER, 0, mpic, ierror)
+      _VERIFY(ierror)
       call MPI_bcast(this%cell_across_swath, 1, MPI_INTEGER, 0, mpic, ierror)
+      _VERIFY(ierror)
       call MPI_bcast(this%cell_along_swath, 1, MPI_INTEGER, 0, mpic, ierror)
+      _VERIFY(ierror)
       ! donot need to bcast this%along_track (root only)
 
 
@@ -1354,6 +1362,7 @@ contains
       call ESMF_VmGetCurrent(VM, _RC)
       call ESMF_VMGet(vm, mpiCommunicator=mpic, _RC)
       call MPI_COMM_RANK(mpic, irank, ierror)
+      _VERIFY(ierror)
 
       if (irank==0) then
          ! xtrack
@@ -1408,6 +1417,7 @@ contains
       end if
 
       call MPI_bcast(xy_subset, 4, MPI_INTEGER, 0, mpic, ierror)
+      _VERIFY(ierror)
 
       _RETURN(_SUCCESS)
     end subroutine get_xy_subset

@@ -119,6 +119,7 @@ module MAPL_ApplicationSupport
       else
 
          call MPI_COMM_Rank(comm_world,rank,status)
+         _VERIFY(status)
          console = StreamHandler(OUTPUT_UNIT)
          call console%set_level(INFO)
          call console%set_formatter(MpiFormatter(comm_world, fmt='%(short_name)a10~: %(message)a'))
