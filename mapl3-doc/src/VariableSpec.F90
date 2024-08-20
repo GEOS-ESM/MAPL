@@ -2,6 +2,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_VariableSpec
+
    use mapl3g_StateItemSpec
    use mapl3g_StateItem
    use mapl3g_StateItemExtension
@@ -23,6 +24,7 @@ module mapl3g_VariableSpec
    use esmf
    use gFTL2_StringVector
    use nuopc
+
    implicit none
    private
 
@@ -49,6 +51,7 @@ module mapl3g_VariableSpec
       integer, allocatable :: bracket_size
 
       ! Geometry
+      type(ESMF_Geom), allocatable :: geom
       type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN ! none, center, edge
       type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! none, geom
       type(UngriddedDims) :: ungridded_dims
@@ -63,6 +66,7 @@ module mapl3g_VariableSpec
       procedure :: make_WildcardSpec
 
       procedure :: make_dependencies
+      procedure, private :: pick_geom_
 !!$      procedure :: make_StateSpec
 !!$      procedure :: make_BundleSpec
 !!$      procedure :: initialize
@@ -75,7 +79,7 @@ module mapl3g_VariableSpec
 contains
 
    function new_VariableSpec( &
-        state_intent, short_name, unusable, standard_name, &
+        state_intent, short_name, unusable, standard_name, geom, &
         units, substate, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
         service_items, attributes, &
         bracket_size, &
@@ -84,9 +88,10 @@ contains
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
-      class(KeywordEnforcer), optional, intent(in) :: unusable
       ! Optional args:
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: standard_name
+      type(ESMF_Geom), optional, intent(in) :: geom
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemtype
       type(StringVector), optional :: service_items
       character(*), optional, intent(in) :: units
@@ -108,6 +113,7 @@ contains
 #define _SET_OPTIONAL(attr) if (present(attr)) var_spec%attr = attr
 
       _SET_OPTIONAL(standard_name)
+      _SET_OPTIONAL(geom)
       _SET_OPTIONAL(itemtype)
       _SET_OPTIONAL(units)
       _SET_OPTIONAL(substate)
@@ -135,7 +141,6 @@ contains
       this%units = ESMF_HConfigAsString(config,keyString='units')
 
    contains
-
       
       function get_itemtype(config) result(itemtype)
          type(ESMF_StateItem_Flag) :: itemtype
@@ -185,7 +190,6 @@ contains
       end if
    end function make_virtualPt
 
-
    ! This implementation ensures that an object is at least created
    ! even if failures are encountered.  This is necessary for
    ! robust error handling upstream.
@@ -199,11 +203,14 @@ contains
 
       integer :: status
       type(ActualPtVector) :: dependencies
+      type(ESMF_Geom), allocatable :: geom_local
+
+      call this%pick_geom_(geom, geom_local, _RC)
 
       select case (this%itemtype%ot)
       case (MAPL_STATEITEM_FIELD%ot)
          allocate(FieldSpec::item_spec)
-         item_spec = this%make_FieldSpec(geom, vertical_grid,  _RC)
+         item_spec = this%make_FieldSpec(geom_local, vertical_grid,  _RC)
 !!$      case (MAPL_STATEITEM_FIELDBUNDLE)
 !!$         allocate(FieldBundleSpec::item_spec)
 !!$         item_spec = this%make_FieldBundleSpec(geom, _RC)
@@ -212,10 +219,10 @@ contains
          item_spec = this%make_ServiceSpec_new(registry, _RC)
       case (MAPL_STATEITEM_WILDCARD%ot)
          allocate(WildcardSpec::item_spec)
-         item_spec = this%make_WildcardSpec(geom, vertical_grid,  _RC)
+         item_spec = this%make_WildcardSpec(geom_local, vertical_grid,  _RC)
       case (MAPL_STATEITEM_BRACKET%ot)
          allocate(BracketSpec::item_spec)
-         item_spec = this%make_BracketSpec(geom, vertical_grid,  _RC)
+         item_spec = this%make_BracketSpec(geom_local, vertical_grid,  _RC)
       case default
          ! Fail, but still need to allocate a result.
          allocate(InvalidSpec::item_spec)
@@ -233,7 +240,24 @@ contains
       _RETURN(_SUCCESS)
    end function make_ItemSpec_new
  
-  function make_BracketSpec(this, geom, vertical_grid, rc) result(bracket_spec)
+   subroutine pick_geom_(this, that_geom, geom, rc)
+      class(VariableSpec), intent(in) :: this
+      type(ESMF_Geom), optional, intent(in) :: that_geom
+      type(ESMF_Geom), allocatable, intent(out) :: geom
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      if (present(that_geom) .and. allocated(this%geom)) then
+         _FAIL("Cannot have both this and that geom :-(")
+      end if
+      if (present(that_geom)) geom = that_geom
+      if (allocated(this%geom)) geom = this%geom
+
+      _RETURN(_SUCCESS)
+   end subroutine pick_geom_
+
+   function make_BracketSpec(this, geom, vertical_grid, rc) result(bracket_spec)
       type(BracketSpec) :: bracket_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -337,7 +361,6 @@ contains
 
       end function valid
 
-
    end function make_FieldSpec
 
    ! ------
@@ -390,7 +413,7 @@ contains
     function make_WildcardSpec(this, geom, vertical_grid, rc) result(wildcard_spec)
       type(WildcardSpec) :: wildcard_spec
       class(VariableSpec), intent(in) :: this
-      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
 
@@ -435,4 +458,5 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_dependencies
- end module mapl3g_VariableSpec
+
+end module mapl3g_VariableSpec
