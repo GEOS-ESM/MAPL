@@ -166,8 +166,7 @@ module MAPL_VerticalDataMod
         integer :: status
         character(len=ESMF_MAXSTR) :: name
 
-        call ESMF_FieldGet(field,name=name,rc=status)
-        _VERIFY(status)
+        call ESMF_FieldGet(field,name=name,_RC)
         skip = trim(name)==trim(this%vvar)
      end function skip_var
 
@@ -185,8 +184,7 @@ module MAPL_VerticalDataMod
 
         if (allocated(this%ple3d)) deallocate(this%ple3d)
         if (allocated(this%pl3d)) deallocate(this%pl3d)
-        call ESMF_FieldGet(this%interp_var,localde=0,farrayptr=ptr3,rc=status)
-        _VERIFY(status)
+        call ESMF_FieldGet(this%interp_var,localde=0,farrayptr=ptr3,_RC)
 
         allocate(orig_surface_level(size(ptr3,1),size(ptr3,2)),stat=status)
         _VERIFY(status)
@@ -242,16 +240,14 @@ module MAPL_VerticalDataMod
        end if
        if (present(output_grid)) then
           _ASSERT(present(regrid_handle),"Must provide regridding handle")
-          call MAPL_GridGet(output_grid,localCellCountPerDim=counts,rc=status)
-          _VERIFY(status)
+          call MAPL_GridGet(output_grid,localCellCountPerDim=counts,_RC)
           if (.not.allocated(this%surface_level)) then
               allocate(this%surface_level(counts(1),counts(2)),stat=status)
              _VERIFY(status)
           end if
        end if
        if (present(regrid_handle)) then
-          call regrid_handle%regrid(orig_surface_level,this%surface_level,rc=status)
-          _VERIFY(status)
+          call regrid_handle%regrid(orig_surface_level,this%surface_level,_RC)
        end if
        deallocate(orig_surface_level)
 
@@ -305,7 +301,7 @@ module MAPL_VerticalDataMod
             km_e = size(this%ple3d,3)
             this%nedge = km_e
             allocate(ple3d(D1,D2,km_e))
-            ple3d = this%ple3d 
+            ple3d = this%ple3d
             do lev =1, levo
                pp = flip_sign*this%interp_levels(lev)
                pb = flip_sign*ple3d(:,:,km_e)
@@ -411,11 +407,9 @@ module MAPL_VerticalDataMod
            call ESMF_FieldGet(field,grid=grid,_RC)
            has_de = MAPL_GridHasDE(grid,_RC)
            if (has_de) then
-              call ESMF_FieldGet(field,rank=rank,rc=status)
-              _VERIFY(status)
+              call ESMF_FieldGet(field,rank=rank,_RC)
               if (rank==3) then
-                 call ESMF_FieldGet(field,0,farrayptr=ptr,rc=status)
-                 _VERIFY(status)
+                 call ESMF_FieldGet(field,0,farrayptr=ptr,_RC)
                  do k=1,size(ptr,3)
                     if (this%ascending) then
                        where(this%surface_level<this%scaled_levels(k)) ptr(:,:,k)=MAPL_UNDEF
@@ -452,8 +446,7 @@ module MAPL_VerticalDataMod
 
         integer :: status
 
-        call ESMF_FieldBundleGet(bundle,fieldName=trim(this%vvar),field=this%interp_var,rc=status)
-        _VERIFY(status)
+        call ESMF_FieldBundleGet(bundle,fieldName=trim(this%vvar),field=this%interp_var,_RC)
 
      end subroutine get_interpolating_variable
 
@@ -483,58 +476,51 @@ module MAPL_VerticalDataMod
         type(Variable) :: v
         logical :: isPresent
         type(ESMF_Info) :: infoh
+        character(len=4) :: positive
 
         ! loop over variables in file
-        call ESMF_FieldBundleGet(bundle,fieldCount=NumVars,rc=status)
-        _VERIFY(status)
+        call ESMF_FieldBundleGet(bundle,fieldCount=NumVars,_RC)
         allocate(VarDims(numVars),location(numVars))
 
         allocate(hasUngrid(NumVars))
         hasUngrid=.false.
-        allocate(ungridded_names(NumVars), stat=STATUS)
-        _VERIFY(STATUS)
+        allocate(ungridded_names(NumVars), _STAT)
         ungridded_names=""
-        allocate(ungridded_units(NumVars), stat=STATUS)
-        _VERIFY(STATUS)
+        allocate(ungridded_units(NumVars), _STAT)
         ungridded_units=""
 
         do i=1,numVars
-           call ESMF_FieldBundleGet(bundle,i,field,rc=status)
-           _VERIFY(status)
-           call ESMF_FieldGet(field,dimCount=FieldRank,rc=status)
-           _VERIFY(status)
-           call ESMF_InfoGetFromHost(field,infoh,rc=status)
-           _VERIFY(status)
-           call ESMF_InfoGet(infoh,key='VLOCATION',value=location(i),rc=status)           
-           _VERIFY(status)
+           call ESMF_FieldBundleGet(bundle,i,field,_RC)
+           call ESMF_InfoGetFromHost(field,infoh,_RC)
+           call ESMF_InfoGet(infoh,key='POSITIVE',value=positive,_RC)
+           if (i .eq. 1) this%positive=positive
+           if (i .gt. 1) then
+              _ASSERT(this%positive==positive,"Fields have mistmatched positive attributes")
+              this%positive=positive
+           end if
+           call ESMF_FieldGet(field,dimCount=FieldRank,_RC)
+           call ESMF_InfoGet(infoh,key='VLOCATION',value=location(i),_RC)
            if (fieldRank==2) then
               varDims(i)=0
            else if (fieldRank==3) then
-              call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
-              _VERIFY(status)
+              call ESMF_FieldGet(field,farrayPtr=ptr3d,_RC)
               varDims(i)=size(ptr3d,3)
               if (location(i) == MAPL_VLocationNone) then
                  hasUngrid(I) = .true.
-                 call ESMF_InfoGetFromHost(field,infoh,rc=status)
-                 _VERIFY(status)
-                 call ESMF_InfoGet(infoh,'UNGRIDDED_UNIT',ungridded_unit,rc=status)
-                 _VERIFY(status)
-                 call ESMF_InfoGet(infoh,'UNGRIDDED_NAME',ungridded_name,rc=status)
-                 _VERIFY(STATUS)
+                 call ESMF_InfoGetFromHost(field,infoh,_RC)
+                 call ESMF_InfoGet(infoh,'UNGRIDDED_UNIT',ungridded_unit,_RC)
+                 call ESMF_InfoGet(infoh,'UNGRIDDED_NAME',ungridded_name,_RC)
                  ungridded_names(i) = ungridded_name
                  ungridded_units(i) = ungridded_unit
-                 isPresent = ESMF_InfoIsPresent(infoh,'UNGRIDDED_COORDS',rc=status)
-                 _VERIFY(STATUS)
+                 isPresent = ESMF_InfoIsPresent(infoh,'UNGRIDDED_COORDS',_RC)
                  if (isPresent) then
-                    call ESMF_InfoGet(infoh,key='UNGRIDDED_COORDS',size=ungrdsize,rc=status)
-                    _VERIFY(STATUS)
+                    call ESMF_InfoGet(infoh,key='UNGRIDDED_COORDS',size=ungrdsize,_RC)
                     if (ungrdsize/=0) then
                        _ASSERT(varDims(i)==ungrdsize,"ungridded size does not match variable")
 !                       if (.not.allocated(ungridded_coord)) allocate(ungridded_coord(ungrdsize),stat=status)
                        if (.not.allocated(ungridded_coords)) allocate(ungridded_coords(NumVars,ungrdsize),stat=status)
                        _VERIFY(STATUS)
-                       call ESMF_InfoGet(infoh,key='UNGRIDDED_COORDS',values=ungridded_coord,rc=status)
-                       _VERIFY(STATUS)
+                       call ESMF_InfoGet(infoh,key='UNGRIDDED_COORDS',values=ungridded_coord,_RC)
                        ungridded_coords(i,:) = ungridded_coord
                     end if
                  end if
@@ -618,16 +604,15 @@ module MAPL_VerticalDataMod
                    this%levs=ungridded_coord
                  end if
 
-                 call metadata%add_dimension('lev', lm, rc=status)
+                 call metadata%add_dimension('lev', lm)
                  v = Variable(type=PFIO_REAL64, dimensions='lev')
                  call v%add_attribute('units',ungridded_unit)
                  call v%add_attribute('standard_name',ungridded_name)
                  call v%add_attribute('coordinate','N/A')
                  call v%add_const_value(UnlimitedEntity(this%levs))
-                 call metadata%add_variable('lev',v,rc=status)
-                 _VERIFY(status)
+                 call metadata%add_variable('lev',v,_RC)
               else
-                 call metadata%add_dimension('lev', lm, rc=status)
+                 call metadata%add_dimension('lev', lm)
                  v = Variable(type=PFIO_REAL64, dimensions='lev')
                  call v%add_attribute('long_name',this%long_name)
                  call v%add_attribute('units',this%vunit)
@@ -635,12 +620,11 @@ module MAPL_VerticalDataMod
                  call v%add_attribute('coordinate',this%vcoord)
                  call v%add_attribute('standard_name',this%standard_name)
                  call v%add_const_value(UnlimitedEntity(this%levs))
-                 call metadata%add_variable('lev',v,rc=status)
-                 _VERIFY(status)
+                 call metadata%add_variable('lev',v,_RC)
               end if
 
            else if (this%regrid_type == VERTICAL_METHOD_ETA2LEV) then
-              call metadata%add_dimension('lev', size(this%levs), rc=status)
+              call metadata%add_dimension('lev', size(this%levs))
               v = Variable(type=PFIO_REAL64, dimensions='lev')
               call v%add_attribute('long_name','vertical level')
               call v%add_attribute('units',trim(this%vunit))
@@ -652,11 +636,10 @@ module MAPL_VerticalDataMod
               call v%add_attribute('coordinate',trim(this%vvar))
               call v%add_attribute('standard_name',trim(this%vvar)//"_level")
               call v%add_const_value(UnlimitedEntity(this%levs))
-              call metadata%add_variable('lev',v,rc=status)
-              _VERIFY(status)
+              call metadata%add_variable('lev',v,_RC)
 
            else if (this%regrid_type == VERTICAL_METHOD_SELECT) then
-              call metadata%add_dimension('lev', lm, rc=status)
+              call metadata%add_dimension('lev', lm)
               v = Variable(type=PFIO_REAL64, dimensions='lev')
               call v%add_attribute('long_name','vertical level')
               call v%add_attribute('units','layer')
@@ -664,8 +647,7 @@ module MAPL_VerticalDataMod
               call v%add_attribute('coordinate','eta')
               call v%add_attribute('standard_name','model_layers')
               call v%add_const_value(UnlimitedEntity(this%levs))
-              call metadata%add_variable('lev',v,rc=status)
-              _VERIFY(status)
+              call metadata%add_variable('lev',v,_RC)
            end if
         end if
         _RETURN(_SUCCESS)
