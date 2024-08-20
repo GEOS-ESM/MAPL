@@ -8,7 +8,7 @@ endif()
 
 project(
   MAPL
-  VERSION 2.47.1
+  VERSION 2.47.2
   LANGUAGES
     Fortran
     CXX

@@ -20,7 +20,6 @@ set(
   VarSpecPtr.F90
   VarConnPoint.F90
   VarConnType.F90
-  VariableSpecification.F90
   VarSpecMiscMod.F90
   VarSpecVector.F90
   VarConnPoint.F90
