@@ -48,8 +48,10 @@ contains
 
 
 
-      call MPI_Comm_rank(this%comm, this%rank, _IERROR)
-      call MPI_Comm_size(this%comm, this%np, _IERROR)
+      call MPI_Comm_rank(this%comm, this%rank, status)
+      _VERIFY(status)
+      call MPI_Comm_size(this%comm, this%np, status)
+      _VERIFY(status)
 
       associate (np => this%np, n => this%n)
         allocate(this%buffer(this%n))

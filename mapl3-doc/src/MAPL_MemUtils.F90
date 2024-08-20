@@ -403,6 +403,7 @@ module MAPL_MemUtilsMod
     call mem_dump(mhwm, mrss, memused, swapused, commitlimit, committed_as, _RC)
 #endif
     call MPI_Comm_Size(comm_,npes,status)
+    _VERIFY(status)
     if (MAPL_MemUtilsMode == MAPL_MemUtilsModeFull) then
        lhwm = mhwm; call MPI_AllReduce(lhwm,ghwm,1,MPI_REAL,MPI_MAX,comm_,status)
        _VERIFY(STATUS)
@@ -414,6 +415,7 @@ module MAPL_MemUtilsMod
        _VERIFY(STATUS)
        gavg = gavg/npes
        mstd = (mrss-gavg)**2; call MPI_AllReduce(mstd,gstd,1,MPI_REAL,MPI_SUM,comm_,status)
+       _VERIFY(STATUS)
        gstd = sqrt( gstd/npes )
        gmax_save = gmax
        lcommitlimit  = commitlimit;  call MPI_AllReduce(lcommitlimit,gcommitlimit,1,MPI_REAL,MPI_MAX,comm_,status)
@@ -784,6 +786,7 @@ subroutine MAPL_MemReport(comm,file_name,line,decorator,rc)
     _RETURN(ESMF_SUCCESS)
 #endif
     call MPI_Barrier(comm,status)
+    _VERIFY(status)
     if (present(decorator)) then
        extra_message = decorator
     else
@@ -792,6 +795,7 @@ subroutine MAPL_MemReport(comm,file_name,line,decorator,rc)
     call MAPL_MemUsed(mem_total,mem_used,percent_used)
     call MAPL_MemCommited(committed_total,committed,percent_committed)
     call MPI_Comm_Rank(comm,rank,status)
+    _VERIFY(status)
     if (rank == 0) write(*,'("Mem report ",A20," ",A30," ",i7," ",f5.1,"% : ",f5.1,"% Mem Comm:Used")')trim(extra_message),file_name,line,percent_committed,percent_used
 
 end subroutine

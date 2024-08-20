@@ -388,6 +388,7 @@ contains
         call MPI_AllGATHERV(locals, local_size,            MPI_INTEGER, &
                             i_ptr,  int(offsets),  int(g_offsets),  MPI_INTEGER, &
                             this%containing_server%NodeRoot_Comm,status)
+        _VERIFY(status)
         deallocate(locals)
 
       endif

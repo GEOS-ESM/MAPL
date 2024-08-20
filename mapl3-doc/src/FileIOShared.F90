@@ -431,8 +431,10 @@ module FileIOSharedMod
 
          integer :: status
 
-         call MPI_Comm_Rank(comm,myid,_IERROR)
-         call MPI_COMM_Size(comm,npes,_IERROR)
+         call MPI_Comm_Rank(comm,myid,status)
+         _VERIFY(status)
+         call MPI_COMM_Size(comm,npes,status)
+         _VERIFY(status)
 
          allocate(iminw(npes),imaxw(npes),jminw(npes),jmaxw(npes),stat=status)
          iminw=-1
@@ -489,9 +491,11 @@ module FileIOSharedMod
          NX0 = mod(myid,nx) + 1
          NY0 = myid/nx + 1
          color = nx0
-         call MPI_Comm_Split(comm,color,myid,ycomm,_IERROR)
+         call MPI_Comm_Split(comm,color,myid,ycomm,status)
+         _VERIFY(status)
          color = ny0
-         call MPI_Comm_Split(comm,color,myid,xcomm,_IERROR)
+         call MPI_Comm_Split(comm,color,myid,xcomm,status)
+         _VERIFY(status)
          ! reader communicators
          if (num_readers > ny .or. mod(ny,num_readers) /= 0) then
             _RETURN(ESMF_FAILURE)
@@ -502,12 +506,14 @@ module FileIOSharedMod
          else
             color = MPI_UNDEFINED
          end if
-         call MPI_COMM_SPLIT(comm,color,myid,readers_comm,_IERROR)
+         call MPI_COMM_SPLIT(comm,color,myid,readers_comm,status)
+         _VERIFY(status)
          if (num_readers==ny) then
             IOscattercomm = xcomm
          else
             j = ny0 - mod(ny0-1,ny_by_readers)
-            call MPI_Comm_Split(comm,j,myid,IOScattercomm,_IERROR)
+            call MPI_Comm_Split(comm,j,myid,IOScattercomm,status)
+            _VERIFY(status)
          endif
          ! writer communicators
          if (num_writers > ny .or. mod(ny,num_writers) /= 0) then
@@ -519,12 +525,14 @@ module FileIOSharedMod
          else
             color = MPI_UNDEFINED
          end if
-         call MPI_COMM_SPLIT(comm,color,myid,writers_comm,_IERROR)
+         call MPI_COMM_SPLIT(comm,color,myid,writers_comm,status)
+         _VERIFY(status)
          if (num_writers==ny) then
             IOgathercomm = xcomm
          else
             j = ny0 - mod(ny0-1,ny_by_writers)
-            call MPI_Comm_Split(comm,j,myid,IOgathercomm,_IERROR)
+            call MPI_Comm_Split(comm,j,myid,IOgathercomm,status)
+            _VERIFY(status)
          endif
 
          ArrDes%im_world=im_world
@@ -537,7 +545,8 @@ module FileIOSharedMod
          ArrDes%iogathercomm  = iogathercomm
          ArrDes%xcomm = xcomm
          ArrDes%ycomm = ycomm
-         call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,_IERROR)
+         call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
+         _VERIFY(status)
 
          allocate(arrdes%i1(size(i1)),_STAT)
          arrdes%i1=i1
@@ -605,23 +614,28 @@ module FileIOSharedMod
        ny = size(arrdes%j1)
        _ASSERT(num_writers <= ny,'num writers must be less or equal to than NY')
        _ASSERT(mod(ny,num_writers)==0,'num writerss must evenly divide NY')
-       call mpi_comm_rank(full_comm,myid, _IERROR)
+       call mpi_comm_rank(full_comm,myid, status)
+       _VERIFY(status)
        color =  arrdes%NX0
-       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, _IERROR)
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, status)
+       _VERIFY(status)
        color = arrdes%NY0
-       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Xcomm, _IERROR)
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Xcomm, status)
+       _VERIFY(status)
        ny_by_writers = ny/num_writers
        if (mod(myid,nx*ny/num_writers) == 0) then
           color = 0
        else
           color = MPI_UNDEFINED
        endif
-       call MPI_COMM_SPLIT(full_comm, color, myid, arrdes%writers_comm, _IERROR)
+       call MPI_COMM_SPLIT(full_comm, color, myid, arrdes%writers_comm, status)
+       _VERIFY(status)
        if (num_writers==ny) then
           arrdes%IOgathercomm = arrdes%Xcomm
        else
             j = arrdes%NY0 - mod(arrdes%NY0-1,ny_by_writers)
-          call MPI_COMM_SPLIT(full_comm, j, myid, arrdes%IOgathercomm, _IERROR)
+          call MPI_COMM_SPLIT(full_comm, j, myid, arrdes%IOgathercomm, status)
+          _VERIFY(status)
        endif
        if (arrdes%writers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%writers_comm,writer_rank,status)
@@ -648,23 +662,28 @@ module FileIOSharedMod
        _ASSERT(num_readers <= ny,'num readers must be less than or equal to NY')
        _ASSERT(mod(ny,num_readers)==0,'num readers must evenly divide NY')
 
-       call mpi_comm_rank(full_comm,myid, _IERROR)
+       call mpi_comm_rank(full_comm,myid, status)
+       _VERIFY(status)
        color =  arrdes%NX0
-       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, _IERROR)
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, status)
+       _VERIFY(status)
        color = arrdes%NY0
-       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Xcomm, _IERROR)
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Xcomm, status)
+       _VERIFY(status)
        ny_by_readers = ny/num_readers
        if (mod(myid,nx*ny/num_readers) == 0) then
           color = 0
        else
           color = MPI_UNDEFINED
        endif
-       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%readers_comm, _IERROR)
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%readers_comm, status)
+       _VERIFY(status)
        if (num_readers==ny) then
           arrdes%IOscattercomm = arrdes%Xcomm
        else
           j = arrdes%NY0 - mod(arrdes%NY0-1,ny_by_readers)
-          call MPI_COMM_SPLIT(full_comm, j, MYID, arrdes%IOscattercomm, _IERROR)
+          call MPI_COMM_SPLIT(full_comm, j, MYID, arrdes%IOscattercomm, status)
+          _VERIFY(status)
        endif
 
        _RETURN(_SUCCESS)

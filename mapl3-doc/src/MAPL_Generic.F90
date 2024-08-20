@@ -11074,6 +11074,7 @@ contains
          call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
          call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
          call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
+         _VERIFY(status)
          arrdes%split_restart = mpl%grid%split_restart
          arrdes%split_checkpoint = mpl%grid%split_checkpoint
 

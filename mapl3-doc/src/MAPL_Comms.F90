@@ -677,6 +677,7 @@ module MAPL_CommsMod
              call MPI_Recv(request%Var, size(request%Var), MPI_REAL, &
                            request%Root, request%tag, request%comm,  &
                            MPI_STATUS_IGNORE, status)
+             _VERIFY(status)
           endif
           k=0
           do J=1,request%JM0

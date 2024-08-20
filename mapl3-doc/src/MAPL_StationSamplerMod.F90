@@ -1,4 +1,5 @@
 #include "MAPL_Generic.h"
+#include "MAPL_ErrLog.h"
 module StationSamplerMod
   use ESMF
   use MAPL_ErrorHandlingMod
@@ -287,10 +288,12 @@ contains
     call MPI_Scatterv( sampler%lons, sendcount, &
          displs, MPI_REAL8,  lons_chunk, &
          recvcount, MPI_REAL8, 0, mpic, ierr)
+    _VERIFY(ierr)
 
     call MPI_Scatterv( sampler%lats, sendcount, &
          displs, MPI_REAL8,  lats_chunk, &
          recvcount, MPI_REAL8, 0, mpic, ierr)
+    _VERIFY(ierr)
 
     ! -- root
     sampler%LSF   = LocStreamFactory(sampler%lons, sampler%lats, _RC)
@@ -620,6 +623,7 @@ contains
              call MPI_gatherv ( p_chunk_2d, nsend, MPI_REAL, &
                   p_rt_2d, recvcount, displs, MPI_REAL,&
                   iroot, mpic, ierr )
+             _VERIFY(ierr)
 
              call MAPL_TimerOn(this%GENSTATE,"put2D")
              if (mapl_am_i_root()) then
@@ -642,11 +646,11 @@ contains
              call MAPL_TimerOff(this%GENSTATE,"3d_regrid")
 
              call MPI_Barrier(mpic,ierr)
-             _VERIFY (ierr)
+             _VERIFY(ierr)
              call MAPL_TimerOn(this%GENSTATE,"FieldRedist")
              call ESMF_FieldRedist (new_dst_field, field_chunk_3d, this%RH, _RC)
              call MPI_Barrier(mpic,ierr)
-             _VERIFY (ierr)
+             _VERIFY(ierr)
              call MAPL_TimerOff(this%GENSTATE,"FieldRedist")
 
 
@@ -658,7 +662,7 @@ contains
                    call MPI_gatherv ( p_dst_t(1,k), nsend, MPI_REAL, &
                         p_rt_3d_aux(1,k), recvcount, displs, MPI_REAL,&
                         iroot, mpic, ierr )
-                   _VERIFY (ierr)
+                   _VERIFY(ierr)
                 end do
                 deallocate(p_dst_t)
                 p_rt_3d = reshape(p_rt_3d_aux, shape(p_rt_3d), order=[2,1])
@@ -666,6 +670,7 @@ contains
                 call MPI_gatherv ( p_chunk_3d, nsend_v, MPI_REAL, &
                      p_rt_3d, recvcount_v, displs_v, MPI_REAL,&
                      iroot, mpic, ierr )
+                _VERIFY(ierr)
              end if
              call MAPL_TimerOff(this%GENSTATE,"gatherv")
 
