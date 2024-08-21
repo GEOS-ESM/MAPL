@@ -13,6 +13,7 @@ module mapl3g_VerticalGrid
    contains
       procedure(I_get_num_levels), deferred :: get_num_levels
       procedure(I_get_coordinate_field), deferred :: get_coordinate_field
+      procedure(I_can_connect_to), deferred :: can_connect_to
 
 
       procedure :: set_id
@@ -43,6 +44,13 @@ module mapl3g_VerticalGrid
        character(*), intent(in) :: units
        integer, optional, intent(out) :: rc
     end subroutine I_get_coordinate_field
+
+    logical function I_can_connect_to(this, src, rc) result(can_connect_to)
+       import VerticalGrid
+       class(VerticalGrid), intent(in) :: this
+       class(VerticalGrid), intent(in) :: src
+       integer, optional, intent(out) :: rc
+    end function I_can_connect_to
       
    end interface
 
