@@ -84,23 +84,6 @@ module mapl3g_GriddedComponentDriver
          integer, optional, intent(out) :: rc
       end subroutine write_restart
 
-      module function get_states(this) result(states)
-         type(MultiState) :: states
-         class(GriddedComponentDriver), intent(in) :: this
-      end function get_states
-
-      module function get_clock(this) result(clock)
-         use esmf, only: ESMF_Clock
-         type(ESMF_Clock) :: clock
-         class(GriddedComponentDriver), intent(in) :: this
-      end function get_clock
-
-      module subroutine set_clock(this, clock)
-         use esmf, only: ESMF_Clock
-         class(GriddedComponentDriver), intent(inout) :: this
-         type(ESMF_Clock), intent(in) :: clock
-      end subroutine set_clock
-
       recursive module subroutine run_export_couplers(this, unusable, phase_idx, rc)
          class(GriddedComponentDriver), intent(inout) :: this
          class(KE), optional, intent(in) :: unusable
@@ -125,18 +108,6 @@ module mapl3g_GriddedComponentDriver
          type(MultiState), intent(in) :: states
       end function new_GriddedComponentDriver
 
-      module function get_gridcomp(this) result(gridcomp)
-         use esmf, only: ESMF_GridComp
-         type(ESMF_GridComp) :: gridcomp 
-         class(GriddedComponentDriver), intent(in) :: this
-      end function get_gridcomp
-
-      module function get_name(this, rc) result(name)
-         character(:), allocatable :: name
-         class(GriddedComponentDriver), intent(in) :: this
-         integer, optional, intent(out) :: rc
-      end function get_name
-
       module subroutine add_export_coupler(this, driver)
          class(GriddedComponentDriver), intent(inout) :: this
          type(GriddedComponentDriver), intent(in) :: driver
@@ -148,5 +119,49 @@ module mapl3g_GriddedComponentDriver
       end subroutine add_import_coupler
 
    end interface
+
+   CONTAINS
+
+   function get_clock(this) result(clock)
+      type(ESMF_Clock) :: clock
+      class(GriddedComponentDriver), intent(in) :: this
+
+      clock = this%clock
+   end function get_clock
+
+   function get_gridcomp(this) result(gridcomp)
+      use esmf, only: ESMF_GridComp
+      type(ESMF_GridComp) :: gridcomp
+      class(GriddedComponentDriver), intent(in) :: this
+      gridcomp = this%gridcomp
+   end function get_gridcomp
+
+   function get_name(this, rc) result(name)
+      character(:), allocatable :: name
+      class(GriddedComponentDriver), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(len=ESMF_MAXSTR) :: buffer
+
+      call ESMF_GridCompGet(this%gridcomp, name=buffer, _RC)
+      name = trim(buffer)
+
+      _RETURN(ESMF_SUCCESS)
+   end function get_name
+
+   function get_states(this) result(states)
+      type(MultiState) :: states
+      class(GriddedComponentDriver), intent(in) :: this
+
+      states = this%states
+   end function get_states
+
+   subroutine set_clock(this, clock)
+      class(GriddedComponentDriver), intent(inout) :: this
+      type(ESMF_Clock), intent(in) :: clock
+
+      this%clock = clock
+   end subroutine set_clock
 
 end module mapl3g_GriddedComponentDriver
