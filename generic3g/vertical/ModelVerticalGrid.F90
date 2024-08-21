@@ -35,6 +35,7 @@ module mapl3g_ModelVerticalGrid
    contains
       procedure :: get_num_levels
       procedure :: get_coordinate_field
+      procedure :: can_connect_to
 
       ! subclass-specific methods
       procedure :: add_variant
@@ -47,6 +48,14 @@ module mapl3g_ModelVerticalGrid
       procedure new_ModelVerticalGrid_basic
    end interface ModelVerticalGrid
 
+   interface
+      module function can_connect_to(this, src, rc)
+         logical :: can_connect_to
+         class(ModelVerticalGrid), intent(in) :: this
+         class(VerticalGrid), intent(in) :: src
+         integer, optional, intent(out) :: rc
+      end function
+   end interface
 
    ! TODO:
    ! - Ensure that there really is a vertical dimension
@@ -179,5 +188,7 @@ contains
        _RETURN(_SUCCESS)
 
     end subroutine get_coordinate_field
+
+
 
 end module mapl3g_ModelVerticalGrid

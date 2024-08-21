@@ -341,6 +341,7 @@ end subroutine initialize_
        call MPI_gatherv ( nx2, 1, MPI_INTEGER, &
             this%recvcounts, recvcounts_loc, displs_loc, MPI_INTEGER,&
             iroot, mpic, ierr )
+       _VERIFY(ierr)
        if (.not. mapl_am_i_root()) then
           this%recvcounts(:) = 0
        end if
@@ -353,9 +354,11 @@ end subroutine initialize_
        call MPI_gatherv ( lons_chunk, nsend, MPI_REAL8, &
             lons, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
+       _VERIFY(ierr) 
        call MPI_gatherv ( lats_chunk, nsend, MPI_REAL8, &
             lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
+       _VERIFY(ierr) 
 
 
 !!       if (mapl_am_I_root()) write(6,*) 'nobs tot :', nx
@@ -390,13 +393,13 @@ end subroutine initialize_
        ptA(:) = lons_chunk(:)
        call ESMF_FieldRedistStore (fieldA, fieldB, RH, _RC)
        call MPI_Barrier(mpic,ierr)
-       _VERIFY (ierr)
+       _VERIFY(ierr) 
        call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
        lons_ds = ptB
 
        ptA(:) = lats_chunk(:)
        call MPI_Barrier(mpic,ierr)
-       _VERIFY (ierr)
+       _VERIFY(ierr) 
        call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
        lats_ds = ptB
 
@@ -525,6 +528,7 @@ end subroutine initialize_
        call MPI_gatherv ( this%npt_mask, 1, MPI_INTEGER, &
             this%recvcounts, recvcounts_loc, displs_loc, MPI_INTEGER,&
             iroot, mpic, ierr )
+       _VERIFY(ierr) 
        if (.not. mapl_am_i_root()) then
           this%recvcounts(:) = 0
        end if
@@ -540,9 +544,11 @@ end subroutine initialize_
        call MPI_gatherv ( lons, nsend, MPI_REAL8, &
             this%lons, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
+       _VERIFY(ierr) 
        call MPI_gatherv ( lats, nsend, MPI_REAL8, &
             this%lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
+       _VERIFY(ierr) 
 
        call MAPL_TimerOff(this%GENSTATE,"4_gatherV")
 
@@ -733,7 +739,8 @@ module subroutine  add_metadata(this,rc)
              nsend = nx
              call MPI_gatherv ( p_dst_2d, nsend, MPI_REAL, &
                   p_dst_2d_full, this%recvcounts, this%displs, MPI_REAL,&
-                  iroot, mpic, ierr )
+                  iroot, mpic, status )
+             _VERIFY(status)
              call MAPL_TimerOn(this%GENSTATE,"put2D")
              if (mapl_am_i_root()) then
                 call this%formatter%put_var(item%xname,p_dst_2d_full,&
@@ -757,7 +764,8 @@ module subroutine  add_metadata(this,rc)
              nsend = nx * nz
              call MPI_gatherv ( p_dst_3d, nsend, MPI_REAL, &
                   p_dst_3d_full, recvcounts_3d, displs_3d, MPI_REAL,&
-                  iroot, mpic, ierr )
+                  iroot, mpic, status )
+             _VERIFY(status)
              call MAPL_TimerOn(this%GENSTATE,"put3D")
              if (mapl_am_i_root()) then
                 allocate(arr(nz, this%npt_mask_tot), _STAT)

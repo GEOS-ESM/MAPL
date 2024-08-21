@@ -110,6 +110,7 @@ contains
 
       c_manager%client_comm = client_comm
       call MPI_Comm_rank(client_comm, c_manager%rank, rc)
+      _VERIFY(rc)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function new_ClientManager
