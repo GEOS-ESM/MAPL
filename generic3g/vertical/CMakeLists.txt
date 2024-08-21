@@ -15,7 +15,7 @@ esma_add_fortran_submodules(
 
 esma_add_fortran_submodules(
   TARGET MAPL.generic3g
-  SUBDIRECTORY MODELVerticalGrid
+  SUBDIRECTORY ModelVerticalGrid
   SOURCES can_connect_to.F90
 )
 
