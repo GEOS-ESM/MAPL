@@ -93,7 +93,7 @@ module mapl3g_OuterMetaComponent
       procedure :: initialize_advertise_geom
       procedure :: initialize_realize_geom
       procedure :: initialize_advertise
-      procedure :: initialize_post_advertise
+      procedure :: initialize_modify_advertise
       procedure :: initialize_realize
 
       procedure :: run_user
@@ -256,7 +256,7 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
      end subroutine initialize_advertise
    
-     module recursive subroutine initialize_post_advertise(this, importState, exportState, clock, unusable, rc)
+     module recursive subroutine initialize_modify_advertise(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), intent(inout) :: this
          ! optional arguments
          type(ESMF_State) :: importState
@@ -264,7 +264,7 @@ module mapl3g_OuterMetaComponent
          type(ESMF_Clock) :: clock
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
-      end subroutine initialize_post_advertise
+      end subroutine initialize_modify_advertise
    
       module recursive subroutine initialize_realize(this, unusable, rc)
          class(OuterMetaComponent), intent(inout) :: this

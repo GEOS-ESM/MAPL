@@ -73,7 +73,7 @@ esma_add_fortran_submodules(
           get_outer_meta_from_outer_gc.F90 attach_outer_meta.F90 free_outer_meta.F90
           get_phases.F90 set_hconfig.F90 get_hconfig.F90 get_geom.F90
           initialize_advertise_geom.F90 initialize_realize_geom.F90
-          initialize_advertise.F90 initialize_post_advertise.F90
+          initialize_advertise.F90 initialize_modify_advertise.F90
           initialize_realize.F90 recurse.F90 apply_to_children_custom.F90
           initialize_user.F90 run_custom.F90 run_user.F90 run_clock_advance.F90
           read_restart.F90 write_restart.F90 get_name.F90 get_gridcomp.F90

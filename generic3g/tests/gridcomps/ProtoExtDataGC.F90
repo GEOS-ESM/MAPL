@@ -32,13 +32,13 @@ contains
       integer :: status
 
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, run, _RC)
-      call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, init_post_advertise, phase_name='GENERIC::INIT_POST_ADVERTISE', _RC)
+      call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, init_modify_advertise, phase_name='GENERIC::INIT_MODIFY_ADVERTISE', _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine setservices
 
    
-   subroutine init_post_advertise(gc, importState, exportState, clock, rc)
+   subroutine init_modify_advertise(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -102,7 +102,7 @@ contains
 
       call ESMF_HConfigDestroy(mapl_config, _RC)
       _RETURN(ESMF_SUCCESS)
-   end subroutine init_post_advertise
+   end subroutine init_modify_advertise
 
 
    subroutine run(gc, importState, exportState, clock, rc)
