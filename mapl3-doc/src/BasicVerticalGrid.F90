@@ -17,6 +17,7 @@ module mapl3g_BasicVerticalGrid
    contains
       procedure :: get_num_levels
       procedure :: get_coordinate_field
+      procedure :: can_connect_to
    end type BasicVerticalGrid
 
    interface operator(==)
@@ -30,6 +31,15 @@ module mapl3g_BasicVerticalGrid
    interface BasicVerticalGrid
       module procedure new_BasicVerticalGrid
    end interface BasicVerticalGrid
+
+   interface
+      module function can_connect_to(this, src, rc)
+         logical :: can_connect_to
+         class(BasicVerticalGrid), intent(in) :: this
+         class(VerticalGrid), intent(in) :: src
+         integer, optional, intent(out) :: rc
+      end function
+   end interface
 
 contains
 
@@ -68,5 +78,6 @@ contains
       type(BasicVerticalGrid), intent(in) :: a, b
       not_equal_to = .not. (a == b)
    end function not_equal_to
+
 
 end module mapl3g_BasicVerticalGrid

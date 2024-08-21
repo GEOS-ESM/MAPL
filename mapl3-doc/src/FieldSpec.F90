@@ -477,18 +477,22 @@ contains
       class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
 
-      logical :: can_convert_units_
+      logical :: can_convert_units
+      logical :: can_connect_vertical_grid
       integer :: status
 
       select type(src_spec)
       class is (FieldSpec)
-         can_convert_units_ = can_connect_units(this%units, src_spec%units, _RC)
+         can_convert_units = can_connect_units(this%units, src_spec%units, _RC)
+         can_connect_vertical_grid = this%vertical_grid%can_connect_to(src_spec%vertical_grid, _RC)
+
          can_connect_to = all ([ &
               can_match(this%geom,src_spec%geom), &
+              can_connect_vertical_grid, &
               match(this%vertical_dim_spec,src_spec%vertical_dim_spec), &
               match(this%ungridded_dims,src_spec%ungridded_dims), &
               includes(this%attributes, src_spec%attributes), &
-              can_convert_units_ &
+              can_convert_units &
               ])
       class default
          can_connect_to = .false.
@@ -636,16 +640,16 @@ contains
          _RETURN(_SUCCESS)
       end if
       
-   _ASSERT(allocated(this%vertical_grid), 'Source spec must specify a valid vertical grid.')
-   if (.not. same_vertical_grid(this%vertical_grid, dst_spec%vertical_grid)) then
-      _HERE
-      call this%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
-           'ignore', this%geom, this%typekind, this%units, _RC)
-      call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
-           'ignore', dst_spec%geom, dst_spec%typekind, dst_spec%units, _RC)
-      action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, VERTICAL_REGRID_LINEAR)
-      _RETURN(_SUCCESS)
-   end if
+      _ASSERT(allocated(this%vertical_grid), 'Source spec must specify a valid vertical grid.')
+      if (.not. same_vertical_grid(this%vertical_grid, dst_spec%vertical_grid)) then
+         _HERE
+         call this%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
+              'ignore', this%geom, this%typekind, this%units, _RC)
+         call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
+              'ignore', dst_spec%geom, dst_spec%typekind, dst_spec%units, _RC)
+         action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, VERTICAL_REGRID_LINEAR)
+         _RETURN(_SUCCESS)
+      end if
       
 !#   if (.not. same_freq_spec(this%freq_spec, dst_spec%freq_spec)) then
 !#      action = VerticalRegridAction(this%freq_spec, dst_spec%freq_spec
@@ -719,6 +723,7 @@ contains
       can_match = n_mirror <= 1
 
    end function can_match_geom
+
 
    logical function match_geom(a, b) result(match)
       type(ESMF_Geom), allocatable, intent(in) :: a, b

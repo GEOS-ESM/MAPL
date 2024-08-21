@@ -22,6 +22,7 @@ module mapl3g_FixedLevelsVerticalGrid
    contains
       procedure :: get_num_levels
       procedure :: get_coordinate_field
+      procedure :: can_connect_to
    end type FixedLevelsVerticalGrid
 
    interface FixedLevelsVerticalGrid
@@ -57,6 +58,15 @@ contains
 
        _FAIL('not implemented')
     end subroutine get_coordinate_field
+
+    logical function can_connect_to(this, src, rc)
+       class(FixedLevelsVerticalGrid), intent(in) :: this
+       class(VerticalGrid), intent(in) :: src
+       integer, optional, intent(out) :: rc
+
+       _FAIL('not implemented')
+
+    end function can_connect_to
 
 end module mapl3g_FixedLevelsVerticalGrid
    
