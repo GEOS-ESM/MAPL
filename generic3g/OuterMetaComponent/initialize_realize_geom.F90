@@ -34,12 +34,16 @@ contains
 
          integer :: status
 
-         if (allocated(this%geom)) then
-            call child_meta%set_geom(this%geom)
-         end if
-         if (allocated(this%vertical_grid)) then
-            call child_meta%set_vertical_grid(this%vertical_grid)
-         end if
+         associate(kind => child_meta%component_spec%geometry_spec%kind)
+           _RETURN_IF(kind /= GEOMETRY_FROM_PARENT)
+
+           if (allocated(this%geom)) then
+              call child_meta%set_geom(this%geom)
+           end if
+           if (allocated(this%vertical_grid)) then
+              call child_meta%set_vertical_grid(this%vertical_grid)
+           end if
+         end associate
 
          _RETURN(ESMF_SUCCESS)
       end subroutine set_child_geom

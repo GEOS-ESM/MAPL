@@ -15,7 +15,6 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-
       call self_advertise(this, _RC)
       call apply_to_children(this, add_subregistry, _RC)
       call recurse(this, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
@@ -68,7 +67,7 @@ contains
          type(VariableSpec), intent(in) :: var_spec
          type(StateRegistry), intent(inout) :: registry
          type(ESMF_Geom), optional, intent(in) :: geom
-         class(VerticalGrid), intent(in) :: vertical_grid
+         class(VerticalGrid), optional, intent(in) :: vertical_grid
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
