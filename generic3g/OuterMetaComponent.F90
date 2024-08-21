@@ -91,7 +91,6 @@ module mapl3g_OuterMetaComponent
       procedure :: run_custom
       procedure :: initialize_user
       procedure :: initialize_advertise_geom
-      procedure :: initialize_realize_geom
       procedure :: initialize_advertise
       procedure :: initialize_modify_advertise
       procedure :: initialize_realize
@@ -241,13 +240,6 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_advertise_geom
-   
-      module recursive subroutine initialize_realize_geom(this, unusable, rc)
-         class(OuterMetaComponent), intent(inout) :: this
-         ! optional arguments
-         class(KE), optional, intent(in) :: unusable
-         integer, optional, intent(out) :: rc
-      end subroutine initialize_realize_geom
    
       module recursive subroutine initialize_advertise(this, unusable, rc)
          class(OuterMetaComponent), intent(inout) :: this
