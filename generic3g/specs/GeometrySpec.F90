@@ -2,6 +2,7 @@
 
 module mapl3g_GeometrySpec
    use mapl3g_geom_mgr, only: GeomSpec
+   use mapl3g_VerticalGrid
    implicit none
    private
 
@@ -21,13 +22,13 @@ module mapl3g_GeometrySpec
 
    type GeometrySpec
       integer :: kind= GEOMETRY_FROM_PARENT
-      character(len=:), allocatable :: provider
+      character(len=:), allocatable :: provider ! name of child
       class(GeomSpec), allocatable :: geom_spec
+      class(VerticalGrid), allocatable :: vertical_grid
    end type GeometrySpec
 
 
    interface GeometrySpec
-      module procedure new_GeometrySpecDefault
       module procedure new_GeometrySpecSimple
       module procedure new_GeometryFromChild
       module procedure new_GeometryProvider
@@ -35,12 +36,6 @@ module mapl3g_GeometrySpec
 
 
 contains
-
-   function new_GeometrySpecDefault() result(spec)
-      type(GeometrySpec) :: spec
-      spec%kind = GEOMETRY_FROM_PARENT
-   end function new_GeometrySpecDefault
-
 
    function new_GeometrySpecSimple(kind) result(spec)
       type(GeometrySpec) :: spec
@@ -55,11 +50,15 @@ contains
       spec%provider = provider
    end function new_GeometryFromChild
 
-   function new_GeometryProvider(geom_spec) result(spec)
+   function new_GeometryProvider(geom_spec, vertical_grid) result(spec)
       type(GeometrySpec) :: spec
-      class(GeomSpec), intent(in) :: geom_spec
+      class(GeomSpec), optional, intent(in) :: geom_spec
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       spec%kind = GEOMETRY_PROVIDER
-      spec%geom_spec = geom_spec
+      if (present(geom_spec)) spec%geom_spec = geom_spec
+      if (present(vertical_grid)) spec%vertical_grid = vertical_grid
    end function new_GeometryProvider
+
+
 
 end module mapl3g_GeometrySpec

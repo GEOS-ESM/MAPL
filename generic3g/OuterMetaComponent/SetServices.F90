@@ -32,11 +32,6 @@ contains
       type(ESMF_GridComp) :: user_gridcomp
 
       this%component_spec = parse_component_spec(this%hconfig, _RC)
-      if (this%component_spec%geometry_spec%kind == GEOMETRY_PROVIDER) then
-         _HERE,' hardwired vertical grid for provider in ', this%get_name()
-         this%vertical_grid = BasicVerticalGrid(num_levels=5)
-         _HERE,allocated(this%vertical_grid), this%get_name()
-      end if
       user_gridcomp = this%user_gc_driver%get_gridcomp()
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
       call this%user_setservices%run(user_gridcomp, _RC)
