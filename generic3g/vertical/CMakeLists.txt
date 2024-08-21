@@ -7,5 +7,15 @@ target_sources(MAPL.generic3g PRIVATE
   ModelVerticalGrid.F90
 )
 
-add_subdirectory(BasicVerticalGrid)
-add_subdirectory(ModelVerticalGrid)
+esma_add_fortran_submodules(
+  TARGET MAPL.generic3g
+  SUBDIRECTORY BasicVerticalGrid
+  SOURCES can_connect_to.F90
+)
+
+esma_add_fortran_submodules(
+  TARGET MAPL.generic3g
+  SUBDIRECTORY MODELVerticalGrid
+  SOURCES can_connect_to.F90
+)
+
