@@ -16,7 +16,6 @@ contains
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
       call self_advertise(this, _RC)
-      call apply_to_children(this, add_subregistry, _RC)
       call recurse(this, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
 
       call process_connections(this, _RC)

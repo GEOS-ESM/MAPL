@@ -156,7 +156,7 @@ module mapl3g_OuterMetaComponent
       end subroutine
 
       module recursive subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
-         class(OuterMetaComponent), intent(inout) :: this
+         class(OuterMetaComponent), target, intent(inout) :: this
          character(len=*), intent(in) :: child_name
          class(AbstractUserSetServices), intent(in) :: setservices
          type(ESMF_HConfig), intent(in) :: hconfig
