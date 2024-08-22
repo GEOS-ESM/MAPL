@@ -1458,7 +1458,7 @@ contains
      spec = this%get_spec()
 
      if (route_handles%count(spec) == 0) then  ! new route_handle
-        file_weights = .true. !IAND(spec%hints,REGRID_HINT_FILE_WEIGHTS) /= 0
+        file_weights = IAND(spec%hints,REGRID_HINT_FILE_WEIGHTS) /= 0
         compute_transpose = IAND(spec%hints,REGRID_HINT_COMPUTE_TRANSPOSE) /= 0
 
         if (file_weights) then
@@ -1469,7 +1469,7 @@ contains
            rh_file_exists = .false.
         end if
         if (rh_file_exists) then
-           if (mapl_am_I_root()) write(*,*)__FILE__," reading "//trim(rh_file)
+           if (mapl_am_I_root()) write(*,*) "reading weight file "//trim(rh_file)
            route_handle = ESMF_RouteHandleCreate(rh_file,_RC)
            call route_handles%insert(spec, route_handle)
            if (compute_transpose) then
@@ -1586,10 +1586,10 @@ contains
            call ESMF_FieldDestroy(dst_field, rc=status)
            _VERIFY(status)
            if (file_weights) then
-              if (mapl_am_I_root()) write(*,*)__FILE__," writing "//trim(rh_file)
+              if (mapl_am_I_root()) write(*,*) " writing weight file "//trim(rh_file)
               call ESMF_RouteHandleWrite(route_handle,rh_file,_RC)
               if (compute_transpose) then
-                 if (mapl_am_I_root()) write(*,*)__FILE__," writing "//trim(rh_trans_file)
+                 if (mapl_am_I_root()) write(*,*) " writing transpose weight file "//trim(rh_trans_file)
                  call ESMF_RouteHandleWrite(transpose_route_handle,rh_trans_file,_RC)
               end if
            end if

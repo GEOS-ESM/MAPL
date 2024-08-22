@@ -62,7 +62,6 @@
    use MAPL_ExtDataLogger
    use MAPL_ExtDataConstants
    use gFTL_StringIntegerMap
-   use MAPL_MemUtilsMod
 
    IMPLICIT NONE
    PRIVATE
@@ -109,7 +108,7 @@
                                           !! are not actually required
      type(ESMF_Config)    :: CF
      logical              :: active = .true.
-     logical              :: file_weights = .true.
+     logical              :: file_weights = .false.
   end type MAPL_ExtData_State
 
 ! Hook for the ESMF
@@ -258,7 +257,7 @@ CONTAINS
    integer           :: idx
    type(MAPL_MetaComp),pointer :: MAPLSTATE
 
-   type(ExtDataOldTypesCreator),target :: config_yaml
+   type(ExtDataOldTypesCreator), target :: config_yaml
    character(len=ESMF_MAXSTR) :: new_rc_file
    logical :: found_in_config
    integer :: num_primary,num_derived,num_rules
@@ -518,14 +517,13 @@ CONTAINS
    integer :: idx,nitems
    type(ESMF_Config) :: cf_master
    type(ESMF_Time) :: adjusted_time
-   type(ESMF_VM) :: vm
 
    _UNUSED_DUMMY(IMPORT)
    _UNUSED_DUMMY(EXPORT)
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, vm=vm, _RC )
+   call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, _RC )
 
 !  Extract relevant runtime information
 !  ------------------------------------
@@ -603,14 +601,11 @@ CONTAINS
 
    bundle_iter = IOBundles%begin()
    do while (bundle_iter /= IoBundles%end())
-
       io_bundle => bundle_iter%get()
       bracket_side = io_bundle%bracket_side
       entry_num = io_bundle%entry_index
       file_Processed = io_bundle%file_name
       item => self%primary%item(entry_num)
-
-      call MAPL_MemUtilsWrite(vm, 'MAPL_ExtData:ESMF_FieldBundleCreate '//trim(io_bundle%file_name), rc = status)
 
       io_bundle%pbundle = ESMF_FieldBundleCreate(rc=status)
       _VERIFY(STATUS)
@@ -622,12 +617,12 @@ CONTAINS
 
    call MAPL_TimerOn(MAPLSTATE,"--PRead")
    call MAPL_TimerOn(MAPLSTATE,"---CreateCFIO")
-   call MAPL_ExtDataCreateCFIO(IOBundles, vm=vm, rc=status)
+   call MAPL_ExtDataCreateCFIO(IOBundles, rc=status)
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---CreateCFIO")
 
    call MAPL_TimerOn(MAPLSTATE,"---prefetch")
-   call MAPL_ExtDataPrefetch(IOBundles, file_weights=self%file_weights, vm=vm, rc=status)
+   call MAPL_ExtDataPrefetch(IOBundles, file_weights=self%file_weights, rc=status)
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---prefetch")
    _VERIFY(STATUS)
@@ -640,7 +635,7 @@ CONTAINS
    _VERIFY(STATUS)
 
    call MAPL_TimerOn(MAPLSTATE,"---read-prefetch")
-   call MAPL_ExtDataReadPrefetch(IOBundles, vm=vm, rc=status)
+   call MAPL_ExtDataReadPrefetch(IOBundles,rc=status)
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---read-prefetch")
    call MAPL_TimerOff(MAPLSTATE,"--PRead")
@@ -655,7 +650,7 @@ CONTAINS
       _VERIFY(status)
       call bundle_iter%next()
    enddo
-   call MAPL_ExtDataDestroyCFIO(IOBundles, vm=vm, rc=status)
+   call MAPL_ExtDataDestroyCFIO(IOBundles,rc=status)
    _VERIFY(status)
 
    call MAPL_TimerOff(MAPLSTATE,"-Read_Loop")
@@ -1344,9 +1339,8 @@ CONTAINS
 
   end subroutine MAPL_ExtDataPopulateBundle
 
-  subroutine MAPL_ExtDataCreateCFIO(IOBundles, vm, rc)
+  subroutine MAPL_ExtDataCreateCFIO(IOBundles, rc)
     type(IOBundleNGVector), target, intent(inout) :: IOBundles
-    type(ESMF_VM), optional, intent(in) :: vm
     integer, optional,      intent(out  ) :: rc
 
      type (IOBundleNGVectorIterator) :: bundle_iter
@@ -1356,7 +1350,6 @@ CONTAINS
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
         io_bundle => bundle_iter%get()
-        If (present(vm)) call MAPL_MemUtilsWrite(vm, 'MAPL_ExtDataCreateCFIO '//trim(io_bundle%file_name), rc = status)
         call io_bundle%make_io(_RC)
         call bundle_iter%next()
      enddo
@@ -1365,9 +1358,8 @@ CONTAINS
 
   end subroutine MAPL_ExtDataCreateCFIO
 
-  subroutine MAPL_ExtDataDestroyCFIO(IOBundles, vm, rc)
+  subroutine MAPL_ExtDataDestroyCFIO(IOBundles,rc)
      type(IOBundleNGVector), target, intent(inout) :: IOBundles
-     type(ESMF_VM), optional, intent(in) :: vm
      integer, optional,      intent(out  ) :: rc
 
      type(IOBundleNGVectorIterator) :: bundle_iter
@@ -1377,7 +1369,6 @@ CONTAINS
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
         io_bundle => bundle_iter%get()
-        If (present(vm)) call MAPL_MemUtilsWrite(vm, 'MAPL_ExtDataDestroyCFIO '//trim(io_bundle%file_name), rc = status)
         call io_bundle%clean(_RC)
         call bundle_iter%next
      enddo
@@ -1387,10 +1378,9 @@ CONTAINS
 
   end subroutine MAPL_ExtDataDestroyCFIO
 
-  subroutine MAPL_ExtDataPrefetch(IOBundles,file_weights,vm,rc)
+  subroutine MAPL_ExtDataPrefetch(IOBundles,file_weights,rc)
      type(IOBundleNGVector), target, intent(inout) :: IOBundles
      logical, intent(in) :: file_weights
-     type(ESMF_VM), optional, intent(in) :: vm
      integer, optional,      intent(out  ) :: rc
 
      integer :: n,nfiles,regrid_hints
@@ -1404,7 +1394,6 @@ CONTAINS
 
      do n = 1, nfiles
         io_bundle => IOBundles%at(n)
-        If (present(vm)) call MAPL_MemUtilsWrite(vm, 'MAPL_ExtDataPrefetch '//trim(io_bundle%file_name), rc = status)
         if (io_bundle%on_tiles) then
            call io_bundle%tile_io%request_data_from_file(io_bundle%file_name,io_bundle%time_index,_RC)
         else
@@ -1417,19 +1406,18 @@ CONTAINS
 
   end subroutine MAPL_ExtDataPrefetch
 
-  subroutine MAPL_ExtDataReadPrefetch(IOBundles, vm, rc)
+  subroutine MAPL_ExtDataReadPrefetch(IOBundles,rc)
      type(IOBundleNGVector), target, intent(inout) :: IOBundles
-     type(ESMF_VM), optional, intent(in) :: vm
      integer, optional,      intent(out  ) :: rc
 
      integer :: nfiles, n
      type (ExtDataNG_IOBundle), pointer :: io_bundle
      integer :: status
 
+
      nfiles = IOBundles%size()
      do n=1, nfiles
         io_bundle => IOBundles%at(n)
-        If (present(vm)) call MAPL_MemUtilsWrite(vm, 'MAPL_ExtDataReadPrefetch '//trim(io_bundle%file_name), rc = status)
         if (io_bundle%on_tiles) then
            call io_bundle%tile_io%process_data_from_file(_RC)
         else
