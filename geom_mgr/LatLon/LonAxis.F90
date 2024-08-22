@@ -53,14 +53,6 @@ module mapl3g_LonAxis
          integer, optional, intent(out) :: rc
       end function supports_metadata
 
-     elemental logical module function equal_to(a, b)
-         type(LonAxis), intent(in) :: a, b
-      end function equal_to
-
-      elemental logical module function not_equal_to(a, b)
-         type(LonAxis), intent(in) :: a, b
-      end function not_equal_to
-
       ! static factory methods
       module function make_LonAxis_from_hconfig(hconfig, rc) result(axis)
          type(LonAxis) :: axis
@@ -101,6 +93,18 @@ module mapl3g_LonAxis
       real(kind=R8), intent(in) :: corners(:)
       axis%CoordinateAxis = CoordinateAxis(centers, corners)
    end function new_LonAxis
+
+   CONTAINS
+
+   elemental logical function equal_to(a, b)
+      type(LonAxis), intent(in) :: a, b
+      equal_to = (a%CoordinateAxis == b%CoordinateAxis)
+   end function equal_to
+
+   elemental logical function not_equal_to(a, b)
+      type(LonAxis), intent(in) :: a, b
+      not_equal_to = .not. (a == b)
+   end function not_equal_to
 
 end module mapl3g_LonAxis
 

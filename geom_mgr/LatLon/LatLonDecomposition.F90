@@ -47,17 +47,6 @@ module mapl3g_LatLonDecomposition
    integer, parameter :: R8 = ESMF_KIND_R8
    interface
 
-      ! accessors
-      pure module function get_lon_distribution(decomp) result(lon_distribution)
-         integer, allocatable :: lon_distribution(:)
-         class(LatLonDecomposition), intent(in) :: decomp
-      end function get_lon_distribution
-
-      pure module function get_lat_distribution(decomp) result(lat_distribution)
-         integer, allocatable :: lat_distribution(:)
-         class(LatLonDecomposition), intent(in) :: decomp
-      end function get_lat_distribution
-
       pure module function get_lon_subset(this, axis, rank) result(local_axis)
          type(LonAxis) :: local_axis
          class(LatLonDecomposition), intent(in) :: this
@@ -71,18 +60,6 @@ module mapl3g_LatLonDecomposition
          type(LatAxis), intent(in) :: axis
          integer, intent(in) :: rank
       end function get_lat_subset
-
-      pure module subroutine get_idx_range(distribution, rank, i_0, i_1)
-         integer, intent(in) :: distribution(:)
-         integer, intent(in) :: rank
-         integer, intent(out) :: i_0, i_1
-      end subroutine get_idx_range
-
-      pure module function get_subset(coordinates, i_0, i_1) result(subset)
-         real(kind=R8), allocatable :: subset(:)
-         real(kind=R8), intent(in) :: coordinates(:)
-         integer, intent(in) :: i_0, i_1
-      end function get_subset
 
       ! Static factory methods
       module function make_LatLonDecomposition_current_vm(dims, rc) result(decomp)
@@ -104,12 +81,6 @@ module mapl3g_LatLonDecomposition
          type(LatLonDecomposition), intent(in) :: decomp2
       end function equal_to
 
-      elemental module function not_equal_to(decomp1, decomp2)
-         logical :: not_equal_to
-         type(LatLonDecomposition), intent(in) :: decomp1
-         type(LatLonDecomposition), intent(in) :: decomp2
-      end function not_equal_to
-      
    end interface
 
 
@@ -162,6 +133,49 @@ module mapl3g_LatLonDecomposition
       call MAPL_DecomposeDim(dims(2), decomp%lat_distribution, topology(2), min_DE_extent=2)
 
    end function new_LatLonDecomposition_topo
+
+   CONTAINS
+
+      pure subroutine get_idx_range(distribution, rank, i_0, i_1)
+      integer, intent(in) :: distribution(:)
+      integer, intent(in) :: rank
+      integer, intent(out) :: i_0, i_1
+
+      i_0 = 1 + sum(distribution(:rank))
+      i_1 = i_0 + distribution(rank+1) - 1
+
+   end subroutine get_idx_range
+
+   pure function get_lat_distribution(decomp) result(lat_distribution)
+      integer, allocatable :: lat_distribution(:)
+      class(LatLonDecomposition), intent(in) :: decomp
+      lat_distribution = decomp%lat_distribution
+   end function get_lat_distribution
+
+   ! accessors
+   pure function get_lon_distribution(decomp) result(lon_distribution)
+      integer, allocatable :: lon_distribution(:)
+      class(LatLonDecomposition), intent(in) :: decomp
+      lon_distribution = decomp%lon_distribution
+   end function get_lon_distribution
+
+   pure function get_subset(coordinates, i_0, i_1) result(subset)
+      real(kind=R8), allocatable :: subset(:)
+      real(kind=R8), intent(in) :: coordinates(:)
+      integer, intent(in) :: i_0, i_1
+
+      subset = coordinates(i_0:i_1)
+
+   end function get_subset
+
+   elemental function not_equal_to(decomp1, decomp2)
+      logical :: not_equal_to
+      type(LatLonDecomposition), intent(in) :: decomp1
+      type(LatLonDecomposition), intent(in) :: decomp2
+
+      not_equal_to = .not. (decomp1 == decomp2)
+
+   end function not_equal_to
 
 end module mapl3g_LatLonDecomposition
 
