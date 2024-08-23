@@ -67,7 +67,15 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(StateRegistry), pointer :: src_registry
+      type(ConnectionPt) :: src_pt
         
+      src_pt = this%get_source()
+      src_registry => registry%get_subregistry(src_pt)
+      _ASSERT(associated(src_registry), 'Unknown source registry')
+
+      call this%connect_export_to_export(registry, src_registry, _RC)
+
       _RETURN(_SUCCESS)
    end subroutine activate
 
@@ -76,15 +84,15 @@ contains
       type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(StateRegistry), pointer :: src_registry
-      type(ConnectionPt) :: src_pt
-
-      src_pt = this%get_source()
-      src_registry => registry%get_subregistry(src_pt)
-      _ASSERT(associated(src_registry), 'Unknown source registry')
-
-      call this%connect_export_to_export(registry, src_registry, _RC)
+!#      integer :: status
+!#      type(StateRegistry), pointer :: src_registry
+!#      type(ConnectionPt) :: src_pt
+!#
+!#      src_pt = this%get_source()
+!#      src_registry => registry%get_subregistry(src_pt)
+!#      _ASSERT(associated(src_registry), 'Unknown source registry')
+!#
+!#      call this%connect_export_to_export(registry, src_registry, _RC)
         
       _RETURN(_SUCCESS)
    end subroutine connect

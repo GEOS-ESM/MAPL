@@ -488,6 +488,8 @@ contains
       type(VirtualConnectionPt), pointer :: virtual_pt
       type(VirtualConnectionPt) :: new_virtual_pt
       type(ExtensionFamily), pointer :: family
+      integer :: n
+      type(VirtualPtFamilyMapIterator) :: new_iter
 
       virtual_pt => iter%first()
       _RETURN_UNLESS(virtual_pt%is_export())
@@ -496,6 +498,16 @@ contains
       if (virtual_pt%get_comp_name() == '') then
          new_virtual_pt = VirtualConnectionPt(virtual_pt, comp_name=subregistry_name)
       end if
+
+      ! TODO: Better logic would be the following line.  But gFTL has
+      ! a missing TARGET attribute (bug)
+!# n = this%family_map%erase(new_virtual_pt)
+      ! instead we do this:
+      associate(e => this%family_map%end())
+        new_iter = this%family_map%find(new_virtual_pt)
+        new_iter = this%family_map%erase(new_iter, e)
+      end associate
+
       call this%add_virtual_pt(new_virtual_pt, _RC)
       family => iter%second()
       call this%family_map%insert(new_virtual_pt, family)
