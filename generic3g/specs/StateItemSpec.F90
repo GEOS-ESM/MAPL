@@ -48,7 +48,6 @@ module mapl3g_StateItemSpec
       class(StateItemSpec), pointer :: ptr => null()
    end type StateItemSpecPtr
 
-
    abstract interface
 
       subroutine I_connect(this, src_spec, actual_pt, rc)
@@ -123,12 +122,24 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_add_to_bundle
 
-      subroutine I_initialize(this, rc)
+      subroutine I_initialize(this, geom, vertical_grid, rc)
          import StateItemSpec
+         use esmf, only: ESMF_Geom
+         use mapl3g_VerticalGrid, only: VerticalGrid
          class(StateItemSpec), intent(inout) :: this
+         type(ESMF_Geom), intent(inout) :: geom
+         class(VerticalGrid), intent(in) :: vertical_grid
          integer, optional, intent(out) :: rc
       end subroutine I_initialize
 
+   end interface
+
+   interface
+      module function make_itemSpec(variable_spec, rc) result(item_spec)
+         use mapl3g_VariableSpec, only :: VariableSpec
+         class(StateItemSpec), allocatable :: item_spec
+         class(VariableSpec), intent(in) :: variable_spec
+      end subroutine make_itemSpec
    end interface
 
 contains

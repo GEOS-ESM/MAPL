@@ -27,6 +27,7 @@ module mapl3g_FieldSpec
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use mapl3g_FieldDictionary
    use mapl3g_GriddedComponentDriver
+   use mapl3g_VariableSpec
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -61,6 +62,7 @@ module mapl3g_FieldSpec
 
       type(ESMF_Field) :: payload
       real, allocatable :: default_value
+      type(VariableSpec) :: variable_spec
 
    contains
 
@@ -80,11 +82,13 @@ module mapl3g_FieldSpec
       procedure :: make_extension
 
       procedure :: set_info
+      procedure :: initialize
 
    end type FieldSpec
 
    interface FieldSpec
       module procedure new_FieldSpec_geom
+      module procedure new_FieldSpec_varspec
 !#      module procedure new_FieldSpec_defaults
    end interface FieldSpec
 
@@ -113,7 +117,6 @@ module mapl3g_FieldSpec
    end interface update_item
 
 contains
-
 
    function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
@@ -158,6 +161,57 @@ contains
       if (present(default_value)) field_spec%default_value = default_value
 
    end function new_FieldSpec_geom
+
+   function new_FieldSpec_varspec(variable_spec) result(field_spec)
+      type(FieldSpec) :: field_spec
+      class(VariableSpec), intent(in) :: variable_spec
+      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
+
+      field_spec%variable_spec = variable_spec
+      !wdb fixme deleteme Should these be set here from variable_spec
+      ! vertical_dim_spec?
+      ! typekind?
+      ! ungridded_dims?
+      ! attributes? (OPTIONAL)
+
+      ! standard_name? allocatable, (OPTIONAL)
+      ! units? allocatable, (OPTIONAL)
+      ! default_value? allocatable (OPTIONAL)
+
+      ! regrid_param? not present (OPTIONAL)
+      ! long_name? not present (OPTIONAL)
+      ! payload? not present
+      field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
+      call set_fields(field_spec)
+      regrid_method = get_regrid_method_(field_spec%standard_name)
+      field_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
+
+   end function new_FieldSpec_varspec
+      
+   subroutine set_fields(field_spec)
+      class(FieldSpec), intent(inout) :: field_spec
+
+      associate (v => field_spec%variable_spec)
+#if defined _SET
+#  undef _SET
+#endif
+#define _SET(F) field_spec%F = v%F
+         _SET(vertical_dim_spec)
+         _SET(typekind)
+         _SET(ungridded_dims)
+         _SET(attributes)
+#undef _SET
+#if defined(_SET_ALLOCATED)
+#  undef _SET_ALLOCATED
+#endif
+#define _SET_ALLOCATED(F) if(allocated(v%F)) field_spec%F = v%F
+         _SET_ALLOCATED(standard_name)
+         _SET_ALLOCATED(units)
+         _SET_ALLOCATED(default_value)
+#  undef _SET_ALLOCATED
+      end associate
+
+   end subroutine set_fields
 
    function get_regrid_method_(stdname, rc) result(regrid_method)
       type(ESMF_RegridMethod_Flag) :: regrid_method
@@ -927,4 +981,18 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_info
 
+   subroutine initialize(this, geom, vertical_grid, rc)
+      class(FieldSpec), intent(inout) :: this
+      type(ESMF_Geom), intent(in) :: geom
+      class(VerticalGrid), intent(in) :: vertical_grid
+      integer, optional, intent(out) :: rc
+
+      if(allocated(this%geom)) deallocate(this%geom)
+      this%geom = geom
+      if(allocated(this%vertical_grid) deallocate(this%vertical_grid)
+      this%vertical_grid = vertical_grid
+
+      !wdb fixme deleteme What else should be initialized here?
+   end subroutine initialize
+    
 end module mapl3g_FieldSpec
