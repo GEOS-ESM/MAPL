@@ -83,6 +83,27 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      
+      CONTAINS
+
+      subroutine get_ranks(nx, ny, ix, iy, rc)
+      integer, intent(in) :: nx, ny
+      integer, intent(out) :: ix, iy
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: petCount, localPet
+      type(ESMF_VM) :: vm
+
+      call ESMF_VMGetCurrent(vm, _RC)
+      call ESMF_VMGet(vm, petCount=petCount, localPet=localPet, _RC)
+
+      ix = mod(localPet, nx)
+      iy = localPet / nx
+
+      _RETURN(_SUCCESS)
+      end subroutine get_ranks
+
    end subroutine fill_coordinates
 
 end submodule fill_coordinates_smod

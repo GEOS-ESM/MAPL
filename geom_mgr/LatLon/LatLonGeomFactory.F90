@@ -96,24 +96,6 @@ module mapl3g_LatLonGeomFactory
 
    CONTAINS
 
-   subroutine get_ranks(nx, ny, ix, iy, rc)
-      integer, intent(in) :: nx, ny
-      integer, intent(out) :: ix, iy
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer :: petCount, localPet
-      type(ESMF_VM) :: vm
-
-      call ESMF_VMGetCurrent(vm, _RC)
-      call ESMF_VMGet(vm, petCount=petCount, localPet=localPet, _RC)
-
-      ix = mod(localPet, nx)
-      iy = localPet / nx
-
-      _RETURN(_SUCCESS)
-   end subroutine get_ranks
-
    function make_geom_spec_from_hconfig(this, hconfig, rc) result(geom_spec)
       class(GeomSpec), allocatable :: geom_spec
       class(LatLonGeomFactory), intent(in) :: this
