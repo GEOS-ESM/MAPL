@@ -294,11 +294,10 @@ contains
       _FAIL('not implemented')
    end subroutine make_extension
 
-   subroutine initialize(this, geom, vertical_grid, registry, rc)
-      class(FieldSpec), intent(inout) :: this
-      type(ESMF_Geom), intent(inout) :: geom
+   subroutine initialize(this, geom, vertical_grid, rc)
+      class(BracketSpec), intent(inout) :: this
+      type(ESMF_Geom), intent(in) :: geom
       class(VerticalGrid), intent(in) :: vertical_grid
-      class(StateRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
       integer :: status
 

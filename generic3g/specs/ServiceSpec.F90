@@ -14,6 +14,7 @@ module mapl3g_ServiceSpec
    use mapl3g_ActualPtVector
    use mapl3g_ActualConnectionPt
    use mapl3g_VirtualConnectionPt
+   use mapl3g_VerticalGrid
    use esmf
    use gftl2_StringVector
    implicit none
@@ -201,11 +202,10 @@ contains
       _RETURN(_SUCCESS)
    end function extension_cost
 
-   subroutine initialize(this, geom, vertical_grid, registry, rc)
-      class(FieldSpec), intent(inout) :: this
-      type(ESMF_Geom), intent(inout) :: geom
+   subroutine initialize(this, geom, vertical_grid, rc)
+      class(ServiceSpec), intent(inout) :: this
+      type(ESMF_Geom), intent(in) :: geom
       class(VerticalGrid), intent(in) :: vertical_grid
-      class(StateRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
       integer :: status
 
