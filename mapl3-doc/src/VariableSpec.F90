@@ -197,7 +197,7 @@ contains
       class(StateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
-      class(VerticalGrid), intent(in) :: vertical_grid
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(StateRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
 
@@ -328,7 +328,7 @@ contains
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
-      class(VerticalGrid), intent(in) :: vertical_grid
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
 
       integer :: status

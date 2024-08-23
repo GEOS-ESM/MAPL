@@ -43,6 +43,7 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: MAPL_SECTION = 'mapl'
    character(*), parameter :: COMPONENT_GEOMETRY_SECTION = 'geometry'
    character(*), parameter :: COMPONENT_ESMF_GEOM_SECTION = 'esmf_geom'
+   character(*), parameter :: COMPONENT_VERTICAL_GRID_SECTION = 'vertical_grid'
    character(*), parameter :: COMPONENT_VERTGEOM_SECTION = 'vert_geom'
    character(*), parameter :: COMPONENT_STATES_SECTION = 'states'
    character(*), parameter :: COMPONENT_IMPORT_STATE_SECTION = 'import'

@@ -1,6 +1,8 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_user_smod
+   use mapl3g_ComponentDriverPtrVector
+   use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_INITIALIZE
    implicit none
 
 contains
@@ -13,6 +15,15 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'
+      type(ComponentDriverPtrVector) :: export_Couplers
+      type(ComponentDriverPtr) :: drvr
+      integer :: i
+
+      export_couplers = this%registry%get_export_couplers()
+      do i = 1, export_couplers%size()
+         drvr = export_couplers%of(i)
+         call drvr%ptr%initialize(phase_idx=GENERIC_COUPLER_INITIALIZE, _RC)
+      end do
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
       call recurse(this, phase_idx=GENERIC_INIT_USER, _RC)

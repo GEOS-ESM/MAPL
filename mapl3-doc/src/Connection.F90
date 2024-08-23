@@ -9,6 +9,7 @@ module mapl3g_Connection
    contains
       procedure(I_get), deferred :: get_source
       procedure(I_get), deferred :: get_destination
+      procedure(I_connect), deferred :: activate
       procedure(I_connect), deferred :: connect
    end type Connection
 
