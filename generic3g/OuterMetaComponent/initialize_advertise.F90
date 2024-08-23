@@ -95,7 +95,6 @@ contains
          call item_spec%create(_RC)
 
          virtual_pt = var_spec%make_virtualPt()
-!#         call registry%add_item_spec(virtual_pt, item_spec)
          call registry%add_primary_spec(virtual_pt, item_spec)
 
          _RETURN(_SUCCESS)
@@ -115,7 +114,7 @@ contains
           iter = this%component_spec%connections%begin()
           do while (iter /= e)
              c => iter%of()
-             call c%connect(this%registry, _RC)
+             call c%activate(this%registry, _RC)
              call iter%next()
           end do
         end associate
