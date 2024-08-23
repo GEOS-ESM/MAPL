@@ -1,11 +1,11 @@
 #include "MAPL_Generic.h"
 
-submodule (mapl3g_OuterMetaComponent) initialize_post_advertise_smod
+submodule (mapl3g_OuterMetaComponent) initialize_modify_advertise_smod
    implicit none
 
 contains
 
-   module recursive subroutine initialize_post_advertise(this, importState, exportState, clock, unusable, rc)
+   module recursive subroutine initialize_modify_advertise(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
       type(ESMF_State) :: importState
@@ -15,7 +15,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_POST_ADVERTISE'
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_MODIFY_ADVERTISE'
       type(MultiState) :: outer_states, user_states
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
@@ -26,10 +26,10 @@ contains
       outer_states = MultiState(importState=importState, exportState=exportState)
       call this%registry%add_to_states(outer_states, mode='outer', _RC)
 
-      call recurse(this, phase_idx=GENERIC_INIT_POST_ADVERTISE, _RC)
+      call recurse(this, phase_idx=GENERIC_INIT_MODIFY_ADVERTISE, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine initialize_post_advertise
+   end subroutine initialize_modify_advertise
 
-end submodule initialize_post_advertise_smod
+end submodule initialize_modify_advertise_smod

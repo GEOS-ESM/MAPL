@@ -14,10 +14,11 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
-      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
+      call apply_to_children(this, set_child_geom, _RC)
 
+
+      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
       call self_advertise(this, _RC)
-      call apply_to_children(this, add_subregistry, _RC)
       call recurse(this, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
 
       call process_connections(this, _RC)
@@ -28,15 +29,26 @@ contains
       _UNUSED_DUMMY(unusable)
    contains
 
-      subroutine add_subregistry(this, child_meta, rc)
+      subroutine set_child_geom(this, child_meta, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          type(OuterMetaComponent), target, intent(inout) ::  child_meta
          integer, optional, intent(out) :: rc
 
-         call this%registry%add_subregistry(child_meta%get_registry())
+         integer :: status
+
+         associate(kind => child_meta%component_spec%geometry_spec%kind)
+           _RETURN_IF(kind /= GEOMETRY_FROM_PARENT)
+
+           if (allocated(this%geom)) then
+              call child_meta%set_geom(this%geom)
+           end if
+           if (allocated(this%vertical_grid)) then
+              call child_meta%set_vertical_grid(this%vertical_grid)
+           end if
+         end associate
 
          _RETURN(ESMF_SUCCESS)
-      end subroutine add_subregistry
+      end subroutine set_child_geom
 
       subroutine self_advertise(this, unusable, rc)
          class(OuterMetaComponent), intent(inout) :: this
@@ -68,7 +80,7 @@ contains
          type(VariableSpec), intent(in) :: var_spec
          type(StateRegistry), intent(inout) :: registry
          type(ESMF_Geom), optional, intent(in) :: geom
-         class(VerticalGrid), intent(in) :: vertical_grid
+         class(VerticalGrid), optional, intent(in) :: vertical_grid
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 

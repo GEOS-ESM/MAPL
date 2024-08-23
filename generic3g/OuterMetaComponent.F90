@@ -91,9 +91,8 @@ module mapl3g_OuterMetaComponent
       procedure :: run_custom
       procedure :: initialize_user
       procedure :: initialize_advertise_geom
-      procedure :: initialize_realize_geom
       procedure :: initialize_advertise
-      procedure :: initialize_post_advertise
+      procedure :: initialize_modify_advertise
       procedure :: initialize_realize
 
       procedure :: run_user
@@ -156,7 +155,7 @@ module mapl3g_OuterMetaComponent
       end subroutine
 
       module recursive subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
-         class(OuterMetaComponent), intent(inout) :: this
+         class(OuterMetaComponent), target, intent(inout) :: this
          character(len=*), intent(in) :: child_name
          class(AbstractUserSetServices), intent(in) :: setservices
          type(ESMF_HConfig), intent(in) :: hconfig
@@ -242,13 +241,6 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine initialize_advertise_geom
    
-      module recursive subroutine initialize_realize_geom(this, unusable, rc)
-         class(OuterMetaComponent), intent(inout) :: this
-         ! optional arguments
-         class(KE), optional, intent(in) :: unusable
-         integer, optional, intent(out) :: rc
-      end subroutine initialize_realize_geom
-   
       module recursive subroutine initialize_advertise(this, unusable, rc)
          class(OuterMetaComponent), intent(inout) :: this
          ! optional arguments
@@ -256,7 +248,7 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
      end subroutine initialize_advertise
    
-     module recursive subroutine initialize_post_advertise(this, importState, exportState, clock, unusable, rc)
+     module recursive subroutine initialize_modify_advertise(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), intent(inout) :: this
          ! optional arguments
          type(ESMF_State) :: importState
@@ -264,7 +256,7 @@ module mapl3g_OuterMetaComponent
          type(ESMF_Clock) :: clock
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
-      end subroutine initialize_post_advertise
+      end subroutine initialize_modify_advertise
    
       module recursive subroutine initialize_realize(this, unusable, rc)
          class(OuterMetaComponent), intent(inout) :: this
