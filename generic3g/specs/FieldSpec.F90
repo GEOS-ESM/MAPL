@@ -1,5 +1,15 @@
 #include "MAPL_Generic.h"
 
+#if defined _SET_FIELD
+#  undef _SET_FIELD
+#endif
+#define _SET_FIELD(A, B, F) A%F = B%F
+
+#if defined(_SET_ALLOCATED_FIELD)
+#  undef _SET_ALLOCATED_FIELD
+#endif
+#define _SET_ALLOCATED_FIELD(A, B, F) if(allocated(B%F)) _SET_FIELD(A, B, F)
+
 module mapl3g_FieldSpec
 
    use mapl3g_StateItemSpec
@@ -167,52 +177,25 @@ contains
       class(VariableSpec), intent(in) :: variable_spec
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
-      field_spec%variable_spec = variable_spec
-      !wdb fixme deleteme Should these be set here from variable_spec
-      ! vertical_dim_spec?
-      ! typekind?
-      ! ungridded_dims?
-      ! attributes? (OPTIONAL)
+      associate (f => field_spec, v => field_spec%variable_spec)
+         v = variable_spec
+         _SET_FIELD(f, v, vertical_dim_spec)
+         _SET_FIELD(f, v, typekind)
+         _SET_FIELD(f, v, ungridded_dims)
+         _SET_FIELD(f, v, attributes)
+         _SET_ALLOCATED_FIELD(f, v, standard_name)
+         _SET_ALLOCATED_FIELD(f, v, units)
+         _SET_ALLOCATED_FIELD(f, v, default_value)
+      end associate
 
-      ! standard_name? allocatable, (OPTIONAL)
-      ! units? allocatable, (OPTIONAL)
-      ! default_value? allocatable (OPTIONAL)
-
-      ! regrid_param? not present (OPTIONAL)
-      ! long_name? not present (OPTIONAL)
-      ! payload? not present
       field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
-      call set_fields(field_spec)
       regrid_method = get_regrid_method_(field_spec%standard_name)
       field_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
 
+      !wdb fixme deleteme Where is long_name (OPTIONAL, not present in VariableSpec) set?
+
    end function new_FieldSpec_varspec
       
-   subroutine set_fields(field_spec)
-      class(FieldSpec), intent(inout) :: field_spec
-
-      associate (v => field_spec%variable_spec)
-#if defined _SET
-#  undef _SET
-#endif
-#define _SET(F) field_spec%F = v%F
-         _SET(vertical_dim_spec)
-         _SET(typekind)
-         _SET(ungridded_dims)
-         _SET(attributes)
-#undef _SET
-#if defined(_SET_ALLOCATED)
-#  undef _SET_ALLOCATED
-#endif
-#define _SET_ALLOCATED(F) if(allocated(v%F)) field_spec%F = v%F
-         _SET_ALLOCATED(standard_name)
-         _SET_ALLOCATED(units)
-         _SET_ALLOCATED(default_value)
-#  undef _SET_ALLOCATED
-      end associate
-
-   end subroutine set_fields
-
    function get_regrid_method_(stdname, rc) result(regrid_method)
       type(ESMF_RegridMethod_Flag) :: regrid_method
       character(:), allocatable, intent(in) :: stdname
@@ -234,6 +217,23 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_regrid_method_
+
+   subroutine initialize(this, unusable, geom, vertical_grid, registry, rc)
+      class(FieldSpec), intent(inout) :: this
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_Geom), optional, intent(inout) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      class(StateRegistry), optional, intent(in) :: registry
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _UNUSED_DUMMY(unusable)
+      if(allocated(this%geom)) deallocate(this%geom)
+      this%geom = geom
+      if(allocated(this%vertical_grid) deallocate(this%vertical_grid)
+      this%vertical_grid = vertical_grid
+      
+   end subroutine initialize
 
 !#   function new_FieldSpec_defaults(ungridded_dims, geom, units) result(field_spec)
 !#      type(FieldSpec) :: field_spec
@@ -980,19 +980,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_info
-
-   subroutine initialize(this, geom, vertical_grid, rc)
-      class(FieldSpec), intent(inout) :: this
-      type(ESMF_Geom), intent(in) :: geom
-      class(VerticalGrid), intent(in) :: vertical_grid
-      integer, optional, intent(out) :: rc
-
-      if(allocated(this%geom)) deallocate(this%geom)
-      this%geom = geom
-      if(allocated(this%vertical_grid) deallocate(this%vertical_grid)
-      this%vertical_grid = vertical_grid
-
-      !wdb fixme deleteme What else should be initialized here?
-   end subroutine initialize
     
 end module mapl3g_FieldSpec
+#undef _SET_FIELD
+#undef _SET_ALLOCATED_FIELD

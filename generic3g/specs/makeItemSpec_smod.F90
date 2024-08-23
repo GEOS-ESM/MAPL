@@ -13,18 +13,19 @@ contains
 
       select case (variable_spec%itemtype%ot)
       case (MAPL_STATEITEM_FIELD%ot)
-         allocate(FieldSpec::item_spec)
+         allocate(FieldSpec :: item_spec)
          item_spec = FieldSpec(variable_spec)
       case (MAPL_STATEITEM_SERVICE%ot)
-         allocate(ServiceSpec::item_spec)
-         item_spec = ServiceSpec(registry, _RC)
+         allocate(ServiceSpec :: item_spec)
+         item_spec = ServiceSpec()
       case (MAPL_STATEITEM_WILDCARD%ot)
-         ...
+         allocate(WildcardSpec :: item_spec)
+         item_spec = WildcardSpec(variable_spec)
       case (MAPL_STATEITEM_BRACKET%ot)
-         ...
+         allocate(BracketSpec :: item_spec)
+         item_spec = BracketSpec(variable_spec)
       case default
-         ! Fail, but still need to allocate a result.
-         allocate(InvalidSpec::item_spec)
+         allocate(InvalidSpec :: item_spec)
          _FAIL('Unsupported type.')
       end select
 
