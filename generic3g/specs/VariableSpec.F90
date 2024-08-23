@@ -58,18 +58,20 @@ module mapl3g_VariableSpec
       type(StringVector) :: dependencies
    contains
       procedure :: make_virtualPt
-      procedure :: make_ItemSpec_new
-      generic :: make_itemSpec => make_itemSpec_new
-      procedure :: make_BracketSpec
-      procedure :: make_FieldSpec
-      procedure :: make_ServiceSpec_new
-      procedure :: make_WildcardSpec
+      !wdb fixme deleteme These are obsolete because StateItemSpec is performing these actions
+!      procedure :: make_ItemSpec_new
+!      generic :: make_itemSpec => make_itemSpec_new
+!      procedure :: make_BracketSpec
+!      procedure :: make_FieldSpec
+!      procedure :: make_ServiceSpec_new
+!      procedure :: make_WildcardSpec
 
       procedure :: make_dependencies
       procedure, private :: pick_geom_
 !!$      procedure :: make_StateSpec
 !!$      procedure :: make_BundleSpec
 !!$      procedure :: initialize
+      procedure :: initialize
    end type VariableSpec
 
    interface VariableSpec
@@ -190,55 +192,56 @@ contains
       end if
    end function make_virtualPt
 
+   !wdb fixme deleteme This is obsolete.
    ! This implementation ensures that an object is at least created
    ! even if failures are encountered.  This is necessary for
    ! robust error handling upstream.
-   function make_ItemSpec_new(this, geom, vertical_grid, registry, rc) result(item_spec)
-      class(StateItemSpec), allocatable :: item_spec
-      class(VariableSpec), intent(in) :: this
-      type(ESMF_Geom), optional, intent(in) :: geom
-      class(VerticalGrid), optional, intent(in) :: vertical_grid
-      type(StateRegistry), intent(in) :: registry
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ActualPtVector) :: dependencies
-      type(ESMF_Geom), allocatable :: geom_local
-
-      call this%pick_geom_(geom, geom_local, _RC)
-
-      select case (this%itemtype%ot)
-      case (MAPL_STATEITEM_FIELD%ot)
-         allocate(FieldSpec::item_spec)
-         item_spec = this%make_FieldSpec(geom_local, vertical_grid,  _RC)
+!   function make_ItemSpec_new(this, geom, vertical_grid, registry, rc) result(item_spec)
+!      class(StateItemSpec), allocatable :: item_spec
+!      class(VariableSpec), intent(in) :: this
+!      type(ESMF_Geom), optional, intent(in) :: geom
+!      class(VerticalGrid), optional, intent(in) :: vertical_grid
+!      type(StateRegistry), intent(in) :: registry
+!      integer, optional, intent(out) :: rc
+!
+!      integer :: status
+!      type(ActualPtVector) :: dependencies
+!      type(ESMF_Geom), allocatable :: geom_local
+!
+!      call this%pick_geom_(geom, geom_local, _RC)
+!
+!      select case (this%itemtype%ot)
+!      case (MAPL_STATEITEM_FIELD%ot)
+!         allocate(FieldSpec::item_spec)
+!         item_spec = this%make_FieldSpec(geom_local, vertical_grid,  _RC)
 !!$      case (MAPL_STATEITEM_FIELDBUNDLE)
 !!$         allocate(FieldBundleSpec::item_spec)
 !!$         item_spec = this%make_FieldBundleSpec(geom, _RC)
-      case (MAPL_STATEITEM_SERVICE%ot)
-         allocate(ServiceSpec::item_spec)
-         item_spec = this%make_ServiceSpec_new(registry, _RC)
-      case (MAPL_STATEITEM_WILDCARD%ot)
-         allocate(WildcardSpec::item_spec)
-         item_spec = this%make_WildcardSpec(geom_local, vertical_grid,  _RC)
-      case (MAPL_STATEITEM_BRACKET%ot)
-         allocate(BracketSpec::item_spec)
-         item_spec = this%make_BracketSpec(geom_local, vertical_grid,  _RC)
-      case default
-         ! Fail, but still need to allocate a result.
-         allocate(InvalidSpec::item_spec)
-         _FAIL('Unsupported type.')
-      end select
-
-      dependencies = this%make_dependencies(_RC)
-      call item_spec%set_dependencies(dependencies)
-      call item_spec%set_raw_dependencies(this%dependencies)
-
-      if (this%state_intent == ESMF_STATEINTENT_INTERNAL) then
-         call item_spec%set_active()
-      end if
-
-      _RETURN(_SUCCESS)
-   end function make_ItemSpec_new
+!      case (MAPL_STATEITEM_SERVICE%ot)
+!         allocate(ServiceSpec::item_spec)
+!         item_spec = this%make_ServiceSpec_new(registry, _RC)
+!      case (MAPL_STATEITEM_WILDCARD%ot)
+!         allocate(WildcardSpec::item_spec)
+!         item_spec = this%make_WildcardSpec(geom_local, vertical_grid,  _RC)
+!      case (MAPL_STATEITEM_BRACKET%ot)
+!         allocate(BracketSpec::item_spec)
+!         item_spec = this%make_BracketSpec(geom_local, vertical_grid,  _RC)
+!      case default
+!         ! Fail, but still need to allocate a result.
+!         allocate(InvalidSpec::item_spec)
+!         _FAIL('Unsupported type.')
+!      end select
+!
+!      dependencies = this%make_dependencies(_RC)
+!      call item_spec%set_dependencies(dependencies)
+!      call item_spec%set_raw_dependencies(this%dependencies)
+!
+!      if (this%state_intent == ESMF_STATEINTENT_INTERNAL) then
+!         call item_spec%set_active()
+!      end if
+!
+!      _RETURN(_SUCCESS)
+!   end function make_ItemSpec_new
  
    subroutine pick_geom_(this, that_geom, geom, rc)
       class(VariableSpec), intent(in) :: this
@@ -257,6 +260,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine pick_geom_
 
+   !wdb fixme deleteme This is obsolete. Should be moved to constructor/initialize for BracketSpec.
    function make_BracketSpec(this, geom, vertical_grid, rc) result(bracket_spec)
       type(BracketSpec) :: bracket_spec
       class(VariableSpec), intent(in) :: this
@@ -324,6 +328,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine fill_units
 
+   !wdb fixme deleteme This is obsolete.
    function make_FieldSpec(this, geom, vertical_grid, rc) result(field_spec)
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: this
@@ -363,6 +368,7 @@ contains
 
    end function make_FieldSpec
 
+   !wdb fixme deleteme This needs to be moved to constructor/initialize for ServiceSpec.
    ! ------
    ! ServiceSpec needs reference to the specs of the fields that are to be
    ! handled by the service.   Shallow copy of these will appear in the FieldBundle in the
@@ -410,6 +416,7 @@ contains
 
    end function make_ServiceSpec_new
 
+   !wdb fixme deleteme This is obsolete. Needs to move to constructor/initialize for WildcardSpec.
     function make_WildcardSpec(this, geom, vertical_grid, rc) result(wildcard_spec)
       type(WildcardSpec) :: wildcard_spec
       class(VariableSpec), intent(in) :: this

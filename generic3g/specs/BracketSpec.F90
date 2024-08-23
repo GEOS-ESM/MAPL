@@ -54,6 +54,8 @@ module mapl3g_BracketSpec
 
 contains
 
+   !wdb fixme deleteme Needs a constructor with VariableSpec argument
+   !wdb fixme deleteme Needs an initialize method to satisfy StateItemSpec interface
    function new_BracketSpec_geom(field_spec, bracket_size) result(bracket_spec)
       
       type(BracketSpec) :: bracket_spec

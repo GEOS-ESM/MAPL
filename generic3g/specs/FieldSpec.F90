@@ -176,24 +176,11 @@ contains
    function new_FieldSpec_varspec(variable_spec) result(field_spec)
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: variable_spec
-      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
-      associate (f => field_spec, v => field_spec%variable_spec)
-         v = variable_spec
-         _SET_FIELD(f, v, vertical_dim_spec)
-         _SET_FIELD(f, v, typekind)
-         _SET_FIELD(f, v, ungridded_dims)
-         _SET_FIELD(f, v, attributes)
-         _SET_ALLOCATED_FIELD(f, v, standard_name)
-         _SET_ALLOCATED_FIELD(f, v, units)
-         _SET_ALLOCATED_FIELD(f, v, default_value)
-      end associate
-
-      field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
-      regrid_method = get_regrid_method_(field_spec%standard_name)
-      field_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
-
-      !wdb fixme deleteme Where is long_name (OPTIONAL, not present in VariableSpec) set?
+      field_spec%variable_spec = variable_spec
+      field_spec%long_name = ' '
+      !wdb fixme deleteme  long_name is set here based on the VariableSpec
+      !                    make_FieldSpec method
 
    end function new_FieldSpec_varspec
       
@@ -219,20 +206,45 @@ contains
       _RETURN(_SUCCESS)
    end function get_regrid_method_
 
-   subroutine initialize(this, unusable, geom, vertical_grid, registry, rc)
+   subroutine initialize(this, geom, vertical_grid, registry, rc)
       class(FieldSpec), intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_Geom), optional, intent(inout) :: geom
-      class(VerticalGrid), optional, intent(in) :: vertical_grid
-      class(StateRegistry), optional, intent(in) :: registry
+      type(ESMF_Geom), intent(inout) :: geom
+      class(VerticalGrid), intent(in) :: vertical_grid
+      class(StateRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
       integer :: status
+      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
+      type(ActualPtVector) :: dependencies
 
-      _UNUSED_DUMMY(unusable)
-      if(allocated(this%geom)) deallocate(this%geom)
-      this%geom = geom
-      if(allocated(this%vertical_grid) deallocate(this%vertical_grid)
-      this%vertical_grid = vertical_grid
+      _UNUSED_DUMMY(registry)
+
+      associate (variable_spec => this%variable_spec)
+         if(allocated(this%geom)) deallocate(this%geom)
+         this%geom = geom
+         if(allocated(this%vertical_grid) deallocate(this%vertical_grid)
+         this%vertical_grid = vertical_grid
+         _SET_FIELD(this, variable_spec, vertical_dim_spec)
+         _SET_FIELD(this, variable_spec, typekind)
+         _SET_FIELD(this, variable_spec, ungridded_dims)
+         _SET_FIELD(this, variable_spec, attributes)
+         _SET_ALLOCATED_FIELD(this, variable_spec, standard_name)
+         _SET_ALLOCATED_FIELD(this, variable_spec, units)
+         _SET_ALLOCATED_FIELD(this, variable_spec, default_value)
+
+         this%regrid_param = EsmfRegridderParam() ! use default regrid method
+         regrid_method = get_regrid_method_(this%standard_name)
+         this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
+
+         dependencies = variable_spec%make_dependencies(_RC)
+         call this%set_dependencies(dependencies)
+         call this%set_raw_dependencies(this%dependencies)
+
+         if (variable_spec%state_intent == ESMF_STATEINTENT_INTERNAL) then
+            call this%set_active()
+         end if
+      end associate
+
+      _RETURN(_SUCCESS)
       
    end subroutine initialize
 

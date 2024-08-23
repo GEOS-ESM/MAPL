@@ -47,6 +47,8 @@ module mapl3g_ServiceSpec
 
 contains
 
+   !wdb fixme deleteme Needs a constructor with VariableSpec argument or no argument
+   !wdb fixme deleteme Needs an initialize method to satisfy StateItemSpec interface
    function new_ServiceSpec(service_item_specs) result(spec)
       type(ServiceSpec) :: spec
       type(StateItemSpecPtr), intent(in) :: service_item_specs(:)

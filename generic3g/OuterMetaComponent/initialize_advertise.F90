@@ -94,7 +94,7 @@ contains
 !         allocate(item_spec, source=var_spec%make_ItemSpec(geom, vertical_grid, registry, rc=status)); _VERIFY(status)
 !         call item_spec%create(_RC)
          allocate(item_spec, source=make_ItemSpec(var_spec, _RC))
-         call item_spec%initialize(geom, vertical_grid, _RC)
+         call item_spec%initialize(geom, vertical_grid, registry, _RC)
 
          virtual_pt = var_spec%make_virtualPt()
 !#         call registry%add_item_spec(virtual_pt, item_spec)

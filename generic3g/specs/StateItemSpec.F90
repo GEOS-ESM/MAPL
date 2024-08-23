@@ -122,15 +122,14 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_add_to_bundle
 
-      subroutine I_initialize(this, unusable, geom, vertical_grid, registry, rc)
+      subroutine I_initialize(this, geom, vertical_grid, registry, rc)
          import StateItemSpec
          use esmf, only: ESMF_Geom
          use mapl3g_VerticalGrid, only: VerticalGrid
          class(StateItemSpec), intent(inout) :: this
-         class(KeywordEnforcer), optional, intent(in) :: unusable
-         type(ESMF_Geom), optional, intent(inout) :: geom
-         class(VerticalGrid), optional, intent(in) :: vertical_grid
-         class(StateRegistry), optional, intent(in) :: registry
+         type(ESMF_Geom), intent(inout) :: geom
+         class(VerticalGrid), intent(in) :: vertical_grid
+         class(StateRegistry), intent(in) :: registry
          integer, optional, intent(out) :: rc
       end subroutine I_initialize
 
