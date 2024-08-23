@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI Updates
   - Update Baselibs in CI to 7.25.0
   - Update to circleci-tools orb v4
-    - This adds an `ifx` test along with the `ifort` test
+    - This adds the ability to do an `ifx` test along with the `ifort` test (though `ifx` is not yet enabled)
 - Update `components.yaml`
   - ESMA_env v4.30.0
     - Update to Baselibs 7.25.0
