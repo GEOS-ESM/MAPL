@@ -2753,6 +2753,7 @@ contains
       character(len=ESMF_MAXSTR)                  :: CHILD_NAME
       character(len=14)                           :: datestamp ! YYYYMMDD_HHMMz
       integer                                     :: status
+      integer                                     :: UserRC
       integer                                     :: I
       type (MAPL_MetaComp), pointer               :: STATE
       character(len=1)                            :: separator
@@ -2857,6 +2858,12 @@ contains
          ! call the actual record method
          call MAPL_StateRefresh (GC, IMPORT, EXPORT, CLOCK, RC=status )
          _VERIFY(status)
+
+         if (associated(STATE%phase_coldstart)) then
+            call ESMF_GridCompReadRestart(GC, importState=import, &
+                    exportState=export, clock=CLOCK, phase=MAPL_MAX_PHASES+1, userRC=userRC, _RC)
+         endif
+
       endif
       call MAPL_TimerOff(STATE,"GenRefreshMine",_RC)
       call MAPL_TimerOff(STATE,"GenRefreshTot",_RC)
