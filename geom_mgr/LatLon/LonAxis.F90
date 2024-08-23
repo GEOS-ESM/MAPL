@@ -94,8 +94,6 @@ module mapl3g_LonAxis
       axis%CoordinateAxis = CoordinateAxis(centers, corners)
    end function new_LonAxis
 
-   CONTAINS
-
    elemental logical function equal_to(a, b)
       type(LonAxis), intent(in) :: a, b
       equal_to = (a%CoordinateAxis == b%CoordinateAxis)

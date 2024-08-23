@@ -139,8 +139,6 @@ interface
 
    end function new_LatLonGeomSpec
 
-   CONTAINS
-
    pure function get_decomposition(spec) result(decomposition)
       type(LatLonDecomposition) :: decomposition
       class(LatLonGeomSpec), intent(in) :: spec

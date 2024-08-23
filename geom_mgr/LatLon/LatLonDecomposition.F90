@@ -134,9 +134,7 @@ module mapl3g_LatLonDecomposition
 
    end function new_LatLonDecomposition_topo
 
-   CONTAINS
-
-      pure subroutine get_idx_range(distribution, rank, i_0, i_1)
+   pure subroutine get_idx_range(distribution, rank, i_0, i_1)
       integer, intent(in) :: distribution(:)
       integer, intent(in) :: rank
       integer, intent(out) :: i_0, i_1

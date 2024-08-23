@@ -5,6 +5,7 @@ module mapl3g_LatLonGeomFactory
    use mapl3g_GeomFactory
    use mapl3g_LatLonGeomSpec
    use mapl_KeywordEnforcerMod
+   use mapl_ErrorHandlingMod
    use gftl2_StringVector
    use pfio
    use esmf
