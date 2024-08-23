@@ -35,6 +35,7 @@ module mapl3g_InvalidSpec
 
       procedure :: make_extension
       procedure :: extension_cost
+      procedure :: initialize
    end type InvalidSpec
 
 
@@ -154,4 +155,15 @@ contains
 
    end function extension_cost
 
+   subroutine initialize(this, geom, vertical_grid, registry, rc)
+      class(FieldSpec), intent(inout) :: this
+      type(ESMF_Geom), intent(inout) :: geom
+      class(VerticalGrid), intent(in) :: vertical_grid
+      class(StateRegistry), intent(in) :: registry
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _FAIL('Attempt to initialize item of type InvalidSpec')
+
+   end subroutine initialize
 end module mapl3g_InvalidSpec

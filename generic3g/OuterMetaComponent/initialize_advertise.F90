@@ -1,7 +1,9 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_advertise_smod
-   implicit none
+   use mapl3g_make_ItemSpec
+   implicit none (type, external)
+
 
 contains
 
@@ -91,9 +93,8 @@ contains
 
          _ASSERT(var_spec%itemtype /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 
-!         allocate(item_spec, source=var_spec%make_ItemSpec(geom, vertical_grid, registry, rc=status)); _VERIFY(status)
-!         call item_spec%create(_RC)
-         allocate(item_spec, source=make_ItemSpec(var_spec, _RC))
+         allocate(item_spec, source=make_ItemSpec(var_spec, rc=status))
+         _VERIFY(_RC)
          call item_spec%initialize(geom, vertical_grid, registry, _RC)
 
          virtual_pt = var_spec%make_virtualPt()

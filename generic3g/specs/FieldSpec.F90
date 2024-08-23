@@ -222,22 +222,19 @@ contains
       _RETURN(_SUCCESS)
    end function get_regrid_method_
 
-   subroutine initialize(this, geom, vertical_grid, registry, rc)
+   subroutine initialize(this, geom, vertical_grid, rc)
       class(FieldSpec), intent(inout) :: this
-      type(ESMF_Geom), intent(inout) :: geom
+      type(ESMF_Geom), intent(in) :: geom
       class(VerticalGrid), intent(in) :: vertical_grid
-      class(StateRegistry), intent(in) :: registry
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
       type(ActualPtVector) :: dependencies
 
-      _UNUSED_DUMMY(registry)
-
       associate (variable_spec => this%variable_spec)
          if(allocated(this%geom)) deallocate(this%geom)
          this%geom = geom
-         if(allocated(this%vertical_grid) deallocate(this%vertical_grid)
+         if(allocated(this%vertical_grid)) deallocate(this%vertical_grid)
          this%vertical_grid = vertical_grid
          _SET_FIELD(this, variable_spec, vertical_dim_spec)
          _SET_FIELD(this, variable_spec, typekind)

@@ -34,6 +34,7 @@ module mapl3g_WildcardSpec
       procedure :: add_to_state
       procedure :: add_to_bundle
       procedure :: extension_cost
+      procedure :: initialize
 
    end type WildcardSpec
 
@@ -235,5 +236,16 @@ contains
 
       _RETURN(_SUCCESS)
    end function extension_cost
+
+   subroutine initialize(this, geom, vertical_grid, registry, rc)
+      class(FieldSpec), intent(inout) :: this
+      type(ESMF_Geom), intent(inout) :: geom
+      class(VerticalGrid), intent(in) :: vertical_grid
+      class(StateRegistry), intent(in) :: registry
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _RETURN(_SUCCESS)
+   end subroutine initialize
 
 end module mapl3g_WildcardSpec

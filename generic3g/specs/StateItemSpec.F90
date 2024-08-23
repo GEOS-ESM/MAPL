@@ -122,25 +122,16 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_add_to_bundle
 
-      subroutine I_initialize(this, geom, vertical_grid, registry, rc)
-         import StateItemSpec
+      subroutine I_initialize(this, geom, vertical_grid, rc)
          use esmf, only: ESMF_Geom
          use mapl3g_VerticalGrid, only: VerticalGrid
+         import StateItemSpec
          class(StateItemSpec), intent(inout) :: this
-         type(ESMF_Geom), intent(inout) :: geom
+         type(ESMF_Geom), intent(in) :: geom
          class(VerticalGrid), intent(in) :: vertical_grid
-         class(StateRegistry), intent(in) :: registry
          integer, optional, intent(out) :: rc
       end subroutine I_initialize
 
-   end interface
-
-   interface
-      module function make_itemSpec(variable_spec, rc) result(item_spec)
-         use mapl3g_VariableSpec, only :: VariableSpec
-         class(StateItemSpec), allocatable :: item_spec
-         class(VariableSpec), intent(in) :: variable_spec
-      end subroutine make_itemSpec
    end interface
 
 contains
