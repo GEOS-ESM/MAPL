@@ -112,6 +112,7 @@ module mapl3g_FieldSpec
 
    interface can_match
       procedure :: can_match_geom
+      procedure :: can_match_vertical_grid
    end interface can_match
 
    interface get_cost
@@ -135,7 +136,7 @@ contains
 
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
-      class(VerticalGrid), intent(in) :: vertical_grid
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       type(UngriddedDims), intent(in) :: ungridded_dims
@@ -152,7 +153,7 @@ contains
       integer :: status
 
       if (present(geom)) field_spec%geom = geom
-      field_spec%vertical_grid = vertical_grid
+      if (present(vertical_grid)) field_spec%vertical_grid = vertical_grid
       field_spec%vertical_dim_spec = vertical_dim_spec
       field_spec%typekind = typekind
       field_spec%ungridded_dims = ungridded_dims
@@ -384,6 +385,7 @@ contains
       integer :: status
       interface mirror
          procedure :: mirror_geom
+         procedure :: mirror_vertical_grid
          procedure :: mirror_typekind
          procedure :: mirror_string
          procedure :: mirror_real
@@ -405,6 +407,7 @@ contains
          this%payload = src_spec%payload
 
          call mirror(dst=this%geom, src=src_spec%geom)
+         call mirror(dst=this%vertical_grid, src=src_spec%vertical_grid)
          call mirror(dst=this%typekind, src=src_spec%typekind)
          call mirror(dst=this%units, src=src_spec%units)
          call mirror(dst=this%vertical_dim_spec, src=src_spec%vertical_dim_spec)
@@ -438,6 +441,24 @@ contains
          _ASSERT(MAPL_SameGeom(dst, src), 'cannot connect mismatched geom without coupler.')
 
       end subroutine mirror_geom
+
+      subroutine mirror_vertical_grid(dst, src)
+         class(VerticalGrid), allocatable, intent(inout) :: dst, src
+
+         _ASSERT(allocated(dst) .or. allocated(src), 'cannot double mirror')
+         if (allocated(dst) .and. .not. allocated(src)) then
+            src = dst
+            return
+         end if
+
+         if (allocated(src) .and. .not. allocated(dst)) then
+            dst = src
+            return
+         end if
+
+!         _ASSERT(MAPL_SameVerticalGrid(dst, src), 'cannot connect mismatched geom without coupler.')
+
+      end subroutine mirror_vertical_grid
 
 
       subroutine mirror_typekind(dst, src)
@@ -532,17 +553,15 @@ contains
       integer, optional, intent(out) :: rc
 
       logical :: can_convert_units
-      logical :: can_connect_vertical_grid
       integer :: status
 
       select type(src_spec)
       class is (FieldSpec)
          can_convert_units = can_connect_units(this%units, src_spec%units, _RC)
-         can_connect_vertical_grid = this%vertical_grid%can_connect_to(src_spec%vertical_grid, _RC)
 
          can_connect_to = all ([ &
               can_match(this%geom,src_spec%geom), &
-              can_connect_vertical_grid, &
+              can_match(this%vertical_grid, src_spec%vertical_grid), &
               match(this%vertical_dim_spec,src_spec%vertical_dim_spec), &
               match(this%ungridded_dims,src_spec%ungridded_dims), &
               includes(this%attributes, src_spec%attributes), &
@@ -768,7 +787,6 @@ contains
    logical function can_match_geom(a, b) result(can_match)
       type(ESMF_Geom), allocatable, intent(in) :: a, b
 
-      integer :: status
       integer :: n_mirror
 
       ! At most one geom can be mirror (unallocated).
@@ -777,6 +795,18 @@ contains
       can_match = n_mirror <= 1
 
    end function can_match_geom
+
+   logical function can_match_vertical_grid(a, b) result(can_match)
+      class(VerticalGrid), allocatable, intent(in) :: a, b
+
+      integer :: n_mirror
+
+      ! At most one grid can be mirror (unallocated).
+      ! Otherwise, see if regrid is supported
+      n_mirror = count([.not. allocated(a), .not. allocated(b)])
+      can_match = n_mirror <= 1
+
+   end function can_match_vertical_grid
 
 
    logical function match_geom(a, b) result(match)

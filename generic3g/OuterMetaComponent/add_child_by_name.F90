@@ -11,7 +11,7 @@ contains
 
    module recursive subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
       use mapl3g_GenericGridComp, only: generic_setservices => setservices
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       character(len=*), intent(in) :: child_name
       class(AbstractUserSetServices), intent(in) :: setservices
       type(ESMF_Hconfig), intent(in) :: hconfig
@@ -21,6 +21,9 @@ contains
       type(GriddedComponentDriver) :: child_gc_driver
       type(ESMF_GridComp) :: child_gc
       type(ESMF_Clock) :: clock, child_clock
+      type(GriddedComponentDriver), pointer :: child
+      type(OuterMetaComponent), pointer :: child_meta
+      type(ESMF_GridComp) :: child_outer_gc
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
 
@@ -32,6 +35,12 @@ contains
 
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
       call this%children%insert(child_name, child_gc_driver)
+
+      ! add subregistry
+      child => this%children%of(child_name)
+      child_outer_gc = child%get_gridcomp()
+      child_meta => get_outer_meta(child_outer_gc, _RC)
+      call this%registry%add_subregistry(child_meta%get_registry())
 
       _RETURN(ESMF_SUCCESS)
    end subroutine add_child_by_name

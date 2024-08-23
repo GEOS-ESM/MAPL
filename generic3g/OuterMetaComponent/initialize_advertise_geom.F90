@@ -35,6 +35,9 @@ contains
            mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
            this%geom = mapl_geom%get_geom()
         end if
+        if (allocated(geometry_spec%vertical_grid)) then
+           this%vertical_grid = geometry_spec%vertical_grid
+        end if
 
         call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 

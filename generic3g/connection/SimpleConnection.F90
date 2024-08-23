@@ -31,6 +31,7 @@ module mapl3g_SimpleConnection
    contains
       procedure :: get_source
       procedure :: get_destination
+      procedure :: activate
       procedure :: connect
       procedure :: connect_sibling
    end type SimpleConnection
@@ -63,18 +64,55 @@ contains
       destination = this%destination
    end function get_destination
 
+   recursive subroutine activate(this, registry, rc)
+      class(SimpleConnection), intent(in) :: this
+      type(StateRegistry), target, intent(inout) :: registry
+      integer, optional, intent(out) :: rc
+
+      type(StateRegistry), pointer :: src_registry, dst_registry
+      type(ConnectionPt) :: src_pt, dst_pt
+      type(StateItemExtensionPtr), target, allocatable :: src_extensions(:), dst_extensions(:)
+      type(StateItemExtension), pointer :: src_extension, dst_extension
+      class(StateItemSpec), pointer :: spec
+      integer :: i
+      integer :: status
+
+      src_pt = this%get_source()
+      dst_pt = this%get_destination()
+
+      dst_registry => registry%get_subregistry(dst_pt)
+      src_registry => registry%get_subregistry(src_pt)
+        
+      _ASSERT(associated(src_registry), 'Unknown source registry')
+      _ASSERT(associated(dst_registry), 'Unknown destination registry')
+        
+      dst_extensions = dst_registry%get_extensions(dst_pt%v_pt, _RC)
+      src_extensions = src_registry%get_extensions(src_pt%v_pt, _RC)
+
+      do i = 1, size(dst_extensions)
+         dst_extension => dst_extensions(i)%ptr
+         spec => dst_extension%get_spec()
+         call spec%set_active()
+      end do
+
+      do i = 1, size(src_extensions)
+         src_extension => src_extensions(i)%ptr
+         spec => src_extension%get_spec()
+         call spec%set_active()
+      end do
+        
+      _RETURN(_SUCCESS)
+   end subroutine activate
+
+
    recursive subroutine connect(this, registry, rc)
       class(SimpleConnection), intent(in) :: this
       type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
       type(StateRegistry), pointer :: src_registry, dst_registry
-      integer :: status
-      type(VirtualConnectionPt) :: s_v_pt
-      type(VirtualConnectionPt), pointer :: d_v_pt
-      type(ConnectionPt) :: s_pt,d_pt
-      type(ActualPtVec_MapIterator) :: iter
       type(ConnectionPt) :: src_pt, dst_pt
+      integer :: status
 
       src_pt = this%get_source()
       dst_pt = this%get_destination()

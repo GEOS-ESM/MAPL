@@ -5,6 +5,7 @@ submodule (mapl3g_OuterMetaComponent) SetServices_smod
    use mapl3g_ChildSpec
    use mapl3g_ChildSpecMap
    use mapl3g_GenericGridComp
+   use mapl3g_BasicVerticalGrid
    implicit none
 
 contains
