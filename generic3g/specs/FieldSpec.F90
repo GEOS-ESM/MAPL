@@ -49,10 +49,26 @@ module mapl3g_FieldSpec
    public :: FieldSpec
    public :: new_FieldSpec_geom
 
+   ! Two FieldSpec's can be connected if:
+   !   1) They only differ in the following components:
+   !      - geom (couple with Regridder)
+   !      - vertical_regrid (couple with VerticalRegridder)
+   !      - typekind (Copy)
+   !      - units (Convert)
+   !      - frequency_spec (tbd)
+   !      - halo width (tbd)
+   !   2) They have the same values for
+   !      - ungridded_dims
+   !      - standard_name
+   !      - long_name
+   !      - regrid_param
+   !      - default_value
+   !   3) The attributes of destination spec are a subset of the
+   !      attributes of the source spec.
+
    type, extends(StateItemSpec) :: FieldSpec
 
       private
-
       type(ESMF_Geom), allocatable :: geom
       class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN
@@ -74,6 +90,8 @@ module mapl3g_FieldSpec
       real, allocatable :: default_value
       type(VariableSpec) :: variable_spec
 
+      logical :: is_created = .false.
+
    contains
 
       procedure :: create
@@ -85,8 +103,6 @@ module mapl3g_FieldSpec
       procedure :: can_connect_to
       procedure :: add_to_state
       procedure :: add_to_bundle
-
-      procedure :: check_complete
 
       procedure :: extension_cost
       procedure :: make_extension
@@ -266,6 +282,7 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
+      this%is_created = .true.
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -650,18 +667,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
-
-   logical function check_complete(this, rc)
-      class(FieldSpec), intent(in) :: this
-      integer, intent(out), optional :: rc
-
-      integer :: status
-      type(ESMF_FieldStatus_Flag) :: fstatus
-
-      call ESMF_FieldGet(this%payload, status=fstatus, _RC)
-      check_complete = (fstatus == ESMF_FIELDSTATUS_COMPLETE)
-
-   end function check_complete
 
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(FieldSpec), intent(in) :: this
