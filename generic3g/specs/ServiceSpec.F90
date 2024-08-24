@@ -39,7 +39,7 @@ module mapl3g_ServiceSpec
       procedure :: extension_cost
       procedure :: add_to_state
       procedure :: add_to_bundle
-      procedure :: initialize
+      procedure :: initialize => initialize_service_spec
 !!$      procedure :: check_complete
    end type ServiceSpec
 
@@ -202,7 +202,7 @@ contains
       _RETURN(_SUCCESS)
    end function extension_cost
 
-   subroutine initialize(this, geom, vertical_grid, rc)
+   subroutine initialize_service_spec(this, geom, vertical_grid, rc)
       class(ServiceSpec), intent(inout) :: this
       type(ESMF_Geom), intent(in) :: geom
       class(VerticalGrid), intent(in) :: vertical_grid
@@ -210,6 +210,6 @@ contains
       integer :: status
 
       _RETURN(_SUCCESS)
-   end subroutine initialize
+   end subroutine initialize_service_spec
 
 end module mapl3g_ServiceSpec

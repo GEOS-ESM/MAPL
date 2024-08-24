@@ -108,7 +108,7 @@ module mapl3g_FieldSpec
       procedure :: make_extension
 
       procedure :: set_info
-      procedure :: initialize
+      procedure :: initialize => initialize_field_spec
 
    end type FieldSpec
 
@@ -222,7 +222,7 @@ contains
       _RETURN(_SUCCESS)
    end function get_regrid_method_
 
-   subroutine initialize(this, geom, vertical_grid, rc)
+   subroutine initialize_field_spec(this, geom, vertical_grid, rc)
       class(FieldSpec), intent(inout) :: this
       type(ESMF_Geom), intent(in) :: geom
       class(VerticalGrid), intent(in) :: vertical_grid
@@ -250,7 +250,7 @@ contains
 
          dependencies = variable_spec%make_dependencies(_RC)
          call this%set_dependencies(dependencies)
-         call this%set_raw_dependencies(this%dependencies)
+         call this%set_raw_dependencies(dependencies)
 
          if (variable_spec%state_intent == ESMF_STATEINTENT_INTERNAL) then
             call this%set_active()
@@ -259,7 +259,7 @@ contains
 
       _RETURN(_SUCCESS)
       
-   end subroutine initialize
+   end subroutine initialize_field_spec
 
 !#   function new_FieldSpec_defaults(ungridded_dims, geom, units) result(field_spec)
 !#      type(FieldSpec) :: field_spec
