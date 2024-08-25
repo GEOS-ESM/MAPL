@@ -1,9 +1,12 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_ServiceSpec
+   use mapl3g_StateRegistry
+   use mapl3g_VariableSpec
    use mapl3g_StateItemSpec
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
+   use mapl3g_StateItemExtension
    use mapl3g_ExtensionAction
    use mapl3g_NullAction
    use mapl3g_AbstractActionSpec
@@ -24,6 +27,8 @@ module mapl3g_ServiceSpec
 
    type, extends(StateItemSpec) :: ServiceSpec
       private
+      type(StateRegistry), pointer :: registry
+      type(VariableSpec) :: variable_spec
       type(ESMF_Typekind_Flag), allocatable :: typekind
       type(ESMF_FieldBundle) :: payload
       type(StateItemSpecPtr), allocatable :: dependency_specs(:)
@@ -49,15 +54,13 @@ module mapl3g_ServiceSpec
 
 contains
 
-   !wdb fixme deleteme Needs a constructor with VariableSpec argument or no argument
-   !wdb fixme deleteme Needs an initialize method to satisfy StateItemSpec interface
-   function new_ServiceSpec(service_item_specs) result(spec)
+   function new_ServiceSpec(variable_spec, registry) result(spec)
       type(ServiceSpec) :: spec
-      type(StateItemSpecPtr), intent(in) :: service_item_specs(:)
+      type(VariableSpec), intent(in) :: variable_spec
+      type(StateRegistry), target, intent(in) :: registry
 
-      integer :: status
-
-      spec%dependency_specs = service_item_specs
+      spec%variable_spec = variable_spec
+      spec%registry => registry
 
    end function new_ServiceSpec
 
@@ -204,10 +207,28 @@ contains
 
    subroutine initialize_service_spec(this, geom, vertical_grid, rc)
       class(ServiceSpec), intent(inout) :: this
-      type(ESMF_Geom), intent(in) :: geom
-      class(VerticalGrid), intent(in) :: vertical_grid
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
       integer :: status
+
+      integer :: i, n
+      type(StateItemSpecPtr), allocatable :: specs(:)
+      type(VirtualConnectionPt) :: v_pt
+      type(StateItemExtension), pointer :: primary
+
+      associate (var_spec => this%variable_spec)
+        n = var_spec%service_items%size()
+        allocate(specs(n))
+
+        do i = 1, n
+           v_pt = VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, var_spec%service_items%of(i))
+           ! Internal items are always unique and "primary" (owned by user)
+           primary => this%registry%get_primary_extension(v_pt, _RC)
+           specs(i)%ptr => primary%get_spec()
+        end do
+      end associate
+      this%dependency_specs = specs
 
       _RETURN(_SUCCESS)
    end subroutine initialize_service_spec

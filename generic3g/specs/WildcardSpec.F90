@@ -46,8 +46,6 @@ module mapl3g_WildcardSpec
 contains
 
 
-   !wdb fixme deleteme Needs a constructor with VariableSpec argument
-   !wdb fixme deleteme Needs an initialize method to satisfy StateItemSpec interface
    function new_WildcardSpec(reference_spec) result(wildcard_spec)
       type(WildcardSpec) :: wildcard_spec
       class(StateItemSpec), intent(in) :: reference_spec
@@ -240,10 +238,13 @@ contains
 
    subroutine initialize_wildcard_spec(this, geom, vertical_grid, rc)
       class(WildcardSpec), intent(inout) :: this
-      type(ESMF_Geom), intent(in) :: geom
-      class(VerticalGrid), intent(in) :: vertical_grid
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
+
       integer :: status
+
+      call this%reference_spec%initialize(geom, vertical_grid, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine initialize_wildcard_spec

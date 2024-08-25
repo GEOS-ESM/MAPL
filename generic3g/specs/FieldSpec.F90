@@ -224,18 +224,17 @@ contains
 
    subroutine initialize_field_spec(this, geom, vertical_grid, rc)
       class(FieldSpec), intent(inout) :: this
-      type(ESMF_Geom), intent(in) :: geom
-      class(VerticalGrid), intent(in) :: vertical_grid
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
       type(ActualPtVector) :: dependencies
 
       associate (variable_spec => this%variable_spec)
-         if(allocated(this%geom)) deallocate(this%geom)
-         this%geom = geom
-         if(allocated(this%vertical_grid)) deallocate(this%vertical_grid)
-         this%vertical_grid = vertical_grid
+        if (present(geom)) this%geom = geom
+        if (present(vertical_grid)) this%vertical_grid = vertical_grid
+           
          _SET_FIELD(this, variable_spec, vertical_dim_spec)
          _SET_FIELD(this, variable_spec, typekind)
          _SET_FIELD(this, variable_spec, ungridded_dims)
@@ -250,7 +249,7 @@ contains
 
          dependencies = variable_spec%make_dependencies(_RC)
          call this%set_dependencies(dependencies)
-         call this%set_raw_dependencies(dependencies)
+         call this%set_raw_dependencies(variable_spec%dependencies)
 
          if (variable_spec%state_intent == ESMF_STATEINTENT_INTERNAL) then
             call this%set_active()

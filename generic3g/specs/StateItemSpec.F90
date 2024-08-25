@@ -127,8 +127,8 @@ module mapl3g_StateItemSpec
          use mapl3g_VerticalGrid, only: VerticalGrid
          import StateItemSpec
          class(StateItemSpec), intent(inout) :: this
-         type(ESMF_Geom), intent(in) :: geom
-         class(VerticalGrid), intent(in) :: vertical_grid
+         type(ESMF_Geom), optional, intent(in) :: geom
+         class(VerticalGrid), optional, intent(in) :: vertical_grid
          integer, optional, intent(out) :: rc
       end subroutine I_initialize
 

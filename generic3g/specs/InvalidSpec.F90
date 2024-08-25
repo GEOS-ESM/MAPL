@@ -158,9 +158,10 @@ contains
 
    subroutine initialize_invalid_spec(this, geom, vertical_grid, rc)
       class(InvalidSpec), intent(inout) :: this
-      type(ESMF_Geom), intent(in) :: geom
-      class(VerticalGrid), intent(in) :: vertical_grid
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
+
       integer :: status
 
       _FAIL('Attempt to initialize item of type InvalidSpec')
