@@ -11,7 +11,8 @@ target_sources(MAPL.geom_mgr PRIVATE
 esma_add_fortran_submodules(
   TARGET MAPL.geom_mgr
   SUBDIRECTORY LatLonDecomposition
-  SOURCES get_lon_subset.F90 get_lat_subset.F90
+  SOURCES get_subset.F90 get_idx_range.F90
+          get_lon_subset.F90 get_lat_subset.F90
           make_LatLonDecomposition_current_vm.F90
           make_LatLonDecomposition_vm.F90 equal_to.F90)
 

@@ -81,6 +81,18 @@ module mapl3g_LatLonDecomposition
          type(LatLonDecomposition), intent(in) :: decomp2
       end function equal_to
 
+      pure module function get_subset(coordinates, i_0, i_1) result(subset)
+         real(kind=R8), allocatable :: subset(:)
+         real(kind=R8), intent(in) :: coordinates(:)
+         integer, intent(in) :: i_0, i_1
+      end function get_subset
+
+      pure module subroutine get_idx_range(distribution, rank, i_0, i_1)
+         integer, intent(in) :: distribution(:)
+         integer, intent(in) :: rank
+         integer, intent(out) :: i_0, i_1
+      end subroutine get_idx_range
+
    end interface
 
 
@@ -134,16 +146,6 @@ module mapl3g_LatLonDecomposition
 
    end function new_LatLonDecomposition_topo
 
-   pure subroutine get_idx_range(distribution, rank, i_0, i_1)
-      integer, intent(in) :: distribution(:)
-      integer, intent(in) :: rank
-      integer, intent(out) :: i_0, i_1
-
-      i_0 = 1 + sum(distribution(:rank))
-      i_1 = i_0 + distribution(rank+1) - 1
-
-   end subroutine get_idx_range
-
    pure function get_lat_distribution(decomp) result(lat_distribution)
       integer, allocatable :: lat_distribution(:)
       class(LatLonDecomposition), intent(in) :: decomp
@@ -156,15 +158,6 @@ module mapl3g_LatLonDecomposition
       class(LatLonDecomposition), intent(in) :: decomp
       lon_distribution = decomp%lon_distribution
    end function get_lon_distribution
-
-   pure function get_subset(coordinates, i_0, i_1) result(subset)
-      real(kind=R8), allocatable :: subset(:)
-      real(kind=R8), intent(in) :: coordinates(:)
-      integer, intent(in) :: i_0, i_1
-
-      subset = coordinates(i_0:i_1)
-
-   end function get_subset
 
    elemental function not_equal_to(decomp1, decomp2)
       logical :: not_equal_to
