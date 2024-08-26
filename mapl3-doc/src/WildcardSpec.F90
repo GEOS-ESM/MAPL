@@ -11,6 +11,7 @@ module mapl3g_WildcardSpec
    use mapl3g_NullAction
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
+   use mapl3g_VerticalGrid
    use esmf
    use pFlogger
 
@@ -34,6 +35,7 @@ module mapl3g_WildcardSpec
       procedure :: add_to_state
       procedure :: add_to_bundle
       procedure :: extension_cost
+      procedure :: initialize => initialize_wildcard_spec
 
    end type WildcardSpec
 
@@ -233,5 +235,18 @@ contains
 
       _RETURN(_SUCCESS)
    end function extension_cost
+
+   subroutine initialize_wildcard_spec(this, geom, vertical_grid, rc)
+      class(WildcardSpec), intent(inout) :: this
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call this%reference_spec%initialize(geom, vertical_grid, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine initialize_wildcard_spec
 
 end module mapl3g_WildcardSpec

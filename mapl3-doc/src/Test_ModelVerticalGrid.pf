@@ -19,13 +19,14 @@ module Test_ModelVerticalGrid
    use mapl3g_ComponentDriverVector
    use mapl3g_ComponentDriverPtrVector
    use mapl3g_MultiState
+   use mapl3g_make_ItemSpec
    use mapl3g_geom_mgr
    use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_UPDATE
    use esmf
    ! testing framework
    use ESMF_TestMethod_mod
    use funit
-   implicit none
+   implicit none (type, external)
 
    integer, parameter :: IM=6, JM=7, LM=3
 
@@ -64,8 +65,10 @@ contains
            units='hPa', &
            vertical_dim_spec=VERTICAL_DIM_EDGE, &
            default_value=3.)
-     allocate(ple_spec, source=var_spec%make_itemSpec(geom=geom, vertical_grid=vgrid, registry=r, rc=status))
+     allocate(ple_spec, source=make_itemSpec(var_spec, r, rc=status))
      _VERIFY(status)
+     call ple_spec%initialize(geom=geom, vertical_grid=vgrid, _RC)
+
       call r%add_primary_spec(ple_pt, ple_spec)
 
       extension => r%get_primary_extension(ple_pt, _RC)

@@ -46,6 +46,7 @@ module mapl3g_BracketSpec
 
       procedure :: extension_cost
       procedure :: make_extension
+      procedure :: initialize => initialize_bracket_spec
    end type BracketSpec
 
    interface BracketSpec
@@ -291,5 +292,14 @@ contains
       _FAIL('not implemented')
    end subroutine make_extension
 
+   subroutine initialize_bracket_spec(this, geom, vertical_grid, rc)
+      class(BracketSpec), intent(inout) :: this
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _RETURN(_SUCCESS)
+   end subroutine initialize_bracket_spec
 
 end module mapl3g_BracketSpec
