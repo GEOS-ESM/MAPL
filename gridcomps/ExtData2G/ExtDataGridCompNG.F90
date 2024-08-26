@@ -1407,7 +1407,6 @@ CONTAINS
      if (item%vartype == MAPL_FieldItem) then
         call ESMF_StateGet(ExtDataState,trim(item%name),field,_RC)
         call FieldSet(field, item%const, _RC)
-        call ESMF_FieldGet(field,dimCount=fieldRank,_RC)
      else if (item%vartype == MAPL_VectorField) then
         call ESMF_StateGet(ExtDataState,trim(item%vcomp1),field,_RC)
         call FieldSet(field, item%const, _RC)
