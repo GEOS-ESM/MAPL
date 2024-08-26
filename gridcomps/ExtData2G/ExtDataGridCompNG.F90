@@ -62,6 +62,7 @@
    use MAPL_ExtDataLogger
    use MAPL_ExtDataConstants
    use gFTL_StringIntegerMap
+   use MAPL_FieldUtils
 
    IMPLICIT NONE
    PRIVATE
@@ -1400,39 +1401,17 @@ CONTAINS
      type(ESMF_State), intent(inout) :: extDataState
      integer, intent(out), optional :: rc
 
-     integer :: status,fieldRank
-     real(kind=REAL32), pointer :: ptr2d(:,:),ptr3d(:,:,:)
+     integer :: status
      type(ESMF_Field) :: field
 
      if (item%vartype == MAPL_FieldItem) then
         call ESMF_StateGet(ExtDataState,trim(item%name),field,_RC)
-        call ESMF_FieldGet(field,dimCount=fieldRank,_RC)
-        if (fieldRank == 2) then
-           call MAPL_GetPointer(ExtDataState, ptr2d, trim(item%name),_RC)
-           ptr2d = item%const
-        else if (fieldRank == 3) then
-           call MAPL_GetPointer(ExtDataState, ptr3d, trim(item%name), _RC)
-           ptr3d = item%const
-         endif
+        call FieldSet(field, item%const, _RC)
      else if (item%vartype == MAPL_VectorField) then
         call ESMF_StateGet(ExtDataState,trim(item%vcomp1),field,_RC)
-        call ESMF_FieldGet(field,dimCount=fieldRank,_RC)
-         if (fieldRank == 2) then
-               call MAPL_GetPointer(ExtDataState, ptr2d, trim(item%vcomp1),_RC)
-               ptr2d = item%const
-         else if (fieldRank == 3) then
-               call MAPL_GetPointer(ExtDataState, ptr3d, trim(item%vcomp1), _RC)
-               ptr3d = item%const
-         endif
-         call ESMF_StateGet(ExtDataState,trim(item%vcomp2),field,_RC)
-         call ESMF_FieldGet(field,dimCount=fieldRank,_RC)
-         if (fieldRank == 2) then
-               call MAPL_GetPointer(ExtDataState, ptr2d, trim(item%vcomp2),_RC)
-               ptr2d = item%const
-         else if (fieldRank == 3) then
-               call MAPL_GetPointer(ExtDataState, ptr3d, trim(item%vcomp2), _RC)
-               ptr3d = item%const
-         endif
+        call FieldSet(field, item%const, _RC)
+        call ESMF_StateGet(ExtDataState,trim(item%vcomp2),field,_RC)
+        call FieldSet(field, item%const, _RC)
       end if
 
      _RETURN(_SUCCESS)
