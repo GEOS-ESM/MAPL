@@ -3,12 +3,31 @@ import re
 import csv
 import argparse
 from functools import reduce
+from typing import NamedTuple
 
 # Keys for required fields
 REQ_KEYS = [ 'SHORT_NAME', 'UNITS', 'DIMS', 'VLOCATION' ]
 
 # Fortran continuation character
 CONTINUATION_CHARACTER = '&'
+# Snug the Joiner
+SNUG = ', '
+
+#==============================================================================#
+
+class MissingKeySpec(NamedTuple):
+    keys: list[str]
+    spec: str
+
+    def __str__(self):
+        stripped_spec = SNUG.join(tuple(map(lambda s: strip_internal(s), self.spec)))
+        return "(" + stripped_spec + "), missing (" + SNUG.join(self.keys) + ")" 
+
+#==============================================================================#
+
+def strip_internal(s):
+    c = r' '
+    return re.sub(c + r'{2,}|\t', c, s)
 
 #==============================================================================#
 
@@ -147,8 +166,21 @@ def parse_component(filename):
         component = parts[0]
     else:
         component = None
-#    component = filename.split(DOT)[0] if filename else None
     return component
+
+#==============================================================================#
+
+def find_missing_required_keys(keys, fields):
+    if keys is None or fields is None:
+        return None
+    missing = []
+    for k in keys:
+        if k in fields:
+            continue
+        missing.append(k)
+    if missing:
+        return missing
+    return None
 
 #==============================================================================#
 
@@ -293,18 +325,16 @@ def parse_records(records):
 
             # All fields for current record have been parsed.
 
-            # if fields.keys() contains all the required keys (field names),
-            # add current fields to sequence of specs (dict's) for category.
-            if set(fields.keys()) >= set(REQ_KEYS):
-
-                # Add fields for 1 spec.
-                category_specs.append(fields)
-
-            # Some required keys are missing so put in missing list.
+            # if fields.keys() missing required keys (field names),
+            # add a comment line for spec in missing list.
+            #if set(fields.keys()) >= set(REQ_KEYS):
+            m = find_missing_required_keys(REQ_KEYS, fields)
+            if m:
+#                fields[CATEGORY_KEY] = category
+                missing.append(MissingKeySpec(m, spec))
+            # If no required keys are missing add fields dict to category_specs.
             else:
-                #  Add category as a field.
-                fields[CATEGORY_KEY] = category
-                missing.append(fields)
+                category_specs.append(fields)
 
         # Add current specs (dicts) keyed by category.
         specs[category] = category_specs
@@ -391,8 +421,7 @@ def make_output(component, specs, all_keys, missing):
 
     # Strings for incomplete (missing required fields.)
     if missing:
-        missing_lines = list(map(lambda m: OUTPUT_COMMENT + str(m), missing))
-        lines = lines + [ MISSING_HEADER ] + missing_lines
+        lines = lines + [ MISSING_HEADER ] + list(map(lambda m: OUTPUT_COMMENT + str(m), missing))
 
     return lines
 
