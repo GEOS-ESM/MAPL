@@ -157,7 +157,7 @@ def parse_file(args):
 
     # Regular expression for parsing the beginning of MAPL_App calls
     # with group names to extract portions of the line
-    call_re = re.compile('^call\s+MAPL_Add(?P<category>\w*?)Spec\s*\((?P<remainder>.*)$', re.I)
+    call_re = re.compile(r'^call\s+MAPL_Add(?P<category>\w*?)Spec\s*\((?P<remainder>.*)$', re.I)
 
     component = args.component if args.component else parse_component(args.input)
 
@@ -391,7 +391,8 @@ def make_output(component, specs, all_keys, missing):
 
     # Strings for incomplete (missing required fields.)
     if missing:
-        lines = lines + [ MISSING_HEADER ] + [OUTPUT_COMMENT + m for m in missing]
+        missing_lines = list(map(lambda m: OUTPUT_COMMENT + str(m), missing))
+        lines = lines + [ MISSING_HEADER ] + missing_lines
 
     return lines
 
