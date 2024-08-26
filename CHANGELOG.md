@@ -15,8 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Fortran interface to UDUNITS2
   - NOTE: This now means MAPL depends on UDUNITS2 (and transitively, expat)
 - Improve mask sampler by adding an MPI step and a LS_chunk (intermediate step)
-- Update Baselibs in CI to 7.25.0
-  - NOTE: The docker image also updates to Intel 2024.2 and Intel MPI 2021.13
+- CI Updates
+  - Update Baselibs in CI to 7.25.0
+  - Update to circleci-tools orb v4
+    - This adds the ability to do an `ifx` test along with the `ifort` test (though `ifx` is not yet enabled)
 - Update `components.yaml`
   - ESMA_env v4.30.0
     - Update to Baselibs 7.25.0
@@ -33,10 +35,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Move to use Intel ifort 2021.13 at NCCS SLES15, NAS, and GMAO Desktops
     - Move to use Intel MPI at NCCS SLES15 and GMAO Desktops
     - Move to GEOSpyD Min24.4.4 Python 3.11
-  - ESMA_cmake v3.49.0
+  - ESMA_cmake v3.50.0
     - Update `esma_add_fortran_submodules` function
     - Move MPI detection out of FindBaselibs
     - Add SMOD to submodule generator
+    - NAG OpenMP Workaround
+- Add support for preliminary CF Conventions quantization properties
+  - Add new quantization keyword `granular_bitround` to History. This will be the preferred keyword for quantization in the future
+    replacing `GranularBR`
 
 ### Fixed
 
@@ -46,6 +52,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+- Deprecate `GranularBR` as a quantization method keyword in History. We will prefer `granular_bitround` in the future to match
+  draft CF conventions. This will be removed in MAPL 3.
+
+## [2.47.2] - 2024-08-16
+
+### Fixed
+
+- Fix bug in supporting externally initialized MPI
 
 ## [2.47.1] - 2024-07-17
 

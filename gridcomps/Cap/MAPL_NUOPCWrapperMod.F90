@@ -148,7 +148,6 @@ contains
         _VERIFY(status)
 
         !call MPI_Comm_dup(mpi_comm, dup_comm, status)
-        !_VERIFY(status)
         dup_comm = mpi_comm
 
         cap_params = get_cap_parameters_from_gc(model, status)
