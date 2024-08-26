@@ -8,7 +8,7 @@ submodule (mapl3g_LatLonGeomSpec) supports_metadata_smod
    use MAPLBase_Mod
    use mapl_ErrorHandling
    use esmf
-   implicit none
+   implicit none (type, external)
    
 contains
 

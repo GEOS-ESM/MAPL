@@ -12,7 +12,7 @@ submodule (mapl3g_LatLonGeomFactory) create_basic_grid_smod
    use gFTL2_StringVector
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
-   implicit none
+   implicit none (type, external)
 
 
 contains

@@ -4,7 +4,7 @@ submodule (mapl3g_LonAxis) get_lon_corners_smod
    use mapl_RangeMod
    use mapl_ErrorHandling
    use esmf
-   implicit none
+   implicit none (type, external)
    integer, parameter :: R8 = ESMF_KIND_R8
 
 contains

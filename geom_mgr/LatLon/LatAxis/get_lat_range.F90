@@ -5,7 +5,7 @@ submodule (mapl3g_LatAxis) get_lat_range_smod
 !   use hconfig3g
    use esmf
    use mapl_ErrorHandling
-   implicit none
+   implicit none (type, external)
 
    integer, parameter :: R8 = ESMF_KIND_R8
 
