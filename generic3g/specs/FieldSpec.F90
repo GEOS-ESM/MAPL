@@ -1,5 +1,15 @@
 #include "MAPL_Generic.h"
 
+#if defined _SET_FIELD
+#  undef _SET_FIELD
+#endif
+#define _SET_FIELD(A, B, F) A%F = B%F
+
+#if defined(_SET_ALLOCATED_FIELD)
+#  undef _SET_ALLOCATED_FIELD
+#endif
+#define _SET_ALLOCATED_FIELD(A, B, F) if(allocated(B%F)) _SET_FIELD(A, B, F)
+
 module mapl3g_FieldSpec
 
    use mapl3g_StateItemSpec
@@ -27,6 +37,7 @@ module mapl3g_FieldSpec
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use mapl3g_FieldDictionary
    use mapl3g_GriddedComponentDriver
+   use mapl3g_VariableSpec
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -77,6 +88,7 @@ module mapl3g_FieldSpec
 
       type(ESMF_Field) :: payload
       real, allocatable :: default_value
+      type(VariableSpec) :: variable_spec
 
       logical :: is_created = .false.
 
@@ -96,11 +108,13 @@ module mapl3g_FieldSpec
       procedure :: make_extension
 
       procedure :: set_info
+      procedure :: initialize => initialize_field_spec
 
    end type FieldSpec
 
    interface FieldSpec
       module procedure new_FieldSpec_geom
+      module procedure new_FieldSpec_varspec
 !#      module procedure new_FieldSpec_defaults
    end interface FieldSpec
 
@@ -130,7 +144,6 @@ module mapl3g_FieldSpec
    end interface update_item
 
 contains
-
 
    function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
@@ -176,6 +189,17 @@ contains
 
    end function new_FieldSpec_geom
 
+   function new_FieldSpec_varspec(variable_spec) result(field_spec)
+      type(FieldSpec) :: field_spec
+      class(VariableSpec), intent(in) :: variable_spec
+
+      field_spec%variable_spec = variable_spec
+      field_spec%long_name = ' '
+      !wdb fixme deleteme  long_name is set here based on the VariableSpec
+      !                    make_FieldSpec method
+
+   end function new_FieldSpec_varspec
+      
    function get_regrid_method_(stdname, rc) result(regrid_method)
       type(ESMF_RegridMethod_Flag) :: regrid_method
       character(:), allocatable, intent(in) :: stdname
@@ -197,6 +221,44 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_regrid_method_
+
+   subroutine initialize_field_spec(this, geom, vertical_grid, rc)
+      class(FieldSpec), intent(inout) :: this
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
+      type(ActualPtVector) :: dependencies
+
+      associate (variable_spec => this%variable_spec)
+        if (present(geom)) this%geom = geom
+        if (present(vertical_grid)) this%vertical_grid = vertical_grid
+           
+         _SET_FIELD(this, variable_spec, vertical_dim_spec)
+         _SET_FIELD(this, variable_spec, typekind)
+         _SET_FIELD(this, variable_spec, ungridded_dims)
+         _SET_FIELD(this, variable_spec, attributes)
+         _SET_ALLOCATED_FIELD(this, variable_spec, standard_name)
+         _SET_ALLOCATED_FIELD(this, variable_spec, units)
+         _SET_ALLOCATED_FIELD(this, variable_spec, default_value)
+
+         this%regrid_param = EsmfRegridderParam() ! use default regrid method
+         regrid_method = get_regrid_method_(this%standard_name)
+         this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
+
+         dependencies = variable_spec%make_dependencies(_RC)
+         call this%set_dependencies(dependencies)
+         call this%set_raw_dependencies(variable_spec%dependencies)
+
+         if (variable_spec%state_intent == ESMF_STATEINTENT_INTERNAL) then
+            call this%set_active()
+         end if
+      end associate
+
+      _RETURN(_SUCCESS)
+      
+   end subroutine initialize_field_spec
 
 !#   function new_FieldSpec_defaults(ungridded_dims, geom, units) result(field_spec)
 !#      type(FieldSpec) :: field_spec
@@ -961,5 +1023,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_info
-
+    
 end module mapl3g_FieldSpec
+#undef _SET_FIELD
+#undef _SET_ALLOCATED_FIELD

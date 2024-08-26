@@ -9,6 +9,7 @@ module mapl3g_InvalidSpec
    use mapl3g_ActualPtVector
    use mapl3g_ActualPtSpecPtrMap
    use mapl3g_NullAction
+   use mapl3g_VerticalGrid
    use esmf, only: ESMF_FieldBundle
    use esmf, only: ESMF_Geom
    use esmf, only: ESMF_State
@@ -35,6 +36,7 @@ module mapl3g_InvalidSpec
 
       procedure :: make_extension
       procedure :: extension_cost
+      procedure :: initialize => initialize_invalid_spec
    end type InvalidSpec
 
 
@@ -153,5 +155,17 @@ contains
       _FAIL('Attempt to use item of type InvalidSpec')
 
    end function extension_cost
+
+   subroutine initialize_invalid_spec(this, geom, vertical_grid, rc)
+      class(InvalidSpec), intent(inout) :: this
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _FAIL('Attempt to initialize item of type InvalidSpec')
+
+   end subroutine initialize_invalid_spec
 
 end module mapl3g_InvalidSpec

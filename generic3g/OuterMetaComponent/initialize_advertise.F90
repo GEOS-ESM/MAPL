@@ -1,7 +1,9 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_advertise_smod
-   implicit none
+   use mapl3g_make_ItemSpec
+   implicit none (type, external)
+
 
 contains
 
@@ -78,7 +80,7 @@ contains
 
       subroutine advertise_variable(var_spec, registry, geom, vertical_grid, unusable, rc)
          type(VariableSpec), intent(in) :: var_spec
-         type(StateRegistry), intent(inout) :: registry
+         type(StateRegistry), target, intent(inout) :: registry
          type(ESMF_Geom), optional, intent(in) :: geom
          class(VerticalGrid), optional, intent(in) :: vertical_grid
          class(KE), optional, intent(in) :: unusable
@@ -91,8 +93,11 @@ contains
 
          _ASSERT(var_spec%itemtype /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 
-         allocate(item_spec, source=var_spec%make_ItemSpec(geom, vertical_grid, registry, rc=status)); _VERIFY(status)
+         allocate(item_spec, source=make_ItemSpec(var_spec, registry, rc=status))
+         _VERIFY(status)
          call item_spec%create(_RC)
+         call item_spec%initialize(geom, vertical_grid, _RC)
+
 
          virtual_pt = var_spec%make_virtualPt()
          call registry%add_primary_spec(virtual_pt, item_spec)
