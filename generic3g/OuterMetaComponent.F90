@@ -51,6 +51,8 @@ module mapl3g_OuterMetaComponent
    type :: OuterMetaComponent
       private
 
+      integer :: subphase = 0
+
       type(ESMF_GridComp)                         :: self_gridcomp
       type(GriddedComponentDriver)                :: user_gc_driver
       class(AbstractUserSetServices), allocatable :: user_setservices
@@ -242,14 +244,14 @@ module mapl3g_OuterMetaComponent
       end subroutine initialize_advertise_geom
    
       module recursive subroutine initialize_advertise(this, unusable, rc)
-         class(OuterMetaComponent), intent(inout) :: this
+         class(OuterMetaComponent), target, intent(inout) :: this
          ! optional arguments
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
      end subroutine initialize_advertise
    
      module recursive subroutine initialize_modify_advertise(this, importState, exportState, clock, unusable, rc)
-         class(OuterMetaComponent), intent(inout) :: this
+         class(OuterMetaComponent), target, intent(inout) :: this
          ! optional arguments
          type(ESMF_State) :: importState
          type(ESMF_State) :: exportState

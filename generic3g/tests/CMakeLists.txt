@@ -5,7 +5,6 @@ add_library(scratchpad SHARED scratchpad.F90)
 add_subdirectory(gridcomps)
 
 set (test_srcs
-#  Test_AddVarSpec.pf
 
   Test_VirtualConnectionPt.pf
 

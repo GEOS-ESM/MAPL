@@ -8,7 +8,7 @@ submodule (mapl3g_OuterMetaComponent) initialize_advertise_smod
 contains
 
    module recursive subroutine initialize_advertise(this, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -53,7 +53,7 @@ contains
       end subroutine set_child_geom
 
       subroutine self_advertise(this, unusable, rc)
-         class(OuterMetaComponent), intent(inout) :: this
+         class(OuterMetaComponent), target, intent(inout) :: this
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
@@ -96,8 +96,7 @@ contains
          allocate(item_spec, source=make_ItemSpec(var_spec, registry, rc=status))
          _VERIFY(status)
          call item_spec%create(_RC)
-         call item_spec%initialize(geom, vertical_grid, _RC)
-
+!#         call item_spec%initialize(geom, vertical_grid, _RC)
 
          virtual_pt = var_spec%make_virtualPt()
          call registry%add_primary_spec(virtual_pt, item_spec)

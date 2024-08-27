@@ -728,7 +728,6 @@ contains
       
       _ASSERT(allocated(this%vertical_grid), 'Source spec must specify a valid vertical grid.')
       if (.not. same_vertical_grid(this%vertical_grid, dst_spec%vertical_grid)) then
-         _HERE
          call this%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
               'ignore', this%geom, this%typekind, this%units, _RC)
          call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &

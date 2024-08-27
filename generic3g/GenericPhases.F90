@@ -8,6 +8,7 @@ module mapl3g_GenericPhases
    public :: GENERIC_INIT_ADVERTISE_GEOM
    public :: GENERIC_INIT_ADVERTISE
    public :: GENERIC_INIT_MODIFY_ADVERTISE
+   public :: GENERIC_INIT_MODIFY_ADVERTISE2
    public :: GENERIC_INIT_REALIZE
    public :: GENERIC_INIT_USER
 
@@ -25,6 +26,7 @@ module mapl3g_GenericPhases
       enumerator :: GENERIC_INIT_ADVERTISE_GEOM
       enumerator :: GENERIC_INIT_ADVERTISE
       enumerator :: GENERIC_INIT_MODIFY_ADVERTISE
+      enumerator :: GENERIC_INIT_MODIFY_ADVERTISE2
       enumerator :: GENERIC_INIT_REALIZE
    end enum
 
@@ -47,6 +49,7 @@ module mapl3g_GenericPhases
         GENERIC_INIT_ADVERTISE_GEOM, &
         GENERIC_INIT_ADVERTISE, &
         GENERIC_INIT_MODIFY_ADVERTISE, &
+        GENERIC_INIT_MODIFY_ADVERTISE2, &
         GENERIC_INIT_REALIZE, &
         GENERIC_INIT_USER &
         ]

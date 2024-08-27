@@ -21,7 +21,7 @@ contains
       use mapl3g_VariableSpec, only: VariableSpec
       class(StateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: variable_spec
-      type(StateRegistry), target, intent(in) :: registry
+      type(StateRegistry), pointer, intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
