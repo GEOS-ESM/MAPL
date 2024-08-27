@@ -43,13 +43,6 @@ module mapl3g_LatAxis
 
    interface
 
-      ! Constructor
-      pure module function new_LatAxis(centers, corners) result(axis)
-         type(LatAxis) :: axis
-         real(kind=R8), intent(in) :: centers(:)
-         real(kind=R8), intent(in) :: corners(:)
-      end function new_LatAxis
-
       logical module function supports_hconfig(hconfig, rc) result(supports)
          type(ESMF_HConfig), intent(in) :: hconfig
          integer, optional, intent(out) :: rc
@@ -59,14 +52,6 @@ module mapl3g_LatAxis
          type(FileMetadata), intent(in) :: file_metadata
          integer, optional, intent(out) :: rc
       end function supports_metadata
-
-      elemental logical module function equal_to(a, b)
-         type(LatAxis), intent(in) :: a, b
-      end function equal_to
-   
-      elemental logical module function not_equal_to(a, b)
-         type(LatAxis), intent(in) :: a, b
-      end function not_equal_to
 
     ! static factory methods
       module function make_LatAxis_from_hconfig(hconfig, rc) result(axis)
@@ -102,5 +87,24 @@ module mapl3g_LatAxis
 
    end interface
 
+   CONTAINS
+
+   ! Constructor
+   pure function new_LatAxis(centers, corners) result(axis)
+      type(LatAxis) :: axis
+      real(kind=R8), intent(in) :: centers(:)
+      real(kind=R8), intent(in) :: corners(:)
+      axis%CoordinateAxis = CoordinateAxis(centers, corners)
+   end function new_LatAxis
+
+   elemental logical function equal_to(a, b)
+      type(LatAxis), intent(in) :: a, b
+      equal_to = (a%CoordinateAxis == b%CoordinateAxis)
+   end function equal_to
+
+   elemental logical function not_equal_to(a, b)
+      type(LatAxis), intent(in) :: a, b
+      not_equal_to = .not. (a == b)
+   end function not_equal_to
    
 end module mapl3g_LatAxis

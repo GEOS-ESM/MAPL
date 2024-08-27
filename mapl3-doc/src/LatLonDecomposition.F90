@@ -1,4 +1,7 @@
+#include "MAPL_ErrLog.h"
+
 module mapl3g_LatLonDecomposition
+   use MAPL_Base
    use mapl3g_LonAxis
    use mapl3g_LatAxis
    use mapl_KeywordEnforcer
@@ -44,41 +47,6 @@ module mapl3g_LatLonDecomposition
    integer, parameter :: R8 = ESMF_KIND_R8
    interface
 
-      ! Constructors
-      pure module function new_LatLonDecomposition_basic(lon_distribution, lat_distribution) result(decomp)
-         type(LatLonDecomposition) :: decomp
-         integer, intent(in) :: lon_distribution(:)
-         integer, intent(in) :: lat_distribution(:)
-      end function new_LatLonDecomposition_basic
-
-      ! Keyword enforced to avoid ambiguity with '_topo' interface
-      pure module function new_LatLonDecomposition_petcount(dims, unusable, petCount) result(decomp)
-         use mapl_KeywordEnforcerMod
-         type(LatLonDecomposition) :: decomp
-         integer, intent(in) :: dims(2)
-         class(KeywordEnforcer), optional, intent(in) :: unusable
-         integer, intent(in) :: petCount
-      end function new_LatLonDecomposition_petcount
-
-      ! Keyword enforced to avoid ambiguity with '_petcount' interface
-      pure module function new_LatLonDecomposition_topo(dims, unusable, topology) result(decomp)
-         type(LatLonDecomposition) :: decomp
-         integer, intent(in) :: dims(2)
-         class(KeywordEnforcer), optional, intent(in) :: unusable
-         integer, intent(in) :: topology(2)
-      end function new_LatLonDecomposition_topo
-
-      ! accessors
-      pure module function get_lon_distribution(decomp) result(lon_distribution)
-         integer, allocatable :: lon_distribution(:)
-         class(LatLonDecomposition), intent(in) :: decomp
-      end function get_lon_distribution
-
-      pure module function get_lat_distribution(decomp) result(lat_distribution)
-         integer, allocatable :: lat_distribution(:)
-         class(LatLonDecomposition), intent(in) :: decomp
-      end function get_lat_distribution
-
       pure module function get_lon_subset(this, axis, rank) result(local_axis)
          type(LonAxis) :: local_axis
          class(LatLonDecomposition), intent(in) :: this
@@ -113,13 +81,92 @@ module mapl3g_LatLonDecomposition
          type(LatLonDecomposition), intent(in) :: decomp2
       end function equal_to
 
-      elemental module function not_equal_to(decomp1, decomp2)
-         logical :: not_equal_to
-         type(LatLonDecomposition), intent(in) :: decomp1
-         type(LatLonDecomposition), intent(in) :: decomp2
-      end function not_equal_to
-      
+      pure module function get_subset(coordinates, i_0, i_1) result(subset)
+         real(kind=R8), allocatable :: subset(:)
+         real(kind=R8), intent(in) :: coordinates(:)
+         integer, intent(in) :: i_0, i_1
+      end function get_subset
+
+      pure module subroutine get_idx_range(distribution, rank, i_0, i_1)
+         integer, intent(in) :: distribution(:)
+         integer, intent(in) :: rank
+         integer, intent(out) :: i_0, i_1
+      end subroutine get_idx_range
+
    end interface
+
+
+   CONTAINS
+
+   pure function new_LatLonDecomposition_basic(lon_distribution, lat_distribution) result(decomp)
+      use mapl_KeywordEnforcer
+      type(LatLonDecomposition) :: decomp
+      integer, intent(in) :: lon_distribution(:)
+      integer, intent(in) :: lat_distribution(:)
+ 
+      decomp%lon_distribution = lon_distribution
+      decomp%lat_distribution = lat_distribution
+ 
+   end function new_LatLonDecomposition_basic
+
+   pure function new_LatLonDecomposition_petcount(dims, unusable, petCount) result(decomp)
+      use mapl_KeywordEnforcer
+      type(LatLonDecomposition) :: decomp
+      integer, intent(in) :: dims(2)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, intent(in) :: petCount
+      
+      integer :: nx, nx_start 
+ 
+      associate (aspect_ratio => real(dims(1))/dims(2))
+        nx_start = max(1, floor(sqrt(petCount * aspect_ratio)))
+        do nx = nx_start, 1, -1
+           if (mod(petcount, nx) == 0) then ! found a decomposition
+              exit
+           end if
+        end do
+      end associate
+ 
+      decomp = LatLonDecomposition(dims, topology=[nx, petCount/nx])
+ 
+   end function new_LatLonDecomposition_petcount
+
+   pure function new_LatLonDecomposition_topo(dims, unusable, topology) result(decomp)
+      use mapl_KeywordEnforcer
+      type(LatLonDecomposition) :: decomp
+      integer, intent(in) :: dims(2)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, intent(in) :: topology(2)
+
+      allocate(decomp%lon_distribution(topology(1)))
+      allocate(decomp%lat_distribution(topology(2)))
+
+      call MAPL_DecomposeDim(dims(1), decomp%lon_distribution, topology(1), min_DE_extent=2)
+      call MAPL_DecomposeDim(dims(2), decomp%lat_distribution, topology(2), min_DE_extent=2)
+
+   end function new_LatLonDecomposition_topo
+
+   pure function get_lat_distribution(decomp) result(lat_distribution)
+      integer, allocatable :: lat_distribution(:)
+      class(LatLonDecomposition), intent(in) :: decomp
+      lat_distribution = decomp%lat_distribution
+   end function get_lat_distribution
+
+   ! accessors
+   pure function get_lon_distribution(decomp) result(lon_distribution)
+      integer, allocatable :: lon_distribution(:)
+      class(LatLonDecomposition), intent(in) :: decomp
+      lon_distribution = decomp%lon_distribution
+   end function get_lon_distribution
+
+   elemental function not_equal_to(decomp1, decomp2)
+      logical :: not_equal_to
+      type(LatLonDecomposition), intent(in) :: decomp1
+      type(LatLonDecomposition), intent(in) :: decomp2
+
+      not_equal_to = .not. (decomp1 == decomp2)
+
+   end function not_equal_to
 
 end module mapl3g_LatLonDecomposition
 

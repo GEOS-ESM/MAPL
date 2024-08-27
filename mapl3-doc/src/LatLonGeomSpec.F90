@@ -5,7 +5,7 @@ module mapl3g_LatLonGeomSpec
    use mapl3g_LatLonDecomposition
    use mapl3g_LonAxis
    use mapl3g_LatAxis
-   use esmf, only: ESMF_KIND_R8
+   use esmf, only: ESMF_KIND_R8, ESMF_HCONFIG
    implicit none
    private
 
@@ -48,15 +48,6 @@ module mapl3g_LatLonGeomSpec
    integer, parameter :: R8 = ESMF_KIND_R8
 
 interface
-
-      ! Basic constructor for LatLonGeomSpec
-      module function new_LatLonGeomSpec(lon_axis, lat_axis, decomposition) result(spec)
-         type(LatLonGeomSpec) :: spec
-         type(LonAxis), intent(in) :: lon_axis
-         type(LatAxis), intent(in) :: lat_axis
-         type(Latlondecomposition), intent(in) :: decomposition
-      end function new_LatLonGeomSpec
-
 
       pure logical module function equal_to(a, b)
          class(LatLonGeomSpec), intent(in) :: a
@@ -110,23 +101,6 @@ interface
          integer, optional, intent(out) :: rc
       end function make_de_layout_vm
 
-
-      ! Accessors
-      pure module function get_lon_axis(spec) result(axis)
-         class(LatLonGeomSpec), intent(in) :: spec
-         type(LonAxis) :: axis
-      end function get_lon_axis
-
-      pure module function get_lat_axis(spec) result(axis)
-         class(LatLonGeomSpec), intent(in) :: spec
-         type(LatAxis) :: axis
-      end function get_lat_axis
-
-      pure module function get_decomposition(spec) result(decomposition)
-         type(LatLonDecomposition) :: decomposition
-         class(LatLonGeomSpec), intent(in) :: spec
-      end function get_decomposition
-
       logical module function supports_hconfig_(this, hconfig, rc) result(supports)
          use esmf, only: ESMF_HConfig
          class(LatLonGeomSpec), intent(in) :: this
@@ -141,7 +115,49 @@ interface
          integer, optional, intent(out) :: rc
       end function supports_metadata_
 
+      module function make_decomposition(hconfig, dims, rc) result(decomp)
+         type(LatLonDecomposition) :: decomp
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, intent(in) :: dims(2)
+         integer, optional, intent(out) :: rc
+      end function make_decomposition
+
    end interface
+
+   CONTAINS
+
+   ! Basic constructor for LatLonGeomSpec
+   function new_LatLonGeomSpec(lon_axis, lat_axis, decomposition) result(spec)
+      type(LatLonGeomSpec) :: spec
+      type(LonAxis), intent(in) :: lon_axis
+      type(LatAxis), intent(in) :: lat_axis
+      type(LatLonDecomposition), intent(in) :: decomposition
+
+      spec%lon_axis = lon_axis
+      spec%lat_axis = lat_axis
+      spec%decomposition = decomposition
+
+   end function new_LatLonGeomSpec
+
+   pure function get_decomposition(spec) result(decomposition)
+      type(LatLonDecomposition) :: decomposition
+      class(LatLonGeomSpec), intent(in) :: spec
+
+      decomposition = spec%decomposition
+   end function get_decomposition
+
+   pure function get_lat_axis(spec) result(axis)
+      class(LatLonGeomSpec), intent(in) :: spec
+      type(LatAxis) :: axis
+      axis = spec%lat_axis
+   end function get_lat_axis
+
+   ! Accessors
+   pure function get_lon_axis(spec) result(axis)
+      class(LatLonGeomSpec), intent(in) :: spec
+      type(LonAxis) :: axis
+      axis = spec%lon_axis
+   end function get_lon_axis
 
 end module mapl3g_LatLonGeomSpec
 
