@@ -652,7 +652,7 @@ contains
        do while(iter /= cap_exports_vec%end())
           component_name = iter%of()
           component_name = trim(component_name(index(component_name, ",")+1:))
-          field_name = iter%get()
+          field_name = iter%of()
           field_name = trim(field_name(1:index(field_name, ",")-1))
           call MAPL_ExportStateGet([cap%child_exports(cap%root_id)], component_name, &
                component_state, status)
@@ -666,7 +666,7 @@ contains
     if (extdata_imports_vec%size() /= 0) then
        iter = extdata_imports_vec%begin()
        do while(iter /= extdata_imports_vec%end())
-          component_name = iter%get()
+          component_name = iter%of()
           component_name = trim(component_name(index(component_name, ",")+1:))
 
           field_name = iter%of()
