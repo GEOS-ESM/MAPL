@@ -1,5 +1,15 @@
 #include "MAPL_Generic.h"
 
+#if defined _SET_FIELD
+#  undef _SET_FIELD
+#endif
+#define _SET_FIELD(A, B, F) A%F = B%F
+
+#if defined(_SET_ALLOCATED_FIELD)
+#  undef _SET_ALLOCATED_FIELD
+#endif
+#define _SET_ALLOCATED_FIELD(A, B, F) if(allocated(B%F)) _SET_FIELD(A, B, F)
+
 module mapl3g_FieldSpec
 
    use mapl3g_StateItemSpec
@@ -27,6 +37,7 @@ module mapl3g_FieldSpec
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use mapl3g_FieldDictionary
    use mapl3g_GriddedComponentDriver
+   use mapl3g_VariableSpec
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -38,10 +49,26 @@ module mapl3g_FieldSpec
    public :: FieldSpec
    public :: new_FieldSpec_geom
 
+   ! Two FieldSpec's can be connected if:
+   !   1) They only differ in the following components:
+   !      - geom (couple with Regridder)
+   !      - vertical_regrid (couple with VerticalRegridder)
+   !      - typekind (Copy)
+   !      - units (Convert)
+   !      - frequency_spec (tbd)
+   !      - halo width (tbd)
+   !   2) They have the same values for
+   !      - ungridded_dims
+   !      - standard_name
+   !      - long_name
+   !      - regrid_param
+   !      - default_value
+   !   3) The attributes of destination spec are a subset of the
+   !      attributes of the source spec.
+
    type, extends(StateItemSpec) :: FieldSpec
 
       private
-
       type(ESMF_Geom), allocatable :: geom
       class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN
@@ -61,6 +88,9 @@ module mapl3g_FieldSpec
 
       type(ESMF_Field) :: payload
       real, allocatable :: default_value
+      type(VariableSpec) :: variable_spec
+
+      logical :: is_created = .false.
 
    contains
 
@@ -74,17 +104,17 @@ module mapl3g_FieldSpec
       procedure :: add_to_state
       procedure :: add_to_bundle
 
-      procedure :: check_complete
-
       procedure :: extension_cost
       procedure :: make_extension
 
       procedure :: set_info
+      procedure :: initialize => initialize_field_spec
 
    end type FieldSpec
 
    interface FieldSpec
       module procedure new_FieldSpec_geom
+      module procedure new_FieldSpec_varspec
 !#      module procedure new_FieldSpec_defaults
    end interface FieldSpec
 
@@ -98,6 +128,7 @@ module mapl3g_FieldSpec
 
    interface can_match
       procedure :: can_match_geom
+      procedure :: can_match_vertical_grid
    end interface can_match
 
    interface get_cost
@@ -114,7 +145,6 @@ module mapl3g_FieldSpec
 
 contains
 
-
    function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
         attributes, regrid_param, default_value) result(field_spec)
@@ -122,7 +152,7 @@ contains
 
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
-      class(VerticalGrid), intent(in) :: vertical_grid
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       type(UngriddedDims), intent(in) :: ungridded_dims
@@ -139,7 +169,7 @@ contains
       integer :: status
 
       if (present(geom)) field_spec%geom = geom
-      field_spec%vertical_grid = vertical_grid
+      if (present(vertical_grid)) field_spec%vertical_grid = vertical_grid
       field_spec%vertical_dim_spec = vertical_dim_spec
       field_spec%typekind = typekind
       field_spec%ungridded_dims = ungridded_dims
@@ -159,6 +189,17 @@ contains
 
    end function new_FieldSpec_geom
 
+   function new_FieldSpec_varspec(variable_spec) result(field_spec)
+      type(FieldSpec) :: field_spec
+      class(VariableSpec), intent(in) :: variable_spec
+
+      field_spec%variable_spec = variable_spec
+      field_spec%long_name = ' '
+      !wdb fixme deleteme  long_name is set here based on the VariableSpec
+      !                    make_FieldSpec method
+
+   end function new_FieldSpec_varspec
+      
    function get_regrid_method_(stdname, rc) result(regrid_method)
       type(ESMF_RegridMethod_Flag) :: regrid_method
       character(:), allocatable, intent(in) :: stdname
@@ -181,6 +222,44 @@ contains
       _RETURN(_SUCCESS)
    end function get_regrid_method_
 
+   subroutine initialize_field_spec(this, geom, vertical_grid, rc)
+      class(FieldSpec), intent(inout) :: this
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
+      type(ActualPtVector) :: dependencies
+
+      associate (variable_spec => this%variable_spec)
+        if (present(geom)) this%geom = geom
+        if (present(vertical_grid)) this%vertical_grid = vertical_grid
+           
+         _SET_FIELD(this, variable_spec, vertical_dim_spec)
+         _SET_FIELD(this, variable_spec, typekind)
+         _SET_FIELD(this, variable_spec, ungridded_dims)
+         _SET_FIELD(this, variable_spec, attributes)
+         _SET_ALLOCATED_FIELD(this, variable_spec, standard_name)
+         _SET_ALLOCATED_FIELD(this, variable_spec, units)
+         _SET_ALLOCATED_FIELD(this, variable_spec, default_value)
+
+         this%regrid_param = EsmfRegridderParam() ! use default regrid method
+         regrid_method = get_regrid_method_(this%standard_name)
+         this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
+
+         dependencies = variable_spec%make_dependencies(_RC)
+         call this%set_dependencies(dependencies)
+         call this%set_raw_dependencies(variable_spec%dependencies)
+
+         if (variable_spec%state_intent == ESMF_STATEINTENT_INTERNAL) then
+            call this%set_active()
+         end if
+      end associate
+
+      _RETURN(_SUCCESS)
+      
+   end subroutine initialize_field_spec
+
 !#   function new_FieldSpec_defaults(ungridded_dims, geom, units) result(field_spec)
 !#      type(FieldSpec) :: field_spec
 !#      type(ExtraDimsSpec), intent(in) :: ungridded_dims
@@ -199,6 +278,7 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
+      this%is_created = .true.
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -330,6 +410,7 @@ contains
       integer :: status
       interface mirror
          procedure :: mirror_geom
+         procedure :: mirror_vertical_grid
          procedure :: mirror_typekind
          procedure :: mirror_string
          procedure :: mirror_real
@@ -351,6 +432,7 @@ contains
          this%payload = src_spec%payload
 
          call mirror(dst=this%geom, src=src_spec%geom)
+         call mirror(dst=this%vertical_grid, src=src_spec%vertical_grid)
          call mirror(dst=this%typekind, src=src_spec%typekind)
          call mirror(dst=this%units, src=src_spec%units)
          call mirror(dst=this%vertical_dim_spec, src=src_spec%vertical_dim_spec)
@@ -384,6 +466,24 @@ contains
          _ASSERT(MAPL_SameGeom(dst, src), 'cannot connect mismatched geom without coupler.')
 
       end subroutine mirror_geom
+
+      subroutine mirror_vertical_grid(dst, src)
+         class(VerticalGrid), allocatable, intent(inout) :: dst, src
+
+         _ASSERT(allocated(dst) .or. allocated(src), 'cannot double mirror')
+         if (allocated(dst) .and. .not. allocated(src)) then
+            src = dst
+            return
+         end if
+
+         if (allocated(src) .and. .not. allocated(dst)) then
+            dst = src
+            return
+         end if
+
+!         _ASSERT(MAPL_SameVerticalGrid(dst, src), 'cannot connect mismatched geom without coupler.')
+
+      end subroutine mirror_vertical_grid
 
 
       subroutine mirror_typekind(dst, src)
@@ -478,17 +578,15 @@ contains
       integer, optional, intent(out) :: rc
 
       logical :: can_convert_units
-      logical :: can_connect_vertical_grid
       integer :: status
 
       select type(src_spec)
       class is (FieldSpec)
          can_convert_units = can_connect_units(this%units, src_spec%units, _RC)
-         can_connect_vertical_grid = this%vertical_grid%can_connect_to(src_spec%vertical_grid, _RC)
 
          can_connect_to = all ([ &
               can_match(this%geom,src_spec%geom), &
-              can_connect_vertical_grid, &
+              can_match(this%vertical_grid, src_spec%vertical_grid), &
               match(this%vertical_dim_spec,src_spec%vertical_dim_spec), &
               match(this%ungridded_dims,src_spec%ungridded_dims), &
               includes(this%attributes, src_spec%attributes), &
@@ -565,18 +663,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
-
-   logical function check_complete(this, rc)
-      class(FieldSpec), intent(in) :: this
-      integer, intent(out), optional :: rc
-
-      integer :: status
-      type(ESMF_FieldStatus_Flag) :: fstatus
-
-      call ESMF_FieldGet(this%payload, status=fstatus, _RC)
-      check_complete = (fstatus == ESMF_FIELDSTATUS_COMPLETE)
-
-   end function check_complete
 
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(FieldSpec), intent(in) :: this
@@ -714,7 +800,6 @@ contains
    logical function can_match_geom(a, b) result(can_match)
       type(ESMF_Geom), allocatable, intent(in) :: a, b
 
-      integer :: status
       integer :: n_mirror
 
       ! At most one geom can be mirror (unallocated).
@@ -723,6 +808,18 @@ contains
       can_match = n_mirror <= 1
 
    end function can_match_geom
+
+   logical function can_match_vertical_grid(a, b) result(can_match)
+      class(VerticalGrid), allocatable, intent(in) :: a, b
+
+      integer :: n_mirror
+
+      ! At most one grid can be mirror (unallocated).
+      ! Otherwise, see if regrid is supported
+      n_mirror = count([.not. allocated(a), .not. allocated(b)])
+      can_match = n_mirror <= 1
+
+   end function can_match_vertical_grid
 
 
    logical function match_geom(a, b) result(match)
@@ -926,5 +1023,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_info
-
+    
 end module mapl3g_FieldSpec
+#undef _SET_FIELD
+#undef _SET_ALLOCATED_FIELD

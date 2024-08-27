@@ -31,6 +31,7 @@ module mapl3g_StateItemSpec
 
       procedure(I_add_to_state), deferred :: add_to_state
       procedure(I_add_to_bundle), deferred :: add_to_bundle
+      procedure(I_initialize), deferred :: initialize
 
       procedure, non_overridable :: set_allocated
       procedure, non_overridable :: is_allocated
@@ -46,7 +47,6 @@ module mapl3g_StateItemSpec
    type :: StateItemSpecPtr
       class(StateItemSpec), pointer :: ptr => null()
    end type StateItemSpecPtr
-
 
    abstract interface
 
@@ -121,6 +121,16 @@ module mapl3g_StateItemSpec
          type(ESMF_FieldBundle), intent(inout) :: bundle
          integer, optional, intent(out) :: rc
       end subroutine I_add_to_bundle
+
+      subroutine I_initialize(this, geom, vertical_grid, rc)
+         use esmf, only: ESMF_Geom
+         use mapl3g_VerticalGrid, only: VerticalGrid
+         import StateItemSpec
+         class(StateItemSpec), intent(inout) :: this
+         type(ESMF_Geom), optional, intent(in) :: geom
+         class(VerticalGrid), optional, intent(in) :: vertical_grid
+         integer, optional, intent(out) :: rc
+      end subroutine I_initialize
 
    end interface
 

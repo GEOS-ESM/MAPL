@@ -5,6 +5,7 @@ module mapl3g_StateSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_StateItemSpecMap
    use mapl3g_VariableSpec
+   use mapl3g_VerticalGrid
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVector
@@ -22,7 +23,7 @@ module mapl3g_StateSpec
       type(ESMF_State) :: payload
       type(StateItemSpecMap) :: item_specs
    contains
-!!$      procedure :: initialize
+      procedure :: initialize
       procedure :: add_item
       procedure :: get_item
 
@@ -42,20 +43,18 @@ module mapl3g_StateSpec
 
 contains
 
-!!$   ! Nothing defined at this time.
-!!$   subroutine initialize(this, geom, var_spec, unusable, rc)
-!!$      class(StateSpec), intent(inout) :: this
-!!$      type(ESMF_Geom), intent(in) :: geom
-!!$      type(VariableSpec), intent(in) :: var_spec
-!!$      class(KeywordEnforcer), optional, intent(in) :: unusable
-!!$      integer, optional, intent(out) :: rc
-!!$
-!!$      character(:), allocatable :: units
-!!$      integer :: status
-!!$
-!!$      _RETURN(_SUCCESS)
-!!$      _UNUSED_DUMMY(unusable)
-!!$   end subroutine initialize
+   ! Nothing defined at this time.
+   subroutine initialize(this, geom, vertical_grid, rc)
+      class(StateSpec), intent(inout) :: this
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: units
+      integer :: status
+
+      _RETURN(_SUCCESS)
+   end subroutine initialize
 
    subroutine add_item(this, name, item)
       class(StateSpec), target, intent(inout) :: this

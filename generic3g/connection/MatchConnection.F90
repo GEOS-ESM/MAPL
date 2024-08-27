@@ -29,6 +29,7 @@ module mapl3g_MatchConnection
    contains
       procedure :: get_source
       procedure :: get_destination
+      procedure :: activate
       procedure :: connect
    end type MatchConnection
 
@@ -59,6 +60,61 @@ contains
       class(MatchConnection), intent(in) :: this
       destination = this%destination
    end function get_destination
+
+   recursive subroutine activate(this, registry, rc)
+      class(MatchConnection), intent(in) :: this
+      type(StateRegistry), target, intent(inout) :: registry
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+     type(ConnectionPt) :: src_pt, dst_pt
+      type(StateRegistry), pointer :: src_registry, dst_registry
+      type(VirtualConnectionPtVector) :: src_v_pts, dst_v_pts
+      type(VirtualConnectionPt), pointer :: dst_pattern, src_v_pt
+      type(VirtualConnectionPt) :: src_pattern, dst_v_pt
+      type(VirtualConnectionPt), pointer :: s_v_pt, d_v_pt
+      integer :: i, j, k
+      type(ConnectionPt) :: s_pt, d_pt
+      character(1000) :: message
+
+      src_pt = this%get_source()
+      dst_pt = this%get_destination()
+
+      src_registry => registry%get_subregistry(src_pt, _RC)
+      dst_registry => registry%get_subregistry(dst_pt, _RC)
+
+      dst_v_pts = dst_registry%filter(dst_pt%v_pt)
+
+      do i = 1, dst_v_pts%size()
+         dst_pattern => dst_v_pts%of(i)
+
+         src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
+              dst_pattern%get_esmf_name(), comp_name=dst_pattern%get_comp_name())
+
+         src_v_pts = src_registry%filter(src_pattern)
+         
+         if (src_v_pts%size() == 0) then
+            write(message,*) dst_pattern
+            _FAIL('No matching source found for connection dest: ' // trim(message))
+         end if
+         do j = 1, src_v_pts%size()
+            src_v_pt => src_v_pts%of(j)
+
+            dst_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
+                 src_v_pt%get_esmf_name(), comp_name=src_v_pt%get_comp_name())
+
+            s_pt = ConnectionPt(src_pt%component_name, src_v_pt)
+            d_pt = ConnectionPt(dst_pt%component_name, dst_pattern)
+
+            associate (c => SimpleConnection(s_pt, d_pt))
+              call c%activate(registry, _RC)
+            end associate
+
+         end do
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine activate
 
    recursive subroutine connect(this, registry, rc)
       class(MatchConnection), intent(in) :: this
