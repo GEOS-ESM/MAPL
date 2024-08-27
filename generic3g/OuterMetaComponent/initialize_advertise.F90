@@ -14,14 +14,38 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      class(GriddedComponentDriver), pointer :: provider
+      type(ESMF_GridComp) :: provider_gc
+      type(OuterMetaComponent), pointer :: provider_meta
+      type(MaplGeom), pointer :: mapl_geom
+      type(GeomManager), pointer :: geom_mgr
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
-
-      call apply_to_children(this, set_child_geom, _RC)
-
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
       call self_advertise(this, _RC)
+
+      associate (geometry_spec => this%component_spec%geometry_spec)
+        if (allocated(geometry_spec%geom_spec)) then
+           geom_mgr => get_geom_manager()
+           mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
+           this%geom = mapl_geom%get_geom()
+        end if
+        if (allocated(geometry_spec%vertical_grid)) then
+           this%vertical_grid = geometry_spec%vertical_grid
+        end if
+      end associate
+
       call recurse(this, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
+
+      associate (geometry_spec => this%component_spec%geometry_spec)
+        if (geometry_spec%kind == GEOMETRY_FROM_CHILD) then
+           provider => this%children%at(geometry_spec%provider, _RC)
+           provider_gc = provider%get_gridcomp()
+           provider_meta => get_outer_meta(provider_gc, _RC)
+           _ASSERT(allocated(provider_meta%geom), 'Specified child does not provide a geom.')
+           this%geom = provider_meta%geom
+        end if
+      end associate
 
       call process_connections(this, _RC)
       call this%registry%propagate_unsatisfied_imports(_RC)
@@ -30,27 +54,6 @@ contains
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
    contains
-
-      subroutine set_child_geom(this, child_meta, rc)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         type(OuterMetaComponent), target, intent(inout) ::  child_meta
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-
-         associate(kind => child_meta%component_spec%geometry_spec%kind)
-           _RETURN_IF(kind /= GEOMETRY_FROM_PARENT)
-
-           if (allocated(this%geom)) then
-              call child_meta%set_geom(this%geom)
-           end if
-           if (allocated(this%vertical_grid)) then
-              call child_meta%set_vertical_grid(this%vertical_grid)
-           end if
-         end associate
-
-         _RETURN(ESMF_SUCCESS)
-      end subroutine set_child_geom
 
       subroutine self_advertise(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this

@@ -11,6 +11,7 @@ module mapl3g_make_itemSpec
    use mapl3g_InvalidSpec, only: InvalidSpec
    use mapl3g_StateRegistry, only: StateRegistry
    use mapl_ErrorHandling
+   use esmf, only: ESMF_STATEINTENT_INTERNAL, operator(==)
    implicit none
    private
    public :: make_ItemSpec
@@ -19,6 +20,7 @@ contains
 
    function make_itemSpec(variable_spec, registry, rc) result(item_spec)
       use mapl3g_VariableSpec, only: VariableSpec
+      use mapl3g_ActualPtVector, only: ActualPtVector
       class(StateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: variable_spec
       type(StateRegistry), pointer, intent(in) :: registry
@@ -26,6 +28,7 @@ contains
 
       integer :: status
       type(FieldSpec) :: field_spec
+      type(ActualPtVector) :: dependencies
 
       select case (variable_spec%itemtype%ot)
       case (MAPL_STATEITEM_FIELD%ot)
@@ -48,6 +51,14 @@ contains
          allocate(InvalidSpec :: item_spec)
          _FAIL('Unsupported type.')
       end select
+
+      if (variable_spec%state_intent == ESMF_STATEINTENT_INTERNAL) then
+         call item_spec%set_active()
+      end if
+
+      dependencies = variable_spec%make_dependencies(_RC)
+      call item_spec%set_dependencies(dependencies)
+      call item_spec%set_raw_dependencies(variable_spec%dependencies)
 
       _RETURN(_SUCCESS)
 

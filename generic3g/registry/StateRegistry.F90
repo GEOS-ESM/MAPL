@@ -430,7 +430,7 @@ contains
 
          spec => extension%get_spec()
          _RETURN_IF(spec%is_active())
-         
+
          if (.not. this%has_virtual_pt(virtual_pt)) then
             call this%add_virtual_pt(virtual_pt, _RC)
          end if
@@ -575,6 +575,9 @@ contains
 
          type(VirtualPtFamilyMapIterator) :: virtual_iter
          type(ExtensionFamily), pointer :: family
+         type(StateItemExtension), pointer :: extension
+         class(StateItemSpec), pointer :: spec
+         logical :: is_active
 
          write(unit,*,iostat=iostat,iomsg=iomsg) '   virtuals: '// new_line('a')
          if (iostat /= 0) return
@@ -584,9 +587,15 @@ contains
               call virtual_iter%next()
               associate (virtual_pt => virtual_iter%first())
                 family => virtual_iter%second()
+                is_active = .false.
+                if (family%has_primary()) then
+                   extension => family%get_primary()
+                   spec => extension%get_spec()
+                   is_active = spec%is_active()
+                end if
                 write(unit,*,iostat=iostat,iomsg=iomsg)'        ',virtual_pt,  &
                      ': ',family%num_variants(), ' variants ', &
-                     ' is primary? ', family%has_primary(),  new_line('a')
+                     ' is primary? ', family%has_primary(),  ' is active? ', is_active, new_line('a')
                 if (iostat /= 0) return
               end associate
            end do
@@ -633,7 +642,9 @@ contains
            call iter%next()
            extension => iter%of()
            spec => extension%get_spec()
-           call spec%initialize(geom, vertical_grid, _RC)
+           if (spec%is_active()) then
+              call spec%initialize(geom, vertical_grid, _RC)
+           end if
         end do
       end associate
       
@@ -694,7 +705,6 @@ contains
 
                    a_pt = ActualConnectionPt(v_pt)
                    if (label /= 0) a_pt = ActualConnectionPt(v_pt, label=label)
-
                    call spec%add_to_state(multi_state, a_pt, _RC)
                 end do
               end associate

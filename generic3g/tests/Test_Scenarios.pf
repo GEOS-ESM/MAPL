@@ -125,7 +125,7 @@ contains
               ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('precision_extension_3d',  'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('3d_specs',                'parent.yaml',      check_name, check_stateitem), & 
-              ScenarioDescription('ungridded_dims',          'parent.yaml',      check_name, check_stateitem),  &
+              ScenarioDescription('ungridded_dims',          'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('service_service',         'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('export_dependency',       'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('regrid',                  'cap.yaml',         check_name, check_stateitem), &
@@ -329,6 +329,9 @@ contains
       expected_itemtype = get_expected_itemtype(expectations, _RC)
 
       itemtype = get_itemtype(state, short_name, _RC)
+      if (expected_itemtype /= itemtype) then
+         _HERE, msg
+      end if
       @assert_that('check item type of '//short_name, expected_itemtype == itemtype, is(true()))
 
       rc = 0

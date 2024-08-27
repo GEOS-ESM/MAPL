@@ -51,19 +51,9 @@ module mapl3g_VariableSpec
       type(StringVector) :: dependencies
    contains
       procedure :: make_virtualPt
-      !wdb fixme deleteme These are obsolete because StateItemSpec is performing these actions
-!      procedure :: make_ItemSpec_new
-!      generic :: make_itemSpec => make_itemSpec_new
-!      procedure :: make_BracketSpec
-!      procedure :: make_FieldSpec
-!      procedure :: make_ServiceSpec_new
-!      procedure :: make_WildcardSpec
 
       procedure :: make_dependencies
       procedure, private :: pick_geom_
-!!$      procedure :: make_StateSpec
-!!$      procedure :: make_BundleSpec
-!!$      procedure :: initialize
       procedure :: initialize
    end type VariableSpec
 
@@ -229,9 +219,6 @@ contains
 !      call item_spec%set_dependencies(dependencies)
 !      call item_spec%set_raw_dependencies(this%dependencies)
 !
-!      if (this%state_intent == ESMF_STATEINTENT_INTERNAL) then
-!         call item_spec%set_active()
-!      end if
 !
 !      _RETURN(_SUCCESS)
 !   end function make_ItemSpec_new
@@ -252,50 +239,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine pick_geom_
-
-   !wdb fixme deleteme This is obsolete. Should be moved to constructor/initialize for BracketSpec.
-!   function make_BracketSpec(this, geom, vertical_grid, rc) result(bracket_spec)
-!      type(BracketSpec) :: bracket_spec
-!      class(VariableSpec), intent(in) :: this
-!      type(ESMF_Geom), optional, intent(in) :: geom
-!      class(VerticalGrid), intent(in) :: vertical_grid
-!      integer, optional, intent(out) :: rc
-!
-!      integer :: status
-!      character(:), allocatable :: units
-!      type(FieldSpec) :: field_spec
-!
-!      if (.not. valid(this)) then
-!         _RETURN(_FAILURE)
-!      end if
-!
-!      call fill_units(this, units, _RC)
-!
-!      field_spec = FieldSpec(geom=geom, vertical_grid=vertical_grid, vertical_dim_spec=this%vertical_dim_spec, ungridded_dims=this%ungridded_dims, &
-!           typekind=this%typekind, &
-!           standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value)
-!
-!      
-!      bracket_spec = BracketSpec(field_spec, this%bracket_size)
-!
-!      _RETURN(_SUCCESS)
-!
-!   contains
-!
-!      logical function valid(this) result(is_valid)
-!         class(VariableSpec), intent(in) :: this
-!
-!         is_valid = .false. ! unless
-!
-!         if (.not. this%itemtype == MAPL_STATEITEM_BRACKET) return
-!         if (.not. allocated(this%standard_name)) return
-!         if (.not. allocated(this%bracket_size)) return
-!
-!         is_valid = .true.
-!
-!      end function valid
-!
-!   end function make_BracketSpec
 
    subroutine fill_units(this, units, rc)
       class(VariableSpec), intent(in) :: this
@@ -320,126 +263,6 @@ contains
       
       _RETURN(_SUCCESS)
    end subroutine fill_units
-
-   !wdb fixme deleteme This is obsolete.
-!   function make_FieldSpec(this, geom, vertical_grid, rc) result(field_spec)
-!      type(FieldSpec) :: field_spec
-!      class(VariableSpec), intent(in) :: this
-!      type(ESMF_Geom), optional, intent(in) :: geom
-!      class(VerticalGrid), optional, intent(in) :: vertical_grid
-!      integer, optional, intent(out) :: rc
-!
-!      integer :: status
-!      character(:), allocatable :: units
-!
-!      if (.not. valid(this)) then
-!         _RETURN(_FAILURE)
-!      end if
-!
-!      _ASSERT(this%vertical_dim_spec /= VERTICAL_DIM_UNKNOWN, 'must provide a vertical dim spec')
-!      call fill_units(this, units, _RC)
-!
-!      field_spec = FieldSpec(geom=geom, vertical_grid=vertical_grid, vertical_dim_spec=this%vertical_dim_spec, ungridded_dims=this%ungridded_dims, &
-!           typekind=this%typekind, &
-!           standard_name=this%standard_name, long_name=' ', units=units, attributes=this%attributes, default_value=this%default_value)
-!
-!      _RETURN(_SUCCESS)
-!
-!   contains
-!
-!      logical function valid(this) result(is_valid)
-!         class(VariableSpec), intent(in) :: this
-!
-!         is_valid = .false. ! unless
-!
-!         if (.not. this%itemtype == MAPL_STATEITEM_FIELD) return
-!#         if (.not. allocated(this%standard_name)) return
-!
-!         is_valid = .true.
-!
-!      end function valid
-!
-!   end function make_FieldSpec
-
-   !wdb fixme deleteme This needs to be moved to constructor/initialize for ServiceSpec.
-   ! ------
-   ! ServiceSpec needs reference to the specs of the fields that are to be
-   ! handled by the service.   Shallow copy of these will appear in the FieldBundle in the
-   ! import state of the requesting gridcomp.
-   ! ------
-!   function make_ServiceSpec_new(this, registry, rc) result(service_spec)
-!      type(ServiceSpec) :: service_spec
-!      class(VariableSpec), intent(in) :: this
-!      type(StateRegistry), target, intent(in) :: registry
-!      integer, optional, intent(out) :: rc
-!
-!      integer :: status
-!      integer :: i, n
-!      type(StateItemSpecPtr), allocatable :: specs(:)
-!      type(VirtualConnectionPt) :: v_pt
-!      type(StateItemExtension), pointer :: primary
-!
-!      if (.not. valid(this)) then
-!         _RETURN(_FAILURE)
-!      end if
-!
-!      n = this%service_items%size()
-!      allocate(specs(n))
-!
-!      do i = 1, n
-!         v_pt = VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, this%service_items%of(i))
-!         ! Internal items are always unique and "primary" (owned by user)
-!         primary => registry%get_primary_extension(v_pt, _RC)
-!         specs(i)%ptr => primary%get_spec()
-!      end do
-!      service_spec = ServiceSpec(specs)
-!
-!      _RETURN(_SUCCESS)
-!
-!   contains
-!
-!      logical function valid(this) result(is_valid)
-!         class(VariableSpec), intent(in) :: this
-!
-!         is_valid = .false. ! unless
-!         if (.not. this%itemtype == MAPL_STATEITEM_SERVICE) return
-!         is_valid = .true.
-!         
-!      end function valid
-!
-!   end function make_ServiceSpec_new
-
-   !wdb fixme deleteme This is obsolete. Needs to move to constructor/initialize for WildcardSpec.
-!    function make_WildcardSpec(this, geom, vertical_grid, rc) result(wildcard_spec)
-!      type(WildcardSpec) :: wildcard_spec
-!      class(VariableSpec), intent(in) :: this
-!      type(ESMF_Geom), optional, intent(in) :: geom
-!      class(VerticalGrid), intent(in) :: vertical_grid
-!      integer, optional, intent(out) :: rc
-!
-!      integer :: status
-!      type(FieldSpec) :: field_spec
-!
-!      field_spec = new_FieldSpec_geom(geom=geom, vertical_grid=vertical_grid, &
-!           vertical_dim_spec=this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
-!           attributes=this%attributes, default_value=this%default_value)
-!      wildcard_spec = WildCardSpec(field_spec)
-!
-!      _RETURN(_SUCCESS)
-!   contains
-!
-!      logical function valid(this) result(is_valid)
-!         class(VariableSpec), intent(in) :: this
-!         
-!         is_valid = .false. ! unless
-!         if (allocated(this%standard_name)) return
-!         if (allocated(this%units)) return ! maybe this can be relaxed - match only thisgs that have same units?
-!         if (this%attributes%size() > 0) return
-!         if (allocated(this%default_value)) return
-!         is_valid = .true.
-!         
-!      end function valid
-!   end function make_WildcardSpec
 
    function make_dependencies(this, rc) result(dependencies)
       type(ActualPtVector) :: dependencies

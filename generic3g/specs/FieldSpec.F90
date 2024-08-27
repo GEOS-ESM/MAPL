@@ -68,7 +68,7 @@ module mapl3g_FieldSpec
 
    type, extends(StateItemSpec) :: FieldSpec
 
-      private
+!#      private
       type(ESMF_Geom), allocatable :: geom
       class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN
@@ -88,7 +88,7 @@ module mapl3g_FieldSpec
 
       type(ESMF_Field) :: payload
       real, allocatable :: default_value
-      type(VariableSpec) :: variable_spec
+!#      type(VariableSpec) :: variable_spec
 
       logical :: is_created = .false.
 
@@ -193,10 +193,22 @@ contains
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: variable_spec
 
-      field_spec%variable_spec = variable_spec
-      field_spec%long_name = ' '
-      !wdb fixme deleteme  long_name is set here based on the VariableSpec
-      !                    make_FieldSpec method
+      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
+
+      _SET_FIELD(field_spec, variable_spec, vertical_dim_spec)
+      _SET_FIELD(field_spec, variable_spec, typekind)
+      _SET_FIELD(field_spec, variable_spec, ungridded_dims)
+      _SET_FIELD(field_spec, variable_spec, attributes)
+      _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
+      _SET_ALLOCATED_FIELD(field_spec, variable_spec, units)
+      _SET_ALLOCATED_FIELD(field_spec, variable_spec, default_value)
+
+      field_spec%long_name = 'unknown'
+      
+      field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
+      regrid_method = get_regrid_method_(field_spec%standard_name)
+      field_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
+
 
    end function new_FieldSpec_varspec
       
@@ -229,33 +241,22 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
-      type(ActualPtVector) :: dependencies
 
-      associate (variable_spec => this%variable_spec)
-        if (present(geom)) this%geom = geom
-        if (present(vertical_grid)) this%vertical_grid = vertical_grid
-           
-         _SET_FIELD(this, variable_spec, vertical_dim_spec)
-         _SET_FIELD(this, variable_spec, typekind)
-         _SET_FIELD(this, variable_spec, ungridded_dims)
-         _SET_FIELD(this, variable_spec, attributes)
-         _SET_ALLOCATED_FIELD(this, variable_spec, standard_name)
-         _SET_ALLOCATED_FIELD(this, variable_spec, units)
-         _SET_ALLOCATED_FIELD(this, variable_spec, default_value)
-
-         this%regrid_param = EsmfRegridderParam() ! use default regrid method
-         regrid_method = get_regrid_method_(this%standard_name)
-         this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
-
-         dependencies = variable_spec%make_dependencies(_RC)
-         call this%set_dependencies(dependencies)
-         call this%set_raw_dependencies(variable_spec%dependencies)
-
-         if (variable_spec%state_intent == ESMF_STATEINTENT_INTERNAL) then
-            call this%set_active()
-         end if
-      end associate
-
+      if (present(geom)) this%geom = geom
+      if (present(vertical_grid)) this%vertical_grid = vertical_grid
+      
+!#      _SET_FIELD(this, variable_spec, vertical_dim_spec)
+!#      _SET_FIELD(this, variable_spec, typekind)
+!#      _SET_FIELD(this, variable_spec, ungridded_dims)
+!#      _SET_FIELD(this, variable_spec, attributes)
+!#      _SET_ALLOCATED_FIELD(this, variable_spec, standard_name)
+!#      _SET_ALLOCATED_FIELD(this, variable_spec, units)
+!#      _SET_ALLOCATED_FIELD(this, variable_spec, default_value)
+!#      
+!#      this%regrid_param = EsmfRegridderParam() ! use default regrid method
+!#      regrid_method = get_regrid_method_(this%standard_name)
+!#      this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
+      
       _RETURN(_SUCCESS)
       
    end subroutine initialize_field_spec
@@ -778,7 +779,21 @@ contains
          if (.not. allocated(dst_grid)) return ! mirror geom
          
          same_vertical_grid = src_grid%same_id(dst_grid)
-         
+
+         block
+           use mapl3g_BasicVerticalGrid
+           ! "temporary kludge" while true vertical grid logic is being implemented
+           if (.not. same_vertical_grid) then
+              select type(src_grid)
+              type is (BasicVerticalGrid)
+                 select type (dst_grid)
+                 type is (BasicVerticalGrid)
+                    same_vertical_grid = (src_grid%get_num_levels() == dst_grid%get_num_levels())
+                 end select
+              end select
+           end if
+         end block
+
       end function same_vertical_grid
       
       logical function same_units(src_units, dst_units)
@@ -1022,7 +1037,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_info
-    
+
 end module mapl3g_FieldSpec
 #undef _SET_FIELD
 #undef _SET_ALLOCATED_FIELD
