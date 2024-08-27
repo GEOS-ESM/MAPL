@@ -95,36 +95,35 @@ contains
 
          integer :: status
          character(:), allocatable :: a_str, b_str
-         logical :: a_is, b_is
+         character(:), allocatable :: a_tag, b_tag
          logical :: a_as_bool, b_as_bool
          integer(kind=ESMF_KIND_I8) :: a_as_int, b_as_int
          real(kind=ESMF_KIND_R8) :: a_as_float, b_as_float
          
          match = .false. ! nless
 
-         a_as_bool  = ESMF_HConfigAsLogical(a, asOkay=a_is, _RC)
-         b_as_bool  = ESMF_HConfigAsLogical(b, asOkay=b_is, _RC)
-         _RETURN_UNLESS(a_is .eqv. b_is)
+         a_tag = ESMF_HConfigGetTag(a, _RC)
+         b_tag = ESMF_HConfigGetTag(b, _RC)
+         _RETURN_UNLESS(a_tag == b_tag)
+ 
 
-         if (a_is) then
+         if (a_tag == CORE_SCHEMA_BOOL_TAG) then
+            a_as_bool  = ESMF_HConfigAsLogical(a, _RC)
+            b_as_bool  = ESMF_HConfigAsLogical(b, _RC)
             match = a_as_bool .eqv. b_as_bool
             _RETURN(_SUCCESS)
          end if
 
-         a_as_int  = ESMF_HConfigAsI8(a, asOkay=a_is, _RC)
-         b_as_int  = ESMF_HConfigAsI8(b, asOkay=b_is, _RC)
-         _RETURN_UNLESS(a_is .eqv. b_is)
-
-         if (a_is) then
+         if (a_tag == CORE_SCHEMA_INT_TAG) then
+            a_as_int  = ESMF_HConfigAsI8(a, _RC)
+            b_as_int  = ESMF_HConfigAsI8(b, _RC)
             match = (a_as_int == b_as_int)
             _RETURN(_SUCCESS)
          end if
 
-         a_as_float  = ESMF_HConfigAsR8(a, asOkay=a_is, _RC)
-         b_as_float  = ESMF_HConfigAsR8(b, asOkay=b_is, _RC)
-         _RETURN_UNLESS(a_is .eqv. b_is)
-
-         if (a_is) then
+         if (a_tag == CORE_SCHEMA_FLOAT_TAG) then
+            a_as_float  = ESMF_HConfigAsR8(a, _RC)
+            b_as_float  = ESMF_HConfigAsR8(b, _RC)
             match = (a_as_float == b_as_float)
             _RETURN(_SUCCESS)
          end if
