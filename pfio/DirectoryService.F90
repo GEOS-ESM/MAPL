@@ -114,6 +114,7 @@ contains
       ! Need to be sure that the directories have been initialized before
       ! proceeding
       call MPI_Barrier(comm, ierror)
+      _VERIFY(ierror)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function new_DirectoryService
@@ -129,16 +130,19 @@ contains
 #if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
       integer(kind=MPI_ADDRESS_KIND) :: baseaddr
 #endif
-      integer :: ierror, rank
+      integer :: ierror, rank, rc, status
 
       call MPI_Comm_Rank(comm, rank, ierror)
+      _VERIFY(ierror)
 
       if (rank == 0)  then
          sz = sizeof_directory()
 #if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
          call MPI_Alloc_mem(sz, MPI_INFO_NULL, addr, ierror)
+         _VERIFY(ierror)
 #else
          call MPI_Alloc_mem(sz, MPI_INFO_NULL, baseaddr, ierror)
+         _VERIFY(ierror)
          addr = transfer(baseaddr, addr)
 #endif
          call c_f_pointer(addr, dir)
@@ -148,6 +152,7 @@ contains
       endif
 
       call MPI_Win_create(dir, sz, 1, MPI_INFO_NULL, comm, win, ierror)
+      _VERIFY(ierror)
 
    end function make_directory_window
 
@@ -205,6 +210,7 @@ contains
       end do
 
       call MPI_Comm_rank(client_comm, rank_in_client, ierror)
+      _VERIFY(ierror)
 
       if (rank_in_client == 0) then
 
@@ -232,6 +238,7 @@ contains
 
             dir_entry%port_name = port_name
             call MPI_Comm_rank(this%comm, dir_entry%partner_root_rank, ierror) ! global comm
+            _VERIFY(ierror)
 
             dir%entries(n) = dir_entry
 
@@ -245,12 +252,14 @@ contains
          else
             call MPI_Recv(server_root_rank, 1, MPI_INTEGER, MPI_ANY_SOURCE, DISCOVERY_TAG, this%comm, status, ierror)
          end if
+         _VERIFY(ierror)
 
       end if
 
      ! complete handshake
       if (rank_in_client == 0) then
          call MPI_Comm_size(client_comm, client_npes, ierror)
+         _VERIFY(ierror)
          allocate(client_ranks(client_npes))
          allocate(server_ranks(client_npes))
       else
@@ -259,22 +268,29 @@ contains
       end if
 
       call MPI_Gather(this%rank, 1, MPI_INTEGER, client_ranks, 1, MPI_INTEGER, 0, client_comm, ierror)
+      _VERIFY(ierror)
       if (rank_in_client == 0) then
          call MPI_Send(client_npes, 1, MPI_INTEGER, server_root_rank, NPES_TAG, this%comm, ierror)
+         _VERIFY(ierror)
          call MPI_Send(client_ranks, client_npes, MPI_INTEGER, server_root_rank, RANKS_TAG, this%comm, ierror)
+         _VERIFY(ierror)
          call MPI_Recv(server_ranks, client_npes, MPI_INTEGER, server_root_rank, 0, this%comm, status, ierror)
+         _VERIFY(ierror)
          call MPI_Recv(server_npes, 1, MPI_INTEGER, server_root_rank, 0, this%comm, status, ierror)
+         _VERIFY(ierror)
          if (present(server_size)) server_size = server_npes
       end if
 
       call MPI_Scatter(server_ranks, 1, MPI_INTEGER, &
         & server_rank, 1, MPI_INTEGER, &
         & 0, client_comm, ierror)
+      _VERIFY(ierror)
 
       if (present(server_size)) call MPI_Bcast(server_size, 1, MPI_INTEGER, 0, client_comm,ierror)
 
       ! Construct the connection
       call MPI_Recv(tmp_rank, 1, MPI_INTEGER, server_rank, CONNECT_TAG, this%comm, status, ierror)
+      _VERIFY(ierror)
       _ASSERT(tmp_rank == server_rank, "shake the wrong hand")
 
       allocate(sckt, source=MpiSocket(this%comm, server_rank, this%parser))
@@ -321,6 +337,7 @@ contains
       endif
 
       call MPI_Comm_rank(server_comm, rank_in_server, ierror)
+      _VERIFY(ierror)
 
       if (rank_in_server == 0) then
 
@@ -355,11 +372,14 @@ contains
          else
             call MPI_Recv(client_root_rank, 1, MPI_INTEGER, MPI_ANY_SOURCE, DISCOVERY_TAG, this%comm, status, ierror)
          end if
+         _VERIFY(ierror)
 
          if (client_root_rank /= TERMINATE) then ! not a termination signal
             call MPI_Recv(client_npes, 1, MPI_INTEGER, client_root_rank, NPES_TAG, this%comm, status, ierror)
+            _VERIFY(ierror)
             allocate(client_ranks(client_npes))
             call MPI_Recv(client_ranks, client_npes, MPI_INTEGER, client_root_rank, RANKS_TAG, this%comm, status, ierror)
+            _VERIFY(ierror)
          else
             client_npes = TERMINATE
          end if
@@ -368,7 +388,9 @@ contains
 
 
       call MPI_Comm_size(server_comm, server_npes, ierror)
+      _VERIFY(ierror)
       call MPI_Bcast(client_npes, 1, MPI_INTEGER, 0, server_comm, ierror)
+      _VERIFY(ierror)
 
       if (client_npes == TERMINATE) then
         server%terminate = .true.
@@ -394,10 +416,13 @@ contains
       call MPI_GatherV(my_server_ranks, cnts, MPI_INTEGER, &
            & server_ranks, counts, displs, MPI_INTEGER, &
            & 0, server_comm, ierror)
+      _VERIFY(ierror)
 
       if (rank_in_server == 0) then
         call MPI_Send(server_ranks, client_npes, MPI_INTEGER, client_root_rank, 0, this%comm, ierror)
+        _VERIFY(ierror)
         call MPI_Send(server_npes,   1,          MPI_INTEGER, client_root_rank, 0, this%comm, ierror)
+        _VERIFY(ierror)
       endif
 
       if (rank_in_server /= 0) then
@@ -406,10 +431,12 @@ contains
       call MPI_ScatterV(client_ranks, counts, displs, MPI_INTEGER, &
            & my_client_ranks, cnts, MPI_INTEGER, &
            & 0, server_comm, ierror)
+      _VERIFY(ierror)
 
       do p = 1, cnts
          client_rank = my_client_ranks(p)
          call MPI_Send(this%rank, 1, MPI_INTEGER, client_rank, CONNECT_TAG, this%comm, ierror)
+         _VERIFY(ierror)
          allocate(sckt, source=MpiSocket(this%comm, client_rank, this%parser))
          call server%add_connection(sckt)
          nullify(sckt)
@@ -448,6 +475,7 @@ contains
       endif
 
       call MPI_Comm_rank(server_comm, rank_in_server, ierror)
+      _VERIFY(ierror)
       port_name = port%port_name
 
       if (rank_in_server == 0) then
@@ -520,15 +548,18 @@ contains
 
       integer :: sz
       integer(kind=MPI_ADDRESS_KIND) :: disp
-      integer :: ierror
+      integer :: ierror, rc
 
       call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, win, ierror)
+      _VERIFY(ierror)
 
       sz = sizeof_directory()
       disp = 0
       call MPI_Get(dir, sz, MPI_BYTE, 0, disp, sz, MPI_BYTE, win, ierror)
+      _VERIFY(ierror)
 
       call MPI_Win_unlock(0, win, ierror)
+      _VERIFY(ierror)
       return
       _UNUSED_DUMMY(this)
    end function get_directory
@@ -541,16 +572,19 @@ contains
 
       integer :: sz
       integer(kind=MPI_ADDRESS_KIND) :: disp
-      integer :: ierror
+      integer :: ierror, rc
 
 
       call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, win, ierror)
+      _VERIFY(ierror)
 
       sz = sizeof_directory()
       disp = 0
       call MPI_put(dir, sz, MPI_BYTE, 0, disp, sz, MPI_BYTE, win, ierror)
+      _VERIFY(ierror)
 
       call MPI_Win_unlock(0, win, ierror)
+      _VERIFY(ierror)
       return
       _UNUSED_DUMMY(this)
    end subroutine put_directory
@@ -564,8 +598,10 @@ contains
       integer :: ierror, rank_in_client,i
 
       call MPI_Comm_rank(client_comm, rank_in_client, ierror)
+      _VERIFY(ierror)
 
       call MPI_BARRIER(client_comm,ierror)
+      _VERIFY(ierror)
 
       if (rank_in_client ==0) then
 
@@ -577,6 +613,7 @@ contains
 
             call MPI_Send(TERMINATE, 1, MPI_INTEGER, dir%entries(i)%partner_root_rank, DISCOVERY_TAG, &
                 & this%comm, ierror)
+            _VERIFY(ierror)
 
          enddo
 
@@ -594,20 +631,26 @@ contains
       ! Release resources
 
       call MPI_Barrier(this%comm, ierror)
+      _VERIFY(ierror)
 
       call this%mutex%free_mpi_resources()
 
       call MPI_Win_free(this%win_server_directory, ierror)
+      _VERIFY(ierror)
       call MPI_Win_free(this%win_client_directory, ierror)
+      _VERIFY(ierror)
 
       if (this%rank == 0) then
          call c_f_pointer(this%server_dir, dir)
          call MPI_Free_mem(dir, ierror)
+         _VERIFY(ierror)
          call c_f_pointer(this%client_dir, dir)
          call MPI_Free_mem(dir, ierror)
+         _VERIFY(ierror)
       end if
 
       call Mpi_Comm_free(this%comm, ierror)
+      _VERIFY(ierror)
       _RETURN(_SUCCESS)
    end subroutine free_directory_resources
 

@@ -21,6 +21,7 @@ module mapl3g_MirrorVerticalGrid
    contains
       procedure :: get_num_levels
       procedure :: get_coordinate_field
+      procedure :: can_connect_to
    end type MirrorVerticalGrid
 
    interface MirrorVerticalGrid
@@ -51,5 +52,14 @@ contains
 
       _FAIL('MirrorVerticalGrid should have been replaced before this procedure was called.')
    end subroutine get_coordinate_field
+
+   logical function can_connect_to(this, src, rc)
+      class(MirrorVerticalGrid), intent(in) :: this
+      class(VerticalGrid), intent(in) :: src
+      integer, optional, intent(out) :: rc
+
+      can_connect_to = .false.
+      _RETURN(_SUCCESS)
+   end function
 
 end module mapl3g_MirrorVerticalGrid

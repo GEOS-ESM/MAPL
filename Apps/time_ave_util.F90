@@ -134,9 +134,13 @@ program  time_ave
 
 !call timebeg ('main')
 
-   call mpi_init                ( ierror ) ; comm = mpi_comm_world
+   call mpi_init                ( ierror ) 
+   _VERIFY(ierror)
+   comm = mpi_comm_world
    call mpi_comm_rank ( comm,myid,ierror )
+   _VERIFY(ierror)
    call mpi_comm_size ( comm,npes,ierror )
+   _VERIFY(ierror)
    call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE,mpiCommunicator=MPI_COMM_WORLD, _RC)
    call MAPL_Initialize(_RC)
    t_prof = DistributedProfiler('time_ave_util',MpiTImerGauge(),MPI_COMM_WORLD)
@@ -815,6 +819,7 @@ program  time_ave
       enddo    ! End ntime Loop within file
 
       call MPI_BARRIER(comm,status)
+      _VERIFY(status)
    enddo
 
    do k=0,ntods
@@ -1066,7 +1071,9 @@ call t_prof%start('Write_AVE')
          endif
 
          call mpi_reduce( qmin(nloc(n)+L-1),qming,1,mpi_real,mpi_min,0,comm,ierror )
+         _VERIFY(ierror)
          call mpi_reduce( qmax(nloc(n)+L-1),qmaxg,1,mpi_real,mpi_max,0,comm,ierror )
+         _VERIFY(ierror)
          if( root ) then
             if(L.eq.1) then
                write(6,3101) trim(vname2(n)),plev,qming,qmaxg
@@ -1078,6 +1085,7 @@ call t_prof%start('Write_AVE')
 3102     format(1x,'               ',a20,' Level: ',f9.3,'  Min: ',g15.8,'  Max: ',g15.8)
       enddo
       call MPI_BARRIER(comm,status)
+      _VERIFY(status)
       if( root ) print *
    enddo
    if( root ) print *
@@ -1684,7 +1692,7 @@ contains
 
    subroutine usage(root)
       logical, intent(in) :: root
-      integer :: status,errorcode
+      integer :: status,errorcode,rc
       if(root) then
          write(6,100)
 100      format(  "usage:  ",/,/ &
@@ -1718,6 +1726,7 @@ contains
                )
       endif
       call MPI_Abort(MPI_COMM_WORLD,errorcode,status)
+      _VERIFY(status)
    end subroutine usage
 
     subroutine generate_report()

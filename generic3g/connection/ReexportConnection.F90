@@ -27,6 +27,7 @@ module mapl3g_ReexportConnection
 
       procedure :: get_source
       procedure :: get_destination
+      procedure :: activate
       procedure :: connect
       procedure :: connect_export_to_export
    end type ReexportConnection
@@ -59,7 +60,8 @@ contains
       destination = this%destination
    end function get_destination
 
-  recursive subroutine connect(this, registry, rc)
+   ! No-op: reexports are always active
+   recursive subroutine activate(this, registry, rc)
       class(ReexportConnection), intent(in) :: this
       type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
@@ -67,12 +69,30 @@ contains
       integer :: status
       type(StateRegistry), pointer :: src_registry
       type(ConnectionPt) :: src_pt
-
+        
       src_pt = this%get_source()
       src_registry => registry%get_subregistry(src_pt)
       _ASSERT(associated(src_registry), 'Unknown source registry')
 
       call this%connect_export_to_export(registry, src_registry, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine activate
+
+   recursive subroutine connect(this, registry, rc)
+      class(ReexportConnection), intent(in) :: this
+      type(StateRegistry), target, intent(inout) :: registry
+      integer, optional, intent(out) :: rc
+
+!#      integer :: status
+!#      type(StateRegistry), pointer :: src_registry
+!#      type(ConnectionPt) :: src_pt
+!#
+!#      src_pt = this%get_source()
+!#      src_registry => registry%get_subregistry(src_pt)
+!#      _ASSERT(associated(src_registry), 'Unknown source registry')
+!#
+!#      call this%connect_export_to_export(registry, src_registry, _RC)
         
       _RETURN(_SUCCESS)
    end subroutine connect

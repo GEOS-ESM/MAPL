@@ -9,6 +9,7 @@ module MockItemSpecMod
    use mapl3g_ActualPtVector
    use mapl3g_ExtensionAction
    use mapl3g_NullAction
+   use mapl3g_VerticalGrid
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
@@ -26,6 +27,7 @@ module MockItemSpecMod
       procedure :: create
       procedure :: destroy
       procedure :: allocate
+      procedure :: initialize => initialize_mockspec
 
       procedure :: connect_to
       procedure :: can_connect_to
@@ -61,6 +63,15 @@ contains
       if (present(subtype)) spec%subtype = subtype
 
    end function new_MockItemSpec
+
+   subroutine initialize_mockspec(this, geom, vertical_grid, rc)
+      class(MockItemSpec), intent(inout) :: this
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine initialize_mockspec
 
    subroutine create(this, rc)
       class(MockItemSpec), intent(inout) :: this
