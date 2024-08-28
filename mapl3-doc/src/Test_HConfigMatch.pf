@@ -269,11 +269,7 @@ contains
       call ESMF_HConfigDestroy(b, _RC)
    end subroutine test_match_int_ignore_sign
 
-   ! The remaining tests are disable for now because
-   ! of bug in ESMF_HConfig that prevents disambiguation
-   ! of quoted strings.
    @test
-   @disable
    ! YAML distinguish strings like `"no"` from bool `no`.
    subroutine test_match_bool_str_mismatch()
       type(ESMF_HConfig) :: a, b
@@ -291,7 +287,6 @@ contains
    end subroutine test_match_bool_str_mismatch
 
    @test
-   @disable
    subroutine test_match_int_str_mismatch()
       type(ESMF_HConfig) :: a, b
       logical :: match

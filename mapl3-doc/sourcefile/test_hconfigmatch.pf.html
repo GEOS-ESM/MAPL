@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.2% of total for source files.">585 statements</a>
+                 title=" 0.2% of total for source files.">583 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -546,46 +546,41 @@ large graphs.</div>
 <a id="ln-269" name="ln-269" href="#ln-269"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-270" name="ln-270" href="#ln-270"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_match_int_ignore_sign</span>
 <a id="ln-271" name="ln-271" href="#ln-271"></a>
-<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="w">   </span><span class="c">! The remaining tests are disable for now because</span>
-<a id="ln-273" name="ln-273" href="#ln-273"></a><span class="w">   </span><span class="c">! of bug in ESMF_HConfig that prevents disambiguation</span>
-<a id="ln-274" name="ln-274" href="#ln-274"></a><span class="w">   </span><span class="c">! of quoted strings.</span>
-<a id="ln-275" name="ln-275" href="#ln-275"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
-<a id="ln-276" name="ln-276" href="#ln-276"></a><span class="w">   </span><span class="err">@</span><span class="n">disable</span>
-<a id="ln-277" name="ln-277" href="#ln-277"></a><span class="w">   </span><span class="c">! YAML distinguish strings like `&quot;no&quot;` from bool `no`.</span>
-<a id="ln-278" name="ln-278" href="#ln-278"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_match_bool_str_mismatch</span><span class="p">()</span>
-<a id="ln-279" name="ln-279" href="#ln-279"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span>
-<a id="ln-280" name="ln-280" href="#ln-280"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">match</span>
-<a id="ln-281" name="ln-281" href="#ln-281"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
-<a id="ln-282" name="ln-282" href="#ln-282"></a>
-<a id="ln-283" name="ln-283" href="#ln-283"></a><span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-284" name="ln-284" href="#ln-284"></a><span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;&quot;on&quot;&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-285" name="ln-285" href="#ln-285"></a>
-<a id="ln-286" name="ln-286" href="#ln-286"></a><span class="w">      </span><span class="n">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_HConfigMatch</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-287" name="ln-287" href="#ln-287"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">match</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-273" name="ln-273" href="#ln-273"></a><span class="w">   </span><span class="c">! YAML distinguish strings like `&quot;no&quot;` from bool `no`.</span>
+<a id="ln-274" name="ln-274" href="#ln-274"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_match_bool_str_mismatch</span><span class="p">()</span>
+<a id="ln-275" name="ln-275" href="#ln-275"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span>
+<a id="ln-276" name="ln-276" href="#ln-276"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">match</span>
+<a id="ln-277" name="ln-277" href="#ln-277"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-278" name="ln-278" href="#ln-278"></a>
+<a id="ln-279" name="ln-279" href="#ln-279"></a><span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-280" name="ln-280" href="#ln-280"></a><span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;&quot;on&quot;&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-281" name="ln-281" href="#ln-281"></a>
+<a id="ln-282" name="ln-282" href="#ln-282"></a><span class="w">      </span><span class="n">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_HConfigMatch</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-283" name="ln-283" href="#ln-283"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">match</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<a id="ln-284" name="ln-284" href="#ln-284"></a>
+<a id="ln-285" name="ln-285" href="#ln-285"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-286" name="ln-286" href="#ln-286"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-287" name="ln-287" href="#ln-287"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_match_bool_str_mismatch</span>
 <a id="ln-288" name="ln-288" href="#ln-288"></a>
-<a id="ln-289" name="ln-289" href="#ln-289"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-290" name="ln-290" href="#ln-290"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-291" name="ln-291" href="#ln-291"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_match_bool_str_mismatch</span>
-<a id="ln-292" name="ln-292" href="#ln-292"></a>
-<a id="ln-293" name="ln-293" href="#ln-293"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
-<a id="ln-294" name="ln-294" href="#ln-294"></a><span class="w">   </span><span class="err">@</span><span class="n">disable</span>
-<a id="ln-295" name="ln-295" href="#ln-295"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_match_int_str_mismatch</span><span class="p">()</span>
-<a id="ln-296" name="ln-296" href="#ln-296"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span>
-<a id="ln-297" name="ln-297" href="#ln-297"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">match</span>
-<a id="ln-298" name="ln-298" href="#ln-298"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
-<a id="ln-299" name="ln-299" href="#ln-299"></a>
-<a id="ln-300" name="ln-300" href="#ln-300"></a><span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;123&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-301" name="ln-301" href="#ln-301"></a><span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;&quot;123&quot;&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-302" name="ln-302" href="#ln-302"></a>
-<a id="ln-303" name="ln-303" href="#ln-303"></a><span class="w">      </span><span class="n">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_HConfigMatch</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-304" name="ln-304" href="#ln-304"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">match</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<a id="ln-289" name="ln-289" href="#ln-289"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-290" name="ln-290" href="#ln-290"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_match_int_str_mismatch</span><span class="p">()</span>
+<a id="ln-291" name="ln-291" href="#ln-291"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span>
+<a id="ln-292" name="ln-292" href="#ln-292"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">match</span>
+<a id="ln-293" name="ln-293" href="#ln-293"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-294" name="ln-294" href="#ln-294"></a>
+<a id="ln-295" name="ln-295" href="#ln-295"></a><span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;123&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-296" name="ln-296" href="#ln-296"></a><span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;&quot;123&quot;&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-297" name="ln-297" href="#ln-297"></a>
+<a id="ln-298" name="ln-298" href="#ln-298"></a><span class="w">      </span><span class="n">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_HConfigMatch</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-299" name="ln-299" href="#ln-299"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">match</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<a id="ln-300" name="ln-300" href="#ln-300"></a>
+<a id="ln-301" name="ln-301" href="#ln-301"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-302" name="ln-302" href="#ln-302"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-303" name="ln-303" href="#ln-303"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_match_int_str_mismatch</span>
+<a id="ln-304" name="ln-304" href="#ln-304"></a>
 <a id="ln-305" name="ln-305" href="#ln-305"></a>
-<a id="ln-306" name="ln-306" href="#ln-306"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-307" name="ln-307" href="#ln-307"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-308" name="ln-308" href="#ln-308"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_match_int_str_mismatch</span>
-<a id="ln-309" name="ln-309" href="#ln-309"></a>
-<a id="ln-310" name="ln-310" href="#ln-310"></a>
-<a id="ln-311" name="ln-311" href="#ln-311"></a><span class="k">end module </span><span class="n">Test_HConfigMatch</span>
+<a id="ln-306" name="ln-306" href="#ln-306"></a><span class="k">end module </span><span class="n">Test_HConfigMatch</span>
 </pre></div>
 
       </section>
@@ -607,7 +602,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-08-27T13:41:37.904896             </p>
+ on 2024-08-28T18:44:13.657910             </p>
           </div>
         </div>
         <br>

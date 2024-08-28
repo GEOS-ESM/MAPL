@@ -9,6 +9,11 @@ module mapl3g_ESMF_HConfigUtilities
    public :: write(formatted)
    public :: MAPL_HConfigMatch
 
+   character(*), parameter :: CORE_SCHEMA_INT_TAG = 'tag:yaml.org,2002:int'
+   character(*), parameter :: CORE_SCHEMA_FLOAT_TAG = 'tag:yaml.org,2002:float'
+   character(*), parameter :: CORE_SCHEMA_STR_TAG = 'tag:yaml.org,2002:str'
+   character(*), parameter :: CORE_SCHEMA_BOOL_TAG = 'tag:yaml.org,2002:bool'
+
    interface write(formatted)
       procedure write_hconfig
    end interface write(formatted)
