@@ -111,19 +111,16 @@ contains
             a_as_bool  = ESMF_HConfigAsLogical(a, _RC)
             b_as_bool  = ESMF_HConfigAsLogical(b, _RC)
             match = a_as_bool .eqv. b_as_bool
-            _RETURN(_SUCCESS)
 
          case (CORE_SCHEMA_INT_TAG)
             a_as_int  = ESMF_HConfigAsI8(a, _RC)
             b_as_int  = ESMF_HConfigAsI8(b, _RC)
             match = (a_as_int == b_as_int)
-            _RETURN(_SUCCESS)
 
          case (CORE_SCHEMA_FLOAT_TAG)
             a_as_float  = ESMF_HConfigAsR8(a, _RC)
             b_as_float  = ESMF_HConfigAsR8(b, _RC)
             match = (a_as_float == b_as_float)
-            _RETURN(_SUCCESS)
 
          case default 
             ! Otherwise they are strings ...
