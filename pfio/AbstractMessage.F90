@@ -3,7 +3,7 @@
 
 module pFIO_AbstractMessageMod
    use MAPL_ExceptionHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AbstractMessage
@@ -69,25 +69,25 @@ module pFIO_AbstractMessageMod
      subroutine handle(this, Message, rc)
        import SurrogateMessageVisitor
        import AbstractMessage
-       implicit none
+       implicit none (type, external)
        class (SurrogateMessageVisitor), target, intent(inout) :: this
        class (AbstractMessage), target, intent(in) :: message
        integer, optional, intent(out) :: rc
      end subroutine handle
 
      integer function get_type_id() result(type_id)
-        implicit none
+        implicit none (type, external)
      end function get_type_id
       
      integer function get_length(this) result(length)
         import AbstractMessage
-        implicit none
+        implicit none (type, external)
         class (AbstractMessage), intent(in) :: this
      end function get_length
       
      subroutine serialize(this, buffer, rc)
         import AbstractMessage
-        implicit none
+        implicit none (type, external)
         class (AbstractMessage), intent(in) :: this
         integer, optional, intent(out) :: rc
         integer, intent(inout) :: buffer(:)
@@ -95,7 +95,7 @@ module pFIO_AbstractMessageMod
       
      subroutine deserialize(this, buffer, rc)
         import AbstractMessage
-        implicit none
+        implicit none (type, external)
         class (AbstractMessage), intent(inout) :: this
         integer, intent(in) :: buffer(:)
         integer, optional, intent(out) :: rc

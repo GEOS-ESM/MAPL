@@ -7,7 +7,7 @@ module ud2f_UDSystem
    use ud2f_status_codes
    use iso_c_binding, only: c_ptr, c_associated, c_null_ptr, c_null_char
    use iso_c_binding, only: c_char, c_int, c_float, c_double, c_loc
-   implicit none
+   implicit none (type, external)
    private
 
    public :: Converter

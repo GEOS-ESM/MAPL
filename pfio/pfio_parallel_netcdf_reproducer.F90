@@ -5,7 +5,7 @@ program main
    use FLAP
    use pFIO
    use MAPL_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
 
    integer :: ierror, rc
    type (command_line_interface) :: cli

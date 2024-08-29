@@ -6,7 +6,7 @@ module MAPL_VotingRegridderMod
    use MAPL_Constants
    use ESMF
    use, intrinsic :: iso_fortran_env, only: REAL32
-   implicit none
+   implicit none (type, external)
    private
 
    public :: VotingRegridder

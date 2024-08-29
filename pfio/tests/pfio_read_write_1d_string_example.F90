@@ -7,7 +7,7 @@ program main
   use, intrinsic :: iso_fortran_env, only: REAL32
 
   use pFIO_NetCDF4_FileFormatterMod
-  implicit none
+  implicit none (type, external)
 
   character(len=:), allocatable, target :: cvar1(:)
   character(len=:), allocatable, target :: cvar2(:)

@@ -55,7 +55,7 @@ module pFIO_ServerThreadMod
    use gFTL_StringInteger64Map
    use mpi
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ServerThread

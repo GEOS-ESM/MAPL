@@ -1055,7 +1055,7 @@ sub gcF90code {
    use ESMF
    use MAPL_Mod
 
-   Implicit NONE
+   implicit none (type, external)
    Private
 
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -1198,7 +1198,7 @@ CONTAINS
 
 ! !USES:
 
-   implicit NONE
+   implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -1279,7 +1279,7 @@ CONTAINS
 
 ! !USES:
 
-   implicit NONE
+   implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -1360,7 +1360,7 @@ CONTAINS
 
 ! !USES:
 
-   implicit NONE
+   implicit none (type, external)
 
 
 ! !ARGUMENTS:

@@ -1,6 +1,6 @@
 module FieldBLASIntrinicFunctions
 
-   implicit none
+   implicit none (type, external)
 
    public :: IntrinsicReal64Function
    public :: IntrinsicReal64BiFunction

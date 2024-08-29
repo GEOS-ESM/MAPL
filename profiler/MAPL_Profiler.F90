@@ -38,7 +38,7 @@ module mapl_Profiler
    use mapl_MultiColumn
    use mapl_SeparatorColumn
    
-   implicit none
+   implicit none (type, external)
 contains 
 
    subroutine initialize(comm)

@@ -8,7 +8,7 @@ use MAPL_PhysicalConstantsMod
 contains
 
 subroutine initialize_constants()
-   implicit none
+   implicit none (type, external)
 end subroutine initialize_constants
 
 end module MAPL_Constants

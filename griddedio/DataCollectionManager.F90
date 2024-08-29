@@ -1,7 +1,7 @@
 module MAPL_DataCollectionManagerMod
 use MAPL_CollectionVectorMod
 use MAPL_DataCollectionMod
-implicit none
+implicit none (type, external)
 private
 
 type(MAPLCollectionVector) :: DataCollections

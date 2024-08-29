@@ -1,6 +1,6 @@
 #include "unused_dummy.H"
 module PFL_WrapArray
-   implicit none
+   implicit none (type, external)
    private
 
    public :: wrapArray

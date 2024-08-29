@@ -10,7 +10,7 @@ module MAPL_ExtDataMask
    use gFTL_StringVector
    use MAPL_NewArthParserMod
    use MAPL_Constants
-   implicit none
+   implicit none (type, external) (type, external)
    private
 
    type, public :: ExtDataMask
@@ -483,7 +483,7 @@ module MAPL_ExtDataMask
 !
   SUBROUTINE ExtDataExtractIntegers(string,iSize,iValues,delimiter,verbose,rc)
 
-  IMPLICIT NONE
+  implicit none (type, external)
 
   CHARACTER(LEN=*), INTENT(IN)   :: string         !! Character-delimited string of integers
   INTEGER, INTENT(IN)            :: iSize

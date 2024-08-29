@@ -6,7 +6,7 @@ program main
    use mapl_AbstractComponent
    use mapl_AbstractFrameworkComponent
    use mapl_CompositeComponent
-   implicit none
+   implicit none (type, external)
 
    type(MaplGenericComponent), target :: tmp
    class(AbstractFrameworkComponent), pointer :: child_o => null()

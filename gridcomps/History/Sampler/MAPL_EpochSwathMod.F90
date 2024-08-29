@@ -31,7 +31,7 @@ module MAPL_EpochSwathMod
   use, intrinsic :: ISO_C_BINDING
   use MAPL_CommsMod, only : MAPL_Am_I_Root
   use pflogger, only: Logger, logging
-  implicit none
+  implicit none (type, external)
   private
 
   integer, parameter       :: ngrid_max = 10
@@ -121,7 +121,7 @@ contains
   ! there is only one frequency_epoch for all the SwathGrid usage
   !
   function new_samplerHQ(clock, key, config, rc) result(hq)
-    implicit none
+    implicit none (type, external)
     type(samplerHQ) :: hq
     type(ESMF_Clock),  intent(in)    :: clock
     character(len=*),  intent(in)    :: key
@@ -297,7 +297,7 @@ contains
 
 
   subroutine destroy_rh_regen_ogrid (this, key_grid_label, output_grids, sp, rc)
-    implicit none
+    implicit none (type, external)
     class(samplerHQ) :: this
     class(sampler) :: sp
     type (StringGridMap), target, intent(inout) :: output_grids
@@ -373,7 +373,7 @@ contains
 
 
   subroutine fill_time_in_bundle (this, xname, bundle, ogrid, rc)
-    implicit none
+    implicit none (type, external)
     class(samplerHQ) :: this
     character(len=*), intent(in) :: xname
     type(ESMF_FieldBundle), intent(inout) :: bundle
@@ -1056,7 +1056,7 @@ contains
   !! -- based on subroutine bundlepost(this,filename,oClients,rc)
   !!
   subroutine interp_accumulate_fields (this,xy_subset,rc)
-    implicit none
+    implicit none (type, external)
     class (sampler) :: this
     integer, intent(in) :: xy_subset(2,2)
     !!integer, intent(in) :: xy_mask(:,:)
@@ -1251,7 +1251,7 @@ contains
 
 
   subroutine get_xy_mask(grid, xy_subset, xy_mask, rc)
-    implicit none
+    implicit none (type, external)
     type(ESMF_Grid), intent(in) :: grid
     integer, intent(in)  :: xy_subset(2,2)
     integer, intent(out) :: xy_mask(:,:)

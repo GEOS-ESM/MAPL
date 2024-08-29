@@ -28,7 +28,7 @@ module NCIOMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
   use mpi
-  implicit none
+  implicit none (type, external)
   private
 
   public MAPL_IOChangeRes
@@ -4502,7 +4502,7 @@ module NCIOMod
   end subroutine MAPL_StateVarWriteNCPar
 
   subroutine MAPL_NCIOGetFileType(filename,filetype,rc)
-   implicit none
+   implicit none (type, external)
 
    ! Arguments
    !----------
@@ -4805,7 +4805,7 @@ module NCIOMod
 
       subroutine MAPL_NCIOParseTimeUnits ( TimeUnits, year, month, day, hour, min, sec, rc )
 
-      implicit none
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !

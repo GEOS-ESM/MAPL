@@ -7,7 +7,7 @@ module MAPL_ExtDataDerived
    use gFTL_StringVector
    use MAPL_NewArthParserMod
    use MAPL_ExtDataMask
-   implicit none
+   implicit none (type, external)
    private
 
    type, public :: ExtDataDerived

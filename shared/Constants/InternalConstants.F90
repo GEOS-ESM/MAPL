@@ -2,7 +2,7 @@ module MAPL_InternalConstantsMod
 
    use, intrinsic :: iso_fortran_env, only: REAL64, REAL32
 
-   implicit none
+   implicit none (type, external)
 !=============================================================================
 !BOP
 

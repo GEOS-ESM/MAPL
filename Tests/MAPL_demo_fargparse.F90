@@ -11,7 +11,7 @@ program main
       use mpi
       use fargparse
 
-      implicit none
+      implicit none (type, external)
 
       type(MAPL_FargparseCLI) :: cli
       type(MAPL_CapOptions)   :: cap_options

@@ -4,7 +4,7 @@ module MAPL_FormattedTextColumn
    use MAPL_AbstractMeterNode
    use MAPL_TextColumn
    use GFTL_UnlimitedVector
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FormattedTextColumn

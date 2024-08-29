@@ -3,7 +3,7 @@ module MAPL_MeterNode
    use MAPL_AbstractMeter
    use MAPL_AbstractMeterNode
    use MAPL_MeterNodeVector
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MeterNode

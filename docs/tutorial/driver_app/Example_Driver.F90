@@ -9,7 +9,7 @@ program Example_Driver
    ! Needed by NVIDIA but breaks Intel (see https://github.com/GEOS-ESM/MAPL/pull/2664)
    use mapl_CapOptionsMod, only: MAPL_CapOptions
 #endif
-   implicit none
+   implicit none (type, external)
 
    type (MAPL_Cap) :: cap
    type (MAPL_FargparseCLI) :: cli

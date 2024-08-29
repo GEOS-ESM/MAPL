@@ -6,7 +6,7 @@ module field_utils_setup
    use funit
    use MAPL_ExceptionHandling
 
-   implicit none
+   implicit none (type, external)
 
    interface mk_field
       module procedure mk_field_r4_2d

@@ -284,7 +284,7 @@ The second example illustrates a more typical use of MAPL to help write a gridde
     use ESMF
     use MAPLBase_Mod
 
-    implicit none
+    implicit none (type, external)
 
     ! Make sure only SetServices is public.
     ! This is a hallmark of ESMF gridded components.

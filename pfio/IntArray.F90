@@ -21,7 +21,7 @@ module pFIO_IntArrayMod
    use, intrinsic :: iso_fortran_env, only: INT32, INT64
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: IntArray

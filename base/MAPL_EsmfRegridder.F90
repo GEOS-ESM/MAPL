@@ -14,7 +14,7 @@ module MAPL_EsmfRegridderMod
    use MAPL_RegridderSpecRouteHandleMap
    use MAPL_MAPLGrid
    use MAPL_ConstantsMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: EsmfRegridder

@@ -32,7 +32,7 @@
    Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    Use MAPL_ErrorHandlingMod
 
-   IMPLICIT NONE
+   implicit none (type, external)
    PRIVATE
 !
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -305,7 +305,7 @@ CONTAINS
 
 ! !USES:
 
-  implicit NONE
+  implicit none (type, external)
 
 ! !INPUT PARAMETERS:
 
@@ -539,7 +539,7 @@ CONTAINS
 
        use MAPL_NominalOrbitsMod
 
-       implicit NONE
+       implicit none (type, external)
 
 ! !INPUT PARAMETERS:
 
@@ -644,7 +644,7 @@ CONTAINS
 
        use MAPL_NominalOrbitsMod
 
-       implicit NONE
+       implicit none (type, external)
 
 ! !INPUT PARAMETERS:
 
@@ -744,7 +744,7 @@ CONTAINS
 
 
       subroutine flatten_latlon(lats,lons,lats_1d,lons_1d,im,jm)
-      implicit none
+      implicit none (type, external) (type, external)
       integer, intent(in) :: im,jm
       real, intent(in) :: lats(im,jm), lons(im,jm)
       real, intent(inout) :: lats_1d(jm), lons_1d(im)
@@ -759,7 +759,7 @@ CONTAINS
       end subroutine flatten_latlon
 
       subroutine flatten_xy(x,y,x_1d,y_1d,im,jm,im_1d,jm_1d,switch)
-      implicit none
+      implicit none (type, external) (type, external)
       integer, intent(in) :: im,jm, im_1d, jm_1d
       real, intent(in) :: x(im,jm), y(im,jm)
       real, intent(inout) :: y_1d(jm_1d), x_1d(im_1d)
@@ -784,7 +784,7 @@ CONTAINS
       end subroutine flatten_xy
 
       subroutine orb_edges_1d(ecoords,coords,idim)
-      implicit NONE
+      implicit none (type, external)
       integer, intent(in) :: idim
       real, intent(in)  :: coords(idim)
       real, intent(out) :: ecoords(idim+1)
@@ -795,7 +795,7 @@ CONTAINS
       end subroutine orb_edges_1d
 
       subroutine orb_mask_xy(mask,im,jm,x,y,tlons,tlats,nobs,jsegs,lb,ub,face,rc)
-      implicit NONE
+      implicit none (type, external)
       INTEGER, PARAMETER :: dp=SELECTED_REAL_KIND(15,307)
 
       integer, intent(in) :: im, jm, nobs, jsegs
@@ -894,7 +894,7 @@ CONTAINS
       end subroutine orb_mask_xy
 
       subroutine orb_mask_lonlat(mask,im,jm,lons,lats,tlons,tlats,nobs,jsegs,lb,ub)
-      implicit NONE
+      implicit none (type, external)
       INTEGER, PARAMETER :: dp=SELECTED_REAL_KIND(15,307)
 
       integer, intent(in) :: im, jm, nobs, jsegs
@@ -961,7 +961,7 @@ CONTAINS
       end subroutine orb_mask_lonlat
 
       subroutine orb_swath_mask_xy(mask,im,jm,x,y,slons,slats,nobs,isegs,jsegs,lb,ub,face)
-      implicit NONE
+      implicit none (type, external)
       INTEGER, PARAMETER :: dp=SELECTED_REAL_KIND(15,307)
 
       integer, intent(in) :: im, jm, nobs, isegs, jsegs
@@ -1131,7 +1131,7 @@ CONTAINS
 !...........................................................................................
 
       subroutine orb_swath_mask_lonlat(mask,im,jm,lons,lats,slons,slats,nobs,isegs,jsegs,lb,ub)
-      implicit NONE
+      implicit none (type, external)
       INTEGER, PARAMETER :: dp=SELECTED_REAL_KIND(15,307)
 
       integer, intent(in) :: im, jm, nobs, isegs, jsegs
@@ -1270,7 +1270,7 @@ CONTAINS
       end subroutine orb_swath_mask_lonlat
 
       integer function pnt_in_rect(x0,y0,x,y)
-      implicit none
+      implicit none (type, external) (type, external)
       real, intent(in) :: x0,y0
       real, intent(in), dimension(4) :: x,y
       ! local variable
@@ -1322,7 +1322,7 @@ CONTAINS
       end function pnt_in_rect
 
       integer function ijsearch(coords,idim,value,periodic) ! fast bisection version
-            implicit NONE
+            implicit none (type, external)
             integer, intent(in) :: idim
             real, intent(in) :: coords(idim)
             real, intent(inout) :: value

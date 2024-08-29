@@ -7,7 +7,7 @@ program main
    use mapl_ErrorHandlingMod
    use Kernel_mod
    use mpi
-   implicit none
+   implicit none (type, external)
 
    type(ComboSpec) :: spec
    integer :: status

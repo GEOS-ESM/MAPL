@@ -63,7 +63,7 @@
 #endif
       use esmf, only: ESMF_UtilStringUpperCase
       use, intrinsic :: iso_fortran_env, only: REAL32
-      implicit none
+      implicit none (type, external)
 !------------------------------------------------------------------------------
 ! !PRIVATE TYPES:
       private
@@ -894,7 +894,7 @@
 !
    subroutine ESMF_CFIODownBit3D_ ( x, xr, nbits, undef, flops, rc )
 
-     implicit NONE
+     implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -957,7 +957,7 @@
 !
    subroutine ESMF_CFIODownBit2D_ ( x, xr, nbits, undef, flops, rc )
 
-     implicit NONE
+     implicit none (type, external)
 
 !
 ! !INPUT PARAMETERS:

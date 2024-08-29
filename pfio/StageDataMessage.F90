@@ -4,7 +4,7 @@ module pFIO_StageDataMessageMod
    use pFIO_AbstractDataReferenceMod
    use mapl_KeywordEnforcerMod
    use pFIO_AbstractDataMessageMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: StageDataMessage

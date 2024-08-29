@@ -21,7 +21,7 @@ module SupportMod
    use gFTL_StringIntegerMap
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT64
    use mpi
-   implicit none
+   implicit none (type, external)
    public
 
 
@@ -1192,7 +1192,7 @@ program main
    use ESMF
    use SupportMod
    use pFIO
-   implicit none
+   implicit none (type, external)
 
    integer(kind=INT64) :: c00, c0, c1, crate
 

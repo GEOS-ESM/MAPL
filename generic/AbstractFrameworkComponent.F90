@@ -1,6 +1,6 @@
 module mapl_AbstractFrameworkComponent
    use mapl_SurrogateFrameworkComponent
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AbstractFrameworkComponent
@@ -44,7 +44,7 @@ module mapl_AbstractFrameworkComponent
       subroutine i_SetComposite(this, composite)
          use mapl_AbstractComposite
          import AbstractFrameworkComponent
-         implicit none
+         implicit none (type, external)
          class(AbstractFrameworkComponent), intent(inout) :: this
          class(AbstractComposite), target, intent(in) :: composite
       end subroutine i_SetComposite

@@ -6,7 +6,7 @@ module mapl_RegridderTypeSpec
    use mapl_RegridMethods
    use ESMF
    use, intrinsic :: iso_fortran_env, only: INT64
-   implicit none
+   implicit none (type, external)
    private
 
    public :: RegridderTypeSpec 

@@ -1,7 +1,7 @@
 module MAPL_NameColumn
    use MAPL_AbstractMeterNode
    use MAPL_SimpleTextColumn
-   implicit none
+   implicit none (type, external)
    private
 
    public :: NameColumn

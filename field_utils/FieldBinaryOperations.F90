@@ -4,7 +4,7 @@ module MAPL_FieldBinaryOperations
    use ESMF
    use MAPL_ExceptionHandling
    use MAPL_FieldPointerUtilities
-   implicit none
+   implicit none (type, external)
    private
 
    public fieldAdd

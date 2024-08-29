@@ -1,7 +1,7 @@
 module mapl_BaseComponent
    use mapl_AbstractComponent
    use pFlogger, only: fLogger => Logger
-   implicit none
+   implicit none (type, external)
    private
 
    public :: BaseComponent

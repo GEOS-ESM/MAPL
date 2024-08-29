@@ -1,7 +1,7 @@
 module MAPL_ErrorHandlingMod
    use MAPL_ThrowMod
    use MPI
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MAPL_Assert

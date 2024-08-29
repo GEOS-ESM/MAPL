@@ -4,7 +4,7 @@ program main
    use mapl_Profiler
    use MAPL_ErrorHandlingMod
    use MPI
-   implicit none
+   implicit none (type, external)
 
 
    type (MemoryProfiler), target :: mem_prof

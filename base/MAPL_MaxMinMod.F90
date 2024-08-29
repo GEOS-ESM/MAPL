@@ -21,7 +21,7 @@
       Use ESMF
       Use MAPL_CommsMod
 
-      implicit None
+      implicit none (type, external)
 
 ! !PUBLIC MEMBER FUNCTIONS:
 !
@@ -43,7 +43,7 @@
 CONTAINS
 
   subroutine pmaxmin3d_r4 ( qname, a, pmin, pmax, fac )
-      implicit none
+      implicit none (type, external)
       character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R4),           intent(in)  :: a(:,:,:)     ! input array
       real(ESMF_KIND_R4), optional, intent(in)  :: fac          ! multiplication factor
@@ -57,7 +57,7 @@ CONTAINS
 
     subroutine pmaxmin2d_r4 ( qname, a, pmin_, pmax_, fac_ )
 
-      implicit none
+      implicit none (type, external)
       character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R4),           intent(in)  :: a(:,:)       ! input array
       real(ESMF_KIND_R4), optional, intent(in)  :: fac_         ! multiplication factor
@@ -134,7 +134,7 @@ CONTAINS
     end subroutine pmaxmin2d_r4
 
     subroutine pmaxmin1d_r4 ( qname, a, pmin, pmax, fac )
-      implicit none
+      implicit none (type, external)
       character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R4),           intent(in)  :: a(:)         ! input array
       real(ESMF_KIND_R4), optional, intent(in)  :: fac          ! multiplication factor
@@ -149,7 +149,7 @@ CONTAINS
 !---
 
   subroutine pmaxmin3d_r8 ( qname, a, pmin, pmax, fac )
-      implicit none
+      implicit none (type, external)
       character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R8),           intent(in)  :: a(:,:,:)     ! input array
       real(ESMF_KIND_R8), optional, intent(in)  :: fac          ! multiplication factor
@@ -167,7 +167,7 @@ CONTAINS
    end subroutine pmaxmin3d_r8
 
   subroutine pmaxmin2d_r8 ( qname, a, pmin, pmax, fac )
-      implicit none
+      implicit none (type, external)
       character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R8),           intent(in)  :: a(:,:)     ! input array
       real(ESMF_KIND_R8), optional, intent(in)  :: fac          ! multiplication factor
@@ -185,7 +185,7 @@ CONTAINS
    end subroutine pmaxmin2d_r8
 
   subroutine pmaxmin1d_r8 ( qname, a, pmin, pmax, fac )
-      implicit none
+      implicit none (type, external)
       character(len=*),             intent(in)  :: qname        ! label to print
       real(ESMF_KIND_R8),           intent(in)  :: a(:)         ! input array
       real(ESMF_KIND_R8), optional, intent(in)  :: fac          ! multiplication factor

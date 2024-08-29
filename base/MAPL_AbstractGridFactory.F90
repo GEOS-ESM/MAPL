@@ -9,7 +9,7 @@ module MAPL_AbstractGridFactoryMod
    use MAPL_Constants
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use MAPL_KeywordEnforcerMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AbstractGridFactory
@@ -169,7 +169,7 @@ module MAPL_AbstractGridFactoryMod
 
       function generate_grid_name(this) result(name)
          import AbstractGridFactory
-         implicit none
+         implicit none (type, external)
          character(len=:), allocatable :: name
          class (AbstractGridFactory), intent(in) :: this
       end function generate_grid_name

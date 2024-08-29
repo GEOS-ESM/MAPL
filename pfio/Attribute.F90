@@ -8,7 +8,7 @@ module pFIO_AttributeMod
    use pFIO_UnlimitedEntityMod
    use MAPL_ExceptionHandling
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: Attribute
@@ -112,7 +112,7 @@ module pFIO_StringAttributeMapUtilMod
    use pFIO_AttributeMod
    use pFIO_StringAttributeMapMod
    use MAPL_ExceptionHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: StringAttributeMap_serialize

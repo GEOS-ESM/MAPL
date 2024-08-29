@@ -12,7 +12,7 @@ module pFIO_ArrayReferenceMod
    use pFIO_ConstantsMod
    use pFIO_AbstractDataReferenceMod
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ArrayReference

@@ -8,7 +8,7 @@ module MAPL_ServerManager
    use PFIO
    use MAPL_SimpleCommSplitterMod
    use MAPL_SplitCommunicatorMod
-   implicit none
+   implicit none (type, external)
    private
 
 

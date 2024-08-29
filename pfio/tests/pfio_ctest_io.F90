@@ -9,7 +9,7 @@ module ctest_io_CLI
    use pFIO
    use gFTL_StringVector
    use gFTL_StringIntegerMap
-   implicit none
+   implicit none (type, external)
    private
 
    public :: CommandLineOptions0
@@ -151,7 +151,7 @@ module FakeHistData0Mod
    use gFTL_StringIntegerMap
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FakeHistData0
@@ -452,7 +452,7 @@ program main
    use MAPL_ExceptionHandling
    use FakeHistData0Mod
    use pFlogger, only: pflogger_init => initialize
-   implicit none
+   implicit none (type, external)
 
    integer :: rank, npes, ierror, provided,required
    integer :: status, color, key

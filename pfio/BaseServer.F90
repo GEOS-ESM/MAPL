@@ -30,7 +30,7 @@ module pFIO_BaseServerMod
    use mpi
 !   use pfio_base
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: BaseServer

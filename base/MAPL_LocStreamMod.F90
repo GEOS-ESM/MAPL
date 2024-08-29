@@ -34,7 +34,7 @@ use MAPL_ExceptionHandling
 use, intrinsic :: iso_fortran_env, only: REAL64, INT64
 use mpi
 
-implicit none
+implicit none (type, external)
 private
 
 ! !PUBLIC MEMBER FUNCTIONS:

@@ -8,7 +8,7 @@ module MAPL_TileIOMod
    use MAPL_CommsMod
    use FIleIOSharedMod, only: MAPL_TileMaskGet
 
-   implicit none
+   implicit none (type, external)
 
    private
 

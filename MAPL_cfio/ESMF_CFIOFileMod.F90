@@ -183,7 +183,7 @@
                               attIntName, attInt, format,           &
                               expid, isCyclic, isOpen, nSteps, fNameTmplt,  &
                               deflate, formatVersion,                    rc )
-       implicit NONE
+       implicit none (type, external)
 
 !
 ! !INPUT PARAMETERS:

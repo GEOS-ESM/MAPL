@@ -1,5 +1,5 @@
       subroutine hinterp2 ( qin,iin,jin,qout,iout,jout,mlev,undef )
-      implicit   none
+      implicit none (type, external)
       integer    iin,jin,       iout,jout, mlev
       real   qin(iin,jin,mlev), qout(iout,jout,mlev)
       real undef,pi,dlin,dpin,dlout,dpout
@@ -62,7 +62,7 @@
 
       subroutine hhinterp ( qin,iin,jin,qout,iout,jout,mlev,undef, &
                             lons_in,lats_in )
-      implicit   none
+      implicit none (type, external)
       integer    iin,jin,       iout,jout, mlev
       real   qin(iin,jin,mlev), qout(iout,jout,mlev) 
       real undef,pi,dlin,dpin,dlout,dpout
@@ -157,7 +157,7 @@
       return
       contains
       subroutine myhflip2_ ( q,im,jm )
-      implicit none
+      implicit none (type, external)
       integer  im,jm,i,j
       real, intent(inout) :: q(im,jm)
       real, allocatable   :: dum(:)
@@ -203,7 +203,7 @@
 !*                  GODDARD LABORATORY FOR ATMOSPHERES                 *
 !***********************************************************************
 
-      implicit none
+      implicit none (type, external)
 
 ! Input Variables
 ! ---------------

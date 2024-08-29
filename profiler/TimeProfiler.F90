@@ -9,7 +9,7 @@ module mapl_TimeProfiler_private
    use mapl_AdvancedMeter
    use mapl_AbstractMeter
    use mapl_MeterNode
-   implicit none
+   implicit none (type, external)
    private
 
    public :: TimeProfiler
@@ -72,7 +72,7 @@ module mapl_TimeProfiler
    use mapl_KeywordEnforcerMod
    use mapl_ExceptionHandling
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: TimeProfiler

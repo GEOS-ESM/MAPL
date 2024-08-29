@@ -16,7 +16,7 @@ module MAPL_TilingRegridderMod
    use gFTL_IntegerVector
    use, intrinsic :: ISO_C_BINDING
    use, intrinsic :: iso_fortran_env, only: REAL32,INT32
-   implicit none
+   implicit none (type, external)
    private
 
    public :: TilingRegridder

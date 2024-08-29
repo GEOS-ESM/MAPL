@@ -1,6 +1,6 @@
 module mapl_RegridMethods
    use ESMF
-   implicit none
+   implicit none (type, external)
    private
 
    public :: REGRID_HINT_LOCAL

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Replace all `implicit none` with `implicit none(type, external)` in all Fortran files
 - Add ability to connect export of the MAPL hierachy to ExtData via CAP.rc file
 - Added new driver, CapDriver.x, to excerise the MAPL_Cap with the configuratable component also used by ExtDataDriver.x
 - Added Fortran interface to UDUNITS2

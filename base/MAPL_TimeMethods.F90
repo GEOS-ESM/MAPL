@@ -6,7 +6,7 @@ module MAPL_TimeDataMod
   use pFIO
   use MAPL_ExceptionHandling
   use MAPL_ESMFTimeVectorMod
-  implicit none
+  implicit none (type, external)
 
   private
   integer, parameter :: TimeData_uninit_int = -1

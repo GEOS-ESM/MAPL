@@ -4,7 +4,7 @@ module MAPL_ExtDataTimeSample
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_TimeStringConversion
-   implicit none
+   implicit none (type, external)
    private
 
    type, public :: ExtDataTimeSample

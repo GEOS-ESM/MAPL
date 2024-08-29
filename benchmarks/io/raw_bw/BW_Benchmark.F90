@@ -3,7 +3,7 @@
 module mapl_BW_Benchmark
    use mapl_ErrorHandlingMod
    use, intrinsic :: iso_fortran_env, only: INT64
-   implicit none
+   implicit none (type, external)
    private
 
    public :: BW_Benchmark

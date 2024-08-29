@@ -10,7 +10,7 @@ module mapl_VarConn
    use MAPL_VarConnVector
    use MAPL_ErrorHandlingMod
    use pFlogger
-   implicit none
+   implicit none (type, external)
    private
 
    public :: VarConn ! wraps VarConnVector (vector of VarConnType)

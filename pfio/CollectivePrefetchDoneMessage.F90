@@ -5,7 +5,7 @@ module pFIO_CollectivePrefetchDoneMessageMod
    use MAPL_ExceptionHandling
    use pFIO_AbstractMessageMod
    use, intrinsic :: iso_fortran_env, only: INT32
-   implicit none
+   implicit none (type, external)
    private
 
    public :: CollectivePrefetchDoneMessage

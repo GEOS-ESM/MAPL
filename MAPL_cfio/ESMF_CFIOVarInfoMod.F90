@@ -25,7 +25,7 @@
       use ESMF_CFIOGridMod
 
 !
-      implicit none
+      implicit none (type, external)
 !------------------------------------------------------------------------------
 ! !PUBLIC DATA TYPES:
 !
@@ -168,7 +168,7 @@
                               attCharName, attChar, attRealName, attReal,   &
                               attIntName, attInt, packingRange, timAve,     &
                               aveMethod, cellMthd, ChunkSize, rc )
-       implicit NONE
+       implicit none (type, external)
 
 !
 ! !INPUT PARAMETERS:
@@ -399,7 +399,7 @@
                               attRealCnt, attReal, attIntName, attIntCnt,   &
                               attInt, packingRange, timAve, aveMethod,      &
                               cellMthd, ChunkSize, rc )
-       implicit NONE
+       implicit none (type, external)
 
 !
 ! !INPUT PARAMETERS:

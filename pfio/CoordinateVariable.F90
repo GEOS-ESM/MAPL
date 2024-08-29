@@ -30,7 +30,7 @@ module pFIO_CoordinateVariableMod
    use pFIO_UtilitiesMod
    use pFIO_VariableMod
    use mapl_KeywordEnforcerMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: CoordinateVariable

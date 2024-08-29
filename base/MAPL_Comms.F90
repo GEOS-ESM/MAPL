@@ -17,7 +17,7 @@ module MAPL_CommsMod
   use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter
   use MAPL_ExceptionHandling
   use mpi
-  implicit none
+  implicit none (type, external)
   private
 
   public MAPL_CommsBcast

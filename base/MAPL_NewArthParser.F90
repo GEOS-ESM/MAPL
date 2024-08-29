@@ -57,7 +57,7 @@ MODULE MAPL_NewArthParserMod
   use MAPL_ExceptionHandling
   use gFTL_StringVector
 
-  IMPLICIT NONE
+  implicit none (type, external)
   !------- -------- --------- --------- --------- --------- --------- --------- -------
   PRIVATE
 
@@ -188,7 +188,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Parse ith function string FuncStr and compile it into bytecode
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     TYPE (tComp)                   , INTENT(inout) :: Comp              ! Bytecode
     CHARACTER (LEN=*),               INTENT(in   ) :: FuncStr   ! Function string
     CHARACTER (LEN=*), DIMENSION(:), INTENT(in   ) :: Var       ! Array with variable names
@@ -210,7 +210,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Evaluate bytecode of ith function for the values passed in array Val(:)
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     TYPE (tComp),                   INTENT(inout) :: Comp
     TYPE(ESMF_State),               INTENT(in   ) :: state
     CHARACTER(len=ESMF_MAXSTR)    , INTENT(in   ) :: FieldNames(:)
@@ -325,7 +325,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Check syntax of function string,  returns 0 if syntax is ok
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     type(StringVector) :: variables_in_expression
     CHARACTER (LEN=*),               INTENT(in) :: FuncStr   ! Original function string
     INTEGER, OPTIONAL                           :: rc
@@ -443,7 +443,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Check syntax of function string,  returns 0 if syntax is ok
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     CHARACTER (LEN=*),               INTENT(in) :: FuncStr   ! Original function string
     CHARACTER (LEN=*), DIMENSION(:), INTENT(in) :: Var       ! Array with variable names
     CHARACTER (LEN=*), OPTIONAL,     INTENT(inout) :: ExtVar
@@ -571,7 +571,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Print error message and terminate program
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     INTEGER,                     INTENT(in) :: j
     CHARACTER (LEN=*),           INTENT(in) :: FuncStr       ! Original function string
     INTEGER, DIMENSION(:),       INTENT(inout) :: ipos
@@ -595,7 +595,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Return operator index
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     CHARACTER (LEN=1), INTENT(in) :: c
     INTEGER                       :: n,j
     !----- -------- --------- --------- --------- --------- --------- --------- -------
@@ -612,7 +612,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Return index of math function beginnig at 1st position of string str
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     CHARACTER (LEN=*), INTENT(in) :: str
     INTEGER                       :: n,j
     INTEGER                       :: k
@@ -633,7 +633,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Return index of variable at begin of string str (returns 0 if no variable found)
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     CHARACTER (LEN=*),               INTENT(in) :: str       ! String
     INTEGER,                        INTENT(out) :: ibegin, & ! Start position of variable name
                                                    inext     ! Position of character after name
@@ -656,7 +656,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Return index of variable at begin of string str (returns 0 if no variable found)
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     CHARACTER (LEN=*),               INTENT(in) :: str       ! String
     CHARACTER (LEN=*), DIMENSION(:), INTENT(in) :: Var       ! Array with variable names
     INTEGER                                     :: n         ! Index of variable
@@ -688,7 +688,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Return index of variable at begin of string str (returns 0 if no variable found)
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     CHARACTER (LEN=*),               INTENT(in) :: str       ! String
     LOGICAL                                     :: isUndef   ! Index of variable
     INTEGER, OPTIONAL,              INTENT(out) :: ibegin, & ! Start position of variable name
@@ -718,7 +718,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Remove Spaces from string, remember positions of characters in old string
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     CHARACTER (LEN=*), INTENT(inout) :: str
     INTEGER, OPTIONAL, INTENT(inout) :: ipos(:)
     INTEGER                          :: k,lstr
@@ -740,7 +740,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Replace ALL appearances of character set ca in string str by character set cb
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     CHARACTER (LEN=*),       INTENT(in) :: ca
     CHARACTER (LEN=LEN(ca)), INTENT(in) :: cb                ! LEN(ca) must be LEN(cb)
     CHARACTER (LEN=*),    INTENT(inout) :: str
@@ -756,7 +756,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Compile i-th function string F into bytecode
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     TYPE (tComp) :: Comp              ! Bytecode
     CHARACTER (LEN=*),               INTENT(in   ) :: F         ! Function string
     CHARACTER (LEN=*), DIMENSION(:), INTENT(in   ) :: Var       ! Array with variable names
@@ -797,7 +797,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Add compiled byte to bytecode
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     TYPE (tComp) :: Comp              ! Bytecode
     INTEGER, INTENT(in) :: b                             ! Value of byte to be added
     !----- -------- --------- --------- --------- --------- --------- --------- -------
@@ -809,7 +809,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Return math item index, if item is real number, enter it into Comp-structure
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     TYPE (tComp) :: Comp              ! Bytecode
     CHARACTER (LEN=*),               INTENT(in) :: F         ! Function substring
     CHARACTER (LEN=*), DIMENSION(:), INTENT(in) :: Var       ! Array with variable names
@@ -838,7 +838,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Check if function substring F(b:e) is completely enclosed by a pair of parenthesis
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     CHARACTER (LEN=*), INTENT(in) :: F                       ! Function substring
     INTEGER,           INTENT(in) :: b,e                     ! First and last pos. of substring
     LOGICAL                       :: res
@@ -863,7 +863,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Compile i-th function string F into bytecode
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     TYPE (tComp) :: Comp              ! Bytecode
     CHARACTER (LEN=*),               INTENT(in) :: F         ! Function substring
     INTEGER,                         INTENT(in) :: b,e       ! Begin and end position substring
@@ -962,7 +962,7 @@ CONTAINS
     ! Special cases already covered elsewhere:              (that is corrected in v1.1)
     ! - operator character F(j:j) is first character of string (j=1)
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     INTEGER,           INTENT(in) :: j                       ! Position of Operator
     CHARACTER (LEN=*), INTENT(in) :: F                       ! String
     LOGICAL                       :: res                     ! Result
@@ -1002,7 +1002,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Get real number from string - Format: [blanks][+|-][nnn][.nnn][e|E|d|D[+|-]nnn]
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     CHARACTER (LEN=*),  INTENT(in) :: str                    ! String
     REAL                           :: res                    ! Real number
     INTEGER, OPTIONAL, INTENT(out) :: ibegin,              & ! Start position of real number
@@ -1079,7 +1079,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Transform upper case letters in str1 into lower case letters, result is str2
     !----- -------- --------- --------- --------- --------- --------- --------- -------
-    IMPLICIT NONE
+    implicit none (type, external)
     CHARACTER (LEN=*),  INTENT(in) :: str1
     CHARACTER (LEN=*), INTENT(out) :: str2
     INTEGER                        :: j,k
@@ -1094,7 +1094,7 @@ CONTAINS
   END SUBROUTINE LowCase
 
   FUNCTION Heav2D(r) RESULT(res)
-    IMPLICIT NONE
+    implicit none (type, external)
     real,   intent(in) :: r(:,:)
     real               :: res(size(r,1),size(r,2))
 
@@ -1106,7 +1106,7 @@ CONTAINS
   END FUNCTION Heav2D
 
   FUNCTION Heav3D(r) RESULT(res)
-    IMPLICIT NONE
+    implicit none (type, external)
     real,   intent(in) :: r(:,:,:)
     real               :: res(size(r,1),size(r,2),size(r,3))
 

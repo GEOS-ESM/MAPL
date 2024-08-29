@@ -8,7 +8,7 @@ module MAPL_DistributedMeter
    use MAPL_AdvancedMeter
    use MAPL_AbstractGauge
    use MPI
-   implicit none
+   implicit none (type, external)
    private
 
    public :: DistributedMeter

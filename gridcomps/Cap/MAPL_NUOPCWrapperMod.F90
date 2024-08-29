@@ -22,7 +22,7 @@ module MAPL_NUOPCWrapperMod
     use mapl_CapOptionsMod
     use mpi
 
-    implicit none
+    implicit none (type, external)
     private
 
     public SetServices

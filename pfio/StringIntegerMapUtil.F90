@@ -5,7 +5,7 @@ module pFIO_StringIntegerMapUtilMod
    use pFIO_UtilitiesMod
    use gFTL_StringIntegerMap
    use MAPL_ExceptionHandling
-   implicit none
+   implicit none (type, external)
    private
    public :: StringIntegerMap_serialize
    public :: StringIntegerMap_deserialize

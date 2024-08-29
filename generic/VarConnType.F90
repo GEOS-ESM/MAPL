@@ -1,6 +1,6 @@
 module mapl_VarConnType
    use mapl_VarConnPoint
-   implicit none
+   implicit none (type, external)
    private
 
    public :: VarConnType

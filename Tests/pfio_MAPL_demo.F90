@@ -24,7 +24,7 @@ program main
       use pFIO_UnlimitedEntityMod
       use pFIO_ClientManagerMod, only: o_Clients
 
-      implicit none
+      implicit none (type, external)
 
       ! PARAMETERS:
       real,              PARAMETER ::             pfio_vmin = -MAPL_UNDEF

@@ -20,7 +20,7 @@ module pFIO_MessageVectorUtilMod
    use pFIO_ProtocolParserMod
    use pFIO_CollectiveStageDataMessageMod
    use, intrinsic :: iso_fortran_env, only: INT64
-   implicit none
+   implicit none (type, external)
    private 
 
    public:: serialize_message_vector

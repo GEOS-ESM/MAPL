@@ -1,5 +1,5 @@
 module MAPL_ThrowMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MAPL_throw_exception

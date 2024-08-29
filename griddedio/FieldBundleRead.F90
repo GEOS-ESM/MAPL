@@ -23,7 +23,7 @@ module MAPL_ESMFFieldBundleRead
    use gFTL_StringVector
    use MAPL_RegridMethods
    use, intrinsic :: iso_fortran_env, only: REAL32
-   implicit none
+   implicit none (type, external)
    private
 
    public MAPL_create_bundle_from_metdata_id

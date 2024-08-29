@@ -15,7 +15,7 @@ module pFIO_SimpleSocketMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_AbstractDataReferenceMod
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: SimpleSocket

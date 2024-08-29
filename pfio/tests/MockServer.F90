@@ -4,7 +4,7 @@ module MockServerMod
    use pFIO_BaseServerMod
    use pFIO_AbstractDataReferenceMod
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MockServer

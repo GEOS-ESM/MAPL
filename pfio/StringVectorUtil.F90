@@ -6,7 +6,7 @@ module pFIO_StringVectorUtilMod
    use pFIO_AttributeMod
    use gFTL_StringVector
    use MAPL_ExceptionHandling
-   implicit none
+   implicit none (type, external)
    private
    public :: StringVector_serialize
    public :: StringVector_deserialize

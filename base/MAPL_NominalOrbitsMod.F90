@@ -20,7 +20,7 @@
 !
   MODULE MAPL_NominalOrbitsMod
      use MAPL_Constants
-     IMPLICIT NONE
+     implicit none (type, external)
 
       PRIVATE
 
@@ -145,7 +145,7 @@ CONTAINS
 !
   SUBROUTINE Orbits_Track(lons, lats, Sat_name, nymd, nhms, deltat, rc)
 
-       IMPLICIT NONE
+       implicit none (type, external)
 ! !INPUT PARAMETERS:
       character(len=*), intent(in) :: Sat_name ! Satellite name
       integer, intent(in) :: nymd(2)  ! Beginning/ending date: YYYYMMDD
@@ -197,7 +197,7 @@ END SUBROUTINE Orbits_Track
 
 
 ! SUBROUTINE Orbits_Track0(Sat_name)
-!     IMPLICIT NONE
+!     implicit none (type, external)
 ! 
 !       character(len=*), intent(in) :: Sat_name ! Satellite name
 !       integer :: Sat
@@ -237,7 +237,7 @@ END SUBROUTINE Orbits_Track
 
 
 Subroutine satname2int(name, satnum, rc)
-       IMPLICIT NONE
+       implicit none (type, external)
        character(len=*), intent(in) :: name ! Satellite name
        integer, intent(out) :: satnum       ! Satellite number
        integer, intent(out) :: rc
@@ -261,7 +261,7 @@ end Subroutine satname2int
 
 SUBROUTINE Orbits_Track1(name, Satcoef_vec1, Normcoef_vec1)
     ! See interface
-    IMPLICIT NONE
+    implicit none (type, external)
 
       character(len=*), intent(in) :: name ! Satellite name
       real(dp), intent(out), dimension(1:Num_coef) :: Satcoef_vec1
@@ -296,7 +296,7 @@ END SUBROUTINE Orbits_Track1
 
 SUBROUTINE Orbits_Track2(iSat, Satcoef_vec, Normcoef_vec)
     ! See interface
-    IMPLICIT NONE
+    implicit none (type, external)
 
       integer, intent(in) :: iSat ! this is the sat number ex: Aqua=1
       real(dp), intent(out), dimension(1:Num_coef) :: Satcoef_vec
@@ -334,7 +334,7 @@ END SUBROUTINE Orbits_Track2
                            SwathWidth, rc, wrap)
 ! SUBROUTINE Orbits_Swath (slons, slats, Sat_name, nymd, nhms, deltat, SwathWidth, wrapon, rc)
 
-      IMPLICIT NONE
+      implicit none (type, external)
 ! !INPUT PARAMETERS:
       real(dp),    pointer         :: slons(:,:)      !Track longitude [degree]
       real(dp),    pointer         :: slats(:,:)      !Track latitude  [degree]
@@ -440,7 +440,7 @@ END SUBROUTINE Orbits_Track2
 
 Subroutine do_gridcorrections(lon_vec_centers1, lat_vec_centers1, &
                               lon_vec_centers, lat_vec_centers, rc)
-       IMPLICIT NONE
+       implicit none (type, external)
        REAL(dp), DIMENSION(:), INTENT(IN) :: lon_vec_centers1, lat_vec_centers1
        REAL(dp), DIMENSION(:), INTENT(INOUT) :: lon_vec_centers, lat_vec_centers
        integer, intent(inout) :: rc
@@ -474,7 +474,7 @@ Subroutine do_gridcorrections(lon_vec_centers1, lat_vec_centers1, &
 end subroutine do_gridcorrections
 
 SUBROUTINE updownlon(vec_centers, upsidedown, rc)
-     IMPLICIT NONE
+     implicit none (type, external)
      REAL(dp), DIMENSION(:), INTENT(IN)  :: vec_centers
      REAL(dp), DIMENSION(:), INTENT(OUT) :: upsidedown
      integer, intent(inout) :: rc
@@ -508,7 +508,7 @@ END SUBROUTINE updownlon
 SUBROUTINE find_waypointslat(iSat, time_sec, sim_start,sim_end, distlat,   &
                                t1_l, lat_l, lon_l, ts, las, los, rc)
       ! sat name - time flag - interval second
-      IMPLICIT NONE
+      implicit none (type, external)
 ! !ARGUMENTS:
 !
       INTEGER, INTENT(IN) :: iSat, time_sec 
@@ -583,7 +583,7 @@ END SUBROUTINE find_waypointslat
 !- get_azimuth
 !
 SUBROUTINE find_sweeppoints(iii, latwayp, longwayp, l, r, wrapon, latlonshift)
-       IMPLICIT NONE
+       implicit none (type, external)
 !
        REAL(dp), DIMENSION(:),     INTENT(IN)   :: latwayp, longwayp
        REAL(dp), INTENT(IN)     :: l, r  ! left right swap space
@@ -637,7 +637,7 @@ END SUBROUTINE find_sweeppoints
 ! following subsections.
 !
 SUBROUTINE get_latlon(iSat, t1, lat_estwayp, long_estwayp)
-       IMPLICIT NONE
+       implicit none (type, external)
        REAL(dp),    INTENT(IN)    :: t1
        INTEGER, INTENT(IN)    :: iSat
        REAL(dp),    INTENT(INOUT) :: lat_estwayp, long_estwayp
@@ -655,7 +655,7 @@ SUBROUTINE get_latlon(iSat, t1, lat_estwayp, long_estwayp)
 END SUBROUTINE
 
 SUBROUTINE get_estimateECI(iSat, ntime_day, ECI_est)
-        IMPLICIT NONE
+        implicit none (type, external)
         INTEGER, INTENT(IN) :: iSat
         REAL(dp), INTENT(IN)    :: ntime_day 
         REAL(dp), DIMENSION(:,:), INTENT(OUT) :: ECI_est
@@ -682,7 +682,7 @@ SUBROUTINE get_estimateECI(iSat, ntime_day, ECI_est)
 END SUBROUTINE get_estimateECI
 
 SUBROUTINE  ECI2ECEF(iSat,fraction2day,  ECI_est, ECEF_est)
-        IMPLICIT NONE
+        implicit none (type, external)
         INTEGER, INTENT(IN)  :: iSat
         REAL(dp), DIMENSION(:,:), INTENT(IN)  :: ECI_est
         REAL(dp), DIMENSION(:,:), INTENT(OUT) :: ECEF_est
@@ -771,7 +771,7 @@ SUBROUTINE ECEF2LLA(x, y, z, lat, lon, alt)
 END SUBROUTINE ECEF2LLA
 
 integer function ODS_Julian ( CalDate )
-      implicit NONE
+      implicit none (type, external)
       integer  CalDate  ! Calendar date in the format YYYYMMDD
                         !   where YYYY is the year, MM is the
                         !   month and DD is the day.  A negative
@@ -844,7 +844,7 @@ SUBROUTINE linspace2(d1,d2,n,y)
 END SUBROUTINE linspace2
 
 SUBROUTINE build_array(s,e,dp, mat)
-       IMPLICIT NONE
+       implicit none (type, external)
        REAL, DIMENSION(:) :: mat
        REAL               :: s,dp ! start, end, delta increase, matrix
        INTEGER            :: k, e 
@@ -857,14 +857,14 @@ END SUBROUTINE build_array
 
 
 REAL(dp) FUNCTION deg2rad(angle)
-       IMPLICIT NONE
+       implicit none (type, external)
 
        REAL(dp), INTENT(IN) :: angle
        deg2rad = MAPL_DEGREES_TO_RADIANS_R8 * angle
 END FUNCTION deg2rad
 
 REAL(dp) FUNCTION rad2deg(rad)
-       IMPLICIT NONE
+       implicit none (type, external)
        REAL(dp), INTENT(IN) :: rad
 
        rad2deg = MAPL_RADIANS_TO_DEGREES * rad
@@ -876,7 +876,7 @@ END FUNCTION rad2deg
 ! Lat - lon in degrees.
 !
 REAL(dp) FUNCTION get_distance(lt1, ln1, lt2, ln2)
-         IMPLICIT NONE
+         implicit none (type, external)
        REAL(dp) :: lat1, lat2, lon1, lon2
        REAL(dp) :: lt1, lt2, ln1, ln2
        REAL(dp) :: a, r
@@ -895,7 +895,7 @@ END FUNCTION get_distance
 REAL(dp) FUNCTION get_azimuth(lt1, ln1, lt2, ln2, wrapon) ! need to be
        ! Computes great circle distance and azimuth
        ! Lat - lon in degrees
-       IMPLICIT NONE
+       implicit none (type, external)
        REAL(dp) :: lat1, lat2, lon1, lon2
        REAL(dp) :: lt1, lt2, ln1, ln2
        REAL(dp) :: az, epsilone, saz
@@ -944,7 +944,7 @@ SUBROUTINE get_reckon(phi1, lambda1, az1, rng1, phi, lambda, wrapon)
        ! LAT and LON are in degrees.  The range is in degrees of arc length on a
        ! sphere.  The input azimuth is in degrees, measured clockwise from due
        ! north. Translated from MatLab 
-       IMPLICIT NONE
+       implicit none (type, external)
 
        REAL(dp), INTENT(IN) :: phi1, lambda1, az1, rng1
        REAL(dp), INTENT(INOUT) :: phi, lambda
@@ -982,7 +982,7 @@ SUBROUTINE get_reckon(phi1, lambda1, az1, rng1, phi, lambda, wrapon)
 END SUBROUTINE get_reckon
 
 subroutine built_vecsize(sim_start, sim_end, time_day, say)
-       implicit none
+       implicit none (type, external) (type, external)
        real(dp), intent(in) :: sim_start, sim_end, time_day
        integer          :: say
        real(dp)             :: temp1
@@ -1002,7 +1002,7 @@ subroutine built_vecsize(sim_start, sim_end, time_day, say)
 end subroutine built_vecsize
 
 subroutine built_vec(sim_start, sim_end, time_day, t1)
-       implicit none
+       implicit none (type, external) (type, external)
        real(dp), intent(in) :: sim_start, sim_end, time_day
        integer          :: say
        real(dp)             :: temp1
@@ -1027,7 +1027,7 @@ end subroutine built_vec
 ! lat interval.
 !
 SUBROUTINE find_LTGE(distlon, lat_vec_centers, vec_lat, long_limits)
-       IMPLICIT NONE
+       implicit none (type, external)
 
        INTEGER :: mys, i, k
        REAL(dp), POINTER, DIMENSION(:) :: long_limits  !INTENT(INOUT)
@@ -1054,7 +1054,7 @@ END SUBROUTINE find_LTGE
 SUBROUTINE redifine_timeint(kk, longind, ti, iSat,      &
                  lat_new, lon_new, t1_new, carylat, carylon, caryt)
 
-       IMPLICIT NONE
+       implicit none (type, external)
        REAL(dp), DIMENSION(:), INTENT(INOUT) :: lat_new, lon_new, t1_new
        INTEGER, INTENT(INOUT) :: carylat, carylon, caryt
        REAL(dp), DIMENSION(:), INTENT(INOUT) :: longind
@@ -1124,7 +1124,7 @@ SUBROUTINE redifine_timeint(kk, longind, ti, iSat,      &
 END SUBROUTINE redifine_timeint
 
 SUBROUTINE add_newdata(t1, temp1, t_tempo, rtime)
-       IMPLICIT NONE
+       implicit none (type, external)
        REAL(dp), DIMENSION(:), INTENT(IN)     :: t1, t_tempo 
        REAL(dp), DIMENSION(:), INTENT(INOUT)  :: rtime 
        INTEGER, INTENT(IN) :: temp1
@@ -1147,7 +1147,7 @@ END SUBROUTINE add_newdata
 
 
 REAL(dp) FUNCTION find_delta_t(iSat, kk, long_limits, longind,t1,time_day)
-       IMPLICIT NONE
+       implicit none (type, external)
        REAL(dp)    :: ti, ti_day
        INTEGER, INTENT(IN) :: kk 
        REAL(dp), INTENT(IN)    :: time_day
@@ -1196,7 +1196,7 @@ REAL(dp) FUNCTION find_delta_t(iSat, kk, long_limits, longind,t1,time_day)
 END FUNCTION find_delta_t
 
 REAL(dp) FUNCTION get_fraction(t1)
-       IMPLICIT NONE
+       implicit none (type, external)
        REAL(dp), INTENT(IN) :: t1
        REAL(dp) :: fraction2day, temp3, temp4 
 
@@ -1217,7 +1217,7 @@ REAL(dp) FUNCTION get_fraction(t1)
 END FUNCTION get_fraction
 
 SUBROUTINE find_LTGE_sc(myarray, num1, num2, myindex)
-       IMPLICIT NONE
+       implicit none (type, external)
        INTEGER :: k, say
        INTEGER, INTENT(IN) :: num1, num2 
        REAL(dp), POINTER, DIMENSION(:) :: myindex  !INTENT(INOUT)
@@ -1249,7 +1249,7 @@ END SUBROUTINE find_LTGE_sc
 
 
 SUBROUTINE find_LEGT_sc(myarray, num1, num2, myindex)
-       IMPLICIT NONE
+       implicit none (type, external)
        INTEGER :: k, say
        INTEGER, INTENT(IN) :: num1, num2 
        REAL(dp), POINTER, DIMENSION(:) :: myindex  !INTENT(INOUT)

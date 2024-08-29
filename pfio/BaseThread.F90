@@ -10,7 +10,7 @@ module pFIO_BaseThreadMod
    use pfio_base
    use mpi
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: BaseThread

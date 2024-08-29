@@ -6,7 +6,7 @@
 #define _RETURN(status) if(present(rc))rc=status; return
 
 module PFL_SeverityLevels
-   implicit none
+   implicit none (type, external)
    public :: NOTSET
    public :: DEBUG
    public :: INFO
@@ -35,7 +35,7 @@ module PFL_Logger
    use PFL_SeverityLevels, only: CRITICAL_LEVEL => critical
    use gFTL_StringUnlimitedMap
    use PFL_KeywordEnforcerMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: Logger
@@ -216,7 +216,7 @@ end module PFL_Logger
 
 module PFL_LoggerManager
    use PFL_Logger, only: Logger
-   implicit none
+   implicit none (type, external)
    private
 
    public :: logging ! singleton instance
@@ -267,7 +267,7 @@ module pflogger
    use PFL_LoggerManager
    use PFL_WrapArray
    use PFL_KeywordEnforcerMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: initialize

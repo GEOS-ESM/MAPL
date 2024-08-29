@@ -2,7 +2,7 @@ module MAPL_PhysicalConstantsMod
 
    use, intrinsic :: iso_fortran_env, only: REAL64, REAL32
    use MAPL_MathConstantsMod, only: MAPL_PI_R8, MAPL_PI, MAPL_RADIANS_TO_DEGREES, MAPL_DEGREES_TO_RADIANS_R8
-   implicit none
+   implicit none (type, external)
 
 !=============================================================================
 !BOP

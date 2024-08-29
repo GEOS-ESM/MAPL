@@ -6,7 +6,7 @@ module MAPL_NumCyclesColumn
    use MAPL_AbstractMeterNode
    use MAPL_AdvancedMeter
    use MAPL_AbstractMeter
-   implicit none
+   implicit none (type, external)
    private
 
    public :: NumCyclesColumn

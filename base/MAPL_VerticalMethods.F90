@@ -9,7 +9,7 @@ module MAPL_VerticalDataMod
   use MAPL_ExceptionHandling
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
-  implicit none
+  implicit none (type, external)
 
   private
 

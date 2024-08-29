@@ -13,7 +13,7 @@ module pFIO_AbstractDataReferenceMod
    use pFIO_UtilitiesMod, only: word_size
    use pFIO_ConstantsMod
    use MAPL_ExceptionHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AbstractDataReference

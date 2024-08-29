@@ -4,7 +4,7 @@ module MAPL_DownbitMod
    use mpi
    use MAPL_ExceptionHandling
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: DownBit
@@ -29,7 +29,7 @@ contains
 !
    subroutine DownBit3D ( x, xr, nbits_to_keep, undef, flops, mpi_comm, rc )
 
-     implicit NONE
+     implicit none (type, external)
 
 !
 ! !INPUT PARAMETERS:
@@ -91,7 +91,7 @@ contains
 ! 
    subroutine DownBit2D ( x, xr, nbits_to_keep, undef, flops, mpi_comm, rc )
 
-     implicit NONE
+     implicit none (type, external)
 
 !
 ! !INPUT PARAMETERS:
@@ -191,7 +191,7 @@ contains
    end subroutine DownBit2D
 
    subroutine DownBit1D ( x, xr, nbits_to_keep, undef, flops, mpi_comm, rc )
-     implicit NONE
+     implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !

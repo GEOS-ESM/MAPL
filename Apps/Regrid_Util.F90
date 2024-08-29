@@ -6,7 +6,7 @@
    use MAPL
    use gFTL_StringVector
 
-   implicit NONE
+   implicit none (type, external)
 
    public
 
@@ -331,7 +331,7 @@
    use regrid_util_support_mod
    use mpi
 
-   implicit NONE
+   implicit none (type, external)
 
    type(DistributedProfiler), target :: t_prof
    type (ProfileReporter) :: reporter

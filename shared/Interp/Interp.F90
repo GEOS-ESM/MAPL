@@ -2,7 +2,7 @@ module MAPL_InterpMod
 
   use, intrinsic :: iso_fortran_env, only: REAL64
 
-  implicit none
+  implicit none (type, external)
   private
 
   public MAPL_Interp

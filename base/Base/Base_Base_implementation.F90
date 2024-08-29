@@ -30,7 +30,7 @@ submodule (MAPL_Base) Base_Implementation
   use MAPL_SphericalGeometry
   use mapl_MaplGrid, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
   use MAPL_ExceptionHandling
-  implicit NONE
+  implicit none (type, external)
 
 contains
 
@@ -1014,7 +1014,7 @@ contains
   end subroutine MAPL_tick
 
   integer module function MAPL_nhmsf (nsec)
-    implicit none
+    implicit none (type, external)
     integer  nsec
     MAPL_nhmsf =  nsec/3600*10000 + mod(nsec,3600)/60*100 + mod(nsec,60)
   end function MAPL_nhmsf
@@ -2572,7 +2572,7 @@ contains
 ! Currently the lat/lon grid is asumed to go from -180 to 180
 !
   module subroutine MAPL_GetHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
-    implicit none
+    implicit none (type, external)
     !ARGUMENTS:
     integer,                      intent(in   ) :: npts        !! number of points in lat and lon arrays
     integer,                      intent(inout) :: II(npts)    !! array of the first index for each lat and lon
@@ -2678,7 +2678,7 @@ contains
   contains
 
     integer function ijsearch(coords,idim,valueIn,periodic) ! fast bisection version
-      implicit NONE
+      implicit none (type, external)
       integer, intent(in) :: idim
       real(ESMF_KIND_R8), intent(in) :: coords(:)
       real, intent(inout) :: valueIn
@@ -2727,7 +2727,7 @@ contains
   end subroutine MAPL_GetHorzIJIndex
 
   module subroutine MAPL_GetGlobalHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
-    implicit none
+    implicit none (type, external)
     !ARGUMENTS:
     integer,                      intent(in   ) :: npts ! number of points in lat and lon arrays
     integer,                      intent(inout) :: II(npts) ! array of the first index for each lat and lon

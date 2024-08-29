@@ -24,7 +24,7 @@
       Use netcdf
       use, intrinsic :: ISO_FORTRAN_ENV, only: INT64
 
-      Implicit None
+      implicit none (type, external)
       Private
 !
 ! !PUBLIC DATA MEMBERS:
