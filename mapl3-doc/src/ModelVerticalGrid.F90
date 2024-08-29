@@ -69,6 +69,7 @@ contains
 !#      character(*), intent(in) :: standard_name
 !#      type(StateRegistry), pointer, intent(in) :: registry
 
+      call vgrid%set_id()
       vgrid%num_levels = num_levels
 !#      vgrid%short_name = short_name
 !#      vgrid%standard_name = standard_name

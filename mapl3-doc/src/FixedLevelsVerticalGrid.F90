@@ -36,6 +36,7 @@ contains
       real(REAL32), intent(in) :: levels(:)
       character(*), intent(in) :: standard_name
 
+      call grid%set_id()
       grid%standard_name = standard_name
       grid%levels = levels
 

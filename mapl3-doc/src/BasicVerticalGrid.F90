@@ -46,6 +46,7 @@ contains
    function new_BasicVerticalGrid(num_levels) result(vertical_grid)
       type(BasicVerticalGrid) :: vertical_grid
       integer, intent(in) :: num_levels
+      call vertical_grid%set_id()
       vertical_grid%num_levels = num_levels
    end function
 

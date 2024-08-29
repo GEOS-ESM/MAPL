@@ -99,6 +99,7 @@ contains
          src_extension => src_extensions(i)%ptr
          spec => src_extension%get_spec()
          call spec%set_active()
+         call activate_dependencies(src_extension, src_registry, _RC)
       end do
         
       _RETURN(_SUCCESS)
@@ -164,27 +165,33 @@ contains
       dst_pt = this%get_destination()
 
       dst_extensions = dst_registry%get_extensions(dst_pt%v_pt, _RC)
-      src_extensions = src_registry%get_extensions(src_pt%v_pt, _RC)
 
       do i = 1, size(dst_extensions)
          dst_extension => dst_extensions(i)%ptr
          dst_spec => dst_extension%get_spec()
 
+         src_extensions = src_registry%get_extensions(src_pt%v_pt, _RC)
+
+
          ! Connection is transitive -- if any src_specs can connect, all can connect.
          ! So we can just check this property on the 1st item.
          src_extension => src_extensions(1)%ptr
          src_spec => src_extension%get_spec()
-         _ASSERT(dst_spec%can_connect_to(src_spec), "impossible connection")
+         if (.not. dst_spec%can_connect_to(src_spec)) then
+            _HERE, 'cannot connect: ', src_pt%v_pt, ' --> ', dst_pt%v_pt
+         end if
 
          call find_closest_extension(dst_extension, src_extensions, closest_extension=best_extension, lowest_cost=lowest_cost, _RC)
          best_spec => best_extension%get_spec()
          call best_spec%set_active()
-         call activate_dependencies(best_extension, src_registry, _RC)
 
          last_extension => best_extension
 
+
          do i_extension = 1, lowest_cost
+
             extension = last_extension%make_extension(dst_spec, _RC)
+                 
             new_extension => src_registry%add_extension(src_pt%v_pt, extension, _RC)
             coupler => new_extension%get_producer()
 
@@ -270,7 +277,7 @@ contains
          if (lowest_cost == 0) exit
 
          extension => candidate_extensions(j)%ptr
-         spec => closest_extension%get_spec()
+         spec => extension%get_spec()
          cost = goal_spec%extension_cost(spec)
          if (cost < lowest_cost) then
             lowest_cost = cost
