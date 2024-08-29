@@ -68,6 +68,7 @@ module mapl3g_Generic
 
    public :: MAPL_GridCompGet
    public :: MAPL_GridCompSetEntryPoint
+
    public :: MAPL_AddChild
    public :: MAPL_RunChild
    public :: MAPL_RunChildren
@@ -78,6 +79,7 @@ module mapl3g_Generic
    public :: MAPL_AddImportSpec
    public :: MAPL_AddExportSpec
    public :: MAPL_AddInternalSpec
+   public :: MAPL_SetGeometry
 !!$
     public :: MAPL_ResourceGet
 
@@ -147,6 +149,10 @@ module mapl3g_Generic
    interface MAPL_AddInternalSpec
       procedure :: add_internal_spec
    end interface MAPL_AddInternalSpec
+
+   interface MAPL_SetGeometry
+      procedure :: set_geometry
+   end interface MAPL_SetGeometry
 
    interface MAPL_GridCompSetEntryPoint
       procedure gridcomp_set_entry_point
@@ -923,5 +929,40 @@ contains
 
       _RETURN(_SUCCESS)
    end function gridcomp_is_user
+
+   subroutine set_geometry(gridcomp, state_intent, short_name, geom, vertical_grid, rc)
+      use mapl3g_VirtualConnectionPt
+      use mapl3g_ExtensionFamily
+      use mapl3g_StateItemExtension
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(Esmf_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateRegistry), pointer :: registry
+      type(VirtualConnectionPt) :: v_pt
+      type(ExtensionFamily), pointer :: family
+      type(StateItemExtension), pointer :: primary
+      class(StateItemSpec), pointer :: spec
+      
+      call MAPL_GridCompGet(gridcomp, registry=registry, _RC)
+      v_pt = VirtualConnectionPt(state_intent, short_name)
+
+      family => registry%get_extension_family(v_pt, _RC)
+      _ASSERT(family%has_primary(), 'Should not set geometry on vars from other components.')
+      _ASSERT(family%num_variants() == 1, 'No extensions should happen prior to this call.')
+
+      primary => family%get_primary(_RC)
+      _ASSERT(associated(primary), 'null pointer for primary')
+      spec => primary%get_spec()
+      _ASSERT(associated(spec), 'null pointer for spec')
+
+      call spec%set_geometry(geom=geom, vertical_grid=vertical_grid, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine set_geometry
 
 end module mapl3g_Generic

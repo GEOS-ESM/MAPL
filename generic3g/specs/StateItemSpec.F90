@@ -31,7 +31,7 @@ module mapl3g_StateItemSpec
 
       procedure(I_add_to_state), deferred :: add_to_state
       procedure(I_add_to_bundle), deferred :: add_to_bundle
-      procedure(I_initialize), deferred :: initialize
+      procedure(I_set_geometry), deferred :: set_geometry
 
       procedure, non_overridable :: set_allocated
       procedure, non_overridable :: is_allocated
@@ -122,7 +122,7 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_add_to_bundle
 
-      subroutine I_initialize(this, geom, vertical_grid, rc)
+      subroutine I_set_geometry(this, geom, vertical_grid, rc)
          use esmf, only: ESMF_Geom
          use mapl3g_VerticalGrid, only: VerticalGrid
          import StateItemSpec
@@ -130,7 +130,7 @@ module mapl3g_StateItemSpec
          type(ESMF_Geom), optional, intent(in) :: geom
          class(VerticalGrid), optional, intent(in) :: vertical_grid
          integer, optional, intent(out) :: rc
-      end subroutine I_initialize
+      end subroutine I_set_geometry
 
    end interface
 
