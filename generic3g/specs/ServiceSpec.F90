@@ -57,7 +57,7 @@ contains
    function new_ServiceSpec(variable_spec, registry) result(spec)
       type(ServiceSpec) :: spec
       type(VariableSpec), intent(in) :: variable_spec
-      type(StateRegistry), target, intent(in) :: registry
+      type(StateRegistry), pointer, intent(in) :: registry
 
       spec%variable_spec = variable_spec
       spec%registry => registry

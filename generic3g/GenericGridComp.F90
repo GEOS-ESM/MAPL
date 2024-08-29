@@ -57,9 +57,9 @@ contains
          integer, parameter :: NUM_GENERIC_RUN_PHASES = 1
 
          ! Mandatory generic initialize phases
-         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ADVERTISE_GEOM, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ADVERTISE, _RC)
-         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_MODIFY_ADVERTISE, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_MODIFY_ADVERTISED, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_MODIFY_ADVERTISED2, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE, _RC)
 !#         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_RESTORE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_USER, _RC)
@@ -159,12 +159,12 @@ contains
       outer_meta => get_outer_meta(gridcomp, _RC)
       call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
       select case (phase)
-      case (GENERIC_INIT_ADVERTISE_GEOM)
-         call outer_meta%initialize_advertise_geom(_RC)
       case (GENERIC_INIT_ADVERTISE)
          call outer_meta%initialize_advertise(_RC)
-      case (GENERIC_INIT_MODIFY_ADVERTISE)
-         call outer_meta%initialize_modify_advertise(importState, exportState, clock, _RC)
+      case (GENERIC_INIT_MODIFY_ADVERTISED)
+         call outer_meta%initialize_modify_advertised(importState, exportState, clock, _RC)
+      case (GENERIC_INIT_MODIFY_ADVERTISED2)
+         call outer_meta%initialize_modify_advertised2(importState, exportState, clock, _RC)
       case (GENERIC_INIT_REALIZE)
          call outer_meta%initialize_realize(_RC)
 !#      case (GENERIC_INIT_RESTORE)

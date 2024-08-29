@@ -19,7 +19,9 @@ module mapl3g_StateRegistry
    use mapl3g_ComponentDriverVector
    use mapl3g_ComponentDriverPtrVector
    use mapl3g_GriddedComponentDriver
+   use mapl3g_VerticalGrid
    use mapl_ErrorHandling
+   use esmf, only: ESMF_Geom
    implicit none
    private
 
@@ -74,7 +76,9 @@ module mapl3g_StateRegistry
       generic :: get_subregistry => get_subregistry_by_name
       generic :: get_subregistry => get_subregistry_by_conn_pt
 
+      ! Actions on specs
       procedure :: allocate
+      procedure :: initialize_specs
       procedure :: add_to_states
 
       procedure :: filter ! for MatchConnection
@@ -190,6 +194,7 @@ contains
       _ASSERT(this%has_virtual_pt(virtual_pt), "Virtual connection point does not exist in registry")
       family => this%family_map%at(virtual_pt,_RC)
       primary => family%get_primary()
+
 
       _RETURN(_SUCCESS)
    end function get_primary_extension
@@ -425,7 +430,7 @@ contains
 
          spec => extension%get_spec()
          _RETURN_IF(spec%is_active())
-         
+
          if (.not. this%has_virtual_pt(virtual_pt)) then
             call this%add_virtual_pt(virtual_pt, _RC)
          end if
@@ -488,7 +493,7 @@ contains
       type(VirtualConnectionPt), pointer :: virtual_pt
       type(VirtualConnectionPt) :: new_virtual_pt
       type(ExtensionFamily), pointer :: family
-      integer :: n
+!#      integer :: n
       type(VirtualPtFamilyMapIterator) :: new_iter
 
       virtual_pt => iter%first()
@@ -570,6 +575,9 @@ contains
 
          type(VirtualPtFamilyMapIterator) :: virtual_iter
          type(ExtensionFamily), pointer :: family
+         type(StateItemExtension), pointer :: extension
+         class(StateItemSpec), pointer :: spec
+         logical :: is_active
 
          write(unit,*,iostat=iostat,iomsg=iomsg) '   virtuals: '// new_line('a')
          if (iostat /= 0) return
@@ -579,9 +587,15 @@ contains
               call virtual_iter%next()
               associate (virtual_pt => virtual_iter%first())
                 family => virtual_iter%second()
+                is_active = .false.
+                if (family%has_primary()) then
+                   extension => family%get_primary()
+                   spec => extension%get_spec()
+                   is_active = spec%is_active()
+                end if
                 write(unit,*,iostat=iostat,iomsg=iomsg)'        ',virtual_pt,  &
                      ': ',family%num_variants(), ' variants ', &
-                     ' is primary? ', family%has_primary(),  new_line('a')
+                     ' is primary? ', family%has_primary(),  ' is active? ', is_active, new_line('a')
                 if (iostat /= 0) return
               end associate
            end do
@@ -610,6 +624,32 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine allocate
+
+   subroutine initialize_specs(this, geom, vertical_grid, rc)
+      class(StateRegistry), target, intent(inout) :: this
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateItemExtensionVectorIterator) :: iter
+      class(StateItemExtension), pointer :: extension
+      class(StateItemSpec), pointer :: spec
+
+      associate (e => this%owned_items%ftn_end())
+        iter = this%owned_items%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           extension => iter%of()
+           spec => extension%get_spec()
+           if (spec%is_active()) then
+              call spec%initialize(geom, vertical_grid, _RC)
+           end if
+        end do
+      end associate
+      
+      _RETURN(_SUCCESS)
+   end subroutine initialize_specs
 
   subroutine add_to_states(this, multi_state, mode, rc)
       use esmf
@@ -665,7 +705,6 @@ contains
 
                    a_pt = ActualConnectionPt(v_pt)
                    if (label /= 0) a_pt = ActualConnectionPt(v_pt, label=label)
-
                    call spec%add_to_state(multi_state, a_pt, _RC)
                 end do
               end associate
