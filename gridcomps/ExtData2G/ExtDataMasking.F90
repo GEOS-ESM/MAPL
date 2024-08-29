@@ -10,7 +10,7 @@ module MAPL_ExtDataMask
    use gFTL_StringVector
    use MAPL_NewArthParserMod
    use MAPL_Constants
-   implicit none (type, external) (type, external)
+   implicit none (type, external)
    private
 
    type, public :: ExtDataMask

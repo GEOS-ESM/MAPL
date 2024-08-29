@@ -29,7 +29,7 @@
       PUBLIC Orbits_Swath    ! Generate satellite ground tracks' mask
       PUBLIC Orbits_Track0  ! Information provider for track
 !     PUBLIC Orbits_Mask0   ! Information provider for mask
- 
+
 !     $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 !     Internal constants (not public!)
 !     $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
@@ -44,8 +44,8 @@
        INTEGER, PARAMETER :: Terra    = 5
 
 !     2- Extrapolation Coef
-       INTEGER, PARAMETER :: Num_sat  = 5    ! Number of satellites 
-       INTEGER, PARAMETER :: Num_coef = 9    ! extrapolation coef  
+       INTEGER, PARAMETER :: Num_sat  = 5    ! Number of satellites
+       INTEGER, PARAMETER :: Num_coef = 9    ! extrapolation coef
        REAL(dp), DIMENSION (Num_sat*Num_coef), PARAMETER :: Coefs = (/ &   !Aqua
          91.499324355103511,  -3.203889864874015,   0.000273159230172, &
          91.499293811827172,  -0.377148321262191,   0.000091480174841, &
@@ -59,7 +59,7 @@
          91.499455508570492,  -0.448712225445062,   0.000158569625164, &
          91.499464053621409,   1.216826349594128,  -0.001182646395663, &
 
-         91.499391954502713,   2.573431689964800,   0.000258633680290, &  !Aura 
+         91.499391954502713,   2.573431689964800,   0.000258633680290, &  !Aura
          91.499394689118887,  -0.873061358923764,   0.000110177145433, &
          91.499402404413175,   0.792159351805744,  -0.001228074893676, &
 
@@ -70,20 +70,20 @@
 
          /)
 
-!      Earth/Time related constants 
-       REAL(dp), PARAMETER  :: g1p = 0.0172027912;  
+!      Earth/Time related constants
+       REAL(dp), PARAMETER  :: g1p = 0.0172027912;
                            ! increase in the lon of GR per day (rad/day)
-!      g2p need to be calculated (optimized) version in matlab values are copied here  
+!      g2p need to be calculated (optimized) version in matlab values are copied here
 !      Rotational rate of the earth rad per day; this is calculated for
 !      each sat. Think of a parameter ....
        REAL(dp), DIMENSION(Num_sat), PARAMETER :: g2p = (/                 &
-          6.283200, &  !Aqua 
+          6.283200, &  !Aqua
           6.283295, &  !Calipso
           6.283200, &  !CloudSat
           6.283185, &  !Aura
           6.283190  &  !Terra
-        /) 
-       INTEGER, PARAMETER :: Num_normcoef = 3    ! extrapolation coef  
+        /)
+       INTEGER, PARAMETER :: Num_normcoef = 3    ! extrapolation coef
 !      Learning parameters
        REAL(dp), DIMENSION(1:Num_sat*3), PARAMETER :: Norm_factor = (/           &
           3.426270004720844e+06, 5.456731200281643e+06, 6.292978192496602e+06, &   !Aqua
@@ -91,15 +91,15 @@
           3.622642340324375e+06, 5.328452165105113e+06, 6.292978192496602e+06, &   !CloudSat
           3.615314416474894e+06, 5.333592634678283e+06, 6.292978192496602e+06, &   !Aura
           1.922132316029709e+06, 6.149792370758657e+06, 6.292978192496602e+06  &   !Terra
-        /) 
+        /)
 
 
 
 
-!        INTEGER, PARAMETER   :: Day2year = 81  ! First day of the year for learning  
+!        INTEGER, PARAMETER   :: Day2year = 81  ! First day of the year for learning
 !        INTEGER, PARAMETER   :: RefDate  = 20090323 ! this is date learning started
 !        INTEGER, PARAMETER   :: RefTime  = 000000
-       INTEGER, DIMENSION(1:Num_sat), PARAMETER   :: Day2year = (/ 281, 281, 281, 281, 281/)  ! First day of the year for learning  
+       INTEGER, DIMENSION(1:Num_sat), PARAMETER   :: Day2year = (/ 281, 281, 281, 281, 281/)  ! First day of the year for learning
        INTEGER, DIMENSION(1:Num_sat), PARAMETER   :: RefDate  = (/20091009, 20091009,20091009,20091009,20091009/) ! this is date learning started
        INTEGER, DIMENSION(1:Num_sat), PARAMETER   :: RefTime  = (/000000,000000,000000,000000,210000/)
 
@@ -110,7 +110,7 @@
 
 
 !     $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-!     END OF INTERNAL CONSTANTS 
+!     END OF INTERNAL CONSTANTS
 !     $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 !    Definition of overloaded functions ...........
@@ -122,7 +122,7 @@
        interface Orbits_Track0
              module procedure Orbits_Track1
              module procedure Orbits_Track2
-       end interface             
+       end interface
 
 
 
@@ -153,8 +153,8 @@ CONTAINS
       integer, intent(in) :: deltat   ! Time step [secs]
 
 ! !OUTPUT PARAMETERS:
-      real(dp), pointer       :: lons(:)  ! Ground track longitudes [degrees]  
-      real(dp), pointer       :: lats(:)  ! Ground track latitudes  [degrees]  
+      real(dp), pointer       :: lons(:)  ! Ground track longitudes [degrees]
+      real(dp), pointer       :: lats(:)  ! Ground track latitudes  [degrees]
       integer, intent(out):: rc       ! Error code = 0 all is well
                                       !            = 3 memory allocation error
       REAL(dp)    :: time_day
@@ -166,14 +166,14 @@ CONTAINS
       INTEGER     :: ts, las, los
       integer     :: Sat
       integer     :: ierr1, ierr2, ierr3
-      REAL(dp)    :: distlat  !lat is equal dis 
+      REAL(dp)    :: distlat  !lat is equal dis
       INTEGER     :: say                   !()()()()()()
 !     ............................................................................
 
       rc = 0 ! Initiate error code to 0
       CALL satname2int(Sat_name, Sat, rc)
       if ( rc /= 0 ) return
-      CALL get_time(Sat, nymd(1), nhms(1), s_fraction2day, sim_start) ! handle time 
+      CALL get_time(Sat, nymd(1), nhms(1), s_fraction2day, sim_start) ! handle time
       CALL get_time(Sat, nymd(2), nhms(2), e_fraction2day, sim_end)
 
       time_day = deltat/(24.0*60.0*60.0)  !()()()()
@@ -188,30 +188,30 @@ CONTAINS
          return
       endif
 
-      distlat = 1 !for flagauto 0 option it is not used. later change to optional 
+      distlat = 1 !for flagauto 0 option it is not used. later change to optional
       CALL find_waypointslat(Sat, deltat,sim_start,sim_end,distlat, &
                              obstime, lats, lons, ts, las, los, rc )
       if (rc>0) return
 
-END SUBROUTINE Orbits_Track 
+END SUBROUTINE Orbits_Track
 
 
 ! SUBROUTINE Orbits_Track0(Sat_name)
 !     implicit none (type, external)
-! 
+!
 !       character(len=*), intent(in) :: Sat_name ! Satellite name
 !       integer :: Sat
-! 
-!       Sat = satname2int(Sat_name)   ! Get satellite coef   
+!
+!       Sat = satname2int(Sat_name)   ! Get satellite coef
 !       print*, "       "
 !       print*, "----------------------------------------------------------"
 !       print*, "satellite name: ", Sat_name, " and carresponding Sat number: ", Sat
 !       print*, "Learning is performed on:", RefDate, " at:", 000000, " hour/min/sec"
-!       print*, "This is the ", Day2year, " th day of the year"   
-! 
+!       print*, "This is the ", Day2year, " th day of the year"
+!
 !       print*, "----------------------------------------------------------"
 !       print*, "      "
-! 
+!
 ! END SUBROUTINE Orbits_Track0
 
 
@@ -219,7 +219,7 @@ END SUBROUTINE Orbits_Track
 !        integer, intent(in)  :: sat
 !        integer, intent(out) :: rc
 !        character(len=*), intent(out) :: sat_name
-!           
+!
 !              if ( sat == AQUA     ) then
 !                                          sat_name = "Aqua"
 !        else  if ( sat == CALIPSO  ) then
@@ -243,17 +243,17 @@ Subroutine satname2int(name, satnum, rc)
        integer, intent(out) :: rc
 
        rc = 0
-       if ((name.EQ."AQUA").or.(name.EQ."aqua").or.(name.EQ."Aqua")) then         
+       if ((name.EQ."AQUA").or.(name.EQ."aqua").or.(name.EQ."Aqua")) then
            satnum = 1
-       elseif ((name.EQ." calipso").or.(name.EQ."CALIPSO").or.(name.EQ."Calipso")) then         
+       elseif ((name.EQ." calipso").or.(name.EQ."CALIPSO").or.(name.EQ."Calipso")) then
            satnum = 2
-       elseif ((name.EQ." cloudsat").or.(name.EQ."CLOUDSAT").or.(name.EQ."CloudSat")) then         
+       elseif ((name.EQ." cloudsat").or.(name.EQ."CLOUDSAT").or.(name.EQ."CloudSat")) then
            satnum = 3
-       elseif ((name.EQ." aura").or.(name.EQ."AURA").or.(name.EQ."Aura")) then         
+       elseif ((name.EQ." aura").or.(name.EQ."AURA").or.(name.EQ."Aura")) then
            satnum = 4
-       elseif ((name.EQ." terra").or.(name.EQ."TERRA").or.(name.EQ."Terra")) then         
+       elseif ((name.EQ." terra").or.(name.EQ."TERRA").or.(name.EQ."Terra")) then
            satnum = 5
-       else 
+       else
           rc =99
           return
        endif
@@ -271,15 +271,15 @@ SUBROUTINE Orbits_Track1(name, Satcoef_vec1, Normcoef_vec1)
       integer                               :: iSat
       integer                               :: rc
 !     ...................................
-      ! Num_sat, Num_coef needs to be defined at the begining of the module 
+      ! Num_sat, Num_coef needs to be defined at the begining of the module
       ! Num_coef is 9 for each sat...
-      ! Also Norm factor coef. need to be retrived. 
+      ! Also Norm factor coef. need to be retrived.
       ! Here locations of these vectors are calculated
 !     ...................................
         CALL satname2int(name, iSat, rc)
         if ( rc /= 0 ) return
         start_ind = (iSat - 1) * Num_coef + 1 !CALL calc_ind
-        end_ind  = start_ind +  (Num_coef-1) 
+        end_ind  = start_ind +  (Num_coef-1)
         Satcoef_vec1(1:9) = Coefs(start_ind:end_ind) ! x,y,z
 
 
@@ -304,14 +304,14 @@ SUBROUTINE Orbits_Track2(iSat, Satcoef_vec, Normcoef_vec)
       integer                               :: start_ind, end_ind
       integer                               :: Normcoef_ind
 !     ...................................
-      ! Num_sat, Num_coef needs to be defined at the begining of the module 
+      ! Num_sat, Num_coef needs to be defined at the begining of the module
       ! Num_coef is 9 for each sat...
-      ! Also Norm factor coef. need to be retrived. 
+      ! Also Norm factor coef. need to be retrived.
       ! Here locations of these vectors are calculated
 !     ...................................
 
         start_ind = (iSat - 1) * Num_coef + 1 !CALL calc_ind
-        end_ind  = start_ind +  (Num_coef-1) 
+        end_ind  = start_ind +  (Num_coef-1)
         Satcoef_vec(1:9) = Coefs(start_ind:end_ind) ! x,y,z
 
 !       % ________________Mult by Norm fator_________________________
@@ -366,7 +366,7 @@ END SUBROUTINE Orbits_Track2
 
       if ( present(wrap) ) then
            wrapon = wrap
-      else                 
+      else
            wrapon = .true.
       end if
 
@@ -417,7 +417,7 @@ END SUBROUTINE Orbits_Track2
       if (ierr1 /= 0) then
         rc = 3 !
         return
-      endif       
+      endif
 
   END SUBROUTINE Orbits_Swath
 
@@ -478,14 +478,14 @@ SUBROUTINE updownlon(vec_centers, upsidedown, rc)
      REAL(dp), DIMENSION(:), INTENT(IN)  :: vec_centers
      REAL(dp), DIMENSION(:), INTENT(OUT) :: upsidedown
      integer, intent(inout) :: rc
-     REAL(dp), DIMENSION(:), allocatable :: tempcenters 
+     REAL(dp), DIMENSION(:), allocatable :: tempcenters
      INTEGER :: i, ierr1
 
      allocate( tempcenters(1:size(vec_centers)), stat=ierr1)
      if (ierr1 /= 0) then
          rc = 3 !
        return
-     endif     
+     endif
 
      tempcenters = vec_centers
      DO i=1, size(vec_centers)
@@ -495,12 +495,12 @@ SUBROUTINE updownlon(vec_centers, upsidedown, rc)
      if (ierr1 /= 0) then
          rc = 3 !
        return
-     endif 
+     endif
 END SUBROUTINE updownlon
 
 !------------------------------------------------------------------------------
 !>
-! The subroutine `find_waypointslat` 
+! The subroutine `find_waypointslat`
 ! finds waypoints for the possible max distance on the equator line.
 ! If flagauto = 0 then equal deltat data is created. Otherwise optimum
 ! number of minimum data is created (nonlinear).
@@ -511,10 +511,10 @@ SUBROUTINE find_waypointslat(iSat, time_sec, sim_start,sim_end, distlat,   &
       implicit none (type, external)
 ! !ARGUMENTS:
 !
-      INTEGER, INTENT(IN) :: iSat, time_sec 
+      INTEGER, INTENT(IN) :: iSat, time_sec
       REAL(dp),    INTENT(IN) :: sim_start, sim_end
       REAL(dp),    OPTIONAL, INTENT(IN) :: distlat
-      REAL(dp), DIMENSION(:), INTENT(INOUT):: t1_l, lat_l, lon_l ! data matrices (dm) 
+      REAL(dp), DIMENSION(:), INTENT(INOUT):: t1_l, lat_l, lon_l ! data matrices (dm)
       INTEGER, INTENT(OUT)             :: ts, las, los       ! size of dm
 !!!      INTEGER, INTENT(OUT):: time
       integer, intent(inout):: rc
@@ -531,7 +531,7 @@ SUBROUTINE find_waypointslat(iSat, time_sec, sim_start,sim_end, distlat,   &
               print*, "Error: time is negative. For now it is not allowed"
               STOP
           ENDIF
-          time_day = time_sec/(24.0*60.0*60.0) 
+          time_day = time_sec/(24.0*60.0*60.0)
           CALL built_vecsize(sim_start, sim_end, time_day, say)
 
 
@@ -559,7 +559,7 @@ SUBROUTINE find_waypointslat(iSat, time_sec, sim_start,sim_end, distlat,   &
           ts = size(t1)
           las = size(lat_estwayp,1)
           los = size(long_estwayp,1)
-          t1_l(1:ts)  = t1 
+          t1_l(1:ts)  = t1
           lat_l(1:las) = lat_estwayp(:,1)
           lon_l(1:los) = long_estwayp(:,1)
           DEALLOCATE (t1, stat=ierr1)
@@ -568,15 +568,15 @@ SUBROUTINE find_waypointslat(iSat, time_sec, sim_start,sim_end, distlat,   &
           if ( ierr1 /= 0 .or. ierr2 /= 0 .or.  ierr3 /= 0 ) then
              rc = 3 !
            return
-          endif        
+          endif
 
 END SUBROUTINE find_waypointslat
 
 !------------------------------------------------------------------------------
 !>
-! Swap points are the points that gives the satellite instrument view 
+! Swap points are the points that gives the satellite instrument view
 ! points that is different than the original track. For now, calculation is basix.
-! `r`, and `l` give how far sweep points will go vertically from the orbit points. 
+! `r`, and `l` give how far sweep points will go vertically from the orbit points.
 !
 !#### See Also
 !- get_recon
@@ -590,14 +590,14 @@ SUBROUTINE find_sweeppoints(iii, latwayp, longwayp, l, r, wrapon, latlonshift)
        INTEGER, INTENT(IN)      :: iii
        REAL(dp), DIMENSION(:,:,:), INTENT(INOUT):: latlonshift
        LOGICAL, intent(in)      :: wrapon       ! if true then wrap to -180 to 180
- 
+
        REAL(dp), DIMENSION(:), ALLOCATABLE :: myvec, myvec_deg
-       REAL(dp), DIMENSION(:), ALLOCATABLE :: latshift1, lonshift1 
+       REAL(dp), DIMENSION(:), ALLOCATABLE :: latshift1, lonshift1
        REAL(dp)                            :: az, latout1, lonout1
        INTEGER                         :: say, i, count1
 !
        ALLOCATE(myvec(iii), myvec_deg(iii))
-       if (r>l) then 
+       if (r>l) then
                CALL linspace(l,r,iii,myvec)
        else
                CALL linspace(r,l,iii,myvec)
@@ -624,14 +624,14 @@ SUBROUTINE find_sweeppoints(iii, latwayp, longwayp, l, r, wrapon, latlonshift)
           latlonshift(say,:,1) = latshift1(:)
           latlonshift(say,:,2) = lonshift1(:)
           DEALLOCATE(latshift1, lonshift1)
-      END DO 
+      END DO
       DEALLOCATE(myvec, myvec_deg)
 END SUBROUTINE find_sweeppoints
 
 
 !------------------------------------------------------------------------------
 !>
-! The subroutine `get_latlon` 
+! The subroutine `get_latlon`
 ! calls three important functions to calculate lat lon values of
 ! a satellite for a given time. Those functions are described in the
 ! following subsections.
@@ -642,7 +642,7 @@ SUBROUTINE get_latlon(iSat, t1, lat_estwayp, long_estwayp)
        INTEGER, INTENT(IN)    :: iSat
        REAL(dp),    INTENT(INOUT) :: lat_estwayp, long_estwayp
        REAL(dp), DIMENSION(3,1) :: ECI_est, ECEF_est
-       REAL(dp)                 :: lat, lon, alt, fraction2day 
+       REAL(dp)                 :: lat, lon, alt, fraction2day
 !
        CALL get_estimateECI(iSat, t1, ECI_est)
        fraction2day = get_fraction(t1)
@@ -651,13 +651,13 @@ SUBROUTINE get_latlon(iSat, t1, lat_estwayp, long_estwayp)
                      ECEF_est(3,1), lat, lon, alt)
        lat_estwayp  = rad2deg(lat)
        long_estwayp = rad2deg(lon)
-   
+
 END SUBROUTINE
 
 SUBROUTINE get_estimateECI(iSat, ntime_day, ECI_est)
         implicit none (type, external)
         INTEGER, INTENT(IN) :: iSat
-        REAL(dp), INTENT(IN)    :: ntime_day 
+        REAL(dp), INTENT(IN)    :: ntime_day
         REAL(dp), DIMENSION(:,:), INTENT(OUT) :: ECI_est
         REAL(dp), DIMENSION(Num_coef) :: myvec
         REAL(dp), DIMENSION(Num_normcoef) :: normvec
@@ -686,10 +686,10 @@ SUBROUTINE  ECI2ECEF(iSat,fraction2day,  ECI_est, ECEF_est)
         INTEGER, INTENT(IN)  :: iSat
         REAL(dp), DIMENSION(:,:), INTENT(IN)  :: ECI_est
         REAL(dp), DIMENSION(:,:), INTENT(OUT) :: ECEF_est
-        REAL(dp), DIMENSION(3,3) :: RotM        ! rotation matrix from In2ECEF         
-        INTEGER   :: t1 
+        REAL(dp), DIMENSION(3,3) :: RotM        ! rotation matrix from In2ECEF
+        INTEGER   :: t1
         REAL(dp)      :: Goft, a1, a2
-        REAL(dp)      :: fraction2day 
+        REAL(dp)      :: fraction2day
 
         associate(g0 => MAPL_OMEGA_R8)
            t1 =  Day2year(iSat)
@@ -704,13 +704,13 @@ SUBROUTINE  ECI2ECEF(iSat,fraction2day,  ECI_est, ECEF_est)
            RotM(3,3) = 1
            ECEF_est = MATMUL(RotM, ECI_est)
         end associate
-END SUBROUTINE ECI2ECEF  
+END SUBROUTINE ECI2ECEF
 
 SUBROUTINE get_time(iSat, nymd, nhms, fraction2day, ntime_day)
         IMPLICIT  NONE
         INTEGER, INTENT(IN) :: iSat, nymd, nhms
         REAL(dp), INTENT(OUT)   :: fraction2day, ntime_day
-        INTEGER :: Year, Month, Day, Hour, Minute, Seconds 
+        INTEGER :: Year, Month, Day, Hour, Minute, Seconds
 
         Year   = int(nymd / 10000 )
         Month  = mod ( nymd,  10000 ) / 100
@@ -719,7 +719,7 @@ SUBROUTINE get_time(iSat, nymd, nhms, fraction2day, ntime_day)
         Minute = mod ( nhms,  10000 ) / 100
         Seconds = mod ( nhms,    100 )
         fraction2day = (Hour*60*60+Minute*60+Seconds)/(24.0*60.0*60.0)  !fraction
-                                         !calculated from seconds  
+                                         !calculated from seconds
         ntime_day=(-ODS_Julian(RefDate(iSat))+ODS_Julian(nymd))+fraction2day
 END SUBROUTINE get_time
 
@@ -822,7 +822,7 @@ SUBROUTINE linspace1(d1,d2,n,y)
         REAL(dp), DIMENSION(:), INTENT(INOUT) :: y
         n2 = n
         DO i = 0, n2-2
-          y(i+1) = i 
+          y(i+1) = i
         END DO
         y(1:n2-1) = (d1+y(1:n2-1)*(d2-d1)/(floor(n)-1))   ! d2);
         y(n2) = d2
@@ -837,7 +837,7 @@ SUBROUTINE linspace2(d1,d2,n,y)
 
         n2 = n
         DO i = 0, n2-2
-          y(i+1) = i 
+          y(i+1) = i
         END DO
         y(1:n2-1) = (d1+y(1:n2-1)*(d2-d1)/(n-1))   ! d2);
         y(n2) = d2
@@ -847,10 +847,10 @@ SUBROUTINE build_array(s,e,dp, mat)
        implicit none (type, external)
        REAL, DIMENSION(:) :: mat
        REAL               :: s,dp ! start, end, delta increase, matrix
-       INTEGER            :: k, e 
+       INTEGER            :: k, e
 
        mat(1) =  s
-       do k=2,e 
+       do k=2,e
          mat(k) = mat(k-1) + dp
        end do
 END SUBROUTINE build_array
@@ -871,7 +871,7 @@ REAL(dp) FUNCTION rad2deg(rad)
 END FUNCTION rad2deg
 
 !------------------------------------------------------------------------------
-!> 
+!>
 ! The function `get_distance` computes great circle distance and azimuth
 ! Lat - lon in degrees.
 !
@@ -943,12 +943,12 @@ SUBROUTINE get_reckon(phi1, lambda1, az1, rng1, phi, lambda, wrapon)
        ! AZ along a great circle from a starting point defined by LAT and LON.
        ! LAT and LON are in degrees.  The range is in degrees of arc length on a
        ! sphere.  The input azimuth is in degrees, measured clockwise from due
-       ! north. Translated from MatLab 
+       ! north. Translated from MatLab
        implicit none (type, external)
 
        REAL(dp), INTENT(IN) :: phi1, lambda1, az1, rng1
        REAL(dp), INTENT(INOUT) :: phi, lambda
-       REAL(dp)                :: phi0, lambda0 
+       REAL(dp)                :: phi0, lambda0
        REAL(dp) :: epsilone, az, saz, rng
        LOGICAL, intent(in) :: wrapon       ! if true then wrap to -180 to 180
 
@@ -967,7 +967,7 @@ SUBROUTINE get_reckon(phi1, lambda1, az1, rng1, phi, lambda, wrapon)
                    cos(phi0)*cos(rng) - sin(phi0)*sin(rng)*cos(az) )
 
 
-          if (wrapon) then 
+          if (wrapon) then
               if ( lambda>-epsilone .AND. lambda < epsilone) then
                   saz = 0
               else
@@ -982,7 +982,7 @@ SUBROUTINE get_reckon(phi1, lambda1, az1, rng1, phi, lambda, wrapon)
 END SUBROUTINE get_reckon
 
 subroutine built_vecsize(sim_start, sim_end, time_day, say)
-       implicit none (type, external) (type, external)
+       implicit none (type, external)
        real(dp), intent(in) :: sim_start, sim_end, time_day
        integer          :: say
        real(dp)             :: temp1
@@ -990,32 +990,32 @@ subroutine built_vecsize(sim_start, sim_end, time_day, say)
        say = 1
        temp1 = sim_start
 
-       !print*, "inside simend-----", sim_end, temp1, time_day 
+       !print*, "inside simend-----", sim_end, temp1, time_day
        !WRITE(*,"(1F10.2)")  sim_end
 
        do while (sim_end.GE.temp1)
          temp1 = temp1 + time_day
          if (temp1.LE.sim_end) then
-          say = say + 1 
+          say = say + 1
            end if
             enddo
 end subroutine built_vecsize
 
 subroutine built_vec(sim_start, sim_end, time_day, t1)
-       implicit none (type, external) (type, external)
+       implicit none (type, external)
        real(dp), intent(in) :: sim_start, sim_end, time_day
        integer          :: say
        real(dp)             :: temp1
-       real(dp),  dimension(:) :: t1 
+       real(dp),  dimension(:) :: t1
 
-       say = 1         
+       say = 1
        temp1 = sim_start ! garante that it lesim start !time
        t1(1) = sim_start
        do while (sim_end.GE.temp1)
          temp1 = temp1 + time_day
-          say = say + 1 
+          say = say + 1
           if (say>size(t1)) then
-             exit 
+             exit
           end if
           t1(say) = temp1
        enddo
@@ -1031,21 +1031,21 @@ SUBROUTINE find_LTGE(distlon, lat_vec_centers, vec_lat, long_limits)
 
        INTEGER :: mys, i, k
        REAL(dp), POINTER, DIMENSION(:) :: long_limits  !INTENT(INOUT)
-       REAL(dp), DIMENSION(:),INTENT(IN)::lat_vec_centers, distlon, vec_lat 
+       REAL(dp), DIMENSION(:),INTENT(IN)::lat_vec_centers, distlon, vec_lat
        REAL(dp), DIMENSION(:), ALLOCATABLE :: long_limitstemp
 
        mys = size(lat_vec_centers)
        ALLOCATE(long_limitstemp(1:mys))
        do i=1,size(vec_lat) - 1
           do k=1,mys
-             if ( (lat_vec_centers(k).LT.vec_lat(i)).AND.  & 
+             if ( (lat_vec_centers(k).LT.vec_lat(i)).AND.  &
                   (lat_vec_centers(k).GE.vec_lat(i+1)) ) then
                 long_limitstemp(i) = MAPL_DEG_PER_KM * distlon(k)
                 exit
-             end if 
-         end do 
+             end if
+         end do
        end do
-       long_limitstemp(i)=long_limitstemp(i-1)       
+       long_limitstemp(i)=long_limitstemp(i-1)
        ALLOCATE(long_limits(1:i))
        long_limits = long_limitstemp(1:i)
        DEALLOCATE(long_limitstemp)
@@ -1058,9 +1058,9 @@ SUBROUTINE redifine_timeint(kk, longind, ti, iSat,      &
        REAL(dp), DIMENSION(:), INTENT(INOUT) :: lat_new, lon_new, t1_new
        INTEGER, INTENT(INOUT) :: carylat, carylon, caryt
        REAL(dp), DIMENSION(:), INTENT(INOUT) :: longind
-       INTEGER, INTENT(IN)               :: kk 
+       INTEGER, INTENT(IN)               :: kk
        INTEGER, INTENT(IN)               :: ti
-       REAL(dp), DIMENSION(:), ALLOCATABLE   :: t1 
+       REAL(dp), DIMENSION(:), ALLOCATABLE   :: t1
        REAL(dp), DIMENSION(:), ALLOCATABLE   :: t1_f, lat_final, lon_final
        REAL(dp), DIMENSION(:,:), ALLOCATABLE :: latestwp, longestwp
        REAL(dp), DIMENSION(:), ALLOCATABLE  :: t_tempo
@@ -1068,9 +1068,9 @@ SUBROUTINE redifine_timeint(kk, longind, ti, iSat,      &
        INTEGER             :: temp1, temp2, temp4, iSat, say, ii, temp_size
        REAL(dp) :: simtimestart_temp, simtimeend_temp, ti_day
        REAL(dp) :: lat_estwayp, lon_estwayp
-       
+
        ALLOCATE(latestwp(1:carylat,1), longestwp(1:carylon,1), t1(1:caryt))
-       
+
        latestwp(:,1)   =  lat_new(1:carylat)
        longestwp(:,1)  =  lon_new(1:carylon)
        t1(:)           =  t1_new(1:caryt)
@@ -1079,7 +1079,7 @@ SUBROUTINE redifine_timeint(kk, longind, ti, iSat,      &
        temp1 = longind(kk)
        temp2  = longind(kk)+1
 
-       if (temp2 <= size(latestwp,1) ) then   
+       if (temp2 <= size(latestwp,1) ) then
            simtimestart_temp = t1(temp1)
            simtimeend_temp = t1(temp2)
            CALL built_vecsize(simtimestart_temp, simtimeend_temp, &
@@ -1097,12 +1097,12 @@ SUBROUTINE redifine_timeint(kk, longind, ti, iSat,      &
               lat_wayptemp(ii,1)  = lat_estwayp
                 long_wayptemp(ii,1) = lon_estwayp
                   end do
-                  
+
            long_wayptemp = (long_wayptemp-180)
-           temp_size = size(t1)+size(t_tempo)-2        
+           temp_size = size(t1)+size(t_tempo)-2
 
            ALLOCATE(t1_f(1:temp_size))
-           ALLOCATE(lat_final(1:temp_size)) 
+           ALLOCATE(lat_final(1:temp_size))
            ALLOCATE(lon_final(1:temp_size))
 
            CALL add_newdata(t1, temp1, t_tempo, t1_f)
@@ -1117,7 +1117,7 @@ SUBROUTINE redifine_timeint(kk, longind, ti, iSat,      &
            lon_new(1:carylon) =  lon_final
            t1_new(1:caryt)    =  t1_f
            DEALLOCATE(t1_f, lat_final, lon_final )
-           DEALLOCATE(lat_wayptemp,long_wayptemp)  
+           DEALLOCATE(lat_wayptemp,long_wayptemp)
            DEALLOCATE (t_tempo)
        end if
       DEALLOCATE(latestwp, longestwp, t1)
@@ -1125,15 +1125,15 @@ END SUBROUTINE redifine_timeint
 
 SUBROUTINE add_newdata(t1, temp1, t_tempo, rtime)
        implicit none (type, external)
-       REAL(dp), DIMENSION(:), INTENT(IN)     :: t1, t_tempo 
-       REAL(dp), DIMENSION(:), INTENT(INOUT)  :: rtime 
+       REAL(dp), DIMENSION(:), INTENT(IN)     :: t1, t_tempo
+       REAL(dp), DIMENSION(:), INTENT(INOUT)  :: rtime
        INTEGER, INTENT(IN) :: temp1
-       INTEGER :: i, ii, k 
+       INTEGER :: i, ii, k
 
        ii = 1
        do i=1, temp1-1
          rtime(ii) = t1(i)
-         ii=ii+1 
+         ii=ii+1
        end do
        do k=1, size(t_tempo)
          rtime(ii) = t_tempo(k)
@@ -1149,11 +1149,11 @@ END SUBROUTINE add_newdata
 REAL(dp) FUNCTION find_delta_t(iSat, kk, long_limits, longind,t1,time_day)
        implicit none (type, external)
        REAL(dp)    :: ti, ti_day
-       INTEGER, INTENT(IN) :: kk 
+       INTEGER, INTENT(IN) :: kk
        REAL(dp), INTENT(IN)    :: time_day
-       REAL(dp), DIMENSION(:), INTENT(IN)  :: longind 
-       REAL(dp), INTENT(IN)  :: long_limits 
-       REAL(dp), DIMENSION(:), INTENT(IN)  :: t1 
+       REAL(dp), DIMENSION(:), INTENT(IN)  :: longind
+       REAL(dp), INTENT(IN)  :: long_limits
+       REAL(dp), DIMENSION(:), INTENT(IN)  :: t1
        INTEGER, INTENT(IN)             :: iSat
        REAL(dp), DIMENSION(:), ALLOCATABLE :: t_tempo
        REAL(dp), DIMENSION(:,:), ALLOCATABLE :: lat_wayptemp, long_wayptemp
@@ -1180,7 +1180,7 @@ REAL(dp) FUNCTION find_delta_t(iSat, kk, long_limits, longind,t1,time_day)
 
              CALL get_latlon(iSat, t_tempo(ii), lat_estwayp, lon_estwayp)
              lat_wayptemp(ii,1)  = lat_estwayp
-             long_wayptemp(ii,1) = lon_estwayp             
+             long_wayptemp(ii,1) = lon_estwayp
           END DO
          long_wayptemp = (long_wayptemp-180)
          flag_add = 0
@@ -1189,7 +1189,7 @@ REAL(dp) FUNCTION find_delta_t(iSat, kk, long_limits, longind,t1,time_day)
          if  (dista.GT.long_limits) then
              flag_add = 1
          end if
-         DEALLOCATE( lat_wayptemp,long_wayptemp )  
+         DEALLOCATE( lat_wayptemp,long_wayptemp )
          DEALLOCATE (t_tempo)
        end do
        find_delta_t = ti
@@ -1198,7 +1198,7 @@ END FUNCTION find_delta_t
 REAL(dp) FUNCTION get_fraction(t1)
        implicit none (type, external)
        REAL(dp), INTENT(IN) :: t1
-       REAL(dp) :: fraction2day, temp3, temp4 
+       REAL(dp) :: fraction2day, temp3, temp4
 
        if (t1.EQ.0.0) then
            fraction2day = 0.0
@@ -1207,8 +1207,8 @@ REAL(dp) FUNCTION get_fraction(t1)
        else
            temp3 = floor(t1)
            temp4 = t1
-           if (temp3 == temp4) then 
-             fraction2day = temp3 ! either is ok 
+           if (temp3 == temp4) then
+             fraction2day = temp3 ! either is ok
            else
              fraction2day = MOD(temp4,temp3)
            end if
@@ -1219,26 +1219,26 @@ END FUNCTION get_fraction
 SUBROUTINE find_LTGE_sc(myarray, num1, num2, myindex)
        implicit none (type, external)
        INTEGER :: k, say
-       INTEGER, INTENT(IN) :: num1, num2 
+       INTEGER, INTENT(IN) :: num1, num2
        REAL(dp), POINTER, DIMENSION(:) :: myindex  !INTENT(INOUT)
        REAL(dp), DIMENSION(:), INTENT(IN) :: myarray
 
-       !REAL(dp), DIMENSION(:), ALLOCATABLE :: myindextemp 
-       REAL(dp), DIMENSION(:), ALLOCATABLE :: myindextemp 
+       !REAL(dp), DIMENSION(:), ALLOCATABLE :: myindextemp
+       REAL(dp), DIMENSION(:), ALLOCATABLE :: myindextemp
 
        say = 0
        ALLOCATE(myindextemp(1:size(myarray)))
        myindextemp = 0.0
        do k=1, size(myarray)
-           if ( (myarray(k).LT.num1).AND.  & 
+           if ( (myarray(k).LT.num1).AND.  &
                    (myarray(k).GE.num2) )  then
               say = say + 1
               myindextemp(say) = k
-            end if 
+            end if
        end do
 
        if (say.EQ.0) then
-           ALLOCATE(myindex(1:1))    
+           ALLOCATE(myindex(1:1))
            myindex(1) = -999999
        else
            ALLOCATE(myindex(1:say))
@@ -1251,22 +1251,22 @@ END SUBROUTINE find_LTGE_sc
 SUBROUTINE find_LEGT_sc(myarray, num1, num2, myindex)
        implicit none (type, external)
        INTEGER :: k, say
-       INTEGER, INTENT(IN) :: num1, num2 
+       INTEGER, INTENT(IN) :: num1, num2
        REAL(dp), POINTER, DIMENSION(:) :: myindex  !INTENT(INOUT)
        REAL(dp), DIMENSION(:), INTENT(IN) :: myarray
-       REAL(dp), DIMENSION(:), ALLOCATABLE :: myindextemp 
+       REAL(dp), DIMENSION(:), ALLOCATABLE :: myindextemp
        say = 0
        ALLOCATE(myindextemp(1:size(myarray)))
        myindextemp = 0.0
        do k=1, size(myarray)
-           if ( (myarray(k).LE.num1).AND.  & 
+           if ( (myarray(k).LE.num1).AND.  &
                    (myarray(k).GT.num2) )  then
               say = say + 1
               myindextemp(say) = k
-            end if 
+            end if
        end do
        if (say.EQ.0) then
-           ALLOCATE(myindex(1:1))    
+           ALLOCATE(myindex(1:1))
            myindex(1) = -999999.0
        else
            ALLOCATE(myindex(1:say))
@@ -1281,15 +1281,15 @@ SUBROUTINE ss(ar)
        ar = (/ 3, 4 /)
        return
 END SUBROUTINE ss
-      
+
 SUBROUTINE orbits(lat, lon, iSat, nymd, nhms) ! for now time has to be after
        IMPLICIT  NONE
        INTEGER, INTENT(IN)   :: iSat
-       INTEGER, INTENT(IN)   :: nymd, nhms 
+       INTEGER, INTENT(IN)   :: nymd, nhms
        REAL(dp), INTENT(OUT)     :: lat,lon
        REAL(dp), DIMENSION(3,1)  :: ECI_est, ECEF_est
        REAL(dp)                  :: alt
-       REAL(dp)      :: fraction2day, ntime_day 
+       REAL(dp)      :: fraction2day, ntime_day
 
        CALL get_time(iSat, nymd, nhms, fraction2day, ntime_day)
        CALL get_estimateECI(iSat, ntime_day, ECI_est)
@@ -1297,7 +1297,7 @@ SUBROUTINE orbits(lat, lon, iSat, nymd, nhms) ! for now time has to be after
        CALL ECEF2LLA(ECEF_est(1,1), ECEF_est(2,1),   &
                      ECEF_est(3,1), lat, lon, alt)
 END SUBROUTINE orbits
-      
+
 END MODULE MAPL_NominalOrbitsMod
 
 

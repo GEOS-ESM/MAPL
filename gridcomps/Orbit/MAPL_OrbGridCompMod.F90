@@ -744,7 +744,7 @@ CONTAINS
 
 
       subroutine flatten_latlon(lats,lons,lats_1d,lons_1d,im,jm)
-      implicit none (type, external) (type, external)
+      implicit none (type, external)
       integer, intent(in) :: im,jm
       real, intent(in) :: lats(im,jm), lons(im,jm)
       real, intent(inout) :: lats_1d(jm), lons_1d(im)
@@ -759,7 +759,7 @@ CONTAINS
       end subroutine flatten_latlon
 
       subroutine flatten_xy(x,y,x_1d,y_1d,im,jm,im_1d,jm_1d,switch)
-      implicit none (type, external) (type, external)
+      implicit none (type, external)
       integer, intent(in) :: im,jm, im_1d, jm_1d
       real, intent(in) :: x(im,jm), y(im,jm)
       real, intent(inout) :: y_1d(jm_1d), x_1d(im_1d)
@@ -1270,7 +1270,7 @@ CONTAINS
       end subroutine orb_swath_mask_lonlat
 
       integer function pnt_in_rect(x0,y0,x,y)
-      implicit none (type, external) (type, external)
+      implicit none (type, external)
       real, intent(in) :: x0,y0
       real, intent(in), dimension(4) :: x,y
       ! local variable
