@@ -329,10 +329,7 @@ contains
       expected_itemtype = get_expected_itemtype(expectations, _RC)
 
       itemtype = get_itemtype(state, short_name, _RC)
-      if (expected_itemtype /= itemtype) then
-         _HERE, msg
-      end if
-      @assert_that('check item type of '//short_name, expected_itemtype == itemtype, is(true()))
+      @assert_that(msg // ':: check item type of '//short_name, expected_itemtype == itemtype, is(true()))
 
       rc = 0
 
