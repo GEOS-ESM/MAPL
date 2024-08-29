@@ -609,6 +609,8 @@ contains
 
       real(kind=REAL64), allocatable :: lons(:,:), lats(:,:)
 
+      external :: ncclos
+
       _UNUSED_DUMMY(unusable)
 
       call ESMF_VMGetCurrent(vm, rc=status)
