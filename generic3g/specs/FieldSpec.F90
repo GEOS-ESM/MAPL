@@ -108,7 +108,7 @@ module mapl3g_FieldSpec
       procedure :: make_extension
 
       procedure :: set_info
-      procedure :: initialize => initialize_field_spec
+      procedure :: set_geometry
 
    end type FieldSpec
 
@@ -234,7 +234,7 @@ contains
       _RETURN(_SUCCESS)
    end function get_regrid_method_
 
-   subroutine initialize_field_spec(this, geom, vertical_grid, rc)
+   subroutine set_geometry(this, geom, vertical_grid, rc)
       class(FieldSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
@@ -259,7 +259,7 @@ contains
       
       _RETURN(_SUCCESS)
       
-   end subroutine initialize_field_spec
+   end subroutine set_geometry
 
 !#   function new_FieldSpec_defaults(ungridded_dims, geom, units) result(field_spec)
 !#      type(FieldSpec) :: field_spec

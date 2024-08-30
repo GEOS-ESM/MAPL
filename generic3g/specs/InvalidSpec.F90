@@ -36,7 +36,7 @@ module mapl3g_InvalidSpec
 
       procedure :: make_extension
       procedure :: extension_cost
-      procedure :: initialize => initialize_invalid_spec
+      procedure :: set_geometry => set_geometry
    end type InvalidSpec
 
 
@@ -156,7 +156,7 @@ contains
 
    end function extension_cost
 
-   subroutine initialize_invalid_spec(this, geom, vertical_grid, rc)
+   subroutine set_geometry(this, geom, vertical_grid, rc)
       class(InvalidSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
@@ -166,6 +166,6 @@ contains
 
       _FAIL('Attempt to initialize item of type InvalidSpec')
 
-   end subroutine initialize_invalid_spec
+   end subroutine set_geometry
 
 end module mapl3g_InvalidSpec

@@ -78,7 +78,7 @@ module mapl3g_StateRegistry
 
       ! Actions on specs
       procedure :: allocate
-      procedure :: initialize_specs
+      procedure :: set_blanket_geometry
       procedure :: add_to_states
 
       procedure :: filter ! for MatchConnection
@@ -625,7 +625,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine allocate
 
-   subroutine initialize_specs(this, geom, vertical_grid, rc)
+   subroutine set_blanket_geometry(this, geom, vertical_grid, rc)
       class(StateRegistry), target, intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
@@ -643,13 +643,13 @@ contains
            extension => iter%of()
            spec => extension%get_spec()
            if (spec%is_active()) then
-              call spec%initialize(geom, vertical_grid, _RC)
+              call spec%set_geometry(geom, vertical_grid, _RC)
            end if
         end do
       end associate
       
       _RETURN(_SUCCESS)
-   end subroutine initialize_specs
+   end subroutine set_blanket_geometry
 
   subroutine add_to_states(this, multi_state, mode, rc)
       use esmf
