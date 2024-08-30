@@ -427,24 +427,31 @@ def make_output(component, specs, all_keys, missing):
 
 #==============================================================================#
 
-# Main
+def main(args):
+    """ args is dict of arguments: """
+    """     args.input """
+    """     args.component """
+    """     args.output """
 
+    # Build records from file
+    (component, records) = parse_file(args)
+
+    # Process records to specs (dicts) for 1 spec per valid record
+    (specs, all_keys, missing) = parse_records(records)
+
+    # Print output
+    output = make_output(component, specs, all_keys, missing)
+    write_lines(args.output, output)
+
+# Main
+if __name__ == '__main__':
 # Build command line parser
-description = 'Generate import/export/internal config specs file for MAPL Gridded Component'
-parser = argparse.ArgumentParser(description=description)
-parser.add_argument("input", action='store', help="source Gridded Component filename")
-parser.add_argument("-o", "--output", action='store', help="destination specs filename")
-parser.add_argument("-c", "--component", action='store', default=None, help="component name")
+    description = 'Generate import/export/internal config specs file for MAPL Gridded Component'
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument("input", action='store', help="source Gridded Component filename")
+    parser.add_argument("-o", "--output", action='store', help="destination specs filename")
+    parser.add_argument("-c", "--component", action='store', default=None, help="component name")
 
 # Parse command line
-args = parser.parse_args()
-
-# Build records from file
-(component, records) = parse_file(args)
-
-# Process records to specs (dicts) for 1 spec per valid record
-(specs, all_keys, missing) = parse_records(records)
-
-# Print output
-output = make_output(component, specs, all_keys, missing)
-write_lines(args.output, output)
+    args = vars(parser.parse_args())
+    main(args)
