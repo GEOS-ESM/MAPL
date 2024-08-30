@@ -35,7 +35,7 @@ module mapl3g_WildcardSpec
       procedure :: add_to_state
       procedure :: add_to_bundle
       procedure :: extension_cost
-      procedure :: initialize => initialize_wildcard_spec
+      procedure :: set_geometry
 
    end type WildcardSpec
 
@@ -236,7 +236,7 @@ contains
       _RETURN(_SUCCESS)
    end function extension_cost
 
-   subroutine initialize_wildcard_spec(this, geom, vertical_grid, rc)
+   subroutine set_geometry(this, geom, vertical_grid, rc)
       class(WildcardSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
@@ -244,9 +244,9 @@ contains
 
       integer :: status
 
-      call this%reference_spec%initialize(geom, vertical_grid, _RC)
+      call this%reference_spec%set_geometry(geom, vertical_grid, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine initialize_wildcard_spec
+   end subroutine set_geometry
 
 end module mapl3g_WildcardSpec

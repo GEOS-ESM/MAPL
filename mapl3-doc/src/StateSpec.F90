@@ -23,7 +23,7 @@ module mapl3g_StateSpec
       type(ESMF_State) :: payload
       type(StateItemSpecMap) :: item_specs
    contains
-      procedure :: initialize
+      procedure :: set_geometry
       procedure :: add_item
       procedure :: get_item
 
@@ -44,7 +44,7 @@ module mapl3g_StateSpec
 contains
 
    ! Nothing defined at this time.
-   subroutine initialize(this, geom, vertical_grid, rc)
+   subroutine set_geometry(this, geom, vertical_grid, rc)
       class(StateSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
@@ -54,7 +54,7 @@ contains
       integer :: status
 
       _RETURN(_SUCCESS)
-   end subroutine initialize
+   end subroutine set_geometry
 
    subroutine add_item(this, name, item)
       class(StateSpec), target, intent(inout) :: this

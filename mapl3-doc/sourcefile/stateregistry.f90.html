@@ -909,18 +909,18 @@ large graphs.</div>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M156.38,-463.38C150.43,-460.66 144.82,-457.26 140,-453 82.61,-402.27 62.23,-307.74 55.73,-265"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="59.2,-264.49 54.34,-255.07 52.26,-265.46 59.2,-264.49"/>
 </g>
-<!-- sourcefile~mapl_generic.f90 -->
+<!-- sourcefile~mapl_generic.f90~2 -->
 <g id="sourcefile~~stateregistry.f90~~AfferentGraph_node3" class="node">
-<title>sourcefile~mapl_generic.f90</title>
-<g id="a_sourcefile~~stateregistry.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<title>sourcefile~mapl_generic.f90~2</title>
+<g id="a_sourcefile~~stateregistry.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/mapl_generic.f90~2.html" xlink:title="MAPL_Generic.F90">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="272.5,-444 161.5,-444 161.5,-420 272.5,-420 272.5,-444"/>
 <text text-anchor="middle" x="217" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
 </a>
 </g>
 </g>
-<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~stateregistry.f90 -->
+<!-- sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~stateregistry.f90 -->
 <g id="sourcefile~~stateregistry.f90~~AfferentGraph_edge2" class="edge">
-<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~stateregistry.f90</title>
+<title>sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~stateregistry.f90</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M161.39,-422.87C153.69,-419.94 146.27,-416.09 140,-411 92.6,-372.57 68.18,-301.44 58.35,-265.31"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="61.65,-264.1 55.76,-255.3 54.87,-265.86 61.65,-264.1"/>
 </g>
@@ -1209,7 +1209,7 @@ large graphs.</div>
 <a id="ln-78" name="ln-78" href="#ln-78"></a>
 <a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="c">! Actions on specs</span>
 <a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">allocate</span>
-<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize_specs</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_blanket_geometry</span>
 <a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_to_states</span>
 <a id="ln-83" name="ln-83" href="#ln-83"></a>
 <a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filter</span><span class="w"> </span><span class="c">! for MatchConnection</span>
@@ -1756,7 +1756,7 @@ large graphs.</div>
 <a id="ln-625" name="ln-625" href="#ln-625"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 <a id="ln-626" name="ln-626" href="#ln-626"></a><span class="w">   </span><span class="k">end subroutine allocate</span>
 <a id="ln-627" name="ln-627" href="#ln-627"></a>
-<a id="ln-628" name="ln-628" href="#ln-628"></a><span class="k">   subroutine </span><span class="n">initialize_specs</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-628" name="ln-628" href="#ln-628"></a><span class="k">   subroutine </span><span class="n">set_blanket_geometry</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
 <a id="ln-629" name="ln-629" href="#ln-629"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateRegistry</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
 <a id="ln-630" name="ln-630" href="#ln-630"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
 <a id="ln-631" name="ln-631" href="#ln-631"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">VerticalGrid</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vertical_grid</span>
@@ -1774,13 +1774,13 @@ large graphs.</div>
 <a id="ln-643" name="ln-643" href="#ln-643"></a><span class="w">           </span><span class="n">extension</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">of</span><span class="p">()</span>
 <a id="ln-644" name="ln-644" href="#ln-644"></a><span class="w">           </span><span class="n">spec</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">extension</span><span class="p">%</span><span class="n">get_spec</span><span class="p">()</span>
 <a id="ln-645" name="ln-645" href="#ln-645"></a><span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">is_active</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
-<a id="ln-646" name="ln-646" href="#ln-646"></a><span class="k">              call </span><span class="n">spec</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-646" name="ln-646" href="#ln-646"></a><span class="k">              call </span><span class="n">spec</span><span class="p">%</span><span class="n">set_geometry</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-647" name="ln-647" href="#ln-647"></a><span class="w">           </span><span class="k">end if</span>
 <a id="ln-648" name="ln-648" href="#ln-648"></a><span class="k">        end do</span>
 <a id="ln-649" name="ln-649" href="#ln-649"></a><span class="k">      end associate</span>
 <a id="ln-650" name="ln-650" href="#ln-650"></a><span class="k">      </span>
 <a id="ln-651" name="ln-651" href="#ln-651"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<a id="ln-652" name="ln-652" href="#ln-652"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize_specs</span>
+<a id="ln-652" name="ln-652" href="#ln-652"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">set_blanket_geometry</span>
 <a id="ln-653" name="ln-653" href="#ln-653"></a>
 <a id="ln-654" name="ln-654" href="#ln-654"></a><span class="w">  </span><span class="k">subroutine </span><span class="n">add_to_states</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">multi_state</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
 <a id="ln-655" name="ln-655" href="#ln-655"></a><span class="w">      </span><span class="k">use </span><span class="n">esmf</span>
@@ -1945,7 +1945,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-08-29T19:53:11.963908             </p>
+ on 2024-08-30T15:27:07.553967             </p>
           </div>
         </div>
         <br>

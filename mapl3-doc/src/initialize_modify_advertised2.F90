@@ -31,19 +31,6 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_modify_advertised2
    
-   subroutine self_advertise(this, unusable, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      class(KE), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-      
-      integer :: status
-
-      call this%registry%initialize_specs(this%geom, this%vertical_grid, _RC)
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine self_advertise
-
    subroutine process_connections(this, rc)
       class(OuterMetaComponent), intent(inout) :: this
       integer, optional, intent(out) :: rc

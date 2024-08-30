@@ -44,7 +44,7 @@ module mapl3g_ServiceSpec
       procedure :: extension_cost
       procedure :: add_to_state
       procedure :: add_to_bundle
-      procedure :: initialize => initialize_service_spec
+      procedure :: set_geometry
 !!$      procedure :: check_complete
    end type ServiceSpec
 
@@ -205,7 +205,7 @@ contains
       _RETURN(_SUCCESS)
    end function extension_cost
 
-   subroutine initialize_service_spec(this, geom, vertical_grid, rc)
+   subroutine set_geometry(this, geom, vertical_grid, rc)
       class(ServiceSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
@@ -231,6 +231,6 @@ contains
       this%dependency_specs = specs
 
       _RETURN(_SUCCESS)
-   end subroutine initialize_service_spec
+   end subroutine set_geometry
 
 end module mapl3g_ServiceSpec

@@ -27,7 +27,7 @@ module MockItemSpecMod
       procedure :: create
       procedure :: destroy
       procedure :: allocate
-      procedure :: initialize => initialize_mockspec
+      procedure :: set_geometry
 
       procedure :: connect_to
       procedure :: can_connect_to
@@ -64,14 +64,14 @@ contains
 
    end function new_MockItemSpec
 
-   subroutine initialize_mockspec(this, geom, vertical_grid, rc)
+   subroutine set_geometry(this, geom, vertical_grid, rc)
       class(MockItemSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
-   end subroutine initialize_mockspec
+   end subroutine set_geometry
 
    subroutine create(this, rc)
       class(MockItemSpec), intent(inout) :: this

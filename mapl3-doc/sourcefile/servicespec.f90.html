@@ -635,7 +635,7 @@ large graphs.</div>
 <a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">extension_cost</span>
 <a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_to_state</span>
 <a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_to_bundle</span>
-<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">initialize_service_spec</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_geometry</span>
 <a id="ln-48" name="ln-48" href="#ln-48"></a><span class="c">!!$      procedure :: check_complete</span>
 <a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">   </span><span class="k">end type </span><span class="n">ServiceSpec</span>
 <a id="ln-50" name="ln-50" href="#ln-50"></a>
@@ -796,7 +796,7 @@ large graphs.</div>
 <a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 <a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">   </span><span class="k">end function </span><span class="n">extension_cost</span>
 <a id="ln-207" name="ln-207" href="#ln-207"></a>
-<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize_service_spec</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">set_geometry</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
 <a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ServiceSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
 <a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
 <a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">VerticalGrid</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vertical_grid</span>
@@ -822,7 +822,7 @@ large graphs.</div>
 <a id="ln-231" name="ln-231" href="#ln-231"></a><span class="k">      </span><span class="n">this</span><span class="p">%</span><span class="n">dependency_specs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">specs</span>
 <a id="ln-232" name="ln-232" href="#ln-232"></a>
 <a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize_service_spec</span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">set_geometry</span>
 <a id="ln-235" name="ln-235" href="#ln-235"></a>
 <a id="ln-236" name="ln-236" href="#ln-236"></a><span class="k">end module </span><span class="n">mapl3g_ServiceSpec</span>
 </pre></div>
@@ -846,7 +846,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-08-29T19:53:11.963908             </p>
+ on 2024-08-30T15:27:07.553967             </p>
           </div>
         </div>
         <br>

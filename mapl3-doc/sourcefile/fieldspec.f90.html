@@ -972,7 +972,7 @@ large graphs.</div>
 <a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_extension</span>
 <a id="ln-109" name="ln-109" href="#ln-109"></a>
 <a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_info</span>
-<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">initialize_field_spec</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_geometry</span>
 <a id="ln-112" name="ln-112" href="#ln-112"></a>
 <a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">   </span><span class="k">end type </span><span class="n">FieldSpec</span>
 <a id="ln-114" name="ln-114" href="#ln-114"></a>
@@ -1098,7 +1098,7 @@ large graphs.</div>
 <a id="ln-234" name="ln-234" href="#ln-234"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 <a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_regrid_method_</span>
 <a id="ln-236" name="ln-236" href="#ln-236"></a>
-<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize_field_spec</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">set_geometry</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
 <a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
 <a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
 <a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">VerticalGrid</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vertical_grid</span>
@@ -1123,7 +1123,7 @@ large graphs.</div>
 <a id="ln-259" name="ln-259" href="#ln-259"></a><span class="w">      </span>
 <a id="ln-260" name="ln-260" href="#ln-260"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 <a id="ln-261" name="ln-261" href="#ln-261"></a><span class="w">      </span>
-<a id="ln-262" name="ln-262" href="#ln-262"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize_field_spec</span>
+<a id="ln-262" name="ln-262" href="#ln-262"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">set_geometry</span>
 <a id="ln-263" name="ln-263" href="#ln-263"></a>
 <a id="ln-264" name="ln-264" href="#ln-264"></a><span class="c">!#   function new_FieldSpec_defaults(ungridded_dims, geom, units) result(field_spec)</span>
 <a id="ln-265" name="ln-265" href="#ln-265"></a><span class="c">!#      type(FieldSpec) :: field_spec</span>
@@ -1926,7 +1926,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-08-29T19:53:11.963908             </p>
+ on 2024-08-30T15:27:07.553967             </p>
           </div>
         </div>
         <br>

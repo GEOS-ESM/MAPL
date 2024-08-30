@@ -793,7 +793,7 @@ large graphs.</div>
 <a id="ln-23" name="ln-23" href="#ln-23"></a><span class="k">      type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">payload</span>
 <a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StateItemSpecMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">item_specs</span>
 <a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">contains</span>
-<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_geometry</span>
 <a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_item</span>
 <a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_item</span>
 <a id="ln-29" name="ln-29" href="#ln-29"></a>
@@ -814,7 +814,7 @@ large graphs.</div>
 <a id="ln-44" name="ln-44" href="#ln-44"></a><span class="k">contains</span>
 <a id="ln-45" name="ln-45" href="#ln-45"></a>
 <a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">   </span><span class="c">! Nothing defined at this time.</span>
-<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">set_geometry</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
 <a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
 <a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
 <a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">VerticalGrid</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vertical_grid</span>
@@ -824,7 +824,7 @@ large graphs.</div>
 <a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
 <a id="ln-55" name="ln-55" href="#ln-55"></a>
 <a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">set_geometry</span>
 <a id="ln-58" name="ln-58" href="#ln-58"></a>
 <a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">add_item</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">item</span><span class="p">)</span>
 <a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateSpec</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
@@ -987,7 +987,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-08-29T19:53:11.963908             </p>
+ on 2024-08-30T15:27:07.553967             </p>
           </div>
         </div>
         <br>
