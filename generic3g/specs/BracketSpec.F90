@@ -72,8 +72,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer :: i
-
+      
       this%payload = ESMF_FieldBundleCreate(_RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -128,8 +127,6 @@ contains
 
          integer :: status
          integer :: i
-         type(ESMF_Field), allocatable :: fields(:)
-         integer :: fieldCount
 
          if (allocated(this%field_specs)) then
             do i = 1, this%bracket_size
@@ -253,10 +250,9 @@ contains
       type(ESMF_FieldBundle), intent(inout) :: bundle
       integer, optional, intent(out) :: rc
 
-
       _FAIL("Cannot add bundle (bracket) to ESMF bundle.")
-
-      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
 
 
@@ -284,12 +280,12 @@ contains
       class(ExtensionAction), allocatable, intent(out) :: action
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       action = NullAction() ! default
       new_spec = this
 
       _FAIL('not implemented')
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(dst_spec)
    end subroutine make_extension
 
    subroutine set_geometry(this, geom, vertical_grid, rc)
@@ -297,9 +293,12 @@ contains
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
-      integer :: status
 
-      _RETURN(_SUCCESS)
+      _FAIL('unimplemented')
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(geom)
+      _UNUSED_DUMMY(vertical_grid)
    end subroutine set_geometry
 
 end module mapl3g_BracketSpec

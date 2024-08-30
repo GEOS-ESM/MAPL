@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) run_clock_advance_smod
+   use mapl3g_GriddedComponentDriverMap
    implicit none
 
 contains

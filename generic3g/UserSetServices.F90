@@ -123,7 +123,9 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      write(unit,*,iostat=iostat) "userRoutine: <procedure>"
+      write(unit,*,iostat=iostat, iomsg=iomsg) "userRoutine: <procedure>"
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
    end subroutine write_formatted_proc
 
    !----------------------------------
@@ -170,8 +172,12 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      write(unit,*,iostat=iostat) "sharedObj: ", this%sharedObj
-      write(unit,*,iostat=iostat) "userRoutine: ", this%userRoutine
+      write(unit,*,iostat=iostat, iomsg=iomsg) "sharedObj: ", this%sharedObj
+      if (iostat /= 0) return
+      write(unit,*,iostat=iostat, iomsg=iomsg) "userRoutine: ", this%userRoutine
+
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
    end subroutine write_formatted_dso
 
    logical function equal_setServices(a, b) result(equal)

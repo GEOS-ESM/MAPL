@@ -22,7 +22,6 @@ contains
       logical :: has_geometry_provider
       character(:), allocatable :: geometry_kind_str
       character(:), allocatable :: provider
-      integer :: geometry_kind
       type(ESMF_HConfig) :: geometry_cfg
       type(ESMF_HConfig) :: esmf_geom_cfg
       type(ESMF_HConfig) :: vertical_grid_cfg

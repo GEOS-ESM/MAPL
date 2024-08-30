@@ -67,7 +67,12 @@ contains
       integer, optional, intent(out) :: rc
 
       _FAIL('BasicVerticalGrid should have been connected to a different subclass before this is called.')
-
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(coupler)
+      _UNUSED_DUMMY(standard_name)
+      _UNUSED_DUMMY(geom)
+      _UNUSED_DUMMY(typekind)
+      _UNUSED_DUMMY(units)
    end subroutine get_coordinate_field
 
    elemental logical function equal_to(a, b)

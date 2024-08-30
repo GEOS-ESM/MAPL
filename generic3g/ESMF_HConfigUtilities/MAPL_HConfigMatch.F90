@@ -122,12 +122,14 @@ contains
             b_as_float  = ESMF_HConfigAsR8(b, _RC)
             match = (a_as_float == b_as_float)
 
-         case default 
+         case (CORE_SCHEMA_STR_TAG)
             ! Otherwise they are strings ...
             a_str = ESMF_HConfigAsString(a, _RC)
             b_str = ESMF_HConfigAsString(b, _RC)
             match = (a_str == b_str)
-     
+
+         case default
+            _FAIL('unsupported yaml tag: <'//a_tag//'>')
          end select
 
          _RETURN(_SUCCESS)
@@ -139,7 +141,6 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(ESMF_HConfig) :: a_val_hconfig, b_val_hconfig
          integer :: i
          integer :: a_size, b_size
 
@@ -173,7 +174,6 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(ESMF_HConfig) :: a_val_hconfig, b_val_hconfig
          character(:), allocatable :: key
          type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
          integer :: a_size, b_size

@@ -1,7 +1,8 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) write_restart_smod
-   implicit none
+   use mapl3g_RestartHandler
+   implicit none (type, external)
 
 contains
 
