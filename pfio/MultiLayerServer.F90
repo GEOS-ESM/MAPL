@@ -51,6 +51,8 @@ module pFIO_MultiLayerServerMod
       module procedure new_MultiLayerServer
    end interface MultiLayerServer
 
+   external :: MPI_Send, MPI_Recv
+
 contains
 
    function new_MultiLayerServer(comm, port_name, nwriters, pfio_writer, rc) result(s)

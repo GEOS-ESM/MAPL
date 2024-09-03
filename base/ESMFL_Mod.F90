@@ -2360,6 +2360,8 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
    character(len=ESMF_MAXSTR), parameter :: IAm = 'Do_Regrid_'
 
+   external :: hhinterp
+
  ! start
 
    call hhinterp ( inBuf , ims_world, jms_world   , &
@@ -4337,6 +4339,8 @@ CONTAINS
      type(ESMF_VM) :: vm
      integer :: my_mpi_comm, local_undef, global_undef,grid_size(3),rank
      real, pointer :: ptr2d(:,:), ptr3d(:,:,:)
+
+     external :: MPI_Allreduce
 
      call ESMF_VMGetCurrent(VM,_RC)
      call ESMF_VMGet(VM,mpiCommunicator=my_mpi_comm,_RC)

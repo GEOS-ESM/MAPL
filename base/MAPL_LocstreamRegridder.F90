@@ -28,6 +28,8 @@ module MAPL_LocstreamRegridderMod
       module procedure new_LocstreamRegridder
    end interface LocstreamRegridder
 
+   external :: MPI_Comm_size, MPI_Comm_rank, MPI_Barrier
+
 contains
 
    function new_LocstreamRegridder(grid,locstream,unusable,regrid_method,rc) result(regridder)
@@ -71,7 +73,7 @@ contains
       regridder%locstream=locstream
 
       _RETURN(_SUCCESS)
- 
+
    end function new_LocstreamRegridder
 
    subroutine regrid_2d_real32(this,q_in,q_out, rc)
@@ -84,13 +86,13 @@ contains
 
       type(ESMF_Field) :: dst_field,src_field
       real(kind=REAL32), pointer :: p_src(:,:),p_dst(:)
-    
+
       dst_field=ESMF_FieldCreate(this%locstream,typekind=ESMF_TYPEKIND_R4, &
            gridToFieldMap=[1],rc=status)
-      _VERIFY(status)      
+      _VERIFY(status)
       src_field=ESMF_FieldCreate(this%grid,typekind=ESMF_TYPEKIND_R4, &
            gridToFieldMap=[1,2],rc=status)
-      _VERIFY(status)      
+      _VERIFY(status)
 
       call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
       _VERIFY(status)
@@ -122,13 +124,13 @@ contains
       _ASSERT(size(q_in,3)==size(q_out,2),"Input and output arrays size inconsistent in 3D locstream regridder")
 
       lm = size(q_in,3)
-    
+
       dst_field=ESMF_FieldCreate(this%locstream,typekind=ESMF_TYPEKIND_R4, &
            gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],rc=status)
-      _VERIFY(status)      
+      _VERIFY(status)
       src_field=ESMF_FieldCreate(this%grid,typekind=ESMF_TYPEKIND_R4, &
            gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[lm],rc=status)
-      _VERIFY(status)      
+      _VERIFY(status)
 
       call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
       _VERIFY(status)
@@ -147,17 +149,17 @@ contains
    end subroutine regrid_3d_real32
 
 
-   subroutine destroy_route_handle(this,rc) 
+   subroutine destroy_route_handle(this,rc)
      class(LocstreamRegridder) :: this
-     integer, optional, intent(out) :: rc     
+     integer, optional, intent(out) :: rc
      integer :: status
-     
+
      call ESMF_RouteHandleDestroy(this%route_handle, noGarbage=.true., _RC)
      call ESMF_LocStreamDestroy (this%locstream, noGarbage=.true., _RC)
-      
+
      _RETURN(_SUCCESS)
-     
+
    end subroutine destroy_route_handle
-   
+
 
 end module MAPL_LocstreamRegridderMod

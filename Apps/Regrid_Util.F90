@@ -33,6 +33,8 @@
       procedure :: has_level
    end type regrid_support
 
+   external :: MPI_Finalize
+
    contains
 
    subroutine UnpackGridName(gridName,im,jm,date,pole)

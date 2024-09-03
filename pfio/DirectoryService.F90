@@ -83,6 +83,8 @@ module pFIO_DirectoryServiceMod
       module procedure new_DirectoryService
    end interface DirectoryService
 
+   external :: MPI_Alloc_mem, MPI_Win_create, MPI_Send, MPI_Recv, MPI_Gather, MPI_Get
+   external :: MPI_Scatter, MPI_ScatterV, MPI_Put, MPI_Free_Mem, MPI_Bcast, MPI_GatherV
 contains
 
    function new_DirectoryService(comm, unusable, rc) result(ds)

@@ -14,7 +14,7 @@
 ! Author: GMAO SI-Team
 !
 ! `MAPL_HashMod`  -- A utility to manage hash tables.
-! 
+!
 ! `MAPL_HashMod` is a FORTRAN binding to a simple C has facility.
 !
 ! The API is:
@@ -24,7 +24,7 @@
 !
 !       integer function MAPL_HashCreate(Nbuckets)
 !         integer, intent(IN) :: Nbuckets
-! 
+!
 !   ! Update table Hash with integer[s] i[,j]
 !   ! The return value is the order of occurence of the integer[s].
 !   ! If i is new, the return value is the new hash size.
@@ -37,7 +37,7 @@
 !   ! Dump the list of integers or integer pairs in the hash.
 !   !  The list is in no particular order.
 !   ! If the arrays are not long enough, nothing is dumped and -1
-!   !  is returned; otherwise it returns the current hash size 
+!   !  is returned; otherwise it returns the current hash size
 !   !  (the length of the list).
 !
 !       integer function MAPL_HashDump(Hash,i,j)
@@ -61,7 +61,7 @@
 ! be used to find ordered pairs of integers. The asserts
 ! are put in to clarify the usage.
 !
-!```fortran       
+!```fortran
 !       integer :: Hash, k, II(100000), FoundOrder(10000)
 !
 !       Hash = MAPL_HashCreate(1000)
@@ -104,6 +104,7 @@ integer function  MAPL_HashCreate(Nbuckets)
   integer,           intent(IN) :: Nbuckets
 
   integer CREATEHASH
+  external CREATEHASH
   MAPL_HashCreate = CREATEHASH(Nbuckets)
 
 end function MAPL_HashCreate
@@ -117,6 +118,7 @@ integer function MAPL_HashIncrement(Hash,i,j,k)
   integer, optional, intent(IN) :: k
 
   integer :: INCREMENTHASH, rc
+  external :: INCREMENTHASH
 
   if    (present(k)) then
      _ASSERT(present(j),'needs informative message')
@@ -133,6 +135,7 @@ end function MAPL_HashIncrement
 
 subroutine MAPL_HashDestroy(Hash)
   integer, intent(IN) :: Hash
+  external :: DESTROYHASH
 
   call DESTROYHASH(HASH)
 
@@ -148,6 +151,8 @@ integer function MAPL_HashDump(Hash,i,j)
   integer, allocatable :: jj(:)
 
   integer :: rc
+
+  external :: DUMPHASH
 
   MAPL_HashDump = MAPL_HashSize(HASH)
 
@@ -173,6 +178,7 @@ integer function  MAPL_HashSize(Hash)
   integer, intent(IN) :: Hash
 
   integer HASHSIZE
+  external HASHSIZE
   MAPL_HashSize = HASHSIZE(Hash)
 
 end function MAPL_HashSize

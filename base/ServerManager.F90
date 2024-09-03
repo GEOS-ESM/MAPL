@@ -24,6 +24,7 @@ module MAPL_ServerManager
          procedure :: get_splitcomm
    end type
 
+   external :: MPI_Comm_size, MPI_Comm_rank, MPI_Barrier
 contains
 
    subroutine get_splitcomm(this, split_comm, rc)
@@ -231,7 +232,7 @@ contains
                        npes_out_backend, './pfio_writer.x'))
 
            else if (oserver_type_ == 'multigroup' ) then
- 
+
               allocate(this%o_server, source = MultiGroupServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend, &
                                                                 with_profiler=with_profiler, rc=status), stat=stat_alloc)
               _VERIFY(status)

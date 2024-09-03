@@ -32,6 +32,8 @@ module pFIO_ShmemReferenceMod
       module procedure new_ShmemReference
    end interface ShmemReference
 
+   external :: MPI_Win_allocate_shared, MPI_Win_shared_query
+
 contains
 
    function new_ShmemReference(type_kind,msize_word,InNode_Comm, rc) result(reference)

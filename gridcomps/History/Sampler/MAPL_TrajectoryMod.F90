@@ -172,4 +172,7 @@ module HistoryTrajectoryMod
      end subroutine destroy_rh_regen_LS
 
   end interface
+
+  external :: MPI_Scatterv, MPI_Gatherv
+
 end module HistoryTrajectoryMod

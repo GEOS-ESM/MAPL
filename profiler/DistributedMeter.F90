@@ -91,6 +91,7 @@ module MAPL_DistributedMeter
       module procedure :: new_DistributedMeter
    end interface DistributedMeter
 
+   external :: MPI_Reduce
 
 contains
 
@@ -127,7 +128,7 @@ contains
       class(AbstractGauge), intent(in) :: gauge
 
       integer :: ierror
-   
+
       if (.not. dist_initialized) then
          call initialize(ierror)
          dist_initialized = .true.
@@ -143,7 +144,7 @@ contains
       type (DistributedMeter) :: dummy
       logical :: commute
       integer :: rc, status
-      
+
       call dummy%make_mpi_type(dummy%statistics, type_dist_struct, ierror)
       call MPI_Type_commit(type_dist_struct, ierror)
       _VERIFY(ierror)
@@ -166,7 +167,7 @@ contains
       type(DistributedReal64), intent(in) :: b
 
       c%total = a%total + b%total
-      
+
       if (b%min < a%min) then
          c%min_pe = b%min_pe
       elseif (a%min < b%min) then
@@ -175,7 +176,7 @@ contains
          c%min_pe = min(a%min_pe, b%min_pe)
       end if
       c%min = min(a%min, b%min)
-      
+
       if (b%max > a%max) then
          c%max_pe = b%max_pe
       elseif (a%max > b%max) then
@@ -188,7 +189,7 @@ contains
       c%num_pes = a%num_pes + b%num_pes
 
    end function reduce_distributed_real64
-      
+
 
    function reduce_distributed_integer(a, b) result(c)
       type(DistributedInteger) :: c
@@ -205,7 +206,7 @@ contains
          c%min_pe = min(a%min_pe, b%min_pe)
       end if
       c%min = min(a%min, b%min)
-      
+
       if (b%max > a%max) then
          c%max_pe = b%max_pe
       elseif (a%max > b%max) then
@@ -218,7 +219,7 @@ contains
       c%num_pes = a%num_pes + b%num_pes
 
    end function reduce_distributed_integer
-      
+
 
    function reduce_distributed_data(a, b) result(c)
       type(DistributedStatistics) :: c
@@ -228,11 +229,11 @@ contains
       c%total = a%total .reduce. b%total
       c%exclusive = a%exclusive .reduce. b%exclusive
       c%min_cycle = a%min_cycle .reduce. b%min_cycle
-      
+
       c%max_cycle = a%max_cycle .reduce. b%max_cycle
       c%sum_square_deviation = a%sum_square_deviation .reduce. b%sum_square_deviation
       c%num_cycles = a%num_cycles .reduce. b%num_cycles
-      
+
    end function reduce_distributed_data
 
 
@@ -242,21 +243,21 @@ contains
 
       total = this%statistics%total
    end function get_stats_total
-   
+
    function get_stats_min_cycle(this) result(min_cycle)
       type(DistributedReal64) :: min_cycle
       class(DistributedMeter), intent(in) :: this
 
       min_cycle = this%statistics%min_cycle
    end function get_stats_min_cycle
-   
+
    function get_stats_max_cycle(this) result(max_cycle)
       type(DistributedReal64) :: max_cycle
       class(DistributedMeter), intent(in) :: this
 
       max_cycle = this%statistics%max_cycle
    end function get_stats_max_cycle
-   
+
    function get_stats_num_cycles(this) result(num_cycles)
       type(DistributedInteger) :: num_cycles
       class(DistributedMeter), intent(in) :: this
@@ -264,13 +265,13 @@ contains
       num_cycles = this%statistics%num_cycles
    end function get_stats_num_cycles
 
-   
+
    subroutine reduce_global(this, exclusive)
       class(DistributedMeter), intent(inout) :: this
       real(kind=REAL64), intent(in) :: exclusive
       call this%reduce(MPI_COMM_WORLD, exclusive)
    end subroutine reduce_global
-   
+
 
    subroutine reduce_mpi(this, comm, exclusive)
       class(DistributedMeter), intent(inout) :: this
@@ -375,13 +376,13 @@ contains
       integer :: i
 
       _UNUSED_DUMMY(type)
-      
+
       do i = 1, len
          inoutvec(i) = invec(i) .reduce. inoutvec(i)
       end do
-   
+
    end subroutine true_reduce
-   
+
 end module MAPL_DistributedMeter
 
 

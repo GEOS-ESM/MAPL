@@ -12,11 +12,11 @@
 ! Author: GMAO SI-Team
 !
 ! `MAPL_SortMod` -- A utility to sort integers
-! 
-! `MAPL_Sort` is a utility to do a quicksort on integers. 
+!
+! `MAPL_Sort` is a utility to do a quicksort on integers.
 ! The general interface is:
 !
-!```fortran       
+!```fortran
 !       subroutine MAPL_Sort(A[,B])
 !         integer(kind=[4,8]),           intent(INOUT) :: A(:)
 !         integer(kind=4),     optional, intent(INOUT) :: B(size(A))
@@ -34,7 +34,7 @@
 !
 ! `MAPL_Sort` sorts the key (contained in a row or column of A)
 ! in ascending order and reorders the data in B or in non-key rows or columns of A
-! in the same order; i.e., it does the same exchanges as were done 
+! in the same order; i.e., it does the same exchanges as were done
 ! to the key in sorting it.  If, for example, on input B(:) contains the ordered integers
 ! from 1 to size(A), on output it will contain the positions of the elements of
 ! the sorted A in the unsorted A. In the last two signatures, DIM is the dimension
@@ -82,6 +82,7 @@ contains
 subroutine SORT1SS(A,B)
   integer(kind=INT32),           intent(INOUT) :: A(:)
   integer(kind=INT32), optional, intent(INOUT) :: B(:)
+  external :: QSORTS
   if(present(B)) then
      call QSORTS(A,B,size(A),1)
   else
@@ -92,18 +93,21 @@ end subroutine SORT1SS
 subroutine SORT1SR(A,B)
   integer(kind=INT32),           intent(INOUT) :: A(:)
   real   (kind=REAL32),           intent(INOUT) :: B(:)
+  external :: QSORTS
   call QSORTS(A,B,size(A),1)
 end subroutine SORT1SR
 
 subroutine SORT1SD(A,B)
   integer(kind=INT32),           intent(INOUT) :: A(:)
   real   (kind=REAL64),           intent(INOUT) :: B(:)
+  external :: QSORTS
   call QSORTS(A,B,size(A),2)
 end subroutine SORT1SD
 
 subroutine SORT1LS(A,B)
   integer(kind=INT64), intent(INOUT) :: A(:)
   integer(kind=INT32), optional, intent(INOUT) :: B(:)
+  external :: QSORTL
   if(present(B)) then
      call QSORTL(A,B,size(A),1)
   else
@@ -114,12 +118,14 @@ end subroutine SORT1LS
 subroutine SORT1LR(A,B)
   integer(kind=INT64),           intent(INOUT) :: A(:)
   real   (kind=REAL32),           intent(INOUT) :: B(:)
+  external :: QSORTL
   call QSORTL(A,B,size(A),1)
 end subroutine SORT1LR
 
 subroutine SORT1LD(A,B)
   integer(kind=INT64),           intent(INOUT) :: A(:)
   real   (kind=REAL64),           intent(INOUT) :: B(:)
+  external :: QSORTL
   call QSORTL(A,B,size(A),2)
 end subroutine SORT1LD
 
@@ -130,6 +136,7 @@ subroutine SORT2SS(A,B,DIM)
   integer, optional, intent(IN   ) :: DIM
 
   integer :: uDIM, rc
+  external :: QSORTS
 
   if(present(DIM)) then
      uDIM = DIM
@@ -154,13 +161,15 @@ subroutine SORT2SR(A,B,DIM)
 
   integer :: uDIM, rc
 
+  external :: QSORTS
+
   if(present(DIM)) then
      uDIM = DIM
   else
      uDIM = 2
   end if
   _ASSERT(uDIM>0, 'uDim needs to be greater than 0')
-  _ASSERT(uDIM<3, 'uDim needs to be less than 3')  
+  _ASSERT(uDIM<3, 'uDim needs to be less than 3')
   _ASSERT(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTS(A,B,size(A),-size(B,2))
@@ -176,6 +185,8 @@ subroutine SORT2SD(A,B,DIM)
   integer, optional, intent(IN   ) :: DIM
 
   integer :: uDIM, rc
+
+  external :: QSORTS
 
   if(present(DIM)) then
      uDIM = DIM
@@ -200,13 +211,15 @@ subroutine SORT2LS(A,B,DIM)
 
   integer :: uDIM, rc
 
+  external :: QSORTL
+
   if(present(DIM)) then
      uDIM = DIM
   else
      uDIM = 2
   end if
   _ASSERT(uDIM>0, 'uDim needs to be greater than 0')
-  _ASSERT(uDIM<3, 'uDim needs to be less than 3')  
+  _ASSERT(uDIM<3, 'uDim needs to be less than 3')
   _ASSERT(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTL(A,B,size(A),-size(B,2))
@@ -222,13 +235,15 @@ subroutine SORT2LR(A,B,DIM)
 
   integer :: uDIM, rc
 
+  external :: QSORTL
+
   if(present(DIM)) then
      uDIM = DIM
   else
      uDIM = 2
   end if
   _ASSERT(uDIM>0, 'uDim needs to be greater than 0')
-  _ASSERT(uDIM<3, 'uDim needs to be less than 3')  
+  _ASSERT(uDIM<3, 'uDim needs to be less than 3')
   _ASSERT(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTL(A,B,size(A),-size(B,2))
@@ -244,13 +259,15 @@ subroutine SORT2LD(A,B,DIM)
 
   integer :: uDIM, rc
 
+  external :: QSORTL
+
   if(present(DIM)) then
      uDIM = DIM
   else
      uDIM = 2
   end if
   _ASSERT(uDIM>0, 'uDim needs to be greater than 0')
-  _ASSERT(uDIM<3, 'uDim needs to be less than 3')  
+  _ASSERT(uDIM<3, 'uDim needs to be less than 3')
   _ASSERT(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTL(A,B,size(A),-size(B,2)*2)
@@ -264,6 +281,8 @@ subroutine SORT2AS(B,DIM)
   integer, optional, intent(IN   ) :: DIM
 
   integer :: uDIM, rc
+
+  external :: QSORTS
 
   if(present(DIM)) then
      uDIM = DIM
@@ -286,6 +305,8 @@ subroutine SORT2AL(B,DIM)
   integer, optional, intent(IN   ) :: DIM
 
   integer :: uDIM, rc
+
+  external :: QSORTL
 
   if(present(DIM)) then
      uDIM = DIM

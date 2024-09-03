@@ -80,6 +80,8 @@ module MAPL_MemUtilsMod
   integer, save      :: MAPL_MemUtilsMode
   real, save :: gmax_save
 
+  external :: MPI_AllReduce
+
   contains
 
 !********************************************************

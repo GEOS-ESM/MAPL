@@ -126,6 +126,8 @@ module pFIO_ServerThreadMod
    ! output strategy (2) ( implemented ):
    ! Choose one PE among  servers to write. The other PE in the servers use MPI_put to forward the data the the chosen one.
 
+   external :: MPI_AllGatherV, MPI_Put
+
 contains
 
    function new_ServerThread(sckt, server, rc) result(s)
@@ -764,7 +766,7 @@ contains
       type(DummyMessage) :: handshake_msg
       integer :: status
       class(AbstractRequestHandle), allocatable :: handle
-      
+
       connection => this%get_connection()
       call connection%send(handshake_msg,_RC)
       call this%request_backlog%push_back(message)

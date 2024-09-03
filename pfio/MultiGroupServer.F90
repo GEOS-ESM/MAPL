@@ -88,6 +88,8 @@ module pFIO_MultiGroupServerMod
 
    integer, parameter :: FNAME_LEN = 512
 
+   external :: MPI_Recv, MPI_Send, MPI_Bcast, MPI_AllGather, MPI_Isend, MPI_Irecv
+
 contains
 
    function new_MultiGroupServer(server_comm, port_name, nwriter_per_node, with_profiler, rc) result(s)

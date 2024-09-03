@@ -53,10 +53,12 @@ module pFIO_MpiSocketMod
    contains
       procedure :: wait
    end type MpiRequestHandle
-   
+
    interface MpiRequestHandle
       module procedure new_MpiRequestHandle
    end interface MpiRequestHandle
+
+   external :: MPI_Recv, MPI_Send, MPI_Isend, MPI_Irecv
 
 contains
 
@@ -137,7 +139,7 @@ contains
       call MPI_Send(buffer, size(buffer), MPI_INTEGER, this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, &
            & ierror)
       _VERIFY(ierror)
-      _RETURN(_SUCCESS)      
+      _RETURN(_SUCCESS)
    end subroutine send
 
 
@@ -164,7 +166,7 @@ contains
       integer, pointer :: data(:)
       integer :: n_words
       integer(kind=INT64) :: big_n
-      
+
       tag = make_tag(request_id)
 
       big_n   = product(int(local_reference%shape, INT64)) * word_size(local_reference%type_kind)
@@ -231,11 +233,11 @@ contains
       tag = request_id
 
    end function make_tag
-      
+
    function to_string(this) result(string)
       class (MpiSocket), intent(in) :: this
       character(len=:), allocatable :: string
-      
+
       string = 'MpiSocket::info' // new_line('a')
       string = string // '... world local rank:  ' // i_to_string(this%world_local_rank) // new_line('a')
       string = string // '... world remote rank: ' // i_to_string(this%world_remote_rank) // new_line('a')

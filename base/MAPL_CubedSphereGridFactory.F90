@@ -107,6 +107,7 @@ module MAPL_CubedSphereGridFactoryMod
       module procedure set_with_default_bounds
    end interface set_with_default
 
+   external :: MPI_AllGather, MPI_AllGatherv
 
 contains
 

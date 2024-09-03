@@ -25,6 +25,8 @@ module mapl_GathervKernel
       procedure new_GathervKernel
    end interface GathervKernel
 
+   external :: MPI_GatherV
+
 contains
 
    function new_GathervKernel(n, comm) result(kernel)
@@ -62,10 +64,10 @@ contains
         this%recvcnts(:) = this%n
         this%displs(:) = [(this%n*i, i=0,np-1)]
       end associate
-      
+
       _RETURN(_SUCCESS)
    end subroutine init
-      
+
 
 
    subroutine run(this, rc)
@@ -91,5 +93,5 @@ contains
       _RETURN(_SUCCESS)
    end subroutine run
 
-   
+
 end module mapl_GathervKernel

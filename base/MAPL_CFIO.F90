@@ -267,6 +267,8 @@ module MAPL_CFIOMod
 
   type(CFIOCollectionVector) :: collections
 
+  external :: MPI_Isend, MPI_Recv
+
 contains
 
 !-------------------------------------------------------------------------

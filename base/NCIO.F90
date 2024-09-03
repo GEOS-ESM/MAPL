@@ -78,6 +78,8 @@ module NCIOMod
      module procedure MAPL_VarWriteNCpar_R8_4d
   end interface
 
+  external :: MPI_GatherV, MPI_ScatterV, MPI_Group_translate_ranks, MPI_Bcast
+
   contains
 
 

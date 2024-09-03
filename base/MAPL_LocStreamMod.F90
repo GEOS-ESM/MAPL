@@ -154,6 +154,8 @@ interface MAPL_LocStreamTransform
    module procedure MAPL_LocStreamTransformT2TR8R4
 end interface
 
+external :: MPI_Isend, MPI_Recv, MPI_Gather
+
 contains
 
 !===================================================================
@@ -1584,6 +1586,8 @@ contains
     integer, allocatable              :: arbIndex(:,:)
     integer, parameter                :: DUMMY_NSUBTILES=1
     integer(kind=INT64)               :: ADDR
+
+    external :: c_MAPL_LocStreamRetrievePtr
 
 ! Begin
 !------

@@ -410,7 +410,7 @@ module MAPL_Shmem
        logical,           intent(IN   ) :: TransRoot
        integer, optional, intent(  OUT) :: rc
      end subroutine MAPL_AllocateShared_2DR4
-     
+
      module subroutine MAPL_AllocateShared_2DR8(Ptr, Shp, lbd, TransRoot, rc)
        real(KIND=REAL64), pointer, intent(INOUT) :: Ptr(:,:)
        integer,           intent(IN   ) :: Shp(2)
@@ -543,6 +543,8 @@ module MAPL_Shmem
        integer, optional, intent(  OUT) :: RC
      end function MAPL_CoresPerNodeGet
   end interface
+
+  external :: MPI_Bcast, MPI_AllGather, MPI_AllReduce
 end module MAPL_Shmem
 
 ! For backwards compatibility

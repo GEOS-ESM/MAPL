@@ -77,6 +77,8 @@ module pFIO_ClientManagerMod
    type (ClientManager), target :: i_Clients
    type (ClientManager), target :: o_Clients
 
+   external :: MPI_Comm_rank
+
 contains
 
    function new_ClientManager(client_comm, unusable, n_client, fast_oclient, rc) result (c_manager)

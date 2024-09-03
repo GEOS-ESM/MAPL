@@ -39,6 +39,8 @@ module MAPL_LoadBalanceMod
   integer,           parameter :: MAX_NUM_STRATEGIES=1000
   type(TBalanceStrategy), save :: THE_STRATEGIES(0:MAX_NUM_STRATEGIES)
 
+  external :: MPI_Send, MPI_Recv, MPI_AllGather
+
 !---------------------------------------------------------------------------
 !>
 !### EXAMPLE

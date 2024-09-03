@@ -5,7 +5,7 @@
 program main
    use, intrinsic :: iso_c_binding, only: c_ptr
    use, intrinsic :: iso_c_binding, only: c_loc
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64 
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use pFIO_ConstantsMod
    use pFIO_AbstractMessageMod
@@ -18,8 +18,8 @@ program main
    use pFIO_NetCDF4_FileFormatterMod
    use pFIO_StringNetCDF4_FileFormatterMapMod
    use MAPL_ExceptionHandling
-   use pFIO_UtilitiesMod 
-   use mpi 
+   use pFIO_UtilitiesMod
+   use mpi
 
    implicit none (type, external)
    integer :: Inter_Comm
@@ -29,7 +29,7 @@ program main
 
    integer :: MPI_STAT(MPI_STATUS_SIZE)
    integer :: n_workers, i, idle, no_job, idle_worker
-   integer :: command 
+   integer :: command
    integer, allocatable :: busy(:)
    integer :: msg_size,data_size, status
    integer, allocatable :: bufferm(:), bufferd(:)
@@ -41,7 +41,9 @@ program main
    type (StringNetCDF4_FileFormatterMap) :: formatters
    type (StringNetCDF4_FileFormatterMapIterator) :: iter
    class (AbstractMessage), pointer :: msg
- 
+
+   external :: MPI_recv, MPI_send
+
    call MPI_Init(ierr)
    _VERIFY(ierr)
    call MPI_Comm_get_parent(Inter_Comm, ierr);
@@ -55,7 +57,7 @@ program main
 
    if ( rank == 0 ) then ! captain node is distributing work
       do while (.true.)
-        
+
          ! 1) captain node is waiting command from server
          call MPI_recv( command, 1, MPI_INTEGER, &
                 MPI_ANY_SOURCE, pFIO_s_tag, Inter_Comm, &
@@ -63,8 +65,8 @@ program main
         _VERIFY(ierr)
          server_rank = MPI_STAT(MPI_SOURCE)
 
-         if (command == 1) then ! server is asking for a writing node 
-  
+         if (command == 1) then ! server is asking for a writing node
+
             ! check idle woker
             idle_worker = 0
             do i = 1, n_workers -1
@@ -75,7 +77,7 @@ program main
             enddo
 
             ! if all workers are busy, wait for one
-            if (idle_worker == 0) then 
+            if (idle_worker == 0) then
 
                call MPI_recv( idle, 1, MPI_INTEGER, &
                    MPI_ANY_SOURCE, pFIO_w_m_tag , MPI_COMM_WORLD, &
@@ -106,13 +108,13 @@ program main
                    if (idle /= i ) stop ("idle should be i")
                    call MPI_send(no_job, 1, MPI_INTEGER, i, pFIO_m_w_tag, MPI_COMM_WORLD, ierr)
                    _VERIFY(ierr)
-               endif  
-            enddo  
+               endif
+            enddo
             exit
          endif
       enddo
 
-   else 
+   else
 
      do while (.true.)
 
@@ -162,7 +164,7 @@ program main
                  call formatters%insert( trim(q%file_name),fm)
               endif
               formatter => formatters%at(trim(q%file_name))
-     
+
               attr => forwardData%at(i_to_string(q%collection_id))
               call write_data(q, formatter, attr)
            end select
@@ -176,13 +178,13 @@ program main
            call formatters%erase(iter)
            iter = formatters%begin()
         enddo
-        
-        ! clean up mssage ves amd data map 
+
+        ! clean up mssage ves amd data map
         call forwardVec%clear()
         call forwardData%clear()
 
         deallocate(bufferd, bufferm)
- 
+
         ! telling captain, I am the soldier that is ready to have more work
         call MPI_send(rank, 1, MPI_INTEGER, 0, pFIO_w_m_tag, MPI_COMM_WORLD , ierr)
         _VERIFY(ierr)
@@ -200,7 +202,7 @@ program main
       call MPI_send(command, 1, MPI_INTEGER, 0, pFIO_s_tag, Inter_Comm, ierr)
       _VERIFY(ierr)
    endif
-     
+
    call MPI_Finalize(ierr)
 
 contains
@@ -271,7 +273,7 @@ contains
           case default
               _FAIL( "not supported type")
           end select
-      end select 
+      end select
    end subroutine
 
 end program

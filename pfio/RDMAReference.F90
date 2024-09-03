@@ -34,6 +34,8 @@ module pFIO_RDMAReferenceMod
       module procedure new_RDMAReference
    end interface RDMAReference
 
+   external :: MPI_Win_allocate
+
 contains
 
    function new_RDMAReference(type_kind,msize_word,comm, rank, rc) result(reference)

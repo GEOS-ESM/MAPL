@@ -175,4 +175,7 @@ module MaskSamplerGeosatMod
      end function compute_time_for_current
 
   end interface
+
+  external :: MPI_Gatherv
+
 end module MaskSamplerGeosatMod

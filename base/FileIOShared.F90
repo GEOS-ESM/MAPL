@@ -124,6 +124,8 @@ module FileIOSharedMod
      module procedure ArrayScatterShmR4D1
   end interface ArrayScatterShm
 
+  external :: MPI_File_seek, MPI_File_write, MPI_AllReduce, MPI_Bcast
+
   contains
 
 !--WRITES ------------------

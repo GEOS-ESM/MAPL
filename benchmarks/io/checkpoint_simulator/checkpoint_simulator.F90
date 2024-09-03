@@ -58,6 +58,8 @@ module mapl_checkpoint_support_mod
          procedure :: reset
    end type
 
+   external :: MPI_Gatherv, MPI_AllReduce
+
 contains
 
    subroutine set_parameters(this,config_file)

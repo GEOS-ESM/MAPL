@@ -113,6 +113,8 @@ module pFIO_AbstractServerMod
 
    end interface
 
+   external :: Mpi_Bcast, Mpi_AllGather, Mpi_Allreduce
+
 contains
 
    subroutine init(this,comm, port_name, profiler_name, with_profiler, rc)

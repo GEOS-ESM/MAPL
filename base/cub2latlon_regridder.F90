@@ -83,6 +83,8 @@ module SupportMod
 
    end type RegridSupport
 
+   external :: MPI_Allgather, MPI_Allreduce, MPI_Allgatherv
+
 contains
 
    ! The following procedure parses the command line to find various

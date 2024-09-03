@@ -118,6 +118,8 @@ module MAPL_SwathGridFactoryMod
       module procedure set_with_default_bounds
    end interface set_with_default
 
+   external :: MPI_Bcast
+
 contains
 
    function SwathGridFactory_from_parameters(unusable, grid_name, &

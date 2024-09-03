@@ -65,6 +65,8 @@ module StationSamplerMod
      module procedure new_StationSampler_readfile
   end interface StationSampler
 
+  external :: MPI_Scatterv, MPI_Gatherv, MPI_Barrier
+
 contains
 
   function new_StationSampler_readfile (bundle, filename, nskip_line, GENSTATE, rc) result(sampler)

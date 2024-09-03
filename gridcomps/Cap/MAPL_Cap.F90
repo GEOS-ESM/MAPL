@@ -76,6 +76,8 @@ module MAPL_CapMod
       end function c_chdir
    end interface
 
+   external :: MPI_Bcast
+
 contains
 
    function new_MAPL_Cap_from_set_services(name, set_services, unusable, cap_options, rc) result(cap)

@@ -57,6 +57,8 @@ module MAPL_AbstractMeter
 
    end interface
 
+   external :: MPI_Type_free, MPI_Op_free
+
    contains
 
       subroutine finalize(this, rc)

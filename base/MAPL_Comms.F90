@@ -116,9 +116,9 @@ module MAPL_CommsMod
   interface MAPL_BcastShared
      module procedure MAPL_BcastShared_1DR4
      module procedure MAPL_BcastShared_1DR8
-     module procedure MAPL_BcastShared_2DI4     
+     module procedure MAPL_BcastShared_2DI4
      module procedure MAPL_BcastShared_2DR4
-     module procedure MAPL_BcastShared_2DR8     
+     module procedure MAPL_BcastShared_2DR8
   end interface
 
   interface MAPL_CommsScatterV
@@ -240,6 +240,9 @@ module MAPL_CommsMod
 
   integer, parameter :: MAPL_root=0
   integer, parameter :: msg_tag=11
+
+  external :: MPI_Irecv, MPI_Isend, MPI_Recv, MPI_Bcast, MPI_AllReduce, MPI_ScatterV
+  external :: MPI_GatherV, MPI_AllGather, MPI_AllGatherV, MPI_Send, MPI_SendRecv
 
   contains
 
@@ -1193,7 +1196,7 @@ module MAPL_CommsMod
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_BcastShared_2DI4
-  
+
 ! Rank 0
 !---------------------------
 #define RANK_ 0

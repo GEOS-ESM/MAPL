@@ -84,6 +84,7 @@ module MAPL_LlcGridFactoryMod
       module procedure set_with_default_character
    end interface set_with_default
 
+   external :: ncclos, ncvgt, ncvinq, ncdinq
 
 contains
 
@@ -608,8 +609,6 @@ contains
       type (ESMF_VM) :: vm
 
       real(kind=REAL64), allocatable :: lons(:,:), lats(:,:)
-
-      external :: ncclos
 
       _UNUSED_DUMMY(unusable)
 

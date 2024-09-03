@@ -18,6 +18,8 @@ program  time_ave
    integer  jmglobal
    logical  root
 
+   external ncvid, ncagt, MPI_Reduce, MPI_Recv, MPI_Send
+
 ! **********************************************************************
 ! **********************************************************************
 ! ****                                                              ****
@@ -133,7 +135,7 @@ program  time_ave
 
 !call timebeg ('main')
 
-   call mpi_init                ( ierror ) 
+   call mpi_init                ( ierror )
    _VERIFY(ierror)
    comm = mpi_comm_world
    call mpi_comm_rank ( comm,myid,ierror )

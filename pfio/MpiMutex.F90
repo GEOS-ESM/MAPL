@@ -32,6 +32,8 @@ module pFIO_MpiMutexMod
       module procedure new_MpiMutex
    end interface MpiMutex
 
+   external :: MPI_Alloc_mem, MPI_Win_create, MPI_Get, MPI_Put, MPI_Free_mem, MPI_Recv, MPI_Send
+
 contains
 
 

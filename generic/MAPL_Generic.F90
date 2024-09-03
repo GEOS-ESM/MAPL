@@ -483,6 +483,8 @@ module MAPL_GenericMod
       end subroutine I_SetServices
    end interface
 
+   external :: MPI_File_open, MPI_File_close, MPI_Bcast
+
 contains
 
    !=============================================================================
@@ -10800,6 +10802,9 @@ contains
       logical                      :: found
 
       type(ESMF_GridComp), pointer :: gridcomp
+
+      external :: c_MAPL_LocStreamRetrievePtr
+
       ! Retrieve the pointer to the internal state
       ! --------------------------------------------
 

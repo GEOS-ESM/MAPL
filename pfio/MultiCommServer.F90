@@ -72,6 +72,8 @@ module pFIO_MultiCommServerMod
       module procedure new_MultiCommServer
    end interface MultiCommServer
 
+   external :: MPI_Send, MPI_Recv, MPI_AllGather, MPI_Bcast
+
 contains
 
    function new_MultiCommServer(server_comm, port_name, nwriter_per_node, rc) result(s)

@@ -120,6 +120,8 @@ module MAPL_HistoryCollectionMod
         procedure :: AddGrid
   end type HistoryCollection
 
+  external :: MPI_Gatherv
+
   contains
 
      function define_collection_attributes(this,rc) result(global_attributes)
