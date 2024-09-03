@@ -2539,6 +2539,7 @@ contains
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
+      logical :: writing
       !=============================================================================
 
       !  Begin...
@@ -2580,6 +2581,7 @@ contains
       ! ------------------
       call MAPL_TimerOn(STATE,"generic")
 
+      writing = .false.
       if (associated(STATE%RECORD)) then
 
          FILETYPE = MAPL_Write2Disk
@@ -2587,6 +2589,7 @@ contains
          DO I = 1, size(STATE%RECORD%ALARM)
             if ( ESMF_AlarmIsRinging(STATE%RECORD%ALARM(I), RC=status) ) then
                _VERIFY(status)
+               writing = .true.
                filetype = STATE%RECORD%FILETYPE(I)
 
                if (.not. ftype(filetype)) then
@@ -2645,6 +2648,16 @@ contains
             end if
          END DO
       endif
+      !ALT: drop a file to mark record has finished
+      ! only the root PE writes from the Root of the hierarchy
+      if (writing .and. .not.associated(state%parentGC)) then
+         if (MAPL_Am_I_Root()) then
+            close(99)
+            open (99,file='done.'//datestamp,form='formatted')
+            close(99)
+         end if
+      end if
+
       call MAPL_TimerOff(STATE,"generic",_RC)
 
       call state%t_profiler%stop('Record',_RC)
