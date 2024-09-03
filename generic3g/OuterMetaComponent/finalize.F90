@@ -1,7 +1,8 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) finalize_smod
-   implicit none
+   use mapl3g_GriddedComponentDriverMap
+   implicit none (type, external)
 
 contains
 
@@ -16,7 +17,7 @@ contains
 
       type(GriddedComponentDriver), pointer :: child
       type(GriddedComponentDriverMapIterator) :: iter
-      integer :: status, userRC
+      integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::FINALIZE_USER'
       type(StringVector), pointer :: finalize_phases
       logical :: found
@@ -44,6 +45,10 @@ contains
       end associate
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
+      _UNUSED_DUMMY(unusable)
    end subroutine finalize
 
 end submodule finalize_smod

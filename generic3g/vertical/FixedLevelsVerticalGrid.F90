@@ -7,7 +7,7 @@ module mapl3g_FixedLevelsVerticalGrid
    use esmf, only: ESMF_TypeKind_Flag
    use esmf, only: ESMF_Field
    use esmf, only: ESMF_Geom
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+   use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
 
@@ -15,7 +15,7 @@ module mapl3g_FixedLevelsVerticalGrid
 
    type, extends(VerticalGrid) :: FixedLevelsVerticalGrid
       private
-      real, allocatable :: levels(:)
+      real(kind=REAL32), allocatable :: levels(:)
       character(:), allocatable :: standard_name ! air_pressure, height, etc.
 !#      character(:), allocatable :: units
 !#      character(:), allocatable :: coordinate_name
@@ -58,6 +58,14 @@ contains
        integer, optional, intent(out) :: rc
 
        _FAIL('not implemented')
+
+       _UNUSED_DUMMY(this)
+       _UNUSED_DUMMY(field)
+       _UNUSED_DUMMY(coupler)
+       _UNUSED_DUMMY(standard_name)
+       _UNUSED_DUMMY(geom)
+       _UNUSED_DUMMY(typekind)
+       _UNUSED_DUMMY(units)
     end subroutine get_coordinate_field
 
     logical function can_connect_to(this, src, rc)
@@ -65,8 +73,10 @@ contains
        class(VerticalGrid), intent(in) :: src
        integer, optional, intent(out) :: rc
 
+       can_connect_to = .false.
        _FAIL('not implemented')
-
+       _UNUSED_DUMMY(this)
+       _UNUSED_DUMMY(src)
     end function can_connect_to
 
 end module mapl3g_FixedLevelsVerticalGrid

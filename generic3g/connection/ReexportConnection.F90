@@ -84,17 +84,11 @@ contains
       type(StateRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
-!#      integer :: status
-!#      type(StateRegistry), pointer :: src_registry
-!#      type(ConnectionPt) :: src_pt
-!#
-!#      src_pt = this%get_source()
-!#      src_registry => registry%get_subregistry(src_pt)
-!#      _ASSERT(associated(src_registry), 'Unknown source registry')
-!#
-!#      call this%connect_export_to_export(registry, src_registry, _RC)
+      ! no-op
         
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(registry)
    end subroutine connect
 
    ! Non-sibling connection: just propagate pointer "up"
@@ -106,11 +100,6 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(ActualPtVectorIterator) :: iter
-      class(StateItemSpec), pointer :: spec
-      type(ActualConnectionPt), pointer :: src_actual_pt
-      type(ActualConnectionPt), allocatable :: dst_actual_pt
-      type(ActualPtVector), pointer :: actual_pts
       integer :: status
       type(VirtualConnectionPt) :: src_pt, dst_pt
       type(ConnectionPt) :: src, dst

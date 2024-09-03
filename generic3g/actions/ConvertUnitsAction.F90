@@ -25,35 +25,20 @@ module mapl3g_ConvertUnitsAction
 
    interface ConvertUnitsAction
       procedure new_converter
-      procedure new_converter2
    end interface ConvertUnitsAction
 
 
 contains
 
 
-   function new_converter(f_in, src_units, f_out, dst_units) result(action)
-      type(ConvertUnitsAction) :: action
-      type(ESMF_Field), intent(in) :: f_in, f_out
-      character(*), intent(in) :: src_units, dst_units
-
-      integer :: status
-
-      ! TODO: move to place where only called
-      call UDUNITS_GetConverter(action%converter, from=src_units, to=dst_units, rc=status)
-      action%f_in = f_in
-      action%f_out = f_out
-      
-   end function new_converter
-
-   function new_converter2(src_units, dst_units) result(action)
+   function new_converter(src_units, dst_units) result(action)
       type(ConvertUnitsAction) :: action
       character(*), intent(in) :: src_units, dst_units
 
       action%src_units = src_units
       action%dst_units = dst_units
 
-   end function new_converter2
+   end function new_converter
 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf
@@ -68,6 +53,9 @@ contains
       call UDUNITS_GetConverter(this%converter, from=this%src_units, to=this%dst_units, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(clock)
    end subroutine initialize
 
       

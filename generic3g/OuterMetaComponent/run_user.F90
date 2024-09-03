@@ -2,6 +2,7 @@
 
 submodule (mapl3g_OuterMetaComponent) run_user_smod
    use mapl3g_ComponentDriverPtrVector
+   use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_INVALIDATE, GENERIC_COUPLER_UPDATE
    implicit none
 
 contains

@@ -46,6 +46,7 @@ contains
       spec%user_setservices = user_setservices
       if (present(config_file)) spec%config_file = config_file
 
+      _UNUSED_DUMMY(unusable)
    end function new_ChildSpec
       
 
@@ -106,10 +107,13 @@ contains
          file = '<none>'
       end if
 
-      write(unit,'(a,a)',iostat=iostat) 'Config file: ', file
+      write(unit,'(a,a)',iostat=iostat, iomsg=iomsg) 'Config file: ', file
       if (iostat /= 0) return
 
-      write(unit,'(a, DT)', iostat=iostat) 'UserSetServices: ', this%user_setservices
+      write(unit,'(a, DT)', iostat=iostat, iomsg=iomsg) 'UserSetServices: ', this%user_setservices
+
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
       
    end subroutine write_formatted
 

@@ -72,7 +72,7 @@ contains
 
             short_name = name
             typekind = to_typekind(attributes, _RC)
-            call val_to_float(default_value, attributes, 'default_value', _RC)
+            call val_to_float(default_value, attributes, KEY_DEFAULT_VALUE, _RC)
             vertical_dim_spec = to_VerticalDimSpec(attributes,_RC)
             ungridded_dims = to_UngriddedDims(attributes, _RC)
 
@@ -127,7 +127,7 @@ contains
          integer :: status
          logical :: has_default_value
 
-         has_default_value = ESMF_HConfigIsDefined(attributes, keyString=KEY_DEFAULT_VALUE, _RC)
+         has_default_value = ESMF_HConfigIsDefined(attributes, keyString=key, _RC)
          _RETURN_UNLESS(has_default_value)
 
          allocate(x)

@@ -137,9 +137,9 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update_sources
 
-   recursive subroutine invalidate(this, sourceState, exportState, clock, rc)
+   recursive subroutine invalidate(this, importState, exportState, clock, rc)
         class(CouplerMetaComponent) :: this
-        type(ESMF_State) :: sourceState
+        type(ESMF_State) :: importState
         type(ESMF_State) :: exportState
         type(ESMF_Clock) :: clock
         integer, intent(out) :: rc
@@ -148,11 +148,13 @@ contains
         
         _RETURN_IF(this%is_stale())
 
-!#        call this%action%invalidate(_RC) ! eventually needs access to clock
         call this%invalidate_consumers(_RC)
         call this%set_stale()
   
         _RETURN(_SUCCESS)
+        _UNUSED_DUMMY(clock)
+        _UNUSED_DUMMY(exportState)
+        _UNUSED_DUMMY(importState)
     end subroutine invalidate
       
     recursive subroutine invalidate_consumers(this, rc)
@@ -171,9 +173,9 @@ contains
       _RETURN(_SUCCESS)
    end subroutine invalidate_consumers
 
-   recursive subroutine clock_advance(this, sourceState, exportState, clock, rc)
+   recursive subroutine clock_advance(this, importState, exportState, clock, rc)
         class(CouplerMetaComponent), intent(inout) :: this
-        type(ESMF_State), intent(inout) :: sourceState
+        type(ESMF_State), intent(inout) :: importState
         type(ESMF_State), intent(inout) :: exportState
         type(ESMF_Clock), intent(inout) :: clock
         integer, optional, intent(out) :: rc
@@ -186,9 +188,10 @@ contains
         is_ringing = ESMF_AlarmIsRinging(alarm, _RC)
         _RETURN_UNLESS(is_ringing)
 
-!#        call this%action%run(_RC) ! eventually needs access to clock
-
         _RETURN(_SUCCESS)
+        _UNUSED_DUMMY(this)
+        _UNUSED_DUMMY(exportState)
+        _UNUSED_DUMMY(importState)
      end subroutine clock_advance
 
 
