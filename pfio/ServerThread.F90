@@ -55,7 +55,7 @@ module pFIO_ServerThreadMod
    use gFTL_StringInteger64Map
    use mpi
 
-   implicit none
+   implicit none (type)
    private
 
    public :: ServerThread
@@ -764,7 +764,7 @@ contains
       type(DummyMessage) :: handshake_msg
       integer :: status
       class(AbstractRequestHandle), allocatable :: handle
-      
+
       connection => this%get_connection()
       call connection%send(handshake_msg,_RC)
       call this%request_backlog%push_back(message)

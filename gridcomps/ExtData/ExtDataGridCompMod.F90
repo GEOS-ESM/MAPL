@@ -65,7 +65,7 @@
    use MAPL_StringTemplate
    use pFlogger
 
-   IMPLICIT NONE
+   implicit none (type, external)
    PRIVATE
 !
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -302,7 +302,7 @@ CONTAINS
 
 ! !USES:
 
-   implicit NONE
+   implicit none (type, external)
 
 ! !INPUT PARAMETERS:
 
@@ -1185,7 +1185,7 @@ CONTAINS
 
 ! !USES:
 
-  implicit NONE
+  implicit none (type, external)
 
 ! !INPUT PARAMETERS:
 
@@ -1598,7 +1598,7 @@ CONTAINS
 
 ! !USES:
 
-  implicit NONE
+  implicit none (type, external)
 
 ! !INPUT PARAMETERS:
 
@@ -3822,7 +3822,7 @@ CONTAINS
 
 ! !USES:
 
-  IMPLICIT NONE
+  implicit none (type, external)
 
 ! !INPUT/OUTPUT PARAMETERS:
 

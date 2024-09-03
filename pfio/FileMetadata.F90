@@ -17,7 +17,7 @@ module pFIO_FileMetadataMod
    use pFIO_StringAttributeMapMod
    use gFTL_StringVector
    use pFIO_StringVectorUtilMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FileMetadata

@@ -3,7 +3,7 @@ module mapl_ServiceServicesTypes
   use ESMF
   use MAPL_ExceptionHandling
 
-  implicit none
+  implicit none (type, external)
   private
 
 

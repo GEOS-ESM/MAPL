@@ -13,7 +13,7 @@ module MAPL_RegridderManager_private
    use ESMF
    use MAPL_EsmfRegridderMod
    use mapl_RegridMethods
-   implicit none
+   implicit none (type, external)
    private
 
    public :: RegridderManager
@@ -234,7 +234,7 @@ end module MAPL_RegridderManager_private
 
 module MAPL_RegridderManagerMod
    use MAPL_RegridderManager_private
-   implicit none
+   implicit none (type, external)
    private
 
    public :: RegridderManager

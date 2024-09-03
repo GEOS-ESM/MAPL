@@ -5,7 +5,7 @@ use ESMF
 use MAPL_ErrorHandlingMod
 use MAPL_FieldPointerUtilities
 
-implicit none
+implicit none (type, external)
 private
 
 public FieldIsConstant

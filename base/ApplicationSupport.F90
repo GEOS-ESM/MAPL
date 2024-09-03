@@ -7,7 +7,7 @@ module MAPL_ApplicationSupport
  use pflogger, only: Logger
  use MAPL_Profiler, initialize_profiler =>initialize, finalize_profiler =>finalize
 
- implicit none
+ implicit none (type, external)
  private
 
  public MAPL_Initialize

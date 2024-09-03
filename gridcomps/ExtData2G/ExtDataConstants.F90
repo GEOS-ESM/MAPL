@@ -1,5 +1,5 @@
 module MAPL_ExtDataConstants
-implicit none
+implicit none (type, external)
 private
 
   integer, parameter, public    :: ExtData_Not_Found         = 0

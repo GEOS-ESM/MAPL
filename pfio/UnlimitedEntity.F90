@@ -30,7 +30,7 @@ module pFIO_UnlimitedEntityMod
    use, intrinsic :: iso_fortran_env, only: INT32, INT64
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: UnlimitedEntity
@@ -727,7 +727,7 @@ module pFIO_StringUnlimitedEntityMapUtilMod
    use pFIO_UnlimitedEntityMod
    use pFIO_StringUnlimitedEntityMapMod
    use MAPL_ExceptionHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: StringUnlimitedEntityMap_serialize

@@ -14,7 +14,7 @@ module MAPL_ExtdataSimpleFileHandler
    use MAPL_ExtDataBracket
    use MAPL_ExtDataConstants
 
-   implicit none
+   implicit none (type, external)
    private
    public ExtDataSimpleFileHandler
 

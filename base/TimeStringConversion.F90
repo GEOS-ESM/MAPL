@@ -4,7 +4,7 @@ module MAPL_TimeStringConversion
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: string_to_integer_time

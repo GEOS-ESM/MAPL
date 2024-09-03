@@ -1,5 +1,5 @@
 module mapl_SurrogateFrameworkComponent
-   implicit none
+   implicit none (type, external)
    private
 
    public :: SurrogateFrameworkComponent

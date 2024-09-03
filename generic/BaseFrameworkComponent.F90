@@ -6,7 +6,7 @@ module mapl_BaseFrameworkComponent
    use mapl_AbstractComponent
    use mapl_ComponentSpecification
    use mapl_MaplGrid
-   implicit none
+   implicit none (type, external)
    private
 
    public :: BaseFrameworkComponent

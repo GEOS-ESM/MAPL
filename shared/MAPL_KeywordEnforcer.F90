@@ -22,7 +22,7 @@
    ! keyword enforcement.
 
 module MAPL_KeywordEnforcerMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: KeywordEnforcer

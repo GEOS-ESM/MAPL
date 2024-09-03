@@ -31,7 +31,7 @@
       use netcdf
       use, intrinsic :: iso_fortran_env, only: INT16, INT32, INT64
       use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-      implicit none
+      implicit none (type, external)
 
 #if defined(HDFEOS) || defined(HDFSD)
       include "hdf.f90"
@@ -423,7 +423,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -623,7 +623,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -824,7 +824,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -1045,7 +1045,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -1149,7 +1149,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -1216,7 +1216,7 @@
 ! !USES:
 !
 
-      Implicit NONE
+      implicit none (type, external)
 
 !
 ! !INPUT PARAMETERS:
@@ -1270,7 +1270,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -1284,6 +1284,8 @@
                          !!  NetCDF Errors
                          !!  -------------
                          !!   rc = -54  error from ncclos (file close)
+
+      external :: ncclos
 !
 !-------------------------------------------------------------------------
 
@@ -1313,7 +1315,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -1406,7 +1408,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -1500,7 +1502,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -1556,7 +1558,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -1649,7 +1651,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -1715,7 +1717,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -1819,7 +1821,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -1922,7 +1924,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -2054,7 +2056,7 @@
 !
        integer(kind=INT64) function DiffDate (yyyymmhh_1,hhmmss_1,yyyymmhh_2,hhmmss_2)
 
-       implicit none
+       implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -2198,7 +2200,7 @@
 !
 ! !USES:
 !
-      implicit none
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -2333,7 +2335,7 @@
 !
 ! !USES:
 
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -2712,7 +2714,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -3079,7 +3081,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -3486,7 +3488,7 @@
 !
 ! !USES:
 
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -3899,7 +3901,7 @@
        subroutine GetDateInt8 (yyyymmdd_1,hhmmss_1,offset, &
                           yyyymmdd_2,hhmmss_2,rc)
 
-       implicit none
+       implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -4001,7 +4003,7 @@
        subroutine GetDateInt4 (yyyymmdd_1,hhmmss_1,offset, &
                           yyyymmdd_2,hhmmss_2,rc)
 
-       implicit none
+       implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -4041,7 +4043,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 
@@ -4156,7 +4158,7 @@
 !- 08Jan01 - da Silva: moved uppercase() to outside select() to avoid coredump on Linux/PGI.
 !
     subroutine strTemplate_(str,tmpl,class,xid,nymd,nhms,stat)
-      implicit none
+      implicit none (type, external)
 
       character(len=*),intent(out) :: str ! the output
 
@@ -4217,7 +4219,7 @@ end subroutine strTemplate_
 !
 
     subroutine GX_(str,tmpl,xid,nymd,nhms,stat)
-      implicit none
+      implicit none (type, external)
       character(len=*),intent(out) :: str
       character(len=*),intent(in ) :: tmpl
       character(len=*),optional,intent(in) :: xid
@@ -4518,7 +4520,7 @@ end do
 
 contains
 subroutine genv_(tmpl,lnt,i,istp,str,lns,k,ier)
-  implicit none
+  implicit none (type, external)
   character(len=*),intent(in) :: tmpl
   integer,intent(in)  :: lnt
   integer,intent(in)  :: i
@@ -4632,7 +4634,7 @@ end subroutine die
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -4683,7 +4685,7 @@ end subroutine die
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -4800,7 +4802,7 @@ end subroutine die
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -4917,7 +4919,7 @@ end subroutine die
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -5001,7 +5003,7 @@ end subroutine die
 !
 ! !USES:
 
-      Implicit NONE
+      implicit none (type, external)
 !#include "hlimits.h"
 !
 ! !INPUT PARAMETERS:
@@ -5696,7 +5698,7 @@ end subroutine die
 #if defined (HDFEOS)
 
        INTEGER FUNCTION GetSDSid (fid, varName)
-       IMPLICIT NONE
+       implicit none (type, external)
        integer       fid
        character(len=*) varName
 

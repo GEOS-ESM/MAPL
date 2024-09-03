@@ -8,7 +8,7 @@ module VarspecDescriptionMod
    use MAPL
    use ESMF
    use gFTL_StringVector
-   implicit none
+   implicit none (type, external)
    private
 
    public :: VarspecDescription

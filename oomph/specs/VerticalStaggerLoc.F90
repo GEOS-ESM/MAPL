@@ -1,5 +1,5 @@
 module oomph_VerticalStaggerLoc
-   implicit none
+   implicit none (type, external)
    private
 
    public :: VerticalStaggerLoc

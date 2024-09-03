@@ -8,7 +8,7 @@ module MAPL_DistributedProfiler
 
    use MAPL_AdvancedMeter
    use MAPL_MpiTimerGauge
-   implicit none
+   implicit none (type, external)
    private
 
    public :: DistributedProfiler

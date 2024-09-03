@@ -4,7 +4,7 @@ subroutine Shave32 ( a_shaved, a, n, xbits, has_undef, undef, chunksize, rc )
 !  Simple cover for f2py.
 !
    use iso_fortran_env, only: REAL32
-   implicit NONE
+   implicit none (type, external)
    integer,           intent(in) :: n              ! array size
    real(kind=REAL32), intent(in) :: a(n)           ! array to be shaved, usually 2D
    integer,           intent(in) :: xbits          ! number of mantissa bits to zero (out of 24)

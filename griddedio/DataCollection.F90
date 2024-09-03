@@ -7,7 +7,7 @@ module MAPL_DataCollectionMod
   use MAPL_GridManagerMod
   use MAPL_AbstractGridFactoryMod
   use gFTL_StringIntegerMap
-  implicit none
+  implicit none (type, external)
   private
 
   public :: MAPLDataCollection

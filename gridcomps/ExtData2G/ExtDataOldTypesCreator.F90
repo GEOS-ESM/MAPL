@@ -20,7 +20,7 @@ module MAPL_ExtDataOldTypesCreator
    use MAPL_ExtDataClimFileHandler
    use MAPL_ExtDataTimeSample
    use MAPL_ExtDataTimeSampleMap
-   implicit none
+   implicit none (type, external)
 
    public :: ExtDataOldTypesCreator
    public :: new_ExtDataOldTypesCreator

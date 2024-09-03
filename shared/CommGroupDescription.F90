@@ -3,7 +3,7 @@
 module MAPL_CommGroupDescriptionMod
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: CommGroupDescription

@@ -5,7 +5,7 @@ module pFIO_AddExtCollectionMessageMod
    use MAPL_ExceptionHandling
    use pFIO_UtilitiesMod
    use pFIO_AbstractMessageMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AddExtCollectionMessage

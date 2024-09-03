@@ -1,7 +1,7 @@
 subroutine init_tests()
    use MAPL_pFUnit_ThrowMod, only: pFUnit_throw
    use MAPL_ThrowMod
-   implicit none
+   implicit none (type, external)
 
    call MAPL_set_throw_method(pfunit_throw)
 

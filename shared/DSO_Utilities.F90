@@ -1,6 +1,6 @@
 module mapl_DSO_Utilities
    use mapl_FileSystemUtilities
-   implicit none
+   implicit none (type, external)
 
    public :: is_valid_dso_name
    public :: is_valid_dso_extension

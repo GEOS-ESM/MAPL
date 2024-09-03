@@ -25,7 +25,7 @@ module MAPL_VarSpecMiscMod
    use MAPL_VarConn
 ! !PUBLIC MEMBER FUNCTIONS:
 
-implicit none
+implicit none (type, external)
 private
 
 

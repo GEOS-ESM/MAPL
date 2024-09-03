@@ -17,7 +17,7 @@ module MAPL_CommsMod
   use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter
   use MAPL_ExceptionHandling
   use mpi
-  implicit none
+  implicit none (type)
   private
 
   public MAPL_CommsBcast
@@ -116,9 +116,9 @@ module MAPL_CommsMod
   interface MAPL_BcastShared
      module procedure MAPL_BcastShared_1DR4
      module procedure MAPL_BcastShared_1DR8
-     module procedure MAPL_BcastShared_2DI4     
+     module procedure MAPL_BcastShared_2DI4
      module procedure MAPL_BcastShared_2DR4
-     module procedure MAPL_BcastShared_2DR8     
+     module procedure MAPL_BcastShared_2DR8
   end interface
 
   interface MAPL_CommsScatterV
@@ -1193,7 +1193,7 @@ module MAPL_CommsMod
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_BcastShared_2DI4
-  
+
 ! Rank 0
 !---------------------------
 #define RANK_ 0

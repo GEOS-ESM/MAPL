@@ -1,6 +1,6 @@
 module MAPL_ExternalGCStorage
 use esmf
-implicit none
+implicit none (type, external)
 
 type t_extdata_state
   type(ESMF_State)    :: expState

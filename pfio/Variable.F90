@@ -12,7 +12,7 @@ module pFIO_VariableMod
    use pFIO_AttributeMod
    use pFIO_StringAttributeMapMod
    use pFIO_StringAttributeMapUtilMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: Variable

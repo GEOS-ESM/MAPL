@@ -2,7 +2,7 @@
 ! The values are the same as the udunits2 utStatus C enum
 module ud2f_status_codes
 
-   implicit none
+   implicit none (type, external)
 
    enum, bind(c)
        enumerator :: &

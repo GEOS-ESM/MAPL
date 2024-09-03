@@ -9,7 +9,7 @@
    use ESMF
    use MAPLBase_Mod
 
-   implicit NONE
+   implicit none (type, external)
 
    type(ESMF_Grid)     :: grid
    type (ESMF_VM)      :: VM

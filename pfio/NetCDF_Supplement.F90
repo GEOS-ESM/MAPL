@@ -3,7 +3,7 @@
 
 module pfio_NetCDF_Supplement
    use, intrinsic :: iso_c_binding
-   implicit none
+   implicit none (type, external)
    private
 
    public :: pfio_get_att_string
@@ -15,7 +15,7 @@ module pfio_NetCDF_Supplement
       function c_f_pfio_get_att_string(ncid, varid, name, string, attlen) &
            & result(stat) bind(C, name='pfio_get_att_string')
          use, intrinsic :: iso_c_binding
-         implicit none
+         implicit none (type, external)
          integer :: stat
          integer(kind=C_INT), value, intent(in) :: ncid
          integer(kind=C_INT), value, intent(in) :: varid
@@ -27,7 +27,7 @@ module pfio_NetCDF_Supplement
       function c_f_pfio_get_var_string_len(ncid, varid, str_len_ptr, size) &
            & result(stat) bind(C, name='pfio_get_var_string_len')
          use, intrinsic :: iso_c_binding
-         implicit none
+         implicit none (type, external)
          integer :: stat
          integer(kind=C_INT), value, intent(in) :: ncid
          integer(kind=C_INT), value, intent(in) :: varid
@@ -38,7 +38,7 @@ module pfio_NetCDF_Supplement
       function c_f_pfio_get_var_string(ncid, varid, string_ptr, str_len,  start_ptr, count_ptr) &
            & result(stat) bind(C, name='pfio_get_var_string')
          use, intrinsic :: iso_c_binding
-         implicit none
+         implicit none (type, external)
          integer :: stat
          integer(kind=C_INT), value, intent(in) :: ncid
          integer(kind=C_INT), value, intent(in) :: varid
@@ -51,7 +51,7 @@ module pfio_NetCDF_Supplement
       function c_f_pfio_put_var_string(ncid, varid, string_ptr, str_len, str_size, start_ptr, count_ptr) &
            & result(stat) bind(C, name='pfio_put_var_string')
          use, intrinsic :: iso_c_binding
-         implicit none
+         implicit none (type, external)
          integer :: stat
          integer(kind=C_INT), value, intent(in) :: ncid
          integer(kind=C_INT), value, intent(in) :: varid

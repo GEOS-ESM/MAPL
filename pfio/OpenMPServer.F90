@@ -8,7 +8,7 @@ module pFIO_OpenMPServerMod
    use pFIO_BaseServerMod
    use pFIO_IntegerIntegerMapMod
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: OpenMPServer

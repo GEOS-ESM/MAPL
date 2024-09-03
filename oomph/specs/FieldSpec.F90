@@ -3,7 +3,7 @@ module oomph_FieldSpec
    use oomph_DimsSpec
    use oomph_CouplingSpec
    use ESMF, only: ESMF_TYPEKIND_FLAG
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FieldSpec

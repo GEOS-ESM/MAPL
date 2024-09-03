@@ -17,7 +17,7 @@ module MAPL_GridManager_private
    use MAPL_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
    use ESMF
-   implicit none
+   implicit none (type, external)
    private
 
    public :: GridManager
@@ -600,7 +600,7 @@ module MAPL_GridManagerMod
    use MAPL_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
    use ESMF
-   implicit none
+   implicit none (type, external)
    private
 
    public :: grid_manager

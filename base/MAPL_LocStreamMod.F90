@@ -34,7 +34,7 @@ use MAPL_ExceptionHandling
 use, intrinsic :: iso_fortran_env, only: REAL64, INT64
 use mpi
 
-implicit none
+implicit none (type)
 private
 
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -1584,6 +1584,8 @@ contains
     integer, allocatable              :: arbIndex(:,:)
     integer, parameter                :: DUMMY_NSUBTILES=1
     integer(kind=INT64)               :: ADDR
+
+    external :: c_MAPL_LocStreamRetrievePtr
 
 ! Begin
 !------

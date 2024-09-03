@@ -30,7 +30,7 @@ module  BinIOMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
   use mpi
-  implicit none
+  implicit none (type)
   private
 
 
@@ -108,8 +108,6 @@ module  BinIOMod
      module procedure MAPL_VarWrite_R8_4D
   end interface
 
-
-
   contains
 
 !-READS --------------------
@@ -168,7 +166,7 @@ module  BinIOMod
 #include "read_parallel.H"
 
   LOGICAL FUNCTION INQFILEMEM(name)
-    IMPLICIT NONE
+    implicit none (type, external)
     character(LEN=*), intent(in   )           :: Name
 
     integer :: i
@@ -186,7 +184,7 @@ module  BinIOMod
   end FUNCTION INQFILEMEM
 
   INTEGER FUNCTION GETFILEUNIT(name,  RC )
-    IMPLICIT NONE
+    implicit none (type, external)
     character(LEN=*), intent(in   )           :: Name
     integer         , intent(  out), OPTIONAL :: RC
 
@@ -226,7 +224,7 @@ module  BinIOMod
 
 !---------------------------------------------------------------------------
   SUBROUTINE FREE_FILE(UNIT, RC)
-    implicit none
+    implicit none (type, external)
     integer         , intent(out), OPTIONAL :: RC
 
     integer :: UNIT
@@ -259,7 +257,7 @@ module  BinIOMod
 
 !---------------------------------------------------------------------------
   subroutine MAPL_DestroyFile(unit,  RC )
-    IMPLICIT NONE
+    implicit none (type, external)
     integer         , intent(in   )           :: unit
     integer         , intent(  out), OPTIONAL :: RC
 
@@ -3935,7 +3933,7 @@ module  BinIOMod
 
   INTEGER FUNCTION GETFILE( NAME, DO_OPEN, FORM, ALL_PES, &
                              BLOCKSIZE, NUMBUFFERS, RC )
-    IMPLICIT NONE
+    implicit none (type, external)
 
     character(LEN=*), intent(in   )           :: Name
     integer         , intent(in   ), OPTIONAL :: DO_OPEN
@@ -4030,7 +4028,7 @@ module  BinIOMod
   END FUNCTION GETFILE
 
   INTEGER FUNCTION GETFILEMEM(name,  RC )
-    IMPLICIT NONE
+    implicit none (type, external)
     character(LEN=*), intent(in   )           :: Name
     integer         , intent(  out), OPTIONAL :: RC
 
@@ -4069,7 +4067,7 @@ module  BinIOMod
 
   subroutine MAPL_OPEN(UNIT,FILE,FORM,BLOCKSIZE, NUMBUFFERS, RC)
 
-    implicit none
+    implicit none (type, external)
     integer         , optional, intent(out) :: RC
 
     integer         ,           intent(in) :: UNIT
