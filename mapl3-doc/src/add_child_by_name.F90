@@ -5,12 +5,12 @@ submodule (mapl3g_OuterMetaComponent) add_child_by_name_smod
    use mapl3g_ChildSpec
    use mapl3g_ChildSpecMap
    use mapl3g_GenericGridComp
+   use mapl3g_Validation
    implicit none
 
 contains
 
    module recursive subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
-      use mapl3g_GenericGridComp, only: generic_setservices => setservices
       class(OuterMetaComponent), target, intent(inout) :: this
       character(len=*), intent(in) :: child_name
       class(AbstractUserSetServices), intent(in) :: setservices

@@ -50,10 +50,11 @@ contains
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
 
-      character(:), allocatable :: units
-      integer :: status
-
       _RETURN(_SUCCESS)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(geom)
+      _UNUSED_DUMMY(vertical_grid)
    end subroutine set_geometry
 
    subroutine add_item(this, name, item)
@@ -105,9 +106,9 @@ contains
       class(StateSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _RETURN(ESMF_SUCCESS)
+
+      _UNUSED_DUMMY(this)
    end subroutine allocate
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
@@ -115,8 +116,6 @@ contains
       class(StateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt ! unused
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       select type (src_spec)
       class is (StateSpec)
@@ -148,15 +147,11 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      type(ESMF_State) :: alias
-      integer :: status
-
       _FAIL('unimplemented')
 
-!!$      alias = ESMF_NamedAlias(this%payload, name=short_name, _RC)
-!!$      call ESMF_StateAdd(state, this%payload, short_name, _RC)
-!!$
-
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(multi_state)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine add_to_state
 
 
@@ -168,6 +163,8 @@ contains
       _FAIL('Attempt to use item of type InvalidSpec')
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
    
 
@@ -178,20 +175,25 @@ contains
       class(ExtensionAction), allocatable, intent(out) :: action
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       action = NullAction() ! default
       new_spec = this
 
       _FAIL('not implemented')
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(dst_spec)
    end subroutine make_extension
 
    integer function extension_cost(this, src_spec, rc) result(cost)
       class(StateSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
+
       cost = 0
+
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_spec)
    end function extension_cost
 
 

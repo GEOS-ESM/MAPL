@@ -1,7 +1,8 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) free_outer_meta_smod
-   implicit none
+   use mapl3g_ESMF_Interfaces, only: MAPL_UserCompGetInternalState
+   implicit none (type, external)
 
 contains
 

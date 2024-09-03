@@ -38,6 +38,7 @@ contains
       integer :: num_levels
       class(MirrorVerticalGrid), intent(in) :: this
       num_levels = -1
+      _UNUSED_DUMMY(this)
    end function
       
    subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
@@ -51,7 +52,15 @@ contains
       integer, optional, intent(out) :: rc
 
       _FAIL('MirrorVerticalGrid should have been replaced before this procedure was called.')
-   end subroutine get_coordinate_field
+ 
+        _UNUSED_DUMMY(this)
+       _UNUSED_DUMMY(field)
+       _UNUSED_DUMMY(coupler)
+       _UNUSED_DUMMY(standard_name)
+       _UNUSED_DUMMY(geom)
+       _UNUSED_DUMMY(typekind)
+       _UNUSED_DUMMY(units)
+ end subroutine get_coordinate_field
 
    logical function can_connect_to(this, src, rc)
       class(MirrorVerticalGrid), intent(in) :: this
@@ -60,6 +69,9 @@ contains
 
       can_connect_to = .false.
       _RETURN(_SUCCESS)
+
+       _UNUSED_DUMMY(this)
+       _UNUSED_DUMMY(src)
    end function
 
 end module mapl3g_MirrorVerticalGrid

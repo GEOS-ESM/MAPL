@@ -42,6 +42,7 @@ contains
       multi_state%exportState = get_state('export', exportState)
       multi_state%internalState = get_state('internal', internalState)
 
+      _UNUSED_DUMMY(unusable)
    contains
 
       function get_state(name, state) result(new_state)
@@ -57,7 +58,7 @@ contains
          new_state = ESMF_StateCreate(name=name)
 
       end function get_state
- 
+
    end function newMultiState_user
 
 
@@ -117,15 +118,15 @@ contains
       integer, intent(out)        :: iostat
       character(*), intent(inout) :: iomsg
 
-      type(ESMF_State) :: state
       integer :: status
-      character(ESMF_MAXSTR) :: name
-      integer :: itemCount
 
 #ifndef __GFORTRAN__
       write(unit,*, iostat=iostat, iomsg=iomsg) 'IMPORT:', this%importState
       write(unit,*, iostat=iostat, iomsg=iomsg) 'EXPORT:', this%exportState
 #endif
+
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
    end subroutine write_multistate
 
    subroutine destroy(this, rc)
@@ -137,8 +138,8 @@ contains
       call ESMF_StateDestroy(this%importState, _RC)
       call ESMF_StateDestroy(this%exportState, _RC)
       call ESMF_StateDestroy(this%internalState, _RC)
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end subroutine destroy
 
  end module mapl3g_MultiState

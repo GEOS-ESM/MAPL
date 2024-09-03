@@ -141,11 +141,11 @@ contains
       type(StateItemExtensionPtr), target, allocatable :: src_extensions(:), dst_extensions(:)
       type(StateItemExtension), pointer :: src_extension, dst_extension
       class(StateItemSpec), pointer :: src_spec, dst_spec
-      integer :: i, j
+      integer :: i
       integer :: status
       type(ConnectionPt) :: src_pt, dst_pt
       integer :: i_extension
-      integer :: cost, lowest_cost
+      integer :: lowest_cost
       type(StateItemExtension), pointer :: best_extension
       type(StateItemExtension), pointer :: last_extension
       type(StateItemExtension) :: extension
@@ -156,8 +156,6 @@ contains
       type(ActualConnectionPt) :: effective_pt
 
       type(GriddedComponentDriver), pointer :: coupler
-      type(ActualPtVector), pointer :: src_actual_pts
-      type(ActualConnectionPt), pointer :: best_pt
       type(ActualConnectionPt) :: a_pt
       type(MultiState) :: coupler_states
 

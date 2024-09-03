@@ -10,7 +10,6 @@ module mapl3g_OuterMetaComponent
    use mapl3g_VariableSpecVector
    use mapl3g_ComponentSpec
    use mapl3g_GenericPhases
-   use mapl3g_Validation, only: is_valid_name
    use mapl3g_InnerMetaComponent
    use mapl3g_MethodPhasesMap
    use mapl3g_StateItemSpec
@@ -21,16 +20,13 @@ module mapl3g_OuterMetaComponent
    use mapl3g_ActualPtVector
    use mapl3g_ConnectionVector
    use mapl3g_StateRegistry
-   use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
+   use mapl3g_ESMF_Interfaces, only: I_Run
    use mapl3g_ComponentDriver
    use mapl3g_GriddedComponentDriver
    use mapl3g_ComponentDriverVector
    use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMap
-   use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMapIterator
    use mapl3g_GriddedComponentDriverMap, only: operator(/=)
    use mapl3g_ActualPtComponentDriverMap
-   use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_INVALIDATE
-   use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_UPDATE
    use mapl_ErrorHandling
    use mapl3g_VerticalGrid
    use mapl3g_GeometrySpec
@@ -38,7 +34,6 @@ module mapl3g_OuterMetaComponent
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
    use esmf
    use pflogger, only: logging, Logger
-   use mapl3g_RestartHandler, only: RestartHandler
 
    implicit none
    private

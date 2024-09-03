@@ -53,6 +53,8 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use :: esmf, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use :: esmf, only: ESMF_STATEITEM_STATE, ESMF_STATEITEM_UNKNOWN
+   use :: esmf, only: ESMF_KIND_R8, ESMF_KIND_R4, ESMF_NOKIND
+   use :: esmf, only: ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R4, ESMF_NOKIND
    use mapl3g_hconfig_get
    use :: pflogger, only: logger_t => logger
    use mapl_ErrorHandling
@@ -239,6 +241,7 @@ contains
       if (present(geom)) geom = outer_meta_%get_geom()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_get
 
    subroutine add_child_by_name(gridcomp, child_name, setservices, config, rc)
@@ -343,10 +346,8 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      type(GriddedComponentDriver), pointer :: user_gc_driver
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
-      user_gc_driver => outer_meta%get_user_gc_driver()
       call outer_meta%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -354,9 +355,9 @@ contains
    end subroutine gridcomp_set_entry_point
 
 
-   subroutine add_spec_basic(gridcomp, var_spec, rc)
+   subroutine add_spec_basic(gridcomp, variable_spec, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      type(VariableSpec), intent(in) :: var_spec
+      type(VariableSpec), intent(in) :: variable_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -365,7 +366,7 @@ contains
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
-      call component_spec%var_specs%push_back(var_spec)
+      call component_spec%var_specs%push_back(variable_spec)
 
       _RETURN(_SUCCESS)
    end subroutine add_spec_basic
@@ -384,10 +385,17 @@ contains
       integer :: status
       type(VariableSpec) :: var_spec
 
-!!$      var_spec = VariableSpec(...)
+      var_spec = VariableSpec( &
+           state_intent=state_intent, &
+           short_name=short_name, &
+           standard_name=standard_name, &
+           typekind=typekind, &
+           ungridded_dims=ungridded_dims, &
+           units=units)
       call MAPL_AddSpec(gridcomp, var_spec, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine add_spec_explicit
 
 
@@ -419,14 +427,22 @@ contains
 
       integer :: status
       type(VariableSpec) :: var_spec
+      type(ESMF_TypeKind_Flag), allocatable :: typekind
 
-!!$      var_spec = VariableSpec( &
-!!$           state_intent=ESMF_STATEINTENT_IMPORT, &
-!!$           short_name=short_name, &
-!!$           typekind=to_typekind(precision), &
-!!$           state_item=to_state_item(datatype), &
-!!$           units=units, &
-!!$           ungridded_dims=to_ungridded_dims(dims, vlocation, ungridded_dims, ungridded_coords) )
+      ! Leave unallocated if precision is not PRESENT.  Default (R4)
+      ! is actually set inside VariableSpec constructor.
+      if (present(precision)) then
+         typekind = to_typekind(precision)
+      end if
+
+      var_spec = VariableSpec( &
+           state_intent=ESMF_STATEINTENT_IMPORT, &
+           short_name=short_name, &
+           typekind=typekind, &
+           itemtype=to_itemtype(datatype), &
+           units=units &
+!#           ungridded_dims=to_ungridded_dims(dims, vlocation, ungridded_dims, ungridded_coords), &
+           )
 
       call MAPL_AddSpec(gc, var_spec, _RC)
 
@@ -440,14 +456,14 @@ contains
       tk = ESMF_TYPEKIND_R4 ! GEOS default
       if (.not. present(precision)) return
 
-!!$      select case (precision)
-!!$      case (?? single)
-!!$         tk = ESMF_TYPEKIND_R4
-!!$      case (?? double)
-!!$         tk = ESMF_TYPEKIND_R8
-!!$      case default
-!!$         tk = ESMF_NOKIND
-!!$      end select
+      select case (precision)
+      case (ESMF_KIND_R4)
+         tk = ESMF_TYPEKIND_R4
+      case (ESMF_KIND_R8)
+         tk = ESMF_TYPEKIND_R8
+      case default
+         tk = ESMF_NOKIND
+      end select
 
    end function to_typekind
 
@@ -471,24 +487,24 @@ contains
 
    end function to_ungridded_dims
 
-   function to_state_item(datatype) result(state_item)
-      type(ESMF_StateItem_Flag) :: state_item
+   function to_itemtype(datatype) result(itemtype)
+      type(ESMF_StateItem_Flag) :: itemtype
       integer, optional, intent(in) :: datatype
 
-      state_item = ESMF_STATEITEM_FIELD ! GEOS default
+      itemtype = ESMF_STATEITEM_FIELD ! GEOS default
       if (.not. present(datatype)) return
 
       select case (datatype)
       case (MAPL_FieldItem)
-         state_item = ESMF_STATEITEM_FIELD
+         itemtype = ESMF_STATEITEM_FIELD
       case (MAPL_BundleItem)
-         state_item = ESMF_STATEITEM_FIELDBUNDLE
+         itemtype = ESMF_STATEITEM_FIELDBUNDLE
       case (MAPL_StateItem)
-         state_item = ESMF_STATEITEM_STATE
+         itemtype = ESMF_STATEITEM_STATE
       case default
-         state_item = ESMF_STATEITEM_UNKNOWN
+         itemtype = ESMF_STATEITEM_UNKNOWN
       end select
-   end function to_state_item
+   end function to_itemtype
 
 
    subroutine add_export_spec(gridcomp, unusable, short_name, standard_name, units, rc)
@@ -525,10 +541,14 @@ contains
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
-      call component_spec%var_specs%push_back(VariableSpec(ESMF_STATEINTENT_INTERNAL, &
-           short_name=short_name, standard_name=standard_name))
+      call component_spec%var_specs%push_back(VariableSpec( &
+           ESMF_STATEINTENT_INTERNAL, &
+           short_name=short_name, &
+           standard_name=standard_name, &
+           units=units))
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine add_internal_spec
 
    subroutine MAPL_GridCompSetVerticalGrid(gridcomp, vertical_grid, rc)
@@ -923,7 +943,6 @@ contains
 
       integer :: status
       type(ESMF_Info) :: info
-      logical :: found
 
       gridcomp_is_user = .not. MAPL_GridCompIsGeneric(gridcomp, _RC)
 

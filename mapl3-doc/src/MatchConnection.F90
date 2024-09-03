@@ -72,8 +72,7 @@ contains
       type(VirtualConnectionPtVector) :: src_v_pts, dst_v_pts
       type(VirtualConnectionPt), pointer :: dst_pattern, src_v_pt
       type(VirtualConnectionPt) :: src_pattern, dst_v_pt
-      type(VirtualConnectionPt), pointer :: s_v_pt, d_v_pt
-      integer :: i, j, k
+      integer :: i, j
       type(ConnectionPt) :: s_pt, d_pt
       character(1000) :: message
 
@@ -128,8 +127,7 @@ contains
       type(VirtualConnectionPtVector) :: src_v_pts, dst_v_pts
       type(VirtualConnectionPt), pointer :: dst_pattern, src_v_pt
       type(VirtualConnectionPt) :: src_pattern, dst_v_pt
-      type(VirtualConnectionPt), pointer :: s_v_pt, d_v_pt
-      integer :: i, j, k
+      integer :: i, j
       type(ConnectionPt) :: s_pt, d_pt
       character(1000) :: message
 

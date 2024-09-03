@@ -45,8 +45,8 @@ contains
          allocate(BracketSpec :: item_spec)
          field_spec = FieldSpec(variable_spec)
          item_spec = BracketSpec(field_spec, variable_spec%bracket_size)
-!#      case (MAPL_STATEITEM_STATE%ot)
-!#         allocate(StateSpec :: item_spec)
+      case (MAPL_STATEITEM_STATE%ot)
+         allocate(StateSpec :: item_spec)
       case default
          allocate(InvalidSpec :: item_spec)
          _FAIL('Unsupported type.')

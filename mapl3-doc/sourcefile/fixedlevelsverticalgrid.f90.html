@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for source files.">54 statements</a>
+                 title=" 0.0% of total for source files.">91 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -820,7 +820,7 @@ large graphs.</div>
 <a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ESMF_TypeKind_Flag</span>
 <a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ESMF_Field</span>
 <a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ESMF_Geom</span>
-<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">REAL32</span><span class="p">,</span><span class="w"> </span><span class="n">REAL64</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">REAL32</span>
 <a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">implicit none</span>
 <a id="ln-12" name="ln-12" href="#ln-12"></a><span class="k">   private</span>
 <a id="ln-13" name="ln-13" href="#ln-13"></a>
@@ -828,7 +828,7 @@ large graphs.</div>
 <a id="ln-15" name="ln-15" href="#ln-15"></a>
 <a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">VerticalGrid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FixedLevelsVerticalGrid</span>
 <a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">      </span><span class="k">private</span>
-<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="k">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">levels</span><span class="p">(:)</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="k">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">levels</span><span class="p">(:)</span>
 <a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">standard_name</span><span class="w"> </span><span class="c">! air_pressure, height, etc.</span>
 <a id="ln-20" name="ln-20" href="#ln-20"></a><span class="c">!#      character(:), allocatable :: units</span>
 <a id="ln-21" name="ln-21" href="#ln-21"></a><span class="c">!#      character(:), allocatable :: coordinate_name</span>
@@ -871,19 +871,29 @@ large graphs.</div>
 <a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 <a id="ln-59" name="ln-59" href="#ln-59"></a>
 <a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">       </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;not implemented&#39;</span><span class="p">)</span>
-<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">    </span><span class="k">end subroutine </span><span class="n">get_coordinate_field</span>
-<a id="ln-62" name="ln-62" href="#ln-62"></a>
-<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">    </span><span class="kt">logical </span><span class="k">function </span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
-<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">       </span><span class="k">class</span><span class="p">(</span><span class="n">FixedLevelsVerticalGrid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
-<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">       </span><span class="k">class</span><span class="p">(</span><span class="n">VerticalGrid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
-<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
-<a id="ln-67" name="ln-67" href="#ln-67"></a>
-<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">       </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;not implemented&#39;</span><span class="p">)</span>
-<a id="ln-69" name="ln-69" href="#ln-69"></a>
-<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">    </span><span class="k">end function </span><span class="n">can_connect_to</span>
-<a id="ln-71" name="ln-71" href="#ln-71"></a>
-<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="k">end module </span><span class="n">mapl3g_FixedLevelsVerticalGrid</span>
-<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">   </span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">       </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">       </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">       </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">coupler</span><span class="p">)</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">       </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">standard_name</span><span class="p">)</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">       </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">       </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">typekind</span><span class="p">)</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">       </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">    </span><span class="k">end subroutine </span><span class="n">get_coordinate_field</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">    </span><span class="kt">logical </span><span class="k">function </span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">       </span><span class="k">class</span><span class="p">(</span><span class="n">FixedLevelsVerticalGrid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">       </span><span class="k">class</span><span class="p">(</span><span class="n">VerticalGrid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">       </span><span class="n">can_connect_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">       </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;not implemented&#39;</span><span class="p">)</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">       </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">       </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">    </span><span class="k">end function </span><span class="n">can_connect_to</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="k">end module </span><span class="n">mapl3g_FixedLevelsVerticalGrid</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">   </span>
 </pre></div>
 
       </section>
@@ -905,7 +915,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-08-30T15:27:07.553967             </p>
+ on 2024-09-03T13:44:19.807859             </p>
           </div>
         </div>
         <br>

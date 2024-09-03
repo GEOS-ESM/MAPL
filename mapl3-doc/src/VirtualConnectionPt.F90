@@ -224,6 +224,9 @@ contains
 
       write(unit, '("Virtual{intent: <",a,">, name: <",a,">}")', iostat=iostat, iomsg=iomsg) &
            this%get_state_intent(), this%get_full_name()
+
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
    end subroutine write_formatted
 
    logical function matches(this, item)
