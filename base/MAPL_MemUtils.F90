@@ -29,7 +29,7 @@ module MAPL_MemUtilsMod
 !these currently include efficient methods for memory-to-memory copy
 !including strided data and arbitrary gather-scatter vectors
 !also various memory and cache inquiry operators
-  implicit none (type, external)
+  implicit none (type)
   private
 #ifdef _CRAYT3E
   integer :: pe, shmem_my_pe
@@ -79,8 +79,6 @@ module MAPL_MemUtilsMod
   integer, public, parameter :: MAPL_MemUtilsModeBase = 0
   integer, save      :: MAPL_MemUtilsMode
   real, save :: gmax_save
-
-  external :: MPI_AllReduce
 
   contains
 

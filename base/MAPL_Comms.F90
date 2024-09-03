@@ -17,7 +17,7 @@ module MAPL_CommsMod
   use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter
   use MAPL_ExceptionHandling
   use mpi
-  implicit none (type, external)
+  implicit none (type)
   private
 
   public MAPL_CommsBcast
@@ -240,9 +240,6 @@ module MAPL_CommsMod
 
   integer, parameter :: MAPL_root=0
   integer, parameter :: msg_tag=11
-
-  external :: MPI_Irecv, MPI_Isend, MPI_Recv, MPI_Bcast, MPI_AllReduce, MPI_ScatterV
-  external :: MPI_GatherV, MPI_AllGather, MPI_AllGatherV, MPI_Send, MPI_SendRecv
 
   contains
 

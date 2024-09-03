@@ -13,7 +13,7 @@ module MAPL_HistoryCollectionMod
   use StationSamplerMod
   use gFTL_StringStringMap
   use MAPL_EpochSwathMod
-  implicit none (type, external)
+  implicit none (type)
 
   private
 
@@ -119,8 +119,6 @@ module MAPL_HistoryCollectionMod
      contains
         procedure :: AddGrid
   end type HistoryCollection
-
-  external :: MPI_Gatherv
 
   contains
 

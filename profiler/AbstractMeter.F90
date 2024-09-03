@@ -3,7 +3,7 @@
 module MAPL_AbstractMeter
    use MAPL_ErrorHandlingMod
    use, intrinsic :: iso_fortran_env, only: REAL64
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: AbstractMeter
@@ -56,8 +56,6 @@ module MAPL_AbstractMeter
       end subroutine i_accumulate
 
    end interface
-
-   external :: MPI_Type_free, MPI_Op_free
 
    contains
 

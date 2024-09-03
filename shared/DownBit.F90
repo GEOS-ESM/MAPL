@@ -4,7 +4,7 @@ module MAPL_DownbitMod
    use mpi
    use MAPL_ExceptionHandling
 
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: DownBit
@@ -14,8 +14,6 @@ module MAPL_DownbitMod
       module procedure DownBit2D
       module procedure DownBit3D
    end interface DownBit
-
-   external :: MPI_AllReduce
 
 contains
 

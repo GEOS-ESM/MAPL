@@ -9,7 +9,7 @@ module pFIO_RDMAReferenceMod
    use pFIO_AbstractDataReferenceMod
    use mpi
 
-   implicit none (type, external)
+   implicit none (type)
 
    private
 
@@ -33,8 +33,6 @@ module pFIO_RDMAReferenceMod
    interface RDMAReference
       module procedure new_RDMAReference
    end interface RDMAReference
-
-   external :: MPI_Win_allocate
 
 contains
 

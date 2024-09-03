@@ -36,7 +36,7 @@ module ESMFL_MOD
   use MAPL_CommsMod
   use MAPL_ExceptionHandling
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-  implicit none (type, external)
+  implicit none (type)
   private
 
 !
@@ -4339,8 +4339,6 @@ CONTAINS
      type(ESMF_VM) :: vm
      integer :: my_mpi_comm, local_undef, global_undef,grid_size(3),rank
      real, pointer :: ptr2d(:,:), ptr3d(:,:,:)
-
-     external :: MPI_Allreduce
 
      call ESMF_VMGetCurrent(VM,_RC)
      call ESMF_VMGet(VM,mpiCommunicator=my_mpi_comm,_RC)

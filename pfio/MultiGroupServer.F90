@@ -48,7 +48,7 @@ module pFIO_MultiGroupServerMod
    use mpi
    use pFlogger, only: logging, Logger
 
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: MultiGroupServer
@@ -87,8 +87,6 @@ module pFIO_MultiGroupServerMod
    end interface MultiGroupServer
 
    integer, parameter :: FNAME_LEN = 512
-
-   external :: MPI_Recv, MPI_Send, MPI_Bcast, MPI_AllGather, MPI_Isend, MPI_Irecv
 
 contains
 

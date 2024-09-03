@@ -30,7 +30,7 @@ module  BinIOMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
   use mpi
-  implicit none (type, external)
+  implicit none (type)
   private
 
 
@@ -107,9 +107,6 @@ module  BinIOMod
      module procedure MAPL_VarWrite_R8_3D
      module procedure MAPL_VarWrite_R8_4D
   end interface
-
-  external :: MPI_File_seek, MPI_File_read, MPI_Group_translate_ranks, MPI_ScatterV, MPI_File_read_at_all
-  external :: MPI_Gatherv, MPI_File_write, MPI_File_write_at_all
 
   contains
 

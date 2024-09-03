@@ -14,7 +14,7 @@ module pFIO_ClientManagerMod
    use pFIO_StringVariableMapMod
    use gFTL_IntegerVector
 
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: ClientManager
@@ -76,8 +76,6 @@ module pFIO_ClientManagerMod
 
    type (ClientManager), target :: i_Clients
    type (ClientManager), target :: o_Clients
-
-   external :: MPI_Comm_rank
 
 contains
 

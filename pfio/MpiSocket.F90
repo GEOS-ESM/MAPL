@@ -13,7 +13,7 @@ module pFIO_MpiSocketMod
    use pFIO_ConstantsMod
    use pFIO_UtilitiesMod, only: word_size, i_to_string
    use mpi
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: MpiSocket
@@ -57,8 +57,6 @@ module pFIO_MpiSocketMod
    interface MpiRequestHandle
       module procedure new_MpiRequestHandle
    end interface MpiRequestHandle
-
-   external :: MPI_Recv, MPI_Send, MPI_Isend, MPI_Irecv
 
 contains
 

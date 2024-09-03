@@ -31,7 +31,7 @@ module pFIO_MultiLayerServerMod
    use pFIO_StringAttributeMapUtilMod
    use mpi
 
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: MultiLayerServer
@@ -50,8 +50,6 @@ module pFIO_MultiLayerServerMod
    interface MultiLayerServer
       module procedure new_MultiLayerServer
    end interface MultiLayerServer
-
-   external :: MPI_Send, MPI_Recv
 
 contains
 

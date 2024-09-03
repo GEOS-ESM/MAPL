@@ -9,7 +9,7 @@ module MAPL_Shmem
   use MAPL_Constants
   use mpi
 
-  implicit none (type, external)
+  implicit none (type)
   private
 
   public :: MAPL_GetNodeInfo
@@ -544,7 +544,6 @@ module MAPL_Shmem
      end function MAPL_CoresPerNodeGet
   end interface
 
-  external :: MPI_Bcast, MPI_AllGather, MPI_AllReduce
 end module MAPL_Shmem
 
 ! For backwards compatibility

@@ -14,7 +14,7 @@ module MAPL_SimpleCommSplitterMod
    use MAPL_KeywordEnforcerMod
    use MAPL_SplitCommunicatorMod
    use MPI
-   implicit none (type, external)
+   implicit none (type)
 
    private
    public :: SimpleCommSplitter
@@ -42,8 +42,6 @@ module MAPL_SimpleCommSplitterMod
       module procedure new_SimpleCommSplitter
       module procedure ensemble_comm_splitter
    end interface SimpleCommSplitter
-
-   external :: MPI_Allgather, MPI_Bcast
 
 contains
 

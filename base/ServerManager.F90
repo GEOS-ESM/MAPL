@@ -8,7 +8,7 @@ module MAPL_ServerManager
    use PFIO
    use MAPL_SimpleCommSplitterMod
    use MAPL_SplitCommunicatorMod
-   implicit none (type, external)
+   implicit none (type)
    private
 
 
@@ -24,7 +24,6 @@ module MAPL_ServerManager
          procedure :: get_splitcomm
    end type
 
-   external :: MPI_Comm_size, MPI_Comm_rank, MPI_Barrier
 contains
 
    subroutine get_splitcomm(this, split_comm, rc)

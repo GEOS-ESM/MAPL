@@ -140,7 +140,7 @@ module MAPL_GenericMod
 
    ! !PUBLIC MEMBER FUNCTIONS:
 
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public MAPL_GenericSetServices
@@ -482,8 +482,6 @@ module MAPL_GenericMod
          integer, intent(out) :: rc
       end subroutine I_SetServices
    end interface
-
-   external :: MPI_File_open, MPI_File_close, MPI_Bcast
 
 contains
 

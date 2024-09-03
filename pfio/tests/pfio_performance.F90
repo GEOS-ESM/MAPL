@@ -10,13 +10,13 @@ module performace_CLI
    use pFIO
    use gFTL_StringVector
    use gFTL_StringIntegerMap
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: CommandLineOptions
    public :: process_command_line
    public :: DirectoryServicePointer
- 
+
    type CommandLineOptions
       character(len=:), allocatable :: file_1, file_2
       type (StringVector) :: requested_variables
@@ -91,18 +91,18 @@ contains
       end do
 
    contains
-      
+
       function get_next_argument() result(argument)
          character(len=:), allocatable :: argument
-         
+
          integer :: length
-         
+
          i_arg = i_arg + 1
-         
+
          call get_command_argument(i_arg, length=length)
          allocate(character(len=length) :: argument)
          call get_command_argument(i_arg, value=argument)
-         
+
       end function get_next_argument
 
       function parse_vars(buffer) result(vars)
@@ -125,7 +125,7 @@ contains
 
 
    end subroutine process_command_line
-   
+
 
 end module performace_CLI
 
@@ -136,7 +136,7 @@ module FakeHistDataMod
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use mpi
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: FakeHistData
@@ -179,7 +179,7 @@ module FakeHistDataMod
    end type FakeHistData
 
 contains
-   
+
 
    subroutine init(this, options, comm,app_ds)
       use gFTL_StringIntegerMap
@@ -190,7 +190,7 @@ contains
 
       integer :: ierror
 
-      class(ClientThread), pointer :: threadPtr=>null()     
+      class(ClientThread), pointer :: threadPtr=>null()
 
       this%ic_vec = ClientThreadVector()
       this%oc_vec = ClientThreadVector()
@@ -216,7 +216,7 @@ contains
 
       allocate(this%bundle(this%vars%size()))
       allocate(this%hist_collection_ids(10))
-  
+
       !call formatter%open(this%file_1, pFIO_READ)
       !file_metadata = formatter%read()
       !call formatter%close()
@@ -234,7 +234,7 @@ contains
    subroutine run(this, step)
       class (FakeHistData), target, intent(inout) :: this
       integer, intent(in) :: step
-      
+
       type(ArrayReference) :: ref
       type(FileMetadata) :: fmd
       Type(Variable) :: T, v, const_v
@@ -250,15 +250,15 @@ contains
       type (StringVariableMap) :: var_map
       real(kind=REAL64), allocatable :: lons(:,:,:),lats(:,:,:)
 
-      class(ClientThread), pointer :: icPtr=>null()     
-      class(ClientThread), pointer :: ocPtr=>null()     
-  
+      class(ClientThread), pointer :: icPtr=>null()
+      class(ClientThread), pointer :: ocPtr=>null()
+
 
       i = mod(this%npes, 6)
       if(i /=0 ) then; print*, " make sure the number of reading cores  is multiple of 6"; stop 1;endif
 
       nx = nint(sqrt(this%npes/6.))
-      
+
       if( nx*nx*6 /= this%npes ) then; print*, " make sure 6*M^2 cores to read"; stop 1; endif
 
       width = this%Xdim/nx
@@ -296,7 +296,7 @@ contains
          end do
          call icPtr%done_collective_prefetch()
          call MPI_barrier(this%comm,ierr)
-        
+
          t1 = MPI_wtime()
 
          if( this%rank == 0) then
@@ -363,10 +363,10 @@ contains
 
            T = Variable(type=pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time')
 
-          do i_var = 1, this%vars%size() 
+          do i_var = 1, this%vars%size()
              call fmd%add_variable( this%vars%at(i_var),T)
              if (.not. allocated(this%bundle(i_var)%x)) allocate(this%bundle(i_var)%x(Xdim0:Xdim1,Ydim0:Ydim1,nf:nf,this%lev,1))
-            
+
          enddo
 
          ocPtr=> this%oc_vec%at(1)
@@ -379,7 +379,7 @@ contains
          v = Variable(type=PFIO_REAL32, dimensions='time')
          call v%add_attribute('long_name', 'time sine')
          call v%add_attribute('units', 'time since 1111111')
-         call var_map%insert('time',v)     
+         call var_map%insert('time',v)
 
          do i = 1, this%num_collection
             file_md_id = this%hist_collection_ids(i)
@@ -387,7 +387,7 @@ contains
          end do
 
          ! send non-distributed-data
-         allocate(nondistributed_ids(1,this%num_collection)) 
+         allocate(nondistributed_ids(1,this%num_collection))
          allocate(lons(this%Xdim,this%Ydim, this%nf))
          lons = 10.0_real64
          do i = 1, this%num_collection
@@ -442,7 +442,7 @@ contains
             if (allocated(this%bundle(i_var)%x)) deallocate(this%bundle(i_var)%x)
          enddo
       end select
-      
+
    end subroutine run
 
 
@@ -469,7 +469,7 @@ program main
    use FakeHistDataMod
    use MAPL_ExceptionHandling
    use pFlogger, only: pflogger_init => initialize
-   implicit none (type, external)
+   implicit none (type)
 
    integer :: rank, npes, ierror
    integer :: status, key
@@ -485,7 +485,7 @@ program main
    integer :: root_color,o_color,i_color, app_color
    integer :: tmp_rank, i_size, i_rank, o_size, o_rank, app_size, app_rank
    integer :: i
-   real(kind=REAL64) :: t0, t1   
+   real(kind=REAL64) :: t0, t1
 
    call MPI_init(ierror)
    call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
@@ -508,20 +508,20 @@ program main
    key = 0
    if ( InNode_rank ==0) root_color = 1
    call MPI_COMM_SPLIT( MPI_COMM_WORLD, root_color, key, NodeRoot_Comm, ierror)
-   
+
    if (root_color == 1) then ! they are all roots of  nodes
-      call MPI_COMM_SIZE(NodeRoot_Comm, Node_Num, ierror)  
+      call MPI_COMM_SIZE(NodeRoot_Comm, Node_Num, ierror)
       call MPI_COMM_RANK(NodeRoot_Comm, Node_Rank, ierror)
    endif
 
    ! now each process knows its node_rank
    call Mpi_Bcast(Node_Rank, 1, MPI_INTEGER, 0, InNode_Comm, ierror)
    call Mpi_Bcast(Node_Num,  1, MPI_INTEGER, 0, InNode_Comm, ierror)
-   if (rank ==0) print*, "total node number: ", node_num 
+   if (rank ==0) print*, "total node number: ", node_num
 
    if (rank ==0) call execute_command_line('rm -f test_out1.nc4')
- 
-    o_color   = 0 
+
+    o_color   = 0
     i_color   = 0
     app_color = 0
     my_icomm  = MPI_COMM_NULL
@@ -529,23 +529,23 @@ program main
     my_ocomm  = MPI_COMM_NULL
     ! o-sever
     if (Node_rank < options%nodes_oserver) o_color = 1
-    call MPI_COMM_SPLIT( MPI_COMM_WORLD, o_color, key, o_Comm, ierror)   
-    if (o_color == 1) my_ocomm = o_comm 
+    call MPI_COMM_SPLIT( MPI_COMM_WORLD, o_color, key, o_Comm, ierror)
+    if (o_color == 1) my_ocomm = o_comm
 
     if (o_color == 0) then
        call MPI_COMM_RANK(o_comm, tmp_Rank, ierror)
-       if (tmp_rank >= options%npes_client) then 
+       if (tmp_rank >= options%npes_client) then
           i_color = 1
        else
           app_color = 1
        endif
        call MPI_COMM_SPLIT( o_comm, i_color, key, i_Comm, ierror)
-       
+
        if(i_color == 1) my_icomm = i_comm
        if(app_color ==1) my_appcomm = i_comm
-  
+
     endif
-    
+
     call Mpi_Barrier(MPI_COMM_WORLD,ierror)
     t0 = MPI_wtime()
 
@@ -571,14 +571,14 @@ program main
 
       allocate(oserver, source = MpiServer(my_ocomm, 'oserver'))
       call directory_service%publish(PortInfo('oserver',oserver), oserver)
-      if (my_appcomm == MPI_COMM_NULL) then 
+      if (my_appcomm == MPI_COMM_NULL) then
          call directory_service%connect_to_client('oserver', oserver)
          call oserver%start()
       endif
    endif
 
    if ( my_appcomm /= MPI_COMM_NULL) then
-     
+
       call MPI_Comm_rank(my_appcomm, app_rank, ierror)
       call MPI_Comm_size(my_appcomm, app_size, ierror)
       if(app_rank ==0) print*, "app client size:", app_size
@@ -589,7 +589,7 @@ program main
       call histData%finalize()
 
    end if
-  
+
    call Mpi_Barrier(MPI_COMM_WORLD,ierror)
    t1 = MPI_wtime()
    if( rank == 0) then

@@ -25,7 +25,7 @@ module MaskSamplerGeosatMod
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
   use pflogger, only: Logger, logging
-  implicit none (type, external)
+  implicit none (type)
 
   private
 
@@ -130,7 +130,7 @@ module MaskSamplerGeosatMod
 
      module subroutine create_Geosat_grid_find_mask(this, rc)
        use pflogger, only: Logger, logging
-       implicit none (type, external)
+       implicit none (type)
 
        class(MaskSamplerGeosat), intent(inout) :: this
        integer, optional, intent(out)          :: rc
@@ -175,7 +175,5 @@ module MaskSamplerGeosatMod
      end function compute_time_for_current
 
   end interface
-
-  external :: MPI_Gatherv
 
 end module MaskSamplerGeosatMod

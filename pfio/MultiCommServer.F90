@@ -40,7 +40,7 @@ module pFIO_MultiCommServerMod
    use pFIO_MpiSocketMod
    use mpi
 
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: MultiCommServer
@@ -71,8 +71,6 @@ module pFIO_MultiCommServerMod
    interface MultiCommServer
       module procedure new_MultiCommServer
    end interface MultiCommServer
-
-   external :: MPI_Send, MPI_Recv, MPI_AllGather, MPI_Bcast
 
 contains
 

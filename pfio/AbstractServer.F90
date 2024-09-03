@@ -16,7 +16,7 @@ module pFIO_AbstractServerMod
    use pFIO_MessageVectorMod
    use mpi
 
-   implicit none (type, external)
+   implicit none (type)
    private
    public :: AbstractServer
    public :: ioserver_profiler
@@ -112,8 +112,6 @@ module pFIO_AbstractServerMod
       end subroutine create_remote_win
 
    end interface
-
-   external :: Mpi_Bcast, Mpi_AllGather, Mpi_Allreduce
 
 contains
 

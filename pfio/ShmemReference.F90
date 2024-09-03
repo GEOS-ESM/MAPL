@@ -8,7 +8,7 @@ module pFIO_ShmemReferenceMod
    use pFIO_AbstractDataReferenceMod
    use mpi
 
-   implicit none (type, external)
+   implicit none (type)
 
    private
 
@@ -31,8 +31,6 @@ module pFIO_ShmemReferenceMod
    interface ShmemReference
       module procedure new_ShmemReference
    end interface ShmemReference
-
-   external :: MPI_Win_allocate_shared, MPI_Win_shared_query
 
 contains
 

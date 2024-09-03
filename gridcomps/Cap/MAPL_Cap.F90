@@ -16,7 +16,7 @@ module MAPL_CapMod
    use MAPL_ServerManager
    use MAPL_ApplicationSupport
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64, OUTPUT_UNIT
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: MAPL_Cap
@@ -75,8 +75,6 @@ module MAPL_CapMod
          character(kind=c_char) :: path(*)
       end function c_chdir
    end interface
-
-   external :: MPI_Bcast
 
 contains
 

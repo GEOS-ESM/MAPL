@@ -19,7 +19,7 @@ module MAPL_CubedSphereGridFactoryMod
    use MAPL_CommsMod
    use MAPL_Constants
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: CubedSphereGridFactory
@@ -106,8 +106,6 @@ module MAPL_CubedSphereGridFactoryMod
       module procedure set_with_default_character
       module procedure set_with_default_bounds
    end interface set_with_default
-
-   external :: MPI_AllGather, MPI_AllGatherv
 
 contains
 

@@ -6,7 +6,7 @@ submodule (MAPL_Shmem) Shmem_implementation
   use pflogger, only: logging, Logger
   use MAPL_ExceptionHandling
   use MAPL_Constants
-  implicit none (type, external)
+  implicit none (type)
 
   interface
      subroutine perror(s) bind(c,name="perror")

@@ -12,7 +12,7 @@ module MAPL_LoadBalanceMod
   use MAPL_SortMod
   use MAPL_ExceptionHandling
   use mpi
-  implicit none (type, external)
+  implicit none (type)
   private
 
   public MAPL_BalanceWork
@@ -38,8 +38,6 @@ module MAPL_LoadBalanceMod
 
   integer,           parameter :: MAX_NUM_STRATEGIES=1000
   type(TBalanceStrategy), save :: THE_STRATEGIES(0:MAX_NUM_STRATEGIES)
-
-  external :: MPI_Send, MPI_Recv, MPI_AllGather
 
 !---------------------------------------------------------------------------
 !>

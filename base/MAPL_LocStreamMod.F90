@@ -34,7 +34,7 @@ use MAPL_ExceptionHandling
 use, intrinsic :: iso_fortran_env, only: REAL64, INT64
 use mpi
 
-implicit none (type, external)
+implicit none (type)
 private
 
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -153,8 +153,6 @@ interface MAPL_LocStreamTransform
    module procedure MAPL_LocStreamTransformT2TR4R8
    module procedure MAPL_LocStreamTransformT2TR8R4
 end interface
-
-external :: MPI_Isend, MPI_Recv, MPI_Gather
 
 contains
 

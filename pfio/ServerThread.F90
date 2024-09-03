@@ -55,7 +55,7 @@ module pFIO_ServerThreadMod
    use gFTL_StringInteger64Map
    use mpi
 
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: ServerThread
@@ -125,8 +125,6 @@ module pFIO_ServerThreadMod
    ! Each node chooses one PE and takes turns to write part of the data to the file. No data exchange among nodes. It is very slow
    ! output strategy (2) ( implemented ):
    ! Choose one PE among  servers to write. The other PE in the servers use MPI_put to forward the data the the chosen one.
-
-   external :: MPI_AllGatherV, MPI_Put
 
 contains
 

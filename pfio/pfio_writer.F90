@@ -21,7 +21,7 @@ program main
    use pFIO_UtilitiesMod
    use mpi
 
-   implicit none (type, external)
+   implicit none (type)
    integer :: Inter_Comm
    integer :: ierr, rc
    integer :: rank
@@ -41,8 +41,6 @@ program main
    type (StringNetCDF4_FileFormatterMap) :: formatters
    type (StringNetCDF4_FileFormatterMapIterator) :: iter
    class (AbstractMessage), pointer :: msg
-
-   external :: MPI_recv, MPI_send
 
    call MPI_Init(ierr)
    _VERIFY(ierr)

@@ -6,7 +6,7 @@
    use MAPL
    use gFTL_StringVector
 
-   implicit none (type, external)
+   implicit none (type)
 
    public
 
@@ -32,8 +32,6 @@
       procedure :: process_command_line
       procedure :: has_level
    end type regrid_support
-
-   external :: MPI_Finalize
 
    contains
 
@@ -333,7 +331,7 @@
    use regrid_util_support_mod
    use mpi
 
-   implicit none (type, external)
+   implicit none (type)
 
    type(DistributedProfiler), target :: t_prof
    type (ProfileReporter) :: reporter

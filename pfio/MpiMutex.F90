@@ -6,7 +6,7 @@ module pFIO_MpiMutexMod
    use mpi
    use MAPL_ErrorHandlingMod
    use iso_c_binding, only: c_ptr, c_f_pointer
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: MpiMutex
@@ -31,8 +31,6 @@ module pFIO_MpiMutexMod
    interface MpiMutex
       module procedure new_MpiMutex
    end interface MpiMutex
-
-   external :: MPI_Alloc_mem, MPI_Win_create, MPI_Get, MPI_Put, MPI_Free_mem, MPI_Recv, MPI_Send
 
 contains
 

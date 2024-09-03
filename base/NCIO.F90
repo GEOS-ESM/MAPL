@@ -28,7 +28,7 @@ module NCIOMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
   use mpi
-  implicit none (type, external)
+  implicit none (type)
   private
 
   public MAPL_IOChangeRes
@@ -77,8 +77,6 @@ module NCIOMod
      module procedure MAPL_VarWriteNCpar_R8_3d
      module procedure MAPL_VarWriteNCpar_R8_4d
   end interface
-
-  external :: MPI_GatherV, MPI_ScatterV, MPI_Group_translate_ranks, MPI_Bcast
 
   contains
 

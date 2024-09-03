@@ -11,14 +11,12 @@ program  time_ave
    use, intrinsic :: iso_fortran_env, only: int32, int64, int16, real32, real64
    use ieee_arithmetic, only: isnan => ieee_is_nan
 
-   implicit none (type, external)
+   implicit none (type)
 
    integer  comm,myid,npes,ierror
    integer  imglobal
    integer  jmglobal
    logical  root
-
-   external ncvid, ncagt, MPI_Reduce, MPI_Recv, MPI_Send
 
 ! **********************************************************************
 ! **********************************************************************

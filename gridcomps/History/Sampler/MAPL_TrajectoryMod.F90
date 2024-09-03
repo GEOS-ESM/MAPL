@@ -10,7 +10,7 @@ module HistoryTrajectoryMod
   use MAPL_GenericMod, only : MAPL_MetaComp
 
   use, intrinsic :: iso_fortran_env, only: REAL64
-  implicit none (type, external)
+  implicit none (type)
 
   private
 
@@ -154,7 +154,7 @@ module HistoryTrajectoryMod
      end subroutine create_grid
 
      module subroutine regrid_accumulate_on_xsubset (this, rc)
-       implicit none (type, external)
+       implicit none (type)
        class(HistoryTrajectory), intent(inout) :: this
        integer, optional, intent(out)          :: rc
      end subroutine regrid_accumulate_on_xsubset
@@ -172,7 +172,5 @@ module HistoryTrajectoryMod
      end subroutine destroy_rh_regen_LS
 
   end interface
-
-  external :: MPI_Scatterv, MPI_Gatherv
 
 end module HistoryTrajectoryMod

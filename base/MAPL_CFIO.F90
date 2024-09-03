@@ -63,7 +63,7 @@ module MAPL_CFIOMod
 
   use, intrinsic :: iso_fortran_env, only: REAL64
 
-  implicit none (type, external)
+  implicit none (type)
   private
 
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -266,8 +266,6 @@ module MAPL_CFIOMod
   type(StoredGlobalCoords)    :: storedCoords(maxStoredCoords)
 
   type(CFIOCollectionVector) :: collections
-
-  external :: MPI_Isend, MPI_Recv
 
 contains
 

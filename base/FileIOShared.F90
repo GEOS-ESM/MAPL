@@ -26,7 +26,7 @@ module FileIOSharedMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
   use mpi
-  implicit none (type, external)
+  implicit none (type)
   private
 
   ! public types
@@ -123,8 +123,6 @@ module FileIOSharedMod
   interface ArrayScatterShm
      module procedure ArrayScatterShmR4D1
   end interface ArrayScatterShm
-
-  external :: MPI_File_seek, MPI_File_write, MPI_AllReduce, MPI_Bcast
 
   contains
 

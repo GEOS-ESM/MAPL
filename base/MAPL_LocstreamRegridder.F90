@@ -7,7 +7,7 @@ module MAPL_LocstreamRegridderMod
    use MAPL_KeywordEnforcerMod
    use MAPL_ErrorHandlingMod
 
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: LocstreamRegridder
@@ -27,8 +27,6 @@ module MAPL_LocstreamRegridderMod
    interface LocstreamRegridder
       module procedure new_LocstreamRegridder
    end interface LocstreamRegridder
-
-   external :: MPI_Comm_size, MPI_Comm_rank, MPI_Barrier
 
 contains
 

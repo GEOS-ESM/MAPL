@@ -21,7 +21,7 @@ module SupportMod
    use gFTL_StringIntegerMap
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT64
    use mpi
-   implicit none (type, external)
+   implicit none (type)
    public
 
 
@@ -82,8 +82,6 @@ module SupportMod
      procedure :: write_data
 
    end type RegridSupport
-
-   external :: MPI_Allgather, MPI_Allreduce, MPI_Allgatherv
 
 contains
 

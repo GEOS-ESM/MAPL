@@ -7,7 +7,7 @@
 module collective_demo_CLI
    use MAPL_ExceptionHandling
    use gFTL_StringVector
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: CommandLineOptions
@@ -123,7 +123,7 @@ module FakeExtDataMod_collective
    use pFIO
    use gFTL_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: FakeExtData
@@ -171,8 +171,6 @@ contains
       type (FileMetadata) :: file_metadata
       type (NetCDF4_FileFormatter) :: formatter
       type (StringIntegerMap) :: dims
-
-      external :: MPI_Comm_rank, MPI_Comm_size
 
       this%c = ClientThread()
       call d_s%connect_to_server(port_name, this%c, comm)
