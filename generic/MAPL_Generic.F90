@@ -133,6 +133,7 @@ module MAPL_GenericMod
    use MaplShared, only: get_file_extension
    use MAPL_RunEntryPoint
    use MAPL_ResourceMod
+   use MAPL_VarSpecTypeMod, only: positive_length
    use, intrinsic :: ISO_C_BINDING
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
    use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
@@ -3465,7 +3466,7 @@ contains
         UNGRIDDED_UNIT, UNGRIDDED_NAME,     &
         UNGRIDDED_COORDS,                     &
         FIELD_TYPE, STAGGERING, ROTATION, &
-        DEPENDS_ON, DEPENDS_ON_CHILDREN, RC )
+        DEPENDS_ON, DEPENDS_ON_CHILDREN, POSITIVE, RC )
 
       !ARGUMENTS:
       type (ESMF_GridComp)            , intent(INOUT)   :: GC
@@ -3490,6 +3491,7 @@ contains
       integer            , optional   , intent(IN)      :: ROTATION
       logical            , optional   , intent(IN)      :: DEPENDS_ON_CHILDREN
       character (len=*)  , optional   , intent(IN)      :: DEPENDS_ON(:)
+      character(len=*)   , optional,    intent(IN)      :: positive
       integer            , optional   , intent(OUT)     :: RC
       !EOPI
 
@@ -3556,6 +3558,7 @@ contains
            ROTATION = ROTATION,                                                  &
            DEPENDS_ON = DEPENDS_ON, &
            DEPENDS_ON_CHILDREN = DEPENDS_ON_CHILDREN, &
+           positive = positive, &
            RC=status  )
       _VERIFY(status)
 
@@ -6452,6 +6455,7 @@ contains
       integer                                 :: rstReq
       logical                                 :: isPresent
       logical                                 :: isCreated
+      character(len=positive_length)          :: positive
 
       integer :: range_(2)
       type(MAPL_VarSpec), pointer :: varspec
@@ -6500,6 +6504,7 @@ contains
               FIELD_TYPE=FIELD_TYPE, &
               STAGGERING=STAGGERING, &
               ROTATION=ROTATION, &
+              positive=positive, &
               RC=status )
          _VERIFY(status)
 
@@ -6784,6 +6789,8 @@ contains
          call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=status)
          _VERIFY(status)
          call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE=UNITS, RC=status)
+         _VERIFY(status)
+         call ESMF_AttributeSet(FIELD, NAME='POSITIVE', VALUE=positive, RC=status)
          _VERIFY(status)
 
          call ESMF_AttributeSet(FIELD, NAME='REFRESH_INTERVAL', VALUE=REFRESH, RC=status)
@@ -11012,6 +11019,7 @@ contains
          call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
          call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
          call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
+         _VERIFY(status)
          arrdes%split_restart = mpl%grid%split_restart
          arrdes%split_checkpoint = mpl%grid%split_checkpoint
 

@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.44.3
+  VERSION 2.47.2
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -58,7 +58,8 @@ if (NOT COMMAND esma)
 
 endif ()
 
-list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+# This tells cmake to assume MAPL's cmake directory is the first place to look
+list (PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 option (BUILD_SHARED_MAPL "Build shared MAPL libraries" ON)
 if (BUILD_SHARED_MAPL)
@@ -148,21 +149,8 @@ if (NOT Baselibs_FOUND)
   endif()
 
   if (NOT TARGET ESMF::ESMF)
-    find_package(ESMF 8.6.0 MODULE REQUIRED)
-
-    # ESMF as used in MAPL requires MPI
-    # NOTE: This looks odd because some versions of FindESMF.cmake out in the
-    #       world provide an "esmf" target while others provide "ESMF". So we
-    #       need this ugliness to support both.
-    if (TARGET ESMF::ESMF)
-      target_link_libraries(ESMF::ESMF INTERFACE MPI::MPI_Fortran)
-    else()
-      target_link_libraries(ESMF::ESMF INTERFACE MPI::MPI_Fortran)
-      # MAPL and GEOS use lowercase target due to historical reasons but
-      # the latest FindESMF.cmake file from ESMF produces an ESMF target.
-      add_library(ESMF::ESMF ALIAS ESMF)
-      add_library(ESMF::ESMF ALIAS esmf)
-    endif()
+    find_package(ESMF 8.6.1 MODULE REQUIRED)
+    target_link_libraries(ESMF::ESMF INTERFACE MPI::MPI_Fortran)
   endif ()
 else ()
   # This is an ESMF version test when using Baselibs which doesn't use the
@@ -230,6 +218,7 @@ if (APPLE)
   add_compile_definitions("-D__DARWIN")
 endif()
 
+add_subdirectory (udunits2f)
 add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic)

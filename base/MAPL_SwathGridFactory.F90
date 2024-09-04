@@ -170,12 +170,8 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  bf this%create_basic_grid'
       grid = this%create_basic_grid(_RC)
-      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%create_basic_grid'
       call this%add_horz_coordinates_from_file(grid,_RC)
-      !!if (mapl_am_I_root()) write(6,*) 'MAPL_SwathGridFactory.F90:  af this%add_horz_coordinates_from_file'
-
       _RETURN(_SUCCESS)
    end function make_new_grid
 
@@ -494,6 +490,7 @@ contains
 
       call lgr%debug(' %a  %a', 'CurrTime =', trim(tmp))
 
+
       if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
          call ESMF_TimeSet(currTime, timeString=tmp, _RC)
       else
@@ -565,6 +562,7 @@ contains
       !
       call ESMF_VMGet(vm, mpiCommunicator=mpic, _RC)
       call MPI_COMM_RANK(mpic, irank, ierror)
+      _VERIFY(ierror)
 
       if (irank==0) &
            write(6,'(10(2x,a20,2x,a40,/))') &
@@ -704,14 +702,21 @@ contains
 
 
       call MPI_bcast(this%M_file, 1, MPI_INTEGER, 0, mpic, ierror)
+      _VERIFY(ierror)
       do i=1, this%M_file
          call MPI_bcast(this%filenames(i), ESMF_MAXSTR, MPI_CHARACTER, 0, mpic, ierror)
+         _VERIFY(ierror)
       end do
       call MPI_bcast(this%epoch_index, 4, MPI_INTEGER8, 0, mpic, ierror)
+      _VERIFY(ierror)
       call MPI_bcast(this%im_world, 1, MPI_INTEGER, 0, mpic, ierror)
+      _VERIFY(ierror)
       call MPI_bcast(this%jm_world, 1, MPI_INTEGER, 0, mpic, ierror)
+      _VERIFY(ierror)
       call MPI_bcast(this%cell_across_swath, 1, MPI_INTEGER, 0, mpic, ierror)
+      _VERIFY(ierror)
       call MPI_bcast(this%cell_along_swath, 1, MPI_INTEGER, 0, mpic, ierror)
+      _VERIFY(ierror)
       ! donot need to bcast this%along_track (root only)
 
 
@@ -729,6 +734,7 @@ contains
       endif
       ! ims is set at here
       call this%check_and_fill_consistency(_RC)
+      call lgr%debug(' %a  %i5  %i5', 'nx, ny (check_and_fill_consistency) = ', this%nx, this%ny)
 
       _RETURN(_SUCCESS)
 
@@ -875,7 +881,6 @@ contains
             call this%generate_newnxy(_RC)
          end if
       end if
-
       _RETURN(_SUCCESS)
 
    contains
@@ -1156,43 +1161,48 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: n
+      integer :: j, pet_count
 
       _UNUSED_DUMMY(unusable)
 
+      pet_count = this%nx * this%ny
       n = this%im_world/this%nx
       if (n < 2) then
-         this%nx = generate_new_decomp(this%im_world,this%nx)
-         deallocate(this%ims)
-         allocate(this%ims(0:this%nx-1))
-         call MAPL_DecomposeDim(this%im_world, this%ims, this%nx)
+         do j = this%im_world/2, 1, -1
+            if ( mod(pet_count, j) == 0 .and. this%im_world/j >= 2 ) then
+               exit  ! found a decomposition
+            end if
+         end do
+         this%nx = j
+         this%ny = pet_count/j
       end if
+
       n = this%jm_world/this%ny
       if (n < 2) then
-         this%ny = generate_new_decomp(this%jm_world,this%ny)
-         deallocate(this%jms)
-         allocate(this%jms(0:this%ny-1))
-         call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny)
+         do j = this%jm_world/2, 1, -1
+            if ( mod(pet_count, j) == 0 .and. this%jm_world/j >=2 ) then
+               exit  ! found a decomposition
+            end if
+         end do
+         this%ny = j
+         this%nx = pet_count/j
       end if
+
+      if ( this%im_world/this%nx < 2 .OR. this%jm_world/this%ny < 2 ) then
+         _FAIL ('Algorithm failed')
+      end if
+
+      if (allocated(this%ims)) deallocate(this%ims)
+      allocate(this%ims(0:this%nx-1))
+      call MAPL_DecomposeDim(this%im_world, this%ims, this%nx)
+      if (allocated(this%jms)) deallocate(this%jms)
+      allocate(this%jms(0:this%ny-1))
+      call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny)
 
       _RETURN(_SUCCESS)
 
    end subroutine generate_newnxy
 
-   function generate_new_decomp(im,nd) result(n)
-      integer, intent(in) :: im, nd
-      integer :: n
-      logical :: canNotDecomp
-
-      canNotDecomp = .true.
-      n = nd
-      do while(canNotDecomp)
-         if ( (im/n) < 2) then
-            n = n/2
-         else
-            canNotDecomp = .false.
-         end if
-      enddo
-   end function generate_new_decomp
 
    subroutine init_halo(this, unusable, rc)
       class (SwathGridFactory), target, intent(inout) :: this
@@ -1361,6 +1371,7 @@ contains
       call ESMF_VmGetCurrent(VM, _RC)
       call ESMF_VMGet(vm, mpiCommunicator=mpic, _RC)
       call MPI_COMM_RANK(mpic, irank, ierror)
+      _VERIFY(ierror)
 
       if (irank==0) then
          ! xtrack
@@ -1415,6 +1426,7 @@ contains
       end if
 
       call MPI_bcast(xy_subset, 4, MPI_INTEGER, 0, mpic, ierror)
+      _VERIFY(ierror)
 
       _RETURN(_SUCCESS)
     end subroutine get_xy_subset

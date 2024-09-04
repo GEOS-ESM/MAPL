@@ -35,9 +35,8 @@ module pFIO_MultiGroupServerMod
    use pFIO_HistoryCollectionVectorMod
    use pFIO_HistoryCollectionVectorUtilMod
    use pFIO_BaseServerMod
-   use pFIO_AttributeMod
-   use pFIO_StringAttributeMapMod
-   use pFIO_StringAttributeMapUtilMod
+   use pFIO_IntArrayMod
+   use pFIO_StringIntArrayMapMod
    use MAPL_SplitCommunicatorMod
    use MAPL_SimpleCommSplitterMod
    use pFIO_MpiSocketMod
@@ -312,7 +311,7 @@ contains
      class (MultiGroupServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
 
-     integer :: i, client_num
+     integer :: i, client_num, status
      class (ServerThread),pointer :: thread_ptr
 
      type (MessageVectorIterator) :: iter
@@ -388,11 +387,13 @@ contains
         if (this%I_am_front_root) then
            collection_id = collection_ids%at(collection_counter)
            call Mpi_Send(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
+           _VERIFY(ierror)
            msg =>f_d_ms(collection_counter)%msg_vec%at(1) ! just pick first one. All messages should have the same filename
            select type (q=>msg)
            class is (AbstractCollectiveDataMessage)
               Filename = q%file_name
               call Mpi_Send(FileName, FNAME_LEN, MPI_CHARACTER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
+              _VERIFY(ierror)
            class default
               _FAIL( "yet to implemented")
            end select
@@ -403,27 +404,36 @@ contains
         endif
 
         call Mpi_Bcast( collection_id, 1, MPI_INTEGER, 0, this%front_comm, ierror)
+        _VERIFY(ierror)
         if (associated(ioserver_profiler)) call ioserver_profiler%start("collection_"//i_to_string(collection_id))
 
         if (this%I_am_front_root) then
 
            call Mpi_Recv(back_local_rank, 1, MPI_INTEGER, this%back_ranks(1), &
                 this%front_ranks(1), this%server_comm, MPI_STAT, ierror)
+           _VERIFY(ierror)
 
            msg_size= size(buffer)
            call Mpi_send(msg_size,1, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
                this%back_ranks(back_local_rank+1), this%server_comm, ierror)
+           _VERIFY(ierror)
            call Mpi_send(buffer,msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
                this%back_ranks(back_local_rank+1), this%server_comm, ierror)
+           _VERIFY(ierror)
         endif
 
         call Mpi_Bcast( back_local_rank, 1, MPI_INTEGER, 0, this%front_comm, ierror)
-
-        if (allocated(this%buffers(back_local_rank+1)%buffer)) call MPI_Wait(this%buffers(back_local_rank+1)%request, MPI_STAT, ierror)
+        _VERIFY(ierror)
+        if (allocated(this%buffers(back_local_rank+1)%buffer)) then
+           call MPI_Wait(this%buffers(back_local_rank+1)%request, MPI_STAT, ierror)
+           _VERIFY(ierror)
+        endif
         call f_d_ms(collection_counter)%serialize(this%buffers(back_local_rank+1)%buffer)
+        call f_d_ms(collection_counter)%destroy(_RC)
         msg_size= size(this%buffers(back_local_rank+1)%buffer)
         call Mpi_send(msg_size,1, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
              this%back_ranks(back_local_rank+1), this%server_comm, ierror)
+        _VERIFY(ierror)
         call Mpi_Isend(this%buffers(back_local_rank+1)%buffer, msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
             this%back_ranks(back_local_rank+1), this%server_comm, this%buffers(back_local_rank+1)%request,ierror)
         if (associated(ioserver_profiler)) call ioserver_profiler%stop("collection_"//i_to_string(collection_id))
@@ -484,11 +494,13 @@ contains
          call MPI_recv( collection_id, 1, MPI_INTEGER, &
               this%front_ranks(1), this%back_ranks(1), this%server_comm, &
               MPI_STAT, ierr)
+         _VERIFY(ierr)
          if (collection_id == -1) exit
 
          call MPI_recv( FileName, FNAME_LEN , MPI_CHARACTER, &
               this%front_ranks(1), this%back_ranks(1), this%server_comm, &
               MPI_STAT, ierr)
+         _VERIFY(ierr)
          ! 2) get an idle processor and notify front root
          call dispatch_work(collection_id, idleRank, num_idlePEs, FileName, rc=status)
          _VERIFY(status)
@@ -501,6 +513,7 @@ contains
        ! this serves the syncronization with oserver
        terminate = -1
        call MPI_send(terminate, 1, MPI_INTEGER, 0, 0, this%server_comm, ierr)
+       _VERIFY(ierr)
        deallocate(num_idlePEs, idleRank)
        _RETURN(_SUCCESS)
      end subroutine start_back_captain
@@ -529,10 +542,12 @@ contains
           do local_rank = 1, this%nwriter-1
              flag = .false.
              call MPI_Iprobe( local_rank, stag, this%back_comm, flag, MPI_STAT, ierr)
+             _VERIFY(ierr)
              if (flag) then
                call MPI_recv(idle_writer, 1, MPI_INTEGER, &
                              local_rank, stag, this%back_comm, &
                              MPI_STAT, ierr)
+               _VERIFY(ierr)
                _ASSERT(local_rank == idle_writer, "local_rank and idle_writer should match")
                node_rank = this%node_ranks(local_rank)
                num_idlePEs(node_rank) = num_idlePEs(node_rank) + 1
@@ -542,6 +557,7 @@ contains
                call MPI_recv(FileDone, FNAME_LEN, MPI_CHARACTER, &
                              local_rank, stag+1, this%back_comm, &
                              MPI_STAT, ierr)
+               _VERIFY(ierr)
 
                iter = FilesBeingWritten%find(FileDone)
                _ASSERT( iter /= FilesBeingWritten%end(), "FileDone should be in the set")
@@ -572,9 +588,11 @@ contains
        ! 2.2) tell front comm which idel_worker is ready
        call MPI_send(idle_writer, 1, MPI_INTEGER, this%front_ranks(1), &
                      this%front_ranks(1), this%server_comm, ierr)
+       _VERIFY(ierr)
 
        ! 2.3) forward the collection_id to the idle_writer
        call MPI_send(collection_id, 1, MPI_INTEGER, idle_writer, idle_writer,this%back_comm, ierr)
+       _VERIFY(ierr)
        _RETURN(_SUCCESS)
      end subroutine dispatch_work
 
@@ -595,16 +613,20 @@ contains
           if (idleRank(node_rank, nth_writer) >=1) then
              ! send no_job directly to terminate
              call MPI_send(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
+             _VERIFY(ierr)
           else
              ! For busy worker, wait to receive idle_writer and the send no_job
              call MPI_recv( idle_writer, 1, MPI_INTEGER, &
                             local_rank, stag, this%back_comm, &
                             MPI_STAT, ierr)
+             _VERIFY(ierr)
              call MPI_recv( FileDone, FNAME_LEN, MPI_CHARACTER, &
                             local_rank, stag+1, this%back_comm, &
                             MPI_STAT, ierr)
+             _VERIFY(ierr)
              _ASSERT(local_rank == idle_writer, "local_rank and idle_writer should match")
              call MPI_send(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
+             _VERIFY(ierr)
           endif
        enddo
        _RETURN(_SUCCESS)
@@ -625,15 +647,15 @@ contains
        integer, pointer :: g_4d(:,:,:,:), l_4d(:,:,:,:), g_5d(:,:,:,:,:), l_5d(:,:,:,:,:)
        integer :: d_rank, request_id
        integer(kind=INT64) :: msize_word, s0, e0, s1, e1, s2, e2, s3, e3, s4, e4, s5, e5
-       type (StringAttributeMap), target :: vars_map
-       type (StringAttributeMapIterator) :: var_iter
+       type (StringIntArrayMap), target :: vars_map
+       type (StringIntArrayMapIterator) :: var_iter
        type (IntegerMessageMap), target  :: msg_map
        type (IntegerMessageMapIterator)  :: msg_iter
 
-       class (*), pointer :: x_ptr(:)
+       integer, pointer :: x_ptr(:)
        integer , allocatable :: buffer_v(:)
-       type (Attribute), pointer :: attr_ptr
-       type (Attribute) :: attr_tmp
+       type (IntArray), pointer :: array_ptr
+       type (IntArray) :: array_tmp
        type (c_ptr) :: address
        type (ForwardDataAndMessage), target :: f_d_m
        type (FileMetaData) :: fmd
@@ -644,7 +666,6 @@ contains
        real(kind=REAL64) :: file_size, speed
 
        class(Logger), pointer :: lgr
-
        back_local_rank = this%rank
        thread_ptr => this%threads%at(1)
        file_timer = AdvancedMeter(MpiTimerGauge())
@@ -654,6 +675,7 @@ contains
          call MPI_recv( collection_id, 1, MPI_INTEGER, &
                0, back_local_rank, this%back_comm, &
                MPI_STAT, ierr)
+         _VERIFY(ierr)
          if (collection_id == -1 ) exit ! exit when get terminate signal
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! sync with create_remote_win from front_com
@@ -665,24 +687,28 @@ contains
                call MPI_recv( msg_size, 1, MPI_INTEGER,    &
                     this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, &
                     MPI_STAT, ierr)
+              _VERIFY(ierr)
                allocate(buffer_fmd(msg_size))
                call MPI_recv( buffer_fmd(1), msg_size, MPI_INTEGER, &
                    this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, &
                    MPI_STAT, ierr)
+              _VERIFY(ierr)
             endif
 
             call MPI_recv( msg_size, 1, MPI_INTEGER,    &
                    this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, &
                    MPI_STAT, ierr)
+              _VERIFY(ierr)
             if (allocated(this%buffers(i)%buffer)) deallocate (this%buffers(i)%buffer)
               allocate(this%buffers(i)%buffer(msg_size))
               call MPI_Irecv( this%buffers(i)%buffer(1), msg_size, MPI_INTEGER, &
                    this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, this%buffers(i)%request, &
                    ierr)
+              _VERIFY(ierr)
          enddo ! nfront
 
          ! re-org data
-         vars_map = StringAttributeMap()
+         vars_map = StringIntArrayMap()
          msg_map  = IntegerMessageMap()
          file_size = 0.
 
@@ -690,6 +716,7 @@ contains
             s0 = 1
             f_d_m = ForwardDataAndMessage()
             call MPI_Wait(this%buffers(i)%request, MPI_STAT, ierr)
+            _VERIFY(ierr)
             call f_d_m%deserialize(this%buffers(i)%buffer)
             deallocate(this%buffers(i)%buffer)
             if (size(f_d_m%idata) ==0) cycle
@@ -699,23 +726,18 @@ contains
                msg => f_d_m%msg_vec%at(j)
                select type (q=>msg)
                type is (CollectiveStageDataMessage)
+                  msize_word = word_size(q%type_kind)*product(int(q%global_count, INT64))
                   var_iter = vars_map%find(i_to_string(q%request_id))
                   if (var_iter == vars_map%end()) then
                      msize_word = word_size(q%type_kind)*product(int(q%global_count, INT64))
-                     allocate(buffer_v(msize_word), source = -1)
-                     attr_tmp = Attribute(buffer_v)
-                     deallocate(buffer_v)
-                     call vars_map%insert(i_to_string(q%request_id),attr_tmp)
-                     call attr_tmp%destroy()
+                     array_tmp = IntArray(msize_word)
+                     call vars_map%insert(i_to_string(q%request_id),array_tmp)
                      var_iter = vars_map%find(i_to_string(q%request_id))
                      call msg_map%insert(q%request_id, q)
                   endif
-                  attr_ptr => var_iter%value()
-                  x_ptr => attr_ptr%get_values()
-                  select type (ptr=>x_ptr)
-                  type is (integer(INT32))
-                     address = c_loc(ptr(1))
-                  end select
+                  array_ptr => var_iter%value()
+                  x_ptr => array_ptr%get_values()
+                  address = c_loc(x_ptr(1))
                   d_rank = size(q%global_count)
                   ! first dimension increases
                   q%global_count(1) = word_size(q%type_kind)*q%global_count(1)
@@ -818,6 +840,7 @@ contains
          enddo ! nfront
 
          call FileMetadata_deserialize(buffer_fmd, fmd)
+         deallocate (buffer_fmd)
 
          call thread_ptr%hist_collections%push_back(HistoryCollection(fmd))
 
@@ -825,14 +848,10 @@ contains
          do while (msg_iter /= msg_map%end())
             request_id = msg_iter%key()
             msg =>msg_iter%value()
-
             var_iter = vars_map%find(i_to_string(request_id))
-            attr_ptr =>var_iter%value()
-            x_ptr => attr_ptr%get_values()
-            select type (ptr=>x_ptr)
-            type is (integer(INT32))
-                 address = c_loc(ptr(1))
-            end select
+            array_ptr =>var_iter%value()
+            x_ptr => array_ptr%get_values()
+            address = c_loc(x_ptr(1))
             select type (q=>msg)
             class is (AbstractDataMessage)
                filename =q%file_name
@@ -841,7 +860,15 @@ contains
                call file_timer%stop()
             end select
             call msg_iter%next()
+            call array_ptr%destroy(_RC)
+            call vars_map%erase(var_iter)
          enddo
+         msg_iter = msg_map%begin()
+         do while (msg_iter /= msg_map%end())
+            call msg_map%erase(msg_iter)
+            msg_iter = msg_map%begin()
+         enddo
+
          call thread_ptr%clear_hist_collections()
          call thread_ptr%hist_collections%clear()
 
@@ -852,15 +879,16 @@ contains
          call lgr%info(" Writing time: %f9.3 s, speed: %f9.3 MB/s, size: %f9.3 MB, at server node: %i0~:%i0~, file: %a", time, speed, file_size, this%node_rank, this%innode_rank, filename)
          call file_timer%reset()
 
-         deallocate (buffer_fmd)
 
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          ! telling captain it is idle by sending its own rank
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
          call MPI_send(back_local_rank, 1, MPI_INTEGER, 0, stag, this%back_comm , ierr)
+         _VERIFY(ierr)
          FileDone = Filename
          call MPI_send(FileDone, FNAME_LEN, MPI_CHARACTER, 0, stag+1, this%back_comm , ierr)
+         _VERIFY(ierr)
        enddo
        _RETURN(_SUCCESS)
      end subroutine start_back_writers
@@ -871,7 +899,7 @@ contains
       class (MultiGroupServer), intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: terminate
-      integer :: ierr, i
+      integer :: ierr, i, status
       integer :: MPI_STAT(MPI_STATUS_SIZE)
 
       terminate = -1

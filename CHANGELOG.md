@@ -9,7 +9,136 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add glob function in sampler code, supporting wild character, e.g., filename template = amsr2_gcom-w1.%y4%m2%d2T%h2%n2*.nc4
+### Changed
+
+- Add ability to connect export of the MAPL hierachy to ExtData via CAP.rc file
+- Added new driver, CapDriver.x, to excerise the MAPL_Cap with the configuratable component also used by ExtDataDriver.x
+- Added Fortran interface to UDUNITS2
+  - NOTE: This now means MAPL depends on UDUNITS2 (and transitively, expat)
+- Improve mask sampler by adding an MPI step and a LS_chunk (intermediate step)
+- CI Updates
+  - Update Baselibs in CI to 7.25.0
+  - Update to circleci-tools orb v4
+    - This adds the ability to do an `ifx` test along with the `ifort` test (though `ifx` is not yet enabled)
+- Update `components.yaml`
+  - ESMA_env v4.30.0
+    - Update to Baselibs 7.25.0
+      - ESMF 8.6.1
+      - GFE v1.16.0
+        - gFTL v1.14.0
+        - gFTL-shared v1.9.0
+        - fArgParse v1.8.0
+        - pFUnit v4.10.0
+        - yaFyaml v1.4.0
+      - curl 8.8.0
+      - NCO 5.2.6
+      - Other various fixes from the v8 branch
+    - Move to use Intel ifort 2021.13 at NCCS SLES15, NAS, and GMAO Desktops
+    - Move to use Intel MPI at NCCS SLES15 and GMAO Desktops
+    - Move to GEOSpyD Min24.4.4 Python 3.11
+  - ESMA_cmake v3.50.0
+    - Update `esma_add_fortran_submodules` function
+    - Move MPI detection out of FindBaselibs
+    - Add SMOD to submodule generator
+    - NAG OpenMP Workaround
+- Add support for preliminary CF Conventions quantization properties
+  - Add new quantization keyword `granular_bitround` to History. This will be the preferred keyword for quantization in the future
+    replacing `GranularBR`
+
+### Fixed
+
+- Fix profiler PercentageColumn test for GCC 14
+- Fix bug in ExtData Tests. CMake was overwriting the `EXTDATA2G_SMALL_TESTS` LABEL with `ESSENTIAL`
+
+### Removed
+
+### Deprecated
+
+- Deprecate `GranularBR` as a quantization method keyword in History. We will prefer `granular_bitround` in the future to match
+  draft CF conventions. This will be removed in MAPL 3.
+
+## [2.47.2] - 2024-08-16
+
+### Fixed
+
+- Fix bug in supporting externally initialized MPI
+
+## [2.47.1] - 2024-07-17
+
+### Fixed
+
+- Fixed bug in FieldSet routines when passing R8 ESMF fields
+
+## [2.47.0] - 2024-06-24
+
+### Added
+
+- Add new option to `Regrid_Util.x` to write and re-use ESMF pregenerated weights
+- If file path length exceeds `ESMF_MAXSTR`, add `_FAIL` in subroutine fglob
+- Add GNU UFS-like CI test
+- Add capability to mangle `LONG_NAME` in ACG with a different prefix
+
+### Changed
+
+- pFIO Clients don't send "Done" message when there is no request
+- Update `components.yaml`
+  - ESMA_cmake v3.46.0
+    - Fix bugs in meson detection
+    - Fix for building on older macOS
+    - Add `esma_add_fortran_submodules` function
+- Updated `checkpoint_simulator` to not create and close file if not writing
+- Update ExtData tests
+  - Add new category of `SLOW` tests that take 10-30 seconds and remove them from the `ESSENTIAL`
+    label run in CI
+  - Remove ExtData1G tests from `ESSENTIAL` label, but run them in the UFS-like CI test
+- Improved timing for station sampler with GHCNd input: used LocStream with CS background, LS with uniform distributed points, and `MPI_GatherV`
+
+### Fixed
+
+- Fixed a bug in `generate_newnxy` in `MAPL_SwathGridFactory.F90` (`NX*NY=Ncore`)
+- Fixes for NVHPC 24.5
+  - Convert `MAPL_GeosatMaskMod` to "interface-in-both-files" submodule style
+
+## [2.46.2] - 2024-05-31
+
+### Removed
+
+- Remove excessive print statements in `generic/OpenMP_Support.F90`
+
+## [2.46.1] - 2024-05-10
+
+## Fixed
+
+- Update `components.yaml` to avoid f2py error with python 3.11
+  - ESMA_cmake v3.45.1
+    - Fix bug in meson detection
+
+## [2.46.0] - 2024-05-02
+
+### Added
+
+- Update `FindESMF.cmake` to match that in ESMF 8.6.1
+- Add timer to the sampler code
+- Set required version of ESMF to 8.6.1
+- Update `components.yaml`
+  - ESMA_cmake v3.45.0
+    - `BUILT_ON_SLES15` set to `FALSE` on NCCS if not built on SLES15
+    - Update `FindESMF.cmake` to match that in ESMF 8.6.1
+    - Suppress remarks in Intel Fortran Classic 2021.12
+  - ESMA_env v4.29.0 (Baselibs 7.24.0)
+    - Update to ESMF 8.6.1b04
+    - NCO 5.2.4
+    - curl 8.7.1
+
+### Fixed
+
+- Fixed non-Baselibs build using `ESMF::ESMF` target
+
+## [2.45.0] - 2024-04-25
+
+### Added
+
+- Add glob function in sampler code, supporting wild character, e.g., filename template = `amsr2_gcom-w1.%y4%m2%d2T%h2%n2*.nc4`
 - Checked resource for o-server. It quits if the numer requested is inconsistent with being used
 - Replace local HorzIJIndex sear with the GlobalHorzIJindex search
 - Change grd_is_ok function to avoid collective call
@@ -33,9 +162,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a new "SPLIT\_CHECKPOINT:" option that has replaced the write-by-face option. This will write a file per writer
 - Implemented a new algorthm to read tile files
 - Added two options, depends_on and depends_on_children, to ACG
+- Add CI job to test Ford build (does not publish)
 
 ### Changed
 
+- Release the pfio memory as early as possible
 - Trajectory sampler: ls_rt -> ls_chunk (via mpi_gatherV) -> ls_distributed(bk=cs_grid; via ESMF_FieldRedistStore), aiming to save computational time. To gather 3D data via mpi,  options for level by level and single-3D are added via ifdef.
 - The MAPL\_ESMFRegridder manage now does compute the transpose by default
 - Bypassed the I-Server reading call when there is no extdata
@@ -52,9 +183,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Updates to GFE v1.15
     - Fixes for NAG
     - Use GCC 11.4 as Intel backing compiler at NCCS SLES15
+- Update CI to use Baselibs 7.23.0 and GCC 13.2 for GNU tests
 
 ### Fixed
 
+- Change to IntArray's pointer to store data to avoid Intel Ifort bug
 - Fix inconsistency in History output so that multi-dimensional coordinate variables are also compressed if requested in the collection
 - Minor workaround to enable NAG 7.2.01 to compile.  (Reproducer submitted to NAG.)
 - Fixed bug with split restart files
@@ -63,7 +196,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-### Deprecated
+- Removed CMake logic for macOS + Intel as that is an unsupported configuration
 
 ## [2.44.3] - 2024-03-28
 
