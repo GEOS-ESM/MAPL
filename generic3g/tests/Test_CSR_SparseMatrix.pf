@@ -62,7 +62,8 @@ contains
       @assert_that(y_found, is(equal_to(y_expected)))
       
    end subroutine test_multi_column
-   
+
+   @test
    subroutine test_multi_column_real64()
       integer, parameter :: M = 2, N = 3
       type(CSR_SparseMatrix_dp) :: mat(3)
@@ -90,5 +91,34 @@ contains
       @assert_that(y_found, is(equal_to(y_expected)))
       
    end subroutine test_multi_column_real64
+   
+   @test
+   subroutine test_multi_column_mixed_prec()
+      integer, parameter :: M = 2, N = 3
+      type(CSR_SparseMatrix_dp) :: mat(3)
+      real(REAL32) :: x(3,N), y_found(3, M), y_expected(3,M)
+      
+      mat(1) = CSR_SparseMatrix_dp(M, N, 3)
+      call add_row(mat(1), 1, 1, [1.d0,1.d0])
+      call add_row(mat(1), 2, 2, [1.d0])
+
+      mat(2) = CSR_SparseMatrix_dp(M, N, 3)
+      call add_row(mat(2), 1, 2, [1.d0,1.d0])
+      call add_row(mat(2), 2, 3, [2.d0])
+
+      mat(3) = CSR_SparseMatrix_dp(M, N, 5)
+      call add_row(mat(3), 1, 1, [1.d0,1.d0,1.d0])
+      call add_row(mat(3), 2, 2, [1.d0,2.d0])
+
+      x = 1
+      y_found = matmul(mat, x)
+
+      y_expected(1,:) = [2.,1.]
+      y_expected(2,:) = [2.,2.]
+      y_expected(3,:) = [3.,3.]
+
+      @assert_that(y_found, is(equal_to(y_expected)))
+      
+   end subroutine test_multi_column_mixed_prec
    
 end module Test_CSR_SparseMatrix

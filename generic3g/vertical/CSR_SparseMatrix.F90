@@ -10,16 +10,20 @@ module mapl3g_CSR_SparseMatrix
 
 #define IDENTITY(x) x
 #define CONCAT(a,b) IDENTITY(a)IDENTITY(b)
-#define T(k,suffix) CONCAT(CSR_SparseMatrix,suffix)
+#define CONCAT3(a,b,c) IDENTITY(a)IDENTITY(b)IDENTITY(c)
+#define T(kz) CONCAT(CSR_SparseMatrix_,kz)
 
 
-   public :: T(REAL32,_sp)
-   public :: T(REAL64,_dp)
+   public :: T(sp)
+   public :: T(dp)
    public :: matmul
    public :: add_row
 
-#define CSR_SPARSEMATRIX(k,suffix)                              \
-   type :: T(k,suffix);                                         \
+   integer, parameter :: sp = REAL32
+   integer, parameter :: dp = REAL64
+
+#define CSR_SPARSEMATRIX(kz)                                    \
+   type :: T(kz);                                               \
       private;                                                  \
       integer :: n_rows;                                        \
       integer :: n_columns;                                     \
@@ -28,26 +32,27 @@ module mapl3g_CSR_SparseMatrix
       integer, allocatable :: row_offsets(:);                   \
       integer, allocatable :: run_starts(:);                    \
       integer, allocatable :: run_lengths(:);                   \
-      real(kind=k), allocatable :: v(:);                        \
-   end type T(k,suffix)                                        ;\
+      real(kind=kz), allocatable :: v(:);                       \
+   end type T(kz)                                              ;\
    \
-   generic :: matmul => CONCAT(matmul_vec,suffix)              ;\
-   generic :: matmul => CONCAT(matmul_multi_vec,suffix)        ;\
-   generic :: add_row => CONCAT(add_row,suffix)                ;\
+   generic :: matmul => CONCAT3(matmul_vec_,kz,sp)             ;\
+   generic :: matmul => CONCAT3(matmul_vec_,kz,dp)             ;\
+   generic :: matmul => CONCAT3(matmul_multi_vec_,kz,sp)       ;\
+   generic :: matmul => CONCAT3(matmul_multi_vec_,kz,dp)       ;\
+   generic :: add_row => CONCAT(add_row_,kz)                   ;\
    \
-   interface T(k,suffix)                                       ;\
-      procedure CONCAT(new_csr_matrix,suffix)                  ;\
-   end interface                                               ;\
-                                                               ;\
+   interface T(kz)                                             ;\
+      procedure CONCAT(new_csr_matrix_,kz)                     ;\
+   end interface
 
-CSR_SPARSEMATRIX(REAL32,_sp)   
-CSR_SPARSEMATRIX(REAL64,_dp)   
+CSR_SPARSEMATRIX(sp)   
+CSR_SPARSEMATRIX(dp)   
 
 contains
 
-#define NEW_CSR_MATRIX(k,suffix)                                                  \
-   function CONCAT(new_csr_matrix,suffix)(n_rows, n_columns, nnz) result(mat)    ;\
-      type(T(k,suffix)) :: mat                                                   ;\
+#define NEW_CSR_MATRIX(kz)                                                        \
+   function CONCAT(new_csr_matrix_,kz)(n_rows, n_columns, nnz) result(mat)       ;\
+      type(T(kz)) :: mat                                                         ;\
       integer, intent(in) :: n_rows                                              ;\
       integer, intent(in) :: n_columns                                           ;\
       integer, intent(in) :: nnz                                                 ;\
@@ -62,12 +67,12 @@ contains
    end function
 
 
-#define ADD_ROW(k,suffix)                                           \
-   pure subroutine CONCAT(add_row,suffix)(this, row, start_column, v) ;\
-      type(T(k,suffix)), intent(inout) :: this                      ;\
+#define ADD_ROW(kz)                                                  \
+   pure subroutine CONCAT(add_row_,kz)(this, row, start_column, v)  ;\
+      type(T(kz)), intent(inout) :: this                            ;\
       integer, intent(in) :: row                                    ;\
       integer, intent(in) :: start_column                           ;\
-      real(k), intent(in) :: v(:)                                   ;\
+      real(kz), intent(in) :: v(:)                                  ;\
                                                                      \
       associate (n => size(v), offset => this%row_offsets(row))     ;\
                                                                      \
@@ -75,17 +80,17 @@ contains
         this%run_starts(row) = start_column                         ;\
         this%v(offset+1:offset+n) = v                               ;\
         this%row_offsets(row+1) = offset + n                        ;\
-                                                                    \
+                                                                     \
       end associate                                                 ;\
-                                                                    \
+                                                                     \
    end subroutine
 
 
-#define MATMUL_VEC(k,suffix)                                         \
-   pure function CONCAT(matmul_vec,suffix)(A, x) result(y)          ;\
-      type(T(k,suffix)), intent(in) :: A                            ;\
-      real(k), intent(in) :: x(:)                                   ;\
-      real(k) :: y(A%n_rows)                                        ;\
+#define MATMUL_VEC(kz,kx)                                            \
+   pure function CONCAT3(matmul_vec_,kz,kx)(A, x) result(y)          ;\
+      type(T(kz)), intent(in) :: A                                  ;\
+      real(kx), intent(in) :: x(:)                                  ;\
+      real(kx) :: y(A%n_rows)                                       ;\
                                                                      \
       integer :: i, j                                               ;\
                                                                      \
@@ -112,26 +117,30 @@ contains
                                                                      \
    end function
 
-#define MATMUL_MULTI_VEC(k,suffix)                                   \
-   pure function CONCAT(matmul_multi_vec,suffix)(A, x) result(b)    ;\
-      type(T(k,suffix)), intent(in) :: A(:)                         ;\
-      real(k), intent(in) :: x(:,:)                                 ;\
-      real(k) :: b(size(A,1),A(1)%n_rows)                           ;\
+#define MATMUL_MULTI_VEC(kz,kx)                                      \
+   pure function CONCAT3(matmul_multi_vec_,kz,kx)(A, x) result(b)   ;\
+      type(T(kz)), intent(in) :: A(:)                               ;\
+      real(kx), intent(in) :: x(:,:)                                ;\
+      real(kx) :: b(size(A,1),A(1)%n_rows)                          ;\
       integer :: i                                                  ;\
       do concurrent (i=1:size(A))                                   ;\
          b(i,:) = matmul(A(i), x(i,:))                              ;\
       end do                                                        ;\
    end function
 
-   NEW_CSR_MATRIX(REAL32,_sp)
-   ADD_ROW(REAL32,_sp)
-   MATMUL_VEC(REAL32,_sp)
-   MATMUL_MULTI_VEC(REAL32,_sp)
+   NEW_CSR_MATRIX(sp)
+   ADD_ROW(sp)
+   MATMUL_VEC(sp,sp)
+   MATMUL_VEC(sp,dp)
+   MATMUL_MULTI_VEC(sp,sp)
+   MATMUL_MULTI_VEC(sp,dp)
 
+   NEW_CSR_MATRIX(dp)
+   ADD_ROW(dp)
+   MATMUL_VEC(dp,sp)
+   MATMUL_VEC(dp,dp)
+   MATMUL_MULTI_VEC(dp,sp)
+   MATMUL_MULTI_VEC(dp,dp)
 
-   NEW_CSR_MATRIX(REAL64,_dp)
-   ADD_ROW(REAL64,_dp)
-   MATMUL_VEC(REAL64,_dp)
-   MATMUL_MULTI_VEC(REAL64,_dp)
 
 end module mapl3g_CSR_SparseMatrix
