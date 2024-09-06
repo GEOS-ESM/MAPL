@@ -37,7 +37,7 @@ module mapl3g_FieldSpec
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use mapl3g_FieldDictionary
    use mapl3g_GriddedComponentDriver
-   use mapl3g_VariableSpec, only: VariableSpec, get_regrid_method_from_field_dict
+   use mapl3g_VariableSpec, only: VariableSpec
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -165,7 +165,6 @@ contains
       ! optional args last
       real, optional, intent(in) :: default_value
 
-      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
       integer :: status
 
       if (present(geom)) field_spec%geom = geom
@@ -181,8 +180,6 @@ contains
 
       ! regrid_param
       field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
-      regrid_method = get_regrid_method_from_field_dict(field_spec%standard_name)
-      field_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
       if (present(regrid_param)) field_spec%regrid_param = regrid_param
 
       if (present(default_value)) field_spec%default_value = default_value

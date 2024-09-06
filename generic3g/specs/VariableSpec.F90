@@ -23,7 +23,7 @@ module mapl3g_VariableSpec
    implicit none
    private
 
-   public :: VariableSpec, get_regrid_method_from_field_dict
+   public :: VariableSpec
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it
@@ -119,7 +119,7 @@ contains
 
       ! regridding parameter
       var_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
-      regrid_method = get_regrid_method_from_field_dict(var_spec%standard_name)
+      regrid_method = get_regrid_method_from_field_dict_(var_spec%standard_name)
       var_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
       if (present(regrid_param)) var_spec%regrid_param = regrid_param
 
@@ -247,7 +247,7 @@ contains
       _RETURN(_SUCCESS)
    end function make_dependencies
 
-   function get_regrid_method_from_field_dict(stdname, rc) result(regrid_method)
+   function get_regrid_method_from_field_dict_(stdname, rc) result(regrid_method)
       type(ESMF_RegridMethod_Flag) :: regrid_method
       character(:), allocatable, intent(in) :: stdname
       integer, optional, intent(out) :: rc
@@ -267,6 +267,6 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-   end function get_regrid_method_from_field_dict
+   end function get_regrid_method_from_field_dict_
 
 end module mapl3g_VariableSpec
