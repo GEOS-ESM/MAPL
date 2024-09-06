@@ -37,7 +37,7 @@ module mapl3g_FieldSpec
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use mapl3g_FieldDictionary
    use mapl3g_GriddedComponentDriver
-   use mapl3g_VariableSpec
+   use mapl3g_VariableSpec, only: VariableSpec, get_regrid_method_from_field_dict
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -181,7 +181,7 @@ contains
 
       ! regrid_param
       field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
-      regrid_method = get_regrid_method_(field_spec%standard_name)
+      regrid_method = get_regrid_method_from_field_dict(field_spec%standard_name)
       field_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
       if (present(regrid_param)) field_spec%regrid_param = regrid_param
 
@@ -199,41 +199,15 @@ contains
       _SET_FIELD(field_spec, variable_spec, typekind)
       _SET_FIELD(field_spec, variable_spec, ungridded_dims)
       _SET_FIELD(field_spec, variable_spec, attributes)
+      _SET_FIELD(field_spec, variable_spec, regrid_param)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, units)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, default_value)
 
       field_spec%long_name = 'unknown'
-      
-      field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
-      regrid_method = get_regrid_method_(field_spec%standard_name)
-      field_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
-
 
    end function new_FieldSpec_varspec
       
-   function get_regrid_method_(stdname, rc) result(regrid_method)
-      type(ESMF_RegridMethod_Flag) :: regrid_method
-      character(:), allocatable, intent(in) :: stdname
-      integer, optional, intent(out) :: rc
-
-      character(len=*), parameter :: field_dictionary_file = "field_dictionary.yml"
-      type(FieldDictionary) :: field_dict
-      logical :: file_exists
-      integer :: status
-
-      regrid_method = ESMF_REGRIDMETHOD_BILINEAR ! default value
-      if (allocated(stdname)) then
-         inquire(file=trim(field_dictionary_file), exist=file_exists)
-         if (file_exists) then
-            field_dict = FieldDictionary(filename=field_dictionary_file, _RC)
-            regrid_method = field_dict%get_regrid_method(stdname, _RC)
-         end if
-      end if
-
-      _RETURN(_SUCCESS)
-   end function get_regrid_method_
-
    subroutine set_geometry(this, geom, vertical_grid, rc)
       class(FieldSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
