@@ -49,12 +49,13 @@ contains
       call add_row(mat(2), 2, 3, [2.])
 
       mat(2) = CSR_SparseMatrix_sp(M, N, 5)
+
       call add_row(mat(3), 1, 1, [1.,1.,1.])
+
       call add_row(mat(3), 2, 2, [1.,2.])
 
       x = 1
-      print*,'k = ', mat%k
-      y_found = matmul(wrap, x)
+      y_found = matmul(mat, x)
 
       y_expected(1,:) = [2.,1.]
       y_expected(2,:) = [2.,2.]
