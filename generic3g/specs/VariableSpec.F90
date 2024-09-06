@@ -116,7 +116,7 @@ contains
       _SET_OPTIONAL(bracket_size)
       _SET_OPTIONAL(dependencies)
 
-      call this%set_regrid_param()
+      call var_spec%set_regrid_param_(regrid_param)
 
       _UNUSED_DUMMY(unusable)
    end function new_VariableSpec
@@ -225,11 +225,14 @@ contains
       _RETURN(_SUCCESS)
    end function make_dependencies
 
-   subroutine set_regrid_param_(this)
+   subroutine set_regrid_param_(this, regrid_param)
       class(VariableSpec), intent(inout) :: this
+      type(EsmfRegridderParam), optional, intent(in) :: regrid_param
+
+      type(ESMF_RegridMethod_Flag) :: regrid_method
 
       this%regrid_param = EsmfRegridderParam() ! use default regrid method
-      regrid_method = get_regrid_method_from_field_dict_(var_spec%standard_name)
+      regrid_method = get_regrid_method_from_field_dict_(this%standard_name)
       this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
       if (present(regrid_param)) this%regrid_param = regrid_param
    end subroutine set_regrid_param_
