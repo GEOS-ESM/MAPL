@@ -14,6 +14,8 @@ module mapl3g_VariableSpec
    use mapl_ErrorHandling
    use mapl3g_StateRegistry
    use mapl3g_StateItem
+   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
+   use mapl3g_FieldDictionary
    use esmf
    use gFTL2_StringVector
    use nuopc
@@ -21,7 +23,7 @@ module mapl3g_VariableSpec
    implicit none
    private
 
-   public :: VariableSpec
+   public :: VariableSpec, get_regrid_method_from_field_dict
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it
@@ -32,6 +34,7 @@ module mapl3g_VariableSpec
       type(ESMF_StateIntent_Flag) :: state_intent
       character(:), allocatable :: short_name
       type(ESMF_TypeKind_Flag) :: typekind = ESMF_TYPEKIND_R4
+      type(EsmfRegridderParam) :: regrid_param
 
       ! Metadata
       character(:), allocatable :: standard_name
@@ -68,7 +71,7 @@ contains
         units, substate, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
         service_items, attributes, &
         bracket_size, &
-        dependencies) result(var_spec)
+        dependencies, regrid_param) result(var_spec)
 
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -88,6 +91,9 @@ contains
       type(StringVector), optional, intent(in) :: attributes
       integer, optional, intent(in) :: bracket_size
       type(StringVector), optional, intent(in) :: dependencies
+      type(EsmfRegridderParam), optional, intent(in) :: regrid_param
+
+      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
       var_spec%state_intent = state_intent
       var_spec%short_name = short_name
@@ -110,6 +116,12 @@ contains
       _SET_OPTIONAL(attributes)
       _SET_OPTIONAL(bracket_size)
       _SET_OPTIONAL(dependencies)
+
+      ! regridding parameter
+      var_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
+      regrid_method = get_regrid_method_from_field_dict(var_spec%standard_name)
+      var_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
+      if (present(regrid_param)) var_spec%regrid_param = regrid_param
 
       _UNUSED_DUMMY(unusable)
    end function new_VariableSpec
@@ -234,5 +246,27 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_dependencies
+
+   function get_regrid_method_from_field_dict(stdname, rc) result(regrid_method)
+      type(ESMF_RegridMethod_Flag) :: regrid_method
+      character(:), allocatable, intent(in) :: stdname
+      integer, optional, intent(out) :: rc
+
+      character(len=*), parameter :: field_dictionary_file = "field_dictionary.yml"
+      type(FieldDictionary) :: field_dict
+      logical :: file_exists
+      integer :: status
+
+      regrid_method = ESMF_REGRIDMETHOD_BILINEAR ! default value
+      if (allocated(stdname)) then
+         inquire(file=trim(field_dictionary_file), exist=file_exists)
+         if (file_exists) then
+            field_dict = FieldDictionary(filename=field_dictionary_file, _RC)
+            regrid_method = field_dict%get_regrid_method(stdname, _RC)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+   end function get_regrid_method_from_field_dict
 
 end module mapl3g_VariableSpec
