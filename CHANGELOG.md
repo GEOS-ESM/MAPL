@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Start implementing changes for vertical regridding in ExtData
 - Add ability to connect export of the MAPL hierachy to ExtData via CAP.rc file
 - Added new driver, CapDriver.x, to excerise the MAPL_Cap with the configuratable component also used by ExtDataDriver.x
 - Added Fortran interface to UDUNITS2
