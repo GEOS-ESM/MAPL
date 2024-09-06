@@ -56,7 +56,6 @@ module mapl3g_VariableSpec
       procedure :: make_virtualPt
 
       procedure :: make_dependencies
-      procedure, private :: pick_geom_
       procedure :: initialize
    end type VariableSpec
 
@@ -187,23 +186,6 @@ contains
          v_pt = v_pt%add_comp_name(this%substate)
       end if
    end function make_virtualPt
-
-   subroutine pick_geom_(this, that_geom, geom, rc)
-      class(VariableSpec), intent(in) :: this
-      type(ESMF_Geom), optional, intent(in) :: that_geom
-      type(ESMF_Geom), allocatable, intent(out) :: geom
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      if (present(that_geom) .and. allocated(this%geom)) then
-         _FAIL("Cannot have both this and that geom :-(")
-      end if
-      if (present(that_geom)) geom = that_geom
-      if (allocated(this%geom)) geom = this%geom
-
-      _RETURN(_SUCCESS)
-   end subroutine pick_geom_
 
    subroutine fill_units(this, units, rc)
       class(VariableSpec), intent(in) :: this

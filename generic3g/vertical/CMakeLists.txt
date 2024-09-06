@@ -5,6 +5,8 @@ target_sources(MAPL.generic3g PRIVATE
   MirrorVerticalGrid.F90
   FixedLevelsVerticalGrid.F90
   ModelVerticalGrid.F90
+
+  CSR_SparseMatrix.F90
 )
 
 esma_add_fortran_submodules(
