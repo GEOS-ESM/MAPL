@@ -32,6 +32,7 @@ module mapl3g_CSR_SparseMatrix
    end type T(k,suffix)                                        ;\
    \
    generic :: matmul => CONCAT(matmul_vec,suffix)              ;\
+   generic :: matmul => CONCAT(matmul_multi_vec,suffix)        ;\
    generic :: add_row => CONCAT(add_row,suffix)                ;\
    \
    interface T(k,suffix)                                       ;\

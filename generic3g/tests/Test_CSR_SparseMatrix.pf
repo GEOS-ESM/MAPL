@@ -69,16 +69,16 @@ contains
       real(REAL64) :: x(3,N), y_found(3, M), y_expected(3,M)
       
       mat(1) = CSR_SparseMatrix_dp(M, N, 3)
-      call add_row(mat(1), 1, 1, [1.,1.])
-      call add_row(mat(1), 2, 2, [1.])
+      call add_row(mat(1), 1, 1, [1.d0,1.d0])
+      call add_row(mat(1), 2, 2, [1.d0])
 
       mat(2) = CSR_SparseMatrix_dp(M, N, 3)
-      call add_row(mat(2), 1, 2, [1.,1.])
-      call add_row(mat(2), 2, 3, [2.])
+      call add_row(mat(2), 1, 2, [1.d0,1.d0])
+      call add_row(mat(2), 2, 3, [2.d0])
 
       mat(3) = CSR_SparseMatrix_dp(M, N, 5)
-      call add_row(mat(3), 1, 1, [1.,1.,1.])
-      call add_row(mat(3), 2, 2, [1.,2.])
+      call add_row(mat(3), 1, 1, [1.d0,1.d0,1.d0])
+      call add_row(mat(3), 2, 2, [1.d0,2.d0])
 
       x = 1
       y_found = matmul(mat, x)
