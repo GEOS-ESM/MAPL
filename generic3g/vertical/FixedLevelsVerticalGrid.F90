@@ -17,8 +17,7 @@ module mapl3g_FixedLevelsVerticalGrid
       private
       real(kind=REAL32), allocatable :: levels(:)
       character(:), allocatable :: standard_name ! air_pressure, height, etc.
-!#      character(:), allocatable :: units
-!#      character(:), allocatable :: coordinate_name
+      character(:), allocatable :: units
    contains
       procedure :: get_num_levels
       procedure :: get_coordinate_field
@@ -31,14 +30,16 @@ module mapl3g_FixedLevelsVerticalGrid
 
 contains
 
-   function new_FixedLevelsVerticalGrid_r32(standard_name, levels) result(grid)
+   function new_FixedLevelsVerticalGrid_r32(standard_name, levels, units) result(grid)
       type(FixedLevelsVerticalGrid) :: grid
       real(REAL32), intent(in) :: levels(:)
       character(*), intent(in) :: standard_name
+      character(*), intent(in) :: units
 
       call grid%set_id()
       grid%standard_name = standard_name
       grid%levels = levels
+      grid%units = units
 
    end function new_FixedLevelsVerticalGrid_r32
 
@@ -80,4 +81,4 @@ contains
     end function can_connect_to
 
 end module mapl3g_FixedLevelsVerticalGrid
-   
+
