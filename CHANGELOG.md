@@ -37,11 +37,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Move to use Intel ifort 2021.13 at NCCS SLES15, NAS, and GMAO Desktops
     - Move to use Intel MPI at NCCS SLES15 and GMAO Desktops
     - Move to GEOSpyD Min24.4.4 Python 3.11
-  - ESMA_cmake v3.50.0
+  - ESMA_cmake v3.51.0
     - Update `esma_add_fortran_submodules` function
     - Move MPI detection out of FindBaselibs
     - Add SMOD to submodule generator
     - NAG OpenMP Workaround
+    - Support for Jemalloc and LLVM Flang
 - Add support for preliminary CF Conventions quantization properties
   - Add new quantization keyword `granular_bitround` to History. This will be the preferred keyword for quantization in the future
     replacing `GranularBR`
