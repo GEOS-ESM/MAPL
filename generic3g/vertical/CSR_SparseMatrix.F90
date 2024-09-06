@@ -34,18 +34,21 @@ module mapl3g_CSR_SparseMatrix
       integer, allocatable :: run_lengths(:);                   \
       real(kind=kz), allocatable :: v(:);                       \
    end type T(kz)                                              ;\
-   \
-   generic :: matmul => CONCAT3(matmul_vec_,kz,sp)             ;\
-   generic :: matmul => CONCAT3(matmul_vec_,kz,dp)             ;\
-   generic :: matmul => CONCAT3(matmul_multi_vec_,kz,sp)       ;\
-   generic :: matmul => CONCAT3(matmul_multi_vec_,kz,dp)       ;\
-   generic :: add_row => CONCAT(add_row_,kz)                   ;\
-   \
+   interface matmul                                            ;\
+      procedure CONCAT3(matmul_vec_,kz,sp)                     ;\
+      procedure CONCAT3(matmul_vec_,kz,dp)                     ;\
+      procedure CONCAT3(matmul_multi_vec_,kz,sp)               ;\
+      procedure CONCAT3(matmul_multi_vec_,kz,dp)               ;\
+   end interface matmul                                        ;\
+   interface add_row                                           ;\
+      procedure CONCAT(add_row_,kz)                            ;\
+   end interface add_row                                       ;\
    interface T(kz)                                             ;\
       procedure CONCAT(new_csr_matrix_,kz)                     ;\
-   end interface
+   end interface T(kz)
 
 CSR_SPARSEMATRIX(sp)   
+
 CSR_SPARSEMATRIX(dp)   
 
 contains
