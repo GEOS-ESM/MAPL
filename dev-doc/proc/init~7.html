@@ -79,20 +79,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for procedures.">26 statements</a>
+                 title=" 0.0% of total for procedures.">27 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/pfio_server_demo.F90"> Source File</a>
+              <a href="../src/pfio_collective_demo.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/pfio_server_demo.f90.html'>pfio_server_demo.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/fakeextdatamod_server.html'>FakeExtDataMod_server</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/pfio_collective_demo.f90.html'>pfio_collective_demo.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/fakeextdatamod_collective.html'>FakeExtDataMod_collective</a></li>
             <li class="breadcrumb-item active" aria-current="page">init</li>
           </ol>
         </nav>
@@ -144,7 +144,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private  subroutine init(this, options, comm, d_s)  
+    <h2>private  subroutine init(this, options, comm, d_s, port_name)  
 </h2>
         <div class="card mb-4">
       <h3 class="card-header card-title bg-light">Uses</h3>
@@ -267,7 +267,7 @@ large graphs.</div>
 
 
     <h3>Type Bound</h3>
-    <p><a href='../type/fakeextdata~2.html'>FakeExtData</a></p>
+    <p><a href='../type/fakeextdata.html'>FakeExtData</a></p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -282,12 +282,12 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~2699"></span>
-              class(<a href='../type/fakeextdata~2.html'>FakeExtData</a>),
+              <span class="anchor" id="variable-this~4051"></span>
+              class(<a href='../type/fakeextdata.html'>FakeExtData</a>),
             </td>
-<td>intent(inout)</td>
+<td>intent(inout),</td>
               <td></td>            <td>
-              
+              target
             </td>
             <td>::</td>
             <td><strong>this</strong></td>
@@ -297,7 +297,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-options~9"></span>
+              <span class="anchor" id="variable-options~12"></span>
               type(<a href='../type/commandlineoptions~3.html'>CommandLineOptions</a>),
             </td>
 <td>intent(in)</td>
@@ -312,7 +312,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~128"></span>
+              <span class="anchor" id="variable-comm~153"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -327,7 +327,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-d_s~5"></span>
+              <span class="anchor" id="variable-d_s~3"></span>
               class(<a href='../type/abstractdirectoryservice.html'>AbstractDirectoryService</a>),
             </td>
 <td>intent(inout),</td>
@@ -336,6 +336,21 @@ large graphs.</div>
             </td>
             <td>::</td>
             <td><strong>d_s</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-port_name~15"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>port_name</strong></td>
             <td>
                 
             </td>
@@ -534,18 +549,18 @@ large graphs.</div>
 <polygon fill="none" stroke="black" points="196,-24 90,-24 90,0 196,0 196,-24"/>
 <text text-anchor="middle" x="143" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">FakeExtData%init</text>
 </g>
-<!-- program~main~9 -->
+<!-- program~main~13 -->
 <g id="proc~~init~7~~CalledByGraph_node2" class="node">
-<title>program~main~9</title>
-<g id="a_proc~~init~7~~CalledByGraph_node2"><a xlink:href="../program/main~9.html" xlink:title="main">
+<title>program~main~13</title>
+<g id="a_proc~~init~7~~CalledByGraph_node2"><a xlink:href="../program/main~13.html" xlink:title="main">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-24 0,-24 0,0 54,0 54,-24"/>
 <text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
 </a>
 </g>
 </g>
-<!-- program~main~9&#45;&gt;proc~init~7 -->
+<!-- program~main~13&#45;&gt;proc~init~7 -->
 <g id="proc~~init~7~~CalledByGraph_edge1" class="edge">
-<title>program~main~9&#45;&gt;proc~init~7</title>
+<title>program~main~13&#45;&gt;proc~init~7</title>
 <path fill="none" stroke="#ff0000" d="M54.15,-12C61.89,-12 70.71,-12 79.71,-12"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="79.9,-15.5 89.9,-12 79.9,-8.5 79.9,-15.5"/>
 </g>
@@ -646,12 +661,13 @@ large graphs.</div>
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">init</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="k">options</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">d_s</span><span class="p">)</span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">init</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="k">options</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">d_s</span><span class="p">,</span><span class="w"> </span><span class="n">port_name</span><span class="p">)</span>
 <span class="w">      </span><span class="k">use </span><span class="n">gFTL_StringIntegerMap</span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">FakeExtData</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">FakeExtData</span><span class="p">),</span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
 <span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">CommandLineOptions</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">options</span>
 <span class="k">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
 <span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractDirectoryService</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">d_s</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">port_name</span>
 
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierror</span>
 <span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_metadata</span>
@@ -659,11 +675,15 @@ large graphs.</div>
 <span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringIntegerMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dims</span>
 
 <span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ClientThread</span><span class="p">()</span>
-<span class="w">      </span><span class="k">call </span><span class="n">d_s</span><span class="p">%</span><span class="n">connect_to_server</span><span class="p">(</span><span class="s1">&#39;i_server&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">d_s</span><span class="p">%</span><span class="n">connect_to_server</span><span class="p">(</span><span class="n">port_name</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">)</span>
 
 <span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">file_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">file_1</span>
 <span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">file_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">file_2</span>
 <span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">vars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">requested_variables</span>
+<span class="w">      </span><span class="c">!call this%vars%push_back(&#39;T&#39;)</span>
+<span class="w">      </span><span class="c">!call this%vars%push_back(&#39;U&#39;)</span>
+<span class="w">      </span><span class="c">!call this%vars%push_back(&#39;V&#39;)</span>
+
 
 <span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">comm</span>
 <span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">rank</span><span class="p">,</span><span class="n">ierror</span><span class="p">)</span>
@@ -703,7 +723,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-08-16T15:32:59.332696             </p>
+ on 2024-09-06T19:06:43.279048             </p>
           </div>
         </div>
         <br>

@@ -10,7 +10,7 @@
     <meta name="author" content="The MAPL Developers" >
     <link rel="icon" href="../favicon.png">
 
-    <title>finalize &ndash; MAPL</title>
+    <title>Finalize &ndash; MAPL</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
@@ -68,7 +68,7 @@
 
     <div class="container">
   <div class="row">
-    <h1>finalize
+    <h1>Finalize
       <small>Subroutine</small>
       
     </h1>
@@ -79,21 +79,21 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for procedures.">18 statements</a>
+                 title=" 0.0% of total for procedures.">43 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/AbstractMeter.F90"> Source File</a>
+              <a href="../src/MAPL_HistoryGridComp.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/abstractmeter.f90.html'>AbstractMeter.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/mapl_abstractmeter.html'>MAPL_AbstractMeter</a></li>
-            <li class="breadcrumb-item active" aria-current="page">finalize</li>
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_historygridcomp.f90.html'>MAPL_HistoryGridComp.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_historygridcompmod.html'>MAPL_HistoryGridCompMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Finalize</li>
           </ol>
         </nav>
       </div>
@@ -131,6 +131,12 @@
   
   
   
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/finalize.html#src">Finalize</a>
+      </div>
+    </div>
 
 
   </div>
@@ -138,13 +144,12 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private  subroutine finalize(this, rc)  
+    <h2>private  subroutine Finalize(gc, import, export, clock, rc)  
 </h2>
     
 
+    <p>Finanlize the <code>MAPL_HistoryGridComp</code> component.</p>
 
-    <h3>Type Bound</h3>
-    <p><a href='../type/abstractmeter.html'>AbstractMeter</a></p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -159,22 +164,67 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~258"></span>
-              class(<a href='../type/abstractmeter.html'>AbstractMeter</a>),
+              <span class="anchor" id="variable-gc~25"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
             </td>
-<td>intent(in)</td>
+<td>intent(inout)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>this</strong></td>
+            <td><strong>gc</strong></td>
             <td>
-                
+                <p>composite gridded component</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~83"></span>
+              <span class="anchor" id="variable-import~10"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>import</strong></td>
+            <td>
+                <p>import state</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-export~9"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>export</strong></td>
+            <td>
+                <p>export state</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~36"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clock</strong></td>
+            <td>
+                <p>the clock</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1109"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -202,40 +252,166 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~finalize~~CallsGraph Pages: 1 -->
-<svg id="procfinalizeCallsGraph" width="268pt" height="74pt"
- viewBox="0.00 0.00 268.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~finalize~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<svg id="procfinalizeCallsGraph" width="286pt" height="410pt"
+ viewBox="0.00 0.00 286.00 410.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~finalize~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 406)">
 <title>proc~~finalize~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 264,-70 264,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-406 282,-406 282,4 -4,4"/>
 <!-- proc~finalize -->
 <g id="proc~~finalize~~CallsGraph_node1" class="node">
 <title>proc~finalize</title>
-<polygon fill="none" stroke="black" points="136,-45 0,-45 0,-21 136,-21 136,-45"/>
-<text text-anchor="middle" x="68" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">AbstractMeter%finalize</text>
+<polygon fill="none" stroke="black" points="54,-213 0,-213 0,-189 54,-189 54,-213"/>
+<text text-anchor="middle" x="27" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50">Finalize</text>
 </g>
-<!-- mpi_op_free -->
+<!-- ESMF_AlarmIsRinging -->
 <g id="proc~~finalize~~CallsGraph_node2" class="node">
-<title>mpi_op_free</title>
-<polygon fill="#777777" stroke="#777777" points="255,-66 177,-66 177,-42 255,-42 255,-66"/>
-<text text-anchor="middle" x="216" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_op_free</text>
+<title>ESMF_AlarmIsRinging</title>
+<g id="a_proc~~finalize~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_alarmisringing.html" xlink:title="ESMF_AlarmIsRinging">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="247.5,-402 120.5,-402 120.5,-378 247.5,-378 247.5,-402"/>
+<text text-anchor="middle" x="184" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AlarmIsRinging</text>
+</a>
 </g>
-<!-- proc~finalize&#45;&gt;mpi_op_free -->
+</g>
+<!-- proc~finalize&#45;&gt;ESMF_AlarmIsRinging -->
 <g id="proc~~finalize~~CallsGraph_edge1" class="edge">
-<title>proc~finalize&#45;&gt;mpi_op_free</title>
-<path fill="none" stroke="#ff0000" d="M136.02,-42.64C146.37,-44.13 156.88,-45.64 166.71,-47.05"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="166.28,-50.53 176.67,-48.49 167.27,-43.6 166.28,-50.53"/>
+<title>proc~finalize&#45;&gt;ESMF_AlarmIsRinging</title>
+<path fill="none" stroke="#ff0000" d="M28.69,-213.34C31.15,-244.53 42.07,-326.99 90,-369 96.11,-374.35 103.29,-378.42 110.91,-381.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="109.78,-384.82 120.38,-384.8 112.08,-378.21 109.78,-384.82"/>
 </g>
-<!-- mpi_type_free -->
+<!-- ESMF_CplCompWriteRestart -->
 <g id="proc~~finalize~~CallsGraph_node3" class="node">
-<title>mpi_type_free</title>
-<polygon fill="#777777" stroke="#777777" points="260,-24 172,-24 172,0 260,0 260,-24"/>
-<text text-anchor="middle" x="216" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_type_free</text>
+<title>ESMF_CplCompWriteRestart</title>
+<g id="a_proc~~finalize~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_cplcompwriterestart.html" xlink:title="ESMF_CplCompWriteRestart">
+<polygon fill="#d9534f" stroke="#d9534f" points="264,-360 104,-360 104,-336 264,-336 264,-360"/>
+<text text-anchor="middle" x="184" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CplCompWriteRestart</text>
+</a>
 </g>
-<!-- proc~finalize&#45;&gt;mpi_type_free -->
+</g>
+<!-- proc~finalize&#45;&gt;ESMF_CplCompWriteRestart -->
 <g id="proc~~finalize~~CallsGraph_edge2" class="edge">
-<title>proc~finalize&#45;&gt;mpi_type_free</title>
-<path fill="none" stroke="#ff0000" d="M136.02,-23.36C144.65,-22.12 153.4,-20.86 161.77,-19.66"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="162.36,-23.11 171.76,-18.22 161.36,-16.18 162.36,-23.11"/>
+<title>proc~finalize&#45;&gt;ESMF_CplCompWriteRestart</title>
+<path fill="none" stroke="#ff0000" d="M30.35,-213.25C35.9,-238.68 52.29,-297.26 90,-327 91.8,-328.42 93.67,-329.74 95.6,-330.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="94.01,-334.1 104.45,-335.88 97.4,-327.97 94.01,-334.1"/>
+</g>
+<!-- ESMF_GridCompGetInternalState -->
+<g id="proc~~finalize~~CallsGraph_node4" class="node">
+<title>ESMF_GridCompGetInternalState</title>
+<g id="a_proc~~finalize~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridcompgetinternalstate.html" xlink:title="ESMF_GridCompGetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="278,-318 90,-318 90,-294 278,-294 278,-318"/>
+<text text-anchor="middle" x="184" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompGetInternalState</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize&#45;&gt;ESMF_GridCompGetInternalState -->
+<g id="proc~~finalize~~CallsGraph_edge3" class="edge">
+<title>proc~finalize&#45;&gt;ESMF_GridCompGetInternalState</title>
+<path fill="none" stroke="#ff0000" d="M33.47,-213.17C42.48,-231.73 62.23,-266.86 90,-285 92.62,-286.71 95.36,-288.28 98.18,-289.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="96.91,-292.99 107.47,-293.92 99.8,-286.61 96.91,-292.99"/>
+</g>
+<!-- interface~mapl_getobjectfromgc -->
+<g id="proc~~finalize~~CallsGraph_node5" class="node">
+<title>interface~mapl_getobjectfromgc</title>
+<g id="a_proc~~finalize~~CallsGraph_node5"><a xlink:href="../interface/mapl_getobjectfromgc.html" xlink:title="MAPL_GetObjectFromGC">
+<polygon fill="#a7506f" stroke="#a7506f" points="255,-276 113,-276 113,-252 255,-252 255,-276"/>
+<text text-anchor="middle" x="184" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetObjectFromGC</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize&#45;&gt;interface~mapl_getobjectfromgc -->
+<g id="proc~~finalize~~CallsGraph_edge4" class="edge">
+<title>proc~finalize&#45;&gt;interface~mapl_getobjectfromgc</title>
+<path fill="none" stroke="#ff0000" d="M42.37,-213.03C54.38,-222.51 72.34,-235.35 90,-243 95.03,-245.18 100.32,-247.15 105.71,-248.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="104.91,-252.33 115.49,-251.91 106.95,-245.64 104.91,-252.33"/>
+</g>
+<!-- proc~free_file -->
+<g id="proc~~finalize~~CallsGraph_node6" class="node">
+<title>proc~free_file</title>
+<g id="a_proc~~finalize~~CallsGraph_node6"><a xlink:href="../proc/free_file.html" xlink:title="FREE_FILE">
+<polygon fill="#d9534f" stroke="#d9534f" points="217.5,-234 150.5,-234 150.5,-210 217.5,-210 217.5,-234"/>
+<text text-anchor="middle" x="184" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FREE_FILE</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize&#45;&gt;proc~free_file -->
+<g id="proc~~finalize~~CallsGraph_edge5" class="edge">
+<title>proc~finalize&#45;&gt;proc~free_file</title>
+<path fill="none" stroke="#ff0000" d="M54.29,-204.56C77.81,-207.75 112.7,-212.48 140.23,-216.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="140,-219.71 150.38,-217.58 140.94,-212.77 140,-219.71"/>
+</g>
+<!-- proc~mapl_cfiodestroy -->
+<g id="proc~~finalize~~CallsGraph_node7" class="node">
+<title>proc~mapl_cfiodestroy</title>
+<g id="a_proc~~finalize~~CallsGraph_node7"><a xlink:href="../proc/mapl_cfiodestroy.html" xlink:title="MAPL_CFIODestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="240,-192 128,-192 128,-168 240,-168 240,-192"/>
+<text text-anchor="middle" x="184" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIODestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize&#45;&gt;proc~mapl_cfiodestroy -->
+<g id="proc~~finalize~~CallsGraph_edge6" class="edge">
+<title>proc~finalize&#45;&gt;proc~mapl_cfiodestroy</title>
+<path fill="none" stroke="#ff0000" d="M54.29,-197.44C71.75,-195.07 95.47,-191.86 117.79,-188.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="118.49,-192.27 127.92,-187.46 117.55,-185.34 118.49,-192.27"/>
+</g>
+<!-- proc~mapl_cfioiscreated -->
+<g id="proc~~finalize~~CallsGraph_node8" class="node">
+<title>proc~mapl_cfioiscreated</title>
+<g id="a_proc~~finalize~~CallsGraph_node8"><a xlink:href="../proc/mapl_cfioiscreated.html" xlink:title="MAPL_CFIOIsCreated">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="244.5,-150 123.5,-150 123.5,-126 244.5,-126 244.5,-150"/>
+<text text-anchor="middle" x="184" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOIsCreated</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize&#45;&gt;proc~mapl_cfioiscreated -->
+<g id="proc~~finalize~~CallsGraph_edge7" class="edge">
+<title>proc~finalize&#45;&gt;proc~mapl_cfioiscreated</title>
+<path fill="none" stroke="#ff0000" d="M42.37,-188.97C54.38,-179.49 72.34,-166.65 90,-159 97.45,-155.77 105.46,-153.01 113.54,-150.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.67,-153.98 123.4,-147.98 112.84,-147.22 114.67,-153.98"/>
+</g>
+<!-- proc~mapl_genericfinalize -->
+<g id="proc~~finalize~~CallsGraph_node9" class="node">
+<title>proc~mapl_genericfinalize</title>
+<g id="a_proc~~finalize~~CallsGraph_node9"><a xlink:href="../proc/mapl_genericfinalize.html" xlink:title="MAPL_GenericFinalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="248,-108 120,-108 120,-84 248,-84 248,-108"/>
+<text text-anchor="middle" x="184" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericFinalize</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize&#45;&gt;proc~mapl_genericfinalize -->
+<g id="proc~~finalize~~CallsGraph_edge8" class="edge">
+<title>proc~finalize&#45;&gt;proc~mapl_genericfinalize</title>
+<path fill="none" stroke="#ff0000" d="M33.47,-188.83C42.48,-170.27 62.23,-135.14 90,-117 96.19,-112.96 103.06,-109.68 110.17,-107.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="111.58,-110.26 119.99,-103.8 109.39,-103.61 111.58,-110.26"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~finalize~~CallsGraph_node10" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~finalize~~CallsGraph_node10"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="225,-66 143,-66 143,-42 225,-42 225,-66"/>
+<text text-anchor="middle" x="184" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize&#45;&gt;proc~mapl_return -->
+<g id="proc~~finalize~~CallsGraph_edge9" class="edge">
+<title>proc~finalize&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M30.35,-188.75C35.9,-163.32 52.29,-104.74 90,-75 102.04,-65.51 117.54,-60.13 132.42,-57.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="133.3,-60.54 142.58,-55.43 132.13,-53.64 133.3,-60.54"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~finalize~~CallsGraph_node11" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~finalize~~CallsGraph_node11"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="222,-24 146,-24 146,0 222,0 222,-24"/>
+<text text-anchor="middle" x="184" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize&#45;&gt;proc~mapl_verify -->
+<g id="proc~~finalize~~CallsGraph_edge10" class="edge">
+<title>proc~finalize&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M28.69,-188.66C31.15,-157.47 42.07,-75.01 90,-33 102.46,-22.08 119.39,-16.49 135.39,-13.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="136.29,-17.14 145.72,-12.3 135.33,-10.2 136.29,-17.14"/>
 </g>
 </g>
 </svg>
@@ -320,310 +496,6 @@ large graphs.</div>
         </div>
       </div>
     </div>
-    <div class="card">
-      <div class="card-header">
-  <h3 class="card-title">Called by</h3>
-      </div>
-      <div class="card-body">
-  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: proc~~finalize~~CalledByGraph Pages: 1 -->
-<svg id="procfinalizeCalledByGraph" width="641pt" height="290pt"
- viewBox="0.00 0.00 641.00 290.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~finalize~~CalledByGraph" class="graph" transform="scale(0.71 0.71) rotate(0) translate(4 406)">
-<title>proc~~finalize~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-406 901,-406 901,4 -4,4"/>
-<!-- proc~finalize -->
-<g id="proc~~finalize~~CalledByGraph_node1" class="node">
-<title>proc~finalize</title>
-<polygon fill="none" stroke="black" points="897,-213 761,-213 761,-189 897,-189 897,-213"/>
-<text text-anchor="middle" x="829" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50">AbstractMeter%finalize</text>
-</g>
-<!-- proc~finalize~9 -->
-<g id="proc~~finalize~~CalledByGraph_node2" class="node">
-<title>proc~finalize~9</title>
-<g id="a_proc~~finalize~~CalledByGraph_node2"><a xlink:href="../proc/finalize~9.html" xlink:title="BaseProfiler%finalize">
-<polygon fill="#d9534f" stroke="#d9534f" points="725,-213 601,-213 601,-189 725,-189 725,-213"/>
-<text text-anchor="middle" x="663" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseProfiler%finalize</text>
-</a>
-</g>
-</g>
-<!-- proc~finalize~9&#45;&gt;proc~finalize -->
-<g id="proc~~finalize~~CalledByGraph_edge1" class="edge">
-<title>proc~finalize~9&#45;&gt;proc~finalize</title>
-<path fill="none" stroke="#ff0000" d="M725.07,-201C733.45,-201 742.14,-201 750.76,-201"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="750.82,-204.5 760.82,-201 750.82,-197.5 750.82,-204.5"/>
-</g>
-<!-- proc~finalize_global_memory_profiler -->
-<g id="proc~~finalize~~CalledByGraph_node3" class="node">
-<title>proc~finalize_global_memory_profiler</title>
-<g id="a_proc~~finalize~~CalledByGraph_node3"><a xlink:href="../proc/finalize_global_memory_profiler.html" xlink:title="finalize_global_memory_profiler">
-<polygon fill="#d9534f" stroke="#d9534f" points="565,-402 382,-402 382,-378 565,-378 565,-402"/>
-<text text-anchor="middle" x="473.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">finalize_global_memory_profiler</text>
-</a>
-</g>
-</g>
-<!-- proc~finalize_global_memory_profiler&#45;&gt;proc~finalize~9 -->
-<g id="proc~~finalize~~CalledByGraph_edge2" class="edge">
-<title>proc~finalize_global_memory_profiler&#45;&gt;proc~finalize~9</title>
-<path fill="none" stroke="#ff0000" d="M549.35,-377.99C554.9,-375.52 560.2,-372.55 565,-369 615.49,-331.59 643.91,-259.47 655.61,-223.11"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="658.98,-224.04 658.59,-213.45 652.3,-221.98 658.98,-224.04"/>
-</g>
-<!-- proc~finalize_global_time_profiler -->
-<g id="proc~~finalize~~CalledByGraph_node4" class="node">
-<title>proc~finalize_global_time_profiler</title>
-<g id="a_proc~~finalize~~CalledByGraph_node4"><a xlink:href="../proc/finalize_global_time_profiler.html" xlink:title="finalize_global_time_profiler">
-<polygon fill="#d9534f" stroke="#d9534f" points="554.5,-360 392.5,-360 392.5,-336 554.5,-336 554.5,-360"/>
-<text text-anchor="middle" x="473.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">finalize_global_time_profiler</text>
-</a>
-</g>
-</g>
-<!-- proc~finalize_global_time_profiler&#45;&gt;proc~finalize~9 -->
-<g id="proc~~finalize~~CalledByGraph_edge3" class="edge">
-<title>proc~finalize_global_time_profiler&#45;&gt;proc~finalize~9</title>
-<path fill="none" stroke="#ff0000" d="M547.47,-335.83C553.63,-333.4 559.57,-330.49 565,-327 605.92,-300.69 636.47,-250.9 651.53,-222.42"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="654.76,-223.8 656.21,-213.31 648.53,-220.61 654.76,-223.8"/>
-</g>
-<!-- proc~test_accumulate_multi -->
-<g id="proc~~finalize~~CalledByGraph_node5" class="node">
-<title>proc~test_accumulate_multi</title>
-<g id="a_proc~~finalize~~CalledByGraph_node5"><a xlink:href="../proc/test_accumulate_multi.html" xlink:title="test_accumulate_multi">
-<polygon fill="#d9534f" stroke="#d9534f" points="540,-318 407,-318 407,-294 540,-294 540,-318"/>
-<text text-anchor="middle" x="473.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_accumulate_multi</text>
-</a>
-</g>
-</g>
-<!-- proc~test_accumulate_multi&#45;&gt;proc~finalize~9 -->
-<g id="proc~~finalize~~CalledByGraph_edge4" class="edge">
-<title>proc~test_accumulate_multi&#45;&gt;proc~finalize~9</title>
-<path fill="none" stroke="#ff0000" d="M540.12,-294.79C548.72,-292.17 557.24,-288.95 565,-285 596.79,-268.82 626.76,-240.02 644.75,-220.71"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="647.55,-222.83 651.7,-213.08 642.38,-218.12 647.55,-222.83"/>
-</g>
-<!-- proc~test_accumulate_nested -->
-<g id="proc~~finalize~~CalledByGraph_node6" class="node">
-<title>proc~test_accumulate_nested</title>
-<g id="a_proc~~finalize~~CalledByGraph_node6"><a xlink:href="../proc/test_accumulate_nested.html" xlink:title="test_accumulate_nested">
-<polygon fill="#d9534f" stroke="#d9534f" points="544.5,-276 402.5,-276 402.5,-252 544.5,-252 544.5,-276"/>
-<text text-anchor="middle" x="473.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_accumulate_nested</text>
-</a>
-</g>
-</g>
-<!-- proc~test_accumulate_nested&#45;&gt;proc~finalize~9 -->
-<g id="proc~~finalize~~CalledByGraph_edge5" class="edge">
-<title>proc~test_accumulate_nested&#45;&gt;proc~finalize~9</title>
-<path fill="none" stroke="#ff0000" d="M533.35,-251.97C543.98,-249.34 554.89,-246.33 565,-243 586.52,-235.91 609.85,-225.89 628.23,-217.41"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="629.78,-220.55 637.36,-213.14 626.82,-214.21 629.78,-220.55"/>
-</g>
-<!-- proc~test_accumulate_sub -->
-<g id="proc~~finalize~~CalledByGraph_node7" class="node">
-<title>proc~test_accumulate_sub</title>
-<g id="a_proc~~finalize~~CalledByGraph_node7"><a xlink:href="../proc/test_accumulate_sub.html" xlink:title="test_accumulate_sub">
-<polygon fill="#d9534f" stroke="#d9534f" points="535.5,-234 411.5,-234 411.5,-210 535.5,-210 535.5,-234"/>
-<text text-anchor="middle" x="473.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_accumulate_sub</text>
-</a>
-</g>
-</g>
-<!-- proc~test_accumulate_sub&#45;&gt;proc~finalize~9 -->
-<g id="proc~~finalize~~CalledByGraph_edge6" class="edge">
-<title>proc~test_accumulate_sub&#45;&gt;proc~finalize~9</title>
-<path fill="none" stroke="#ff0000" d="M535.64,-215.15C553.31,-213.17 572.75,-211 590.97,-208.96"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="591.4,-212.43 600.95,-207.84 590.62,-205.47 591.4,-212.43"/>
-</g>
-<!-- proc~test_simple_report_timer -->
-<g id="proc~~finalize~~CalledByGraph_node8" class="node">
-<title>proc~test_simple_report_timer</title>
-<g id="a_proc~~finalize~~CalledByGraph_node8"><a xlink:href="../proc/test_simple_report_timer.html" xlink:title="test_simple_report_timer">
-<polygon fill="#d9534f" stroke="#d9534f" points="545.5,-192 401.5,-192 401.5,-168 545.5,-168 545.5,-192"/>
-<text text-anchor="middle" x="473.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_simple_report_timer</text>
-</a>
-</g>
-</g>
-<!-- proc~test_simple_report_timer&#45;&gt;proc~finalize~9 -->
-<g id="proc~~finalize~~CalledByGraph_edge7" class="edge">
-<title>proc~test_simple_report_timer&#45;&gt;proc~finalize~9</title>
-<path fill="none" stroke="#ff0000" d="M545.65,-187.97C560.38,-189.62 575.91,-191.36 590.64,-193.01"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="590.37,-196.5 600.7,-194.13 591.15,-189.54 590.37,-196.5"/>
-</g>
-<!-- proc~test_simple_report_timer_b -->
-<g id="proc~~finalize~~CalledByGraph_node9" class="node">
-<title>proc~test_simple_report_timer_b</title>
-<g id="a_proc~~finalize~~CalledByGraph_node9"><a xlink:href="../proc/test_simple_report_timer_b.html" xlink:title="test_simple_report_timer_b">
-<polygon fill="#d9534f" stroke="#d9534f" points="551.5,-150 395.5,-150 395.5,-126 551.5,-126 551.5,-150"/>
-<text text-anchor="middle" x="473.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_simple_report_timer_b</text>
-</a>
-</g>
-</g>
-<!-- proc~test_simple_report_timer_b&#45;&gt;proc~finalize~9 -->
-<g id="proc~~finalize~~CalledByGraph_edge8" class="edge">
-<title>proc~test_simple_report_timer_b&#45;&gt;proc~finalize~9</title>
-<path fill="none" stroke="#ff0000" d="M533.35,-150.03C543.98,-152.66 554.89,-155.67 565,-159 586.52,-166.09 609.85,-176.11 628.23,-184.59"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="626.82,-187.79 637.36,-188.86 629.78,-181.45 626.82,-187.79"/>
-</g>
-<!-- proc~test_start_one -->
-<g id="proc~~finalize~~CalledByGraph_node10" class="node">
-<title>proc~test_start_one</title>
-<g id="a_proc~~finalize~~CalledByGraph_node10"><a xlink:href="../proc/test_start_one.html" xlink:title="test_start_one">
-<polygon fill="#d9534f" stroke="#d9534f" points="517,-108 430,-108 430,-84 517,-84 517,-108"/>
-<text text-anchor="middle" x="473.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_start_one</text>
-</a>
-</g>
-</g>
-<!-- proc~test_start_one&#45;&gt;proc~finalize~9 -->
-<g id="proc~~finalize~~CalledByGraph_edge9" class="edge">
-<title>proc~test_start_one&#45;&gt;proc~finalize~9</title>
-<path fill="none" stroke="#ff0000" d="M517.43,-101.55C532.99,-104.69 550.34,-109.54 565,-117 596.79,-133.18 626.76,-161.98 644.75,-181.29"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="642.38,-183.88 651.7,-188.92 647.55,-179.17 642.38,-183.88"/>
-</g>
-<!-- proc~test_stop_wrong_meter -->
-<g id="proc~~finalize~~CalledByGraph_node11" class="node">
-<title>proc~test_stop_wrong_meter</title>
-<g id="a_proc~~finalize~~CalledByGraph_node11"><a xlink:href="../proc/test_stop_wrong_meter.html" xlink:title="test_stop_wrong_meter">
-<polygon fill="#d9534f" stroke="#d9534f" points="541,-66 406,-66 406,-42 541,-42 541,-66"/>
-<text text-anchor="middle" x="473.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_stop_wrong_meter</text>
-</a>
-</g>
-</g>
-<!-- proc~test_stop_wrong_meter&#45;&gt;proc~finalize~9 -->
-<g id="proc~~finalize~~CalledByGraph_edge10" class="edge">
-<title>proc~test_stop_wrong_meter&#45;&gt;proc~finalize~9</title>
-<path fill="none" stroke="#ff0000" d="M541.4,-63.95C549.72,-66.77 557.81,-70.38 565,-75 605.92,-101.31 636.47,-151.1 651.53,-179.58"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="648.53,-181.39 656.21,-188.69 654.76,-178.2 648.53,-181.39"/>
-</g>
-<!-- program~main~2 -->
-<g id="proc~~finalize~~CalledByGraph_node12" class="node">
-<title>program~main~2</title>
-<g id="a_proc~~finalize~~CalledByGraph_node12"><a xlink:href="../program/main~2.html" xlink:title="main">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="500.5,-24 446.5,-24 446.5,0 500.5,0 500.5,-24"/>
-<text text-anchor="middle" x="473.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
-</a>
-</g>
-</g>
-<!-- program~main~2&#45;&gt;proc~finalize~9 -->
-<g id="proc~~finalize~~CalledByGraph_edge11" class="edge">
-<title>program~main~2&#45;&gt;proc~finalize~9</title>
-<path fill="none" stroke="#ff0000" d="M500.59,-12.6C520.04,-14.26 546.34,-19.17 565,-33 615.49,-70.41 643.91,-142.53 655.61,-178.89"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="652.3,-180.02 658.59,-188.55 658.98,-177.96 652.3,-180.02"/>
-</g>
-<!-- proc~finalize~10 -->
-<g id="proc~~finalize~~CalledByGraph_node13" class="node">
-<title>proc~finalize~10</title>
-<g id="a_proc~~finalize~~CalledByGraph_node13"><a xlink:href="../proc/finalize~10.html" xlink:title="ExtData_DriverGridComp%finalize">
-<polygon fill="#d9534f" stroke="#d9534f" points="346,-360 151,-360 151,-336 346,-336 346,-360"/>
-<text text-anchor="middle" x="248.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_DriverGridComp%finalize</text>
-</a>
-</g>
-</g>
-<!-- proc~finalize~10&#45;&gt;proc~finalize_global_time_profiler -->
-<g id="proc~~finalize~~CalledByGraph_edge12" class="edge">
-<title>proc~finalize~10&#45;&gt;proc~finalize_global_time_profiler</title>
-<path fill="none" stroke="#ff9900" d="M346.01,-348C357.94,-348 370.1,-348 381.93,-348"/>
-<polygon fill="#ff9900" stroke="#ff9900" points="382.23,-351.5 392.23,-348 382.23,-344.5 382.23,-351.5"/>
-</g>
-<!-- proc~run~15 -->
-<g id="proc~~finalize~~CalledByGraph_node14" class="node">
-<title>proc~run~15</title>
-<g id="a_proc~~finalize~~CalledByGraph_node14"><a xlink:href="../proc/run~15.html" xlink:title="ExtDataDriver%run">
-<polygon fill="#d9534f" stroke="#d9534f" points="115,-360 0,-360 0,-336 115,-336 115,-360"/>
-<text text-anchor="middle" x="57.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver%run</text>
-</a>
-</g>
-</g>
-<!-- proc~run~15&#45;&gt;proc~finalize~10 -->
-<g id="proc~~finalize~~CalledByGraph_edge13" class="edge">
-<title>proc~run~15&#45;&gt;proc~finalize~10</title>
-<path fill="none" stroke="#ff0000" d="M115.21,-348C123.33,-348 131.91,-348 140.63,-348"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="140.91,-351.5 150.91,-348 140.91,-344.5 140.91,-351.5"/>
-</g>
-</g>
-</svg>
-</div>                <script>
-                  var panprocfinalizeCalledByGraph = svgPanZoom('#procfinalizeCalledByGraph',
-                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
-                  );
-                </script>          <div>
-            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
-          </div>
-          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-<p>Nodes of different colours represent the following: </p>
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: Graph Key Pages: 1 -->
-<svg width="641pt" height="28pt"
- viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
-<title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
-<!-- Subroutine -->
-<g id="node1" class="node">
-<title>Subroutine</title>
-<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
-<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
-</g>
-<!-- Function -->
-<g id="node2" class="node">
-<title>Function</title>
-<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
-<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
-</g>
-<!-- Interface -->
-<g id="node3" class="node">
-<title>Interface</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
-<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
-</g>
-<!-- Type Bound Procedure -->
-<g id="node4" class="node">
-<title>Type Bound Procedure</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
-<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
-</g>
-<!-- Unknown Procedure Type -->
-<g id="node5" class="node">
-<title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
-<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
-</g>
-<!-- Program -->
-<g id="node6" class="node">
-<title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
-<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
-</g>
-<!-- This Page&#39;s Entity -->
-<g id="node7" class="node">
-<title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
-<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
-</g>
-</g>
-</svg>
-
-<p>Solid arrows point from a procedure to one which it calls. Dashed 
-arrows point from an interface to procedures which implement that interface.
-This could include the module procedures in a generic interface or the
-implementation in a submodule of an interface in a parent module.
-</p>
- Where possible, edges connecting nodes are
-given different colours to make them easier to distinguish in
-large graphs.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
     <br>
 
 
@@ -636,6 +508,85 @@ large graphs.</div>
 
 
     
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">Finalize</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="k">import</span><span class="p">,</span><span class="w"> </span><span class="n">export</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span><span class="w">     </span><span class="c">!! composite gridded component</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w">       </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">import</span><span class="w"> </span><span class="c">!! import state</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w">       </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export</span><span class="w"> </span><span class="c">!! export state</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w">       </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span><span class="w">  </span><span class="c">!! the clock</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">     </span><span class="c">! Error code:</span>
+<span class="w">                                                     </span><span class="c">! = 0 all is well</span>
+<span class="w">                                                     </span><span class="c">! otherwise, error</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">HistoryCollection</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">list</span><span class="p">(:)</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">HISTORY_wrap</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">wrap</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">HISTORY_STATE</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">IntState</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">nlist</span><span class="p">,</span><span class="w"> </span><span class="n">n</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GENSTATE</span>
+
+
+<span class="c">! Begin...</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GetObjectFromGC</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">GENSTATE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="c">! Retrieve the pointer to the state</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridCompGetInternalState</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">wrap</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="n">IntState</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">wrap</span><span class="p">%</span><span class="n">ptr</span>
+<span class="w">    </span><span class="n">list</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">IntState</span><span class="p">%</span><span class="n">list</span>
+<span class="w">    </span><span class="n">nlist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+
+<span class="c">! Close UNITs of GEOSgcm History Data</span>
+<span class="c">! -----------------------------------</span>
+
+<span class="w">   </span><span class="k">do </span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nlist</span>
+<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">list</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">r4</span><span class="p">,</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">r8</span><span class="p">,</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">r8_to_r4</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">list</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">disabled</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">      IF</span><span class="w"> </span><span class="p">(</span><span class="n">list</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="k">format</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;CFIO&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="p">(</span><span class="w"> </span><span class="n">MAPL_CFIOIsCreated</span><span class="p">(</span><span class="n">list</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">mcfio</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            CALL </span><span class="n">MAPL_CFIOdestroy</span><span class="w"> </span><span class="p">(</span><span class="n">list</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">mcfio</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      ELSE</span>
+<span class="k">         if</span><span class="p">(</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">unit</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">FREE_FILE</span><span class="p">(</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">unit</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="k">END if</span>
+<span class="k">      if</span><span class="p">(</span><span class="n">list</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">monthly</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">         </span><span class="c">!ALT need some logic if alarm if not ringing</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">ESMF_AlarmIsRinging</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">his_alarm</span><span class="w"> </span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">partial</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">ESMF_CplCompWriteRestart</span><span class="w"> </span><span class="p">(</span><span class="n">INTSTATE</span><span class="p">%</span><span class="n">CCS</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">importState</span><span class="o">=</span><span class="n">INTSTATE</span><span class="p">%</span><span class="n">CIM</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">exportState</span><span class="o">=</span><span class="n">INTSTATE</span><span class="p">%</span><span class="n">GIM</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">clock</span><span class="o">=</span><span class="n">CLOCK</span><span class="p">,</span><span class="w">           </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">userRC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">         end if</span>
+<span class="k">      end if</span>
+<span class="k">   enddo</span>
+
+<span class="cp">#if 0</span>
+<span class="w">   </span><span class="k">do </span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nlist</span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">IntState</span><span class="p">%</span><span class="n">average</span><span class="p">(</span><span class="n">n</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">MAPL_StateDestroy</span><span class="p">(</span><span class="n">IntState</span><span class="p">%</span><span class="n">gim</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_StateDestroy</span><span class="p">(</span><span class="n">IntState</span><span class="p">%</span><span class="n">cim</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end IF</span>
+<span class="k">   enddo</span>
+<span class="cp">#endif</span>
+
+
+<span class="w">    </span><span class="k">call  </span><span class="n">MAPL_GenericFinalize</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="k">IMPORT</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">Finalize</span>
+</pre></div>
+
+    </section>
+    <br>
     
     </div>
   </div>
@@ -655,7 +606,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-08-16T15:32:59.332696             </p>
+ on 2024-09-06T19:06:43.279048             </p>
           </div>
         </div>
         <br>
