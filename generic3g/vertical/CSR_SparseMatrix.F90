@@ -4,7 +4,7 @@
 ! redesigned.
 module mapl3g_CSR_SparseMatrix
    use mapl_KeywordEnforcer
-   use, intrinsic :: iso_fortran_env, only: REAL32
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none (type, external)
    private
 
@@ -14,6 +14,7 @@ module mapl3g_CSR_SparseMatrix
 
 
    public :: T(REAL32,_sp)
+   public :: T(REAL64,_dp)
    public :: matmul
    public :: add_row
 
@@ -30,14 +31,8 @@ module mapl3g_CSR_SparseMatrix
       real(kind=k), allocatable :: v(:);                        \
    end type T(k,suffix)                                        ;\
    \
-   interface matmul                                            ;\
-      procedure CONCAT(matmul_vec,suffix)                     ;\
-      procedure CONCAT(matmul_multi_vec,suffix)               ;\
-   end interface matmul                                        ;\
-   \
-   interface add_row                                           ;\
-      procedure :: CONCAT(add_row,suffix)                     ;\
-   end interface add_row                                       ;\
+   generic :: matmul => CONCAT(matmul_vec,suffix)              ;\
+   generic :: add_row => CONCAT(add_row,suffix)                ;\
    \
    interface T(k,suffix)                                       ;\
       procedure CONCAT(new_csr_matrix,suffix)                  ;\
@@ -45,6 +40,7 @@ module mapl3g_CSR_SparseMatrix
                                                                ;\
 
 CSR_SPARSEMATRIX(REAL32,_sp)   
+CSR_SPARSEMATRIX(REAL64,_dp)   
 
 contains
 
@@ -66,7 +62,7 @@ contains
 
 
 #define ADD_ROW(k,suffix)                                           \
-   pure subroutine add_row_sp(this, row, start_column, v)           ;\
+   pure subroutine CONCAT(add_row,suffix)(this, row, start_column, v) ;\
       type(T(k,suffix)), intent(inout) :: this                      ;\
       integer, intent(in) :: row                                    ;\
       integer, intent(in) :: start_column                           ;\
@@ -130,5 +126,11 @@ contains
    ADD_ROW(REAL32,_sp)
    MATMUL_VEC(REAL32,_sp)
    MATMUL_MULTI_VEC(REAL32,_sp)
+
+
+   NEW_CSR_MATRIX(REAL64,_dp)
+   ADD_ROW(REAL64,_dp)
+   MATMUL_VEC(REAL64,_dp)
+   MATMUL_MULTI_VEC(REAL64,_dp)
 
 end module mapl3g_CSR_SparseMatrix
