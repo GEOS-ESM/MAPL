@@ -54,9 +54,9 @@ module mapl3g_VariableSpec
       type(StringVector) :: dependencies
    contains
       procedure :: make_virtualPt
-
       procedure :: make_dependencies
       procedure :: initialize
+      procedure, private :: set_regrid_param_
    end type VariableSpec
 
    interface VariableSpec
@@ -116,11 +116,7 @@ contains
       _SET_OPTIONAL(bracket_size)
       _SET_OPTIONAL(dependencies)
 
-      ! regridding parameter
-      var_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
-      regrid_method = get_regrid_method_from_field_dict_(var_spec%standard_name)
-      var_spec%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
-      if (present(regrid_param)) var_spec%regrid_param = regrid_param
+      call this%set_regrid_param()
 
       _UNUSED_DUMMY(unusable)
    end function new_VariableSpec
@@ -228,6 +224,15 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_dependencies
+
+   subroutine set_regrid_param_(this)
+      class(VariableSpec), intent(inout) :: this
+
+      this%regrid_param = EsmfRegridderParam() ! use default regrid method
+      regrid_method = get_regrid_method_from_field_dict_(var_spec%standard_name)
+      this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
+      if (present(regrid_param)) this%regrid_param = regrid_param
+   end subroutine set_regrid_param_
 
    function get_regrid_method_from_field_dict_(stdname, rc) result(regrid_method)
       type(ESMF_RegridMethod_Flag) :: regrid_method
