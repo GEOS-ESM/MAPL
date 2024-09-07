@@ -240,6 +240,13 @@ contains
          _RETURN(_SUCCESS)
       end if
 
+      ! if (NUOPC_FieldDictionaryHasEntry(this%standard_name, rc=status)) then
+      !    call NUOPC_FieldDictionaryGetEntry(this%standard_name, regrid_method, rc=status)
+      !    if (status==ESMF_SUCCESS) then
+      !       this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
+      !       _RETURN(_SUCCESS)
+      !    end if
+      ! end if
       regrid_method = get_regrid_method_from_field_dict_(this%standard_name, rc=status)
       if (status==ESMF_SUCCESS) then
          this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
