@@ -70,7 +70,7 @@ contains
         units, substate, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
         service_items, attributes, &
         bracket_size, &
-        dependencies, regrid_param) result(var_spec)
+        dependencies, regrid_param, rc) result(var_spec)
 
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -91,8 +91,10 @@ contains
       integer, optional, intent(in) :: bracket_size
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
+      integer, optional, intent(out) :: rc
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
+      integer :: status
 
       var_spec%state_intent = state_intent
       var_spec%short_name = short_name
@@ -116,7 +118,7 @@ contains
       _SET_OPTIONAL(bracket_size)
       _SET_OPTIONAL(dependencies)
 
-      call var_spec%set_regrid_param_(regrid_param)
+      call var_spec%set_regrid_param_(regrid_param, _RC)
 
       _UNUSED_DUMMY(unusable)
    end function new_VariableSpec
@@ -225,16 +227,28 @@ contains
       _RETURN(_SUCCESS)
    end function make_dependencies
 
-   subroutine set_regrid_param_(this, regrid_param)
+   subroutine set_regrid_param_(this, regrid_param, rc)
       class(VariableSpec), intent(inout) :: this
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
+      integer, optional, intent(out) :: rc
 
       type(ESMF_RegridMethod_Flag) :: regrid_method
+      integer :: status
 
-      this%regrid_param = EsmfRegridderParam() ! use default regrid method
-      regrid_method = get_regrid_method_from_field_dict_(this%standard_name)
-      this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
-      if (present(regrid_param)) this%regrid_param = regrid_param
+      if (present(regrid_param)) then
+         this%regrid_param = regrid_param
+         _RETURN(_SUCCESS)
+      end if
+
+      regrid_method = get_regrid_method_from_field_dict_(this%standard_name, rc=status)
+      if (status==ESMF_SUCCESS) then
+         this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
+         _RETURN(_SUCCESS)
+      end if
+
+      this%regrid_param = EsmfRegridderParam() ! last resort - use default regrid method
+
+      _RETURN(_SUCCESS)
    end subroutine set_regrid_param_
 
    function get_regrid_method_from_field_dict_(stdname, rc) result(regrid_method)
@@ -247,14 +261,18 @@ contains
       logical :: file_exists
       integer :: status
 
-      regrid_method = ESMF_REGRIDMETHOD_BILINEAR ! default value
-      if (allocated(stdname)) then
-         inquire(file=trim(field_dictionary_file), exist=file_exists)
-         if (file_exists) then
-            field_dict = FieldDictionary(filename=field_dictionary_file, _RC)
-            regrid_method = field_dict%get_regrid_method(stdname, _RC)
-         end if
+      inquire(file=trim(field_dictionary_file), exist=file_exists)
+      if (.not. file_exists) then
+         rc = _FAILURE
+         return
       end if
+
+      field_dict = FieldDictionary(filename=field_dictionary_file, _RC)
+      if (.not. allocated(stdname)) then
+         rc = _FAILURE
+         return
+      end if
+      regrid_method = field_dict%get_regrid_method(stdname, _RC)
 
       _RETURN(_SUCCESS)
    end function get_regrid_method_from_field_dict_
