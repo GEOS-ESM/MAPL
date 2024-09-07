@@ -1,4 +1,3 @@
-
 #include "MAPL_Generic.h"
 
 module mapl3g_VariableSpec
@@ -136,7 +135,7 @@ contains
       this%units = ESMF_HConfigAsString(config,keyString='units')
 
    contains
-      
+
       function get_itemtype(config) result(itemtype)
          type(ESMF_StateItem_Flag) :: itemtype
          type(ESMF_HConfig), intent(in) :: config
@@ -146,13 +145,13 @@ contains
 
          itemtype = MAPL_STATEITEM_FIELD ! default
          if (.not. ESMF_HConfigIsDefined(config,keyString='itemtype')) return
-        
-         itemtype_as_string = ESMF_HConfigAsString(config,keyString='itemtype',rc=status) 
+
+         itemtype_as_string = ESMF_HConfigAsString(config,keyString='itemtype',rc=status)
          if (status /= 0) then
             itemtype = MAPL_STATEITEM_UNKNOWN
             return
          end if
-         
+
          select case (itemtype_as_string)
          case ('field')
             itemtype = MAPL_STATEITEM_FIELD
@@ -171,9 +170,9 @@ contains
          case default
             itemtype = MAPL_STATEITEM_UNKNOWN
          end select
-         
+
       end function get_itemtype
-      
+
    end subroutine initialize
 
    function make_virtualPt(this) result(v_pt)
@@ -189,7 +188,7 @@ contains
       class(VariableSpec), intent(in) :: this
       character(:), allocatable, intent(out) :: units
       integer, optional, intent(out) :: rc
-      
+
       character(len=ESMF_MAXSTR) :: canonical_units
       integer :: status
 
@@ -205,7 +204,7 @@ contains
       call NUOPC_FieldDictionaryGetEntry(this%standard_name, canonical_units, status)
       _ASSERT(status == ESMF_SUCCESS,'Units not found for standard name: <'//this%standard_name//'>')
       units = trim(canonical_units)
-      
+
       _RETURN(_SUCCESS)
    end subroutine fill_units
 
