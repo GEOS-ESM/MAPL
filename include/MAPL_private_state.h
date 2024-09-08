@@ -38,14 +38,13 @@
 
 #define _SET_PRIVATE_STATE(gc, T) _SET_NAMED_PRIVATE_STATE(gc, T, "private state")
 
-#define _SET_NAMED_PRIVATE_STATE(gc, T, name, private_state)        \
+#define _SET_NAMED_PRIVATE_STATE(gc, T, name)        \
   block;                                             \
     _DECLARE_WRAPPER(T);                               \
     type(PrivateWrapper) :: w;                         \
     allocate(w%ptr);                                           \
     call MAPL_UserCompSetInternalState(gc, name, w, status);         \
     _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> already created for this gridcomp?"); \
-    private_state => w%ptr; \
   end block
 
 #define _GET_PRIVATE_STATE(gc, T, private_state) _GET_NAMED_PRIVATE_STATE(gc, T, "private state", private_state)

@@ -25,18 +25,9 @@ module mapl3g_RegridAction
       procedure :: run
    end type ScalarRegridAction
 
-!#   type, extends(AbstractAction) :: VectorRegridAction
-!#      class(AbstractRegridder), pointer :: regridder
-!#      type(ESMF_Field) :: uv_src(2), uv_dst(2)
-!#   contains
-!#      procedure :: run
-!#   end type VectorRegridAction
-
    interface RegridAction
       module procedure :: new_ScalarRegridAction
       module procedure :: new_ScalarRegridAction2
-!#      module procedure :: new_RegridAction_vector
-!#      module procedure :: new_RegridAction_bundle
    end interface RegridAction
 
 contains
@@ -79,22 +70,6 @@ contains
 
    end function new_ScalarRegridAction2
 
-!#   function new_RegridAction_vector(uv_src, uv_dst) then (action)
-!#      use mapl_RegridderManager
-!#
-!#      ptype(ESMF_Grid) :: grid_src, grid_dst
-!#
-!#      action%uv_src = uv_src
-!#      action%uv_dst = uv_dst
-!#
-!#      get_grid(grid_src)
-!#      get_grid(grid_dst)
-!#      action%regridder => regridder_manager%get_regridder(grid_src, grid_dst)
-!#
-!#   end function new_RegridAction_scalar
-!#
-!#
- 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf
       class(ScalarRegridAction), intent(inout) :: this
@@ -109,9 +84,13 @@ contains
 
       regridder_manager => get_regridder_manager()
       spec = RegridderSpec(this%dst_param, this%src_geom, this%dst_geom)
-      this%regrdr => regridder_manager%get_regridder(spec, rc=status)
+      this%regrdr => regridder_manager%get_regridder(spec, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine initialize
 
 
@@ -132,23 +111,7 @@ contains
 
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(clock)
    end subroutine run
 
-!#   subroutine run_vector(this, importState, exporState)
-!#
-!#      call get_pointer(importState, fname_src_u, f_src(1))
-!#      call get_pointer(importState, fname_src_v, f_src(2)
-!#      call get_pointer(exportState, fname_dst_u, f_dst(1))
-!#      call get_pointer(exportState, fname_dst_v, f_dst(2))
-!#
-!#      call regridder%regrid(f_src(:), f_dst(:), _RC)
-!#
-!#   end subroutine run
-
-!#   subroutine run_bundle(this)
-!#
-!#      call this%regridder%regrid(this%b_src, this%b_dst, _RC)
-!#
-!#   end subroutine run
-!#
 end module mapl3g_RegridAction
