@@ -21,9 +21,6 @@ module MAPL_ExtDataTypeDef
      ! fields to store endpoints for interpolation of a vector pair
      type(ExtDataBracket) :: comp1
      type(ExtDataBracket) :: comp2
-     ! if vertically interpolating vector fields
-     type(ExtDataBracket) :: auxiliary1
-     type(ExtDataBracket) :: auxiliary2
      logical :: initialized = .false.
   end type BracketingFields
 
@@ -41,7 +38,6 @@ module MAPL_ExtDataTypeDef
      class(ExtDataAbstractFileHandler), allocatable :: filestream
 
      ! if primary export represents a pair of vector fields
-     logical                      :: isVector
      type(BracketingFields)       :: modelGridFields
 
      ! names of the two vector components in the gridded component where import is declared
