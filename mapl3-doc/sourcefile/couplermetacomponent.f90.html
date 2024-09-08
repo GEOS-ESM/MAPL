@@ -1,0 +1,1394 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CouplerMetaComponent.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>CouplerMetaComponent.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">262 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/CouplerMetaComponent.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">CouplerMetaComponent.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_couplermetacomponent.html">mapl3g_CouplerMetaComponent</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/couplermetacomponent.f90.html#src">CouplerMetaComponent.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~couplermetacomponent.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilecouplermetacomponentf90EfferentGraph" width="641pt" height="475pt"
+ viewBox="0.00 0.00 641.00 474.62" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph" class="graph" transform="scale(0.52 0.52) rotate(0) translate(4 906)">
+<title>sourcefile~~couplermetacomponent.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-906 1225,-906 1225,4 -4,4"/>
+<!-- sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~couplermetacomponent.f90</title>
+<polygon fill="none" stroke="black" points="1221,-781 1055,-781 1055,-757 1221,-757 1221,-781"/>
+<text text-anchor="middle" x="1138" y="-766.6" font-family="Helvetica,sans-Serif" font-size="10.50">CouplerMetaComponent.F90</text>
+</g>
+<!-- sourcefile~componentdriver.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~componentdriver.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/componentdriver.f90.html" xlink:title="ComponentDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="598,-821 469,-821 469,-797 598,-797 598,-821"/>
+<text text-anchor="middle" x="533.5" y="-806.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~componentdriver.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~componentdriver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M932,-769C799.29,-769 765.49,-770.03 634,-788 621.23,-789.75 607.66,-792.2 594.77,-794.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="593.69,-791.47 584.62,-796.95 595.12,-798.33 593.69,-791.47"/>
+</g>
+<!-- sourcefile~componentdriverptrvector.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~componentdriverptrvector.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/componentdriverptrvector.f90.html" xlink:title="ComponentDriverPtrVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="811,-741 634,-741 634,-717 811,-717 811,-741"/>
+<text text-anchor="middle" x="722.5" y="-726.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentDriverPtrVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~componentdriverptrvector.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~componentdriverptrvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1054.53,-769C1017.65,-769 973.65,-769 934,-769"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M932,-769C876.38,-769 813.89,-755.1 771.95,-743.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="772.84,-740.31 762.27,-741 770.97,-747.05 772.84,-740.31"/>
+</g>
+<!-- sourcefile~componentdrivervector.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~componentdrivervector.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/componentdrivervector.f90.html" xlink:title="ComponentDriverVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="804,-821 641,-821 641,-797 804,-797 804,-821"/>
+<text text-anchor="middle" x="722.5" y="-806.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentDriverVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~componentdrivervector.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~componentdrivervector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M932,-769C876.38,-769 813.89,-782.9 771.95,-794.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="770.97,-790.95 762.27,-797 772.84,-797.69 770.97,-790.95"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="272,-902 163,-902 163,-878 272,-878 272,-902"/>
+<text text-anchor="middle" x="217.5" y="-887.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1118.21,-781.13C1095.59,-795.15 1056.03,-817.84 1019,-830 750.2,-918.25 665.32,-848.77 385,-887"/>
+</g>
+<!-- sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~esmf_interfaces.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/esmf_interfaces.f90.html" xlink:title="ESMF_Interfaces.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="994,-741 872,-741 872,-717 994,-717 994,-741"/>
+<text text-anchor="middle" x="933" y="-726.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Interfaces.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~esmf_interfaces.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1076.09,-757C1053.41,-752.53 1027.48,-747.42 1004.04,-742.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1004.65,-739.35 994.16,-740.86 1003.3,-746.22 1004.65,-739.35"/>
+</g>
+<!-- sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~extensionaction.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/extensionaction.f90.html" xlink:title="ExtensionAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="993,-699 873,-699 873,-675 993,-675 993,-699"/>
+<text text-anchor="middle" x="933" y="-684.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~extensionaction.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1117.2,-756.92C1094.28,-743.38 1055.05,-721.55 1019,-708 1013.12,-705.79 1006.92,-703.74 1000.66,-701.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1001.38,-698.44 990.81,-699.06 999.47,-705.17 1001.38,-698.44"/>
+</g>
+<!-- sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~griddedcomponentdriver.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/griddedcomponentdriver.f90.html" xlink:title="GriddedComponentDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1019,-821 847,-821 847,-797 1019,-797 1019,-821"/>
+<text text-anchor="middle" x="933" y="-806.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1076.09,-781C1053.81,-785.39 1028.41,-790.4 1005.3,-794.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1004.35,-791.57 995.21,-796.94 1005.7,-798.44 1004.35,-791.57"/>
+</g>
+<!-- sourcefile~componentdriver.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~componentdriver.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M496.8,-821.04C487.42,-824.89 477.55,-829.58 469,-835 450.67,-846.63 451.4,-856.48 433,-868 413.55,-880.18 407.73,-883.9 385,-887"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M383,-887C349.94,-891.51 312.81,-892.53 282.2,-892.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="282.12,-888.8 272.08,-892.18 282.04,-895.8 282.12,-888.8"/>
+</g>
+<!-- sourcefile~maplshared.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~maplshared.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/maplshared.f90.html" xlink:title="MaplShared.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="433,-465 335,-465 335,-441 433,-441 433,-465"/>
+<text text-anchor="middle" x="384" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplShared.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentdriver.f90&#45;&gt;sourcefile~maplshared.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~componentdriver.f90&#45;&gt;sourcefile~maplshared.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M527.42,-796.75C505.88,-744.75 421.87,-542 394.03,-474.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="397.12,-473.1 390.06,-465.2 390.65,-475.78 397.12,-473.1"/>
+</g>
+<!-- sourcefile~multistate.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~multistate.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/multistate.f90.html" xlink:title="MultiState.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="428,-859 340,-859 340,-835 428,-835 428,-859"/>
+<text text-anchor="middle" x="384" y="-844.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiState.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentdriver.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~componentdriver.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M485.83,-821.02C470.74,-824.91 453.89,-829.25 438.35,-833.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="437.17,-829.95 428.36,-835.83 438.91,-836.72 437.17,-829.95"/>
+</g>
+<!-- sourcefile~componentdriverptrvector.f90&#45;&gt;sourcefile~componentdriver.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~componentdriverptrvector.f90&#45;&gt;sourcefile~componentdriver.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M674.1,-741.13C660.92,-745.03 646.74,-749.72 634,-755 608.92,-765.4 581.94,-780.3 562.41,-791.81"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="560.52,-788.86 553.73,-797 564.11,-794.87 560.52,-788.86"/>
+</g>
+<!-- sourcefile~componentdrivervector.f90&#45;&gt;sourcefile~componentdriver.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~componentdrivervector.f90&#45;&gt;sourcefile~componentdriver.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M640.84,-809C630.05,-809 619.03,-809 608.37,-809"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="608.27,-805.5 598.27,-809 608.27,-812.5 608.27,-805.5"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-756 0,-756 0,-732 100,-732 100,-756"/>
+<text text-anchor="middle" x="50" y="-741.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M162.59,-881.68C153.19,-878.68 143.91,-874.58 136,-869 98.38,-842.46 72.4,-793.58 59.77,-765.45"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="62.92,-763.9 55.73,-756.11 56.49,-766.68 62.92,-763.9"/>
+</g>
+<!-- sourcefile~griddedcomponentdriver.f90&#45;&gt;sourcefile~componentdriver.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~griddedcomponentdriver.f90&#45;&gt;sourcefile~componentdriver.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M889.31,-821.04C847.47,-831.93 781.69,-846.6 723.5,-849"/>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M721.5,-849C670.8,-851.09 613.98,-836.43 576.42,-824.27"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="577.43,-820.91 566.84,-821.08 575.22,-827.56 577.43,-820.91"/>
+</g>
+<!-- sourcefile~griddedcomponentdriver.f90&#45;&gt;sourcefile~componentdrivervector.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~griddedcomponentdriver.f90&#45;&gt;sourcefile~componentdrivervector.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M846.89,-809C836.23,-809 825.28,-809 814.53,-809"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="814.3,-805.5 804.3,-809 814.3,-812.5 814.3,-805.5"/>
+</g>
+<!-- sourcefile~griddedcomponentdriver.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~griddedcomponentdriver.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M532.5,-849C464.81,-849.6 452.08,-877.85 385,-887"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="279.5,-818 155.5,-818 155.5,-794 279.5,-794 279.5,-818"/>
+<text text-anchor="middle" x="217.5" y="-803.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~griddedcomponentdriver.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~griddedcomponentdriver.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M721.5,-849C638.46,-852.42 617.61,-849.56 534.5,-849"/>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M532.5,-849C487.11,-848.7 477.81,-833.23 433,-826 385.59,-818.35 331.77,-813.34 289.9,-810.25"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="290.02,-806.75 279.8,-809.52 289.52,-813.73 290.02,-806.75"/>
+</g>
+<!-- sourcefile~griddedcomponentdriver.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~griddedcomponentdriver.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M532.5,-849C501.25,-848.79 466.28,-848.33 438.24,-847.9"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="438.29,-844.4 428.24,-847.74 438.19,-851.4 438.29,-844.4"/>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M382.25,-465.06C378.16,-526.91 356.58,-808.1 299,-869 294.2,-874.08 288.34,-877.98 281.99,-880.98"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="280.43,-877.84 272.41,-884.76 282.99,-884.35 280.43,-877.84"/>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M381.59,-465.05C375.04,-519 345.91,-737.74 299,-785 295.91,-788.11 292.42,-790.78 288.67,-793.07"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="286.82,-790.09 279.5,-797.75 290,-796.32 286.82,-790.09"/>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M378.46,-465.29C368.37,-490.79 341.57,-549.5 299,-579 237.86,-621.36 197.18,-574.69 136,-617 97.52,-643.61 71.72,-693.82 59.39,-722.49"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="56.05,-721.42 55.46,-732 62.52,-724.1 56.05,-721.42"/>
+</g>
+<!-- sourcefile~abstractcommsplitter.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~abstractcommsplitter.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/abstractcommsplitter.f90.html" xlink:title="AbstractCommSplitter.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="293,-570 142,-570 142,-546 293,-546 293,-570"/>
+<text text-anchor="middle" x="217.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractCommSplitter.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~abstractcommsplitter.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~abstractcommsplitter.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M374.39,-465.02C360.6,-483.38 331.75,-518.24 299,-537 295.74,-538.87 292.31,-540.58 288.77,-542.13"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="287.24,-538.97 279.24,-545.91 289.82,-545.48 287.24,-538.97"/>
+</g>
+<!-- sourcefile~commgroupdescription.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~commgroupdescription.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/commgroupdescription.f90.html" xlink:title="CommGroupDescription.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="299,-528 136,-528 136,-504 299,-504 299,-528"/>
+<text text-anchor="middle" x="217.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CommGroupDescription.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~commgroupdescription.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~commgroupdescription.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M361.8,-465.15C345.14,-474.31 321.13,-486.68 299,-495 293.23,-497.17 287.15,-499.19 281.02,-501.07"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="280,-497.72 271.39,-503.89 281.97,-504.44 280,-497.72"/>
+</g>
+<!-- sourcefile~constants.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~constants.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/constants.f90.html" xlink:title="Constants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="261.5,-486 173.5,-486 173.5,-462 261.5,-462 261.5,-486"/>
+<text text-anchor="middle" x="217.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Constants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M334.98,-459.13C315.1,-461.67 291.98,-464.62 271.6,-467.22"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="271.01,-463.77 261.53,-468.51 271.9,-470.71 271.01,-463.77"/>
+</g>
+<!-- sourcefile~downbit.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~downbit.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/downbit.f90.html" xlink:title="DownBit.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="257,-444 178,-444 178,-420 257,-420 257,-444"/>
+<text text-anchor="middle" x="217.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DownBit.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~downbit.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~downbit.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M334.98,-446.87C313.71,-444.15 288.72,-440.96 267.35,-438.24"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="267.55,-434.73 257.19,-436.94 266.66,-441.68 267.55,-434.73"/>
+</g>
+<!-- sourcefile~dso_utilities.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~dso_utilities.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/dso_utilities.f90.html" xlink:title="DSO_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="269,-402 166,-402 166,-378 269,-378 269,-402"/>
+<text text-anchor="middle" x="217.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DSO_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~dso_utilities.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~dso_utilities.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M361.8,-440.85C345.14,-431.69 321.13,-419.32 299,-411 292.64,-408.61 285.9,-406.39 279.14,-404.36"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="279.82,-400.91 269.25,-401.52 277.89,-407.64 279.82,-400.91"/>
+</g>
+<!-- sourcefile~filesystemutilities.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~filesystemutilities.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/filesystemutilities.f90.html" xlink:title="FileSystemUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="283,-360 152,-360 152,-336 283,-336 283,-360"/>
+<text text-anchor="middle" x="217.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileSystemUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~filesystemutilities.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~filesystemutilities.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M374.39,-440.98C360.6,-422.62 331.75,-387.76 299,-369 295.74,-367.13 292.31,-365.42 288.77,-363.87"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="289.82,-360.52 279.24,-360.09 287.24,-367.03 289.82,-360.52"/>
+</g>
+<!-- sourcefile~interp.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~interp.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/interp.f90.html" xlink:title="Interp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="251,-318 184,-318 184,-294 251,-294 251,-318"/>
+<text text-anchor="middle" x="217.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~interp.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~interp.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M378.39,-440.8C368.19,-415.47 341.18,-357.05 299,-327 288.05,-319.2 274.41,-314.29 261.5,-311.21"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="261.86,-307.71 251.36,-309.11 260.44,-314.56 261.86,-307.71"/>
+</g>
+<!-- sourcefile~mapl_dirpath.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~mapl_dirpath.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/mapl_dirpath.f90.html" xlink:title="MAPL_DirPath.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="271.5,-276 163.5,-276 163.5,-252 271.5,-252 271.5,-276"/>
+<text text-anchor="middle" x="217.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DirPath.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_dirpath.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_dirpath.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M380.51,-440.67C373.56,-409.5 350.93,-327.09 299,-285 293.72,-280.72 287.67,-277.31 281.3,-274.58"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="282.39,-271.26 271.8,-271.07 279.96,-277.82 282.39,-271.26"/>
+</g>
+<!-- sourcefile~mapl_hash.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~mapl_hash.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node22"><a xlink:href="../sourcefile/mapl_hash.f90.html" xlink:title="MAPL_Hash.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="265.5,-234 169.5,-234 169.5,-210 265.5,-210 265.5,-234"/>
+<text text-anchor="middle" x="217.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Hash.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_hash.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_hash.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M381.89,-440.89C377.91,-404.93 361.14,-297.8 299,-243 292.23,-237.03 283.97,-232.72 275.35,-229.62"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="276.11,-226.2 265.53,-226.61 274.06,-232.89 276.11,-226.2"/>
+</g>
+<!-- sourcefile~mapl_loadbalance.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node23" class="node">
+<title>sourcefile~mapl_loadbalance.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node23"><a xlink:href="../sourcefile/mapl_loadbalance.f90.html" xlink:title="MAPL_LoadBalance.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="287,-192 148,-192 148,-168 287,-168 287,-192"/>
+<text text-anchor="middle" x="217.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LoadBalance.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_loadbalance.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_loadbalance.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M382.8,-440.89C381.44,-400.44 371.4,-268.74 299,-201 297.69,-199.78 296.33,-198.63 294.91,-197.54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="296.57,-194.45 286.26,-192 292.79,-200.34 296.57,-194.45"/>
+</g>
+<!-- sourcefile~mapl_minmax.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node24" class="node">
+<title>sourcefile~mapl_minmax.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node24"><a xlink:href="../sourcefile/mapl_minmax.f90.html" xlink:title="MAPL_MinMax.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="272,-150 163,-150 163,-126 272,-126 272,-150"/>
+<text text-anchor="middle" x="217.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MinMax.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_minmax.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_minmax.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M383.47,-440.84C384.49,-396.21 381.77,-239.88 299,-159 294.07,-154.18 288.19,-150.43 281.87,-147.52"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="282.96,-144.19 272.37,-143.82 280.42,-150.71 282.96,-144.19"/>
+</g>
+<!-- sourcefile~mapl_range.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node25" class="node">
+<title>sourcefile~mapl_range.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node25"><a xlink:href="../sourcefile/mapl_range.f90.html" xlink:title="MAPL_Range.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="269,-108 166,-108 166,-84 269,-84 269,-108"/>
+<text text-anchor="middle" x="217.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Range.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_range.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_range.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M381.61,-440.81C375.16,-386.22 346.38,-164.86 299,-117 293.36,-111.3 286.37,-107.08 278.89,-103.98"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="279.82,-100.59 269.22,-100.6 277.51,-107.2 279.82,-100.59"/>
+</g>
+<!-- sourcefile~mapl_sleep.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node26" class="node">
+<title>sourcefile~mapl_sleep.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node26"><a xlink:href="../sourcefile/mapl_sleep.f90.html" xlink:title="MAPL_Sleep.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="267,-66 168,-66 168,-42 267,-42 267,-66"/>
+<text text-anchor="middle" x="217.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Sleep.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_sleep.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_sleep.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M381.98,-440.9C376.82,-382.41 351.73,-129.69 299,-75 292.88,-68.65 285.11,-64.14 276.81,-60.95"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="277.87,-57.61 267.28,-57.87 275.72,-64.27 277.87,-57.61"/>
+</g>
+<!-- sourcefile~mapl_sort.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node27" class="node">
+<title>sourcefile~mapl_sort.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node27"><a xlink:href="../sourcefile/mapl_sort.f90.html" xlink:title="MAPL_Sort.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="263,-24 172,-24 172,0 263,0 263,-24"/>
+<text text-anchor="middle" x="217.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Sort.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_sort.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~mapl_sort.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M382.27,-440.83C378.26,-378.39 357.06,-94.51 299,-33 292.01,-25.59 282.77,-20.68 273.04,-17.43"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="273.79,-14.01 263.21,-14.72 271.92,-20.76 273.79,-14.01"/>
+</g>
+<!-- sourcefile~shmem.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node28" class="node">
+<title>sourcefile~shmem.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node28"><a xlink:href="../sourcefile/shmem.f90.html" xlink:title="Shmem.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="255.5,-776 179.5,-776 179.5,-752 255.5,-752 255.5,-776"/>
+<text text-anchor="middle" x="217.5" y="-761.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Shmem.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~shmem.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~shmem.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M383.41,-465C384.22,-509.04 380.87,-663.29 299,-743 290.03,-751.74 277.89,-756.96 265.77,-760.06"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="264.73,-756.7 255.67,-762.18 266.17,-763.55 264.73,-756.7"/>
+</g>
+<!-- sourcefile~simplecommsplitter.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node29" class="node">
+<title>sourcefile~simplecommsplitter.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node29"><a xlink:href="../sourcefile/simplecommsplitter.f90.html" xlink:title="SimpleCommSplitter.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289.5,-734 145.5,-734 145.5,-710 289.5,-710 289.5,-734"/>
+<text text-anchor="middle" x="217.5" y="-719.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleCommSplitter.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~simplecommsplitter.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~simplecommsplitter.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M382.72,-465.2C381.11,-505.35 370.37,-634.56 299,-701 297.69,-702.22 296.32,-703.37 294.9,-704.45"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="292.79,-701.65 286.24,-709.98 296.55,-707.55 292.79,-701.65"/>
+</g>
+<!-- sourcefile~splitcommunicator.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node30" class="node">
+<title>sourcefile~splitcommunicator.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node30"><a xlink:href="../sourcefile/splitcommunicator.f90.html" xlink:title="SplitCommunicator.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="285.5,-692 149.5,-692 149.5,-668 285.5,-668 285.5,-692"/>
+<text text-anchor="middle" x="217.5" y="-677.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SplitCommunicator.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~splitcommunicator.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~splitcommunicator.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M381.78,-465.13C377.53,-500.68 360.16,-605.43 299,-659 297.49,-660.32 295.91,-661.56 294.27,-662.72"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="292.39,-659.77 285.62,-667.92 295.99,-665.77 292.39,-659.77"/>
+</g>
+<!-- sourcefile~string.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node31" class="node">
+<title>sourcefile~string.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node31"><a xlink:href="../sourcefile/string.f90.html" xlink:title="String.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="251,-650 184,-650 184,-626 251,-626 251,-650"/>
+<text text-anchor="middle" x="217.5" y="-635.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">String.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplshared.f90&#45;&gt;sourcefile~string.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~maplshared.f90&#45;&gt;sourcefile~string.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M379.93,-465.38C371.91,-495.14 347.53,-571.24 299,-612 288.25,-621.03 274.29,-626.94 261.03,-630.81"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="259.9,-627.49 251.09,-633.38 261.65,-634.26 259.9,-627.49"/>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M339.84,-858.31C326.72,-861.75 312.27,-865.53 299,-869 291.15,-871.05 282.87,-873.21 274.73,-875.34"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="273.69,-871.99 264.9,-877.9 275.46,-878.77 273.69,-871.99"/>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M339.78,-836.23C320.39,-831.39 297.22,-825.62 276.36,-820.42"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="277.2,-817.02 266.65,-818 275.5,-823.81 277.2,-817.02"/>
+</g>
+<!-- sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~esmf_utilities.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/esmf_utilities.f90.html" xlink:title="ESMF_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="271.5,-860 163.5,-860 163.5,-836 271.5,-836 271.5,-860"/>
+<text text-anchor="middle" x="217.5" y="-845.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multistate.f90&#45;&gt;sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~multistate.f90&#45;&gt;sourcefile~esmf_utilities.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M339.78,-847.26C322.11,-847.37 301.31,-847.5 281.97,-847.61"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="281.69,-844.12 271.71,-847.68 281.73,-851.12 281.69,-844.12"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilecouplermetacomponentf90EfferentGraph = svgPanZoom('#sourcefilecouplermetacomponentf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~couplermetacomponent.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilecouplermetacomponentf90AfferentGraph" width="531pt" height="536pt"
+ viewBox="0.00 0.00 531.00 536.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 532)">
+<title>sourcefile~~couplermetacomponent.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-532 527,-532 527,4 -4,4"/>
+<!-- sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~couplermetacomponent.f90</title>
+<polygon fill="none" stroke="black" points="166,-276 0,-276 0,-252 166,-252 166,-276"/>
+<text text-anchor="middle" x="83" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50">CouplerMetaComponent.F90</text>
+</g>
+<!-- sourcefile~clock_advance.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~clock_advance.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/clock_advance.f90.html" xlink:title="clock_advance.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="332,-528 218,-528 218,-504 332,-504 332,-528"/>
+<text text-anchor="middle" x="275" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">clock_advance.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~clock_advance.f90&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~clock_advance.f90&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M217.82,-504.66C212.13,-502.08 206.72,-498.9 202,-495 133.58,-438.39 100.55,-331.93 88.99,-286.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="92.37,-285.08 86.61,-276.19 85.56,-286.73 92.37,-285.08"/>
+</g>
+<!-- sourcefile~finalize.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~finalize.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/finalize.f90.html" xlink:title="finalize.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="311.5,-486 238.5,-486 238.5,-462 311.5,-462 311.5,-486"/>
+<text text-anchor="middle" x="275" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">finalize.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~finalize.f90&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~finalize.f90&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M238.31,-468.96C225.9,-465.88 212.48,-460.94 202,-453 143.12,-408.41 106.43,-325.19 91.58,-285.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="94.85,-284.51 88.13,-276.32 88.27,-286.91 94.85,-284.51"/>
+</g>
+<!-- sourcefile~genericcoupler.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~genericcoupler.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/genericcoupler.f90.html" xlink:title="GenericCoupler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="334,-444 216,-444 216,-420 334,-420 334,-444"/>
+<text text-anchor="middle" x="275" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GenericCoupler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~genericcoupler.f90&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~genericcoupler.f90&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M219.31,-419.97C213.22,-417.5 207.3,-414.54 202,-411 152.44,-377.88 113.66,-317.47 95.42,-285.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="98.34,-283.42 90.43,-276.38 92.22,-286.82 98.34,-283.42"/>
+</g>
+<!-- sourcefile~get_clock.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~get_clock.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/get_clock.f90.html" xlink:title="get_clock.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="317.5,-402 232.5,-402 232.5,-378 317.5,-378 317.5,-402"/>
+<text text-anchor="middle" x="275" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_clock.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~get_clock.f90&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~get_clock.f90&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M232.38,-381.25C222.09,-378.18 211.34,-374.17 202,-369 161.22,-346.43 122.58,-307.55 101.21,-283.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="103.66,-281.45 94.4,-276.31 98.43,-286.1 103.66,-281.45"/>
+</g>
+<!-- sourcefile~get_states.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~get_states.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/get_states.f90.html" xlink:title="get_states.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="319.5,-360 230.5,-360 230.5,-336 319.5,-336 319.5,-360"/>
+<text text-anchor="middle" x="275" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_states.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~get_states.f90&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~get_states.f90&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M230.48,-336.88C220.97,-334.02 211.04,-330.69 202,-327 170.3,-314.08 135.97,-295.14 112.56,-281.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.23,-278.33 103.85,-276.24 110.66,-284.35 114.23,-278.33"/>
+</g>
+<!-- sourcefile~initialize_user.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~initialize_user.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/initialize_user.f90.html" xlink:title="initialize_user.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="328,-318 222,-318 222,-294 328,-294 328,-318"/>
+<text text-anchor="middle" x="275" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_user.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~initialize_user.f90&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~initialize_user.f90&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M221.83,-294.47C199.14,-289.45 172.34,-283.53 148.42,-278.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="148.89,-274.76 138.37,-276.02 147.38,-281.6 148.89,-274.76"/>
+</g>
+<!-- sourcefile~run.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~run.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/run.f90.html" xlink:title="run.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="302,-276 248,-276 248,-252 302,-252 302,-276"/>
+<text text-anchor="middle" x="275" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">run.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~run.f90&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~run.f90&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M247.98,-264C229.23,-264 202.72,-264 176.46,-264"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="176.42,-260.5 166.42,-264 176.42,-267.5 176.42,-260.5"/>
+</g>
+<!-- sourcefile~run_export_couplers.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~run_export_couplers.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/run_export_couplers.f90.html" xlink:title="run_export_couplers.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="346.5,-234 203.5,-234 203.5,-210 346.5,-210 346.5,-234"/>
+<text text-anchor="middle" x="275" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">run_export_couplers.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~run_export_couplers.f90&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~run_export_couplers.f90&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M219.55,-234.04C197.39,-238.93 171.61,-244.63 148.51,-249.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="147.46,-246.39 138.45,-251.96 148.97,-253.22 147.46,-246.39"/>
+</g>
+<!-- sourcefile~run_import_couplers.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~run_import_couplers.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/run_import_couplers.f90.html" xlink:title="run_import_couplers.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="347.5,-192 202.5,-192 202.5,-168 347.5,-168 347.5,-192"/>
+<text text-anchor="middle" x="275" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">run_import_couplers.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~run_import_couplers.f90&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~run_import_couplers.f90&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M227.42,-192.05C218.86,-194.7 210.08,-197.71 202,-201 170.3,-213.92 135.97,-232.86 112.56,-246.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.66,-243.65 103.85,-251.76 114.23,-249.67 110.66,-243.65"/>
+</g>
+<!-- sourcefile~run_user.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~run_user.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/run_user.f90.html" xlink:title="run_user.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="315,-150 235,-150 235,-126 315,-126 315,-150"/>
+<text text-anchor="middle" x="275" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">run_user.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~run_user.f90&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~run_user.f90&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M234.63,-146.09C223.67,-149.24 212.03,-153.45 202,-159 161.22,-181.57 122.58,-220.45 101.21,-244.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="98.43,-241.9 94.4,-251.69 103.66,-246.55 98.43,-241.9"/>
+</g>
+<!-- sourcefile~set_clock.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~set_clock.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/set_clock.f90.html" xlink:title="set_clock.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="317,-108 233,-108 233,-84 317,-84 317,-108"/>
+<text text-anchor="middle" x="275" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_clock.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~set_clock.f90&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~set_clock.f90&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M232.86,-103.36C222.23,-106.47 211.2,-110.85 202,-117 152.44,-150.12 113.66,-210.53 95.42,-242.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="92.22,-241.18 90.43,-251.62 98.34,-244.58 92.22,-241.18"/>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~test_modelverticalgrid.pf</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/test_modelverticalgrid.pf.html" xlink:title="Test_ModelVerticalGrid.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="348,-66 202,-66 202,-42 348,-42 348,-66"/>
+<text text-anchor="middle" x="275" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ModelVerticalGrid.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M217.41,-66.07C211.92,-68.52 206.67,-71.46 202,-75 143.12,-119.59 106.43,-202.81 91.58,-242.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="88.27,-241.09 88.13,-251.68 94.85,-243.49 88.27,-241.09"/>
+</g>
+<!-- sourcefile~verticalregridaction.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~verticalregridaction.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/verticalregridaction.f90.html" xlink:title="VerticalRegridAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="346,-24 204,-24 204,0 346,0 346,-24"/>
+<text text-anchor="middle" x="275" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalRegridAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~verticalregridaction.f90&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~verticalregridaction.f90&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M216.37,-24.01C211.21,-26.47 206.31,-29.43 202,-33 133.58,-89.61 100.55,-196.07 88.99,-241.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="85.56,-241.27 86.61,-251.81 92.37,-242.92 85.56,-241.27"/>
+</g>
+<!-- sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~fieldspec.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/fieldspec.f90.html" xlink:title="FieldSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="496.5,-24 410.5,-24 410.5,0 496.5,0 496.5,-24"/>
+<text text-anchor="middle" x="453.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~verticalregridaction.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~verticalregridaction.f90</title>
+<path fill="none" stroke="#ff0075" stroke-dasharray="5,2" d="M410.22,-12C394.05,-12 375.01,-12 356.44,-12"/>
+<polygon fill="#ff0075" stroke="#ff0075" points="356.19,-8.5 346.19,-12 356.19,-15.5 356.19,-8.5"/>
+</g>
+<!-- sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~stateitemextension.f90</title>
+<g id="a_sourcefile~~couplermetacomponent.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/stateitemextension.f90.html" xlink:title="StateItemExtension.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="523,-444 384,-444 384,-420 523,-420 523,-444"/>
+<text text-anchor="middle" x="453.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtension.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~stateitemextension.f90&#45;&gt;sourcefile~genericcoupler.f90 -->
+<g id="sourcefile~~couplermetacomponent.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~stateitemextension.f90&#45;&gt;sourcefile~genericcoupler.f90</title>
+<path fill="none" stroke="#ffeb00" stroke-dasharray="5,2" d="M383.76,-432C370.85,-432 357.35,-432 344.46,-432"/>
+<polygon fill="#ffeb00" stroke="#ffeb00" points="344.26,-428.5 334.26,-432 344.26,-435.5 344.26,-428.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">mapl3g_CouplerMetaComponent</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ComponentDriver</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ComponentDriver</span><span class="p">,</span><span class="w"> </span><span class="n">ComponentDriverPtr</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_GriddedComponentDriver</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">GriddedComponentDriver</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ComponentDriverVector</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ComponentDriverVector</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ComponentDriverPtrVector</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ComponentDriverPtrVector</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ExtensionAction</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandlingMod</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ESMF_Interfaces</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="k">   private</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="c">! Class</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CouplerMetaComponent</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="c">! non TBF procedures</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_coupler_meta</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attach_coupler_meta</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">free_coupler_meta</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="c">! Phase indices</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GENERIC_COUPLER_INITIALIZE</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GENERIC_COUPLER_UPDATE</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GENERIC_COUPLER_INVALIDATE</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GENERIC_COUPLER_CLOCK_ADVANCE</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CouplerMetaComponent</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="k">      class</span><span class="p">(</span><span class="n">ExtensionAction</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">action</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ComponentDriverPtrVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sources</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ComponentDriverVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">consumers</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">stale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="c">! ESMF methods</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">invalidate</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock_advance</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="c">! Helper procedures</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update_sources</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">invalidate_consumers</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_source</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_consumer</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="c">! Accessors</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">non_overridable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_up_to_date</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">non_overridable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_stale</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">non_overridable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_up_to_date</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">non_overridable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_stale</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">   </span><span class="k">end type </span><span class="n">CouplerMetaComponent</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">   </span><span class="k">enum</span><span class="p">,</span><span class="w"> </span><span class="k">bind</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">enumerator</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GENERIC_COUPLER_INITIALIZE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="k">enumerator</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GENERIC_COUPLER_UPDATE</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="k">enumerator</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GENERIC_COUPLER_INVALIDATE</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="k">enumerator</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GENERIC_COUPLER_CLOCK_ADVANCE</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">   </span><span class="k">end enum</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="k">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">COUPLER_META_PRIVATE_STATE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;CouplerMetaComponent Private State&quot;</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">   </span><span class="k">type </span><span class="n">CouplerMetaWrapper</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">coupler_meta</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">   </span><span class="k">end type </span><span class="n">CouplerMetaWrapper</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">   </span><span class="k">interface </span><span class="n">CouplerMetaComponent</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_CouplerMetaComponent</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">   </span><span class="k">end interface </span><span class="n">CouplerMetaComponent</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="k">contains</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a>
+<a id="ln-74" name="ln-74" href="#ln-74"></a>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="k">   function </span><span class="n">new_CouplerMetaComponent</span><span class="p">(</span><span class="n">action</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtensionAction</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">action</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedComponentDriver</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ComponentDriverPtr</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source_wrapper</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">action</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">source</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="k">         </span><span class="n">source_wrapper</span><span class="p">%</span><span class="n">ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">source</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">sources</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">source_wrapper</span><span class="p">)</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="k">   end function </span><span class="n">new_CouplerMetaComponent</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">  </span><span class="k">recursive subroutine </span><span class="n">initialize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">exportState</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">action</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">update</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">exportState</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN_IF</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">is_up_to_date</span><span class="p">())</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="c">!#      call this%propagate_attributes(_RC)</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">update_sources</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">action</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">set_up_to_date</span><span class="p">()</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">update</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">update_sources</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ComponentDriverPtr</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source_wrapper</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">sources</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">         </span><span class="n">source_wrapper</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">sources</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">         </span><span class="k">call </span><span class="n">source_wrapper</span><span class="p">%</span><span class="n">ptr</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">phase_idx</span><span class="o">=</span><span class="n">GENERIC_COUPLER_UPDATE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="k">end do</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">update_sources</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">invalidate</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">        </span><span class="k">class</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">exportState</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">        </span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">        </span><span class="err">_</span><span class="n">RETURN_IF</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">is_stale</span><span class="p">())</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">        </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">invalidate_consumers</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">        </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">set_stale</span><span class="p">()</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">  </span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">        </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">clock</span><span class="p">)</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">        </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">exportState</span><span class="p">)</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">        </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">importState</span><span class="p">)</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">    </span><span class="k">end subroutine </span><span class="n">invalidate</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">      </span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">    </span><span class="k">recursive subroutine </span><span class="n">invalidate_consumers</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ComponentDriver</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">consumer</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">consumers</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">         </span><span class="n">consumer</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">consumers</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">         </span><span class="k">call </span><span class="n">consumer</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">phase_idx</span><span class="o">=</span><span class="n">GENERIC_COUPLER_INVALIDATE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">      </span><span class="k">end do</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">invalidate_consumers</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">clock_advance</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">        </span><span class="k">class</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">exportState</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Alarm</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">alarm</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="nb">        </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_ringing</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">        </span><span class="k">call </span><span class="n">ESMF_ClockGetAlarm</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MAPL::RUN_ALARM&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">alarm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">        </span><span class="n">is_ringing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_AlarmIsRinging</span><span class="p">(</span><span class="nb">alarm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">        </span><span class="err">_</span><span class="n">RETURN_UNLESS</span><span class="p">(</span><span class="n">is_ringing</span><span class="p">)</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">        </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">        </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">exportState</span><span class="p">)</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">        </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">importState</span><span class="p">)</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">     </span><span class="k">end subroutine </span><span class="n">clock_advance</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a>
+<a id="ln-197" name="ln-197" href="#ln-197"></a>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="w">      </span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">   </span><span class="k">function </span><span class="n">add_consumer</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">consumer</span><span class="p">)</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ComponentDriver</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">consumer</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">consumers</span><span class="p">%</span><span class="n">resize</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">consumers</span><span class="p">%</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">      </span><span class="n">consumer</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">consumers</span><span class="p">%</span><span class="n">back</span><span class="p">()</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">   </span><span class="k">end function </span><span class="n">add_consumer</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">add_source</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="p">)</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedComponentDriver</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ComponentDriverPtr</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source_wrapper</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">      </span><span class="n">source_wrapper</span><span class="p">%</span><span class="n">ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">source</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">sources</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">source_wrapper</span><span class="p">)</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">add_source</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a>
+<a id="ln-218" name="ln-218" href="#ln-218"></a>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="w">   </span><span class="k">function </span><span class="n">get_coupler_meta</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">meta</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a>
+<a id="ln-224" name="ln-224" href="#ln-224"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-225" name="ln-225" href="#ln-225"></a>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">      </span><span class="c">!TODO: This block is a workaround for weird link error with NAG</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="w">      </span><span class="c">!      7.2 Appears to be a collision in numbering of local</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="w">      </span><span class="c">!      scopes.</span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">      </span><span class="k">block</span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a><span class="k">      end block</span>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="k">      </span><span class="err">_</span><span class="n">GET_NAMED_PRIVATE_STATE</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">CouplerMetaComponent</span><span class="p">,</span><span class="w"> </span><span class="n">COUPLER_META_PRIVATE_STATE</span><span class="p">,</span><span class="w"> </span><span class="n">meta</span><span class="p">)</span>
+<a id="ln-232" name="ln-232" href="#ln-232"></a>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_coupler_meta</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a>
+<a id="ln-236" name="ln-236" href="#ln-236"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">attach_coupler_meta</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-239" name="ln-239" href="#ln-239"></a>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">meta</span>
+<a id="ln-242" name="ln-242" href="#ln-242"></a>
+<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">      </span><span class="err">_</span><span class="n">SET_NAMED_PRIVATE_STATE</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">CouplerMetaComponent</span><span class="p">,</span><span class="w"> </span><span class="n">COUPLER_META_PRIVATE_STATE</span><span class="p">,</span><span class="w"> </span><span class="n">meta</span><span class="p">)</span>
+<a id="ln-244" name="ln-244" href="#ln-244"></a>
+<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-246" name="ln-246" href="#ln-246"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">attach_coupler_meta</span>
+<a id="ln-247" name="ln-247" href="#ln-247"></a>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">free_coupler_meta</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a>
+<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">CouplerMetaWrapper</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wrapper</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a>
+<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="w">      </span><span class="k">call </span><span class="n">MAPL_UserCompGetInternalState</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">COUPLER_META_PRIVATE_STATE</span><span class="p">,</span><span class="w"> </span><span class="n">wrapper</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">status</span><span class="o">==</span><span class="n">ESMF_SUCCESS</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;CouplerMetaComponent not created for this gridcomp&quot;</span><span class="p">)</span>
+<a id="ln-257" name="ln-257" href="#ln-257"></a>
+<a id="ln-258" name="ln-258" href="#ln-258"></a><span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">wrapper</span><span class="p">%</span><span class="n">coupler_meta</span><span class="p">)</span>
+<a id="ln-259" name="ln-259" href="#ln-259"></a>
+<a id="ln-260" name="ln-260" href="#ln-260"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-261" name="ln-261" href="#ln-261"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">free_coupler_meta</span>
+<a id="ln-262" name="ln-262" href="#ln-262"></a>
+<a id="ln-263" name="ln-263" href="#ln-263"></a>
+<a id="ln-264" name="ln-264" href="#ln-264"></a><span class="w">   </span><span class="k">pure subroutine </span><span class="n">set_up_to_date</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-265" name="ln-265" href="#ln-265"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-266" name="ln-266" href="#ln-266"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">stale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-267" name="ln-267" href="#ln-267"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">set_up_to_date</span>
+<a id="ln-268" name="ln-268" href="#ln-268"></a>
+<a id="ln-269" name="ln-269" href="#ln-269"></a><span class="w">   </span><span class="k">pure subroutine </span><span class="n">set_stale</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-270" name="ln-270" href="#ln-270"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-271" name="ln-271" href="#ln-271"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">stale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="w">    </span><span class="k">end subroutine </span><span class="n">set_stale</span>
+<a id="ln-273" name="ln-273" href="#ln-273"></a>
+<a id="ln-274" name="ln-274" href="#ln-274"></a><span class="w">    </span><span class="k">pure </span><span class="kt">logical </span><span class="k">function </span><span class="n">is_up_to_date</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-275" name="ln-275" href="#ln-275"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-276" name="ln-276" href="#ln-276"></a><span class="w">      </span><span class="n">is_up_to_date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">stale</span>
+<a id="ln-277" name="ln-277" href="#ln-277"></a><span class="w">   </span><span class="k">end function </span><span class="n">is_up_to_date</span>
+<a id="ln-278" name="ln-278" href="#ln-278"></a>
+<a id="ln-279" name="ln-279" href="#ln-279"></a><span class="w">   </span><span class="k">pure </span><span class="kt">logical </span><span class="k">function </span><span class="n">is_stale</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-280" name="ln-280" href="#ln-280"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CouplerMetaComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-281" name="ln-281" href="#ln-281"></a><span class="w">      </span><span class="n">is_stale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">stale</span>
+<a id="ln-282" name="ln-282" href="#ln-282"></a><span class="w">   </span><span class="k">end function </span><span class="n">is_stale</span>
+<a id="ln-283" name="ln-283" href="#ln-283"></a>
+<a id="ln-284" name="ln-284" href="#ln-284"></a><span class="k">end module </span><span class="n">mapl3g_CouplerMetaComponent</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-08T16:47:43.778092             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

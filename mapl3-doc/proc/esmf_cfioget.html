@@ -1,0 +1,2035 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ESMF_CFIOGet &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>ESMF_CFIOGet
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.4% of total for procedures.">225 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ESMF_CFIOFileMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmf_cfiofilemod.f90.html'>ESMF_CFIOFileMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmf_cfiofilemod.html'>ESMF_CFIOFileMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">ESMF_CFIOGet</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/esmf_cfioget.html#src">ESMF_CFIOGet</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine ESMF_CFIOGet(cfio, cfioObjName, nVars, varObjs, grid, nGrids, grids, fName, title, source, contact, history, convention, institution, references, comment, date, begTime, timeInc, nSteps, prec, attCharNames, nAttChar, attCharCnts, attChars, attRealNames, nAttReal, attRealCnts, attReals, attIntNames, nAttInt, attIntCnts, attInts, attCharName, attCharCnt, attChar, attRealName, attRealCnt, attReal, attIntName, attIntCnt, attInt, isOpen, format, fNameTmplt, rc)  
+</h2>
+    
+
+    <p><code>ESMF_CFIOGet</code> &ndash; Get meta data from a CFIO object</p>
+<p>Get meta data from a CFIO file.</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cfio~55"></span>
+              type(<a href='../type/esmf_cfio.html'>ESMF_CFIO</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cfio</strong></td>
+            <td>
+                <p>a CFIO object</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cfioobjname~4"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cfioObjName</strong></td>
+            <td>
+                <p>CFIO Obj name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nvars~8"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nVars</strong></td>
+            <td>
+                <p>number of variable objects</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-varobjs~3"></span>
+              type(<a href='../type/esmf_cfiovarinfo.html'>ESMF_CFIOVarInfo</a>),
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>varObjs</strong>(:)</td>
+            <td>
+                <p>var objects</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid~170"></span>
+              type(<a href='../type/esmf_cfiogrid.html'>ESMF_CFIOGrid</a>),
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>grid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ngrids~3"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nGrids</strong></td>
+            <td>
+                <p>number of grids</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grids~5"></span>
+              type(<a href='../type/esmf_cfiogrid.html'>ESMF_CFIOGrid</a>),
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>grids</strong>(:)</td>
+            <td>
+                <p>grid array</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fname~10"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fName</strong></td>
+            <td>
+                <p>File name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-title~5"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>title</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-source~28"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>source</strong></td>
+            <td>
+                <p>Source of data</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-contact~7"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>contact</strong></td>
+            <td>
+                <p>Who to contact</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-history~5"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>history</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-convention~3"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>convention</strong></td>
+            <td>
+                <p>CFIO or COARDS</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-institution~6"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>institution</strong></td>
+            <td>
+                <p>File name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-references~4"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>references</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-comment~6"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>comment</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-date~47"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>date</strong></td>
+            <td>
+                <p>yyyymmdd</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-begtime~19"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>begTime</strong></td>
+            <td>
+                <p>hhmmss</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timeinc~14"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timeInc</strong></td>
+            <td>
+                <p>time step increment</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nsteps~5"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nSteps</strong></td>
+            <td>
+                <p>number of time steps</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-prec~6"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>prec</strong></td>
+            <td>
+                <p>Desired precision of data:
+0 = 32 bit; 1 = 64 bit</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attcharnames~3"></span>
+              character(len=*),
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attCharNames</strong>(:)</td>
+            <td>
+                <p>User defined global char attribute names</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nattchar~2"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nAttChar</strong></td>
+            <td>
+                <p>Number of char attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attcharcnts~3"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attCharCnts</strong>(:)</td>
+            <td>
+                <p>length of attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attchars~3"></span>
+              character(len=*),
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attChars</strong>(:)</td>
+            <td>
+                <p>User defined global char attribute</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attrealnames~3"></span>
+              character(len=*),
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attRealNames</strong>(:)</td>
+            <td>
+                <p>User defined global real attribute names</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nattreal~2"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nAttReal</strong></td>
+            <td>
+                <p>Number of Real attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attrealcnts~3"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attRealCnts</strong>(:)</td>
+            <td>
+                <p>length of attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attreals~3"></span>
+              real,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attReals</strong>(:,:)</td>
+            <td>
+                <p>User defined global real attribute</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attintnames~3"></span>
+              character(len=*),
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attIntNames</strong>(:)</td>
+            <td>
+                <p>User defined global int attribute names</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nattint~2"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nAttInt</strong></td>
+            <td>
+                <p>Number of int attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attintcnts~3"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attIntCnts</strong>(:)</td>
+            <td>
+                <p>length of attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attints~3"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attInts</strong>(:,:)</td>
+            <td>
+                <p>User defined global int attribute</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attcharname~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attCharName</strong></td>
+            <td>
+                <p>User defined global char attribute name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attcharcnt"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attCharCnt</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attchar~3"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attChar</strong></td>
+            <td>
+                <p>User defined global char attribute</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attrealname~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attRealName</strong></td>
+            <td>
+                <p>User defined global real attribute name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attrealcnt"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attRealCnt</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attreal~3"></span>
+              real,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attReal</strong>(:)</td>
+            <td>
+                <p>User defined global real attribute</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attintname~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attIntName</strong></td>
+            <td>
+                <p>User defined global int attribute name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attintcnt"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attIntCnt</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attint~3"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attInt</strong>(:)</td>
+            <td>
+                <p>User defined global int attribute</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-isopen~4"></span>
+              logical,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>isOpen</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-format~18"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>format</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fnametmplt~3"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fNameTmplt</strong></td>
+            <td>
+                <p>File name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2019"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                <p>Error return code:  <br>
+ 0   all is well<br>
+-1  can&rsquo;t allocate memory for grid(s)<br>
+-2  can&rsquo;t allocate memory: varObjs  <br>
+-3  can&rsquo;t allocate mem: attCharNames  <br>
+-4  can&rsquo;t allocate mem: attRealNames  <br>
+-5  can&rsquo;t allocate mem: attIntNames  <br>
+-6  can&rsquo;t allocate mem: attCharCnts  <br>
+-7  can&rsquo;t allocate mem: attRealCnts  <br>
+-8  can&rsquo;t allocate mem: attIntCnts  <br>
+-9  can&rsquo;t allocate mem: attChars  <br>
+-10  can&rsquo;t allocate mem: attReals  <br>
+-11  can&rsquo;t allocate mem: attInts  <br>
+-12  can&rsquo;t allocate mem: attInt  <br>
+ rc = -19  unable to identify coordinate variable  <br>
+ rc = -40  error from NF90_INQ_VARID  <br>
+ rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)  <br>
+ rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)  <br>
+ rc = -43  error from NF90_INQ_VARID (time variable)  <br>
+ rc = -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)  <br>
+ rc = -48  error from NF90_INQUIRE  <br>
+ rc = -53  error from NF90_GET_ATT    </p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~esmf_cfioget~~CallsGraph Pages: 1 -->
+<svg id="procesmf_cfiogetCallsGraph" width="188pt" height="32pt"
+ viewBox="0.00 0.00 188.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~esmf_cfioget~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~esmf_cfioget~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 184,-28 184,4 -4,4"/>
+<!-- proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CallsGraph_node1" class="node">
+<title>proc~esmf_cfioget</title>
+<polygon fill="none" stroke="black" points="90,-24 0,-24 0,0 90,0 90,-24"/>
+<text text-anchor="middle" x="45" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_CFIOGet</text>
+</g>
+<!-- proc~err -->
+<g id="proc~~esmf_cfioget~~CallsGraph_node2" class="node">
+<title>proc~err</title>
+<g id="a_proc~~esmf_cfioget~~CallsGraph_node2"><a xlink:href="../proc/err.html" xlink:title="err">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="180,-24 126,-24 126,0 180,0 180,-24"/>
+<text text-anchor="middle" x="153" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">err</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfioget&#45;&gt;proc~err -->
+<g id="proc~~esmf_cfioget~~CallsGraph_edge1" class="edge">
+<title>proc~esmf_cfioget&#45;&gt;proc~err</title>
+<path fill="none" stroke="#ff0000" d="M90.03,-12C98.59,-12 107.47,-12 115.75,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="115.83,-15.5 125.83,-12 115.83,-8.5 115.83,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~esmf_cfioget~~CalledByGraph Pages: 1 -->
+<svg id="procesmf_cfiogetCalledByGraph" width="641pt" height="554pt"
+ viewBox="0.00 0.00 641.00 554.15" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~esmf_cfioget~~CalledByGraph" class="graph" transform="scale(0.71 0.71) rotate(0) translate(4 777.52)">
+<title>proc~~esmf_cfioget~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-777.52 900,-777.52 900,4 -4,4"/>
+<!-- proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node1" class="node">
+<title>proc~esmf_cfioget</title>
+<polygon fill="none" stroke="black" points="896,-413.52 806,-413.52 806,-389.52 896,-389.52 896,-413.52"/>
+<text text-anchor="middle" x="851" y="-399.12" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_CFIOGet</text>
+</g>
+<!-- proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node2" class="node">
+<title>proc~esmf_cfiofileclose</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node2"><a xlink:href="../proc/esmf_cfiofileclose.html" xlink:title="ESMF_CFIOFileClose">
+<polygon fill="#d9534f" stroke="#d9534f" points="589,-435.52 471,-435.52 471,-411.52 589,-411.52 589,-435.52"/>
+<text text-anchor="middle" x="530" y="-421.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOFileClose</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiofileclose&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge1" class="edge">
+<title>proc~esmf_cfiofileclose&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M589.14,-419.51C647.97,-415.46 738.2,-409.23 795.64,-405.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="795.88,-408.76 805.61,-404.58 795.4,-401.78 795.88,-408.76"/>
+</g>
+<!-- proc~esmf_cfiofileopen -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node3" class="node">
+<title>proc~esmf_cfiofileopen</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node3"><a xlink:href="../proc/esmf_cfiofileopen.html" xlink:title="ESMF_CFIOFileOpen">
+<polygon fill="#d9534f" stroke="#d9534f" points="589,-185.52 471,-185.52 471,-161.52 589,-161.52 589,-185.52"/>
+<text text-anchor="middle" x="530" y="-171.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOFileOpen</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiofileopen&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge2" class="edge">
+<title>proc~esmf_cfiofileopen&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M589.05,-167.24C641.68,-164.73 718.65,-169.44 770,-209.52 824.5,-252.06 842.23,-338.35 847.7,-379.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="844.24,-379.67 848.92,-389.18 851.19,-378.83 844.24,-379.67"/>
+</g>
+<!-- proc~esmf_cfiosdffilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node4" class="node">
+<title>proc~esmf_cfiosdffilecreate</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node4"><a xlink:href="../proc/esmf_cfiosdffilecreate.html" xlink:title="ESMF_CFIOSdfFileCreate">
+<polygon fill="#d9534f" stroke="#d9534f" points="770,-562.52 628,-562.52 628,-538.52 770,-538.52 770,-562.52"/>
+<text text-anchor="middle" x="699" y="-548.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfFileCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffilecreate&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge3" class="edge">
+<title>proc~esmf_cfiosdffilecreate&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M743.73,-538.47C753,-534.65 762.3,-529.74 770,-523.52 804.07,-496.01 828.62,-450 840.96,-423.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="844.24,-424.28 845.08,-413.72 837.84,-421.44 844.24,-424.28"/>
+</g>
+<!-- proc~mapl_cfiocreatefromfile -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node5" class="node">
+<title>proc~mapl_cfiocreatefromfile</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node5"><a xlink:href="../proc/mapl_cfiocreatefromfile.html" xlink:title="MAPL_CFIOCreateFromFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="257,-60.52 106,-60.52 106,-36.52 257,-36.52 257,-60.52"/>
+<text text-anchor="middle" x="181.5" y="-46.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOCreateFromFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M223.44,-36.45C329.7,-7.9 616.7,51.07 770,-93.52 812.18,-133.3 838.97,-314.91 847.25,-379.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="843.82,-379.76 848.55,-389.25 850.77,-378.89 843.82,-379.76"/>
+</g>
+<!-- none~find~34 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node18" class="node">
+<title>none~find~34</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node18"><a xlink:href="../type/cfiocollection.html#boundprocedure-find~34" xlink:title="CFIOCollection%find">
+<polygon fill="#a7506f" stroke="#a7506f" points="426,-143.52 305,-143.52 305,-119.52 426,-119.52 426,-143.52"/>
+<text text-anchor="middle" x="365.5" y="-129.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIOCollection%find</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;none~find~34 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge39" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;none~find~34</title>
+<path fill="none" stroke="#ff0000" d="M202.58,-60.64C225.38,-74.05 263.96,-95.72 299,-110.52 303.63,-112.48 308.5,-114.35 313.41,-116.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="312.27,-119.44 322.86,-119.41 314.56,-112.82 312.27,-119.44"/>
+</g>
+<!-- program~test -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node6" class="node">
+<title>program~test</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node6"><a xlink:href="../program/test.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="392.5,-773.52 338.5,-773.52 338.5,-749.52 392.5,-749.52 392.5,-773.52"/>
+<text text-anchor="middle" x="365.5" y="-759.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge5" class="edge">
+<title>program~test&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M392.57,-765.54C463.92,-774.92 664.12,-790.22 770,-686.52 844.55,-613.5 851.17,-477.01 850.72,-423.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="854.21,-423.55 850.53,-413.61 847.22,-423.68 854.21,-423.55"/>
+</g>
+<!-- program~test&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge19" class="edge">
+<title>program~test&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M392.72,-759.51C406.37,-757.07 422.22,-751.8 432,-740.52 494.35,-668.67 435.77,-619.03 468,-529.52 479.47,-497.68 500.3,-464.39 514.4,-443.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="517.31,-445.75 520.16,-435.55 511.57,-441.74 517.31,-445.75"/>
+</g>
+<!-- proc~esmf_cfiofilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node19" class="node">
+<title>proc~esmf_cfiofilecreate</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node19"><a xlink:href="../proc/esmf_cfiofilecreate.html" xlink:title="ESMF_CFIOFileCreate">
+<polygon fill="#d9534f" stroke="#d9534f" points="592,-562.52 468,-562.52 468,-538.52 592,-538.52 592,-562.52"/>
+<text text-anchor="middle" x="530" y="-548.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOFileCreate</text>
+</a>
+</g>
+</g>
+<!-- program~test&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge42" class="edge">
+<title>program~test&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ffff00" d="M392.75,-757.97C405.76,-755.08 420.99,-749.88 432,-740.52 485.65,-694.92 513.11,-612.25 523.69,-572.73"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="527.15,-573.35 526.24,-562.79 520.37,-571.61 527.15,-573.35"/>
+</g>
+<!-- program~test~10 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node7" class="node">
+<title>program~test~10</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node7"><a xlink:href="../program/test~10.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="392.5,-269.52 338.5,-269.52 338.5,-245.52 392.5,-245.52 392.5,-269.52"/>
+<text text-anchor="middle" x="365.5" y="-255.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~10&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge6" class="edge">
+<title>program~test~10&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M392.59,-262.56C479.16,-279.3 752.49,-332.55 770,-340.52 792.67,-350.84 814.9,-368.59 830.16,-382.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="828.15,-385.2 837.87,-389.41 832.9,-380.06 828.15,-385.2"/>
+</g>
+<!-- program~test~10&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge20" class="edge">
+<title>program~test~10&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M392.63,-261.7C405.45,-264.74 420.56,-269.9 432,-278.52 454.87,-295.75 496.88,-366.65 517.28,-402.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="514.23,-404.25 522.2,-411.24 520.33,-400.81 514.23,-404.25"/>
+</g>
+<!-- program~test~10&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge34" class="edge">
+<title>program~test~10&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ff5f00" d="M392.61,-250.88C404.86,-247.33 419.49,-242.46 432,-236.52 458.43,-223.98 486.19,-205.31 505.21,-191.55"/>
+<polygon fill="#ff5f00" stroke="#ff5f00" points="507.31,-194.35 513.3,-185.61 503.17,-188.71 507.31,-194.35"/>
+</g>
+<!-- program~test~10&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge43" class="edge">
+<title>program~test~10&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ffff00" d="M392.52,-259.71C406.12,-262.2 421.97,-267.47 432,-278.52 482.74,-334.42 440.85,-374.08 468,-444.52 480.17,-476.1 500.84,-509.46 514.7,-530.13"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="511.83,-532.13 520.36,-538.42 517.62,-528.19 511.83,-532.13"/>
+</g>
+<!-- program~test~12 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node8" class="node">
+<title>program~test~12</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node8"><a xlink:href="../program/test~12.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="392.5,-227.52 338.5,-227.52 338.5,-203.52 392.5,-203.52 392.5,-227.52"/>
+<text text-anchor="middle" x="365.5" y="-213.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~12&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge7" class="edge">
+<title>program~test~12&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M392.67,-221.24C481.45,-240.66 765.86,-303 770,-305.52 800.47,-324.11 824.81,-358.45 838.32,-380.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="835.34,-382.46 843.44,-389.3 841.37,-378.9 835.34,-382.46"/>
+</g>
+<!-- program~test~12&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge21" class="edge">
+<title>program~test~12&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M392.72,-219.1C405.72,-222 420.96,-227.2 432,-236.52 485.13,-281.38 512.84,-362.75 523.59,-401.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="520.24,-402.67 526.18,-411.44 527,-400.88 520.24,-402.67"/>
+</g>
+<!-- program~test~12&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge35" class="edge">
+<title>program~test~12&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ff5f00" d="M392.61,-208.77C414.1,-203.22 445.35,-195.14 472.51,-188.12"/>
+<polygon fill="#ff5f00" stroke="#ff5f00" points="473.5,-191.48 482.3,-185.59 471.75,-184.7 473.5,-191.48"/>
+</g>
+<!-- program~test~13 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node9" class="node">
+<title>program~test~13</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node9"><a xlink:href="../program/test~13.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="392.5,-731.52 338.5,-731.52 338.5,-707.52 392.5,-707.52 392.5,-731.52"/>
+<text text-anchor="middle" x="365.5" y="-717.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~13&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge8" class="edge">
+<title>program~test~13&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M392.73,-722.47C463.21,-728.87 658.84,-736.35 770,-638.52 834.59,-581.68 847.12,-470.88 849.49,-423.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="852.99,-423.74 849.88,-413.61 845.99,-423.46 852.99,-423.74"/>
+</g>
+<!-- program~test~13&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge22" class="edge">
+<title>program~test~13&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M392.54,-717.35C406.14,-714.86 421.99,-709.59 432,-698.52 483.51,-641.56 440.51,-601.23 468,-529.52 480.11,-497.92 500.79,-464.57 514.68,-443.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="517.59,-445.84 520.34,-435.61 511.81,-441.9 517.59,-445.84"/>
+</g>
+<!-- program~test~13&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge44" class="edge">
+<title>program~test~13&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ffff00" d="M392.66,-715.39C405.49,-712.36 420.6,-707.2 432,-698.52 476.34,-664.78 506.54,-604.56 520.38,-572.32"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="523.69,-573.48 524.3,-562.9 517.23,-570.79 523.69,-573.48"/>
+</g>
+<!-- program~test~2 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node10" class="node">
+<title>program~test~2</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node10"><a xlink:href="../program/test~2.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="392.5,-647.52 338.5,-647.52 338.5,-623.52 392.5,-623.52 392.5,-647.52"/>
+<text text-anchor="middle" x="365.5" y="-633.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~2&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge9" class="edge">
+<title>program~test~2&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M392.59,-641.56C461.87,-656 653.19,-685.17 770,-598.52 827.29,-556.02 843.67,-465.44 848.26,-423.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="851.75,-423.88 849.23,-413.59 844.78,-423.21 851.75,-423.88"/>
+</g>
+<!-- program~test~2&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge24" class="edge">
+<title>program~test~2&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M392.71,-632.36C405.86,-629.58 421.24,-624.35 432,-614.52 462.29,-586.85 449.73,-566.26 468,-529.52 483.08,-499.19 503.06,-465.49 515.97,-444.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="519.1,-446.01 521.37,-435.66 513.14,-442.33 519.1,-446.01"/>
+</g>
+<!-- program~test~2&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge46" class="edge">
+<title>program~test~2&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ffff00" d="M392.63,-628.92C404.89,-625.38 419.51,-620.51 432,-614.52 458.67,-601.75 486.59,-582.62 505.59,-568.61"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="507.75,-571.36 513.66,-562.57 503.56,-565.76 507.75,-571.36"/>
+</g>
+<!-- program~test~3 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node11" class="node">
+<title>program~test~3</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node11"><a xlink:href="../program/test~3.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="392.5,-185.52 338.5,-185.52 338.5,-161.52 392.5,-161.52 392.5,-185.52"/>
+<text text-anchor="middle" x="365.5" y="-171.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~3&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge10" class="edge">
+<title>program~test~3&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M392.73,-179.25C479.74,-198.31 754.33,-259.11 770,-270.52 807.99,-298.18 831.6,-349.89 842.62,-379.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="839.45,-380.94 846.11,-389.18 846.04,-378.58 839.45,-380.94"/>
+</g>
+<!-- program~test~3&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge25" class="edge">
+<title>program~test~3&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M392.71,-176.68C405.86,-179.47 421.24,-184.7 432,-194.52 494.58,-251.69 518.22,-355.84 525.85,-401.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="522.41,-401.96 527.42,-411.29 529.32,-400.87 522.41,-401.96"/>
+</g>
+<!-- program~test~3&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge36" class="edge">
+<title>program~test~3&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ff5f00" d="M392.61,-173.52C411.06,-173.52 436.69,-173.52 460.75,-173.52"/>
+<polygon fill="#ff5f00" stroke="#ff5f00" points="460.95,-177.02 470.94,-173.52 460.94,-170.02 460.95,-177.02"/>
+</g>
+<!-- program~test~4 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node12" class="node">
+<title>program~test~4</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node12"><a xlink:href="../program/test~4.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="392.5,-605.52 338.5,-605.52 338.5,-581.52 392.5,-581.52 392.5,-605.52"/>
+<text text-anchor="middle" x="365.5" y="-591.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~4&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge11" class="edge">
+<title>program~test~4&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M392.7,-595.48C472.08,-600.89 708.32,-613.06 770,-571.52 820.97,-537.19 840.25,-461.32 846.87,-423.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="850.34,-424.11 848.48,-413.68 843.43,-422.99 850.34,-424.11"/>
+</g>
+<!-- program~test~4&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge26" class="edge">
+<title>program~test~4&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M392.67,-589.4C405.51,-586.37 420.61,-581.22 432,-572.52 455.31,-554.73 497.46,-481.26 517.64,-444.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="520.77,-446.13 522.49,-435.68 514.63,-442.78 520.77,-446.13"/>
+</g>
+<!-- program~test~4&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge47" class="edge">
+<title>program~test~4&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ffff00" d="M392.61,-586.61C414.42,-580.84 446.28,-572.41 473.72,-565.15"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="474.83,-568.48 483.6,-562.54 473.04,-561.71 474.83,-568.48"/>
+</g>
+<!-- program~test~5 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node13" class="node">
+<title>program~test~5</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node13"><a xlink:href="../program/test~5.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="392.5,-563.52 338.5,-563.52 338.5,-539.52 392.5,-539.52 392.5,-563.52"/>
+<text text-anchor="middle" x="365.5" y="-549.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~5&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge12" class="edge">
+<title>program~test~5&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M392.67,-545.87C476.46,-527.69 734.73,-471.01 770,-455.52 790.97,-446.31 812.36,-431.55 827.73,-419.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="829.9,-422.52 835.62,-413.6 825.59,-417.01 829.9,-422.52"/>
+</g>
+<!-- program~test~5&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge27" class="edge">
+<title>program~test~5&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M392.75,-546.45C405.31,-543.21 420.15,-538.15 432,-530.52 441.59,-524.34 486.59,-472.85 511.79,-443.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="514.75,-445.53 518.62,-435.67 509.44,-440.97 514.75,-445.53"/>
+</g>
+<!-- program~test~5&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge48" class="edge">
+<title>program~test~5&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ffff00" d="M392.61,-551.36C410.27,-551.25 434.52,-551.1 457.67,-550.96"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="457.87,-554.46 467.85,-550.9 457.83,-547.46 457.87,-554.46"/>
+</g>
+<!-- program~test~6 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node14" class="node">
+<title>program~test~6</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node14"><a xlink:href="../program/test~6.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="392.5,-521.52 338.5,-521.52 338.5,-497.52 392.5,-497.52 392.5,-521.52"/>
+<text text-anchor="middle" x="365.5" y="-507.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~6&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge13" class="edge">
+<title>program~test~6&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M392.64,-504.89C457.14,-493.28 628.86,-461.31 770,-425.52 780.65,-422.82 792.01,-419.61 802.72,-416.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="803.77,-419.78 812.34,-413.55 801.76,-413.08 803.77,-419.78"/>
+</g>
+<!-- program~test~6&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge28" class="edge">
+<title>program~test~6&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M392.5,-504.04C405,-500.71 419.87,-495.69 432,-488.52 450.95,-477.33 450.01,-467.19 468,-454.52 475.41,-449.3 483.82,-444.44 491.98,-440.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="493.64,-443.27 501.01,-435.66 490.5,-437.01 493.64,-443.27"/>
+</g>
+<!-- program~test~6&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge49" class="edge">
+<title>program~test~6&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ffff00" d="M392.61,-516.11C413.86,-521.47 444.65,-529.24 471.6,-536.04"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="470.77,-539.44 481.33,-538.49 472.49,-532.65 470.77,-539.44"/>
+</g>
+<!-- program~test~7 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node15" class="node">
+<title>program~test~7</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node15"><a xlink:href="../program/test~7.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="392.5,-101.52 338.5,-101.52 338.5,-77.52 392.5,-77.52 392.5,-101.52"/>
+<text text-anchor="middle" x="365.5" y="-87.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~7&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge14" class="edge">
+<title>program~test~7&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M392.69,-86.03C463.06,-78.21 658.44,-66.87 770,-163.52 835.27,-220.07 847.43,-331.64 849.59,-379.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="846.1,-379.46 849.94,-389.34 853.09,-379.22 846.1,-379.46"/>
+</g>
+<!-- program~test~7&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge29" class="edge">
+<title>program~test~7&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M392.8,-92.19C406.14,-94.83 421.66,-100.09 432,-110.52 453.28,-132.01 506.14,-333.79 523.43,-401.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="520.12,-402.67 525.98,-411.5 526.9,-400.95 520.12,-402.67"/>
+</g>
+<!-- program~test~7&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge37" class="edge">
+<title>program~test~7&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ff5f00" d="M392.61,-96.16C404.86,-99.71 419.49,-104.58 432,-110.52 458.43,-123.07 486.19,-141.74 505.21,-155.5"/>
+<polygon fill="#ff5f00" stroke="#ff5f00" points="503.17,-158.34 513.3,-161.43 507.31,-152.69 503.17,-158.34"/>
+</g>
+<!-- program~test~8 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node16" class="node">
+<title>program~test~8</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node16"><a xlink:href="../program/test~8.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="392.5,-311.52 338.5,-311.52 338.5,-287.52 392.5,-287.52 392.5,-311.52"/>
+<text text-anchor="middle" x="365.5" y="-297.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~8&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge15" class="edge">
+<title>program~test~8&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M392.76,-304.83C413.24,-308.93 442.41,-314.71 468,-319.52 602.01,-344.7 638.12,-338.89 770,-373.52 783.03,-376.94 796.97,-381.5 809.5,-385.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="808.61,-389.34 819.2,-389.45 810.99,-382.75 808.61,-389.34"/>
+</g>
+<!-- program~test~8&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge30" class="edge">
+<title>program~test~8&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M392.69,-304.7C405.23,-307.95 420.08,-313 432,-320.52 436.75,-323.52 484.18,-374.76 510.91,-403.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="508.51,-406.37 517.85,-411.36 513.66,-401.63 508.51,-406.37"/>
+</g>
+<!-- program~test~8&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge50" class="edge">
+<title>program~test~8&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ffff00" d="M392.55,-302.05C405.99,-304.65 421.68,-309.91 432,-320.52 472.01,-361.66 445.53,-391.72 468,-444.52 481.25,-475.67 501.65,-509.12 515.16,-529.94"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="512.24,-531.87 520.66,-538.3 518.09,-528.02 512.24,-531.87"/>
+</g>
+<!-- program~test~9 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node17" class="node">
+<title>program~test~9</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node17"><a xlink:href="../program/test~9.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="392.5,-353.52 338.5,-353.52 338.5,-329.52 392.5,-329.52 392.5,-353.52"/>
+<text text-anchor="middle" x="365.5" y="-339.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~9&#45;&gt;proc~esmf_cfioget -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge16" class="edge">
+<title>program~test~9&#45;&gt;proc~esmf_cfioget</title>
+<path fill="none" stroke="#ff0000" d="M392.74,-345.97C413.21,-349.36 442.37,-354.03 468,-357.52 584.56,-373.41 721.64,-388.28 795.78,-395.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="795.5,-399.49 805.81,-397.04 796.22,-392.52 795.5,-399.49"/>
+</g>
+<!-- program~test~9&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge31" class="edge">
+<title>program~test~9&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M392.78,-347.17C405.2,-350.52 419.92,-355.51 432,-362.52 450.77,-373.42 449.92,-383.52 468,-395.52 474.34,-399.73 481.42,-403.62 488.44,-407.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="487.37,-410.43 497.91,-411.49 490.33,-404.09 487.37,-410.43"/>
+</g>
+<!-- program~test~9&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge51" class="edge">
+<title>program~test~9&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ffff00" d="M392.66,-344.74C405.8,-347.54 421.18,-352.77 432,-362.52 461.56,-389.17 450.05,-409 468,-444.52 483.28,-474.76 503.21,-508.48 516.06,-529.6"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="513.21,-531.66 521.42,-538.36 519.18,-528 513.21,-531.66"/>
+</g>
+<!-- none~find~34&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge32" class="edge">
+<title>none~find~34&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ff5f00" d="M413.07,-143.56C431.59,-148.35 453.09,-153.9 472.49,-158.92"/>
+<polygon fill="#ff5f00" stroke="#ff5f00" points="471.87,-162.37 482.43,-161.48 473.62,-155.59 471.87,-162.37"/>
+</g>
+<!-- proc~esmf_cfiofilecreate&#45;&gt;proc~esmf_cfiosdffilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge38" class="edge">
+<title>proc~esmf_cfiofilecreate&#45;&gt;proc~esmf_cfiosdffilecreate</title>
+<path fill="none" stroke="#ffbf00" d="M592.24,-550.52C600.53,-550.52 609.15,-550.52 617.71,-550.52"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="617.73,-554.02 627.73,-550.52 617.73,-547.02 617.73,-554.02"/>
+</g>
+<!-- proc~mapl_cfioclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node20" class="node">
+<title>proc~mapl_cfioclose</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node20"><a xlink:href="../proc/mapl_cfioclose.html" xlink:title="MAPL_CFIOClose">
+<polygon fill="#d9534f" stroke="#d9534f" points="415.5,-437.52 315.5,-437.52 315.5,-413.52 415.5,-413.52 415.5,-437.52"/>
+<text text-anchor="middle" x="365.5" y="-423.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOClose</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioclose&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge17" class="edge">
+<title>proc~mapl_cfioclose&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M415.7,-424.92C429.81,-424.74 445.47,-424.55 460.52,-424.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="460.87,-427.86 470.82,-424.24 460.78,-420.86 460.87,-427.86"/>
+</g>
+<!-- proc~mapl_cfiodestroy -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node21" class="node">
+<title>proc~mapl_cfiodestroy</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node21"><a xlink:href="../proc/mapl_cfiodestroy.html" xlink:title="MAPL_CFIODestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="421.5,-395.52 309.5,-395.52 309.5,-371.52 421.5,-371.52 421.5,-395.52"/>
+<text text-anchor="middle" x="365.5" y="-381.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIODestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiodestroy&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge18" class="edge">
+<title>proc~mapl_cfiodestroy&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M415.26,-395.52C432.53,-399.78 452.15,-404.6 470.17,-409.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="469.45,-412.47 480,-411.46 471.12,-405.67 469.45,-412.47"/>
+</g>
+<!-- proc~mapl_cfioopenwrite -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node22" class="node">
+<title>proc~mapl_cfioopenwrite</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node22"><a xlink:href="../proc/mapl_cfioopenwrite.html" xlink:title="MAPL_CFIOOpenWrite">
+<polygon fill="#d9534f" stroke="#d9534f" points="429,-59.52 302,-59.52 302,-35.52 429,-35.52 429,-59.52"/>
+<text text-anchor="middle" x="365.5" y="-45.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOOpenWrite</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioopenwrite&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge33" class="edge">
+<title>proc~mapl_cfioopenwrite&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ff5f00" d="M414.33,-59.64C420.5,-62.12 426.56,-65.05 432,-68.52 467.25,-91 498.12,-129.37 515.1,-152.98"/>
+<polygon fill="#ff5f00" stroke="#ff5f00" points="512.3,-155.07 520.91,-161.24 518.02,-151.04 512.3,-155.07"/>
+</g>
+<!-- program~test~14 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node23" class="node">
+<title>program~test~14</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node23"><a xlink:href="../program/test~14.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="392.5,-479.52 338.5,-479.52 338.5,-455.52 392.5,-455.52 392.5,-479.52"/>
+<text text-anchor="middle" x="365.5" y="-465.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~14&#45;&gt;proc~esmf_cfiofileclose -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge23" class="edge">
+<title>program~test~14&#45;&gt;proc~esmf_cfiofileclose</title>
+<path fill="none" stroke="#ff0000" d="M392.61,-460.45C414.66,-454.48 446.98,-445.73 474.62,-438.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="475.82,-441.55 484.56,-435.55 474,-434.79 475.82,-441.55"/>
+</g>
+<!-- program~test~14&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge45" class="edge">
+<title>program~test~14&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ffff00" d="M392.59,-474.21C404.84,-477.76 419.46,-482.63 432,-488.52 458.08,-500.78 485.55,-518.9 504.57,-532.38"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="502.77,-535.4 512.93,-538.4 506.86,-529.72 502.77,-535.4"/>
+</g>
+<!-- interface~esmf_iodestroy -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node24" class="node">
+<title>interface~esmf_iodestroy</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node24"><a xlink:href="../interface/esmf_iodestroy.html" xlink:title="ESMF_ioDestroy">
+<polygon fill="#a7506f" stroke="#a7506f" points="230,-395.52 133,-395.52 133,-371.52 230,-371.52 230,-395.52"/>
+<text text-anchor="middle" x="181.5" y="-381.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ioDestroy</text>
+</a>
+</g>
+</g>
+<!-- interface~esmf_iodestroy&#45;&gt;proc~mapl_cfiodestroy -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge52" class="edge">
+<title>interface~esmf_iodestroy&#45;&gt;proc~mapl_cfiodestroy</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M230.32,-383.52C251.32,-383.52 276.33,-383.52 299.02,-383.52"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="299.27,-387.02 309.27,-383.52 299.27,-380.02 299.27,-387.02"/>
+</g>
+<!-- proc~mapl_cfiocreatewrite -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node25" class="node">
+<title>proc~mapl_cfiocreatewrite</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node25"><a xlink:href="../proc/mapl_cfiocreatewrite.html" xlink:title="MAPL_CFIOCreatewrite">
+<polygon fill="#d9534f" stroke="#d9534f" points="432,-689.52 299,-689.52 299,-665.52 432,-665.52 432,-689.52"/>
+<text text-anchor="middle" x="365.5" y="-675.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOCreatewrite</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatewrite&#45;&gt;proc~esmf_cfiofilecreate -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge41" class="edge">
+<title>proc~mapl_cfiocreatewrite&#45;&gt;proc~esmf_cfiofilecreate</title>
+<path fill="none" stroke="#ffff00" d="M414.35,-665.43C420.52,-662.95 426.57,-660 432,-656.52 467.57,-633.72 498.53,-594.7 515.41,-570.89"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="518.35,-572.79 521.17,-562.58 512.6,-568.81 518.35,-572.79"/>
+</g>
+<!-- proc~mapl_cfioreadbundleread -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node26" class="node">
+<title>proc~mapl_cfioreadbundleread</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node26"><a xlink:href="../proc/mapl_cfioreadbundleread.html" xlink:title="MAPL_CFIOReadBundleRead">
+<polygon fill="#d9534f" stroke="#d9534f" points="263,-143.52 100,-143.52 100,-119.52 263,-119.52 263,-143.52"/>
+<text text-anchor="middle" x="181.5" y="-129.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOReadBundleRead</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadbundleread&#45;&gt;none~find~34 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge40" class="edge">
+<title>proc~mapl_cfioreadbundleread&#45;&gt;none~find~34</title>
+<path fill="none" stroke="#ff0000" d="M263.12,-131.52C273.68,-131.52 284.42,-131.52 294.77,-131.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="294.98,-135.02 304.98,-131.52 294.98,-128.02 294.98,-135.02"/>
+</g>
+<!-- proc~test_main~2 -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_node27" class="node">
+<title>proc~test_main~2</title>
+<g id="a_proc~~esmf_cfioget~~CalledByGraph_node27"><a xlink:href="../proc/test_main~2.html" xlink:title="test_main">
+<polygon fill="#d9534f" stroke="#d9534f" points="64,-395.52 0,-395.52 0,-371.52 64,-371.52 64,-395.52"/>
+<text text-anchor="middle" x="32" y="-381.12" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_main</text>
+</a>
+</g>
+</g>
+<!-- proc~test_main~2&#45;&gt;interface~esmf_iodestroy -->
+<g id="proc~~esmf_cfioget~~CalledByGraph_edge53" class="edge">
+<title>proc~test_main~2&#45;&gt;interface~esmf_iodestroy</title>
+<path fill="none" stroke="#ff0000" d="M64.28,-383.52C81.28,-383.52 102.84,-383.52 122.76,-383.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="122.99,-387.02 132.99,-383.52 122.99,-380.02 122.99,-387.02"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocesmf_cfiogetCalledByGraph = svgPanZoom('#procesmf_cfiogetCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">ESMF_CFIOGet</span><span class="w"> </span><span class="p">(</span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="n">cfioObjName</span><span class="p">,</span><span class="w"> </span><span class="n">nVars</span><span class="p">,</span><span class="w"> </span><span class="n">varObjs</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">nGrids</span><span class="p">,</span><span class="w"> </span><span class="n">grids</span><span class="p">,</span><span class="w"> </span><span class="n">fName</span><span class="p">,</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">contact</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">history</span><span class="p">,</span><span class="w"> </span><span class="n">convention</span><span class="p">,</span><span class="w"> </span><span class="n">institution</span><span class="p">,</span><span class="w"> </span><span class="n">references</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">comment</span><span class="p">,</span><span class="w"> </span><span class="n">date</span><span class="p">,</span><span class="w"> </span><span class="n">begTime</span><span class="p">,</span><span class="w"> </span><span class="n">timeInc</span><span class="p">,</span><span class="w"> </span><span class="n">nSteps</span><span class="p">,</span><span class="w"> </span><span class="n">prec</span><span class="p">,&amp;</span>
+<span class="w">                              </span><span class="n">attCharNames</span><span class="p">,</span><span class="w"> </span><span class="n">nAttChar</span><span class="p">,</span><span class="w"> </span><span class="n">attCharCnts</span><span class="p">,</span><span class="w"> </span><span class="n">attChars</span><span class="p">,&amp;</span>
+<span class="w">                              </span><span class="n">attRealNames</span><span class="p">,</span><span class="w"> </span><span class="n">nAttReal</span><span class="p">,</span><span class="w"> </span><span class="n">attRealCnts</span><span class="p">,</span><span class="w"> </span><span class="n">attReals</span><span class="p">,&amp;</span>
+<span class="w">                              </span><span class="n">attIntNames</span><span class="p">,</span><span class="w"> </span><span class="n">nAttInt</span><span class="p">,</span><span class="w"> </span><span class="n">attIntCnts</span><span class="p">,</span><span class="w"> </span><span class="n">attInts</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">attCharName</span><span class="p">,</span><span class="w"> </span><span class="n">attCharCnt</span><span class="p">,</span><span class="w"> </span><span class="n">attChar</span><span class="p">,</span><span class="w"> </span><span class="n">attRealName</span><span class="p">,&amp;</span>
+<span class="w">                              </span><span class="n">attRealCnt</span><span class="p">,</span><span class="w"> </span><span class="n">attReal</span><span class="p">,</span><span class="w"> </span><span class="n">attIntName</span><span class="p">,</span><span class="w"> </span><span class="n">attIntCnt</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">attInt</span><span class="p">,</span><span class="w"> </span><span class="n">isOpen</span><span class="p">,</span><span class="w"> </span><span class="k">format</span><span class="p">,</span><span class="w"> </span><span class="n">fNameTmplt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
+<span class="c">!</span>
+<span class="c">! !INPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIO</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cfio</span><span class="w">       </span><span class="c">!! a CFIO object</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attCharName</span><span class="w"> </span><span class="c">!! User defined global char attribute name</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attRealName</span><span class="w"> </span><span class="c">!! User defined global real attribute name</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attIntName</span><span class="w"> </span><span class="c">!! User defined global int attribute name</span>
+<span class="c">!</span>
+<span class="c">! !OUTPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cfioObjName</span><span class="w"> </span><span class="c">!! CFIO Obj name</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nVars</span><span class="w">          </span><span class="c">!! number of variable objects</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIOVarInfo</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varObjs</span><span class="p">(:)</span><span class="c">!! var objects</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nGrids</span><span class="w">                   </span><span class="c">!! number of grids</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIOGrid</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grids</span><span class="p">(:)</span><span class="w">    </span><span class="c">!! grid array</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIOGrid</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fName</span><span class="w">      </span><span class="c">!! File name</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fNameTmplt</span><span class="w"> </span><span class="c">!! File name</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">title</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source</span><span class="w">     </span><span class="c">!! Source of data</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">contact</span><span class="w">    </span><span class="c">!! Who to contact</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">history</span><span class="w">    </span><span class="c">!!</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">convention</span><span class="w"> </span><span class="c">!! CFIO or COARDS</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">institution</span><span class="c">!! File name</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">references</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comment</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">date</span><span class="w">          </span><span class="c">!! yyyymmdd</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">begTime</span><span class="w">       </span><span class="c">!! hhmmss</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeInc</span><span class="w">      </span><span class="c">!! time step increment</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nSteps</span><span class="w">       </span><span class="c">!! number of time steps</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prec</span><span class="w">     </span><span class="c">!! Desired precision of data:</span>
+<span class="w">                                                  </span><span class="c">!! 0 = 32 bit; 1 = 64 bit</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nAttChar</span><span class="w"> </span><span class="c">!! Number of char attributes</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nAttReal</span><span class="w"> </span><span class="c">!! Number of Real attributes</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nAttInt</span><span class="w">  </span><span class="c">!! Number of int attributes</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attCharNames</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! User defined global char attribute names</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attRealNames</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! User defined global real attribute names</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attIntNames</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! User defined global int attribute names</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attCharCnts</span><span class="p">(:)</span><span class="c">!! length of attributes</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attRealCnts</span><span class="p">(:)</span><span class="c">!! length of attributes</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attIntCnts</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! length of attributes</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attChars</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! User defined global char attribute</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">      </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attReals</span><span class="p">(:,:)</span><span class="w"> </span><span class="c">!! User defined global real attribute</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w">   </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attInts</span><span class="p">(:,:)</span><span class="w"> </span><span class="c">!! User defined global int attribute</span>
+
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attIntCnt</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attRealCnt</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attCharCnt</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attChar</span><span class="w"> </span><span class="c">!! User defined global char attribute</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">    </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attReal</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! User defined global real attribute</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attInt</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! User defined global int attribute</span>
+<span class="w">       </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isOpen</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">format</span>
+
+<span class="k">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">      </span><span class="c">!! Error return code:    </span>
+<span class="w">                         </span><span class="c">!!  0   all is well  </span>
+<span class="w">                         </span><span class="c">!! -1  can&#39;t allocate memory for grid(s)  </span>
+<span class="w">                         </span><span class="c">!! -2  can&#39;t allocate memory: varObjs    </span>
+<span class="w">                         </span><span class="c">!! -3  can&#39;t allocate mem: attCharNames    </span>
+<span class="w">                         </span><span class="c">!! -4  can&#39;t allocate mem: attRealNames    </span>
+<span class="w">                         </span><span class="c">!! -5  can&#39;t allocate mem: attIntNames    </span>
+<span class="w">                         </span><span class="c">!! -6  can&#39;t allocate mem: attCharCnts    </span>
+<span class="w">                         </span><span class="c">!! -7  can&#39;t allocate mem: attRealCnts    </span>
+<span class="w">                         </span><span class="c">!! -8  can&#39;t allocate mem: attIntCnts    </span>
+<span class="w">                         </span><span class="c">!! -9  can&#39;t allocate mem: attChars    </span>
+<span class="w">                         </span><span class="c">!! -10  can&#39;t allocate mem: attReals    </span>
+<span class="w">                         </span><span class="c">!! -11  can&#39;t allocate mem: attInts    </span>
+<span class="w">                         </span><span class="c">!! -12  can&#39;t allocate mem: attInt    </span>
+<span class="w">                         </span><span class="c">!!  rc = -19  unable to identify coordinate variable    </span>
+<span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID    </span>
+<span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)    </span>
+<span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)    </span>
+<span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)    </span>
+<span class="w">                         </span><span class="c">!!  rc = -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)    </span>
+<span class="w">                         </span><span class="c">!!  rc = -48  error from NF90_INQUIRE    </span>
+<span class="w">                         </span><span class="c">!!  rc = -53  error from NF90_GET_ATT    </span>
+<span class="c">!</span>
+<span class="c">!------------------------------------------------------------------------------</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">cfioObjName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">cfioObjName</span><span class="w"> </span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">cfioObjName</span>
+
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">fName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">fName</span><span class="w"> </span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">fName</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">fNameTmplt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">fNameTmplt</span><span class="w"> </span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">fNameTmplt</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">title</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">title</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">source</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">contact</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">contact</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">contact</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">history</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">history</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">history</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">convention</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">convention</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">convention</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">institution</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">institution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">institution</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">references</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">references</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">references</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">comment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">comment</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">date</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">date</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">begTime</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">begTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">begTime</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">timeInc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">timeInc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">timeInc</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">prec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">prec</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">isOpen</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">isOpen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">isOpen</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="k">format</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="k">format</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nSteps</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nSteps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">tSteps</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nVars</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nVars</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">mVars</span><span class="w">   </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nGrids</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nGrids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">mGrids</span><span class="w">  </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">grids</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">grids</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">grids</span><span class="p">)),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate memory for grids&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then  </span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          </span><span class="n">grids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">grids</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate memory for grid&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then  </span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">grids</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">                                                                                     </span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">varObjs</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">varObjs</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">)),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate memory: varObjs&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then  </span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          </span><span class="n">varObjs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nAttChar</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nAttChar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttChar</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nAttReal</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nAttReal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nAttInt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nAttInt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttInt</span>
+
+<span class="c">!      get global attribute names as an array.</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attCharNames</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttChar</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate mem: attCharNames&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then  </span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          </span><span class="n">attCharNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attCharNames</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attRealNames</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate mem: attRealNames&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then  </span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          </span><span class="n">attRealNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealNames</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attIntNames</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttInt</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate mem: attIntNames&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then  </span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          </span><span class="n">attIntNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntNames</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="c">!      get global attribute counts as an array.</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attCharCnts</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attCharCnts</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttChar</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate mem: attCharCnts&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then  </span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          </span><span class="n">attCharCnts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attCharCnts</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attRealCnts</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate mem: attRealCnts&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">7</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then  </span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          </span><span class="n">attRealCnts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealCnts</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attIntCnts</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttInt</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate mem: attIntCnts&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then  </span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          </span><span class="n">attIntCnts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntCnts</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="c">!      get global attributes as an array.</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attChars</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attChars</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttChar</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate mem: attChars&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">9</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then  </span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          </span><span class="n">attChars</span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attChars</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attReals</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attReals</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attReals</span><span class="p">)</span><span class="o">/</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate mem: attReals&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then  </span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          </span><span class="n">attReals</span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attReals</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attInts</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attInts</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttInt</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attInts</span><span class="p">)</span><span class="o">/</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttInt</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate mem: attInts&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then  </span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          </span><span class="n">attInts</span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attInts</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="c">!      provide attIntName and get its count and data</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attIntName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attIntCnt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttInt</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attIntName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">attIntCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attInt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttInt</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attIntName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   allocate</span><span class="p">(</span><span class="n">attInt</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+<span class="w">                   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate mem: attInt&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                      </span><span class="k">then  </span>
+<span class="k">                      if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">                      </span><span class="k">return</span>
+<span class="k">                   end if</span>
+
+<span class="k">                   </span><span class="n">attInt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attInts</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">       end if</span>
+
+<span class="c">!      provide attRealName and get its count and data</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attRealName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attRealCnt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attRealName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">attRealCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attReal</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attRealName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   allocate</span><span class="p">(</span><span class="n">attReal</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+<span class="w">                   </span><span class="n">attReal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attReals</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">       end if</span>
+
+<span class="c">!      provide attCharName and get its count and data</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attCharName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attCharCnt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttChar</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attCharName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">attCharCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attCharCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attChar</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttChar</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attCharName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">attChar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attChars</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">       end if</span>
+
+<span class="k">       </span><span class="n">rtcode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">ESMF_CFIOGet</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-08T16:47:43.778092             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

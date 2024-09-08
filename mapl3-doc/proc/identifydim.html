@@ -1,0 +1,736 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>IdentifyDim &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>IdentifyDim
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">45 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ESMF_CFIOUtilMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmf_cfioutilmod.f90.html'>ESMF_CFIOUtilMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmf_cfioutilmod.html'>ESMF_CFIOUtilMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">IdentifyDim</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/identifydim.html#src">IdentifyDim</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function IdentifyDim(dimName, dimUnits)  
+</h2>
+    
+
+    <p><code>IdentifyDim</code> - Identify a cooridate variable</p>
+<p>This function attempts to identify a coordiante variable
+ from the name or units of the variable.  It does so by
+ attempting to match the units specified in the COARDS
+ conventions or by checking the name against commonly used
+ names.</p>
+<p>RETURN VALUES:
+*  0 = X dimension (longitude)
+*  1 = Y dimension (latitude)
+*  2 = Z dimension (level)
+*  3 = Time
+* -1 = Unable to determine dimension</p>
+<h4 id="history">History</h4>
+<ul>
+<li>1998.12.22  Lucchesi       Initial coding.</li>
+<li>1999.11.02  da Silva       Made LATS4D compatible,</li>
+<li>2001.01.02  da Silva       Cimcurventing PGI bugs.</li>
+</ul>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dimname~6"></span>
+              character(len=*)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimName</strong></td>
+            <td>
+                <p>Name of the coordinate variable</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dimunits~6"></span>
+              character(len=*)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimUnits</strong></td>
+            <td>
+                <p>Units of the coordinate variable</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-identifydim"></span>
+          integer
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~identifydim~~CalledByGraph Pages: 1 -->
+<svg id="procidentifydimCalledByGraph" width="641pt" height="218pt"
+ viewBox="0.00 0.00 641.00 217.72" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~identifydim~~CalledByGraph" class="graph" transform="scale(0.68 0.68) rotate(0) translate(4 318)">
+<title>proc~~identifydim~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-318 944,-318 944,4 -4,4"/>
+<!-- proc~identifydim -->
+<g id="proc~~identifydim~~CalledByGraph_node1" class="node">
+<title>proc~identifydim</title>
+<polygon fill="none" stroke="black" points="940,-126 866,-126 866,-102 940,-102 940,-126"/>
+<text text-anchor="middle" x="903" y="-111.6" font-family="Helvetica,sans-Serif" font-size="10.50">IdentifyDim</text>
+</g>
+<!-- proc~cfio_diminquire -->
+<g id="proc~~identifydim~~CalledByGraph_node2" class="node">
+<title>proc~cfio_diminquire</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node2"><a xlink:href="../proc/cfio_diminquire.html" xlink:title="CFIO_DimInquire">
+<polygon fill="#d9534f" stroke="#d9534f" points="809,-188 708,-188 708,-164 809,-164 809,-188"/>
+<text text-anchor="middle" x="758.5" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_DimInquire</text>
+</a>
+</g>
+</g>
+<!-- proc~cfio_diminquire&#45;&gt;proc~identifydim -->
+<g id="proc~~identifydim~~CalledByGraph_edge1" class="edge">
+<title>proc~cfio_diminquire&#45;&gt;proc~identifydim</title>
+<path fill="none" stroke="#ff0000" d="M805.55,-163.94C813.81,-161.31 822.25,-158.31 830,-155 845.48,-148.39 861.85,-139.26 875.06,-131.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="876.97,-134.23 883.65,-126.01 873.3,-128.26 876.97,-134.23"/>
+</g>
+<!-- proc~cfio_sgetvar -->
+<g id="proc~~identifydim~~CalledByGraph_node3" class="node">
+<title>proc~cfio_sgetvar</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node3"><a xlink:href="../proc/cfio_sgetvar.html" xlink:title="CFIO_SGetVar">
+<polygon fill="#d9534f" stroke="#d9534f" points="626,-106 541,-106 541,-82 626,-82 626,-106"/>
+<text text-anchor="middle" x="583.5" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_SGetVar</text>
+</a>
+</g>
+</g>
+<!-- proc~cfio_sgetvar&#45;&gt;proc~identifydim -->
+<g id="proc~~identifydim~~CalledByGraph_edge2" class="edge">
+<title>proc~cfio_sgetvar&#45;&gt;proc~identifydim</title>
+<path fill="none" stroke="#ff0000" d="M626.01,-96.61C685.28,-100.35 793.81,-107.18 855.64,-111.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="855.68,-114.59 865.88,-111.72 856.12,-107.6 855.68,-114.59"/>
+</g>
+<!-- proc~getdatetimevec -->
+<g id="proc~~identifydim~~CalledByGraph_node7" class="node">
+<title>proc~getdatetimevec</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node7"><a xlink:href="../proc/getdatetimevec.html" xlink:title="GetDateTimeVec">
+<polygon fill="#d9534f" stroke="#d9534f" points="809.5,-66 707.5,-66 707.5,-42 809.5,-42 809.5,-66"/>
+<text text-anchor="middle" x="758.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GetDateTimeVec</text>
+</a>
+</g>
+</g>
+<!-- proc~cfio_sgetvar&#45;&gt;proc~getdatetimevec -->
+<g id="proc~~identifydim~~CalledByGraph_edge11" class="edge">
+<title>proc~cfio_sgetvar&#45;&gt;proc~getdatetimevec</title>
+<path fill="none" stroke="#ff00ff" d="M626.38,-84.32C647.73,-79.38 674.07,-73.29 697.53,-67.87"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="698.43,-71.25 707.39,-65.59 696.86,-64.43 698.43,-71.25"/>
+</g>
+<!-- proc~esmf_cfioeosfilecreate -->
+<g id="proc~~identifydim~~CalledByGraph_node4" class="node">
+<title>proc~esmf_cfioeosfilecreate</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node4"><a xlink:href="../proc/esmf_cfioeosfilecreate.html" xlink:title="ESMF_CFIOEosFileCreate">
+<polygon fill="#d9534f" stroke="#d9534f" points="830,-24 687,-24 687,0 830,0 830,-24"/>
+<text text-anchor="middle" x="758.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOEosFileCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfioeosfilecreate&#45;&gt;proc~identifydim -->
+<g id="proc~~identifydim~~CalledByGraph_edge3" class="edge">
+<title>proc~esmf_cfioeosfilecreate&#45;&gt;proc~identifydim</title>
+<path fill="none" stroke="#ff0000" d="M812.15,-24.1C818.4,-26.57 824.51,-29.5 830,-33 854.69,-48.71 875.96,-75.24 888.85,-93.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="885.97,-95.62 894.48,-101.93 891.76,-91.69 885.97,-95.62"/>
+</g>
+<!-- proc~esmf_cfiosdffileopen -->
+<g id="proc~~identifydim~~CalledByGraph_node5" class="node">
+<title>proc~esmf_cfiosdffileopen</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node5"><a xlink:href="../proc/esmf_cfiosdffileopen.html" xlink:title="ESMF_CFIOSdfFileOpen">
+<polygon fill="#d9534f" stroke="#d9534f" points="651,-188 516,-188 516,-164 651,-164 651,-188"/>
+<text text-anchor="middle" x="583.5" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfFileOpen</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~identifydim -->
+<g id="proc~~identifydim~~CalledByGraph_edge4" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~identifydim</title>
+<path fill="none" stroke="#ff0000" d="M615.63,-188.08C663.93,-204.8 758.78,-229.5 830,-197 857.72,-184.35 878.87,-155.18 890.87,-135.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="893.97,-136.65 895.87,-126.23 887.88,-133.2 893.97,-136.65"/>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_diminquire -->
+<g id="proc~~identifydim~~CalledByGraph_edge7" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~cfio_diminquire</title>
+<path fill="none" stroke="#ff0000" d="M651.39,-176C666.68,-176 682.84,-176 697.81,-176"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="697.96,-179.5 707.96,-176 697.96,-172.5 697.96,-179.5"/>
+</g>
+<!-- proc~getbegdatetime -->
+<g id="proc~~identifydim~~CalledByGraph_node6" class="node">
+<title>proc~getbegdatetime</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node6"><a xlink:href="../proc/getbegdatetime.html" xlink:title="GetBegDateTime">
+<polygon fill="#d9534f" stroke="#d9534f" points="810.5,-146 706.5,-146 706.5,-122 810.5,-122 810.5,-146"/>
+<text text-anchor="middle" x="758.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GetBegDateTime</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~getbegdatetime -->
+<g id="proc~~identifydim~~CalledByGraph_edge9" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~getbegdatetime</title>
+<path fill="none" stroke="#0000ff" d="M634.07,-163.96C654.07,-159.11 677.31,-153.47 698.19,-148.4"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="699.03,-151.8 707.92,-146.04 697.37,-145 699.03,-151.8"/>
+</g>
+<!-- proc~getbegdatetime&#45;&gt;proc~identifydim -->
+<g id="proc~~identifydim~~CalledByGraph_edge5" class="edge">
+<title>proc~getbegdatetime&#45;&gt;proc~identifydim</title>
+<path fill="none" stroke="#ff0000" d="M810.54,-126.84C825.2,-124.78 841.09,-122.55 855.46,-120.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="856.19,-123.96 865.61,-119.11 855.22,-117.03 856.19,-123.96"/>
+</g>
+<!-- proc~getdatetimevec&#45;&gt;proc~identifydim -->
+<g id="proc~~identifydim~~CalledByGraph_edge6" class="edge">
+<title>proc~getdatetimevec&#45;&gt;proc~identifydim</title>
+<path fill="none" stroke="#ff0000" d="M794.16,-66.1C805.65,-70.29 818.45,-75.15 830,-80 842.77,-85.36 856.58,-91.73 868.65,-97.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="867.38,-100.78 877.91,-101.97 870.43,-94.48 867.38,-100.78"/>
+</g>
+<!-- proc~cfio_getvar -->
+<g id="proc~~identifydim~~CalledByGraph_node8" class="node">
+<title>proc~cfio_getvar</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node8"><a xlink:href="../proc/cfio_getvar.html" xlink:title="CFIO_GetVar">
+<polygon fill="#d9534f" stroke="#d9534f" points="623,-64 544,-64 544,-40 623,-40 623,-64"/>
+<text text-anchor="middle" x="583.5" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_GetVar</text>
+</a>
+</g>
+</g>
+<!-- proc~cfio_getvar&#45;&gt;proc~getdatetimevec -->
+<g id="proc~~identifydim~~CalledByGraph_edge10" class="edge">
+<title>proc~cfio_getvar&#45;&gt;proc~getdatetimevec</title>
+<path fill="none" stroke="#ff00ff" d="M623.32,-52.45C645.03,-52.7 672.56,-53.02 697.02,-53.3"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="697.26,-56.8 707.3,-53.42 697.34,-49.8 697.26,-56.8"/>
+</g>
+<!-- proc~esmf_cfiofileopen -->
+<g id="proc~~identifydim~~CalledByGraph_node9" class="node">
+<title>proc~esmf_cfiofileopen</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node9"><a xlink:href="../proc/esmf_cfiofileopen.html" xlink:title="ESMF_CFIOFileOpen">
+<polygon fill="#d9534f" stroke="#d9534f" points="480,-188 362,-188 362,-164 480,-164 480,-188"/>
+<text text-anchor="middle" x="421" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOFileOpen</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiofileopen&#45;&gt;proc~esmf_cfiosdffileopen -->
+<g id="proc~~identifydim~~CalledByGraph_edge8" class="edge">
+<title>proc~esmf_cfiofileopen&#45;&gt;proc~esmf_cfiosdffileopen</title>
+<path fill="none" stroke="#00ffff" d="M480.4,-176C488.71,-176 497.36,-176 505.95,-176"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="505.99,-179.5 515.99,-176 505.99,-172.5 505.99,-179.5"/>
+</g>
+<!-- none~find~34 -->
+<g id="proc~~identifydim~~CalledByGraph_node10" class="node">
+<title>none~find~34</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node10"><a xlink:href="../type/cfiocollection.html#boundprocedure-find~34" xlink:title="CFIOCollection%find">
+<polygon fill="#a7506f" stroke="#a7506f" points="323,-293 202,-293 202,-269 323,-269 323,-293"/>
+<text text-anchor="middle" x="262.5" y="-278.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIOCollection%find</text>
+</a>
+</g>
+</g>
+<!-- none~find~34&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~identifydim~~CalledByGraph_edge12" class="edge">
+<title>none~find~34&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#00ffff" d="M306.87,-268.99C313.48,-266.44 320.06,-263.45 326,-260 355.96,-242.58 384.83,-214.56 402.49,-195.73"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="405.15,-198.01 409.34,-188.28 400,-193.27 405.15,-198.01"/>
+</g>
+<!-- proc~mapl_cfioopenwrite -->
+<g id="proc~~identifydim~~CalledByGraph_node11" class="node">
+<title>proc~mapl_cfioopenwrite</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node11"><a xlink:href="../proc/mapl_cfioopenwrite.html" xlink:title="MAPL_CFIOOpenWrite">
+<polygon fill="#d9534f" stroke="#d9534f" points="326,-251 199,-251 199,-227 326,-227 326,-251"/>
+<text text-anchor="middle" x="262.5" y="-236.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOOpenWrite</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioopenwrite&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~identifydim~~CalledByGraph_edge13" class="edge">
+<title>proc~mapl_cfioopenwrite&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#00ffff" d="M301.39,-226.92C309.56,-224.13 318.11,-221.08 326,-218 345.95,-210.21 367.82,-200.51 385.43,-192.4"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="387.15,-195.46 394.75,-188.08 384.2,-189.11 387.15,-195.46"/>
+</g>
+<!-- program~test~10 -->
+<g id="proc~~identifydim~~CalledByGraph_node12" class="node">
+<title>program~test~10</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node12"><a xlink:href="../program/test~10.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289.5,-209 235.5,-209 235.5,-185 289.5,-185 289.5,-209"/>
+<text text-anchor="middle" x="262.5" y="-194.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~10&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~identifydim~~CalledByGraph_edge14" class="edge">
+<title>program~test~10&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#00ffff" d="M289.69,-193.49C306.75,-191.2 329.84,-188.1 351.85,-185.15"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="352.41,-188.6 361.86,-183.8 351.48,-181.66 352.41,-188.6"/>
+</g>
+<!-- program~test~12 -->
+<g id="proc~~identifydim~~CalledByGraph_node13" class="node">
+<title>program~test~12</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node13"><a xlink:href="../program/test~12.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289.5,-167 235.5,-167 235.5,-143 289.5,-143 289.5,-167"/>
+<text text-anchor="middle" x="262.5" y="-152.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~12&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~identifydim~~CalledByGraph_edge15" class="edge">
+<title>program~test~12&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#00ffff" d="M289.69,-158.51C306.75,-160.8 329.84,-163.9 351.85,-166.85"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="351.48,-170.34 361.86,-168.2 352.41,-163.4 351.48,-170.34"/>
+</g>
+<!-- program~test~3 -->
+<g id="proc~~identifydim~~CalledByGraph_node14" class="node">
+<title>program~test~3</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node14"><a xlink:href="../program/test~3.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289.5,-125 235.5,-125 235.5,-101 289.5,-101 289.5,-125"/>
+<text text-anchor="middle" x="262.5" y="-110.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~3&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~identifydim~~CalledByGraph_edge16" class="edge">
+<title>program~test~3&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#00ffff" d="M289.55,-121.13C300.84,-124.82 314.16,-129.38 326,-134 345.95,-141.79 367.82,-151.49 385.43,-159.6"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="384.2,-162.89 394.75,-163.92 387.15,-156.54 384.2,-162.89"/>
+</g>
+<!-- program~test~7 -->
+<g id="proc~~identifydim~~CalledByGraph_node15" class="node">
+<title>program~test~7</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node15"><a xlink:href="../program/test~7.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289.5,-83 235.5,-83 235.5,-59 289.5,-59 289.5,-83"/>
+<text text-anchor="middle" x="262.5" y="-68.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~7&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~identifydim~~CalledByGraph_edge17" class="edge">
+<title>program~test~7&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#00ffff" d="M289.75,-77.25C301.33,-80.64 314.82,-85.5 326,-92 355.96,-109.42 384.83,-137.44 402.49,-156.27"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="400,-158.73 409.34,-163.72 405.15,-153.99 400,-158.73"/>
+</g>
+<!-- proc~mapl_cfiocreatefromfile -->
+<g id="proc~~identifydim~~CalledByGraph_node16" class="node">
+<title>proc~mapl_cfiocreatefromfile</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node16"><a xlink:href="../proc/mapl_cfiocreatefromfile.html" xlink:title="MAPL_CFIOCreateFromFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="157,-314 6,-314 6,-290 157,-290 157,-314"/>
+<text text-anchor="middle" x="81.5" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOCreateFromFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;none~find~34 -->
+<g id="proc~~identifydim~~CalledByGraph_edge18" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;none~find~34</title>
+<path fill="none" stroke="#ff0000" d="M157.12,-293.25C168.57,-291.9 180.37,-290.52 191.71,-289.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.46,-292.62 201.99,-287.98 191.65,-285.67 192.46,-292.62"/>
+</g>
+<!-- proc~mapl_cfioreadbundleread -->
+<g id="proc~~identifydim~~CalledByGraph_node17" class="node">
+<title>proc~mapl_cfioreadbundleread</title>
+<g id="a_proc~~identifydim~~CalledByGraph_node17"><a xlink:href="../proc/mapl_cfioreadbundleread.html" xlink:title="MAPL_CFIOReadBundleRead">
+<polygon fill="#d9534f" stroke="#d9534f" points="163,-272 0,-272 0,-248 163,-248 163,-272"/>
+<text text-anchor="middle" x="81.5" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOReadBundleRead</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadbundleread&#45;&gt;none~find~34 -->
+<g id="proc~~identifydim~~CalledByGraph_edge19" class="edge">
+<title>proc~mapl_cfioreadbundleread&#45;&gt;none~find~34</title>
+<path fill="none" stroke="#ff0000" d="M163.1,-269.46C172.71,-270.58 182.45,-271.73 191.89,-272.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="191.65,-276.33 201.99,-274.02 192.46,-269.38 191.65,-276.33"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocidentifydimCalledByGraph = svgPanZoom('#procidentifydimCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="kt">integer </span><span class="k">function </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="w"> </span><span class="n">dimUnits</span><span class="p">)</span>
+<span class="c">!</span>
+<span class="c">! !USES:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="k">Implicit NONE</span>
+<span class="c">!</span>
+<span class="c">! !INPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w">  </span><span class="c">!! Name of the coordinate variable</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"> </span><span class="c">!! Units of the coordinate variable</span>
+<span class="c">!</span>
+<span class="c">!-------------------------------------------------------------------------</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;degrees_north&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="k">return</span>
+<span class="k">         end if</span>
+
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;hPa&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">            </span><span class="k">return</span>
+<span class="k">        end if</span>
+
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">dimName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;time&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">            </span><span class="k">return</span>
+<span class="k">        end if</span>
+
+
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;degrees_east&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w">            </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="nb">trim</span><span class="p">(</span><span class="n">dimName</span><span class="p">)</span><span class="w">  </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;longitude&quot;</span><span class="w">    </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w">           </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="nb">trim</span><span class="p">(</span><span class="n">dimName</span><span class="p">)</span><span class="w">  </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;lon&quot;</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;degrees_north&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="w">  </span><span class="nb">trim</span><span class="p">(</span><span class="n">dimName</span><span class="p">)</span><span class="w">  </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;latitude&quot;</span><span class="w">    </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                  </span><span class="nb">trim</span><span class="p">(</span><span class="n">dimName</span><span class="p">)</span><span class="w">  </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;lat&quot;</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">INDEX</span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="s2">&quot;lev&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w">              </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="nb">INDEX</span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="s2">&quot;Height&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;mb&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w">                 </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;millibar&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w">           </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;sigma_level&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w">        </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;hPa&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">dimName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;TIME&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w">            </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="nb">trim</span><span class="p">(</span><span class="n">dimName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;TIME:EOSGRID&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="nb">trim</span><span class="p">(</span><span class="n">dimName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;time&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w">             </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="nb">trim</span><span class="p">(</span><span class="n">dimName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;Time&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">          </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">        </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;degrees_east&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">     </span><span class="nb">INDEX</span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="s2">&quot;XDim&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">     </span><span class="nb">INDEX</span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="s2">&quot;lon&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;degrees_north&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">     </span><span class="nb">INDEX</span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="s2">&quot;YDim&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">     </span><span class="nb">INDEX</span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="s2">&quot;lat&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">INDEX</span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="s2">&quot;lev&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">     </span><span class="nb">INDEX</span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="s2">&quot;Height&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;mb&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">     </span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;millibar&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">     </span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;sigma_level&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">     </span><span class="nb">TRIM</span><span class="p">(</span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;hPa&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">INDEX</span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="s2">&quot;TIME&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">     </span><span class="nb">INDEX</span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">     </span><span class="nb">INDEX</span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="s2">&quot;Time&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">          </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">        end function </span><span class="n">IdentifyDim</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-08T16:47:43.778092             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
