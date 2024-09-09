@@ -1,30 +1,25 @@
 #include "MAPL_ErrLog.h"
 
-submodule (mapl3g_LatLonGeomSpec) equal_to_smod
-   use mapl3g_CoordinateAxis
-   use mapl3g_GeomSpec
-   use pfio
-   use MAPL_RangeMod
-   use MAPLBase_Mod
+submodule (mapl3g_CoordinateAxis) equal_to_smod
+   use esmf, only: ESMF_UtilStringLowerCase
    use mapl_ErrorHandling
-   use esmf
-   implicit none (type, external)
-   
+   use gftl2_StringVector
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+
 contains
+   
+   elemental logical module function equal_to(a, b)
+      type(CoordinateAxis), intent(in) :: a, b
 
-   pure logical module function equal_to(a, b)
-      class(LatLonGeomSpec), intent(in) :: a
-      class(GeomSpec), intent(in) :: b
+      ! Do the fast checks first
+      equal_to = size(a%centers) == size(b%centers)
+      if (.not. equal_to) return
+      equal_to = size(a%corners) == size(b%corners)
+      if (.not. equal_to) return
 
-      select type (b)
-      type is (LatLonGeomSpec)
-         equal_to = (a%lon_axis == b%lon_axis) .and. (a%lat_axis == b%lat_axis)
-         if (.not. equal_to) return
-         equal_to = (a%decomposition == b%decomposition)
-      class default
-         equal_to = .false.
-      end select
-
+      equal_to = all(a%centers == b%centers)
+      if (.not. equal_to) return
+      equal_to = all(a%corners == b%corners)
    end function equal_to
 
 end submodule equal_to_smod
