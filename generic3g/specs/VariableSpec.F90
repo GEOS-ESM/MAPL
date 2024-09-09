@@ -69,7 +69,7 @@ contains
         units, substate, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
         service_items, attributes, &
         bracket_size, &
-        dependencies, regrid_param, rc) result(var_spec)
+        dependencies, regrid_param) result(var_spec)
 
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -90,7 +90,6 @@ contains
       integer, optional, intent(in) :: bracket_size
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
-      integer, optional, intent(out) :: rc
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
       integer :: status
@@ -117,7 +116,7 @@ contains
       _SET_OPTIONAL(bracket_size)
       _SET_OPTIONAL(dependencies)
 
-      call var_spec%set_regrid_param_(regrid_param, _RC)
+      call var_spec%set_regrid_param_(regrid_param)
 
       _UNUSED_DUMMY(unusable)
    end function new_VariableSpec
@@ -226,35 +225,32 @@ contains
       _RETURN(_SUCCESS)
    end function make_dependencies
 
-   subroutine set_regrid_param_(this, regrid_param, rc)
+   subroutine set_regrid_param_(this, regrid_param)
       class(VariableSpec), intent(inout) :: this
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
-      integer, optional, intent(out) :: rc
 
       type(ESMF_RegridMethod_Flag) :: regrid_method
       integer :: status
 
       if (present(regrid_param)) then
          this%regrid_param = regrid_param
-         _RETURN(_SUCCESS)
+         return
       end if
 
       ! if (NUOPC_FieldDictionaryHasEntry(this%standard_name, rc=status)) then
       !    call NUOPC_FieldDictionaryGetEntry(this%standard_name, regrid_method, rc=status)
       !    if (status==ESMF_SUCCESS) then
       !       this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
-      !       _RETURN(_SUCCESS)
+      !       return
       !    end if
       ! end if
       regrid_method = get_regrid_method_from_field_dict_(this%standard_name, rc=status)
       if (status==ESMF_SUCCESS) then
          this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
-         _RETURN(_SUCCESS)
+         return
       end if
 
       this%regrid_param = EsmfRegridderParam() ! last resort - use default regrid method
-
-      _RETURN(_SUCCESS)
    end subroutine set_regrid_param_
 
    function get_regrid_method_from_field_dict_(stdname, rc) result(regrid_method)
