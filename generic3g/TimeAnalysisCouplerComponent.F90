@@ -14,20 +14,37 @@ module mapl3g_TimeAnalysisCouplerComponent
       enumerator :: ANALYSIS_UNKNOWN
    end enum
 
+   integer(c_int), parameter :: ANALYSIS_KIND = kind(ANALYSIS_UNKNOWN)
 
-   type :: TimeAnalysisField
+   abstract interface
+      elemental function AccumulateFunction(current, update) result(updated)
+         real, intent(in) :: updated
+         real, intent(in) :: current
+         real, intent(in) :: update
+      end function AccumulateFunction
+      elemental function CoupleFunction(current, counter) result(coupled)
+         real :: coupled
+         real, intent(in) :: current
+         integer, intent(in) :: counter
+      end function CoupleFunction
+   end interface
+
+   type :: TimeAnalysisField(k)
+      integer, kind :: k
       type(VarSpec), pointer :: source
       type(VarSpec), pointer :: destination
       type(ESMF_Alarm), pointer   :: time_to_clear
       type(ESMF_Alarm), pointer   :: time_to_couple
-      type(ESMF_Array), pointer   :: accumulator
-      type(ESMF_Array), allocatable :: count
-      integer(ESMF_I8) :: scalar_count
-      integer :: clear_interval
-      integer :: couple_interval
+      type(ESMF_LocalArray), pointer :: field_data
+      type(ESMF_LocalArray), pointer :: array_count
+      integer(ESMF_I8) :: scalar_count = -1
+      integer(ESMF_I8) :: clear_interval
+      integer(ESMF_I8) :: couple_interval
       integer, allocatable :: shape(:)
-      integer(ANALYSIS_KIND) :: coupler_type
-      procedure(AnalysisFunction), pointer :: func => null()
+      procedure(AccumulateFunction), pointer :: accumulate_ptr
+      procedure(CoupleFunction), pointer :: couple_ptr
+      procedure, pointer :: clear_ptr
+      integer(ANALYSIS_KIND) :: analysis_type
    end type TimeAnalysisField
 
    type :: TimeAnalysisInternal
@@ -38,16 +55,27 @@ module mapl3g_TimeAnalysisCouplerComponent
    end type TimeAnalysisInternal
 
    abstract interface
-      function AnalysisFunction(acc, next) result(update)
-         type(ESMF_Array) :: update
-         type(ESMF_Array), intent(in) :: acc
-         type(ESMF_Array), intent(in) :: next
-      end function AnalysisFunction
-   end interface
+      function Accumulate(
+      subroutine UpdateArrays(acc, array_count, scalar_count, update_func, source_state, rc)
+         type(ESMF_LocalArray), intent(inout) :: acc
+         type(ESMF_LocalArray), intent(inout) :: array_count
+         integer(ESMF_I8), intent(inout) :: scalar_count
+         procedure(), pointer, intent(in) :: update_func
+         type(ESMF_State), intent(in) :: source_state
+         integer, optional, intent(out) :: rc
+      end subroutine UpdateArrays
+   end abstract interface
 
    integer(kind=c_int), parameter :: ANALYSIS_KIND = kind(ANALYSIS_UNKNOWN)
 
 contains
+
+   subroutine accumulate(analysis_field, source_state, rc)
+         type(TimeAnalysisField), intent(inout) :: analysis_field
+         type(ESMF_State), intent(in) :: source_state
+         integer, optional, intent(out) :: rc
+         integer :: status
+   end subroutine accumulate
 
    function accumulate_function(acc, next) result(update)
       type(ESMF_Array) :: update
@@ -83,12 +111,8 @@ contains
       type(ESMF_Array), pointer, intent(in) :: array
    end function get_fortran_ptr_R32
       
-   logical function is_scalar(this)
-      class(MAPL_CplCnt), intent(in) :: this
-
-      is_scalar = this%is_scalar_
-
-   end function is_scalar
+   subroutine get_couple_function(analysis_type, funct, rc)
+   end subroutine get_couple_function
 
    subroutine get_analysis_function(analysis_type, func, rc)
       integer(ANALYSIS_KIND), intent(in) :: analysis_type
@@ -109,5 +133,6 @@ contains
             _FAIL('Unknown analysis function')
       end select
    end subroutine get_analysis_function
+
 
 end module mapl3g_TimeAnalysisCouplerComponent
