@@ -91,17 +91,19 @@ contains
        _UNUSED_DUMMY(src)
     end function can_connect_to
 
-    logical function equal_FixedLevelsVerticalGrid(a, b) result(equal)
+    impure elemental logical function equal_FixedLevelsVerticalGrid(a, b) result(equal)
        type(FixedLevelsVerticalGrid), intent(in) :: a, b
 
        equal = a%standard_name == b%standard_name
        if (.not. equal) return       
        equal = a%units == b%units
        if (.not. equal) return       
+       equal = size(a%levels) == size(b%levels)
+       if (.not. equal) return       
        equal = all(a%levels == b%levels)
     end function equal_FixedLevelsVerticalGrid 
 
-    logical function not_equal_FixedLevelsVerticalGrid(a, b) result(not_equal)
+    impure elemental logical function not_equal_FixedLevelsVerticalGrid(a, b) result(not_equal)
        type(FixedLevelsVerticalGrid), intent(in) :: a, b
 
        not_equal = .not. (a==b)
