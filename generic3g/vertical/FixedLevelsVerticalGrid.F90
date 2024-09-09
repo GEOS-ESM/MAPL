@@ -12,6 +12,8 @@ module mapl3g_FixedLevelsVerticalGrid
    private
 
    public :: FixedLevelsVerticalGrid
+   public :: operator(==)
+   public :: operator(/=)
 
    type, extends(VerticalGrid) :: FixedLevelsVerticalGrid
       private
@@ -27,6 +29,15 @@ module mapl3g_FixedLevelsVerticalGrid
    interface FixedLevelsVerticalGrid
       procedure new_FixedLevelsVerticalGrid_r32
    end interface FixedLevelsVerticalGrid
+
+   interface operator(==)
+      module procedure equal_FixedLevelsVerticalGrid
+   end interface operator(==)
+
+   interface operator(/=)
+      module procedure not_equal_FixedLevelsVerticalGrid
+   end interface operator(/=)
+
 
 contains
 
@@ -79,6 +90,23 @@ contains
        _UNUSED_DUMMY(this)
        _UNUSED_DUMMY(src)
     end function can_connect_to
+
+    logical function equal_FixedLevelsVerticalGrid(a, b) result(equal)
+       type(FixedLevelsVerticalGrid), intent(in) :: a, b
+
+       equal = a%standard_name == b%standard_name
+       if (.not. equal) return       
+       equal = a%units == b%units
+       if (.not. equal) return       
+       equal = all(a%levels == b%levels)
+    end function equal_FixedLevelsVerticalGrid 
+
+    logical function not_equal_FixedLevelsVerticalGrid(a, b) result(not_equal)
+       type(FixedLevelsVerticalGrid), intent(in) :: a, b
+
+       not_equal = .not. (a==b)
+
+    end function not_equal_FixedLevelsVerticalGrid 
 
 end module mapl3g_FixedLevelsVerticalGrid
 

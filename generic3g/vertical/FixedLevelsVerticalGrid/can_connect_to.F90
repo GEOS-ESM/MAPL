@@ -13,7 +13,7 @@ contains
 
       select type(src)
       type is (FixedLevelsVeritcalGrid)
-         can_connect_to =
+         can_connect_to = this == src
       type is (BasicVerticalGrid)
          can_connect_to = (this%get_num_levels() == src%get_num_levels())
       type is (MirrorVerticalGrid)

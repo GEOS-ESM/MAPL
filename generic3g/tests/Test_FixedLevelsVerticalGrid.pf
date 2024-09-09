@@ -13,9 +13,22 @@ contains
 
       real, parameter :: levels(*) = [1.,5.,7.]
 
-      vgrid = FixedLevelsVerticalGrid(standard_name='air_pressure', levels=levels)
+      vgrid = FixedLevelsVerticalGrid(standard_name='air_pressure', units='Pa', levels=levels)
       @assert_that(vgrid%get_num_levels(), is(size(levels)))
 
    end subroutine test_num_levels
+
+   @test
+   subroutine test_equals()
+      type(FixedLevelsVerticalGrid) :: vgrid1, vgrid2
+
+      real, parameter :: levels(*) = [1.,5.,7.]
+
+      vgrid1 = FixedLevelsVerticalGrid(standard_name='air_pressure', units='Pa', levels=levels)
+      vgrid2 = FixedLevelsVerticalGrid(standard_name='air_pressure', units='Pa', levels=levels)
+      @assert_that(vgrid1==vgrid2, is(.true.))
+
+   end subroutine test_equals
+   
    
 end module Test_FixedLevelsVerticalGrid
