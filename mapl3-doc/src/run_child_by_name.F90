@@ -28,6 +28,7 @@ contains
       call child%run(phase_idx=phase_idx, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine run_child_by_name
 
 end submodule run_child_by_name_smod

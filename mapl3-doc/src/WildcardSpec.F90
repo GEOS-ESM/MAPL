@@ -60,9 +60,9 @@ contains
       class(WildcardSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine create
 
    ! No-op
@@ -70,31 +70,20 @@ contains
       class(WildcardSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine destroy
 
 
+   ! No-op
+   ! The contained fields are separately allocated on the export side.
+   ! Wildcard is always an import.
    subroutine allocate(this, rc)
       class(WildcardSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
-!!$      type(ActualPtSpecPtrMapIterator) :: iter
-!!$      class(StateItemSpecPtr), pointer :: spec_ptr
-!!$
-!!$      _FAIL('should not do anything?')
-!!$      associate (e => this%matched_specs%end())
-!!$        iter = this%matched_specs%begin()
-!!$        do while (iter /= e)
-!!$           spec_ptr => iter%second()
-!!$           call spec_ptr%ptr%allocate(_RC)
-!!$           iter = next(iter)
-!!$        end do
-!!$      end associate
-   
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine allocate
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
@@ -103,9 +92,8 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
-      call with_target_attribute(this, src_spec, actual_pt, rc)
+      integer :: status 
+      call with_target_attribute(this, src_spec, actual_pt, _RC)
 
       _RETURN(_SUCCESS)
    contains

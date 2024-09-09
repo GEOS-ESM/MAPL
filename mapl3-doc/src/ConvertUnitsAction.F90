@@ -94,7 +94,7 @@ contains
       end if
 
       _FAIL('unsupported typekind')
-
+      _UNUSED_DUMMY(clock)
    end subroutine run
    
 end module mapl3g_ConvertUnitsAction

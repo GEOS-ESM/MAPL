@@ -95,7 +95,7 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(ESMF_HConfig) :: aliases_node, alias_node
+         type(ESMF_HConfig) :: aliases_node
          character(:), allocatable :: long_name, units, temp_string
          type(StringVector) :: aliases
          type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd

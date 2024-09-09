@@ -11,9 +11,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
 
-      _SET_NAMED_PRIVATE_STATE(gridcomp, OuterMetaComponent, OUTER_META_PRIVATE_STATE, outer_meta)
+      _SET_NAMED_PRIVATE_STATE(gridcomp, OuterMetaComponent, OUTER_META_PRIVATE_STATE)
 
       _RETURN(_SUCCESS)
    end subroutine attach_outer_meta

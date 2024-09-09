@@ -118,8 +118,6 @@ contains
       integer, intent(out)        :: iostat
       character(*), intent(inout) :: iomsg
 
-      integer :: status
-
 #ifndef __GFORTRAN__
       write(unit,*, iostat=iostat, iomsg=iomsg) 'IMPORT:', this%importState
       write(unit,*, iostat=iostat, iomsg=iomsg) 'EXPORT:', this%exportState

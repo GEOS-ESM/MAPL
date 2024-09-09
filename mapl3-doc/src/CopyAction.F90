@@ -56,11 +56,13 @@ contains
       type(ESMF_Clock)      :: clock      
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       ! No-op
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine initialize
 
    subroutine run(this, importState, exportState, clock, rc)

@@ -126,6 +126,7 @@ contains
       write(unit,*,iostat=iostat, iomsg=iomsg) "userRoutine: <procedure>"
       _UNUSED_DUMMY(iotype)
       _UNUSED_DUMMY(v_list)
+      _UNUSED_DUMMY(this)
    end subroutine write_formatted_proc
 
    !----------------------------------

@@ -37,6 +37,7 @@ contains
       end if
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine run_clock_advance
 
 end submodule run_clock_advance_smod

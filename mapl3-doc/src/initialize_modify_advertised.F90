@@ -16,7 +16,6 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_MODIFY_ADVERTISED'
-      type(MultiState) :: outer_states, user_states
 
       call apply_to_children(this, set_child_geom, _RC)
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
@@ -27,14 +26,15 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    contains
 
       subroutine set_child_geom(this, child_meta, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          type(OuterMetaComponent), target, intent(inout) ::  child_meta
          integer, optional, intent(out) :: rc
-         
-         integer :: status
          
          associate(kind => child_meta%component_spec%geometry_spec%kind)
            _RETURN_IF(kind /= GEOMETRY_FROM_PARENT)

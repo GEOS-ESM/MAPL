@@ -24,6 +24,7 @@ contains
       end associate
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine run_children_
 
 end submodule run_children_smod

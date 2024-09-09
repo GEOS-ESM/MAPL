@@ -49,6 +49,7 @@ contains
       integer, optional, intent(out) :: rc
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine create
 
 
@@ -60,7 +61,7 @@ contains
 
       _FAIL('Attempt to use invalid spec')
 
-      _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine destroy
 
 
@@ -72,7 +73,7 @@ contains
 
       _FAIL('Attempt to use invalid spec')
 
-      _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine allocate
 
 
@@ -86,7 +87,9 @@ contains
 
       _FAIL('Attempt to use invalid spec')
 
-      _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_spec)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to
 
 
@@ -95,9 +98,9 @@ contains
       class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
 
-      can_connect_to = .false.
-      _RETURN(_SUCCESS)
-
+      _FAIL('Attempt to use invalid spec')
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_spec)
    end function can_connect_to
 
 
@@ -106,7 +109,8 @@ contains
       class(StateItemSpec), intent(in) :: src_spec
 
       requires_extension = .false.
-
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_spec)
    end function requires_extension
 
 
@@ -118,7 +122,9 @@ contains
 
       _FAIL('Attempt to use invalid spec')
 
-      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(multi_state)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine add_to_state
 
    subroutine add_to_bundle(this, bundle, rc)
@@ -128,7 +134,8 @@ contains
 
       _FAIL('Attempt to use item of type InvalidSpec')
 
-      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
 
    subroutine make_extension(this, dst_spec, new_spec, action, rc)
@@ -144,6 +151,8 @@ contains
       new_spec = this
 
       _FAIL('attempt to use item of type InvalidSpec')
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(dst_spec)
    end subroutine make_extension
 
    integer function extension_cost(this, src_spec, rc) result(cost)
@@ -151,8 +160,10 @@ contains
       class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
+      cost = -1
       _FAIL('Attempt to use item of type InvalidSpec')
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_spec)
 
    end function extension_cost
 
@@ -162,10 +173,10 @@ contains
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _FAIL('Attempt to initialize item of type InvalidSpec')
-
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(geom)
+      _UNUSED_DUMMY(vertical_grid)
    end subroutine set_geometry
 
 end module mapl3g_InvalidSpec
