@@ -33,7 +33,6 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      type(CapGridComp), pointer :: cap
       character(:), allocatable :: extdata, history
       type(OuterMetaComponent), pointer :: outer_meta
 
@@ -42,7 +41,7 @@ contains
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       ! Attach private state
-      _SET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
+      _SET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE)
 
       ! Disable extdata or history
       call MAPL_ResourceGet(gridcomp, keystring='run_extdata', value=cap%run_extdata, default=.true., _RC)

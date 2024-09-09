@@ -35,7 +35,6 @@ contains
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
-      type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       type(ESMF_HConfig) :: hconfig
       character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
       integer :: status
@@ -49,7 +48,7 @@ contains
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       ! Attach private state
-      _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
+      _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE)
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp,_RC)
       vertical_grid = BasicVerticalGrid(4)
