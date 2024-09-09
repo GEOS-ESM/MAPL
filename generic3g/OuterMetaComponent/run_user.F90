@@ -14,8 +14,7 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC
-      integer :: phase_idx
+      integer :: status
       type(StringVector), pointer :: run_phases
       logical :: found
       integer :: phase
@@ -45,6 +44,7 @@ contains
       end do
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine run_user
 
 end submodule run_user_smod

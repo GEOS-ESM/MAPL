@@ -64,14 +64,11 @@ contains
          type(VariableSpecVectorIterator) :: iter
          type(VariableSpec), pointer :: var_spec
 
-!#         if (this%component_spec%var_specs%size() > 0) then
-!#            _ASSERT(allocated(this%geom),'Component must define a geom to advertise variables.')
-!#         end if
          associate (e => this%component_spec%var_specs%end())
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
               var_spec => iter%of()
-              call advertise_variable (var_spec, this%registry, this%geom, this%vertical_grid,  _RC)
+              call advertise_variable (var_spec, this%registry,  _RC)
               call iter%next()
            end do
          end associate
@@ -81,11 +78,9 @@ contains
       end subroutine self_advertise
 
 
-      subroutine advertise_variable(var_spec, registry, geom, vertical_grid, unusable, rc)
+      subroutine advertise_variable(var_spec, registry, unusable, rc)
          type(VariableSpec), intent(in) :: var_spec
          type(StateRegistry), target, intent(inout) :: registry
-         type(ESMF_Geom), optional, intent(in) :: geom
-         class(VerticalGrid), optional, intent(in) :: vertical_grid
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
@@ -99,7 +94,6 @@ contains
          allocate(item_spec, source=make_ItemSpec(var_spec, registry, rc=status))
          _VERIFY(status)
          call item_spec%create(_RC)
-!#         call item_spec%initialize(geom, vertical_grid, _RC)
 
          virtual_pt = var_spec%make_virtualPt()
          call registry%add_primary_spec(virtual_pt, item_spec)

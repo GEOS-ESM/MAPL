@@ -36,6 +36,10 @@ contains
       type(ESMF_Clock)      :: clock      
       integer, optional, intent(out) :: rc
       _FAIL('This procedure should not be called.')
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine initialize
 
    subroutine run(this, importState, exportState, clock, rc)
@@ -46,6 +50,10 @@ contains
       type(ESMF_Clock)      :: clock      
       integer, optional, intent(out) :: rc
       _FAIL('This procedure should not be called.')
-   end subroutine run
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
+  end subroutine run
 
 end module mapl3g_NullAction
