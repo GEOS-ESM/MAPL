@@ -1,0 +1,694 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>put_DataToFile &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>put_DataToFile
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">60 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/BaseServer.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/baseserver.f90.html'>BaseServer.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_baseservermod.html'>pFIO_BaseServerMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">put_DataToFile</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/put_datatofile~6.html#src">put_DataToFile</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine put_DataToFile(this, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/baseserver.html'>BaseServer</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~4732"></span>
+              class(<a href='../type/baseserver.html'>BaseServer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1931"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~put_datatofile~6~~CallsGraph Pages: 1 -->
+<svg id="procput_datatofile6CallsGraph" width="413pt" height="704pt"
+ viewBox="0.00 0.00 413.00 704.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~put_datatofile~6~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 700)">
+<title>proc~~put_datatofile~6~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-700 409,-700 409,4 -4,4"/>
+<!-- proc~put_datatofile~6 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node1" class="node">
+<title>proc~put_datatofile~6</title>
+<polygon fill="none" stroke="black" points="161,-360 0,-360 0,-336 161,-336 161,-360"/>
+<text text-anchor="middle" x="80.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50">BaseServer%put_DataToFile</text>
+</g>
+<!-- find -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node2" class="node">
+<title>find</title>
+<polygon fill="#777777" stroke="#777777" points="328,-696 274,-696 274,-672 328,-672 328,-696"/>
+<text text-anchor="middle" x="301" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find</text>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;find -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge1" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;find</title>
+<path fill="none" stroke="#ff0000" d="M81.96,-360.3C84.44,-407.65 100.06,-579.64 197,-663 215.19,-678.65 241.87,-683.76 263.51,-685.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.56,-688.54 273.68,-685.38 263.8,-681.54 263.56,-688.54"/>
+</g>
+<!-- insert -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node3" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="328,-654 274,-654 274,-630 328,-630 328,-654"/>
+<text text-anchor="middle" x="301" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;insert -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge2" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M82.71,-360.15C87.68,-403.29 110.58,-550.27 197,-621 215.57,-636.2 242.24,-641.32 263.78,-642.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.76,-646.22 273.89,-643.13 264.04,-639.22 263.76,-646.22"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node4" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node4"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="340.5,-612 261.5,-612 261.5,-588 340.5,-588 340.5,-612"/>
+<text text-anchor="middle" x="301" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;interface~mapl_assert -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge3" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M83.71,-360.17C91.44,-398.99 121.03,-520.75 197,-579 212.4,-590.81 232.77,-596.43 251.33,-598.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="251.09,-602.46 261.41,-600.08 251.85,-595.5 251.09,-602.46"/>
+</g>
+<!-- none~at~167 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node5" class="node">
+<title>none~at~167</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node5"><a xlink:href="../type/serverthreadvector.html#boundprocedure-at~167" xlink:title="ServerThreadVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="370.5,-570 231.5,-570 231.5,-546 370.5,-546 370.5,-570"/>
+<text text-anchor="middle" x="301" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;none~at~167 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge4" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;none~at~167</title>
+<path fill="none" stroke="#ff0000" d="M85.1,-360.11C95.86,-394.08 131.2,-490.85 197,-537 204.46,-542.23 212.93,-546.22 221.73,-549.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="220.79,-552.63 231.38,-552.19 222.83,-545.93 220.79,-552.63"/>
+</g>
+<!-- none~start~81 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node6" class="node">
+<title>none~start~81</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node6"><a xlink:href="../type/distributedprofiler.html#boundprocedure-start~81" xlink:title="DistributedProfiler%start">
+<polygon fill="#a7506f" stroke="#a7506f" points="372,-528 230,-528 230,-504 372,-504 372,-528"/>
+<text text-anchor="middle" x="301" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DistributedProfiler%start</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;none~start~81 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge5" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;none~start~81</title>
+<path fill="none" stroke="#ff0000" d="M87.3,-360.27C101.55,-388.95 141.21,-460.57 197,-495 204.14,-499.41 212.05,-502.91 220.2,-505.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="219.28,-509.07 229.87,-508.63 221.32,-502.37 219.28,-509.07"/>
+</g>
+<!-- of -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node7" class="node">
+<title>of</title>
+<polygon fill="#777777" stroke="#777777" points="328,-486 274,-486 274,-462 328,-462 328,-486"/>
+<text text-anchor="middle" x="301" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">of</text>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;of -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge6" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;of</title>
+<path fill="none" stroke="#ff0000" d="M91.13,-360.34C109.27,-382.66 150.84,-429.58 197,-453 217.65,-463.48 243.13,-468.73 263.59,-471.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.44,-474.86 273.77,-472.51 264.23,-467.91 263.44,-474.86"/>
+</g>
+<!-- proc~clear_backlog -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node8" class="node">
+<title>proc~clear_backlog</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node8"><a xlink:href="../proc/clear_backlog.html" xlink:title="ServerThread%clear_backlog">
+<polygon fill="#d9534f" stroke="#d9534f" points="385.5,-444 216.5,-444 216.5,-420 385.5,-420 385.5,-444"/>
+<text text-anchor="middle" x="301" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread%clear_backlog</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~clear_backlog -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge7" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~clear_backlog</title>
+<path fill="none" stroke="#ff0000" d="M99.5,-360.04C121.56,-374.27 160.53,-397.68 197,-411 203.45,-413.36 210.23,-415.47 217.1,-417.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="216.65,-420.87 227.21,-420 218.41,-414.09 216.65,-420.87"/>
+</g>
+<!-- proc~clear_hist_collections -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node9" class="node">
+<title>proc~clear_hist_collections</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node9"><a xlink:href="../proc/clear_hist_collections.html" xlink:title="ServerThread%clear_hist_collections">
+<polygon fill="#d9534f" stroke="#d9534f" points="405,-402 197,-402 197,-378 405,-378 405,-402"/>
+<text text-anchor="middle" x="301" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread%clear_hist_collections</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~clear_hist_collections -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge8" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~clear_hist_collections</title>
+<path fill="none" stroke="#ff0000" d="M144.11,-360.04C170.06,-365.02 200.32,-370.84 227.24,-376.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="226.9,-379.51 237.38,-377.96 228.22,-372.64 226.9,-379.51"/>
+</g>
+<!-- proc~clear_subarray -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node10" class="node">
+<title>proc~clear_subarray</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node10"><a xlink:href="../proc/clear_subarray.html" xlink:title="ServerThread%clear_subarray">
+<polygon fill="#d9534f" stroke="#d9534f" points="388.5,-360 213.5,-360 213.5,-336 388.5,-336 388.5,-360"/>
+<text text-anchor="middle" x="301" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread%clear_subarray</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~clear_subarray -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge9" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~clear_subarray</title>
+<path fill="none" stroke="#ff0000" d="M161,-348C174.65,-348 188.97,-348 203.01,-348"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="203.18,-351.5 213.18,-348 203.18,-344.5 203.18,-351.5"/>
+</g>
+<!-- proc~get_datareference -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node11" class="node">
+<title>proc~get_datareference</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node11"><a xlink:href="../proc/get_datareference.html" xlink:title="AbstractServer%get_DataReference">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="403,-318 199,-318 199,-294 403,-294 403,-318"/>
+<text text-anchor="middle" x="301" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer%get_DataReference</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~get_datareference -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge10" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~get_datareference</title>
+<path fill="none" stroke="#ff0000" d="M144.11,-335.96C170.06,-330.98 200.32,-325.16 227.24,-319.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="228.22,-323.36 237.38,-318.04 226.9,-316.49 228.22,-323.36"/>
+</g>
+<!-- proc~i_to_string -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node12" class="node">
+<title>proc~i_to_string</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node12"><a xlink:href="../proc/i_to_string.html" xlink:title="i_to_string">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="334.5,-276 267.5,-276 267.5,-252 334.5,-252 334.5,-276"/>
+<text text-anchor="middle" x="301" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">i_to_string</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~i_to_string -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge11" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~i_to_string</title>
+<path fill="none" stroke="#ff0000" d="M99.5,-335.96C121.56,-321.73 160.53,-298.32 197,-285 216.24,-277.97 238.4,-273.07 257.23,-269.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="258.01,-273.2 267.31,-268.12 256.87,-266.29 258.01,-273.2"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node13" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node13"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="342,-234 260,-234 260,-210 342,-210 342,-234"/>
+<text text-anchor="middle" x="301" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~mapl_return -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge12" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M91.13,-335.66C109.27,-313.34 150.84,-266.42 197,-243 213.19,-234.79 232.35,-229.79 249.73,-226.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="250.39,-230.18 259.72,-225.16 249.29,-223.27 250.39,-230.18"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node14" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node14"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="339,-192 263,-192 263,-168 339,-168 339,-192"/>
+<text text-anchor="middle" x="301" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~mapl_verify -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge13" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M87.3,-335.73C101.55,-307.05 141.21,-235.43 197,-201 213.64,-190.73 234.4,-185.38 252.91,-182.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="253.44,-186.09 262.92,-181.35 252.56,-179.14 253.44,-186.09"/>
+</g>
+<!-- proc~put_datatofile~4 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node15" class="node">
+<title>proc~put_datatofile~4</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node15"><a xlink:href="../proc/put_datatofile~4.html" xlink:title="ServerThread%put_DataToFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="387,-150 215,-150 215,-126 387,-126 387,-150"/>
+<text text-anchor="middle" x="301" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread%put_DataToFile</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~put_datatofile~4 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge14" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~put_datatofile~4</title>
+<path fill="none" stroke="#ff0000" d="M85.1,-335.89C95.86,-301.92 131.2,-205.15 197,-159 199.76,-157.06 202.67,-155.29 205.67,-153.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="207.42,-156.73 214.97,-149.3 204.43,-150.4 207.42,-156.73"/>
+</g>
+<!-- proc~v_begin~12 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node16" class="node">
+<title>proc~v_begin~12</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node16"><a xlink:href="../proc/v_begin~12.html" xlink:title="MessageVector%v_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="373,-108 229,-108 229,-84 373,-84 373,-108"/>
+<text text-anchor="middle" x="301" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVector%v_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~v_begin~12 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge15" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~v_begin~12</title>
+<path fill="none" stroke="#ff0000" d="M83.71,-335.83C91.44,-297.01 121.03,-175.25 197,-117 203.66,-111.89 211.26,-107.94 219.23,-104.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="220.36,-108.21 228.73,-101.73 218.14,-101.57 220.36,-108.21"/>
+</g>
+<!-- proc~v_iter_get~12 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node17" class="node">
+<title>proc~v_iter_get~12</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node17"><a xlink:href="../proc/v_iter_get~12.html" xlink:title="MessageVectorIterator%v_iter_get">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="398,-66 204,-66 204,-42 398,-42 398,-66"/>
+<text text-anchor="middle" x="301" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVectorIterator%v_iter_get</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~v_iter_get~12 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge16" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~v_iter_get~12</title>
+<path fill="none" stroke="#ff0000" d="M82.71,-335.85C87.68,-292.71 110.58,-145.73 197,-75 198.59,-73.7 200.24,-72.47 201.94,-71.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="203.97,-74.18 210.82,-66.1 200.42,-68.15 203.97,-74.18"/>
+</g>
+<!-- proc~v_iter_next~12 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node18" class="node">
+<title>proc~v_iter_next~12</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node18"><a xlink:href="../proc/v_iter_next~12.html" xlink:title="MessageVectorIterator%v_iter_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="400.5,-24 201.5,-24 201.5,0 400.5,0 400.5,-24"/>
+<text text-anchor="middle" x="301" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVectorIterator%v_iter_next</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~v_iter_next~12 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge17" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~v_iter_next~12</title>
+<path fill="none" stroke="#ff0000" d="M81.96,-335.7C84.44,-288.35 100.06,-116.36 197,-33 198.38,-31.81 199.81,-30.69 201.28,-29.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="203.49,-32.37 210.13,-24.11 199.79,-26.42 203.49,-32.37"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">put_DataToFile</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">BaseServer</span><span class="p">),</span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">n</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ServerThread</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">threadPtr</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMessage</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">msg</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MessageVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringInteger64MapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">request_iter</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i_ptr</span><span class="p">(:)</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="kt">c_ptr</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">offset_address</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">collection_counter</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractDataReference</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dataRefPtr</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">RDMAReference</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">remotePtr</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">MPI_ADDRESS_KIND</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">msize</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_clients</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<span class="w">     </span><span class="c">!real(KIND=REAL64) :: t0, t1</span>
+
+<span class="w">     </span><span class="c">!t0 = 0.0d0</span>
+<span class="w">     </span><span class="c">!t1 = -1.0d0</span>
+<span class="w">     </span><span class="n">num_clients</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">num_clients</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">     </span><span class="k">endif</span>
+
+<span class="k">     if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">ioserver_profiler</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">ioserver_profiler</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s2">&quot;write_data&quot;</span><span class="p">)</span>
+
+<span class="w">     </span><span class="n">threadPtr</span><span class="o">=&gt;</span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">     </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">request_backlog</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">     </span><span class="c">! t0 = mpi_wtime()</span>
+<span class="w">     </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">request_backlog</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">        </span><span class="n">msg</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">        </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">q</span><span class="o">=&gt;</span><span class="n">msg</span><span class="p">)</span>
+<span class="w">        </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">CollectiveStageDataMessage</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">ioserver_profiler</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">ioserver_profiler</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s2">&quot;collection_&quot;</span><span class="o">//</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">collection_id</span><span class="p">))</span>
+<span class="w">           </span><span class="n">collection_counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">stage_offset</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">collection_id</span><span class="p">))</span>
+<span class="w">           </span><span class="n">dataRefPtr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_dataReference</span><span class="p">(</span><span class="n">collection_counter</span><span class="p">)</span>
+<span class="w">           </span><span class="n">msize</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">stage_offset</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">MSIZE_ID</span><span class="o">+</span><span class="n">collection_counter</span><span class="p">))</span>
+<span class="w">           </span><span class="k">call </span><span class="nb">c_f_pointer</span><span class="p">(</span><span class="n">dataRefPtr</span><span class="p">%</span><span class="n">base_address</span><span class="p">,</span><span class="n">i_ptr</span><span class="p">,</span><span class="nb">shape</span><span class="o">=</span><span class="p">[</span><span class="n">msize</span><span class="p">])</span>
+
+<span class="w">           </span><span class="k">select type</span><span class="p">(</span><span class="n">dataRefPtr</span><span class="p">)</span>
+<span class="w">           </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">RDMAReference</span><span class="p">)</span>
+<span class="w">              </span><span class="n">remotePtr</span><span class="o">=&gt;</span><span class="n">dataRefPtr</span>
+<span class="w">           </span><span class="k">class </span><span class="n">default</span>
+<span class="w">              </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;remote is a must&quot;</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end select</span>
+
+<span class="k">           </span><span class="n">request_iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">stage_offset</span><span class="p">%</span><span class="n">find</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">request_id</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;done&#39;</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">request_iter</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">stage_offset</span><span class="p">%</span><span class="k">end</span><span class="p">()</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">remotePtr</span><span class="p">%</span><span class="n">mem_rank</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! not read yet</span>
+<span class="w">             </span><span class="c">!print*, this%rank , &quot; is wrinting this collection &quot;, collection_counter</span>
+<span class="w">             </span><span class="c">! (1) get address where data should put</span>
+<span class="w">              </span><span class="n">offset</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">stage_offset</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">request_id</span><span class="p">))</span>
+<span class="w">              </span><span class="n">offset_address</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nb">c_loc</span><span class="p">(</span><span class="n">i_ptr</span><span class="p">(</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">             </span><span class="c">! (2) write data</span>
+<span class="w">              </span><span class="k">call </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">put_DataToFile</span><span class="p">(</span><span class="n">q</span><span class="p">,</span><span class="n">offset_address</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">             </span><span class="c">! (3) leave a mark, it has been written</span>
+<span class="w">              </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">stage_offset</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">request_id</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;done&#39;</span><span class="p">,</span><span class="mi">0_MPI_ADDRESS_KIND</span><span class="p">)</span>
+<span class="w">              </span><span class="c">!t1 = mpi_wtime()</span>
+<span class="w">           </span><span class="k">endif</span><span class="w"> </span><span class="c">! rank = mem_rank</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">ioserver_profiler</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">ioserver_profiler</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s2">&quot;collection_&quot;</span><span class="o">//</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">collection_id</span><span class="p">))</span>
+<span class="w">        </span><span class="k">end select</span>
+<span class="k">        call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">     </span><span class="k">enddo</span><span class="w"> </span><span class="c">! do backlog loop</span>
+
+<span class="w">     </span><span class="k">do </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">num_clients</span>
+<span class="w">        </span><span class="n">threadPtr</span><span class="o">=&gt;</span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">clear_backlog</span><span class="p">()</span>
+<span class="w">        </span><span class="k">call </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">clear_hist_collections</span><span class="p">()</span>
+<span class="w">        </span><span class="k">call </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">clear_subarray</span><span class="p">()</span>
+<span class="w">     </span><span class="k">enddo</span><span class="w"> </span><span class="c">! threads</span>
+<span class="w">     </span><span class="c">!if( t1-t0 &gt; 0) then</span>
+<span class="w">     </span><span class="c">!   print*, &quot;this rank&quot;,this%rank,&quot;spending &quot;, t1-t0, &quot; seconds writing&quot;</span>
+<span class="w">     </span><span class="c">!endif</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">ioserver_profiler</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">ioserver_profiler</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s2">&quot;write_data&quot;</span><span class="p">)</span>
+<span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">put_DataToFile</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-10T16:27:32.105255             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

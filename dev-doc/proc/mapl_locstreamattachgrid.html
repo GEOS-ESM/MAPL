@@ -1,0 +1,1131 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_LocStreamAttachGrid &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_LocStreamAttachGrid
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">41 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_LocStreamMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_locstreammod.f90.html'>MAPL_LocStreamMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_locstreammod.html'>MAPL_LocStreamMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_LocStreamAttachGrid</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_locstreamattachgrid.html#src">MAPL_LocStreamAttachGrid</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_LocStreamAttachGrid(LocStream, Grid, ISMINE, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-locstream~5"></span>
+              type(<a href='../type/mapl_locstream.html'>MAPL_LocStream</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>LocStream</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid~14"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Grid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ismine~2"></span>
+              logical,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>ISMINE</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~351"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_locstreamattachgrid~~CallsGraph Pages: 1 -->
+<svg id="procmapl_locstreamattachgridCallsGraph" width="641pt" height="321pt"
+ viewBox="0.00 0.00 641.00 320.79" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph" class="graph" transform="scale(0.58 0.58) rotate(0) translate(4 544.49)">
+<title>proc~~mapl_locstreamattachgrid~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-544.49 1092,-544.49 1092,4 -4,4"/>
+<!-- proc~mapl_locstreamattachgrid -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node1" class="node">
+<title>proc~mapl_locstreamattachgrid</title>
+<polygon fill="none" stroke="black" points="160,-353.49 0,-353.49 0,-329.49 160,-329.49 160,-353.49"/>
+<text text-anchor="middle" x="80" y="-339.09" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_LocStreamAttachGrid</text>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node2" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="628,-317.49 540,-317.49 540,-293.49 628,-293.49 628,-317.49"/>
+<text text-anchor="middle" x="584" y="-303.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamattachgrid&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_locstreamattachgrid&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#ff0000" d="M160.27,-335.81C263.52,-328.4 441.25,-315.66 529.73,-309.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="530.09,-312.8 539.81,-308.59 529.59,-305.81 530.09,-312.8"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node3" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node3"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="623.5,-477.49 544.5,-477.49 544.5,-453.49 623.5,-453.49 623.5,-477.49"/>
+<text text-anchor="middle" x="584" y="-463.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamattachgrid&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_locstreamattachgrid&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M102.49,-353.68C125.19,-366.18 162.29,-385.57 196,-398.49 267.09,-425.74 286.14,-430.63 361,-444.49 419.98,-455.41 488.88,-460.81 534.09,-463.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="534.04,-466.87 544.21,-463.91 534.41,-459.88 534.04,-466.87"/>
+</g>
+<!-- interface~mapl_grid_interior -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node4" class="node">
+<title>interface~mapl_grid_interior</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node4"><a xlink:href="../interface/mapl_grid_interior.html" xlink:title="MAPL_GRID_INTERIOR">
+<polygon fill="#a7506f" stroke="#a7506f" points="325,-190.49 196,-190.49 196,-166.49 325,-166.49 325,-190.49"/>
+<text text-anchor="middle" x="260.5" y="-176.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GRID_INTERIOR</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamattachgrid&#45;&gt;interface~mapl_grid_interior -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_locstreamattachgrid&#45;&gt;interface~mapl_grid_interior</title>
+<path fill="none" stroke="#ff0000" d="M94.42,-329.24C125.17,-301.16 200.96,-231.95 238.18,-197.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="240.9,-200.21 245.93,-190.89 236.18,-195.05 240.9,-200.21"/>
+</g>
+<!-- proc~gridindex -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node5" class="node">
+<title>proc~gridindex</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node5"><a xlink:href="../proc/gridindex.html" xlink:title="GRIDINDEX">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="462,-435.49 389,-435.49 389,-411.49 462,-411.49 462,-435.49"/>
+<text text-anchor="middle" x="425.5" y="-421.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GRIDINDEX</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamattachgrid&#45;&gt;proc~gridindex -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_locstreamattachgrid&#45;&gt;proc~gridindex</title>
+<path fill="none" stroke="#ff0000" d="M131.32,-353.5C198,-369.42 314.69,-397.28 378.91,-412.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="378.21,-416.04 388.75,-414.96 379.84,-409.23 378.21,-416.04"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node6" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node6"><a xlink:href="../proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="304.5,-277.49 216.5,-277.49 216.5,-253.49 304.5,-253.49 304.5,-277.49"/>
+<text text-anchor="middle" x="260.5" y="-263.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamattachgrid&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_locstreamattachgrid&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M109.28,-329.45C139.62,-316.54 187.94,-295.96 221.56,-281.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="223.22,-284.74 231.05,-277.6 220.48,-278.3 223.22,-284.74"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="625,-519.49 543,-519.49 543,-495.49 625,-495.49 625,-519.49"/>
+<text text-anchor="middle" x="584" y="-505.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamattachgrid&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_locstreamattachgrid&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M92.49,-353.56C111.89,-373.15 153.21,-411.68 196,-431.49 308.9,-483.77 456.5,-500.12 532.66,-505.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="532.72,-508.72 542.92,-505.86 533.16,-501.74 532.72,-508.72"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="790,-110.49 714,-110.49 714,-86.49 790,-86.49 790,-110.49"/>
+<text text-anchor="middle" x="752" y="-96.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamattachgrid&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_locstreamattachgrid&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M85.87,-329.17C107.73,-275.89 202.73,-65.17 361,-2.49 374,2.66 635.02,-1.85 642,-4.49 681.37,-19.42 716.13,-55.41 735.29,-78.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="732.82,-80.79 741.85,-86.33 738.25,-76.36 732.82,-80.79"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node12" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node12"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="819,-435.49 685,-435.49 685,-411.49 819,-411.49 819,-435.49"/>
+<text text-anchor="middle" x="752" y="-421.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M623.5,-455.75C644.37,-450.47 670.56,-443.84 693.77,-437.97"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="694.68,-441.35 703.51,-435.51 692.96,-434.57 694.68,-441.35"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node13" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node13"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="826,-477.49 678,-477.49 678,-453.49 826,-453.49 826,-477.49"/>
+<text text-anchor="middle" x="752" y="-463.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M623.5,-465.49C636.78,-465.49 652.21,-465.49 667.66,-465.49"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="667.8,-468.99 677.8,-465.49 667.8,-461.99 667.8,-468.99"/>
+</g>
+<!-- proc~mapl_grid_interior -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node16" class="node">
+<title>proc~mapl_grid_interior</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node16"><a xlink:href="../proc/mapl_grid_interior.html" xlink:title="MAPL_GRID_INTERIOR">
+<polygon fill="#d9534f" stroke="#d9534f" points="490,-145.49 361,-145.49 361,-121.49 490,-121.49 490,-145.49"/>
+<text text-anchor="middle" x="425.5" y="-131.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GRID_INTERIOR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_grid_interior&#45;&gt;proc~mapl_grid_interior -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_grid_interior&#45;&gt;proc~mapl_grid_interior</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M305.18,-166.43C325.45,-160.84 349.73,-154.13 371.08,-148.24"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="372.27,-151.54 380.98,-145.51 370.41,-144.79 372.27,-151.54"/>
+</g>
+<!-- proc~gridindex&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge11" class="edge">
+<title>proc~gridindex&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#00ff91" d="M462.16,-415.09C471.64,-411.97 481.57,-407.85 490,-402.49 509.64,-390.02 509.92,-381.3 526,-364.49 538.64,-351.28 552.94,-336.48 564.05,-325.01"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="566.73,-327.28 571.18,-317.66 561.7,-322.41 566.73,-327.28"/>
+</g>
+<!-- proc~gridindex&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge12" class="edge">
+<title>proc~gridindex&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff91" d="M462.01,-433.02C483.48,-438.78 511.13,-446.2 534.58,-452.5"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="533.77,-455.91 544.34,-455.12 535.59,-449.15 533.77,-455.91"/>
+</g>
+<!-- proc~gridindex&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge13" class="edge">
+<title>proc~gridindex&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff91" d="M462.08,-435.08C471.56,-438.94 481.51,-443.76 490,-449.49 509.02,-462.33 506.76,-474 526,-486.49 528.57,-488.16 531.29,-489.72 534.1,-491.18"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="532.72,-494.4 543.26,-495.47 535.69,-488.06 532.72,-494.4"/>
+</g>
+<!-- proc~gridindex&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge14" class="edge">
+<title>proc~gridindex&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff91" d="M462.39,-432.82C510.09,-442.83 593.92,-451.78 642,-406.49 726.28,-327.11 617.05,-246.93 678,-148.49 686.62,-134.57 700.73,-123.56 714.26,-115.47"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="715.99,-118.51 723,-110.57 712.56,-112.41 715.99,-118.51"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#0091ff" d="M304.57,-271.77C322.07,-274.27 342.49,-277.11 361,-279.49 418.66,-286.93 484.87,-294.56 529.87,-299.62"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="529.66,-303.12 539.99,-300.75 530.44,-296.16 529.66,-303.12"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0091ff" d="M264.7,-277.63C273.86,-309.96 303.31,-398.79 361,-444.49 410.84,-483.98 484.21,-498.72 532.78,-504.22"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="532.44,-507.7 542.75,-505.26 533.16,-500.74 532.44,-507.7"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0091ff" d="M277.14,-253.27C291.62,-241.13 312.72,-221.23 325,-199.49 355.33,-145.8 315.75,-107.39 361,-65.49 453.19,19.88 520.75,-1.53 642,-34.49 674.57,-43.35 707.35,-64.67 728.33,-80.27"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="726.22,-83.07 736.3,-86.35 730.47,-77.5 726.22,-83.07"/>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node9" class="node">
+<title>ESMF_AttributeGet</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node9"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_attributeget.html" xlink:title="ESMF_AttributeGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="481,-195.49 370,-195.49 370,-171.49 481,-171.49 481,-195.49"/>
+<text text-anchor="middle" x="425.5" y="-181.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AttributeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#0091ff" d="M278.43,-253.43C297.71,-240.1 330.49,-218.66 361,-204.49 365.08,-202.6 369.38,-200.8 373.74,-199.1"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="375.14,-202.32 383.31,-195.57 372.72,-195.75 375.14,-202.32"/>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node10" class="node">
+<title>ESMF_DistGridGet</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node10"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="806,-181.49 698,-181.49 698,-157.49 806,-157.49 806,-181.49"/>
+<text text-anchor="middle" x="752" y="-167.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#0091ff" d="M304.58,-266.5C376.31,-266.97 524.03,-262.75 642,-225.49 671.29,-216.24 702.21,-199.61 723.61,-186.87"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="725.43,-189.86 732.16,-181.68 721.8,-183.88 725.43,-189.86"/>
+</g>
+<!-- proc~mapl_distgridget -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node14" class="node">
+<title>proc~mapl_distgridget</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node14"><a xlink:href="../proc/mapl_distgridget.html" xlink:title="MAPL_DistGridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="638,-81.49 530,-81.49 530,-57.49 638,-57.49 638,-81.49"/>
+<text text-anchor="middle" x="584" y="-67.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#0091ff" d="M275.98,-253.36C290.02,-240.99 311.16,-220.65 325,-199.49 347.91,-164.47 328.59,-138.96 361,-112.49 405.28,-76.32 471.03,-67.39 519.49,-66.41"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="519.59,-69.91 529.55,-66.32 519.52,-62.91 519.59,-69.91"/>
+</g>
+<!-- proc~mapl_getimsjms -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node15" class="node">
+<title>proc~mapl_getimsjms</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node15"><a xlink:href="../proc/mapl_getimsjms.html" xlink:title="MAPL_GetImsJms">
+<polygon fill="#d9534f" stroke="#d9534f" points="477,-393.49 374,-393.49 374,-369.49 477,-369.49 477,-393.49"/>
+<text text-anchor="middle" x="425.5" y="-379.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetImsJms</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_getimsjms -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_getimsjms</title>
+<path fill="none" stroke="#0091ff" d="M278.64,-277.69C307.45,-298.19 365.73,-339.67 399.24,-363.52"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="397.42,-366.51 407.59,-369.46 401.48,-360.81 397.42,-366.51"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node17" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node17"><a xlink:href="../proc/mapl_gridhasde.html" xlink:title="MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="477.5,-237.49 373.5,-237.49 373.5,-213.49 477.5,-213.49 477.5,-237.49"/>
+<text text-anchor="middle" x="425.5" y="-223.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#0091ff" d="M304.75,-254.88C323.48,-250.28 345.68,-244.83 365.86,-239.88"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="366.69,-243.28 375.57,-237.5 365.03,-236.48 366.69,-243.28"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node11" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node11"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="986,-498.49 871,-498.49 871,-474.49 986,-474.49 986,-498.49"/>
+<text text-anchor="middle" x="928.5" y="-484.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#4800ff" d="M625.36,-514.55C673.44,-521.8 756.07,-530.57 826,-519.49 847.51,-516.08 870.66,-508.85 889.41,-502.02"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="890.65,-505.3 898.78,-498.51 888.19,-498.74 890.65,-505.3"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node18" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node18"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="995,-456.49 862,-456.49 862,-432.49 995,-432.49 995,-456.49"/>
+<text text-anchor="middle" x="928.5" y="-442.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#4800ff" d="M625.28,-509.29C674,-510.27 757.95,-508.1 826,-486.49 843.65,-480.89 845.08,-473.03 862,-465.49 866.34,-463.56 870.91,-461.72 875.54,-459.99"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="876.81,-463.25 885.06,-456.61 874.47,-456.66 876.81,-463.25"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M778.44,-110.57C794.12,-119.18 813.54,-132.11 826,-148.49 892.48,-235.89 917.25,-369.8 924.74,-422.29"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="921.27,-422.77 926.08,-432.21 928.21,-421.83 921.27,-422.77"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node20" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1086.5,-498.49 1032.5,-498.49 1032.5,-474.49 1086.5,-474.49 1086.5,-498.49"/>
+<text text-anchor="middle" x="1059.5" y="-484.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge26" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#cbff00" d="M986.08,-486.49C998.29,-486.49 1010.89,-486.49 1022.08,-486.49"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="1022.32,-489.99 1032.32,-486.49 1022.32,-482.99 1022.32,-489.99"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node21" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1086.5,-540.49 1032.5,-540.49 1032.5,-516.49 1086.5,-516.49 1086.5,-540.49"/>
+<text text-anchor="middle" x="1059.5" y="-526.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge27" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#cbff00" d="M966.47,-498.53C984.02,-504.24 1004.92,-511.05 1022.36,-516.73"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="1021.59,-520.16 1032.18,-519.92 1023.75,-513.5 1021.59,-520.16"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#33ff00" d="M819.47,-431.49C829.98,-432.76 840.92,-434.07 851.62,-435.36"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="851.45,-438.87 861.79,-436.59 852.28,-431.92 851.45,-438.87"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff66" d="M826.25,-474.31C837.67,-475.68 849.43,-477.1 860.7,-478.45"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="860.54,-481.96 870.89,-479.68 861.38,-475.01 860.54,-481.96"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff66" d="M826.25,-456.68C834.76,-455.65 843.46,-454.61 852,-453.58"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="852.43,-457.05 861.94,-452.38 851.59,-450.1 852.43,-457.05"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffff" d="M638.44,-78.83C659.52,-82.51 683.53,-86.71 703.94,-90.27"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="703.49,-93.75 713.95,-92.02 704.7,-86.85 703.49,-93.75"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#00ffff" d="M613.88,-81.53C623.04,-85.65 633.09,-90.48 642,-95.49 646.29,-97.9 694.03,-130.49 724.89,-151.61"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="723.25,-154.72 733.48,-157.48 727.2,-148.95 723.25,-154.72"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0066ff" d="M468.49,-393.55C475.8,-396.17 483.23,-399.16 490,-402.49 515.26,-414.93 541.61,-433.37 559.78,-447.1"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="557.94,-450.1 568.01,-453.41 562.2,-444.54 557.94,-450.1"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge35" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0066ff" d="M476.96,-393.57C481.69,-396.02 486.15,-398.96 490,-402.49 519.92,-429.96 496.54,-458.53 526,-486.49 528.41,-488.78 531.09,-490.82 533.93,-492.65"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="532.41,-495.8 542.87,-497.48 535.74,-489.64 532.41,-495.8"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0066ff" d="M477.18,-371.5C537.21,-359.22 630.56,-338.52 642,-326.49 697.62,-268 633.44,-215.79 678,-148.49 687.11,-134.73 701.44,-123.71 715,-115.56"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="716.75,-118.59 723.73,-110.61 713.3,-112.49 716.75,-118.59"/>
+</g>
+<!-- interface~mapl_sort -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node22" class="node">
+<title>interface~mapl_sort</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node22"><a xlink:href="../interface/mapl_sort.html" xlink:title="MAPL_Sort">
+<polygon fill="#a7506f" stroke="#a7506f" points="618,-397.49 550,-397.49 550,-373.49 618,-373.49 618,-397.49"/>
+<text text-anchor="middle" x="584" y="-383.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Sort</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_sort -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_sort</title>
+<path fill="none" stroke="#0066ff" d="M477.31,-382.79C497.44,-383.31 520.33,-383.89 539.66,-384.38"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="539.61,-387.88 549.69,-384.64 539.78,-380.89 539.61,-387.88"/>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#3200ff" d="M462.21,-145.57C471.89,-149.93 481.92,-155.53 490,-162.49 530.11,-197.06 559.56,-253.09 573.67,-283.75"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="570.58,-285.41 577.86,-293.1 576.97,-282.55 570.58,-285.41"/>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge41" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#3200ff" d="M435.86,-121.18C451.79,-101.36 486.35,-63.12 526,-48.49 574.37,-30.65 591.63,-37.49 642,-48.49 670.88,-54.8 701.26,-69.49 722.58,-81.33"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="721,-84.45 731.42,-86.36 724.46,-78.37 721,-84.45"/>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#3200ff" d="M490.21,-125.31C533.39,-121.4 591.56,-119.32 642,-128.49 668.22,-133.26 696.34,-143.99 717.45,-153.27"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="716.06,-156.49 726.62,-157.41 718.94,-150.11 716.06,-156.49"/>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#3200ff" d="M455.94,-121.45C480.89,-111.25 516.86,-96.54 544.17,-85.37"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="545.5,-88.61 553.43,-81.59 542.85,-82.13 545.5,-88.61"/>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node19" class="node">
+<title>ESMF_DELayoutGet</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node19"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_delayoutget.html" xlink:title="ESMF_DELayoutGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="642,-161.49 526,-161.49 526,-137.49 642,-137.49 642,-161.49"/>
+<text text-anchor="middle" x="584" y="-147.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DELayoutGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#3200ff" d="M490.15,-140C498.67,-140.87 507.42,-141.77 515.99,-142.64"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="515.64,-146.12 525.95,-143.66 516.35,-139.16 515.64,-146.12"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge44" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#cc00ff" d="M450.27,-237.64C476.97,-251.29 520.46,-273.52 550.34,-288.8"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="549.02,-292.06 559.52,-293.49 552.21,-285.82 549.02,-292.06"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge45" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#cc00ff" d="M432.95,-237.49C445.26,-260.73 472.44,-313.69 490,-360.49 510.46,-415.02 486.38,-443.8 526,-486.49 528.4,-489.08 531.16,-491.36 534.12,-493.35"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="532.5,-496.45 542.94,-498.26 535.91,-490.34 532.5,-496.45"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge46" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#cc00ff" d="M477.79,-214.47C531.77,-202.51 612.87,-183.39 642,-170.49 650.74,-166.62 695.23,-136.63 724.6,-116.6"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="726.89,-119.27 733.17,-110.74 722.94,-113.49 726.89,-119.27"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge43" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#cc00ff" d="M477.88,-223.15C521.82,-220.46 586.55,-214.85 642,-203.49 664.43,-198.9 688.8,-191.53 708.8,-184.83"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="710.21,-188.05 718.54,-181.5 707.94,-181.42 710.21,-188.05"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge42" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#cc00ff" d="M470.07,-213.4C476.92,-210.85 483.78,-207.88 490,-204.49 508.04,-194.67 508.52,-186.28 526,-175.49 531.53,-172.08 537.58,-168.85 543.61,-165.89"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="545.42,-168.91 552.98,-161.49 542.44,-162.57 545.42,-168.91"/>
+</g>
+<!-- proc~initialize~15 -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_node23" class="node">
+<title>proc~initialize~15</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CallsGraph_node23"><a xlink:href="../proc/initialize~15.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1088,-456.49 1031,-456.49 1031,-432.49 1088,-432.49 1088,-456.49"/>
+<text text-anchor="middle" x="1059.5" y="-442.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~15 -->
+<g id="proc~~mapl_locstreamattachgrid~~CallsGraph_edge47" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~15</title>
+<path fill="none" stroke="#ff0098" d="M995.13,-444.49C1003.88,-444.49 1012.59,-444.49 1020.63,-444.49"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="1020.77,-447.99 1030.77,-444.49 1020.77,-440.99 1020.77,-447.99"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_locstreamattachgridCallsGraph = svgPanZoom('#procmapl_locstreamattachgridCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_locstreamattachgrid~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_locstreamattachgridCalledByGraph" width="641pt" height="72pt"
+ viewBox="0.00 0.00 641.00 71.87" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_locstreamattachgrid~~CalledByGraph" class="graph" transform="scale(0.97 0.97) rotate(0) translate(4 70)">
+<title>proc~~mapl_locstreamattachgrid~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 656,-70 656,4 -4,4"/>
+<!-- proc~mapl_locstreamattachgrid -->
+<g id="proc~~mapl_locstreamattachgrid~~CalledByGraph_node1" class="node">
+<title>proc~mapl_locstreamattachgrid</title>
+<polygon fill="none" stroke="black" points="652,-45 492,-45 492,-21 652,-21 652,-45"/>
+<text text-anchor="middle" x="572" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_LocStreamAttachGrid</text>
+</g>
+<!-- proc~mapl_locstreamcreatefromfile -->
+<g id="proc~~mapl_locstreamattachgrid~~CalledByGraph_node2" class="node">
+<title>proc~mapl_locstreamcreatefromfile</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CalledByGraph_node2"><a xlink:href="../proc/mapl_locstreamcreatefromfile.html" xlink:title="MAPL_LocStreamCreateFromFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="456,-45 273,-45 273,-21 456,-21 456,-45"/>
+<text text-anchor="middle" x="364.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LocStreamCreateFromFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamcreatefromfile&#45;&gt;proc~mapl_locstreamattachgrid -->
+<g id="proc~~mapl_locstreamattachgrid~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_locstreamcreatefromfile&#45;&gt;proc~mapl_locstreamattachgrid</title>
+<path fill="none" stroke="#ff0000" d="M456.23,-33C464.64,-33 473.16,-33 481.56,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="481.72,-36.5 491.72,-33 481.72,-29.5 481.72,-36.5"/>
+</g>
+<!-- interface~mapl_locstreamcreate -->
+<g id="proc~~mapl_locstreamattachgrid~~CalledByGraph_node3" class="node">
+<title>interface~mapl_locstreamcreate</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CalledByGraph_node3"><a xlink:href="../interface/mapl_locstreamcreate.html" xlink:title="MAPL_LocStreamCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="237,-45 98,-45 98,-21 237,-21 237,-45"/>
+<text text-anchor="middle" x="167.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LocStreamCreate</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_locstreamcreate&#45;&gt;proc~mapl_locstreamcreatefromfile -->
+<g id="proc~~mapl_locstreamattachgrid~~CalledByGraph_edge2" class="edge">
+<title>interface~mapl_locstreamcreate&#45;&gt;proc~mapl_locstreamcreatefromfile</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M237.25,-33C245.52,-33 254.1,-33 262.72,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="262.83,-36.5 272.83,-33 262.83,-29.5 262.83,-36.5"/>
+</g>
+<!-- proc~initialize_ -->
+<g id="proc~~mapl_locstreamattachgrid~~CalledByGraph_node4" class="node">
+<title>proc~initialize_</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CalledByGraph_node4"><a xlink:href="../proc/initialize_.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="62,-66 0,-66 0,-42 62,-42 62,-66"/>
+<text text-anchor="middle" x="31" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_&#45;&gt;interface~mapl_locstreamcreate -->
+<g id="proc~~mapl_locstreamattachgrid~~CalledByGraph_edge3" class="edge">
+<title>proc~initialize_&#45;&gt;interface~mapl_locstreamcreate</title>
+<path fill="none" stroke="#ff0000" d="M62.18,-49.29C70.03,-48.06 78.86,-46.68 87.98,-45.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="88.6,-48.7 97.94,-43.7 87.52,-41.79 88.6,-48.7"/>
+</g>
+<!-- proc~initialize~3 -->
+<g id="proc~~mapl_locstreamattachgrid~~CalledByGraph_node5" class="node">
+<title>proc~initialize~3</title>
+<g id="a_proc~~mapl_locstreamattachgrid~~CalledByGraph_node5"><a xlink:href="../proc/initialize~3.html" xlink:title="Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="59.5,-24 2.5,-24 2.5,0 59.5,0 59.5,-24"/>
+<text text-anchor="middle" x="31" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize~3&#45;&gt;interface~mapl_locstreamcreate -->
+<g id="proc~~mapl_locstreamattachgrid~~CalledByGraph_edge4" class="edge">
+<title>proc~initialize~3&#45;&gt;interface~mapl_locstreamcreate</title>
+<path fill="none" stroke="#ff0000" d="M59.54,-16.3C67.96,-17.61 77.67,-19.13 87.73,-20.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="87.46,-24.2 97.88,-22.29 88.54,-17.28 87.46,-24.2"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_locstreamattachgridCalledByGraph = svgPanZoom('#procmapl_locstreamattachgridCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_LocStreamAttachGrid</span><span class="p">(</span><span class="n">LocStream</span><span class="p">,</span><span class="w"> </span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">ISMINE</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_LocStream</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LocStream</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w">       </span><span class="k">intent</span><span class="p">(</span><span class="n">INout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Grid</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">     </span><span class="k">pointer</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">ISMINE</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">     </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="c">! Local variables</span>
+
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_LocStreamType</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">STREAM</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_Tiling</span><span class="w">       </span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TILING</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">IM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">JM_WORLD</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">I1</span><span class="p">,</span><span class="w"> </span><span class="n">IN</span><span class="p">,</span><span class="w"> </span><span class="n">J1</span><span class="p">,</span><span class="w"> </span><span class="n">JN</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">gridRank</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">DIMS</span><span class="p">(</span><span class="n">ESMF_MAXGRIDDIM</span><span class="p">)</span>
+
+<span class="c">! Begin</span>
+<span class="c">!------</span>
+
+<span class="w">  </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">ISMINE</span><span class="p">)</span>
+
+<span class="c">! Make sure Location stream has been created</span>
+<span class="c">!-------------------------------------------</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">LocStream</span><span class="p">%</span><span class="n">Ptr</span><span class="p">),</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+
+<span class="c">! Alias to the pointer</span>
+<span class="c">!---------------------</span>
+
+<span class="w">    </span><span class="n">STREAM</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">LocStream</span><span class="p">%</span><span class="n">Ptr</span>
+
+<span class="c">! Location stream must have some allowed grids</span>
+<span class="c">!---------------------------------------------</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STREAM</span><span class="p">%</span><span class="n">N_GRIDS</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+
+<span class="c">! Find the given grid among the allowed grids</span>
+<span class="c">!--------------------------------------------</span>
+
+<span class="w">    </span><span class="n">STREAM</span><span class="p">%</span><span class="n">CURRENT_TILING</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GRIDINDEX</span><span class="p">(</span><span class="n">STREAM</span><span class="p">,</span><span class="w"> </span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">TILING</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STREAM</span><span class="p">%</span><span class="n">TILING</span><span class="p">(</span><span class="n">STREAM</span><span class="p">%</span><span class="n">CURRENT_TILING</span><span class="p">)</span>
+
+<span class="c">!C    STREAM%GLOBAL_INDEXLOCATION =&gt; TILING%GLOBAL_INDEXLOCATION</span>
+
+<span class="c">! Put associated ESMF_LogRectGrid in stream and query grid info</span>
+<span class="c">!--------------------------------------------------------------</span>
+
+<span class="w">    </span><span class="n">STREAM</span><span class="p">%</span><span class="n">GRID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GRID</span>
+
+<span class="c">! Verify that the grid is the right size</span>
+<span class="c">!---------------------------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">dimCount</span><span class="o">=</span><span class="n">gridRank</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">globalCellCountPerDim</span><span class="o">=</span><span class="n">DIMS</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">IM_WORLD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DIMS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="n">JM_WORLD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DIMS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">IM_WORLD</span><span class="o">==</span><span class="n">TILING</span><span class="p">%</span><span class="n">IM</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">JM_WORLD</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">TILING</span><span class="p">%</span><span class="n">JM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;error tiling jm/jm &#39;</span><span class="p">,</span><span class="n">jm_world</span><span class="p">,</span><span class="w"> </span><span class="n">tiling</span><span class="p">%</span><span class="n">jm</span>
+<span class="w">       </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">FAILURE</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="c">! Find out which tiles are in local PE</span>
+<span class="c">!-------------------------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GRID_INTERIOR</span><span class="w">  </span><span class="p">(</span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">I1</span><span class="p">,</span><span class="n">IN</span><span class="p">,</span><span class="n">J1</span><span class="p">,</span><span class="n">JN</span><span class="p">)</span>
+
+<span class="c">! Local location uses local indexing</span>
+<span class="c">!-----------------------------------</span>
+
+<span class="w">    </span><span class="n">STREAM</span><span class="p">%</span><span class="n">LOCAL_IndexLocation</span><span class="p">(:)%</span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">STREAM</span><span class="p">%</span><span class="n">LOCAL_IndexLocation</span><span class="p">(:)%</span><span class="n">I</span><span class="o">-</span><span class="n">I1</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">    </span><span class="n">STREAM</span><span class="p">%</span><span class="n">LOCAL_IndexLocation</span><span class="p">(:)%</span><span class="n">J</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">STREAM</span><span class="p">%</span><span class="n">LOCAL_IndexLocation</span><span class="p">(:)%</span><span class="n">J</span><span class="o">-</span><span class="n">J1</span><span class="o">+</span><span class="mi">1</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_LocStreamAttachGrid</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-10T16:27:32.105255             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
