@@ -16,12 +16,12 @@ parameters:
 
 # Anchors to prevent forgetting to update a version
 os_version: &os_version ubuntu20
-baselibs_version: &baselibs_version v7.25.0
+baselibs_version: &baselibs_version v8.6.0
 bcs_version: &bcs_version v11.6.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
 orbs:
-  ci: geos-esm/circleci-tools@4
+  ci: geos-esm/circleci-tools@dev:0f743dc764062ad16fa9bb83786dfc9f47c98ec1
 
 workflows:
   build-and-test-MAPL:
@@ -80,115 +80,98 @@ workflows:
             - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
 
-  build-and-run-GEOSgcm:
-    jobs:
-      # Build GEOSgcm
-      - ci/build:
-          name: build-GEOSgcm-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort]
-          baselibs_version: *baselibs_version
-          repo: GEOSgcm
-          checkout_fixture: true
-          mepodevelop: true
-          checkout_mapl_branch: true
-          persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
+  #build-and-run-GEOSgcm:
+    #jobs:
+      ## Build GEOSgcm
+      #- ci/build:
+          #name: build-GEOSgcm-on-<< matrix.compiler >>
+          #context:
+            #- docker-hub-creds
+          #matrix:
+            #parameters:
+              #compiler: [gfortran, ifort]
+          #baselibs_version: *baselibs_version
+          #repo: GEOSgcm
+          #checkout_fixture: true
+          #mepodevelop: true
+          #checkout_mapl_branch: true
+          #persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
-      # Run GCM (1 hour, no ExtData)
-      - ci/run_gcm:
-          name: run-GCM-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort]
-          requires:
-            - build-GEOSgcm-on-<< matrix.compiler >>
-          repo: GEOSgcm
-          baselibs_version: *baselibs_version
-          bcs_version: *bcs_version
+      ## Run GCM (1 hour, no ExtData)
+      #- ci/run_gcm:
+          #name: run-GCM-on-<< matrix.compiler >>
+          #context:
+            #- docker-hub-creds
+          #matrix:
+            #parameters:
+              #compiler: [gfortran, ifort]
+          #requires:
+            #- build-GEOSgcm-on-<< matrix.compiler >>
+          #repo: GEOSgcm
+          #baselibs_version: *baselibs_version
+          #bcs_version: *bcs_version
 
-      # Run Coupled GCM (1 hour, no ExtData)
-      - ci/run_gcm:
-          name: run-coupled-GCM-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort]
-          requires:
-            - build-GEOSgcm-on-<< matrix.compiler >>
-          repo: GEOSgcm
-          baselibs_version: *baselibs_version
-          bcs_version: *bcs_version
-          gcm_ocean_type: MOM6
-          change_layout: false
+      ## Run Coupled GCM (1 hour, no ExtData)
+      #- ci/run_gcm:
+          #name: run-coupled-GCM-on-<< matrix.compiler >>
+          #context:
+            #- docker-hub-creds
+          #matrix:
+            #parameters:
+              #compiler: [gfortran, ifort]
+          #requires:
+            #- build-GEOSgcm-on-<< matrix.compiler >>
+          #repo: GEOSgcm
+          #baselibs_version: *baselibs_version
+          #bcs_version: *bcs_version
+          #gcm_ocean_type: MOM6
+          #change_layout: false
 
-  build-GEOSldas:
-    jobs:
-      # Build GEOSldas
-      - ci/build:
-          name: build-GEOSldas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort]
-          baselibs_version: *baselibs_version
-          repo: GEOSldas
-          mepodevelop: false
-          checkout_fixture: true
-          fixture_branch: develop
-          checkout_mapl_branch: true
+  #build-GEOSldas:
+    #jobs:
+      ## Build GEOSldas
+      #- ci/build:
+          #name: build-GEOSldas-on-<< matrix.compiler >>
+          #context:
+            #- docker-hub-creds
+          #matrix:
+            #parameters:
+              #compiler: [gfortran, ifort]
+          #baselibs_version: *baselibs_version
+          #repo: GEOSldas
+          #mepodevelop: false
+          #checkout_fixture: true
+          #fixture_branch: develop
+          #checkout_mapl_branch: true
 
-  build-GEOSadas:
-    jobs:
-      # Build GEOSadas (ifort only, needs a couple develop branches)
-      - ci/build:
-          name: build-GEOSadas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-          resource_class: xlarge
-          baselibs_version: *baselibs_version
-          repo: GEOSadas
-          checkout_fixture: true
-          fixture_branch: feature/mathomp4/mapldevelop
-          checkout_mapl_branch: true
-          mepodevelop: false
-          rebuild_procs: 1
+  #build-GEOSadas:
+    #jobs:
+      ## Build GEOSadas (ifort only, needs a couple develop branches)
+      #- ci/build:
+          #name: build-GEOSadas-on-<< matrix.compiler >>
+          #context:
+            #- docker-hub-creds
+          #matrix:
+            #parameters:
+              #compiler: [ifort]
+          #resource_class: xlarge
+          #baselibs_version: *baselibs_version
+          #repo: GEOSadas
+          #checkout_fixture: true
+          #fixture_branch: feature/mathomp4/mapldevelop
+          #checkout_mapl_branch: true
+          #mepodevelop: false
+          #rebuild_procs: 1
 
-  build-and-publish-docker:
-    when:
-      equal: [ "release", << pipeline.parameters.GHA_Event >> ]
-    jobs:
-      - ci/publish_docker:
-          filters:
-            tags:
-              only: /^v.*$/
-          name: publish-ifort-docker-image
-          context:
-            - docker-hub-creds
-            - ghcr-creds
-          os_version: *os_version
-          baselibs_version: *baselibs_version
-          container_name: mapl
-          mpi_name: intelmpi
-          mpi_version: "2021.13"
-          compiler_name: ifort
-          compiler_version: "2021.13"
-          image_name: geos-env
-          tag_build_arg_name: *tag_build_arg_name
+  #build-and-publish-docker:
+    #when:
+      #equal: [ "release", << pipeline.parameters.GHA_Event >> ]
+    #jobs:
       #- ci/publish_docker:
           #filters:
             #tags:
               #only: /^v.*$/
-          #name: publish-ifx-docker-image
+          #name: publish-ifort-docker-image
           #context:
             #- docker-hub-creds
             #- ghcr-creds
@@ -197,24 +180,41 @@ workflows:
           #container_name: mapl
           #mpi_name: intelmpi
           #mpi_version: "2021.13"
-          #compiler_name: ifx
-          #compiler_version: "2024.2"
+          #compiler_name: ifort
+          #compiler_version: "2021.13"
           #image_name: geos-env
           #tag_build_arg_name: *tag_build_arg_name
-      - ci/publish_docker:
-          filters:
-            tags:
-              only: /^v.*$/
-          name: publish-gcc-docker-image
-          context:
-            - docker-hub-creds
-            - ghcr-creds
-          os_version: *os_version
-          baselibs_version: *baselibs_version
-          container_name: mapl
-          mpi_name: openmpi
-          mpi_version: 5.0.2
-          compiler_name: gcc
-          compiler_version: 13.2.0
-          image_name: geos-env-mkl
-          tag_build_arg_name: *tag_build_arg_name
+      ##- ci/publish_docker:
+          ##filters:
+            ##tags:
+              ##only: /^v.*$/
+          ##name: publish-ifx-docker-image
+          ##context:
+            ##- docker-hub-creds
+            ##- ghcr-creds
+          ##os_version: *os_version
+          ##baselibs_version: *baselibs_version
+          ##container_name: mapl
+          ##mpi_name: intelmpi
+          ##mpi_version: "2021.13"
+          ##compiler_name: ifx
+          ##compiler_version: "2024.2"
+          ##image_name: geos-env
+          ##tag_build_arg_name: *tag_build_arg_name
+      #- ci/publish_docker:
+          #filters:
+            #tags:
+              #only: /^v.*$/
+          #name: publish-gcc-docker-image
+          #context:
+            #- docker-hub-creds
+            #- ghcr-creds
+          #os_version: *os_version
+          #baselibs_version: *baselibs_version
+          #container_name: mapl
+          #mpi_name: openmpi
+          #mpi_version: 5.0.2
+          #compiler_name: gcc
+          #compiler_version: 13.2.0
+          #image_name: geos-env-mkl
+          #tag_build_arg_name: *tag_build_arg_name
