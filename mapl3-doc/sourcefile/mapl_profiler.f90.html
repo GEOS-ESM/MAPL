@@ -1,0 +1,934 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_Profiler.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_Profiler.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">28 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Profiler.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">MAPL_Profiler.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_profmod.html">MAPL_ProfMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/mapl_profiler.f90.html#src">MAPL_Profiler.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mapl_profiler.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilemapl_profilerf90EfferentGraph" width="599pt" height="52pt"
+ viewBox="0.00 0.00 599.00 52.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mapl_profiler.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 48)">
+<title>sourcefile~~mapl_profiler.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-48 595,-48 595,4 -4,4"/>
+<!-- sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~mapl_profiler.f90</title>
+<polygon fill="none" stroke="black" points="591,-24 486,-24 486,0 591,0 591,-24"/>
+<text text-anchor="middle" x="538.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_Profiler.F90</text>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="450,-24 281,-24 281,0 450,0 450,-24"/>
+<text text-anchor="middle" x="365.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_profiler.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~mapl_profiler.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M485.73,-12C477.68,-12 469.15,-12 460.5,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="460.32,-8.5 450.32,-12 460.32,-15.5 460.32,-8.5"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="245,-44 136,-44 136,-20 245,-20 245,-44"/>
+<text text-anchor="middle" x="190.5" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M280.79,-21.68C272.2,-22.67 263.58,-23.67 255.26,-24.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="254.82,-21.16 245.29,-25.78 255.62,-28.11 254.82,-21.16"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-24 0,-24 0,0 100,0 100,-24"/>
+<text text-anchor="middle" x="50" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M280.93,-11.21C268.87,-11.12 256.62,-11.05 245,-11 196.56,-10.8 184.44,-10.72 136,-11 127.82,-11.05 119.19,-11.12 110.7,-11.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.4,-7.71 100.44,-11.32 110.48,-14.71 110.4,-7.71"/>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M135.95,-24.27C127.53,-23.05 118.77,-21.79 110.23,-20.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.72,-17.09 100.33,-19.12 109.72,-24.02 110.72,-17.09"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mapl_profiler.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilemapl_profilerf90AfferentGraph" width="641pt" height="715pt"
+ viewBox="0.00 0.00 641.00 715.10" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph" class="graph" transform="scale(0.72 0.72) rotate(0) translate(4 990)">
+<title>sourcefile~~mapl_profiler.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-990 887,-990 887,4 -4,4"/>
+<!-- sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~mapl_profiler.f90</title>
+<polygon fill="none" stroke="black" points="105,-316 0,-316 0,-292 105,-292 105,-316"/>
+<text text-anchor="middle" x="52.5" y="-301.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_Profiler.F90</text>
+</g>
+<!-- sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~base.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/base.f90.html" xlink:title="Base.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="389,-671 328,-671 328,-647 389,-647 389,-671"/>
+<text text-anchor="middle" x="358.5" y="-656.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~base.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M355.87,-646.98C348.76,-600.23 315.7,-430.83 205,-386"/>
+</g>
+<!-- sourcefile~genericcplcomp.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~genericcplcomp.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/genericcplcomp.f90.html" xlink:title="GenericCplComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="267,-255 141,-255 141,-231 267,-231 267,-255"/>
+<text text-anchor="middle" x="204" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GenericCplComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~genericcplcomp.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~genericcplcomp.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M173.46,-255.05C150.22,-264.53 117.64,-277.83 92.3,-288.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="90.91,-284.95 82.98,-291.97 93.56,-291.44 90.91,-284.95"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="648,-398 504,-398 504,-374 648,-374 648,-398"/>
+<text text-anchor="middle" x="576" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M503.75,-392.28C411.75,-399.31 257.25,-407.16 205,-386"/>
+</g>
+<!-- sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~mapl_generic.f90~2</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/mapl_generic.f90~2.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="414,-255 303,-255 303,-231 414,-231 414,-255"/>
+<text text-anchor="middle" x="358.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M503.9,-380.13C485.35,-376.28 466.07,-370.05 450,-360 412.18,-336.36 384.03,-290.95 369.83,-264.18"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="372.92,-262.54 365.23,-255.24 366.69,-265.74 372.92,-262.54"/>
+</g>
+<!-- sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M352.58,-255.08C335.73,-294.52 277.33,-415.29 205,-386"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M203,-386C158.43,-367.95 110.24,-339.8 80.96,-321.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="82.48,-318.45 72.15,-316.1 78.76,-324.38 82.48,-318.45"/>
+</g>
+<!-- sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~genericcplcomp.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~genericcplcomp.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M302.87,-243C294.52,-243 285.79,-243 277.13,-243"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="277.02,-239.5 267.02,-243 277.02,-246.5 277.02,-239.5"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~comp_testing_driver.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/comp_testing_driver.f90.html" xlink:title="Comp_Testing_Driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="883,-358 738,-358 738,-334 883,-334 883,-358"/>
+<text text-anchor="middle" x="810.5" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Comp_Testing_Driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M739.74,-358C713.77,-362.47 684.09,-367.58 657.24,-372.19"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="656.37,-368.79 647.11,-373.94 657.56,-375.69 656.37,-368.79"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M737.74,-356.13C662.8,-363.59 543.38,-366.53 450,-327 418.05,-313.47 390.32,-283.47 374.25,-263.23"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="376.97,-261.02 368.1,-255.23 371.42,-265.29 376.97,-261.02"/>
+</g>
+<!-- sourcefile~cubedspheregeomspec_smod.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~cubedspheregeomspec_smod.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/cubedspheregeomspec_smod.f90.html" xlink:title="CubedSphereGeomSpec_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="676,-692 476,-692 476,-668 676,-668 676,-692"/>
+<text text-anchor="middle" x="576" y="-677.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CubedSphereGeomSpec_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cubedspheregeomspec_smod.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~cubedspheregeomspec_smod.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M475.77,-670.33C448.8,-667.7 421.13,-665.01 399.55,-662.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="399.76,-659.41 389.47,-661.92 399.08,-666.37 399.76,-659.41"/>
+</g>
+<!-- sourcefile~equal_to.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~equal_to.f90~2</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/equal_to.f90~2.html" xlink:title="equal_to.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="616,-650 536,-650 536,-626 616,-626 616,-650"/>
+<text text-anchor="middle" x="576" y="-635.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">equal_to.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~equal_to.f90~2&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~equal_to.f90~2&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M535.97,-641.8C497.39,-645.56 438.63,-651.29 399.66,-655.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="398.84,-651.65 389.23,-656.1 399.52,-658.62 398.84,-651.65"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~extdatagridcompmod.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/extdatagridcompmod.f90.html" xlink:title="ExtDataGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="653,-318 499,-318 499,-294 653,-294 653,-318"/>
+<text text-anchor="middle" x="576" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M498.88,-296.56C482.56,-293.61 465.55,-289.82 450,-285 429.34,-278.6 407.3,-268.45 390.15,-259.73"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="391.64,-256.57 381.16,-255.07 388.42,-262.78 391.64,-256.57"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~extdatagridcompng.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/extdatagridcompng.f90.html" xlink:title="ExtDataGridCompNG.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="649.5,-276 502.5,-276 502.5,-252 649.5,-252 649.5,-276"/>
+<text text-anchor="middle" x="576" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompNG.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M502.34,-256.92C477,-254.45 448.74,-251.7 424.1,-249.29"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="424.43,-245.81 414.13,-248.32 423.75,-252.78 424.43,-245.81"/>
+</g>
+<!-- sourcefile~make_decomposition.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~make_decomposition.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/make_decomposition.f90.html" xlink:title="make_decomposition.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="650.5,-608 501.5,-608 501.5,-584 650.5,-584 650.5,-608"/>
+<text text-anchor="middle" x="576" y="-593.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_decomposition.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_decomposition.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~make_decomposition.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M501.19,-605.03C484.17,-608.04 466.29,-611.95 450,-617 429.34,-623.4 407.3,-633.55 390.15,-642.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="388.42,-639.22 381.16,-646.93 391.64,-645.43 388.42,-639.22"/>
+</g>
+<!-- sourcefile~make_distribution.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~make_distribution.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/make_distribution.f90.html" xlink:title="make_distribution.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="641,-566 511,-566 511,-542 641,-542 641,-566"/>
+<text text-anchor="middle" x="576" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_distribution.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_distribution.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~make_distribution.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M510.8,-557.57C490.57,-560.55 468.66,-565.82 450,-575 419.17,-590.17 391.47,-619.27 375.07,-638.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="372.14,-636.97 368.55,-646.94 377.57,-641.38 372.14,-636.97"/>
+</g>
+<!-- sourcefile~make_latlongeomspec_from_hconfig.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~make_latlongeomspec_from_hconfig.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/make_latlongeomspec_from_hconfig.f90.html" xlink:title="make_LatLonGeomSpec_from_hconfig.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="696,-524 456,-524 456,-500 696,-500 696,-524"/>
+<text text-anchor="middle" x="576" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_LatLonGeomSpec_from_hconfig.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_latlongeomspec_from_hconfig.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~make_latlongeomspec_from_hconfig.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M467.85,-524.04C461.61,-526.55 455.6,-529.51 450,-533 409.51,-558.23 381.73,-608.86 368.45,-637.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="365.22,-636.31 364.36,-646.87 371.62,-639.15 365.22,-636.31"/>
+</g>
+<!-- sourcefile~make_latlongeomspec_from_metadata.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~make_latlongeomspec_from_metadata.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/make_latlongeomspec_from_metadata.f90.html" xlink:title="make_LatLonGeomSpec_from_metadata.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="702,-482 450,-482 450,-458 702,-458 702,-482"/>
+<text text-anchor="middle" x="576" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_LatLonGeomSpec_from_metadata.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_latlongeomspec_from_metadata.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~make_latlongeomspec_from_metadata.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M465.47,-482.04C460.03,-484.58 454.83,-487.54 450,-491 399.5,-527.17 374.43,-600.47 364.63,-637.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="361.23,-636.27 362.16,-646.83 368.01,-637.99 361.23,-636.27"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="608,-440 544,-440 544,-416 608,-416 608,-440"/>
+<text text-anchor="middle" x="576" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M543.98,-425.38C516.48,-424.73 476.66,-428.08 450,-449 389.23,-496.67 368.56,-593.18 362.13,-636.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="358.64,-636.49 360.76,-646.87 365.58,-637.43 358.64,-636.49"/>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M543.92,-429.99C516.75,-430.17 477.47,-426.47 450,-407 400.71,-372.07 375.3,-301.47 365.07,-265.36"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="368.35,-264.09 362.37,-255.34 361.59,-265.91 368.35,-264.09"/>
+</g>
+<!-- sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~mapl_cap.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/mapl_cap.f90.html" xlink:title="MAPL_Cap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="855.5,-400 765.5,-400 765.5,-376 855.5,-376 855.5,-400"/>
+<text text-anchor="middle" x="810.5" y="-385.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M765.5,-387.62C735.29,-387.36 694.31,-387.01 658.27,-386.7"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="658.28,-383.2 648.25,-386.61 658.22,-390.2 658.28,-383.2"/>
+</g>
+<!-- sourcefile~mapl_geosatmaskmod.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~mapl_geosatmaskmod.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/mapl_geosatmaskmod.f90.html" xlink:title="MAPL_GeosatMaskMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="654,-234 498,-234 498,-210 654,-210 654,-234"/>
+<text text-anchor="middle" x="576" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GeosatMaskMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_geosatmaskmod.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~mapl_geosatmaskmod.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M497.81,-229.52C473.72,-231.87 447.4,-234.43 424.26,-236.69"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="423.82,-233.22 414.21,-237.67 424.5,-240.18 423.82,-233.22"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~mapl_historycollection.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/mapl_historycollection.f90.html" xlink:title="MAPL_HistoryCollection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="656,-192 496,-192 496,-168 656,-168 656,-192"/>
+<text text-anchor="middle" x="576" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryCollection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M495.9,-189.99C480.5,-192.86 464.61,-196.47 450,-201 429.34,-207.4 407.3,-217.55 390.15,-226.27"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="388.42,-223.22 381.16,-230.93 391.64,-229.43 388.42,-223.22"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~mapl_historygridcomp.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/mapl_historygridcomp.f90.html" xlink:title="MAPL_HistoryGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="656,-24 496,-24 496,0 656,0 656,-24"/>
+<text text-anchor="middle" x="576" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~genericcplcomp.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~genericcplcomp.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M495.68,-18.68C480.07,-21.82 464.15,-26.38 450,-33 349.15,-80.18 257.22,-180.68 221.15,-223.27"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="218.43,-221.07 214.69,-230.98 223.79,-225.56 218.43,-221.07"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M495.7,-13.3C479.31,-16.71 463.07,-22.75 450,-33 446.01,-36.13 390.71,-168.11 368.57,-221.21"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="365.22,-220.14 364.61,-230.71 371.69,-222.83 365.22,-220.14"/>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~mapl_nuopcwrappermod.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/mapl_nuopcwrappermod.f90.html" xlink:title="MAPL_NUOPCWrapperMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="663,-986 489,-986 489,-962 663,-962 663,-986"/>
+<text text-anchor="middle" x="576" y="-971.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NUOPCWrapperMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M488.7,-972.28C474.53,-968.6 460.93,-962.57 450,-953 367.88,-881.07 359.2,-736.56 359.04,-681.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="362.54,-681.15 359.11,-671.13 355.54,-681.1 362.54,-681.15"/>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~mapl_orbgridcompmod.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/mapl_orbgridcompmod.f90.html" xlink:title="MAPL_OrbGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="658.5,-150 493.5,-150 493.5,-126 658.5,-126 658.5,-150"/>
+<text text-anchor="middle" x="576" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OrbGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M493.5,-144.65C478.54,-147.81 463.43,-152.39 450,-159 419.17,-174.17 391.47,-203.27 375.07,-222.91"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="372.14,-220.97 368.55,-230.94 377.57,-225.38 372.14,-220.97"/>
+</g>
+<!-- sourcefile~mapl_stationsamplermod.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~mapl_stationsamplermod.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/mapl_stationsamplermod.f90.html" xlink:title="MAPL_StationSamplerMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="663,-108 489,-108 489,-84 663,-84 663,-108"/>
+<text text-anchor="middle" x="576" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StationSamplerMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_stationsamplermod.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~mapl_stationsamplermod.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M488.72,-101.39C475.1,-104.75 461.67,-109.73 450,-117 409.51,-142.23 381.73,-192.86 368.45,-221.67"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="365.22,-220.31 364.36,-230.87 371.62,-223.15 365.22,-220.31"/>
+</g>
+<!-- sourcefile~mapl_trajectorymod.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~mapl_trajectorymod.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/mapl_trajectorymod.f90.html" xlink:title="MAPL_TrajectoryMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="648,-66 504,-66 504,-42 648,-42 648,-66"/>
+<text text-anchor="middle" x="576" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TrajectoryMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_trajectorymod.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~mapl_trajectorymod.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M503.85,-54.8C484.99,-57.86 465.56,-63.85 450,-75 399.5,-111.17 374.43,-184.47 364.63,-221.12"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="361.23,-220.27 362.16,-230.83 368.01,-221.99 361.23,-220.27"/>
+</g>
+<!-- sourcefile~supports_hconfig.f90~3 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~supports_hconfig.f90~3</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/supports_hconfig.f90~3.html" xlink:title="supports_hconfig.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="639,-944 513,-944 513,-920 639,-920 639,-944"/>
+<text text-anchor="middle" x="576" y="-929.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">supports_hconfig.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~supports_hconfig.f90~3&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~supports_hconfig.f90~3&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M512.74,-934.01C490.79,-931.71 467.31,-925.47 450,-911 378.69,-851.4 363.57,-731.19 360.36,-681.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="363.84,-680.9 359.81,-671.1 356.85,-681.28 363.84,-680.9"/>
+</g>
+<!-- sourcefile~supports_metadata.f90~2 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~supports_metadata.f90~2</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/supports_metadata.f90~2.html" xlink:title="supports_metadata.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="645,-902 507,-902 507,-878 645,-878 645,-902"/>
+<text text-anchor="middle" x="576" y="-887.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">supports_metadata.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~supports_metadata.f90~2&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~supports_metadata.f90~2&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M506.76,-890.62C486.78,-887.79 466.02,-881.56 450,-869 389.23,-821.33 368.56,-724.82 362.13,-681.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="365.58,-680.57 360.76,-671.13 358.64,-681.51 365.58,-680.57"/>
+</g>
+<!-- sourcefile~test_cfio_bundle.pf -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~test_cfio_bundle.pf</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node26"><a xlink:href="../sourcefile/test_cfio_bundle.pf.html" xlink:title="Test_CFIO_Bundle.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="635.5,-860 516.5,-860 516.5,-836 635.5,-836 635.5,-860"/>
+<text text-anchor="middle" x="576" y="-845.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_CFIO_Bundle.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_cfio_bundle.pf&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~test_cfio_bundle.pf&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M516.39,-848.84C493.89,-846.57 469.05,-840.65 450,-827 399.5,-790.83 374.43,-717.53 364.63,-680.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="368.01,-680.01 362.16,-671.17 361.23,-681.73 368.01,-680.01"/>
+</g>
+<!-- sourcefile~tstqsat.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node27" class="node">
+<title>sourcefile~tstqsat.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node27"><a xlink:href="../sourcefile/tstqsat.f90.html" xlink:title="tstqsat.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="611,-818 541,-818 541,-794 611,-794 611,-818"/>
+<text text-anchor="middle" x="576" y="-803.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tstqsat.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~tstqsat.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~tstqsat.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M540.97,-807.12C514.34,-806.46 477.36,-802.05 450,-785 409.51,-759.77 381.73,-709.14 368.45,-680.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="371.62,-678.85 364.36,-671.13 365.22,-681.69 371.62,-678.85"/>
+</g>
+<!-- sourcefile~ut_extdata.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node28" class="node">
+<title>sourcefile~ut_extdata.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node28"><a xlink:href="../sourcefile/ut_extdata.f90.html" xlink:title="ut_ExtData.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="622.5,-776 529.5,-776 529.5,-752 622.5,-752 622.5,-776"/>
+<text text-anchor="middle" x="576" y="-761.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ExtData.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ut_extdata.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~ut_extdata.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M529.4,-762.64C504.82,-760.39 474.58,-755.1 450,-743 419.17,-727.83 391.47,-698.73 375.07,-679.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="377.57,-676.62 368.55,-671.06 372.14,-681.03 377.57,-676.62"/>
+</g>
+<!-- sourcefile~utcfio_bundle.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node29" class="node">
+<title>sourcefile~utcfio_bundle.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node29"><a xlink:href="../sourcefile/utcfio_bundle.f90.html" xlink:title="utCFIO_Bundle.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="632.5,-734 519.5,-734 519.5,-710 632.5,-710 632.5,-734"/>
+<text text-anchor="middle" x="576" y="-719.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO_Bundle.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~utcfio_bundle.f90&#45;&gt;sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~utcfio_bundle.f90&#45;&gt;sourcefile~base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M519.49,-715.93C497.54,-712.69 472.28,-707.9 450,-701 429.34,-694.6 407.3,-684.45 390.15,-675.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="391.64,-672.57 381.16,-671.07 388.42,-678.78 391.64,-672.57"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilemapl_profilerf90AfferentGraph = svgPanZoom('#sourcefilemapl_profilerf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="c">!BOP</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="c">! !MODULE: MAPL_Profiler -- A Module to instrument codes for profiling</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a>
+<a id="ln-7" name="ln-7" href="#ln-7"></a>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="c">! !INTERFACE:</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">  </span><span class="k">module </span><span class="n">MAPL_ProfMod</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="c">! !USES:</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">  </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">  </span><span class="k">use </span><span class="n">MAPL_ExceptionHandling</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">  </span><span class="k">implicit none</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="k">  private</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="c">! !PUBLIC TYPES:</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="c">! !PUBLIC MEMBER FUNCTIONS:</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">  </span><span class="k">public </span><span class="n">MAPL_ProfDisable</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">  </span><span class="k">public </span><span class="n">MAPL_ProfEnable</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">  </span><span class="k">public </span><span class="n">MAPL_ProfIsDisabled</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="c">!EOP</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="kt">logical</span><span class="p">,</span><span class="w">       </span><span class="k">save</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DISABLED</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">  </span><span class="k">contains</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="c">!********************************************************</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">    </span><span class="kt">logical </span><span class="k">function </span><span class="n">MAPL_ProfIsDisabled</span><span class="p">()</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="c">!$omp master</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="n">MAPL_ProfIsDisabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DISABLED</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="c">!$omp end master</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">    </span><span class="k">end function </span><span class="n">MAPL_ProfIsDisabled</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="c">!********************************************************</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="c">!********************************************************</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">    </span><span class="k">subroutine </span><span class="n">MAPL_ProfDisable</span><span class="p">(</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="o">=</span><span class="s2">&quot;MAPL_ProfDisable&quot;</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="c">!$omp master</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="n">DISABLED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="c">!$omp end master</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">    </span><span class="k">end subroutine </span><span class="n">MAPL_ProfDisable</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="c">!********************************************************</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">    </span><span class="k">subroutine </span><span class="n">MAPL_ProfEnable</span><span class="p">(</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="o">=</span><span class="s2">&quot;MAPL_ProfEnable&quot;</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="c">!$omp master</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="n">DISABLED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="c">!$omp end master</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">    </span><span class="k">end subroutine </span><span class="n">MAPL_ProfEnable</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">  </span><span class="k">end module </span><span class="n">MAPL_ProfMod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-10T16:39:20.554783             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
