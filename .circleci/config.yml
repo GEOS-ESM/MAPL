@@ -39,7 +39,7 @@ workflows:
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
-          ctest_options: "-L 'ESSENTIAL' --output-on-failure"
+          ctest_options: "--output-on-failure"
           persist_workspace: true # Needed for MAPL tutorials
 
       # Builds MAPL like UFS does (no FLAP and pFlogger, static)
@@ -58,7 +58,7 @@ workflows:
           extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
           run_unit_tests: true
           # ExtData1G tests were removed from ESSENTIAL, so we run them separately here as UFS might still use 1G?
-          ctest_options: "-L 'ESSENTIAL|EXTDATA1G_SMALL_TESTS' --output-on-failure"
+          ctest_options: "--output-on-failure"
 
       # Run MAPL Tutorials
       - ci/run_mapl_tutorial:
