@@ -1,138 +1,161 @@
+#if defined(IS_UNDEF_)
+#  undef(IS_UNDEF_)
+#endif
+#define IS_UNDEF_(T) ieee_class(T) == ieee_quiet_nan
+
+#if defined(SET_UNDEF_)
+#  undef(SET_UNDEF_)
+#endif
+#define SET_UNDEF_(T) ieee_value(T, ieee_quiet_nan)
+
+#if defined(TERTIARY_)
+#  undef(TERTIARY_)
+#endif
+#define TERTIARY_(I, B, E) E; if(B) I
+
+#if defined(CLEAR_)
+#  undef(CLEAR_)
+#endif
+#define CLEAR_(T) TERTIARY_(T, this%accumulate, set_undef(cleared))
+
 module mapl3g_TimeAnalysisCouplerComponent
    use mapl3g_GenericCouplerComponent
    use, intrinsic :: iso_c_binding, only: c_int
-!_   use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64
+   use, intrinsic :: ieee_arithmetic
    implicit none
    private
 !_   public ::
 
-   enum, bind(c)
-      enumerator :: ANALYSIS_ACCUMULATE = 1
-      enumerator :: ANALYSIS_MEAN
-      enumerator :: ANALYSIS_MAX
-      enumerator :: ANALYSIS_MIN
-      enumerator :: ANALYSIS_UNKNOWN
-   end enum
-
-   integer(c_int), parameter :: ANALYSIS_KIND = kind(ANALYSIS_UNKNOWN)
-
-   abstract interface
-      elemental function AccumulateFunction(current, update) result(updated)
-         real, intent(in) :: updated
-         real, intent(in) :: current
-         real, intent(in) :: update
-      end function AccumulateFunction
-      elemental function CoupleFunction(current, counter) result(coupled)
-         real :: coupled
-         real, intent(in) :: current
-         integer, intent(in) :: counter
-      end function CoupleFunction
-   end interface
-
-   type :: TimeAnalysisField(k)
-      integer, kind :: k
-      type(VarSpec), pointer :: source
-      type(VarSpec), pointer :: destination
-      type(ESMF_Alarm), pointer   :: time_to_clear
-      type(ESMF_Alarm), pointer   :: time_to_couple
-      type(ESMF_LocalArray), pointer :: field_data
-      type(ESMF_LocalArray), pointer :: array_count
-      integer(ESMF_I8) :: scalar_count = -1
-      integer(ESMF_I8) :: clear_interval
-      integer(ESMF_I8) :: couple_interval
+   ! Do current compilers support: intel, gcc, nag
+   ! MAPL_UNDEF ?
+   ! Where for ESMF_Field?
+   ! Do we need the specs?
+   type :: AccumulationField
+      ! Set at construction
+      ! VarSpec or FieldSpec
+      type(VarSpec), pointer :: source => null()
+      type(VarSpec), pointer :: destination => null()
+      logical :: mean = .TRUE.
+      logical, allocatable :: minimize
+      ! defaults
+      integer(ESMF_I4) :: scalar_count = -1
+      integer(ESMF_I4) :: clear_interval = -1
+      integer(ESMF_I4) :: couple_interval = -1
+      ! Set at initialization
+      type(ESMF_Alarm), pointer   :: time_to_clear => null()
+      type(ESMF_Alarm), pointer   :: time_to_couple => null()
+      type(ESMF_Field), pointer :: field_data => null()
+      integer(ESMF_KIND_I4), pointer :: array_count(:) => null()
       integer, allocatable :: shape(:)
-      procedure(AccumulateFunction), pointer :: accumulate_ptr
-      procedure(CoupleFunction), pointer :: couple_ptr
-      procedure, pointer :: clear_ptr
-      integer(ANALYSIS_KIND) :: analysis_type
-   end type TimeAnalysisField
+   end type AccumulationField
 
-   type :: TimeAnalysisInternal
-      type(ESMF_Field), allocatable :: analysis_fields(:)
+   interface accumulate
+      module procedure :: accumulateR32
+      module procedure :: accumulateR64
+   end interface accumulate
+
+   type :: AccumulationInternal
+      type(AccumulationFields), allocatable :: accumulation_fields(:)
       logical :: active
       type (ESMF_Alarm), pointer   :: time2cpl_alarm => null()
       character(LEN=ESMF_MAXSTR)   :: name
-   end type TimeAnalysisInternal
+   end type AccumulationInternal
 
-   abstract interface
-      function Accumulate(
-      subroutine UpdateArrays(acc, array_count, scalar_count, update_func, source_state, rc)
-         type(ESMF_LocalArray), intent(inout) :: acc
-         type(ESMF_LocalArray), intent(inout) :: array_count
-         integer(ESMF_I8), intent(inout) :: scalar_count
-         procedure(), pointer, intent(in) :: update_func
-         type(ESMF_State), intent(in) :: source_state
-         integer, optional, intent(out) :: rc
-      end subroutine UpdateArrays
-   end abstract interface
-
-   integer(kind=c_int), parameter :: ANALYSIS_KIND = kind(ANALYSIS_UNKNOWN)
+   interface GetArrayFptr
+      module procedure :: assign_fptr_i4_1d
+   end interface GetArrayFptr
 
 contains
 
-   subroutine accumulate(analysis_field, source_state, rc)
-         type(TimeAnalysisField), intent(inout) :: analysis_field
-         type(ESMF_State), intent(in) :: source_state
-         integer, optional, intent(out) :: rc
-         integer :: status
-   end subroutine accumulate
+   subroutine initialize_accumulation_internal(state, source_specs, destination_specs)
+      type(AccumulationInternal), pointer, intent(in) :: state
+      type(VarSpec), intent(in) :: source_specs(:)
+      type(VarSpec), intent(in) :: destination_specs(:)
+      integer :: i, sz
+      character(ESMF_MAXSTR) :: source_name, destination_name
 
-   function accumulate_function(acc, next) result(update)
-      type(ESMF_Array) :: update
-      type(ESMF_Array), intent(in) :: acc
-      type(ESMF_Array), intent(in) :: next
-   end function accumulate_function
+      sz = size(source_specs)
+      _ASSERT(sz == size(destination_specs), 'Spec lists must have same length.')
 
-   function mean_function(acc, next) result(update)
-      type(ESMF_Array) :: update
-      type(ESMF_Array), intent(in) :: acc
-      type(ESMF_Array), intent(in) :: next
-   end function mean_function
+      do i = 1, sz
+         call MAPL_VarSpecGet(source_specs(i), short_name=source_name, _RC)
+         call MAPL_VarSpecGet(destination_specs(i), short_name=destination_name, _RC)
+         _ASSERT(source_name == destination_name, 'short_name must match.')
+      end do
 
-   function max_function(acc, next) result(update)
-      type(ESMF_Array) :: update
-      type(ESMF_Array), intent(in) :: acc
-      type(ESMF_Array), intent(in) :: next
-   end function max_function
+      state%
+   end subroutine initialize_accumulation_internal
 
-   function min_function(acc, next) result(update)
-      type(ESMF_Array) :: update
-      type(ESMF_Array), intent(in) :: acc
-      type(ESMF_Array), intent(in) :: next
-   end function min_function
+   subroutine run_accumulation_internal(state)
+      type(AccumulationInternal), pointer, intent(in) :: state
+   end subroutine run_accumulation_internal
 
-   function get_fortran_ptr_R64(array) result(f_ptr)
-      real(ESMF_R8), pointer :: f_ptr
-      type(ESMF_Array), pointer, intent(in) :: array
-   end function get_fortran_ptr_R64
-      
-   function get_fortran_ptr_R32(array) result(f_ptr)
-      real(ESMF_R4), pointer :: f_ptr
-      type(ESMF_Array), pointer, intent(in) :: array
-   end function get_fortran_ptr_R32
-      
-   subroutine get_couple_function(analysis_type, funct, rc)
-   end subroutine get_couple_function
+   subroutine finalize_accumulation_internal(state)
+      type(AccumulationInternal), pointer, intent(in) :: state
+   end subroutine finalize_accumulation_internal
 
-   subroutine get_analysis_function(analysis_type, func, rc)
-      integer(ANALYSIS_KIND), intent(in) :: analysis_type
-      procedure, pointer, intent(out) :: func
-      integer, optional, intent(out) :: rc
-      integer :: status
-      
-      select case(analysis_type)
-         case (ANALYSIS_ACCUMULATE)
-            func => accumulate_function
-         case (ANALYSIS_MEAN)
-            func => mean_function
-         case (ANALYSIS_MAX)
-            func => max_function
-         case (ANALYSIS_MIN)
-            func => min_function
-         case default
-            _FAIL('Unknown analysis function')
-      end select
-   end subroutine get_analysis_function
+   function assign_fptr_i4_1d(farray) result(fptr)
+      integer(ESMF_KIND_I4), pointer :: fptr
+      integer(ESMF_KIND_I4), pointer, intent(in) :: farray(:)
 
+      call c_f_pointer(c_loc(farray), fptr, cptr, product(shape(farray)))
+
+   end function assign_fptr_i4_1d
+
+   function construct_accumulation_field(source, destination, use_mean, minimize) result(f)
+      type(AccumulationField) :: f
+      type(VarSpec), pointer, intent(in) :: source
+      type(VarSpec), pointer, intent(in) :: destination
+      logical, optional, intent(in) :: use_mean
+      logical, optional, intent(in) :: minimize
+
+      f%source => source
+      f%destination => destination
+      if(present(use_mean)) f%mean = use_mean
+      if(present(minimize)) f%minimize = minimize
+
+   end function construct_accumulation_field
+
+   elemental function accumulateR32(current, update, minimize) result(updated)
+      real(ESMF_KIND_R4) :: updated
+      real(ESMF_KIND_R4), intent(inout) :: current
+      real(ESMF_KIND_R4), intent(in) :: update
+      logical, optional, intent(in) :: minimize
+
+      updated = update
+      if(IS_UNDEF(current)) return
+      updated = current + updated
+      if(.not. present(minimize)) return
+      updated = max(current, update)
+      if(this%min) updated = min(current, update)
+
+   end function accumulateR32
+
+   elemental function accumulateR64(current, update, minimize) result(updated)
+      real(ESMF_KIND_R8) :: updated
+      real(ESMF_KIND_R8), intent(inout) :: current
+      real(ESMF_KIND_R8), intent(in) :: update
+      logical, optional, intent(in) :: minimize
+
+      updated = update
+      if(IS_UNDEF(current)) return
+      updated = current + updated
+      if(.not. present(minimize)) return
+      updated = max(current, update)
+      if(this%min) updated = min(current, update)
+
+   end function accumulateR64
 
 end module mapl3g_TimeAnalysisCouplerComponent
+
+
+! QUESTIONS
+! Use ESMF_Field for counter:
+!   - requires additional code for field_utils,
+!   - is the field overkill
+! What to make the counter if not a field?
+! Generalize FieldBinaryOperatorTemplate.H to:
+! - include BiFuncs?
+! - Could the template be templated to handle different kinds and ranks?
+! - Could be used to create functions as needed, possibly pointers?
+! Why does MAPL2 time averaging index over arrays instead of utilizing elemental?
