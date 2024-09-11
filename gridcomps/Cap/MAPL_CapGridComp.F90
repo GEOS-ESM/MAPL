@@ -295,6 +295,20 @@ contains
 
     cap%clock_hist = ESMF_ClockCreate(cap%clock, _RC)  ! Create copy for HISTORY
 
+!ALT: Add an extra alarm to indicate that it is the end-of-the-run
+!     This would be used to prevent reading-ahead of the sampling collections
+!     in History
+    block
+      type(ESMF_Alarm) :: endAlarm
+      type(ESMF_Time) :: currentTime
+      type(ESMF_TimeInterval) :: runDuration, timestep
+
+      call ESMF_ClockGet(cap%clock_hist,currTime=currentTime,timestep=timestep,_RC)
+      runDuration = timestep * cap%nsteps
+      endAlarm = ESMF_AlarmCreate( clock=cap%clock_hist, name="EndOfRun", &
+           RingTime=currentTime+runDuration, sticky=.false., _RC )
+    end block
+
     CoresPerNode = MAPL_CoresPerNodeGet(comm,_RC)
 
     ! We check resource for CoresPerNode (no longer needed to be in CAP.rc)

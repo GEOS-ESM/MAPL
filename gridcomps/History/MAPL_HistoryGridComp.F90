@@ -3307,6 +3307,7 @@ ENDDO PARSER
     type(GriddedIOitem) :: item
 
     type(Logger), pointer          :: lgr
+    type(ESMF_Alarm) :: EndOfRunAlarm
 
 !=============================================================================
 
@@ -3337,6 +3338,9 @@ ENDDO PARSER
 
    allocate(Ignore (nlist), _STAT)
    Ignore = .false.
+
+! get End-of-run-alarm
+   call ESMF_ClockGetAlarm(clock, "EndOfRun", endOfRunAlarm, _RC)
 
   ! decide if clock direction and collections' backwards mode agree
 
@@ -3753,7 +3757,7 @@ ENDDO PARSER
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
          call MAPL_TimerOn(GENSTATE,"Swath")
-         if( ESMF_AlarmIsRinging ( Hsampler%alarm ) .and. .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
+         if( ESMF_AlarmIsRinging ( Hsampler%alarm ) .and. .not. ESMF_AlarmIsRinging(endOfRunAlarm) ) then
             call MAPL_TimerOn(GENSTATE,"RegenGrid")
             key_grid_label = list(n)%output_grid_label
             call Hsampler%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler, _RC )
@@ -3792,7 +3796,7 @@ ENDDO PARSER
             call list(n)%trajectory%append_file(current_time,_RC)
             call list(n)%trajectory%close_file_handle(_RC)
             call MAPL_TimerOff(GENSTATE,"AppendFile")
-            if ( .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
+            if ( .not. ESMF_AlarmIsRinging(endOfRunAlarm)) then
                call MAPL_TimerOn(GENSTATE,"RegenLS")
                call list(n)%trajectory%destroy_rh_regen_LS (_RC)
                call MAPL_TimerOff(GENSTATE,"RegenLS")
