@@ -18,7 +18,7 @@
 #endif
 #define CLEAR_(T) TERTIARY_(T, this%accumulate, set_undef(cleared))
 
-module mapl3g_TimeAnalysisCouplerComponent
+module mapl3g_TimeAccumulationCouplerComponent
    use mapl3g_GenericCouplerComponent
    use, intrinsic :: iso_c_binding, only: c_int
    use, intrinsic :: ieee_arithmetic
@@ -146,7 +146,7 @@ contains
 
    end function accumulateR64
 
-end module mapl3g_TimeAnalysisCouplerComponent
+end module mapl3g_TimeAccumulationCouplerComponent
 
 
 ! QUESTIONS
