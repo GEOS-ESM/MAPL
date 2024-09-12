@@ -595,7 +595,6 @@ contains
       iter = attributes%begin()
       do while (iter /= attributes%end())
          attr_name => iter%key()
-
          p_attribute => iter%value()
          shp = p_attribute%get_shape()
          if (size(shp) == 0) then ! scalar
@@ -1074,9 +1073,12 @@ contains
             call var%add_attribute(trim(attr_name), str)
             deallocate(str)
          case (NF90_STRING)
-            !W.Y. Note: pfio does not support variable's string attribute
-            !  It only supports global 1-d string attribute
-            cycle
+            !$omp critical
+            status = pfio_get_att_string(this%ncid, varid, trim(attr_name), str)
+            !$omp end critical
+            _VERIFY(status)
+            call var%add_attribute(trim(attr_name), str)
+            deallocate(str)
          case default
             _RETURN(_FAILURE)
          end select
