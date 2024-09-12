@@ -1,10 +1,10 @@
-#include "MAPL_Generic.h"
 #define CONSTRUCT_ f = FieldCondensedArrayDims
 #define TEST_ARGS_(E, M) @assertEqual(E, f%arguments(), 'f%arguments() does not match ' // M // '.')
 #define EXPECT_(A) [X, Y, Z, A]
 #define EXPECT3_ EXPECT_([integer::])
 #define EXPECT2A_(A) [X, Y, A]
 #define EXPECT2_ [X, Y]
+
 module Test_FieldCondensedArray
 
    use mapl3g_FieldCondensedArrayDims
@@ -102,10 +102,12 @@ contains
    
    @Before
    subroutine setup()
+      call f%initialize()
    end subroutine set_up_data
 
-   @after
+   @After
    subroutine teardown()
+      call f%reset()
    end subroutine teardown
 
 end module Test_FieldCondensedArray

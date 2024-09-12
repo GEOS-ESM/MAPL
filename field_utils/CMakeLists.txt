@@ -8,6 +8,7 @@ set(srcs
   FieldUnaryFunctions.F90
   FieldBinaryOperations.F90
   FieldUnits.F90
+  FieldCondensedArrayDims.F90
   )
 
 # To use extended udunits2 procedures, udunits2.c must be built and linked.

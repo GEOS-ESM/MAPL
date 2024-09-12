@@ -131,5 +131,22 @@ contains
       if(size_ungridded > 0) val(4:size(val)) =  this%ungridded_
 
    end function arguments
+
+   subroutine initialize(this)
+      class(FieldCondensedArrayDims) :: this
+
+      this%horz_(2) = -1
+      this%vert_ = -1
+      this%dims_ = -1
+      if(allocated(this%ungridded_)) deallocate(this%ungridded_)
+
+   end subroutine initialize
+
+   subroutine reset(this)
+      class(FieldCondensedArrayDims) :: this
+
+      call this%initialize()
+
+   end subroutine reset
    
 end module mapl3g_FieldCondensedArrayDims
