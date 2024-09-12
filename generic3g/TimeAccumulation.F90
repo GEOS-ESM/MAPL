@@ -61,9 +61,9 @@ module mapl3g_TimeAccumulationCouplerComponent
       character(LEN=ESMF_MAXSTR)   :: name
    end type AccumulationInternal
 
-   interface GetArrayFptr
-      module procedure :: assign_fptr_i4_1d
-   end interface GetArrayFptr
+!   interface GetArrayFptr ! wdb deleteme
+!      module procedure :: assign_fptr_i4_1d
+!   end interface GetArrayFptr
 
 contains
 
@@ -94,13 +94,13 @@ contains
       type(AccumulationInternal), pointer, intent(in) :: state
    end subroutine finalize_accumulation_internal
 
-   function assign_fptr_i4_1d(farray) result(fptr)
-      integer(ESMF_KIND_I4), pointer :: fptr
-      integer(ESMF_KIND_I4), pointer, intent(in) :: farray(:)
-
-      call c_f_pointer(c_loc(farray), fptr, cptr, product(shape(farray)))
-
-   end function assign_fptr_i4_1d
+!   function assign_fptr_i4_1d(farray) result(fptr) !wdb fixme deleteme
+!      integer(ESMF_KIND_I4), pointer :: fptr
+!      integer(ESMF_KIND_I4), pointer, intent(in) :: farray(:)
+!
+!      call c_f_pointer(c_loc(farray), fptr, cptr, product(shape(farray)))
+!
+!   end function assign_fptr_i4_1d
 
    function construct_accumulation_field(source, destination, use_mean, minimize) result(f)
       type(AccumulationField) :: f
