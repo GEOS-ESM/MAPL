@@ -78,7 +78,8 @@ contains
       type(InnerMetaComponent), pointer :: inner_meta
       integer :: status
 
-      _SET_NAMED_PRIVATE_STATE(self_gc, InnerMetaComponent, INNER_META_PRIVATE_STATE, inner_meta)
+      _SET_NAMED_PRIVATE_STATE(self_gc, InnerMetaComponent, INNER_META_PRIVATE_STATE)
+      _GET_NAMED_PRIVATE_STATE(self_gc, InnerMetaComponent, INNER_META_PRIVATE_STATE, inner_meta)
       inner_meta = InnerMetaComponent(self_gc, outer_gc)
       
       _RETURN(_SUCCESS)

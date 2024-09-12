@@ -12,13 +12,14 @@ module mapl3g_FixedLevelsVerticalGrid
    private
 
    public :: FixedLevelsVerticalGrid
+   public :: operator(==)
+   public :: operator(/=)
 
    type, extends(VerticalGrid) :: FixedLevelsVerticalGrid
       private
       real(kind=REAL32), allocatable :: levels(:)
       character(:), allocatable :: standard_name ! air_pressure, height, etc.
-!#      character(:), allocatable :: units
-!#      character(:), allocatable :: coordinate_name
+      character(:), allocatable :: units
    contains
       procedure :: get_num_levels
       procedure :: get_coordinate_field
@@ -29,16 +30,27 @@ module mapl3g_FixedLevelsVerticalGrid
       procedure new_FixedLevelsVerticalGrid_r32
    end interface FixedLevelsVerticalGrid
 
+   interface operator(==)
+      module procedure equal_FixedLevelsVerticalGrid
+   end interface operator(==)
+
+   interface operator(/=)
+      module procedure not_equal_FixedLevelsVerticalGrid
+   end interface operator(/=)
+
+
 contains
 
-   function new_FixedLevelsVerticalGrid_r32(standard_name, levels) result(grid)
+   function new_FixedLevelsVerticalGrid_r32(standard_name, levels, units) result(grid)
       type(FixedLevelsVerticalGrid) :: grid
       real(REAL32), intent(in) :: levels(:)
       character(*), intent(in) :: standard_name
+      character(*), intent(in) :: units
 
       call grid%set_id()
       grid%standard_name = standard_name
       grid%levels = levels
+      grid%units = units
 
    end function new_FixedLevelsVerticalGrid_r32
 
@@ -79,5 +91,24 @@ contains
        _UNUSED_DUMMY(src)
     end function can_connect_to
 
+    impure elemental logical function equal_FixedLevelsVerticalGrid(a, b) result(equal)
+       type(FixedLevelsVerticalGrid), intent(in) :: a, b
+
+       equal = a%standard_name == b%standard_name
+       if (.not. equal) return       
+       equal = a%units == b%units
+       if (.not. equal) return       
+       equal = size(a%levels) == size(b%levels)
+       if (.not. equal) return       
+       equal = all(a%levels == b%levels)
+    end function equal_FixedLevelsVerticalGrid 
+
+    impure elemental logical function not_equal_FixedLevelsVerticalGrid(a, b) result(not_equal)
+       type(FixedLevelsVerticalGrid), intent(in) :: a, b
+
+       not_equal = .not. (a==b)
+
+    end function not_equal_FixedLevelsVerticalGrid 
+
 end module mapl3g_FixedLevelsVerticalGrid
-   
+

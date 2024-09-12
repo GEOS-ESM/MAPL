@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) init_meta_smod
+   use pFlogger, only: logging
    implicit none
 
 contains

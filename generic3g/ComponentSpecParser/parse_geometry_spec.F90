@@ -3,6 +3,7 @@
 submodule (mapl3g_ComponentSpecParser) parse_geometry_spec_smod
    use mapl3g_VerticalGrid
    use mapl3g_BasicVerticalGrid
+   use mapl3g_FixedLevelsVerticalGrid
    implicit none(external,type)
 
 contains
@@ -28,8 +29,9 @@ contains
       type(GeomManager), pointer :: geom_mgr
       class(GeomSpec), allocatable :: geom_spec
       integer :: num_levels
-      character(:), allocatable :: vertical_grid_class
+      character(:), allocatable :: vertical_grid_class, standard_name, units
       class(VerticalGrid), allocatable :: vertical_grid
+      real, allocatable :: levels(:)
 
       has_geometry_section = ESMF_HConfigIsDefined(mapl_cfg,keyString=COMPONENT_GEOMETRY_SECTION, _RC)
       _RETURN_UNLESS(has_geometry_section)
@@ -92,8 +94,18 @@ contains
       if (has_vertical_grid) then
          vertical_grid_class = ESMF_HConfigAsString(vertical_grid_cfg, keyString='class', _RC)
          _ASSERT(vertical_grid_class == 'basic', 'unsupported class of vertical grid')
-         num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString='num_levels', _RC)
-         vertical_grid = BasicVerticalGrid(num_levels)
+         select case(vertical_grid_class)
+         case('basic')
+            num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString='num_levels', _RC)
+            vertical_grid = BasicVerticalGrid(num_levels)
+         case('fixedlevels')
+            standard_name = ESMF_HConfigAsString(vertical_grid_cfg, keyString='standard_name', _RC)
+            units = ESMF_HConfigAsString(vertical_grid_cfg, keyString='units', _RC)
+            levels = ESMF_HConfigAsR4Seq(vertical_grid_cfg, keyString='levels' ,_RC)
+            vertical_grid = FixedLevelsVerticalGrid(standard_name, levels, units)
+         case default
+            _FAIL('vertical grid class '//vertical_grid_class//' not supported')
+         end select
       end if
       geometry_spec = GeometrySpec(geom_spec=geom_spec, vertical_grid=vertical_grid)
 

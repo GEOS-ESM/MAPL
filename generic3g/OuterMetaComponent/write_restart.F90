@@ -43,6 +43,8 @@ contains
       end if
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(importState)
    end subroutine write_restart
 
 end submodule write_restart_smod

@@ -31,24 +31,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_modify_advertised2
    
-   subroutine process_connections(this, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ConnectionVectorIterator) :: iter
-      class(Connection), pointer :: c
-
-      associate (e => this%component_spec%connections%end())
-        iter = this%component_spec%connections%begin()
-        do while (iter /= e)
-           c => iter%of()
-           call c%connect(this%registry, _RC)
-           call iter%next()
-        end do
-      end associate
-
-      _RETURN(_SUCCESS)
-   end subroutine process_connections
-
 end submodule initialize_modify_advertised2_smod

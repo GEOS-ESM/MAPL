@@ -238,9 +238,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(CouplerMetaComponent), pointer :: meta
 
-      _SET_NAMED_PRIVATE_STATE(gridcomp, CouplerMetaComponent, COUPLER_META_PRIVATE_STATE, meta)
+      _SET_NAMED_PRIVATE_STATE(gridcomp, CouplerMetaComponent, COUPLER_META_PRIVATE_STATE)
 
       _RETURN(_SUCCESS)
    end subroutine attach_coupler_meta

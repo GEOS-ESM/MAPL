@@ -64,6 +64,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+
+- Added ability to read the attribute with explicit type "string" of a netcdf variable. 
+- Start implementing changes for vertical regridding in ExtData
 - Add ability to connect export of the MAPL hierachy to ExtData via CAP.rc file
 - Added new driver, CapDriver.x, to excerise the MAPL_Cap with the configuratable component also used by ExtDataDriver.x
 - Added Fortran interface to UDUNITS2
@@ -74,7 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Update to circleci-tools orb v4
     - This adds the ability to do an `ifx` test along with the `ifort` test (though `ifx` is not yet enabled)
 - Update `components.yaml`
-  - ESMA_env v4.30.0
+  - ESMA_env v4.30.1
     - Update to Baselibs 7.25.0
       - ESMF 8.6.1
       - GFE v1.16.0
@@ -89,11 +92,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Move to use Intel ifort 2021.13 at NCCS SLES15, NAS, and GMAO Desktops
     - Move to use Intel MPI at NCCS SLES15 and GMAO Desktops
     - Move to GEOSpyD Min24.4.4 Python 3.11
-  - ESMA_cmake v3.50.0
+    - Fix for csh at NAS
+  - ESMA_cmake v3.51.0
     - Update `esma_add_fortran_submodules` function
     - Move MPI detection out of FindBaselibs
     - Add SMOD to submodule generator
     - NAG OpenMP Workaround
+    - Support for Jemalloc and LLVM Flang
 - Add support for preliminary CF Conventions quantization properties
   - Add new quantization keyword `granular_bitround` to History. This will be the preferred keyword for quantization in the future
     replacing `GranularBR`

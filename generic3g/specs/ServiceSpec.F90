@@ -124,6 +124,8 @@ contains
       integer :: status
 
       _FAIL('ServiceService::Cannot nest bundles.')
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
 
    

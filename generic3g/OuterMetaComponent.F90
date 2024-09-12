@@ -33,7 +33,7 @@ module mapl3g_OuterMetaComponent
    use gFTL2_StringVector
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
    use esmf
-   use pflogger, only: logging, Logger
+   use pflogger, only: Logger
 
    implicit none
    private
