@@ -93,7 +93,6 @@ contains
 
       if (has_vertical_grid) then
          vertical_grid_class = ESMF_HConfigAsString(vertical_grid_cfg, keyString='class', _RC)
-         _ASSERT(vertical_grid_class == 'basic', 'unsupported class of vertical grid')
          select case(vertical_grid_class)
          case('basic')
             num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString='num_levels', _RC)
