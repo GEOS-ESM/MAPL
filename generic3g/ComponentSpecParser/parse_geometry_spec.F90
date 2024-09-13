@@ -97,7 +97,7 @@ contains
          case('basic')
             num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString='num_levels', _RC)
             vertical_grid = BasicVerticalGrid(num_levels)
-         case('fixedlevels')
+         case('fixed_levels')
             standard_name = ESMF_HConfigAsString(vertical_grid_cfg, keyString='standard_name', _RC)
             units = ESMF_HConfigAsString(vertical_grid_cfg, keyString='units', _RC)
             levels = ESMF_HConfigAsR4Seq(vertical_grid_cfg, keyString='levels' ,_RC)
