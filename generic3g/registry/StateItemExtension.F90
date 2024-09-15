@@ -116,15 +116,21 @@ contains
       type(ESMF_GridComp) :: coupler_gridcomp
       type(ESMF_Clock) :: fake_clock
 
+      call this%spec%set_active
       call this%spec%make_extension(goal, new_spec, action, _RC)
+
+      if (.not. allocated(action)) then ! no extension necessary
+         extension = StateItemExtension(this%spec)
+         _RETURN(_SUCCESS)
+      end if
+         
       call new_spec%create(_RC)
       call new_spec%set_active()
-      call this%spec%set_active
 
       coupler_gridcomp = make_coupler(action, _RC)
       producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
-
       extension = StateItemExtension(new_spec, producer)
+
 
       _RETURN(_SUCCESS)
    end function make_extension

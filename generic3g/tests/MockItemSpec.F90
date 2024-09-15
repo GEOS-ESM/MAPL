@@ -23,6 +23,7 @@ module MockItemSpecMod
    type, extends(StateItemSpec) :: MockItemSpec
       character(len=:), allocatable :: name
       character(len=:), allocatable :: subtype
+      character(len=:), allocatable :: filter_type
    contains
       procedure :: create
       procedure :: destroy
@@ -33,6 +34,7 @@ module MockItemSpecMod
       procedure :: can_connect_to
       procedure :: make_extension
       procedure :: extension_cost
+      procedure :: make_filters
       procedure :: add_to_state
       procedure :: add_to_bundle
    end type MockItemSpec
@@ -52,15 +54,29 @@ module MockItemSpecMod
       module procedure new_MockAction
    end interface MockAction
 
+   type, extends(StateItemFilter) :: SubtypeFilter
+      character(:), allocatable :: subtype
+   contains
+      procedure :: apply_one => match_subtype
+   end type SubtypeFilter
+
+   type, extends(StateItemFilter) :: NameFilter
+      character(:), allocatable :: name
+   contains
+      procedure :: apply_one => match_name
+   end type NameFilter
+
 contains
 
-   function new_MockItemSpec(name, subtype) result(spec)
+   function new_MockItemSpec(name, subtype, filter_type) result(spec)
       type(MockItemSpec) :: spec
       character(*), intent(in) :: name
       character(*), optional, intent(in) :: subtype
+      character(*), optional, intent(in) :: filter_type
 
       spec%name = name
       if (present(subtype)) spec%subtype = subtype
+      if (present(filter_type)) spec%filter_type = filter_type
 
    end function new_MockItemSpec
 
@@ -274,4 +290,80 @@ contains
       _FAIL('This procedure should not be called.')
    end subroutine run
    
+   function make_filters(this, goal_spec, rc) result(filters)
+      type(StateItemFilterWrapper), allocatable :: filters(:)
+      class(MockItemSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+
+      allocate(filters(0))
+      if (allocated(this%filter_type)) then
+         select case (this%filter_type)
+         case ('subtype')
+            select type (goal_spec)
+            type is (MockItemSpec)
+               filters = [StateItemFilterWrapper(SubtypeFilter(goal_spec%subtype))]
+            class default
+               _FAIL('unsupported subtype')
+            end select
+         case ('name')
+            select type (goal_spec)
+            type is (MockItemSpec)
+               filters = [StateItemFilterWrapper(NameFilter(goal_spec%name))]
+            class default
+               _FAIL('unsupported subtype')
+            end select
+         case default
+            _FAIL('unsupported filter type')
+         end select
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(goal_spec)
+   end function make_filters
+
+   logical function match_subtype(this, spec) result(match)
+      class(SubtypeFilter), intent(in) :: this
+      class(StateItemSpec), intent(in) :: spec
+
+
+      match = .false.
+      select type (spec)
+      type is (MockItemSpec)
+         if (allocated(this%subtype)) then
+            if (allocated(spec%subtype)) then
+               match = this%subtype == spec%subtype
+            else
+               match = .true.
+            end if
+         else
+            match = .true.
+         end if
+      end select
+      
+   end function match_subtype
+
+   logical function match_name(this, spec) result(match)
+      class(NameFilter), intent(in) :: this
+      class(StateItemSpec), intent(in) :: spec
+
+
+      match = .false.
+      select type (spec)
+      type is (MockItemSpec)
+         if (allocated(this%name)) then
+            if (allocated(spec%name)) then
+               match = this%name == spec%name
+            else
+               match = .true.
+            end if
+         else
+            match = .true.
+         end if
+      end select
+      
+   end function match_name
+
 end module MockItemSpecMod

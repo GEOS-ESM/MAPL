@@ -32,9 +32,10 @@ module mapl3g_WildcardSpec
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: make_extension
+      procedure :: extension_cost
+      procedure :: make_filters
       procedure :: add_to_state
       procedure :: add_to_bundle
-      procedure :: extension_cost
       procedure :: set_geometry
 
    end type WildcardSpec
@@ -236,5 +237,20 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_geometry
+
+   function make_filters(this, goal_spec, rc) result(filters)
+      type(StateItemFilterWrapper), allocatable :: filters(:)
+      class(WildcardSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+
+      allocate(filters(0))
+      _FAIL('unimplemented')
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(goal_spec)
+   end function make_filters
 
 end module mapl3g_WildcardSpec

@@ -72,7 +72,7 @@ module mapl3g_FieldSpec
       type(ESMF_Geom), allocatable :: geom
       class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN
-      type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
+      type(ESMF_Typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(UngriddedDims) :: ungridded_dims
       type(StringVector) :: attributes
       type(EsmfRegridderParam) :: regrid_param
@@ -106,6 +106,7 @@ module mapl3g_FieldSpec
 
       procedure :: extension_cost
       procedure :: make_extension
+      procedure :: make_filters
 
       procedure :: set_info
       procedure :: set_geometry
@@ -142,6 +143,39 @@ module mapl3g_FieldSpec
       procedure update_item_typekind
       procedure update_item_string
    end interface update_item
+
+   type, extends(StateItemFilter) :: GeomFilter
+      private
+      type(ESMF_Geom) :: geom
+   contains
+      procedure :: apply_one => filter_match_geom
+   end type GeomFilter
+
+   interface GeomFilter
+      procedure :: new_GeomFilter
+   end interface GeomFilter
+
+   type, extends(StateItemFilter) :: TypeKindFilter
+      private
+      type(ESMF_Typekind_Flag) :: typekind
+   contains
+      procedure :: apply_one => filter_match_typekind
+   end type TypeKindFilter
+
+   interface TypeKindFilter
+      procedure :: new_TypeKindFilter
+   end interface TypeKindFilter
+
+   type, extends(StateItemFilter) :: UnitsFilter
+      private
+      character(:), allocatable :: units
+   contains
+      procedure :: apply_one => filter_match_units
+   end type UnitsFilter
+
+   interface UnitsFilter
+      procedure :: new_UnitsFilter
+   end interface UnitsFilter
 
 contains
 
@@ -1009,6 +1043,86 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_info
 
+   function make_filters(this, goal_spec, rc) result(filters)
+      type(StateItemFilterWrapper), allocatable :: filters(:)
+      class(FieldSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      select type (goal_spec)
+      type is (FieldSpec)
+         filters = [ &
+              StateItemFilterWrapper(GeomFilter(goal_spec%geom)), &
+!#              StateItemFilterWrapper(VerticalGridFilter(goal_spec%vertical_grid)), &
+              StateItemFilterWrapper(TypeKindFilter(goal_spec%typekind)), &
+              StateItemFilterWrapper(UnitsFilter(goal_spec%units))]
+      class default
+         allocate(filters(0))
+         _FAIL('unsupported subclass of StateItemSpec')
+      end select
+
+      _RETURN(_SUCCESS)
+
+   end function make_filters
+
+   function new_GeomFilter(geom) result(geom_filter)
+      type(GeomFilter) :: geom_filter
+      type(ESMF_Geom), optional, intent(in) :: geom
+
+      if (present(geom)) geom_filter%geom = geom
+   end function new_GeomFilter
+
+   logical function filter_match_geom(this, spec) result(match)
+      class(GeomFilter), intent(in) :: this
+      class(StateItemSpec), intent(in) :: spec
+
+      match = .false.
+      select type (spec)
+      type is (FieldSpec)
+         match = match_geom(spec%geom, spec%geom)
+      end select
+   end function filter_match_geom
+
+   function new_TypekindFilter(typekind) result(typekind_filter)
+      type(TypekindFilter) :: typekind_filter
+      type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
+
+      if (present(typekind)) typekind_filter%typekind = typekind
+   end function new_TypekindFilter
+
+   logical function filter_match_typekind(this, spec) result(match)
+      class(TypekindFilter), intent(in) :: this
+      class(StateItemSpec), intent(in) :: spec
+
+      match = .false.
+      select type (spec)
+      type is (FieldSpec)
+         match = match_typekind(spec%typekind, spec%typekind)
+      end select
+   end function filter_match_typekind
+
+   function new_UnitsFilter(units) result(units_filter)
+      type(UnitsFilter) :: units_filter
+      character(*), optional, intent(in) :: units
+
+      if (present(units)) units_filter%units = units
+   end function new_UnitsFilter
+
+   logical function filter_match_units(this, spec) result(match)
+      class(UnitsFilter), intent(in) :: this
+      class(StateItemSpec), intent(in) :: spec
+
+      match = .false.
+      select type (spec)
+      type is (FieldSpec)
+         match = match_string(spec%units, spec%units)
+      end select
+   end function filter_match_units
+
+
 end module mapl3g_FieldSpec
+
 #undef _SET_FIELD
 #undef _SET_ALLOCATED_FIELD
