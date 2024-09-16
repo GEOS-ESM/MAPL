@@ -53,7 +53,7 @@
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use StationSamplerMod
-  use MaskSamplerGeosatMod
+  use MaskSamplerMod
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
@@ -2439,8 +2439,10 @@ ENDDO PARSER
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
              call MAPL_TimerOn(GENSTATE,"mask_init")
-             list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,genstate=GENSTATE,_RC)
+             list(n)%mask_sampler = MaskSampler(cfg,string,clock,genstate=GENSTATE,_RC)
              call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             collection_id = o_Clients%add_hist_collection(list(n)%mask_sampler%metadata, mode = create_mode)
+             call list(n)%mask_sampler%set_param(write_collection_id=collection_id)
              call MAPL_TimerOff(GENSTATE,"mask_init")
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (list(n)%bundle, trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, genstate=GENSTATE, _RC)
@@ -3573,8 +3575,9 @@ ENDDO PARSER
             if (list(n)%unit.eq.0) then
                call lgr%debug('%a %a',&
                     "Mask_data output to new file:",trim(filename(n)))
-               call list(n)%mask_sampler%close_file_handle(_RC)
-               call list(n)%mask_sampler%create_file_handle(filename(n),_RC)
+! start to use griddedio
+!               call list(n)%mask_sampler%close_file_handle(_RC)
+!               call list(n)%mask_sampler%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
@@ -3721,7 +3724,8 @@ ENDDO PARSER
          elseif (list(n)%sampler_spec == 'mask') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call MAPL_TimerOn(GENSTATE,"Mask_append")
-            call list(n)%mask_sampler%append_file(current_time,_RC)
+            call list(n)%mask_sampler%append_file(current_time,&
+                 list(n)%currentFile,oClients=o_Clients,_RC)
             call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif
 

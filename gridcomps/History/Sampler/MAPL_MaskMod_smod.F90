@@ -1,14 +1,14 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
-submodule (MaskSamplerGeosatMod)  MaskSamplerGeosat_implement
+submodule (MaskSamplerMod)  MaskSampler_implement
   implicit none
 contains
 
-module function MaskSamplerGeosat_from_config(config,string,clock,GENSTATE,rc) result(mask)
+module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(mask)
   use BinIOMod
   use pflogger, only         :  Logger, logging
-  type(MaskSamplerGeosat) :: mask
+  type(MaskSampler) :: mask
   type(ESMF_Config), intent(inout)        :: config
   character(len=*),  intent(in)           :: string
   type(ESMF_Clock),  intent(in)           :: clock
@@ -103,14 +103,14 @@ module function MaskSamplerGeosat_from_config(config,string,clock,GENSTATE,rc) r
 
 105 format (1x,a,2x,a)
 106 format (1x,a,2x,i8)
-end function MaskSamplerGeosat_from_config
+end function MaskSampler_from_config
 
 
    !
    !-- integrate both initialize and reinitialize
    !
 module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
-   class(MaskSamplerGeosat), intent(inout) :: this
+   class(MaskSampler), intent(inout) :: this
    type(GriddedIOitemVector), optional, intent(inout) :: items
    type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
    type(TimeData), optional, intent(inout)           :: timeInfo
@@ -130,7 +130,7 @@ module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
       if(present(bundle))   this%bundle=bundle
       if(present(items))    this%items=items
       if(present(timeInfo)) this%time_info=timeInfo
-      if (present(vdata)) then
+      if(present(vdata)) then
          this%vdata=vdata
       else
          this%vdata=VerticalData(_RC)
@@ -151,11 +151,44 @@ module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
 end subroutine initialize_
 
 
+module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder, &
+     write_collection_id,regrid_hints,rc)
+  class (mask_sampler), intent(inout) :: this
+  integer, optional, intent(in) :: deflation
+  integer, optional, intent(in) :: quantize_algorithm
+  integer, optional, intent(in) :: quantize_level
+  integer, optional, intent(in) :: chunking(:)
+  integer, optional, intent(in) :: nbits_to_keep
+  integer, optional, intent(in) :: regrid_method
+  logical, optional, intent(in) :: itemOrder
+  integer, optional, intent(in) :: write_collection_id
+  integer, optional, intent(in) :: regrid_hints
+  integer, optional, intent(out) :: rc
+  integer :: status
+  
+  if (present(write_collection_id)) this%write_collection_id=write_collection_id        
+!!  add later on
+!!        if (present(regrid_method)) this%regrid_method=regrid_method
+!!        if (present(nbits_to_keep)) this%nbits_to_keep=nbits_to_keep
+!!        if (present(deflation)) this%deflateLevel = deflation
+!!        if (present(quantize_algorithm)) this%quantizeAlgorithm = quantize_algorithm
+!!        if (present(quantize_level)) this%quantizeLevel = quantize_level
+!!        if (present(chunking)) then
+!!           allocate(this%chunking,source=chunking,stat=status)
+!!           _VERIFY(status)
+!!        end if
+!!        if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder
+!!        if (present(regrid_hints)) this%regrid_hints = regrid_hints
+!!        _RETURN(ESMF_SUCCESS)
+
+end subroutine set_param
+      
+
      module subroutine create_Geosat_grid_find_mask(this, rc)
        use pflogger, only: Logger, logging
        implicit none
 
-       class(MaskSamplerGeosat), intent(inout) :: this
+       class(MaskSampler), intent(inout) :: this
        integer, optional, intent(out)          :: rc
 
        type(Logger), pointer :: lgr
@@ -449,6 +482,14 @@ end subroutine initialize_
        call ESMF_FieldHaloStore (fieldI4, routehandle=RH_halo, _RC)
        call ESMF_FieldHalo (fieldI4, routehandle=RH_halo, _RC)
 
+       !
+       !--?? print out eLB, eUB do they match 1:IM, JM?
+       !
+       write(6,*) 'IM,JM', IM,JM
+       write(6,*) 'eLB(1), eUB(1)', eLB(1), eUB(1) 
+       write(6,*) 'eLB(2), eUB(2)', eLB(2), eUB(2)      
+       
+       
        k=0
        do i=eLB(1), eUB(1)
           do j=eLB(2), eUB(2)
@@ -465,7 +506,7 @@ end subroutine initialize_
        allocate( mask(IM, JM), _STAT)
        mask(1:IM, 1:JM) = abs(farrayPtr(1:IM, 1:JM))
 
-       this%npt_mask = k
+       this%npt_mask = k    ! # of pts on CS grid
        allocate( this%index_mask(2,k), _STAT )
        arr(1)=k
        call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=this%npt_mask_tot, &
@@ -557,7 +598,7 @@ end subroutine initialize_
 
 
 module subroutine  add_metadata(this,rc)
-    class(MaskSamplerGeosat), intent(inout) :: this
+    class(MaskSampler), intent(inout) :: this
     integer, optional, intent(out)          :: rc
 
     type(variable)   :: v
@@ -593,6 +634,9 @@ module subroutine  add_metadata(this,rc)
     call v%add_attribute('unit','degree_north')
     call this%metadata%add_variable('latitude',v)
 
+    v = this%time_info%define_time_variable(_RC)
+    call this%metadata%add_variable('time',v,_RC)
+    
     ! To be added when values are available
     !v = Variable(type=pFIO_INT32, dimensions='mask_index')
     !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
@@ -649,10 +693,11 @@ module subroutine  add_metadata(this,rc)
   end subroutine add_metadata
 
 
- module subroutine regrid_append_file(this,current_time,rc)
+
+ module subroutine output_to_oserver(this,current_time,rc)
     implicit none
 
-    class(MaskSamplerGeosat), intent(inout) :: this
+    class(MaskSampler), intent(inout) :: this
     type(ESMF_Time), intent(inout)          :: current_time
     integer, optional, intent(out)          :: rc
     !
@@ -678,9 +723,14 @@ module subroutine  add_metadata(this,rc)
     type(GriddedIOitemVectorIterator) :: iter
     type(GriddedIOitem), pointer :: item
     type(ESMF_VM) :: vm
+    type(ArrayReference) :: ref
+    integer, allocatable :: local_start(:)
+    integer, allocatable :: global_start(:)
+    integer, allocatable :: global_count(:)
 
+    ! __ s1. find local_start, global_start, etc.
     this%obs_written=this%obs_written+1
-
+    
     ! -- fixed for all fields
     call ESMF_VMGetCurrent(vm,_RC)
     call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=petcount, localpet=mypet, _RC)
@@ -699,7 +749,7 @@ module subroutine  add_metadata(this,rc)
     allocate( recvcounts_3d(petcount), displs_3d(petcount), _STAT )
     recvcounts_3d(:) = nz * this%recvcounts(:)
     displs_3d(:)     = nz * this%displs(:)
-
+    
 
     !__ 1. put_var: time variable
     !
@@ -733,46 +783,62 @@ module subroutine  add_metadata(this,rc)
                 iy = this%index_mask(2,j)
                 p_dst_2d(j) = p_src_2d(ix, iy)
              end do
-             nsend = nx
-             call MPI_gatherv ( p_dst_2d, nsend, MPI_REAL, &
-                  p_dst_2d_full, this%recvcounts, this%displs, MPI_REAL,&
-                  iroot, mpic, status )
-             _VERIFY(status)
-             call MAPL_TimerOn(this%GENSTATE,"put2D")
-             if (mapl_am_i_root()) then
-                call this%formatter%put_var(item%xname,p_dst_2d_full,&
-                     start=[1,this%obs_written],count=[this%npt_mask_tot,1],_RC)
-             end if
-             call MAPL_TimerOff(this%GENSTATE,"put2D")
+             ref = ArrayReference(p_dst_2d)
+             allocate(local_start,source=[1,1])
+             allocate(global_start,source=[1,this%obs_written])
+             allocate(global_count,source=[nx,1])
+             call oClients%collective_stage_data(this%write_collection_id,trim(this%ofile),trim(item%xname), &
+                  ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+
+!!             nsend = nx
+!!             call MPI_gatherv ( p_dst_2d, nsend, MPI_REAL, &
+!!                  p_dst_2d_full, this%recvcounts, this%displs, MPI_REAL,&
+!!                  iroot, mpic, status )
+!!             _VERIFY(status)
+!!             call MAPL_TimerOn(this%GENSTATE,"put2D")
+!!             if (mapl_am_i_root()) then
+!!                call this%formatter%put_var(item%xname,p_dst_2d_full,&
+!!                     start=[1,this%obs_written],count=[this%npt_mask_tot,1],_RC)
+!!             end if
+!!             call MAPL_TimerOff(this%GENSTATE,"put2D")
+
+
           else if (rank==3) then
              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
              call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
              _ASSERT (this%vdata%lm == (ub(1)-lb(1)+1), 'vertical level is different from CS grid')
-             m=0
-             do j=1, nx
-                ix = this%index_mask(1,j)
-                iy = this%index_mask(2,j)
-                do k= lb(1), ub(1)
-                   m = m + 1
-                   p_dst_3d(m) = p_src_3d(ix, iy, k)
+             do k= lb(1), ub(1)
+                do j=1, nx
+                   ix = this%index_mask(1,j)
+                   iy = this%index_mask(2,j)
+                   arr(j,k) = p_src_3d(ix, iy, k)
                 end do
              end do
              !! write(6,'(2x,a,2x,i5,3x,10f8.1)') 'pet, p_dst_3d(j)', mypet, p_dst_3d(::10)
-             nsend = nx * nz
-             call MPI_gatherv ( p_dst_3d, nsend, MPI_REAL, &
-                  p_dst_3d_full, recvcounts_3d, displs_3d, MPI_REAL,&
-                  iroot, mpic, status )
-             _VERIFY(status)
-             call MAPL_TimerOn(this%GENSTATE,"put3D")
-             if (mapl_am_i_root()) then
-                allocate(arr(nz, this%npt_mask_tot), _STAT)
-                arr=reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])
-                call this%formatter%put_var(item%xname,arr,&
-                     start=[1,1,this%obs_written],count=[nz,this%npt_mask_tot,1],_RC)
-                !note:     lev,station,time
-                deallocate(arr, _STAT)
-             end if
-             call MAPL_TimerOff(this%GENSTATE,"put3D")
+
+             ref = ArrayReference(arr)
+             allocate(local_start,source=[1,1,1])
+             allocate(global_start,source=[1,1,this%obs_written])
+             allocate(global_count,source=[nx,nz,1])
+             call oClients%collective_stage_data(this%write_collection_id,trim(this%ofile),trim(item%xname), &
+                  ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+
+!             nsend = nx * nz
+!             call MPI_gatherv ( p_dst_3d, nsend, MPI_REAL, &
+!                  p_dst_3d_full, recvcounts_3d, displs_3d, MPI_REAL,&
+!                  iroot, mpic, status )
+!             _VERIFY(status)
+!             call MAPL_TimerOn(this%GENSTATE,"put3D")
+!             if (mapl_am_i_root()) then
+!                allocate(arr(nz, this%npt_mask_tot), _STAT)
+!                arr=reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])
+!                call this%formatter%put_var(item%xname,arr,&
+!                     start=[1,1,this%obs_written],count=[nz,this%npt_mask_tot,1],_RC)
+!                !note:     lev,station,time
+!                deallocate(arr, _STAT)
+!             end if
+!             call MAPL_TimerOff(this%GENSTATE,"put3D")
+
           else
              _FAIL('grid2LS regridder: rank > 3 not implemented')
           end if
@@ -782,12 +848,12 @@ module subroutine  add_metadata(this,rc)
     end do
 
     _RETURN(_SUCCESS)
-  end subroutine regrid_append_file
+  end subroutine output_to_oserver
 
 
 
   module subroutine create_file_handle(this,filename,rc)
-    class(MaskSamplerGeosat), intent(inout) :: this
+    class(MaskSampler), intent(inout) :: this
     character(len=*), intent(in)            :: filename
     integer, optional, intent(out)          :: rc
     type(variable) :: v
@@ -796,32 +862,50 @@ module subroutine  add_metadata(this,rc)
     integer :: nx
 
     this%ofile = trim(filename)
-    v = this%time_info%define_time_variable(_RC)
-    call this%metadata%modify_variable('time',v,_RC)
     this%obs_written = 0
-
-    if (.not. mapl_am_I_root()) then
-       _RETURN(_SUCCESS)
-    end if
-
-    call this%formatter%create(trim(filename),_RC)
-    call this%formatter%write(this%metadata,_RC)
-
-    nx = size (this%lons)
-    allocate ( x(nx), _STAT )
-    x(:) = this%lons(:) * MAPL_RADIANS_TO_DEGREES
-    call this%formatter%put_var('longitude',x,_RC)
-    x(:) = this%lats(:) * MAPL_RADIANS_TO_DEGREES
-    call this%formatter%put_var('latitude',x,_RC)
-!    call this%formatter%put_var('mask_id',this%mask_id,_RC)
-!    call this%formatter%put_var('mask_name',this%mask_name,_RC)
 
     _RETURN(_SUCCESS)
   end subroutine create_file_handle
 
 
+!!  outdated for putvar purpose
+!!  
+!!  module subroutine create_file_handle(this,filename,rc)
+!!    class(MaskSampler), intent(inout) :: this
+!!    character(len=*), intent(in)            :: filename
+!!    integer, optional, intent(out)          :: rc
+!!    type(variable) :: v
+!!    integer :: status, j
+!!    real(kind=REAL64), allocatable :: x(:)
+!!    integer :: nx
+!!
+!!    this%ofile = trim(filename)
+!!    v = this%time_info%define_time_variable(_RC)
+!!    call this%metadata%modify_variable('time',v,_RC)
+!!    this%obs_written = 0
+!!
+!!    if (.not. mapl_am_I_root()) then
+!!       _RETURN(_SUCCESS)
+!!    end if
+!!
+!!    call this%formatter%create(trim(filename),_RC)
+!!    call this%formatter%write(this%metadata,_RC)
+!!
+!!    nx = size (this%lons)
+!!    allocate ( x(nx), _STAT )
+!!    x(:) = this%lons(:) * MAPL_RADIANS_TO_DEGREES
+!!    call this%formatter%put_var('longitude',x,_RC)
+!!    x(:) = this%lats(:) * MAPL_RADIANS_TO_DEGREES
+!!    call this%formatter%put_var('latitude',x,_RC)
+!!!    call this%formatter%put_var('mask_id',this%mask_id,_RC)
+!!!    call this%formatter%put_var('mask_name',this%mask_name,_RC)
+!!
+!!    _RETURN(_SUCCESS)
+!!  end subroutine create_file_handle
+
+
    module subroutine close_file_handle(this,rc)
-    class(MaskSamplerGeosat), intent(inout) :: this
+    class(MaskSampler), intent(inout) :: this
     integer, optional, intent(out)          :: rc
 
     integer :: status
@@ -836,7 +920,7 @@ module subroutine  add_metadata(this,rc)
 
   module function compute_time_for_current(this,current_time,rc) result(rtime)
     use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
-    class(MaskSamplerGeosat), intent(inout) :: this
+    class(MaskSampler), intent(inout) :: this
     type(ESMF_Time), intent(in) :: current_time
     integer, optional, intent(out) :: rc
     real(kind=ESMF_KIND_R8) :: rtime
@@ -868,6 +952,7 @@ module subroutine  add_metadata(this,rc)
     _RETURN(_SUCCESS)
   end function compute_time_for_current
 
+  
 
 
-end submodule MaskSamplerGeosat_implement
+end submodule MaskSampler_implement
