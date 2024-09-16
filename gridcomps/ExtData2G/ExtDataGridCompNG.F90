@@ -882,30 +882,33 @@ CONTAINS
      integer :: status
      integer :: id_ps
      type(ESMF_Field) :: field, newfield,psF
+     type(PrimaryExport), pointer      :: ps_item
 
      if (item%do_VertInterp) then
         if (trim(item%importVDir)/=trim(item%fileVDir)) then
            call MAPL_ExtDataFlipVertical(item,filec,_RC)
         end if
-        !if (item%vartype == MAPL_fieldItem) then
-           !call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,Field,_RC)
-           !id_ps = ExtState%primary%get_item_index("PS",current_time,_RC)
-           !call MAPL_ExtDataGetBracket(ExtState%primary%item(id_ps),filec,field=psF,_RC)
-           !call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,_RC)
+        if (item%vartype == MAPL_fieldItem) then
+           call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,_RC)
+           call MAPL_ExtDataGetBracket(item,filec,Field,_RC)
+           id_ps = ExtState%primary%get_item_index("PS",current_time,_RC)
+           ps_item => ExtState%primary%item_vec%at(id_ps)
+           call MAPL_ExtDataGetBracket(ps_item,filec,field=psF,_RC)
+           call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,_RC)
 
-        !else if (item%vartype == MAPL_VectorField) then
+        else if (item%vartype == MAPL_VectorField) then
 
-           !id_ps = ExtState%primary%get_item_index("PS",current_time,_RC)
-           !call MAPL_ExtDataGetBracket(ExtState%primary%item(id_ps),filec,field=psF,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,vcomp=1,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,Field,vcomp=1,_RC)
-           !call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,vcomp=2,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,Field,vcomp=2,_RC)
-           !call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,_RC)
+           id_ps = ExtState%primary%get_item_index("PS",current_time,_RC)
+           ps_item => ExtState%primary%item_vec%at(id_ps)
+           call MAPL_ExtDataGetBracket(ps_item,filec,field=psF,_RC)
+           call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,vcomp=1,_RC)
+           call MAPL_ExtDataGetBracket(item,filec,Field,vcomp=1,_RC)
+           call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,_RC)
+           call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,vcomp=2,_RC)
+           call MAPL_ExtDataGetBracket(item,filec,Field,vcomp=2,_RC)
+           call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,_RC)
 
-        !end if
+        end if
 
      else if (item%do_Fill) then
         if (item%vartype == MAPL_fieldItem) then
@@ -995,7 +998,6 @@ CONTAINS
   end function MAPL_ExtDataGridChangeLev
 
   subroutine MAPL_ExtDataGetBracket(item,Bside,field,bundle,getRL,vcomp,rc)
-
      type(PrimaryExport),              intent(inout) :: item
      integer,                          intent(in   ) :: bside
      type(ESMF_Field),       optional, intent(inout) :: field
@@ -1019,17 +1021,37 @@ CONTAINS
         if (present(field)) then
 
            if (Bside == MAPL_ExtDataLeft .and. vcomp == 1) then
-              call item%modelGridFields%comp1%get_parameters('L',field=field,_RC)
-               _RETURN(ESMF_SUCCESS)
+              if (getRL_) then
+                 call item%modelGridFields%auxiliary1%get_parameters('L',field=field,_RC)
+                 _RETURN(ESMF_SUCCESS)
+              else
+                 call item%modelGridFields%comp1%get_parameters('L',field=field,_RC)
+                 _RETURN(ESMF_SUCCESS)
+              end if
            else if (Bside == MAPL_ExtDataLeft .and. vcomp == 2) then
-              call item%modelGridFields%comp2%get_parameters('L',field=field,_RC)
-              _RETURN(ESMF_SUCCESS)
+              if (getRL_) then
+                 call item%modelGridFields%auxiliary2%get_parameters('L',field=field,_RC)
+                 _RETURN(ESMF_SUCCESS)
+              else
+                 call item%modelGridFields%comp2%get_parameters('L',field=field,_RC)
+                 _RETURN(ESMF_SUCCESS)
+              end if
            else if (Bside == MAPL_ExtDataRight .and. vcomp == 1) then
-              call item%modelGridFields%comp1%get_parameters('R',field=field,_RC)
-              _RETURN(ESMF_SUCCESS)
+              if (getRL_) then
+                 call item%modelGridFields%auxiliary1%get_parameters('R',field=field,_RC)
+                 _RETURN(ESMF_SUCCESS)
+              else
+                 call item%modelGridFields%comp1%get_parameters('R',field=field,_RC)
+                 _RETURN(ESMF_SUCCESS)
+              end if
            else if (Bside == MAPL_ExtDataRight .and. vcomp == 2) then
-              call item%modelGridFields%comp2%get_parameters('R',field=field,_RC)
-              _RETURN(ESMF_SUCCESS)
+              if (getRL_) then
+                 call item%modelGridFields%auxiliary2%get_parameters('R',field=field,_RC)
+                 _RETURN(ESMF_SUCCESS)
+              else
+                 call item%modelGridFields%comp2%get_parameters('R',field=field,_RC)
+                 _RETURN(ESMF_SUCCESS)
+              end if
            end if
 
         else if (present(bundle)) then
@@ -1040,11 +1062,21 @@ CONTAINS
 
         if (present(field)) then
            if (Bside == MAPL_ExtDataLeft) then
-              call item%modelGridFields%comp1%get_parameters('L',field=field,_RC)
-              _RETURN(ESMF_SUCCESS)
+              if (getRL_) then
+                 call item%modelGridFields%auxiliary1%get_parameters('L',field=field,_RC)
+                 _RETURN(ESMF_SUCCESS)
+              else
+                 call item%modelGridFields%comp1%get_parameters('L',field=field,_RC)
+                 _RETURN(ESMF_SUCCESS)
+              end if
            else if (Bside == MAPL_ExtDataRight) then
-              call item%modelGridFields%comp1%get_parameters('R',field=field,_RC)
-              _RETURN(ESMF_SUCCESS)
+              if (getRL_) then
+                 call item%modelGridFields%auxiliary1%get_parameters('R',field=field,_RC)
+                 _RETURN(ESMF_SUCCESS)
+              else
+                 call item%modelGridFields%comp1%get_parameters('R',field=field,_RC)
+                 _RETURN(ESMF_SUCCESS)
+              end if
            end if
         else if (present(bundle)) then
            !if (Bside == MAPL_ExtDataLeft) then
@@ -1284,20 +1316,19 @@ CONTAINS
      type (ESMF_Grid) :: grid, newgrid
      type(ESMF_Field) :: field,new_field
 
-     _FAIL('you be bad')
-     !call item%modelGridFields%comp1%get_parameters('L',field=field,_RC)
-     !newGrid = MAPL_ExtDataGridChangeLev(grid,cf,item%lm,_RC)
-     !new_field = MAPL_FieldCreate(field,newGrid,lm=item%lm,newName=trim(item%fcomp1),_RC)
-     !call item%modelGridFields%auxiliary1%set_parameters(left_field=new_field,_RC)
-     !new_field = MAPL_FieldCreate(field,newGrid,lm=item%lm,newName=trim(item%fcomp1),_RC)
-     !call item%modelGridFields%auxiliary1%set_parameters(right_field=new_field,_RC)
-     !if (item%vartype==MAPL_VectorField) then
-        !new_field = MAPL_FieldCreate(field,newGrid,lm=item%lm,newName=trim(item%fcomp2),_RC)
-        !call item%modelGridFields%auxiliary2%set_parameters(left_field=new_field,_RC)
-        !new_field = MAPL_FieldCreate(field,newGrid,lm=item%lm,newName=trim(item%fcomp2),_RC)
-        !call item%modelGridFields%auxiliary2%set_parameters(right_field=new_field,_RC)
-     !end if
-     !_RETURN(_SUCCESS)
+     call item%modelGridFields%comp1%get_parameters('L',field=field,_RC)
+     newGrid = MAPL_ExtDataGridChangeLev(grid,cf,item%lm,_RC)
+     new_field = MAPL_FieldCreate(field,newGrid,lm=item%lm,newName=trim(item%fcomp1),_RC)
+     call item%modelGridFields%auxiliary1%set_parameters(left_field=new_field,_RC)
+     new_field = MAPL_FieldCreate(field,newGrid,lm=item%lm,newName=trim(item%fcomp1),_RC)
+     call item%modelGridFields%auxiliary1%set_parameters(right_field=new_field,_RC)
+     if (item%vartype==MAPL_VectorField) then
+        new_field = MAPL_FieldCreate(field,newGrid,lm=item%lm,newName=trim(item%fcomp2),_RC)
+        call item%modelGridFields%auxiliary2%set_parameters(left_field=new_field,_RC)
+        new_field = MAPL_FieldCreate(field,newGrid,lm=item%lm,newName=trim(item%fcomp2),_RC)
+        call item%modelGridFields%auxiliary2%set_parameters(right_field=new_field,_RC)
+     end if
+     _RETURN(_SUCCESS)
 
   end subroutine createFileLevBracket
 
