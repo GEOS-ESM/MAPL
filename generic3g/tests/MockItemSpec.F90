@@ -252,7 +252,6 @@ contains
          if (this%subtype /= dst_spec%subtype) then
             new_spec%subtype = dst_spec%subtype
             action = MockAction(this, new_spec)
-            action = MockAction()
             _RETURN(_SUCCESS)
          end if
       end if
