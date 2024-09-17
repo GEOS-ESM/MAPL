@@ -13,6 +13,7 @@
 module mapl3g_FieldSpec
 
    use mapl3g_StateItemSpec
+   use mapl3g_WildcardSpec
    use mapl3g_UngriddedDims
    use mapl3g_ActualConnectionPt
    use mapl3g_ESMF_Utilities, only: get_substate
@@ -176,6 +177,23 @@ module mapl3g_FieldSpec
    interface UnitsFilter
       procedure :: new_UnitsFilter
    end interface UnitsFilter
+
+   interface
+      module recursive function make_filters(this, goal_spec, rc) result(filters)
+         type(StateItemFilterWrapper), allocatable :: filters(:)
+         class(FieldSpec), intent(in) :: this
+         class(StateItemSpec), intent(in) :: goal_spec
+         integer, optional, intent(out) :: rc
+      end function make_filters
+
+      module recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
+         class(FieldSpec), intent(in) :: this
+         class(StateItemSpec), intent(in) :: dst_spec
+         class(StateItemSpec), allocatable, intent(out) :: new_spec
+         class(ExtensionAction), allocatable, intent(out) :: action
+         integer, optional, intent(out) :: rc
+      end subroutine make_extension
+   end interface
 
 contains
 
@@ -691,129 +709,6 @@ contains
    end function extension_cost
 
 
-   subroutine make_extension(this, dst_spec, new_spec, action, rc)
-      class(FieldSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      class(StateItemSpec), allocatable, intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(FieldSpec) :: tmp_spec
-
-      select type(dst_spec)
-      type is (FieldSpec)
-         call make_extension_safely(this, dst_spec, tmp_spec, action, _RC)
-         allocate(new_spec, source=tmp_spec)
-      class default
-         _FAIL('Unsupported subclass.')
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine make_extension
-
-   subroutine make_extension_safely(this, dst_spec, new_spec, action, rc)
-      class(FieldSpec), intent(in) :: this
-      type(FieldSpec), intent(in) :: dst_spec
-      type(FieldSpec), intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(GriddedComponentDriver), pointer :: v_in_coupler
-      type(GriddedComponentDriver), pointer :: v_out_coupler
-      type(ESMF_Field) :: v_in_coord, v_out_coord
-
-      new_spec = this ! plus one modification from below
-      _ASSERT(allocated(this%geom), 'Source spec must specify a valid geom.')
-      if (.not. same_geom(this%geom, dst_spec%geom)) then
-         action = RegridAction(this%geom, dst_spec%geom, dst_spec%regrid_param)
-         new_spec%geom = dst_spec%geom
-         _RETURN(_SUCCESS)
-      end if
-      
-      _ASSERT(allocated(this%vertical_grid), 'Source spec must specify a valid vertical grid.')
-      if (.not. same_vertical_grid(this%vertical_grid, dst_spec%vertical_grid)) then
-         call this%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
-              'ignore', this%geom, this%typekind, this%units, _RC)
-         call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
-              'ignore', dst_spec%geom, dst_spec%typekind, dst_spec%units, _RC)
-         action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, VERTICAL_REGRID_LINEAR)
-         _RETURN(_SUCCESS)
-      end if
-      
-!#   if (.not. same_freq_spec(this%freq_spec, dst_spec%freq_spec)) then
-!#      action = VerticalRegridAction(this%freq_spec, dst_spec%freq_spec
-!#      new_spec%freq_spec = dst_spec%freq_spec
-!!$         _RETURN(_SUCCESS)
-!#   end if
-      
-      if (this%typekind  /=  dst_spec%typekind) then
-         action = CopyAction(this%typekind, dst_spec%typekind)
-         new_spec%typekind = dst_spec%typekind
-         _RETURN(_SUCCESS)
-      end if
-      
-      if (.not. same_units(this%units, dst_spec%units)) then
-         action = ConvertUnitsAction(this%units, dst_spec%units)
-         new_spec%units = dst_spec%units
-         _RETURN(_SUCCESS)
-      end if
-      
-      _FAIL('No extensions found for this.')
-   
-   contains
-
-      
-      logical function same_geom(src_geom, dst_geom)
-         type(ESMF_Geom), intent(in) :: src_geom
-         type(ESMF_Geom), allocatable, intent(in) :: dst_geom
-         
-         same_geom = .true.
-         if (.not. allocated(dst_geom)) return ! mirror geom
-         
-         same_geom = MAPL_SameGeom(src_geom, dst_geom)
-         
-      end function same_geom
- 
-     logical function same_vertical_grid(src_grid, dst_grid)
-        class(VerticalGrid), intent(in) :: src_grid
-        class(VerticalGrid), allocatable, intent(in) :: dst_grid
-         
-         same_vertical_grid = .true.
-         if (.not. allocated(dst_grid)) return ! mirror geom
-         
-         same_vertical_grid = src_grid%same_id(dst_grid)
-
-         block
-           use mapl3g_BasicVerticalGrid
-           ! "temporary kludge" while true vertical grid logic is being implemented
-           if (.not. same_vertical_grid) then
-              select type(src_grid)
-              type is (BasicVerticalGrid)
-                 select type (dst_grid)
-                 type is (BasicVerticalGrid)
-                    same_vertical_grid = (src_grid%get_num_levels() == dst_grid%get_num_levels())
-                 end select
-              end select
-           end if
-         end block
-
-      end function same_vertical_grid
-      
-      logical function same_units(src_units, dst_units)
-         character(*), intent(in) :: src_units
-         character(:), allocatable, intent(in) :: dst_units
-         
-         same_units = .true.
-         if (.not. allocated(dst_units)) return ! mirror units
-      
-         same_units = (src_units == dst_units)
-         
-      end function same_units
-      
-   end subroutine make_extension_safely
-
 
 
    logical function can_match_geom(a, b) result(can_match)
@@ -1043,30 +938,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_info
 
-   function make_filters(this, goal_spec, rc) result(filters)
-      type(StateItemFilterWrapper), allocatable :: filters(:)
-      class(FieldSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: goal_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      select type (goal_spec)
-      type is (FieldSpec)
-         filters = [ &
-              StateItemFilterWrapper(GeomFilter(goal_spec%geom)), &
-!#              StateItemFilterWrapper(VerticalGridFilter(goal_spec%vertical_grid)), &
-              StateItemFilterWrapper(TypeKindFilter(goal_spec%typekind)), &
-              StateItemFilterWrapper(UnitsFilter(goal_spec%units))]
-      class default
-         allocate(filters(0))
-         _FAIL('unsupported subclass of StateItemSpec')
-      end select
-
-      _RETURN(_SUCCESS)
-
-   end function make_filters
-
    function new_GeomFilter(geom) result(geom_filter)
       type(GeomFilter) :: geom_filter
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -1085,11 +956,12 @@ contains
       end select
    end function filter_match_geom
 
+
    function new_TypekindFilter(typekind) result(typekind_filter)
       type(TypekindFilter) :: typekind_filter
-      type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
+      type(ESMF_Typekind_Flag), intent(in) :: typekind
 
-      if (present(typekind)) typekind_filter%typekind = typekind
+      typekind_filter%typekind = typekind
    end function new_TypekindFilter
 
    logical function filter_match_typekind(this, spec) result(match)
@@ -1099,7 +971,7 @@ contains
       match = .false.
       select type (spec)
       type is (FieldSpec)
-         match = match_typekind(spec%typekind, spec%typekind)
+         match = match_typekind(this%typekind, spec%typekind)
       end select
    end function filter_match_typekind
 
@@ -1121,8 +993,172 @@ contains
       end select
    end function filter_match_units
 
+   module recursive function make_filters(this, goal_spec, rc) result(filters)
+      type(StateItemFilterWrapper), allocatable :: filters(:)
+      class(FieldSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      select type (goal_spec)
+      type is (FieldSpec)
+         allocate(filters(3))
+!#         filters(1)%filter = GeomFilter(goal_spec%geom)
+         allocate(filters(1)%filter, source=GeomFilter(goal_spec%geom))
+!#         filters(2)%filter = TypeKindFilter(goal_spec%typekind)
+         allocate(filters(2)%filter, source=TypeKindFilter(goal_spec%typekind))
+!#         filters(3)%filter = UnitsFilter(goal_spec%units)
+         allocate(filters(3)%filter, source=UnitsFilter(goal_spec%units))
+         ! GFortran 13.3 chokes on thecode below
+!#         filters = [ &
+!#              StateItemFilterWrapper(GeomFilter(goal_spec%geom)), &
+!#   !#              this%vertical_grid%make_filters(goal_spec%vertical_grid), &
+!#              StateItemFilterWrapper(TypeKindFilter(goal_spec%typekind)), &
+!#              StateItemFilterWrapper(UnitsFilter(goal_spec%units))]
+      type is (WildCardSpec)
+         filters = goal_spec%make_filters(goal_spec, _RC)
+      class default
+         allocate(filters(0))
+         _FAIL('unsupported subclass of StateItemSpec')
+      end select
+
+      _RETURN(_SUCCESS)
+
+   end function make_filters
+
+   module recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
+      class(FieldSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: dst_spec
+      class(StateItemSpec), allocatable, intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(FieldSpec) :: tmp_spec
+
+      select type(dst_spec)
+      type is (FieldSpec)
+         call make_extension_safely(this, dst_spec, tmp_spec, action, _RC)
+         allocate(new_spec, source=tmp_spec)
+      type is (WildCardSpec)
+         call this%make_extension(dst_spec%get_reference_spec(), new_spec, action, _RC)
+      class default
+         _FAIL('Unsupported subclass.')
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine make_extension
+
+   subroutine make_extension_safely(this, dst_spec, new_spec, action, rc)
+      class(FieldSpec), intent(in) :: this
+      type(FieldSpec), intent(in) :: dst_spec
+      type(FieldSpec), intent(out) :: new_spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GriddedComponentDriver), pointer :: v_in_coupler
+      type(GriddedComponentDriver), pointer :: v_out_coupler
+      type(ESMF_Field) :: v_in_coord, v_out_coord
+
+      new_spec = this ! plus one modification from below
+
+      _ASSERT(allocated(this%geom), 'Source spec must specify a valid geom.')
+      if (.not. same_geom(this%geom, dst_spec%geom)) then
+         action = RegridAction(this%geom, dst_spec%geom, dst_spec%regrid_param)
+         new_spec%geom = dst_spec%geom
+         _RETURN(_SUCCESS)
+      end if
+
+      _ASSERT(allocated(this%vertical_grid), 'Source spec must specify a valid vertical grid.')
+      if (.not. same_vertical_grid(this%vertical_grid, dst_spec%vertical_grid)) then
+         call this%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
+              'ignore', this%geom, this%typekind, this%units, _RC)
+         call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
+              'ignore', dst_spec%geom, dst_spec%typekind, dst_spec%units, _RC)
+         action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, VERTICAL_REGRID_LINEAR)
+         _RETURN(_SUCCESS)
+      end if
+      
+!#   if (.not. same_freq_spec(this%freq_spec, dst_spec%freq_spec)) then
+!#      action = VerticalRegridAction(this%freq_spec, dst_spec%freq_spec
+!#      new_spec%freq_spec = dst_spec%freq_spec
+!!$         _RETURN(_SUCCESS)
+!#   end if
+      
+      if (.not. match(this%typekind, dst_spec%typekind)) then
+         action = CopyAction(this%typekind, dst_spec%typekind)
+         new_spec%typekind = dst_spec%typekind
+         _RETURN(_SUCCESS)
+      end if
+      
+      if (.not. same_units(this%units, dst_spec%units)) then
+         action = ConvertUnitsAction(this%units, dst_spec%units)
+         new_spec%units = dst_spec%units
+         _RETURN(_SUCCESS)
+      end if
+
+      ! no action needed
+      action = NullAction()
+
+      _RETURN(_SUCCESS)
+
+   contains
+
+      
+      logical function same_geom(src_geom, dst_geom)
+         type(ESMF_Geom), intent(in) :: src_geom
+         type(ESMF_Geom), allocatable, intent(in) :: dst_geom
+         
+         same_geom = .true.
+         if (.not. allocated(dst_geom)) return ! mirror geom
+         
+         same_geom = MAPL_SameGeom(src_geom, dst_geom)
+         
+      end function same_geom
+ 
+     logical function same_vertical_grid(src_grid, dst_grid)
+        class(VerticalGrid), intent(in) :: src_grid
+        class(VerticalGrid), allocatable, intent(in) :: dst_grid
+         
+         same_vertical_grid = .true.
+         if (.not. allocated(dst_grid)) return ! mirror geom
+         
+         same_vertical_grid = src_grid%same_id(dst_grid)
+
+         block
+           use mapl3g_BasicVerticalGrid
+           ! "temporary kludge" while true vertical grid logic is being implemented
+           if (.not. same_vertical_grid) then
+              select type(src_grid)
+              type is (BasicVerticalGrid)
+                 select type (dst_grid)
+                 type is (BasicVerticalGrid)
+                    same_vertical_grid = (src_grid%get_num_levels() == dst_grid%get_num_levels())
+                 end select
+              end select
+           end if
+         end block
+
+      end function same_vertical_grid
+      
+      logical function same_units(src_units, dst_units)
+         character(*), intent(in) :: src_units
+         character(:), allocatable, intent(in) :: dst_units
+         
+         same_units = .true.
+         if (.not. allocated(dst_units)) return ! mirror units
+      
+         same_units = (src_units == dst_units)
+         
+      end function same_units
+      
+   end subroutine make_extension_safely
+
 
 end module mapl3g_FieldSpec
+
 
 #undef _SET_FIELD
 #undef _SET_ALLOCATED_FIELD

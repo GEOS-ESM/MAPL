@@ -113,7 +113,7 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_allocate
 
-      subroutine I_make_extension(this, dst_spec, new_spec, action, rc)
+      recursive subroutine I_make_extension(this, dst_spec, new_spec, action, rc)
          use mapl3g_ExtensionAction
          import StateItemSpec
          class(StateItemSpec), intent(in) :: this
@@ -168,7 +168,7 @@ module mapl3g_StateItemSpec
       ! a GeomFilter so that a new RegridAction is only needed when
       ! no existing extensions match the geom of the goal_spec.
       function I_make_filters(this, goal_spec, rc) result(filters)
-         import StateITemSpec
+         import StateItemSpec
          import StateItemFilterWrapper
          type(StateItemFilterWrapper), allocatable :: filters(:)
          class(StateItemSpec), intent(in) :: this

@@ -38,6 +38,7 @@ module mapl3g_WildcardSpec
       procedure :: add_to_bundle
       procedure :: set_geometry
 
+      procedure :: get_reference_spec
    end type WildcardSpec
 
    interface WildcardSpec
@@ -198,7 +199,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   subroutine make_extension(this, dst_spec, new_spec, action, rc)
+   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(WildcardSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
       class(StateItemSpec), allocatable, intent(out) :: new_spec
@@ -244,13 +245,18 @@ contains
       class(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
 
-
-      allocate(filters(0))
-      _FAIL('unimplemented')
+      integer :: status
+      associate (field_spec => this%reference_spec)
+        filters = field_spec%make_filters(field_spec, _RC)
+      end associate
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(goal_spec)
    end function make_filters
+
+   function get_reference_spec(this) result(reference_spec)
+      class(WildcardSpec), target, intent(in) :: this
+      class(StateItemSpec), pointer :: reference_spec
+      reference_spec => this%reference_spec
+   end function get_reference_spec
 
 end module mapl3g_WildcardSpec

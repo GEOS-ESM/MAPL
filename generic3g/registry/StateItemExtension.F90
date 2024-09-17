@@ -104,6 +104,7 @@ contains
    ! gains it as a reference (pointer).
 
    function make_extension(this, goal, rc) result(extension)
+      use mapl3g_NullAction
       type(StateItemExtension), target :: extension
       class(StateItemExtension), target, intent(inout) :: this
       class(StateItemSpec), target, intent(in) :: goal
@@ -116,21 +117,23 @@ contains
       type(ESMF_GridComp) :: coupler_gridcomp
       type(ESMF_Clock) :: fake_clock
 
-      call this%spec%set_active
+      call this%spec%set_active()
       call this%spec%make_extension(goal, new_spec, action, _RC)
 
-      if (.not. allocated(action)) then ! no extension necessary
+      ! If no action is needed, then "this" can already directly
+      ! connect to goal.  I.e., extensions have converged.
+      select type (action)
+      type is (NullAction)
          extension = StateItemExtension(this%spec)
          _RETURN(_SUCCESS)
-      end if
-         
+      end select
+
       call new_spec%create(_RC)
       call new_spec%set_active()
 
       coupler_gridcomp = make_coupler(action, _RC)
       producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
       extension = StateItemExtension(new_spec, producer)
-
 
       _RETURN(_SUCCESS)
    end function make_extension

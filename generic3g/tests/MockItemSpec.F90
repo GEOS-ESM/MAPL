@@ -197,7 +197,7 @@ contains
    end function new_MockAction
 
 
-   subroutine make_extension(this, dst_spec, new_spec, action, rc)
+   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(MockItemSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
       class(StateItemSpec), allocatable, intent(out) :: new_spec
@@ -207,18 +207,18 @@ contains
       integer :: status
       type(MockItemSpec) :: tmp_spec
 
-      action = NullAction() ! default
+      action = NullAction()
       new_spec = this
-       select type(dst_spec)
-       type is (MockItemSpec)
-          call make_extension_typesafe(this, dst_spec, tmp_spec, action, _RC)
-          deallocate(new_spec)
-          allocate(new_spec, source=tmp_spec)
-          new_spec = tmp_spec
+      select type(dst_spec)
+      type is (MockItemSpec)
+         call make_extension_typesafe(this, dst_spec, tmp_spec, action, _RC)
+         deallocate(new_spec)
+         allocate(new_spec, source=tmp_spec)
+         new_spec = tmp_spec
       class default
          _FAIL('incompatible spec')
       end select
-
+      
       _RETURN(_SUCCESS)
    end subroutine make_extension
 
@@ -235,12 +235,15 @@ contains
 
       if (this%name /= dst_spec%name) then
          new_spec%name = dst_spec%name
+         action = MockAction(this, new_spec)
          _RETURN(_SUCCESS)
       end if
       
       if (allocated(dst_spec%subtype) .and. allocated(this%subtype)) then
          if (this%subtype /= dst_spec%subtype) then
             new_spec%subtype = dst_spec%subtype
+            action = MockAction(this, new_spec)
+            action = MockAction()
             _RETURN(_SUCCESS)
          end if
       end if
@@ -297,27 +300,32 @@ contains
       integer, optional, intent(out) :: rc
 
 
-      allocate(filters(0))
-      if (allocated(this%filter_type)) then
-         select case (this%filter_type)
-         case ('subtype')
-            select type (goal_spec)
-            type is (MockItemSpec)
-               filters = [StateItemFilterWrapper(SubtypeFilter(goal_spec%subtype))]
-            class default
-               _FAIL('unsupported subtype')
+      allocate(filters(0)) ! just in case
+
+      select type (goal_spec)
+      type is (MockItemSpec)
+
+         
+         if (allocated(this%filter_type)) then
+            select case (this%filter_type)
+            case ('subtype')
+               deallocate(filters)
+               allocate(filters(1))
+               allocate(filters(1)%filter, source=SubtypeFilter(goal_spec%subtype))
+            case ('name')
+               deallocate(filters)
+               allocate(filters(1))
+               allocate(filters(1)%filter, source=NameFilter(goal_spec%name))
+            case default
+               _FAIL('unsupported filter type')
             end select
-         case ('name')
-            select type (goal_spec)
-            type is (MockItemSpec)
-               filters = [StateItemFilterWrapper(NameFilter(goal_spec%name))]
-            class default
-               _FAIL('unsupported subtype')
-            end select
-         case default
-            _FAIL('unsupported filter type')
-         end select
-      end if
+         else
+            deallocate(filters)
+            allocate(filters(2))
+            allocate(filters(1)%filter, source=NameFilter(goal_spec%name))
+            allocate(filters(2)%filter, source=SubtypeFilter(goal_spec%name))
+         end if
+      end select
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)

@@ -186,7 +186,7 @@ contains
    end subroutine destroy
 
 
-   subroutine make_extension(this, dst_spec, new_spec, action, rc)
+   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(ServiceSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
       class(StateItemSpec), allocatable, intent(out) :: new_spec
@@ -198,7 +198,7 @@ contains
       action = NullAction() ! default
       new_spec = this
 
-      _FAIL('not implemented')
+      _RETURN(_SUCCESS)
    end subroutine make_extension
 
    integer function extension_cost(this, src_spec, rc) result(cost)
@@ -245,7 +245,6 @@ contains
 
 
       allocate(filters(0))
-      _FAIL('unimplemented')
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)

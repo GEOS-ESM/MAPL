@@ -130,19 +130,22 @@ contains
       filters = archetype%make_filters(goal_spec, _RC)
 
       do i = 1, size(filters)
-         associate (f => filters(i)%filter)
-           new_subgroup = StateItemExtensionPtrVector()
-           do j = 1, subgroup%size()
-              extension_ptr = subgroup%of(j)
-              spec => extension_ptr%ptr%get_spec()
+         new_subgroup = StateItemExtensionPtrVector()
+         do j = 1, subgroup%size()
+            extension_ptr = subgroup%of(j)
+            spec => extension_ptr%ptr%get_spec()
+            associate (f => filters(i)%filter)
               if (f%apply(spec)) then
                  call new_subgroup%push_back(extension_ptr)
               end if
-           end do
-
-           if (new_subgroup%size() == 0) exit
-           subgroup = new_subgroup
-         end associate
+            end associate
+         end do
+         
+         if (new_subgroup%size() == 0) then
+!#            _HERE, 'closest is item ', i, ' of ', size(filters)
+            exit
+         end if
+         subgroup = new_subgroup
       end do
 
       extension_ptr = subgroup%front()
