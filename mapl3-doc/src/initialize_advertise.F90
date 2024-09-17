@@ -44,6 +44,7 @@ contains
            provider_meta => get_outer_meta(provider_gc, _RC)
            _ASSERT(allocated(provider_meta%geom), 'Specified child does not provide a geom.')
            this%geom = provider_meta%geom
+           this%vertical_grid = provider_meta%vertical_grid
         end if
       end associate
 

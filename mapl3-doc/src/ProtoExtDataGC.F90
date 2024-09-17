@@ -68,7 +68,7 @@ contains
       ! We would do this quite differently in an actual ExtData implementation.
       ! Here we are using information from the generic spec.
       mapl_config = ESMF_HConfigCreateAt(hconfig, keystring='mapl', _RC)
-         
+
       if (ESMF_HConfigIsDefined(mapl_config, keystring='states')) then
          states_spec = ESMF_HConfigCreateAt(mapl_config, keystring='states')
          if (ESMF_HConfigIsDefined(states_spec, keystring='export')) then
@@ -97,6 +97,7 @@ contains
       end if
 
       call ESMF_HConfigDestroy(mapl_config, _RC)
+
       _RETURN(ESMF_SUCCESS)
    end subroutine init_modify_advertised
 

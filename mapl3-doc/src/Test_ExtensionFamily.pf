@@ -1,0 +1,110 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_ExtensionFamily
+   use mapl3g_ExtensionFamily
+   use mapl3g_StateRegistry
+   use mapl3g_VirtualConnectionPt
+   use MockItemSpecMod
+   use mapl3g_StateItemExtension
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_find_closest_simple()
+      type(StateRegistry), target :: r
+      type(VirtualConnectionPt) :: v_pt
+      type(ExtensionFamily), pointer :: family
+      type(StateItemExtension), pointer :: primary
+      type(MockItemSpec) :: goal_spec
+      type(StateItemExtension), pointer :: closest
+
+      integer :: status
+      r = StateRegistry('A')
+      v_pt = VirtualConnectionPt(state_intent='export', short_name='E1')
+
+      call r%add_primary_spec(v_pt, MockItemSpec('E', subtype='A'))
+
+      family => r%get_extension_family(v_pt, _RC)
+
+      primary => family%get_primary(_RC)
+      goal_spec = MockItemSpec('E')
+      closest => family%find_closest_extension(goal_spec,_RC)
+
+      @assert_that(associated(closest, primary), is(true()))
+      
+   end subroutine test_find_closest_simple
+
+
+   @test
+   subroutine test_find_closest_subtype()
+      type(StateRegistry), target :: r
+      type(VirtualConnectionPt) :: v_pt
+      type(ExtensionFamily), pointer :: family
+      type(StateItemExtension) :: extension
+      type(StateItemExtension), pointer :: primary
+      type(StateItemExtension), pointer :: ext_1, ext_2
+      type(MockItemSpec) :: goal_spec
+      type(StateItemExtension), pointer :: closest
+
+      integer :: status
+      r = StateRegistry('A')
+      v_pt = VirtualConnectionPt(state_intent='export', short_name='E1')
+
+      call r%add_primary_spec(v_pt, MockItemSpec('E', subtype='A', filter_type='subtype'))
+
+      extension = StateItemExtension(MockItemSpec('E',subtype='B'))
+      ext_1 => r%add_extension(v_pt, extension, _RC)
+
+      extension = StateItemExtension(MockItemSpec('F',subtype='A'))
+      ext_2 => r%add_extension(v_pt, extension, _RC)
+
+      family => r%get_extension_family(v_pt, _RC)
+      primary => family%get_primary(_RC)
+      goal_spec = MockItemSpec('E', subtype='B')
+
+      closest => family%find_closest_extension(goal_spec,_RC)
+
+      @assert_that(associated(closest, ext_1), is(true()))
+      
+   end subroutine test_find_closest_subtype
+
+   @test
+   subroutine test_find_closest_name()
+      type(StateRegistry), target :: r
+      type(VirtualConnectionPt) :: v_pt
+      type(ExtensionFamily), pointer :: family
+      type(StateItemExtension) :: extension
+      type(StateItemExtension), pointer :: primary
+      type(StateItemExtension), pointer :: ext_1, ext_2
+      type(MockItemSpec) :: goal_spec
+      type(StateItemExtension), pointer :: closest
+
+      integer :: status
+      r = StateRegistry('A')
+      v_pt = VirtualConnectionPt(state_intent='export', short_name='E1')
+
+      call r%add_primary_spec(v_pt, MockItemSpec('E', subtype='A', filter_type='name'))
+
+      extension = StateItemExtension(MockItemSpec('E',subtype='B'))
+      ext_1 => r%add_extension(v_pt, extension, _RC)
+
+      extension = StateItemExtension(MockItemSpec('F',subtype='A'))
+      ext_2 => r%add_extension(v_pt, extension, _RC)
+
+      family => r%get_extension_family(v_pt, _RC)
+      primary => family%get_primary(_RC)
+
+      goal_spec = MockItemSpec('E', subtype='A')
+      closest => family%find_closest_extension(goal_spec,_RC)
+      @assert_that(associated(closest, primary), is(true()))
+
+      goal_spec = MockItemSpec('F', subtype='B')
+      closest => family%find_closest_extension(goal_spec,_RC)
+      @assert_that(associated(closest, ext_2), is(true()))
+      
+   end subroutine test_find_closest_name
+
+end module Test_ExtensionFamily

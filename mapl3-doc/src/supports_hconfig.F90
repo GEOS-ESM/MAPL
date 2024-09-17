@@ -1,36 +1,42 @@
 #include "MAPL_ErrLog.h"
 
-submodule (mapl3g_LatAxis) supports_hconfig_smod
-   use mapl_RangeMod
-!   use hconfig3g
-   use esmf
+submodule (mapl3g_LatLonGeomSpec) supports_hconfig_smod
+   use mapl3g_CoordinateAxis
+   use mapl3g_GeomSpec
+   use pfio
+   use MAPL_RangeMod
+   use MAPLBase_Mod
    use mapl_ErrorHandling
+   use esmf
    implicit none (type, external)
-
-   integer, parameter :: R8 = ESMF_KIND_R8
-
+   
 contains
 
-   logical module function supports_hconfig(hconfig, rc) result(supports)
+   logical module function supports_hconfig_(this, hconfig, rc) result(supports)
+      class(LatLonGeomSpec), intent(in) :: this
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: has_jm_world
-      logical :: has_lat_range
-      logical :: has_pole
-      supports = .true.
+      type(LonAxis) :: lon_axis
+      type(LatAxis) :: lat_axis
+      character(:), allocatable :: geom_class
 
-      has_jm_world = ESMF_HConfigIsDefined(hconfig, keystring='jm_world', _RC)
-      _RETURN_UNLESS(has_jm_world)
+      ! Mandatory entry: "class: latlon"
+      supports = ESMF_HConfigIsDefined(hconfig, keystring='class', _RC)
+      _RETURN_UNLESS(supports)
 
-      has_lat_range = ESMF_HConfigIsDefined(hconfig, keystring='lat_range', _RC)
-      has_pole = ESMF_HConfigIsDefined(hconfig, keystring='pole', _RC)
-      _RETURN_UNLESS(has_lat_range .neqv. has_pole)
-      supports = .true.
+      geom_class = ESMF_HConfigAsString(hconfig, keyString='class', _RC)
+      supports = (geom_class == 'latlon')
+      _RETURN_UNLESS(supports)
+      
+      supports = lon_axis%supports(hconfig, _RC)
+      _RETURN_UNLESS(supports)
+
+      supports = lat_axis%supports(hconfig, _RC)
+      _RETURN_UNLESS(supports)
 
       _RETURN(_SUCCESS)
-   end function supports_hconfig
+   end function supports_hconfig_
 
 end submodule supports_hconfig_smod
-

@@ -42,6 +42,8 @@ module mapl3g_ServiceSpec
       procedure :: can_connect_to
       procedure :: make_extension
       procedure :: extension_cost
+      procedure :: make_filters
+
       procedure :: add_to_state
       procedure :: add_to_bundle
       procedure :: set_geometry
@@ -184,7 +186,7 @@ contains
    end subroutine destroy
 
 
-   subroutine make_extension(this, dst_spec, new_spec, action, rc)
+   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(ServiceSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
       class(StateItemSpec), allocatable, intent(out) :: new_spec
@@ -196,7 +198,7 @@ contains
       action = NullAction() ! default
       new_spec = this
 
-      _FAIL('not implemented')
+      _RETURN(_SUCCESS)
    end subroutine make_extension
 
    integer function extension_cost(this, src_spec, rc) result(cost)
@@ -234,5 +236,19 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_geometry
+
+   function make_filters(this, goal_spec, rc) result(filters)
+      type(StateItemFilterWrapper), allocatable :: filters(:)
+      class(ServiceSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+
+      allocate(filters(0))
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(goal_spec)
+   end function make_filters
 
 end module mapl3g_ServiceSpec

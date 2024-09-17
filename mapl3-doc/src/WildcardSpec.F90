@@ -32,11 +32,13 @@ module mapl3g_WildcardSpec
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: make_extension
+      procedure :: extension_cost
+      procedure :: make_filters
       procedure :: add_to_state
       procedure :: add_to_bundle
-      procedure :: extension_cost
       procedure :: set_geometry
 
+      procedure :: get_reference_spec
    end type WildcardSpec
 
    interface WildcardSpec
@@ -197,7 +199,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   subroutine make_extension(this, dst_spec, new_spec, action, rc)
+   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(WildcardSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
       class(StateItemSpec), allocatable, intent(out) :: new_spec
@@ -236,5 +238,25 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_geometry
+
+   function make_filters(this, goal_spec, rc) result(filters)
+      type(StateItemFilterWrapper), allocatable :: filters(:)
+      class(WildcardSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      associate (field_spec => this%reference_spec)
+        filters = field_spec%make_filters(field_spec, _RC)
+      end associate
+
+      _RETURN(_SUCCESS)
+   end function make_filters
+
+   function get_reference_spec(this) result(reference_spec)
+      class(WildcardSpec), target, intent(in) :: this
+      class(StateItemSpec), pointer :: reference_spec
+      reference_spec => this%reference_spec
+   end function get_reference_spec
 
 end module mapl3g_WildcardSpec
