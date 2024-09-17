@@ -1,7 +1,9 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_VerticalGrid
+
    use mapl_ErrorHandling
+
    implicit none
    private
 
@@ -14,8 +16,6 @@ module mapl3g_VerticalGrid
       procedure(I_get_num_levels), deferred :: get_num_levels
       procedure(I_get_coordinate_field), deferred :: get_coordinate_field
       procedure(I_can_connect_to), deferred :: can_connect_to
-
-
       procedure :: set_id
       procedure :: get_id
       procedure :: same_id
@@ -25,6 +25,7 @@ module mapl3g_VerticalGrid
    integer :: global_id = 0
 
    abstract interface
+
       integer function I_get_num_levels(this) result(num_levels)
          import VerticalGrid
          class(VerticalGrid), intent(in) :: this
@@ -34,24 +35,24 @@ module mapl3g_VerticalGrid
          use mapl3g_GriddedComponentDriver
          use esmf, only: ESMF_Geom, ESMF_TypeKind_Flag, ESMF_Field
          import VerticalGrid
-         
-       class(VerticalGrid), intent(in) :: this
-       type(ESMF_Field), intent(out) :: field
-       type(GriddedComponentDriver), pointer, intent(out) :: coupler
-       character(*), intent(in) :: standard_name
-       type(ESMF_Geom), intent(in) :: geom
-       type(ESMF_TypeKind_Flag), intent(in) :: typekind
-       character(*), intent(in) :: units
-       integer, optional, intent(out) :: rc
-    end subroutine I_get_coordinate_field
 
-    logical function I_can_connect_to(this, src, rc) result(can_connect_to)
-       import VerticalGrid
-       class(VerticalGrid), intent(in) :: this
-       class(VerticalGrid), intent(in) :: src
-       integer, optional, intent(out) :: rc
-    end function I_can_connect_to
-      
+         class(VerticalGrid), intent(in) :: this
+         type(ESMF_Field), intent(out) :: field
+         type(GriddedComponentDriver), pointer, intent(out) :: coupler
+         character(*), intent(in) :: standard_name
+         type(ESMF_Geom), intent(in) :: geom
+         type(ESMF_TypeKind_Flag), intent(in) :: typekind
+         character(*), intent(in) :: units
+         integer, optional, intent(out) :: rc
+      end subroutine I_get_coordinate_field
+
+      logical function I_can_connect_to(this, src, rc) result(can_connect_to)
+         import VerticalGrid
+         class(VerticalGrid), intent(in) :: this
+         class(VerticalGrid), intent(in) :: src
+         integer, optional, intent(out) :: rc
+      end function I_can_connect_to
+
    end interface
 
 contains
@@ -87,5 +88,5 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_info
-   
+
 end module mapl3g_VerticalGrid
