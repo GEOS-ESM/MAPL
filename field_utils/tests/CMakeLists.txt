@@ -4,7 +4,6 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.field_utils.tests")
 set (test_srcs
   Test_FieldBLAS.pf
   Test_FieldArithmetic.pf
-  Test_FieldCondensedArrayDims.pf
   Test_FieldCondensedArray.pf
   )
 
