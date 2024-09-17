@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 module mapl3g_FieldCondensedArray
 
-   !use mapl3g_output_info, only: get_num_levels
+   use mapl3g_output_info, only: get_num_levels
    use mapl3g_FieldCondensedArray_private, only: get_array_shape_private => get_array_shape
    use MAPL_ExceptionHandling
    use esmf, only: ESMF_Field, ESMF_FieldGet
@@ -27,7 +27,7 @@ contains
       vertical_dimensions = [integer::]
       call ESMF_FieldGet(field_in, gridToFieldMap=gridToFieldMap, _RC) 
       call ESMF_FieldGet(field_in, localElementCount=localElementCount, _RC)
-!      num_levels = get_num_levels(field_in, _RC)
+      num_levels = get_num_levels(field_in, _RC)
       if(num_levels > 0) vertical_dimensions = [num_levels]
       array_shape = get_array_shape_private(gridToFieldMap, localElementCount, vertical_dimensions, _RC)
 

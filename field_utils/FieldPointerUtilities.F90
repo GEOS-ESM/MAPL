@@ -1,6 +1,8 @@
 #include "MAPL_Generic.h"
 
 module MAPL_FieldPointerUtilities
+   use mapl3g_output_info, only: get_num_levels
+   use mapl3g_FieldCondensedArray_private, only: get_array_shape_private => get_array_shape
    use ESMF
    use MAPL_ExceptionHandling
    use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc
@@ -80,7 +82,6 @@ module MAPL_FieldPointerUtilities
    end interface
 contains
 
-
    subroutine assign_fptr_r4_rank1(x, fptr, rc)
       type(ESMF_Field), intent(inout) :: x
       real(kind=ESMF_KIND_R4), pointer, intent(out) :: fptr(:)
@@ -92,8 +93,9 @@ contains
       integer(ESMF_KIND_I8) :: local_size
       integer :: status
 
-      local_size = FieldGetLocalSize(x, _RC)
-      fp_shape = [ local_size ]
+!      local_size = FieldGetLocalSize(x, _RC)
+!      fp_shape = [ local_size ]
+      fp_shape = get_array_shape(x, _RC)
       call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
 
@@ -111,8 +113,9 @@ contains
       integer(ESMF_KIND_I8) :: local_size
       integer :: status
 
-      local_size = FieldGetLocalSize(x, _RC)
-      fp_shape = [ local_size ]
+      !local_size = FieldGetLocalSize(x, _RC)
+      !fp_shape = [ local_size ]
+      fp_shape = get_array_shape(x, _RC)
       call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
 
@@ -904,20 +907,20 @@ contains
      _RETURN(_SUCCESS)
   end subroutine GetFieldsUndef_r8
 
-subroutine Destroy(Field,RC)
-    type(ESMF_Field),          intent(INOUT) :: Field
-    integer, optional,         intent(OUT  ) :: RC
+   subroutine Destroy(Field,RC)
+      type(ESMF_Field),          intent(INOUT) :: Field
+      integer, optional,         intent(OUT  ) :: RC
 
-    integer                               :: STATUS
+      integer                               :: STATUS
 
-    real(kind=ESMF_KIND_R4), pointer      :: VR4_1D(:), VR4_2D(:,:), VR4_3D(:,:,:), VR4_4D(:,:,:,:)
-    real(kind=ESMF_KIND_R8), pointer      :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
-    integer                      :: rank
-    type(ESMF_TypeKind_Flag)     :: tk
-    logical :: esmf_allocated
+      real(kind=ESMF_KIND_R4), pointer      :: VR4_1D(:), VR4_2D(:,:), VR4_3D(:,:,:), VR4_4D(:,:,:,:)
+      real(kind=ESMF_KIND_R8), pointer      :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
+      integer                      :: rank
+      type(ESMF_TypeKind_Flag)     :: tk
+      logical :: esmf_allocated
 
-    call ESMF_FieldGet(Field,typekind=tk,dimCount=rank,isESMFAllocated=esmf_allocated,_RC)
-    if (.not. esmf_allocated) then
+      call ESMF_FieldGet(Field,typekind=tk,dimCount=rank,isESMFAllocated=esmf_allocated,_RC)
+      if (.not. esmf_allocated) then
        if (tk == ESMF_TYPEKIND_R4 .and. rank == 1) then
           call ESMF_FieldGet(Field,0,VR4_1d,_RC)
           deallocate(VR4_1d,_STAT)
@@ -945,10 +948,34 @@ subroutine Destroy(Field,RC)
        else
           _FAIL( 'unsupported typekind+rank')
        end if
-    end if
-    call ESMF_FieldDestroy(Field,noGarbage = .true., rc=status)
-    _VERIFY(STATUS)
-    _RETURN(ESMF_SUCCESS)
+      end if
+      call ESMF_FieldDestroy(Field,noGarbage = .true., rc=status)
+      _VERIFY(STATUS)
+      _RETURN(ESMF_SUCCESS)
 
-  end subroutine Destroy
-end module
+   end subroutine Destroy
+
+   function get_array_shape(f, rc) result(array_shape)
+      integer :: array_shape(3)
+      type(ESMF_Field), intent(inout) :: f
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer, allocatable :: gridToFieldMap(:)
+      integer, allocatable :: localElementCount(:)
+      integer, allocatable :: vertical_dimensions(:)
+      integer :: num_levels
+
+      num_levels = 0
+      vertical_dimensions = [integer::]
+      call ESMF_FieldGet(f, gridToFieldMap=gridToFieldMap, _RC) 
+!      call ESMF_FieldGet(f, localElementCount=localElementCount, _RC)
+!     Due to an ESMF bug, getting the localElementCount must use the module function.
+!     See FieldGetLocalElementCount (specific function) comments.
+      localElementCount = FieldGetLocalElementCount(f, _RC)
+      num_levels = get_num_levels(f, _RC)
+      if(num_levels > 0) vertical_dimensions = [num_levels]
+      array_shape = get_array_shape_private(gridToFieldMap, localElementCount, vertical_dimensions, _RC)
+
+   end function get_array_shape
+
+end module MAPL_FieldPointerUtilities

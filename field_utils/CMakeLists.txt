@@ -26,10 +26,10 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.shared PFLOGGER::pflogger udunits2f
+  DEPENDENCIES MAPL.shared MAPL.esmf_utils PFLOGGER::pflogger udunits2f
   TYPE SHARED
   )
-  #DEPENDENCIES MAPL.shared MAPL.esmf_utils PFLOGGER::pflogger udunits2f
+  #DEPENDENCIES MAPL.shared PFLOGGER::pflogger udunits2f
 
 #add_subdirectory(specs)
 #add_subdirectory(registry)
