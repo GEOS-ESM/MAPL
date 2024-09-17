@@ -8,8 +8,8 @@ set(srcs
   FieldUnaryFunctions.F90
   FieldBinaryOperations.F90
   FieldUnits.F90
-  FieldCondensedArrayDims.F90
   FieldCondensedArray.F90
+  FieldCondensedArray_private.F90
   )
 
 # To use extended udunits2 procedures, udunits2.c must be built and linked.
@@ -29,6 +29,7 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.shared PFLOGGER::pflogger udunits2f
   TYPE SHARED
   )
+  #DEPENDENCIES MAPL.shared MAPL.esmf_utils PFLOGGER::pflogger udunits2f
 
 #add_subdirectory(specs)
 #add_subdirectory(registry)

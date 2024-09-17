@@ -1,96 +1,88 @@
 #if defined(TRIMALL)
 #  undef TRIMALL
-#end if
+#endif
 #define TRIMALL(A) trim(adjustl(A))
 
 module Test_FieldCondensedArray
 
     use pfunit
-    use FieldCondensedArray
+    use mapl3g_FieldCondensedArray_private
     implicit none
 
 contains
 
     @Test
     subroutine test_get_array_shape_3D()
-       integer, allocatable :: gridToFieldMap(:)
        integer :: expected(3), actual(3)
+       integer, allocatable :: gridToFieldMap(:)
+       integer, allocatable :: localElementCount(:)
        integer, allocatable :: vertical_dims(:)
-       character(len=:), allocatable :: error_message
 
        gridToFieldMap = [1, 2]
+       localElementCount = [4, 5, 3]
        vertical_dims = [3]
-       expected = [product(gridToFieldMap), product(vertical_dims), 1]
-       actual = get_array_shape(gridToFieldMap, vertical_dims)
-       error_message = make_error_message('Actual ', actual, ' does not match expected ', expected, '.')
-       @assertEqual(actual, expected, error_message)
+       expected = [product(localElementCount(1:2)), localElementCount(3), 1]
+       actual = get_array_shape(gridToFieldMap, localElementCount, vertical_dims)
+       @assertEqual(actual, expected, 'actual does not match expected.')
 
     end subroutine test_get_array_shape_3D
 
     @Test
-    subroutine test_get_array_shape()
-       integer, allocatable :: gridToFieldMap(:)
+    subroutine test_get_array_shape_2D()
        integer :: expected(3), actual(3)
+       integer, allocatable :: gridToFieldMap(:)
+       integer, allocatable :: localElementCount(:)
        integer, allocatable :: vertical_dims(:)
 
        gridToFieldMap = [1, 2]
-       vertical_dims = [3]
-       expected = [product(gridToFieldMap), 1, 1]
-       actual = get_array_shape(gridToFieldMap)
-       error_message = make_error_message('Actual ', actual, ' does not match expected ', expected, '.')
-       @assertEqual(actual, expected, error_message)
+       localElementCount = [4, 5]
+       expected = [product(localElementCount), 1, 1]
+       actual = get_array_shape(gridToFieldMap, localElementCount)
+       @assertEqual(actual, expected, 'actual does not match expected.')
 
-    end subroutine test_get_array_shape
+    end subroutine test_get_array_shape_2D
 
-    @Before
-    subroutine set_up()
-    end subroutine set_up
-
-    @After
-    subroutine take_down()
-    end subroutine take_down()
-
-    function make_error_message(prelude, actual, interlude,  expected, postlude) result(string)
-       character(len=*) :: string
-       character(len=*), intent(in) :: prelude, interlude, postlude
-       integer, intent(in) :: actual(:), expected(:)
-       character(len=:), allocatable :: raw
-
-       raw = make_array_string(actual)
-       if(size(raw) == 0) raw = 'NO ACTUAL'
-       string = trim(raw) // interlude
-       raw = make_array_string(expected)
-       if(size(raw) == 0) raw = 'NO EXPECTED'
-       string = trim(prelude) // string // trim(raw) // trim(postlude)
-
-    end function make_error_message
-
-    function make_array_string(arr)
-       character(len=:), allocatable :: string
-       integer, intent(in) :: arr(:)
-       character, parameter :: HFMT = '(I0)'
-       character, parameter :: TFMT = '(1X, I0)'
-       character(len=:), allocatable :: raw
-       integer :: i, iostat
-
-       if(size(arr) == 0) then
-          string = '[]'
-          return
-       end if
-       string = ''
-       write(raw, fmt=HFMT, iostat=iostat, advance = 'NO') arr(1)
-       if(iostat /= 0) return
-       string = '[ ' // TRIMALL(raw)
-       do i=2, size(arr)
-         write(raw, fmt=TMFT, iostat=iostat, advance='NO') arr(i)
-         if(iostat /= 0) then
-            string = ''
-         end if
-         string = string // TRIMALL(raw)
-      end do
-      string = string // ']'
-
-   end function make_array
+!    function make_error_message(prelude, actual, interlude,  expected, postlude) result(string)
+!       character(len=:), allocatable :: string
+!       character(len=*), intent(in) :: prelude, interlude, postlude
+!       integer, intent(in) :: actual(:), expected(:)
+!       character(len=:), allocatable :: raw
+!
+!       raw = make_array_string(actual)
+!       if(size(raw) == 0) raw = 'NO ACTUAL'
+!       string = trim(raw) // interlude
+!       raw = make_array_string(expected)
+!       if(size(raw) == 0) raw = 'NO EXPECTED'
+!       string = trim(prelude) // string // trim(raw) // trim(postlude)
+!
+!    end function make_error_message
+!
+!    function make_array_string(arr) result(string)
+!       character(len=:), allocatable :: string
+!       integer, intent(in) :: arr(:)
+!       character, parameter :: HFMT = '(I0)'
+!       character, parameter :: TFMT = '(1X, I0)'
+!       character(len=:), allocatable :: raw
+!       integer :: i, iostat
+!
+!       if(size(arr) == 0) then
+!          string = '[]'
+!          return
+!       end if
+!       string = ''
+!       write(raw, fmt=HFMT, iostat=iostat, advance = 'NO') arr(1)
+!       if(iostat /= 0) return
+!       string = '[ ' // TRIMALL(raw)
+!       do i=2, size(arr)
+!         write(raw, fmt=TFMT, iostat=iostat, advance='NO') arr(i)
+!         if(iostat /= 0) then
+!            string = ''
+!         end if
+!         string = string // TRIMALL(raw)
+!      end do
+!      string = string // ']'
+!
+!   end function make_array_string
 
 end module Test_FieldCondensedArray
 
