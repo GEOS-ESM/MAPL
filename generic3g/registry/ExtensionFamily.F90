@@ -141,10 +141,7 @@ contains
             end associate
          end do
          
-         if (new_subgroup%size() == 0) then
-!#            _HERE, 'closest is item ', i, ' of ', size(filters)
-            exit
-         end if
+         if (new_subgroup%size() == 0) exit
          subgroup = new_subgroup
       end do
 

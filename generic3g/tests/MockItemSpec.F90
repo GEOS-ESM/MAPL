@@ -60,12 +60,21 @@ module MockItemSpecMod
       procedure :: apply_one => match_subtype
    end type SubtypeFilter
 
+   interface SubtypeFilter
+      procedure :: new_SubtypeFilter
+   end interface SubtypeFilter
+      
+
    type, extends(StateItemFilter) :: NameFilter
       character(:), allocatable :: name
    contains
       procedure :: apply_one => match_name
    end type NameFilter
 
+   interface NameFilter
+      procedure :: new_NameFilter
+   end interface NameFilter
+      
 contains
 
    function new_MockItemSpec(name, subtype, filter_type) result(spec)
@@ -299,7 +308,8 @@ contains
       class(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
 
-
+      type(SubtypeFilter) :: subtype_filter
+      type(NameFilter) :: name_filter
       allocate(filters(0)) ! just in case
 
       select type (goal_spec)
@@ -311,19 +321,23 @@ contains
             case ('subtype')
                deallocate(filters)
                allocate(filters(1))
-               allocate(filters(1)%filter, source=SubtypeFilter(goal_spec%subtype))
+               subtype_filter = SubtypeFilter(goal_spec%subtype)
+               allocate(filters(1)%filter, source=subtype_filter)
             case ('name')
                deallocate(filters)
                allocate(filters(1))
-               allocate(filters(1)%filter, source=NameFilter(goal_spec%name))
+               name_filter = NameFilter(goal_spec%name)
+               allocate(filters(1)%filter, source=name_filter)
             case default
                _FAIL('unsupported filter type')
             end select
          else
             deallocate(filters)
             allocate(filters(2))
-            allocate(filters(1)%filter, source=NameFilter(goal_spec%name))
-            allocate(filters(2)%filter, source=SubtypeFilter(goal_spec%name))
+            subtype_filter = SubtypeFilter(goal_spec%subtype)
+            name_filter = NameFilter(goal_spec%name)
+            allocate(filters(1)%filter, source=name_filter)
+            allocate(filters(2)%filter, source=subtype_filter)
          end if
       end select
 
@@ -335,7 +349,6 @@ contains
    logical function match_subtype(this, spec) result(match)
       class(SubtypeFilter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
-
 
       match = .false.
       select type (spec)
@@ -374,4 +387,20 @@ contains
       
    end function match_name
 
+   function new_SubtypeFilter(subtype) result(filter)
+     type(SubtypeFilter) :: filter
+     character(*), optional, intent(in) :: subtype
+     if (present(subtype)) then
+        filter%subtype=subtype
+     end if
+   end function new_SubtypeFilter
+     
+   function new_NameFilter(name) result(filter)
+     type(NameFilter) :: filter
+     character(*), optional, intent(in) :: name
+     if (present(name)) then
+        filter%name=name
+     end if
+   end function new_NameFilter
+     
 end module MockItemSpecMod
