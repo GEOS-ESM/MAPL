@@ -615,7 +615,7 @@ CONTAINS
 
    bundle_iter = IOBundles%begin()
    do while (bundle_iter /= IOBundles%end())
-      io_bundle => bundle_iter%get()
+      io_bundle => bundle_iter%of()
       bracket_side = io_bundle%bracket_side
       entry_num = io_bundle%entry_index
       item => self%primary%item_vec%at(entry_num)
