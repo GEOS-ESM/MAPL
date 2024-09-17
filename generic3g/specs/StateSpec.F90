@@ -35,6 +35,8 @@ module mapl3g_StateSpec
       procedure :: can_connect_to
       procedure :: make_extension
       procedure :: extension_cost
+      procedure :: make_filters
+
       procedure :: add_to_state
       procedure :: add_to_bundle
 
@@ -168,7 +170,7 @@ contains
    end subroutine add_to_bundle
    
 
-   subroutine make_extension(this, dst_spec, new_spec, action, rc)
+   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(StateSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
       class(StateItemSpec), allocatable, intent(out) :: new_spec
@@ -196,5 +198,20 @@ contains
       _UNUSED_DUMMY(src_spec)
    end function extension_cost
 
+
+   function make_filters(this, goal_spec, rc) result(filters)
+      type(StateItemFilterWrapper), allocatable :: filters(:)
+      class(StateSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+
+      allocate(filters(0))
+      _FAIL('unimplemented')
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(goal_spec)
+   end function make_filters
 
 end module mapl3g_StateSpec

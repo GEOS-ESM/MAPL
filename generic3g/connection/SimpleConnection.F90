@@ -168,46 +168,48 @@ contains
          dst_extension => dst_extensions(i)%ptr
          dst_spec => dst_extension%get_spec()
 
-         src_extensions = src_registry%get_extensions(src_pt%v_pt, _RC)
+         last_extension => src_registry%extend(src_pt%v_pt, dst_spec, _RC)
 
-
-         ! Connection is transitive -- if any src_specs can connect, all can connect.
-         ! So we can just check this property on the 1st item.
-         src_extension => src_extensions(1)%ptr
-         src_spec => src_extension%get_spec()
-         if (.not. dst_spec%can_connect_to(src_spec)) then
-            _HERE, 'cannot connect: ', src_pt%v_pt, ' --> ', dst_pt%v_pt
-         end if
-
-         call find_closest_extension(dst_extension, src_extensions, closest_extension=best_extension, lowest_cost=lowest_cost, _RC)
-         best_spec => best_extension%get_spec()
-         call best_spec%set_active()
-
-         last_extension => best_extension
-
-
-         do i_extension = 1, lowest_cost
-
-            extension = last_extension%make_extension(dst_spec, _RC)
-                 
-            new_extension => src_registry%add_extension(src_pt%v_pt, extension, _RC)
-            coupler => new_extension%get_producer()
-
-            ! WARNING TO FUTURE DEVELOPERS: There may be issues if
-            ! some spec needs to be a bit different in import and
-            ! export roles.  Here we use "last_extension" as an export
-            ! of src and an import of coupler.
-            coupler_states = coupler%get_states()
-            a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name='import[1]'))
-            last_spec => last_extension%get_spec()
-            call last_spec%add_to_state(coupler_states, a_pt, _RC)
-            a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='export[1]'))
-            new_spec => new_extension%get_spec()
-            call new_spec%add_to_state(coupler_states, a_pt, _RC)
-            
-            call last_extension%add_consumer(coupler)
-            last_extension => new_extension
-         end do
+!#         src_extensions = src_registry%get_extensions(src_pt%v_pt, _RC)
+!#
+!#
+!#         ! Connection is transitive -- if any src_specs can connect, all can connect.
+!#         ! So we can just check this property on the 1st item.
+!#         src_extension => src_extensions(1)%ptr
+!#         src_spec => src_extension%get_spec()
+!#         if (.not. dst_spec%can_connect_to(src_spec)) then
+!#            _HERE, 'cannot connect: ', src_pt%v_pt, ' --> ', dst_pt%v_pt
+!#         end if
+!#
+!#         call find_closest_extension(dst_extension, src_extensions, closest_extension=best_extension, lowest_cost=lowest_cost, _RC)
+!#         best_spec => best_extension%get_spec()
+!#         call best_spec%set_active()
+!#
+!#         last_extension => best_extension
+!#
+!#
+!#         do i_extension = 1, lowest_cost
+!#
+!#            extension = last_extension%make_extension(dst_spec, _RC)
+!#                 
+!#            new_extension => src_registry%add_extension(src_pt%v_pt, extension, _RC)
+!#            coupler => new_extension%get_producer()
+!#
+!#            ! WARNING TO FUTURE DEVELOPERS: There may be issues if
+!#            ! some spec needs to be a bit different in import and
+!#            ! export roles.  Here we use "last_extension" as an export
+!#            ! of src and an import of coupler.
+!#            coupler_states = coupler%get_states()
+!#            a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name='import[1]'))
+!#            last_spec => last_extension%get_spec()
+!#            call last_spec%add_to_state(coupler_states, a_pt, _RC)
+!#            a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='export[1]'))
+!#            new_spec => new_extension%get_spec()
+!#            call new_spec%add_to_state(coupler_states, a_pt, _RC)
+!#            
+!#            call last_extension%add_consumer(coupler)
+!#            last_extension => new_extension
+!#         end do
 
          ! In the case of wildcard specs, we need to pass an actual_pt to
          ! the dst_spec to support multiple matches.  A bit of a kludge.
