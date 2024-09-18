@@ -117,7 +117,7 @@ contains
       type(StateItemExtensionPtrVector) :: subgroup, new_subgroup
       class(StateItemSpec), pointer :: archetype
       integer :: i, j
-      type(StateItemFilterWrapper), allocatable :: filters(:)
+      type(StateItemAdapterWrapper), allocatable :: adapters(:)
       integer :: status
       type(StateItemExtensionPtr) :: extension_ptr
       type(StateItemExtension), pointer :: primary
@@ -127,15 +127,15 @@ contains
       subgroup = family%get_extensions()
       primary => family%get_primary()  ! archetype defines the rules
       archetype => primary%get_spec()
-      filters = archetype%make_filters(goal_spec, _RC)
+      adapters = archetype%make_adapters(goal_spec, _RC)
 
-      do i = 1, size(filters)
+      do i = 1, size(adapters)
          new_subgroup = StateItemExtensionPtrVector()
          do j = 1, subgroup%size()
             extension_ptr = subgroup%of(j)
             spec => extension_ptr%ptr%get_spec()
-            associate (f => filters(i)%filter)
-              if (f%apply(spec)) then
+            associate (adapter => adapters(i)%adapter)
+              if (adapter%apply(spec)) then
                  call new_subgroup%push_back(extension_ptr)
               end if
             end associate
