@@ -21,6 +21,7 @@ module MAPL_ESMFFieldBundleRead
    use MAPL_SimpleAlarm
    use MAPL_StringTemplate
    use gFTL_StringVector
+   use MAPL_CommsMod
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
@@ -175,6 +176,7 @@ module MAPL_ESMFFieldBundleRead
 
          call fill_grads_template(file_name,file_tmpl,time=time,rc=status)
          _VERIFY(status)
+         if (mapl_am_I_root()) write(*,*)"MAPL_read_bundle reading: ",trim(file_name)
 
          collection_id=i_clients%add_ext_collection(trim(file_tmpl))
 

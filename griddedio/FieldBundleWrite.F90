@@ -9,6 +9,7 @@ module MAPL_ESMFFieldBundleWrite
    use MAPL_VerticalDataMod
    use pFIO_ClientManagerMod, only: o_Clients
    use MAPL_ExceptionHandling
+   use MAPL_CommsMod
    implicit none
    private
 
@@ -120,6 +121,7 @@ module MAPL_ESMFFieldBundleWrite
 
          call this%cfio%bundlepost(this%file_name,oClients=o_clients,rc=status)
          _VERIFY(status)
+         if (mapl_am_I_root()) write(*,*)"MAPL_write_bundle writing: ",trim(this%file_name)
          call o_Clients%done_collective_stage(_RC)
          call o_Clients%wait()
          _RETURN(_SUCCESS)
