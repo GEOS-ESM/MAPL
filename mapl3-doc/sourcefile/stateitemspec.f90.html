@@ -850,24 +850,24 @@ large graphs.</div>
 <a id="ln-9" name="ln-9" href="#ln-9"></a>
 <a id="ln-10" name="ln-10" href="#ln-10"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StateItemSpec</span>
 <a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StateItemSpecPtr</span>
-<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StateItemFilter</span>
-<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StateItemFilterWrapper</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StateItemAdapter</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StateItemAdapterWrapper</span>
 <a id="ln-14" name="ln-14" href="#ln-14"></a>
-<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="c">! Concrete filter subclasses are used to identify members of an</span>
-<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="c">! ExtensionFamily that match some aspect of a &quot;goal&quot; spec.</span>
-<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="c">! A sequence of filters can then be used.</span>
-<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="c">! Note that to avoid circularity, Filters actually act on</span>
-<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="c">! an array of ptr wrappers of StateItemSpecs.</span>
-<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StateItemFilter</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="c">! Concrete adapter subclasses are used to identify members of an</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="c">! ExtensionFamily that match some aspect of a &quot;goal&quot; spec.  A</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="c">! sequence of adapters can then be used.  Note that to avoid</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="c">! circularity, Adapters actually act on an array of ptr wrappers of</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="c">! StateItemSpecs.</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StateItemAdapter</span>
 <a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">contains</span>
 <a id="ln-22" name="ln-22" href="#ln-22"></a><span class="k">      procedure</span><span class="p">(</span><span class="n">I_apply_one</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">apply_one</span>
 <a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">apply_ptr</span>
 <a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">apply</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">apply_one</span><span class="p">,</span><span class="w"> </span><span class="n">apply_ptr</span>
-<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">end type </span><span class="n">StateItemFilter</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">end type </span><span class="n">StateItemAdapter</span>
 <a id="ln-26" name="ln-26" href="#ln-26"></a>
-<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StateItemFilterWrapper</span>
-<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemFilter</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filter</span>
-<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">end type </span><span class="n">StateItemFilterWrapper</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StateItemAdapterWrapper</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAdapter</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">adapter</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">end type </span><span class="n">StateItemAdapterWrapper</span>
 <a id="ln-30" name="ln-30" href="#ln-30"></a>
 <a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">StateItemSpec</span>
 <a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">private</span>
@@ -888,7 +888,7 @@ large graphs.</div>
 <a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">I_make_extension</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_extension</span>
 <a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">I_extension_cost</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">extension_cost</span>
 <a id="ln-49" name="ln-49" href="#ln-49"></a>
-<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">I_make_filters</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_filters</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">I_make_adapters</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_adapters</span>
 <a id="ln-51" name="ln-51" href="#ln-51"></a>
 <a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">I_add_to_state</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_to_state</span>
 <a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">I_add_to_bundle</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_to_bundle</span>
@@ -912,9 +912,9 @@ large graphs.</div>
 <a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">   </span><span class="k">abstract interface</span>
 <a id="ln-72" name="ln-72" href="#ln-72"></a>
 <a id="ln-73" name="ln-73" href="#ln-73"></a><span class="k">      </span><span class="kt">logical </span><span class="k">function </span><span class="n">I_apply_one</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">)</span>
-<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">         </span><span class="k">import </span><span class="n">StateItemFilter</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">         </span><span class="k">import </span><span class="n">StateItemAdapter</span>
 <a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">         </span><span class="k">import </span><span class="n">StateItemSpec</span>
-<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemFilter</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAdapter</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
 <a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
 <a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">      </span><span class="k">end function </span><span class="n">I_apply_one</span>
 <a id="ln-79" name="ln-79" href="#ln-79"></a>
@@ -1001,21 +1001,21 @@ large graphs.</div>
 <a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">I_set_geometry</span>
 <a id="ln-161" name="ln-161" href="#ln-161"></a>
 <a id="ln-162" name="ln-162" href="#ln-162"></a>
-<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">      </span><span class="c">! Returns an ordered list of filters that priorities matching</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">      </span><span class="c">! Returns an ordered list of adapters that priorities matching</span>
 <a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">      </span><span class="c">! rules for connecting a family of extension to a goal spec.</span>
-<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">      </span><span class="c">! The intent is that the filters are ordered to prioritize</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">      </span><span class="c">! The intent is that the adapters are ordered to prioritize</span>
 <a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="c">! coupling to avoid more expensive and/or diffusive couplers.</span>
-<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">      </span><span class="c">! E.g., The first filter for a FieldSpec is expected to be</span>
-<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="c">! a GeomFilter so that a new RegridAction is only needed when</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">      </span><span class="c">! E.g., The first adapter for a FieldSpec is expected to be</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="c">! a GeomAdapter so that a new RegridAction is only needed when</span>
 <a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">      </span><span class="c">! no existing extensions match the geom of the goal_spec.</span>
-<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">      </span><span class="k">function </span><span class="n">I_make_filters</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">goal_spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">      </span><span class="k">function </span><span class="n">I_make_adapters</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">goal_spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">adapters</span><span class="p">)</span>
 <a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">         </span><span class="k">import </span><span class="n">StateItemSpec</span>
-<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">         </span><span class="k">import </span><span class="n">StateItemFilterWrapper</span>
-<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">StateItemFilterWrapper</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filters</span><span class="p">(:)</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">         </span><span class="k">import </span><span class="n">StateItemAdapterWrapper</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">StateItemAdapterWrapper</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">adapters</span><span class="p">(:)</span>
 <a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
 <a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">goal_spec</span>
 <a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
-<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">      </span><span class="k">end function </span><span class="n">I_make_filters</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">      </span><span class="k">end function </span><span class="n">I_make_adapters</span>
 <a id="ln-178" name="ln-178" href="#ln-178"></a><span class="w">   </span><span class="k">end interface</span>
 <a id="ln-179" name="ln-179" href="#ln-179"></a>
 <a id="ln-180" name="ln-180" href="#ln-180"></a><span class="k">contains</span>
@@ -1088,7 +1088,7 @@ large graphs.</div>
 <a id="ln-247" name="ln-247" href="#ln-247"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">set_raw_dependencies</span>
 <a id="ln-248" name="ln-248" href="#ln-248"></a>
 <a id="ln-249" name="ln-249" href="#ln-249"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">apply_ptr</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">spec_ptr</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
-<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemFilter</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemAdapter</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
 <a id="ln-251" name="ln-251" href="#ln-251"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StateItemSpecPtr</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec_ptr</span>
 <a id="ln-252" name="ln-252" href="#ln-252"></a><span class="w">      </span><span class="n">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">apply</span><span class="p">(</span><span class="n">spec_ptr</span><span class="p">%</span><span class="n">ptr</span><span class="p">)</span>
 <a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">   </span><span class="k">end function </span><span class="n">apply_ptr</span>
@@ -1115,7 +1115,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-09-17T20:16:45.293435             </p>
+ on 2024-09-18T14:44:04.485077             </p>
           </div>
         </div>
         <br>

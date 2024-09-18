@@ -107,7 +107,7 @@ module mapl3g_FieldSpec
 
       procedure :: extension_cost
       procedure :: make_extension
-      procedure :: make_filters
+      procedure :: make_adapters
 
       procedure :: set_info
       procedure :: set_geometry
@@ -145,46 +145,46 @@ module mapl3g_FieldSpec
       procedure update_item_string
    end interface update_item
 
-   type, extends(StateItemFilter) :: GeomFilter
+   type, extends(StateItemAdapter) :: GeomAdapter
       private
       type(ESMF_Geom) :: geom
    contains
-      procedure :: apply_one => filter_match_geom
-   end type GeomFilter
+      procedure :: apply_one => adapter_match_geom
+   end type GeomAdapter
 
-   interface GeomFilter
-      procedure :: new_GeomFilter
-   end interface GeomFilter
+   interface GeomAdapter
+      procedure :: new_GeomAdapter
+   end interface GeomAdapter
 
-   type, extends(StateItemFilter) :: TypeKindFilter
+   type, extends(StateItemAdapter) :: TypeKindAdapter
       private
       type(ESMF_Typekind_Flag) :: typekind
    contains
-      procedure :: apply_one => filter_match_typekind
-   end type TypeKindFilter
+      procedure :: apply_one => adapter_match_typekind
+   end type TypeKindAdapter
 
-   interface TypeKindFilter
-      procedure :: new_TypeKindFilter
-   end interface TypeKindFilter
+   interface TypeKindAdapter
+      procedure :: new_TypeKindAdapter
+   end interface TypeKindAdapter
 
-   type, extends(StateItemFilter) :: UnitsFilter
+   type, extends(StateItemAdapter) :: UnitsAdapter
       private
       character(:), allocatable :: units
    contains
-      procedure :: apply_one => filter_match_units
-   end type UnitsFilter
+      procedure :: apply_one => adapter_match_units
+   end type UnitsAdapter
 
-   interface UnitsFilter
-      procedure :: new_UnitsFilter
-   end interface UnitsFilter
+   interface UnitsAdapter
+      procedure :: new_UnitsAdapter
+   end interface UnitsAdapter
 
    interface
-      module recursive function make_filters(this, goal_spec, rc) result(filters)
-         type(StateItemFilterWrapper), allocatable :: filters(:)
+      module recursive function make_adapters(this, goal_spec, rc) result(adapters)
+         type(StateItemAdapterWrapper), allocatable :: adapters(:)
          class(FieldSpec), intent(in) :: this
          class(StateItemSpec), intent(in) :: goal_spec
          integer, optional, intent(out) :: rc
-      end function make_filters
+      end function make_adapters
 
       module recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
          class(FieldSpec), intent(in) :: this
@@ -938,15 +938,15 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_info
 
-   function new_GeomFilter(geom) result(geom_filter)
-      type(GeomFilter) :: geom_filter
+   function new_GeomAdapter(geom) result(geom_adapter)
+      type(GeomAdapter) :: geom_adapter
       type(ESMF_Geom), optional, intent(in) :: geom
 
-      if (present(geom)) geom_filter%geom = geom
-   end function new_GeomFilter
+      if (present(geom)) geom_adapter%geom = geom
+   end function new_GeomAdapter
 
-   logical function filter_match_geom(this, spec) result(match)
-      class(GeomFilter), intent(in) :: this
+   logical function adapter_match_geom(this, spec) result(match)
+      class(GeomAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
 
       match = .false.
@@ -954,18 +954,18 @@ contains
       type is (FieldSpec)
          match = match_geom(spec%geom, spec%geom)
       end select
-   end function filter_match_geom
+   end function adapter_match_geom
 
 
-   function new_TypekindFilter(typekind) result(typekind_filter)
-      type(TypekindFilter) :: typekind_filter
+   function new_TypekindAdapter(typekind) result(typekind_adapter)
+      type(TypekindAdapter) :: typekind_adapter
       type(ESMF_Typekind_Flag), intent(in) :: typekind
 
-      typekind_filter%typekind = typekind
-   end function new_TypekindFilter
+      typekind_adapter%typekind = typekind
+   end function new_TypekindAdapter
 
-   logical function filter_match_typekind(this, spec) result(match)
-      class(TypekindFilter), intent(in) :: this
+   logical function adapter_match_typekind(this, spec) result(match)
+      class(TypekindAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
 
       match = .false.
@@ -973,17 +973,17 @@ contains
       type is (FieldSpec)
          match = match_typekind(this%typekind, spec%typekind)
       end select
-   end function filter_match_typekind
+   end function adapter_match_typekind
 
-   function new_UnitsFilter(units) result(units_filter)
-      type(UnitsFilter) :: units_filter
+   function new_UnitsAdapter(units) result(units_adapter)
+      type(UnitsAdapter) :: units_adapter
       character(*), optional, intent(in) :: units
 
-      if (present(units)) units_filter%units = units
-   end function new_UnitsFilter
+      if (present(units)) units_adapter%units = units
+   end function new_UnitsAdapter
 
-   logical function filter_match_units(this, spec) result(match)
-      class(UnitsFilter), intent(in) :: this
+   logical function adapter_match_units(this, spec) result(match)
+      class(UnitsAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
 
       match = .false.
@@ -991,10 +991,10 @@ contains
       type is (FieldSpec)
          match = match_string(spec%units, spec%units)
       end select
-   end function filter_match_units
+   end function adapter_match_units
 
-   module recursive function make_filters(this, goal_spec, rc) result(filters)
-      type(StateItemFilterWrapper), allocatable :: filters(:)
+   module recursive function make_adapters(this, goal_spec, rc) result(adapters)
+      type(StateItemAdapterWrapper), allocatable :: adapters(:)
       class(FieldSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
@@ -1003,29 +1003,29 @@ contains
 
       select type (goal_spec)
       type is (FieldSpec)
-         allocate(filters(3))
-!#         filters(1)%filter = GeomFilter(goal_spec%geom)
-         allocate(filters(1)%filter, source=GeomFilter(goal_spec%geom))
-!#         filters(2)%filter = TypeKindFilter(goal_spec%typekind)
-         allocate(filters(2)%filter, source=TypeKindFilter(goal_spec%typekind))
-!#         filters(3)%filter = UnitsFilter(goal_spec%units)
-         allocate(filters(3)%filter, source=UnitsFilter(goal_spec%units))
+         allocate(adapters(3))
+!#         adapters(1)%adapter = GeomAdapter(goal_spec%geom)
+         allocate(adapters(1)%adapter, source=GeomAdapter(goal_spec%geom))
+!#         adapters(2)%adapter = TypeKindAdapter(goal_spec%typekind)
+         allocate(adapters(2)%adapter, source=TypeKindAdapter(goal_spec%typekind))
+!#         adapters(3)%adapter = UnitsAdapter(goal_spec%units)
+         allocate(adapters(3)%adapter, source=UnitsAdapter(goal_spec%units))
          ! GFortran 13.3 chokes on thecode below
-!#         filters = [ &
-!#              StateItemFilterWrapper(GeomFilter(goal_spec%geom)), &
-!#   !#              this%vertical_grid%make_filters(goal_spec%vertical_grid), &
-!#              StateItemFilterWrapper(TypeKindFilter(goal_spec%typekind)), &
-!#              StateItemFilterWrapper(UnitsFilter(goal_spec%units))]
+!#         adapters = [ &
+!#              StateItemAdapterWrapper(GeomAdapter(goal_spec%geom)), &
+!#   !#              this%vertical_grid%make_adapters(goal_spec%vertical_grid), &
+!#              StateItemAdapterWrapper(TypeKindAdapter(goal_spec%typekind)), &
+!#              StateItemAdapterWrapper(UnitsAdapter(goal_spec%units))]
       type is (WildCardSpec)
-         filters = goal_spec%make_filters(goal_spec, _RC)
+         adapters = goal_spec%make_adapters(goal_spec, _RC)
       class default
-         allocate(filters(0))
+         allocate(adapters(0))
          _FAIL('unsupported subclass of StateItemSpec')
       end select
 
       _RETURN(_SUCCESS)
 
-   end function make_filters
+   end function make_adapters
 
    module recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(FieldSpec), intent(in) :: this

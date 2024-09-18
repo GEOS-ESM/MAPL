@@ -23,7 +23,7 @@ module MockItemSpecMod
    type, extends(StateItemSpec) :: MockItemSpec
       character(len=:), allocatable :: name
       character(len=:), allocatable :: subtype
-      character(len=:), allocatable :: filter_type
+      character(len=:), allocatable :: adapter_type
    contains
       procedure :: create
       procedure :: destroy
@@ -34,7 +34,7 @@ module MockItemSpecMod
       procedure :: can_connect_to
       procedure :: make_extension
       procedure :: extension_cost
-      procedure :: make_filters
+      procedure :: make_adapters
       procedure :: add_to_state
       procedure :: add_to_bundle
    end type MockItemSpec
@@ -54,38 +54,38 @@ module MockItemSpecMod
       module procedure new_MockAction
    end interface MockAction
 
-   type, extends(StateItemFilter) :: SubtypeFilter
+   type, extends(StateItemAdapter) :: SubtypeAdapter
       character(:), allocatable :: subtype
    contains
       procedure :: apply_one => match_subtype
-   end type SubtypeFilter
+   end type SubtypeAdapter
 
-   interface SubtypeFilter
-      procedure :: new_SubtypeFilter
-   end interface SubtypeFilter
+   interface SubtypeAdapter
+      procedure :: new_SubtypeAdapter
+   end interface SubtypeAdapter
       
 
-   type, extends(StateItemFilter) :: NameFilter
+   type, extends(StateItemAdapter) :: NameAdapter
       character(:), allocatable :: name
    contains
       procedure :: apply_one => match_name
-   end type NameFilter
+   end type NameAdapter
 
-   interface NameFilter
-      procedure :: new_NameFilter
-   end interface NameFilter
+   interface NameAdapter
+      procedure :: new_NameAdapter
+   end interface NameAdapter
       
 contains
 
-   function new_MockItemSpec(name, subtype, filter_type) result(spec)
+   function new_MockItemSpec(name, subtype, adapter_type) result(spec)
       type(MockItemSpec) :: spec
       character(*), intent(in) :: name
       character(*), optional, intent(in) :: subtype
-      character(*), optional, intent(in) :: filter_type
+      character(*), optional, intent(in) :: adapter_type
 
       spec%name = name
       if (present(subtype)) spec%subtype = subtype
-      if (present(filter_type)) spec%filter_type = filter_type
+      if (present(adapter_type)) spec%adapter_type = adapter_type
 
    end function new_MockItemSpec
 
@@ -301,52 +301,52 @@ contains
       _FAIL('This procedure should not be called.')
    end subroutine run
    
-   function make_filters(this, goal_spec, rc) result(filters)
-      type(StateItemFilterWrapper), allocatable :: filters(:)
+   function make_adapters(this, goal_spec, rc) result(adapters)
+      type(StateItemAdapterWrapper), allocatable :: adapters(:)
       class(MockItemSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
 
-      type(SubtypeFilter) :: subtype_filter
-      type(NameFilter) :: name_filter
-      allocate(filters(0)) ! just in case
+      type(SubtypeAdapter) :: subtype_adapter
+      type(NameAdapter) :: name_adapter
+      allocate(adapters(0)) ! just in case
 
       select type (goal_spec)
       type is (MockItemSpec)
 
          
-         if (allocated(this%filter_type)) then
-            select case (this%filter_type)
+         if (allocated(this%adapter_type)) then
+            select case (this%adapter_type)
             case ('subtype')
-               deallocate(filters)
-               allocate(filters(1))
-               subtype_filter = SubtypeFilter(goal_spec%subtype)
-               allocate(filters(1)%filter, source=subtype_filter)
+               deallocate(adapters)
+               allocate(adapters(1))
+               subtype_adapter = SubtypeAdapter(goal_spec%subtype)
+               allocate(adapters(1)%adapter, source=subtype_adapter)
             case ('name')
-               deallocate(filters)
-               allocate(filters(1))
-               name_filter = NameFilter(goal_spec%name)
-               allocate(filters(1)%filter, source=name_filter)
+               deallocate(adapters)
+               allocate(adapters(1))
+               name_adapter = NameAdapter(goal_spec%name)
+               allocate(adapters(1)%adapter, source=name_adapter)
             case default
-               _FAIL('unsupported filter type')
+               _FAIL('unsupported adapter type')
             end select
          else
-            deallocate(filters)
-            allocate(filters(2))
-            subtype_filter = SubtypeFilter(goal_spec%subtype)
-            name_filter = NameFilter(goal_spec%name)
-            allocate(filters(1)%filter, source=name_filter)
-            allocate(filters(2)%filter, source=subtype_filter)
+            deallocate(adapters)
+            allocate(adapters(2))
+            subtype_adapter = SubtypeAdapter(goal_spec%subtype)
+            name_adapter = NameAdapter(goal_spec%name)
+            allocate(adapters(1)%adapter, source=name_adapter)
+            allocate(adapters(2)%adapter, source=subtype_adapter)
          end if
       end select
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_spec)
-   end function make_filters
+   end function make_adapters
 
    logical function match_subtype(this, spec) result(match)
-      class(SubtypeFilter), intent(in) :: this
+      class(SubtypeAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
 
       match = .false.
@@ -366,7 +366,7 @@ contains
    end function match_subtype
 
    logical function match_name(this, spec) result(match)
-      class(NameFilter), intent(in) :: this
+      class(NameAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
 
 
@@ -386,20 +386,20 @@ contains
       
    end function match_name
 
-   function new_SubtypeFilter(subtype) result(filter)
-     type(SubtypeFilter) :: filter
+   function new_SubtypeAdapter(subtype) result(adapter)
+     type(SubtypeAdapter) :: adapter
      character(*), optional, intent(in) :: subtype
      if (present(subtype)) then
-        filter%subtype=subtype
+        adapter%subtype=subtype
      end if
-   end function new_SubtypeFilter
+   end function new_SubtypeAdapter
      
-   function new_NameFilter(name) result(filter)
-     type(NameFilter) :: filter
+   function new_NameAdapter(name) result(adapter)
+     type(NameAdapter) :: adapter
      character(*), optional, intent(in) :: name
      if (present(name)) then
-        filter%name=name
+        adapter%name=name
      end if
-   end function new_NameFilter
+   end function new_NameAdapter
      
 end module MockItemSpecMod

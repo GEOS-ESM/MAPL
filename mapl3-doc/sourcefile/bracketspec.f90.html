@@ -1020,7 +1020,7 @@ large graphs.</div>
 <a id="ln-46" name="ln-46" href="#ln-46"></a>
 <a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">extension_cost</span>
 <a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_extension</span>
-<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_filters</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_adapters</span>
 <a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_geometry</span>
 <a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">   </span><span class="k">end type </span><span class="n">BracketSpec</span>
 <a id="ln-52" name="ln-52" href="#ln-52"></a>
@@ -1276,20 +1276,20 @@ large graphs.</div>
 <a id="ln-302" name="ln-302" href="#ln-302"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">vertical_grid</span><span class="p">)</span>
 <a id="ln-303" name="ln-303" href="#ln-303"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">set_geometry</span>
 <a id="ln-304" name="ln-304" href="#ln-304"></a>
-<a id="ln-305" name="ln-305" href="#ln-305"></a><span class="w">   </span><span class="k">function </span><span class="n">make_filters</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">goal_spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
-<a id="ln-306" name="ln-306" href="#ln-306"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StateItemFilterWrapper</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filters</span><span class="p">(:)</span>
+<a id="ln-305" name="ln-305" href="#ln-305"></a><span class="w">   </span><span class="k">function </span><span class="n">make_adapters</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">goal_spec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">adapters</span><span class="p">)</span>
+<a id="ln-306" name="ln-306" href="#ln-306"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StateItemAdapterWrapper</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">adapters</span><span class="p">(:)</span>
 <a id="ln-307" name="ln-307" href="#ln-307"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">BracketSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
 <a id="ln-308" name="ln-308" href="#ln-308"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">StateItemSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">goal_spec</span>
 <a id="ln-309" name="ln-309" href="#ln-309"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 <a id="ln-310" name="ln-310" href="#ln-310"></a>
 <a id="ln-311" name="ln-311" href="#ln-311"></a>
-<a id="ln-312" name="ln-312" href="#ln-312"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">filters</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-312" name="ln-312" href="#ln-312"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">adapters</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 <a id="ln-313" name="ln-313" href="#ln-313"></a><span class="w">      </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;unimplemented&#39;</span><span class="p">)</span>
 <a id="ln-314" name="ln-314" href="#ln-314"></a>
 <a id="ln-315" name="ln-315" href="#ln-315"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 <a id="ln-316" name="ln-316" href="#ln-316"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
 <a id="ln-317" name="ln-317" href="#ln-317"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">goal_spec</span><span class="p">)</span>
-<a id="ln-318" name="ln-318" href="#ln-318"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_filters</span>
+<a id="ln-318" name="ln-318" href="#ln-318"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_adapters</span>
 <a id="ln-319" name="ln-319" href="#ln-319"></a>
 <a id="ln-320" name="ln-320" href="#ln-320"></a><span class="w"> </span>
 <a id="ln-321" name="ln-321" href="#ln-321"></a><span class="k">end module </span><span class="n">mapl3g_BracketSpec</span>
@@ -1314,7 +1314,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-09-17T20:16:45.293435             </p>
+ on 2024-09-18T14:44:04.485077             </p>
           </div>
         </div>
         <br>
