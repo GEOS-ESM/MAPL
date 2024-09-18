@@ -42,7 +42,7 @@ module mapl3g_ServiceSpec
       procedure :: can_connect_to
       procedure :: make_extension
       procedure :: extension_cost
-      procedure :: make_filters
+      procedure :: make_adapters
 
       procedure :: add_to_state
       procedure :: add_to_bundle
@@ -237,18 +237,18 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_geometry
 
-   function make_filters(this, goal_spec, rc) result(filters)
-      type(StateItemFilterWrapper), allocatable :: filters(:)
+   function make_adapters(this, goal_spec, rc) result(adapters)
+      type(StateItemAdapterWrapper), allocatable :: adapters(:)
       class(ServiceSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
 
 
-      allocate(filters(0))
+      allocate(adapters(0))
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_spec)
-   end function make_filters
+   end function make_adapters
 
 end module mapl3g_ServiceSpec
