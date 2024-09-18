@@ -690,7 +690,6 @@ contains
       end if
 
       _ASSERT(allocated(this%vertical_grid), 'Source spec must specify a valid vertical grid.')
-      _HERE, "FieldSpec::make_extension_safely"
       if (.not. same_vertical_grid(this%vertical_grid, dst_spec%vertical_grid)) then
          call this%vertical_grid%get_coordinate_field( &
               v_in_coord, v_in_coupler, &
@@ -735,6 +734,8 @@ contains
       end function same_geom
 
       logical function same_vertical_grid(src_grid, dst_grid)
+         use mapl3g_BasicVerticalGrid, only: BasicVerticalGrid, operator(==)
+         use mapl3g_FixedLevelsVerticalGrid, only: FixedLevelsVerticalGrid, operator(==)
          class(VerticalGrid), intent(in) :: src_grid
          class(VerticalGrid), allocatable, intent(in) :: dst_grid
 
@@ -743,19 +744,27 @@ contains
 
          same_vertical_grid = src_grid%same_id(dst_grid)
 
-         block
-            use mapl3g_BasicVerticalGrid
-            ! "temporary kludge" while true vertical grid logic is being implemented
-            if (.not. same_vertical_grid) then
-               select type(src_grid)
+         ! "temporary kludge" while true vertical grid logic is being implemented
+         if (.not. same_vertical_grid) then
+            select type(src_grid)
+            type is (BasicVerticalGrid)
+               select type (dst_grid)
                type is (BasicVerticalGrid)
-                  select type (dst_grid)
-                  type is (BasicVerticalGrid)
-                     same_vertical_grid = (src_grid == dst_grid)
-                  end select
+                  same_vertical_grid = (src_grid == dst_grid)
+               class default
+                  _FAIL("dst grid is not BasicVerticalGrid")
                end select
-            end if
-         end block
+            type is (FixedLevelsVerticalGrid)
+               select type (dst_grid)
+               type is (FixedLevelsVerticalGrid)
+                  same_vertical_grid = (src_grid == dst_grid)
+               class default
+                  _FAIL("dst grid is not FixedLevelsVerticalGrid")
+               end select
+            class default
+               _FAIL("only Basic and FixedLevels VerticalGrid are supported, for now")
+            end select
+         end if
 
       end function same_vertical_grid
 
