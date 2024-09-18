@@ -18,6 +18,7 @@ module mapl3g_BasicVerticalGrid
       procedure :: get_num_levels
       procedure :: get_coordinate_field
       procedure :: can_connect_to
+!#      procedure :: make_filters
    end type BasicVerticalGrid
 
    interface operator(==)
@@ -85,5 +86,15 @@ contains
       not_equal_to = .not. (a == b)
    end function not_equal_to
 
+
+!#   function make_filters(this, goal_grid, rc) result(filters)
+!#      type(StateItemFilterWrapper), allocatable :: filters(:)
+!#      class(BasicVerticalGrid), intent(in) :: this
+!#      class(VerticalGrid), intent(in) :: goal_grid
+!#      integer, optional, intent(out) :: rc
+!#
+!#      filters = 
+!#      select
+!#   end function make_filters
 
 end module mapl3g_BasicVerticalGrid

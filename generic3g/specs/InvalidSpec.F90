@@ -37,6 +37,8 @@ module mapl3g_InvalidSpec
       procedure :: make_extension
       procedure :: extension_cost
       procedure :: set_geometry => set_geometry
+
+      procedure :: make_filters
    end type InvalidSpec
 
 
@@ -138,7 +140,7 @@ contains
       _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
 
-   subroutine make_extension(this, dst_spec, new_spec, action, rc)
+   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(InvalidSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
       class(StateItemSpec), allocatable, intent(out) :: new_spec
@@ -178,5 +180,20 @@ contains
       _UNUSED_DUMMY(geom)
       _UNUSED_DUMMY(vertical_grid)
    end subroutine set_geometry
+
+   ! Stub implementation
+   function make_filters(this, goal_spec, rc) result(filters)
+      type(StateItemFilterWrapper), allocatable :: filters(:)
+      class(InvalidSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+      allocate(filters(0))
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(goal_spec)
+   end function make_filters
+
 
 end module mapl3g_InvalidSpec
