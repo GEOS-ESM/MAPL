@@ -7,9 +7,11 @@ module mapl3g_BasicVerticalGrid
    use esmf, only: ESMF_TypeKind_Flag
    use esmf, only: ESMF_Field
    use esmf, only: ESMF_Geom
+
    implicit none
    private
-   public :: BasicVerticalGrid
+
+   public :: BasicVerticalGrid, operator(==), operator(/=)
 
    type, extends(VerticalGrid) :: BasicVerticalGrid
       private

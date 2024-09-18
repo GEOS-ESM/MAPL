@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_FixedLevelsVerticalGrid
+
    use mapl3g_VerticalGrid
    use mapl3g_GriddedComponentDriver
    use mapl_ErrorHandling
@@ -8,6 +9,7 @@ module mapl3g_FixedLevelsVerticalGrid
    use esmf, only: ESMF_Field
    use esmf, only: ESMF_Geom
    use, intrinsic :: iso_fortran_env, only: REAL32
+
    implicit none
    private
 
@@ -31,13 +33,12 @@ module mapl3g_FixedLevelsVerticalGrid
    end interface FixedLevelsVerticalGrid
 
    interface operator(==)
-      module procedure equal_FixedLevelsVerticalGrid
+      module procedure equal_to
    end interface operator(==)
 
    interface operator(/=)
-      module procedure not_equal_FixedLevelsVerticalGrid
+      module procedure not_equal_to
    end interface operator(/=)
-
 
 contains
 
@@ -91,24 +92,23 @@ contains
        _UNUSED_DUMMY(src)
     end function can_connect_to
 
-    impure elemental logical function equal_FixedLevelsVerticalGrid(a, b) result(equal)
+    impure elemental logical function equal_to(a, b) result(equal)
        type(FixedLevelsVerticalGrid), intent(in) :: a, b
 
        equal = a%standard_name == b%standard_name
-       if (.not. equal) return       
+       if (.not. equal) return
        equal = a%units == b%units
-       if (.not. equal) return       
+       if (.not. equal) return
        equal = size(a%levels) == size(b%levels)
-       if (.not. equal) return       
+       if (.not. equal) return
        equal = all(a%levels == b%levels)
-    end function equal_FixedLevelsVerticalGrid 
+    end function equal_to
 
-    impure elemental logical function not_equal_FixedLevelsVerticalGrid(a, b) result(not_equal)
+    impure elemental logical function not_equal_to(a, b) result(not_equal)
        type(FixedLevelsVerticalGrid), intent(in) :: a, b
 
        not_equal = .not. (a==b)
-
-    end function not_equal_FixedLevelsVerticalGrid 
+    end function not_equal_to
 
 end module mapl3g_FixedLevelsVerticalGrid
 
