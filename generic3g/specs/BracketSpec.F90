@@ -44,7 +44,6 @@ module mapl3g_BracketSpec
       procedure :: add_to_state
       procedure :: add_to_bundle
 
-      procedure :: make_extension
       procedure :: make_adapters
       procedure :: set_geometry
    end type BracketSpec
@@ -254,21 +253,6 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
-
-   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
-      class(BracketSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      class(StateItemSpec), allocatable, intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      action = NullAction() ! default
-      new_spec = this
-
-      _FAIL('not implemented')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(dst_spec)
-   end subroutine make_extension
 
    subroutine set_geometry(this, geom, vertical_grid, rc)
       class(BracketSpec), intent(inout) :: this
