@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added capability for HistoryCollectionGridComp to extract field names from expressions
 - Added ability for HistoryCollectionGridComp to extract multiple field names from expressions
 - Added vertical and ungridded dimensions to output for History3G
+- Create rank-agnostic representation of `ESMF_Field` objects as rank-3 array pointers.
 
 ### Changed
 
