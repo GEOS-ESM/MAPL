@@ -22,3 +22,8 @@ esma_add_fortran_submodules(
   SOURCES can_connect_to.F90
 )
 
+ecbuild_add_executable(
+  TARGET Test_WeightComputation.x
+  SOURCES Test_WeightComputation.F90
+  DEPENDS MAPL.generic3g ESMF::ESMF)
+target_link_libraries(Test_WeightComputation.x PRIVATE ${this})

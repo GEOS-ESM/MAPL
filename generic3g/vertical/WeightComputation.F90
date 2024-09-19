@@ -1,4 +1,5 @@
 #include "MAPL_Generic.h"
+
 module mapl3g_WeightComputation
 
    use mapl_ErrorHandling
@@ -30,8 +31,8 @@ contains
       allocate(weights(size(dst_v_coord), size(src_v_coord)), source=0., _STAT)
       do ndx_dst = 1, size(dst_v_coord)
          ndx_src = findloc(src_v_coord, dst_v_coord(ndx_dst), 1)
-         weights(ndx_dst, ndx_src) = 1.
          _ASSERT(ndx_src /= 0, "dst coord not in src coord")
+         weights(ndx_dst, ndx_src) = 1.
       end do
 
       _RETURN(_SUCCESS)
