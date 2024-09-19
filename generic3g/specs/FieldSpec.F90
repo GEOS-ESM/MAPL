@@ -142,6 +142,22 @@ module mapl3g_FieldSpec
       procedure :: new_GeomAdapter
    end interface GeomAdapter
 
+   type, extends(StateItemAdapter) :: VerticalGridAdapter
+      private
+      class(VerticalGrid), allocatable :: vertical_grid
+      type(ESMF_Geom), allocatable :: geom
+      type(ESMF_TypeKind_Flag) :: typekind
+      character(:), allocatable :: units
+      type(Vertical_RegridMethod_Flag), allocatable :: regrid_method
+   contains
+      procedure :: adapt_one => adapt_vertical_grid
+      procedure :: match_one => adapter_match_vertical_grid
+   end type VerticalGridAdapter
+
+   interface VerticalGridAdapter
+      procedure :: new_VerticalGridAdapter
+   end interface VerticalGridAdapter
+
    type, extends(StateItemAdapter) :: TypeKindAdapter
       private
       type(ESMF_Typekind_Flag) :: typekind
@@ -165,23 +181,6 @@ module mapl3g_FieldSpec
    interface UnitsAdapter
       procedure :: new_UnitsAdapter
    end interface UnitsAdapter
-
-   interface
-      module recursive function make_adapters(this, goal_spec, rc) result(adapters)
-         type(StateItemAdapterWrapper), allocatable :: adapters(:)
-         class(FieldSpec), intent(in) :: this
-         class(StateItemSpec), intent(in) :: goal_spec
-         integer, optional, intent(out) :: rc
-      end function make_adapters
-
-      module recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
-         class(FieldSpec), intent(in) :: this
-         class(StateItemSpec), intent(in) :: dst_spec
-         class(StateItemSpec), allocatable, intent(out) :: new_spec
-         class(ExtensionAction), allocatable, intent(out) :: action
-         integer, optional, intent(out) :: rc
-      end subroutine make_extension
-   end interface
 
 contains
 
@@ -839,10 +838,11 @@ contains
 
    end function new_GeomAdapter
 
-   subroutine adapt_geom(this, spec, action)
+   subroutine adapt_geom(this, spec, action, rc)
       class(GeomAdapter), intent(in) :: this
       class(StateItemSpec), intent(inout) :: spec
       class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
 
       select type (spec)
       type is (FieldSpec)
@@ -850,6 +850,7 @@ contains
          spec%geom = this%geom
       end select
 
+      _RETURN(_SUCCESS)
    end subroutine adapt_geom
 
    logical function adapter_match_geom(this, spec) result(match)
@@ -864,6 +865,85 @@ contains
 
    end function adapter_match_geom
 
+   function new_VerticalGridAdapter(vertical_grid, geom, typekind, units, regrid_method) result(vertical_grid_adapter)
+      type(VerticalGridAdapter) :: vertical_grid_adapter
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      type(ESMF_Geom), optional, intent(in) :: geom
+      type(ESMF_Typekind_Flag), intent(in) :: typekind
+      character(*), optional, intent(in) :: units
+      type(Vertical_RegridMethod_Flag), optional, intent(in) :: regrid_method
+
+      if (present(vertical_grid)) vertical_grid_adapter%vertical_grid = vertical_grid
+      if (present(geom)) vertical_grid_adapter%geom = geom
+      vertical_grid_adapter%typekind = typekind
+      if (present(units)) vertical_grid_adapter%units = units
+      if (present(regrid_method)) vertical_grid_adapter%regrid_method = regrid_method
+
+   end function new_VerticalGridAdapter
+
+   subroutine adapt_vertical_grid(this, spec, action, rc)
+      class(VerticalGridAdapter), intent(in) :: this
+      class(StateItemSpec), intent(inout) :: spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+
+      type(GriddedComponentDriver), pointer :: v_in_coupler
+      type(GriddedComponentDriver), pointer :: v_out_coupler
+      type(ESMF_Field) :: v_in_coord, v_out_coord
+      integer :: status
+
+      select type (spec)
+      type is (FieldSpec)
+         call spec%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
+              'ignore', spec%geom, spec%typekind, spec%units, _RC)
+         call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
+              'ignore', this%geom, this%typekind, this%units, _RC)
+         action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, this%regrid_method)
+         spec%vertical_grid = this%vertical_grid
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine adapt_vertical_grid
+
+   logical function adapter_match_vertical_grid(this, spec) result(match)
+      class(VerticalGridAdapter), intent(in) :: this
+      class(StateItemSpec), intent(in) :: spec
+
+      match = .false.
+      select type (spec)
+      type is (FieldSpec)
+         match = same_vertical_grid(spec%vertical_grid, this%vertical_grid)
+      end select
+
+   contains
+
+     logical function same_vertical_grid(src_grid, dst_grid)
+        class(VerticalGrid), intent(in) :: src_grid
+        class(VerticalGrid), allocatable, intent(in) :: dst_grid
+         
+         same_vertical_grid = .true.
+         if (.not. allocated(dst_grid)) return ! mirror grid
+         
+         same_vertical_grid = src_grid%same_id(dst_grid)
+
+         block
+           use mapl3g_BasicVerticalGrid
+           ! "temporary kludge" while true vertical grid logic is being implemented
+           if (.not. same_vertical_grid) then
+              select type(src_grid)
+              type is (BasicVerticalGrid)
+                 select type (dst_grid)
+                 type is (BasicVerticalGrid)
+                    same_vertical_grid = (src_grid%get_num_levels() == dst_grid%get_num_levels())
+                 end select
+              end select
+           end if
+         end block
+
+      end function same_vertical_grid
+      
+   end function adapter_match_vertical_grid
+
 
    function new_TypekindAdapter(typekind) result(typekind_adapter)
       type(TypekindAdapter) :: typekind_adapter
@@ -872,16 +952,19 @@ contains
       typekind_adapter%typekind = typekind
    end function new_TypekindAdapter
 
-   subroutine adapt_typekind(this, spec, action)
+   subroutine adapt_typekind(this, spec, action, rc)
       class(TypekindAdapter), intent(in) :: this
       class(StateItemSpec), intent(inout) :: spec
       class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
 
       select type (spec)
       type is (FieldSpec)
          spec%typekind = this%typekind
          action = CopyAction(spec%typekind, this%typekind)
       end select
+
+      _RETURN(_SUCCESS)
    end subroutine adapt_typekind
 
    logical function adapter_match_typekind(this, spec) result(match)
@@ -902,16 +985,19 @@ contains
       if (present(units)) units_adapter%units = units
    end function new_UnitsAdapter
 
-   subroutine adapt_units(this, spec, action)
+   subroutine adapt_units(this, spec, action, rc)
       class(UnitsAdapter), intent(in) :: this
       class(StateItemSpec), intent(inout) :: spec
       class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
 
       select type (spec)
       type is (FieldSpec)
          action = ConvertUnitsAction(spec%units, this%units)
          spec%units = this%units
       end select
+
+      _RETURN(_SUCCESS)
    end subroutine adapt_units
 
   logical function adapter_match_units(this, spec) result(match)
@@ -927,7 +1013,7 @@ contains
       end select
    end function adapter_match_units
 
-   module recursive function make_adapters(this, goal_spec, rc) result(adapters)
+   recursive function make_adapters(this, goal_spec, rc) result(adapters)
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
       class(FieldSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: goal_spec
@@ -937,10 +1023,12 @@ contains
 
       select type (goal_spec)
       type is (FieldSpec)
-         allocate(adapters(3))
+         allocate(adapters(4))
          allocate(adapters(1)%adapter, source=GeomAdapter(goal_spec%geom, goal_spec%regrid_param))
-         allocate(adapters(2)%adapter, source=TypeKindAdapter(goal_spec%typekind))
-         allocate(adapters(3)%adapter, source=UnitsAdapter(goal_spec%units))
+         allocate(adapters(2)%adapter, &
+              source=VerticalGridAdapter(goal_spec%vertical_grid, goal_spec%geom, goal_spec%typekind, goal_spec%units, VERTICAL_REGRID_LINEAR))
+         allocate(adapters(3)%adapter, source=TypeKindAdapter(goal_spec%typekind))
+         allocate(adapters(4)%adapter, source=UnitsAdapter(goal_spec%units))
       type is (WildCardSpec)
          adapters = goal_spec%make_adapters(goal_spec, _RC)
       class default
@@ -952,96 +1040,31 @@ contains
 
    end function make_adapters
 
-   module recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
+   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
       class(FieldSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: dst_spec
       class(StateItemSpec), allocatable, intent(out) :: new_spec
       class(ExtensionAction), allocatable, intent(out) :: action
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(FieldSpec) :: tmp_spec
-
-      select type(dst_spec)
-      type is (FieldSpec)
-      call make_extension_safely(this, dst_spec, tmp_spec, action, _RC)
-         allocate(new_spec, source=tmp_spec)
-      type is (WildCardSpec)
-         call this%make_extension(dst_spec%get_reference_spec(), new_spec, action, _RC)
-      class default
-         _FAIL('Unsupported subclass.')
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine make_extension
-
-   subroutine make_extension_safely(this, dst_spec, new_spec, action, rc)
-      class(FieldSpec), intent(in) :: this
-      type(FieldSpec), intent(in) :: dst_spec
-      type(FieldSpec), intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(GriddedComponentDriver), pointer :: v_in_coupler
-      type(GriddedComponentDriver), pointer :: v_out_coupler
-      type(ESMF_Field) :: v_in_coord, v_out_coord
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
       integer :: i
+      integer :: status
 
-      new_spec = this ! plus one modification from below
+      new_spec = this
       adapters = this%make_adapters(dst_spec, _RC)
-
       do i = 1, size(adapters)
          if (adapters(i)%adapter%match(new_spec)) cycle
          call adapters(i)%adapter%adapt(new_spec, action)
          exit
       end do
-      _RETURN_IF(allocated(action))
+     _RETURN_IF(allocated(action))
       
-      _ASSERT(allocated(this%vertical_grid), 'Source spec must specify a valid vertical grid.')
-      if (.not. same_vertical_grid(this%vertical_grid, dst_spec%vertical_grid)) then
-         call this%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
-              'ignore', this%geom, this%typekind, this%units, _RC)
-         call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
-              'ignore', dst_spec%geom, dst_spec%typekind, dst_spec%units, _RC)
-         action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, VERTICAL_REGRID_LINEAR)
-         _RETURN(_SUCCESS)
-      end if
-
       ! no action needed
       action = NullAction()
 
       _RETURN(_SUCCESS)
-
-   contains
-
-     logical function same_vertical_grid(src_grid, dst_grid)
-        class(VerticalGrid), intent(in) :: src_grid
-        class(VerticalGrid), allocatable, intent(in) :: dst_grid
-         
-         same_vertical_grid = .true.
-         if (.not. allocated(dst_grid)) return ! mirror geom
-         
-         same_vertical_grid = src_grid%same_id(dst_grid)
-
-         block
-           use mapl3g_BasicVerticalGrid
-           ! "temporary kludge" while true vertical grid logic is being implemented
-           if (.not. same_vertical_grid) then
-              select type(src_grid)
-              type is (BasicVerticalGrid)
-                 select type (dst_grid)
-                 type is (BasicVerticalGrid)
-                    same_vertical_grid = (src_grid%get_num_levels() == dst_grid%get_num_levels())
-                 end select
-              end select
-           end if
-         end block
-
-      end function same_vertical_grid
-      
-   end subroutine make_extension_safely
+   end subroutine make_extension
 
 
 end module mapl3g_FieldSpec
