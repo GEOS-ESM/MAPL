@@ -62,6 +62,7 @@ module MAPL_ExtDataTypeDef
      character(len=4)             :: importVDir = "down"
      character(len=4)             :: fileVDir = "down"
      character(len=ESMF_MAXSTR)   :: levUnit
+     character(len=ESMF_MAXSTR)   :: levStandardName
      logical                      :: havePressure = .false.
      type(ExtDataPointerUpdate) :: update_freq
 

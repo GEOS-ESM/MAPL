@@ -490,20 +490,23 @@ module MAPL_FileMetadataUtilsMod
 
    end function get_variable_attribute
 
-   subroutine get_coordinate_info(this,coordinate_name,coordSize,coordUnits,coords,rc)
+   subroutine get_coordinate_info(this,coordinate_name,coordSize,coordUnits,coordStandardName,coords,rc)
       class (FileMetadataUtils), intent(inout) :: this
       character(len=*), intent(in) :: coordinate_name
       integer, optional, intent(out) :: coordSize
       character(len=*), optional, intent(out) :: coordUnits
+      character(len=*), optional, intent(out) :: coordStandardName
       real, allocatable, optional,  intent(inout) :: coords(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: isPresent
       character(:), allocatable :: fname
       class(CoordinateVariable), pointer :: var
       type(Attribute), pointer :: attr
       character(len=:), pointer :: vdim
       class(*), pointer :: coordUnitPtr
+      class(*), pointer :: coordStandardNamePtr
       class(*), pointer :: ptr(:)
  
       fname = this%get_file_name(_RC)
@@ -525,6 +528,23 @@ module MAPL_FileMetadataUtilsMod
             _FAIL('coordinate units must be string in '//fname)
          end select
       end if 
+
+      if (present(coordStandardName)) then
+         ! Allow for missing standard_name
+         isPresent = var%is_attribute_present('standard_name')
+         if ( isPresent) then
+            attr => var%get_attribute('standard_name')
+            coordStandardNamePtr => attr%get_value()
+            select type(coordStandardNamePtr)
+            type is (character(*))
+               coordStandardName = trim(coordStandardNamePtr)
+            class default
+               _FAIL('coordinate standard name must be string in '//fname)
+            end select
+         else
+            coordStandardName = 'missing'
+         endif
+      end if
 
       if (present(coords)) then
          ptr => var%get_coordinate_data()
