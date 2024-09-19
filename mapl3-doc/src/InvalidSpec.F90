@@ -34,8 +34,6 @@ module mapl3g_InvalidSpec
       procedure :: add_to_state
       procedure :: add_to_bundle
 
-      procedure :: make_extension
-      procedure :: extension_cost
       procedure :: set_geometry => set_geometry
 
       procedure :: make_adapters
@@ -139,35 +137,6 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
-
-   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
-      class(InvalidSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      class(StateItemSpec), allocatable, intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      action = NullAction() ! default
-      new_spec = this
-
-      _FAIL('attempt to use item of type InvalidSpec')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(dst_spec)
-   end subroutine make_extension
-
-   integer function extension_cost(this, src_spec, rc) result(cost)
-      class(InvalidSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc
-
-      cost = -1
-      _FAIL('Attempt to use item of type InvalidSpec')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(src_spec)
-
-   end function extension_cost
 
    subroutine set_geometry(this, geom, vertical_grid, rc)
       class(InvalidSpec), intent(inout) :: this

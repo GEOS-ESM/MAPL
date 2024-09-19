@@ -32,8 +32,6 @@ module MockItemSpecMod
 
       procedure :: connect_to
       procedure :: can_connect_to
-      procedure :: make_extension
-      procedure :: extension_cost
       procedure :: make_adapters
       procedure :: add_to_state
       procedure :: add_to_bundle
@@ -206,82 +204,6 @@ contains
          action%details = 'no subtype'
       end if
    end function new_MockAction
-
-
-   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
-      class(MockItemSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      class(StateItemSpec), allocatable, intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(MockItemSpec) :: tmp_spec
-
-      action = NullAction()
-      new_spec = this
-      select type(dst_spec)
-      type is (MockItemSpec)
-         call make_extension_typesafe(this, dst_spec, tmp_spec, action, _RC)
-         deallocate(new_spec)
-         allocate(new_spec, source=tmp_spec)
-         new_spec = tmp_spec
-      class default
-         _FAIL('incompatible spec')
-      end select
-      
-      _RETURN(_SUCCESS)
-   end subroutine make_extension
-
-   subroutine make_extension_typesafe(this, dst_spec, new_spec, action, rc)
-      class(MockItemSpec), intent(in) :: this
-      type(MockItemSpec), intent(in) :: dst_spec
-      class(MockItemSpec), intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      action = NullAction()
-
-      if (this%name /= dst_spec%name) then
-         new_spec%name = dst_spec%name
-         action = MockAction(this%subtype, new_spec%subtype)
-         _RETURN(_SUCCESS)
-      end if
-      
-      if (allocated(dst_spec%subtype) .and. allocated(this%subtype)) then
-         if (this%subtype /= dst_spec%subtype) then
-            new_spec%subtype = dst_spec%subtype
-            action = MockAction(this%subtype, new_spec%subtype)
-            _RETURN(_SUCCESS)
-         end if
-      end if
-
-      _RETURN(_SUCCESS)
-
-   end subroutine make_extension_typesafe
- 
-  integer function extension_cost(this, src_spec, rc) result(cost)
-      class(MockItemSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      cost = 0
-      select type(src_spec)
-      type is (MockItemSpec)
-         if (this%name /= src_spec%name) cost = cost + 1
-         if (allocated(src_spec%subtype) .and. allocated(this%subtype)) then
-            if (this%subtype /= src_spec%subtype) cost = cost + 1
-         end if
-      class default
-         _FAIL('incompatible spec')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function extension_cost
 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf

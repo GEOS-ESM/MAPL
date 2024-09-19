@@ -33,8 +33,6 @@ module mapl3g_StateSpec
       
       procedure :: connect_to
       procedure :: can_connect_to
-      procedure :: make_extension
-      procedure :: extension_cost
       procedure :: make_adapters
 
       procedure :: add_to_state
@@ -169,34 +167,6 @@ contains
       _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
    
-
-   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
-      class(StateSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      class(StateItemSpec), allocatable, intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      action = NullAction() ! default
-      new_spec = this
-
-      _FAIL('not implemented')
-
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(dst_spec)
-   end subroutine make_extension
-
-   integer function extension_cost(this, src_spec, rc) result(cost)
-      class(StateSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc
-
-      cost = 0
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(src_spec)
-   end function extension_cost
 
 
    function make_adapters(this, goal_spec, rc) result(adapters)

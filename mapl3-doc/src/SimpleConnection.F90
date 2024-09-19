@@ -205,40 +205,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine activate_dependencies
 
-!#   subroutine find_closest_extension(goal_extension, candidate_extensions, closest_extension, lowest_cost, rc)
-!#      type(StateItemExtension), intent(in) :: goal_extension
-!#      type(StateItemExtensionPtr), target, intent(in) :: candidate_extensions(:)
-!#      type(StateItemExtension), pointer :: closest_extension
-!#      integer, intent(out) :: lowest_cost
-!#      integer, optional, intent(out) :: rc
-!#
-!#      integer :: status
-!#      type(StateItemExtension), pointer :: extension
-!#      class(StateItemSpec), pointer :: spec
-!#      class(StateItemSpec), pointer :: goal_spec
-!#      integer :: cost
-!#      integer :: j
-!#      
-!#      _ASSERT(size(candidate_extensions) > 0, 'no candidates found')
-!#
-!#      goal_spec => goal_extension%get_spec()
-!#      closest_extension => candidate_extensions(1)%ptr
-!#      spec => closest_extension%get_spec()
-!#      lowest_cost = goal_spec%extension_cost(spec, _RC)
-!#      do j = 2, size(candidate_extensions)
-!#         if (lowest_cost == 0) exit
-!#
-!#         extension => candidate_extensions(j)%ptr
-!#         spec => extension%get_spec()
-!#         cost = goal_spec%extension_cost(spec)
-!#         if (cost < lowest_cost) then
-!#            lowest_cost = cost
-!#            closest_extension => extension
-!#         end if
-!#
-!#      end do
-!#
-!#   end subroutine find_closest_extension
 
 end module mapl3g_SimpleConnection
 

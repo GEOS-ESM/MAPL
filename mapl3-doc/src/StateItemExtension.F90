@@ -111,22 +111,28 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
+      integer :: i
       class(StateItemSpec), allocatable :: new_spec
       class(ExtensionAction), allocatable :: action
       type(GriddedComponentDriver) :: producer
       type(ESMF_GridComp) :: coupler_gridcomp
+      type(StateItemAdapterWrapper), allocatable :: adapters(:)
       type(ESMF_Clock) :: fake_clock
 
       call this%spec%set_active()
-      call this%spec%make_extension(goal, new_spec, action, _RC)
 
-      ! If no action is needed, then "this" can already directly
-      ! connect to goal.  I.e., extensions have converged.
-      select type (action)
-      type is (NullAction)
+      new_spec = this%spec
+      adapters = this%spec%make_adapters(goal, _RC)
+      do i = 1, size(adapters)
+         if (adapters(i)%adapter%match(new_spec)) cycle
+         call adapters(i)%adapter%adapt(new_spec, action)
+         exit
+      end do
+
+      if (.not. allocated(action)) then
          extension = StateItemExtension(this%spec)
          _RETURN(_SUCCESS)
-      end select
+      end if
 
       call new_spec%create(_RC)
       call new_spec%set_active()
