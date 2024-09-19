@@ -6,6 +6,7 @@ target_sources(MAPL.generic3g PRIVATE
 
   RegridAction.F90
   VerticalRegridAction.F90
+  VerticalRegridActionNew.F90
   CopyAction.F90
   ConvertUnitsAction.F90
 )
