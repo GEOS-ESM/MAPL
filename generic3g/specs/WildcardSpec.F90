@@ -32,8 +32,7 @@ module mapl3g_WildcardSpec
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: make_extension
-      procedure :: extension_cost
-      procedure :: make_filters
+      procedure :: make_adapters
       procedure :: add_to_state
       procedure :: add_to_bundle
       procedure :: set_geometry
@@ -214,18 +213,6 @@ contains
       _FAIL('not implemented')
    end subroutine make_extension
 
-   integer function extension_cost(this, src_spec, rc) result(cost)
-      class(WildcardSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      cost = this%reference_spec%extension_cost(src_spec, _RC)
-
-      _RETURN(_SUCCESS)
-   end function extension_cost
-
    subroutine set_geometry(this, geom, vertical_grid, rc)
       class(WildcardSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -239,19 +226,19 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_geometry
 
-   function make_filters(this, goal_spec, rc) result(filters)
-      type(StateItemFilterWrapper), allocatable :: filters(:)
+   function make_adapters(this, goal_spec, rc) result(adapters)
+      type(StateItemAdapterWrapper), allocatable :: adapters(:)
       class(WildcardSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
       associate (field_spec => this%reference_spec)
-        filters = field_spec%make_filters(field_spec, _RC)
+        adapters = field_spec%make_adapters(field_spec, _RC)
       end associate
 
       _RETURN(_SUCCESS)
-   end function make_filters
+   end function make_adapters
 
    function get_reference_spec(this) result(reference_spec)
       class(WildcardSpec), target, intent(in) :: this
