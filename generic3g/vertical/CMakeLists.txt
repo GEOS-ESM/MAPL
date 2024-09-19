@@ -5,7 +5,7 @@ target_sources(MAPL.generic3g PRIVATE
   MirrorVerticalGrid.F90
   FixedLevelsVerticalGrid.F90
   ModelVerticalGrid.F90
-
+  VerticalRegridMethod.F90
   CSR_SparseMatrix.F90
 )
 
