@@ -10,8 +10,8 @@ module mapl3g_output_info
    use esmf, only: ESMF_Info, ESMF_InfoIsPresent
    use esmf, only: ESMF_InfoDestroy, ESMF_InfoCreate
    use esmf, only: ESMF_InfoGet, ESMF_InfoGetFromHost
-   use esmf, only: ESMF_InfoGetAlloc, ESMF_InfoGetCharAlloc
-   use esmf, only: ESMF_InfoPrint, ESMF_MAXSTR, ESMF_SUCCESS
+   use esmf, only: ESMF_InfoGetAlloc, ESMF_InfoPrint
+   use esmf, only: ESMF_MAXSTR, ESMF_SUCCESS
    use Mapl_ErrorHandling
 
    implicit none
@@ -242,10 +242,10 @@ contains
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
       integer :: status
-      character(len=:), allocatable :: key
       type(ESMF_Info) :: dim_info
-      character(len=:), allocatable :: name
-      character(len=:), allocatable :: units
+      character(len=ESMF_MAXSTR) :: key
+      character(len=ESMF_MAXSTR) :: name
+      character(len=ESMF_MAXSTR) :: units
       real, allocatable :: coordinates(:)
       logical :: is_present
       character(len=1024) :: json_repr
@@ -257,11 +257,11 @@ contains
       end if
       _ASSERT(is_present, 'Key ' // key // ' not found in ' // trim(json_repr))
       dim_info = ESMF_InfoCreate(info, key=key, _RC)
-      call ESMF_InfoGetCharAlloc(dim_info, key=KEY_UNGRIDDED_NAME, value=name, _RC)
-      call ESMF_InfoGetCharAlloc(dim_info, key=KEY_UNGRIDDED_UNITS, value=units, _RC)
+      call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_NAME, value=name, _RC)
+      call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_UNITS, value=units, _RC)
       call ESMF_InfoGetAlloc(dim_info, key=KEY_UNGRIDDED_COORD, values=coordinates, _RC)
       call ESMF_InfoDestroy(dim_info, _RC)
-      ungridded_dim = UngriddedDim(coordinates, name=name, units=units)
+      ungridded_dim = UngriddedDim(coordinates, name=trim(name), units=trim(units))
       _RETURN(_SUCCESS)
 
    end function make_ungridded_dim
