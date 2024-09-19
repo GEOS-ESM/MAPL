@@ -95,7 +95,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       logical :: is_none
-      character(len=:), allocatable :: spec_name
+      character(len=ESMF_MAXSTR) :: spec_name
 
       spec_name = EMPTY_STRING
       num = 0
@@ -130,21 +130,21 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
-      character(len=:), allocatable :: spec_name
+      character(len=ESMF_MAXSTR) :: spec_name
 
       spec_name = EMPTY_STRING
       names = StringVector()
       do i=1, size(info)
          spec_name = get_vertical_dim_spec_info(info(i), _RC)
          _ASSERT(spec_name /= EMPTY_STRING, 'No vertical dim spec found.')
-         if(find_index(names, spec_name) == 0) call names%push_back(spec_name)
+         if(find_index(names, spec_name) == 0) call names%push_back(trim(spec_name))
       end do
       _RETURN(_SUCCESS)
 
    end function get_vertical_dim_spec_names_bundle_info
 
    function get_vertical_dim_spec_name_field(field, rc) result(spec_name)
-      character(len=:), allocatable :: spec_name
+      character(len=ESMF_MAXSTR) :: spec_name
       type(ESMF_Field), intent(in) :: field
       integer, optional, intent(out) :: rc
       integer :: status
@@ -158,19 +158,19 @@ contains
    end function get_vertical_dim_spec_name_field
 
    function get_vertical_dim_spec_info(info, rc) result(spec_name)
-      character(len=:), allocatable :: spec_name
+      character(len=ESMF_MAXSTR) :: spec_name
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
       integer :: status
       logical :: isPresent
       character(len=ESMF_MAXSTR) :: raw
+      character, parameter :: error_message = 'Failed to get vertical dim spec name.'
 
       spec_name = EMPTY_STRING
       isPresent = ESMF_InfoIsPresent(info, key=KEY_VLOC, _RC)
-      _RETURN_UNLESS(isPresent)
-      call ESMF_InfoGet(info, key=KEY_VLOC, value=raw, rc=status)
-      _ASSERT(status==ESMF_SUCCESS, 'Failed to get vertical dimspec name.')
-      spec_name = trim(adjustl(raw))
+      _ASSERT(isPresent, error_message)
+      call ESMF_InfoGet(info, key=KEY_VLOC, value=spec_name, rc=status)
+      _ASSERT(status==ESMF_SUCCESS, error_message)
       _RETURN(_SUCCESS)
 
    end function get_vertical_dim_spec_info
@@ -316,12 +316,12 @@ contains
 
    end subroutine check_duplicate
 
-   logical function is_vertical_dim_none(s)
-      character(len=*), intent(in) :: s
-
-      is_vertical_dim_none = s == 'VERTICAL_DIM_NONE'
-
-   end function is_vertical_dim_none
+!   logical function is_vertical_dim_none(s) !wdb fixme deleteme 
+!      character(len=*), intent(in) :: s
+!
+!      is_vertical_dim_none = s == 'VERTICAL_DIM_NONE'
+!
+!   end function is_vertical_dim_none
 
    function create_bundle_info(bundle, rc) result(bundle_info)
       type(ESMF_Info), allocatable :: bundle_info(:)
