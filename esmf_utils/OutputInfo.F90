@@ -316,13 +316,6 @@ contains
 
    end subroutine check_duplicate
 
-!   logical function is_vertical_dim_none(s) !wdb fixme deleteme 
-!      character(len=*), intent(in) :: s
-!
-!      is_vertical_dim_none = s == 'VERTICAL_DIM_NONE'
-!
-!   end function is_vertical_dim_none
-
    function create_bundle_info(bundle, rc) result(bundle_info)
       type(ESMF_Info), allocatable :: bundle_info(:)
       type(ESMF_FieldBundle), intent(in) :: bundle
