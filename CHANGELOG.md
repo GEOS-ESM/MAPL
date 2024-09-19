@@ -64,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-
+- Fixed time print in Cap GC (from slashes to colons)
 - Added ability to read the attribute with explicit type "string" of a netcdf variable.
 - Start to implement changes for vertical regridding in ExtData
 - Add ability to connect export of the MAPL hierachy to ExtData via CAP.rc file
