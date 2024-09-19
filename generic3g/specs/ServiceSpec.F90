@@ -40,7 +40,6 @@ module mapl3g_ServiceSpec
 
       procedure :: connect_to
       procedure :: can_connect_to
-      procedure :: make_extension
       procedure :: make_adapters
 
       procedure :: add_to_state
@@ -184,21 +183,6 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine destroy
 
-
-   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
-      class(ServiceSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      class(StateItemSpec), allocatable, intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      action = NullAction() ! default
-      new_spec = this
-
-      _RETURN(_SUCCESS)
-   end subroutine make_extension
 
    subroutine set_geometry(this, geom, vertical_grid, rc)
       class(ServiceSpec), intent(inout) :: this
