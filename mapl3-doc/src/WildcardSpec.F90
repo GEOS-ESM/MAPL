@@ -32,7 +32,6 @@ module mapl3g_WildcardSpec
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: make_extension
-      procedure :: extension_cost
       procedure :: make_adapters
       procedure :: add_to_state
       procedure :: add_to_bundle
@@ -213,18 +212,6 @@ contains
 
       _FAIL('not implemented')
    end subroutine make_extension
-
-   integer function extension_cost(this, src_spec, rc) result(cost)
-      class(WildcardSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      cost = this%reference_spec%extension_cost(src_spec, _RC)
-
-      _RETURN(_SUCCESS)
-   end function extension_cost
 
    subroutine set_geometry(this, geom, vertical_grid, rc)
       class(WildcardSpec), intent(inout) :: this

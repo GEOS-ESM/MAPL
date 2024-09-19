@@ -121,71 +121,26 @@ contains
 
        integer :: status
        type(VirtualConnectionPt) :: v_pt
-       type(ActualConnectionPt) :: a_pt
-       integer :: cost, lowest_cost
-       type(StateItemExtensionPtr), pointer :: extensionPtr
-       type(StateItemExtension) :: tmp_extension
-       type(StateItemExtension), pointer :: best_extension
        type(StateItemExtension), pointer :: new_extension
-       type(StateItemExtensionPtrVector), pointer :: extensions
-       class(StateItemSpec), pointer :: spec, new_spec
-       type(ExtensionFamily), pointer :: family
-       type(MultiState) :: multi_state
+       class(StateItemSpec), pointer :: new_spec
        type(FieldSpec) :: goal_spec
-       type(MultiState) :: coupler_states
        integer :: i
 
        v_pt = VirtualConnectionPt(state_intent='export', short_name=this%variants%of(1))
-
-       family => this%registry%get_extension_family(v_pt, _RC)
-       extensions => family%get_extensions()
-
        goal_spec = FieldSpec(geom=geom, vertical_grid=this, vertical_dim_spec=VERTICAL_DIM_EDGE, &
             typekind=typekind, standard_name=standard_name, units=units, &
             ungridded_dims=UngriddedDims())
 
-       lowest_cost = huge(1)
-       best_extension => null()
-       do i = 1, extensions%size()
-          extensionPtr => extensions%of(i)
-          spec => extensionPtr%ptr%get_spec()
-          cost = goal_spec%extension_cost(spec, _RC)
-          if (cost < lowest_cost) then
-             lowest_cost = cost
-             best_extension => extensionPtr%ptr
-          end if
-       end do
-          
+       new_extension => this%registry%extend(v_pt, goal_spec, _RC)
+       coupler => new_extension%get_producer()
+       new_spec => new_extension%get_spec()
+       select type (new_spec)
+       type is (FieldSpec)
+          field = new_spec%get_payload()
+       class default
+          _FAIL('unsupported spec type; must be FieldSpec')
+       end select
 
-       do
-          spec => best_extension%get_spec()
-          call spec%set_active()
-          cost = goal_spec%extension_cost(spec, _RC)
-          if (cost == 0) exit
-
-          tmp_extension = best_extension%make_extension(goal_spec, _RC)
-          new_extension => this%registry%add_extension(v_pt, tmp_extension, _RC)
-          coupler => new_extension%get_producer()
-          
-          coupler_states = coupler%get_states()
-          a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name='import[1]'))
-          call spec%add_to_state(coupler_states, a_pt, _RC)
-          a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='export[1]'))
-          new_spec => new_extension%get_spec()
-          call new_spec%add_to_state(coupler_states, a_pt, _RC)
-
-          call best_extension%add_consumer(coupler)
-          best_extension => new_extension
-
-       end do
-
-       coupler => best_extension%get_producer()
-       spec => best_extension%get_spec()
-       call spec%set_active()
-       multi_state = MultiState()
-       a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='vcoord'))
-       call spec%add_to_state(multi_state, a_pt, _RC)
-       call ESMF_StateGet(multi_state%exportState, itemName='vcoord', field=field, _RC)
        _RETURN(_SUCCESS)
 
     end subroutine get_coordinate_field

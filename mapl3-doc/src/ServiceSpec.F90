@@ -41,7 +41,6 @@ module mapl3g_ServiceSpec
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: make_extension
-      procedure :: extension_cost
       procedure :: make_adapters
 
       procedure :: add_to_state
@@ -200,14 +199,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_extension
-
-   integer function extension_cost(this, src_spec, rc) result(cost)
-      class(ServiceSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc
-      cost = 0
-      _RETURN(_SUCCESS)
-   end function extension_cost
 
    subroutine set_geometry(this, geom, vertical_grid, rc)
       class(ServiceSpec), intent(inout) :: this

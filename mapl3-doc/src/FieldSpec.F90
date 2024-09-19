@@ -69,7 +69,6 @@ module mapl3g_FieldSpec
 
    type, extends(StateItemSpec) :: FieldSpec
 
-!#      private
       type(ESMF_Geom), allocatable :: geom
       class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN
@@ -105,7 +104,6 @@ module mapl3g_FieldSpec
       procedure :: add_to_state
       procedure :: add_to_bundle
 
-      procedure :: extension_cost
       procedure :: make_extension
       procedure :: make_adapters
 
@@ -117,12 +115,10 @@ module mapl3g_FieldSpec
    interface FieldSpec
       module procedure new_FieldSpec_geom
       module procedure new_FieldSpec_varspec
-!#      module procedure new_FieldSpec_defaults
    end interface FieldSpec
 
    interface match
       procedure :: match_geom
-      procedure :: match_typekind
       procedure :: match_string
       procedure :: match_vertical_dim_spec
       procedure :: match_ungridded_dims
@@ -133,23 +129,13 @@ module mapl3g_FieldSpec
       procedure :: can_match_vertical_grid
    end interface can_match
 
-   interface get_cost
-      procedure :: get_cost_geom
-      procedure :: get_cost_typekind
-      procedure :: get_cost_string
-   end interface get_cost
-
-   interface update_item
-      procedure update_item_geom
-      procedure update_item_typekind
-      procedure update_item_string
-   end interface update_item
-
    type, extends(StateItemAdapter) :: GeomAdapter
       private
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom), allocatable :: geom
+      type(EsmfRegridderParam) :: regrid_param
    contains
-      procedure :: apply_one => adapter_match_geom
+      procedure :: adapt_one => adapt_geom
+      procedure :: match_one => adapter_match_geom
    end type GeomAdapter
 
    interface GeomAdapter
@@ -160,7 +146,8 @@ module mapl3g_FieldSpec
       private
       type(ESMF_Typekind_Flag) :: typekind
    contains
-      procedure :: apply_one => adapter_match_typekind
+      procedure :: adapt_one => adapt_typekind
+      procedure :: match_one => adapter_match_typekind
    end type TypeKindAdapter
 
    interface TypeKindAdapter
@@ -171,7 +158,8 @@ module mapl3g_FieldSpec
       private
       character(:), allocatable :: units
    contains
-      procedure :: apply_one => adapter_match_units
+      procedure :: adapt_one => adapt_units
+      procedure :: match_one => adapter_match_units
    end type UnitsAdapter
 
    interface UnitsAdapter
@@ -283,17 +271,6 @@ contains
       _RETURN(_SUCCESS)
       
    end subroutine set_geometry
-
-!#   function new_FieldSpec_defaults(ungridded_dims, geom, units) result(field_spec)
-!#      type(FieldSpec) :: field_spec
-!#      type(ExtraDimsSpec), intent(in) :: ungridded_dims
-!#      type(ESMF_Geom), intent(in) :: geom
-!#      character(*), intent(in) :: units
-!#
-!#      field_spec = FieldSpec(ungridded_dims, ESMF_TYPEKIND_R4, geom, units)
-!#
-!#   end function new_FieldSpec_defaults
-!#
 
    subroutine create(this, rc)
       class(FieldSpec), intent(inout) :: this
@@ -645,12 +622,6 @@ contains
    end function can_connect_to
 
 
-   logical function same_typekind(a, b)
-      class(FieldSpec), intent(in) :: a
-      class(FieldSpec), intent(in) :: b
-      same_typekind = (a%typekind == b%typekind)
-   end function same_typekind
-
    subroutine add_to_state(this, multi_state, actual_pt, rc)
       class(FieldSpec), intent(in) :: this
       type(MultiState), intent(inout) :: multi_state
@@ -687,27 +658,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
-
-   integer function extension_cost(this, src_spec, rc) result(cost)
-      class(FieldSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      cost = 0
-      select type (src_spec)
-      type is (FieldSpec)
-         cost = cost + get_cost(this%geom, src_spec%geom)
-         cost = cost + get_cost(this%typekind, src_spec%typekind)
-         cost = cost + get_cost(this%units, src_spec%units)
-      class default
-         _FAIL('Cannot extend to this StateItemSpec subclass.')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function extension_cost
-
 
 
 
@@ -832,68 +782,7 @@ contains
       _RETURN(_SUCCESS)
    end function can_connect_units
 
-   integer function get_cost_geom(a, b) result(cost)
-      type(ESMF_GEOM), allocatable, intent(in) :: a, b
-      cost = 0
-      if (.not. match(a,b)) cost = 1
-   end function get_cost_geom
-
-   integer function get_cost_typekind(a, b) result(cost)
-      type(ESMF_TypeKind_Flag), intent(in) :: a, b
-      cost = 0
-      if (.not. match(a,b)) cost = 1
-   end function get_cost_typekind
-
-   integer function get_cost_string(a, b) result(cost)
-      character(:), allocatable, intent(in) :: a, b
-      cost = 0
-      if (.not. match(a,b)) cost = 1
-   end function get_cost_string
-
-   logical function update_item_geom(a, b)
-      type(ESMF_GEOM), allocatable, intent(inout) :: a
-      type(ESMF_GEOM), allocatable, intent(in) :: b
-
-      update_item_geom = .false.
-
-      if (.not. allocated(b)) return ! nothing to do (no coupler)
-
-      if (.not. allocated(a)) then ! Fill-in ExtData (no coupler)
-         a = b
-         return
-      end if
-
-      if (MAPL_SameGeom(a,b)) return
-      update_item_geom = .true.
-      a = b
-
-
-   end function update_item_geom
-
-   logical function update_item_typekind(a, b)
-      type(ESMF_TypeKind_Flag), intent(inout) :: a
-      type(ESMF_TypeKind_Flag), intent(in) :: b
-
-      update_item_typekind = .false.
-      if (.not. match(a, b)) then
-         a = b
-         update_item_typekind = .true.
-      end if
-
-   end function update_item_typekind
-
-   logical function update_item_string(a, b)
-      character(:), allocatable, intent(inout) :: a
-      character(:), allocatable, intent(in) :: b
-
-      update_item_string = .false.
-      if (.not. match(a, b)) then
-         a = b
-         update_item_string = .true.
-      end if
-   end function update_item_string
-
-   function get_payload(this) result(payload)
+  function get_payload(this) result(payload)
       type(ESMF_Field) :: payload
       class(FieldSpec), intent(in) :: this
       payload = this%payload
@@ -938,12 +827,30 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_info
 
-   function new_GeomAdapter(geom) result(geom_adapter)
+   function new_GeomAdapter(geom, regrid_param) result(geom_adapter)
       type(GeomAdapter) :: geom_adapter
       type(ESMF_Geom), optional, intent(in) :: geom
+      type(EsmfRegridderParam), optional, intent(in) :: regrid_param
 
       if (present(geom)) geom_adapter%geom = geom
+
+      geom_adapter%regrid_param = EsmfRegridderParam()
+      if (present(regrid_param)) geom_adapter%regrid_param = regrid_param
+
    end function new_GeomAdapter
+
+   subroutine adapt_geom(this, spec, action)
+      class(GeomAdapter), intent(in) :: this
+      class(StateItemSpec), intent(inout) :: spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+
+      select type (spec)
+      type is (FieldSpec)
+         action = RegridAction(spec%geom, this%geom, this%regrid_param)
+         spec%geom = this%geom
+      end select
+
+   end subroutine adapt_geom
 
    logical function adapter_match_geom(this, spec) result(match)
       class(GeomAdapter), intent(in) :: this
@@ -952,8 +859,9 @@ contains
       match = .false.
       select type (spec)
       type is (FieldSpec)
-         match = match_geom(spec%geom, spec%geom)
+         match = match_geom(spec%geom, this%geom)
       end select
+
    end function adapter_match_geom
 
 
@@ -964,6 +872,18 @@ contains
       typekind_adapter%typekind = typekind
    end function new_TypekindAdapter
 
+   subroutine adapt_typekind(this, spec, action)
+      class(TypekindAdapter), intent(in) :: this
+      class(StateItemSpec), intent(inout) :: spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+
+      select type (spec)
+      type is (FieldSpec)
+         spec%typekind = this%typekind
+         action = CopyAction(spec%typekind, this%typekind)
+      end select
+   end subroutine adapt_typekind
+
    logical function adapter_match_typekind(this, spec) result(match)
       class(TypekindAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
@@ -971,7 +891,7 @@ contains
       match = .false.
       select type (spec)
       type is (FieldSpec)
-         match = match_typekind(this%typekind, spec%typekind)
+         match = any(this%typekind == [spec%typekind,MAPL_TYPEKIND_MIRROR])
       end select
    end function adapter_match_typekind
 
@@ -982,14 +902,28 @@ contains
       if (present(units)) units_adapter%units = units
    end function new_UnitsAdapter
 
-   logical function adapter_match_units(this, spec) result(match)
+   subroutine adapt_units(this, spec, action)
+      class(UnitsAdapter), intent(in) :: this
+      class(StateItemSpec), intent(inout) :: spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+
+      select type (spec)
+      type is (FieldSpec)
+         action = ConvertUnitsAction(spec%units, this%units)
+         spec%units = this%units
+      end select
+   end subroutine adapt_units
+
+  logical function adapter_match_units(this, spec) result(match)
       class(UnitsAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
 
       match = .false.
       select type (spec)
       type is (FieldSpec)
-         match = match_string(spec%units, spec%units)
+         match = .true.
+         if (.not. allocated(this%units)) return
+         match = (this%units == spec%units)
       end select
    end function adapter_match_units
 
@@ -1004,18 +938,9 @@ contains
       select type (goal_spec)
       type is (FieldSpec)
          allocate(adapters(3))
-!#         adapters(1)%adapter = GeomAdapter(goal_spec%geom)
-         allocate(adapters(1)%adapter, source=GeomAdapter(goal_spec%geom))
-!#         adapters(2)%adapter = TypeKindAdapter(goal_spec%typekind)
+         allocate(adapters(1)%adapter, source=GeomAdapter(goal_spec%geom, goal_spec%regrid_param))
          allocate(adapters(2)%adapter, source=TypeKindAdapter(goal_spec%typekind))
-!#         adapters(3)%adapter = UnitsAdapter(goal_spec%units)
          allocate(adapters(3)%adapter, source=UnitsAdapter(goal_spec%units))
-         ! GFortran 13.3 chokes on thecode below
-!#         adapters = [ &
-!#              StateItemAdapterWrapper(GeomAdapter(goal_spec%geom)), &
-!#   !#              this%vertical_grid%make_adapters(goal_spec%vertical_grid), &
-!#              StateItemAdapterWrapper(TypeKindAdapter(goal_spec%typekind)), &
-!#              StateItemAdapterWrapper(UnitsAdapter(goal_spec%units))]
       type is (WildCardSpec)
          adapters = goal_spec%make_adapters(goal_spec, _RC)
       class default
@@ -1039,7 +964,7 @@ contains
 
       select type(dst_spec)
       type is (FieldSpec)
-         call make_extension_safely(this, dst_spec, tmp_spec, action, _RC)
+      call make_extension_safely(this, dst_spec, tmp_spec, action, _RC)
          allocate(new_spec, source=tmp_spec)
       type is (WildCardSpec)
          call this%make_extension(dst_spec%get_reference_spec(), new_spec, action, _RC)
@@ -1061,16 +986,19 @@ contains
       type(GriddedComponentDriver), pointer :: v_in_coupler
       type(GriddedComponentDriver), pointer :: v_out_coupler
       type(ESMF_Field) :: v_in_coord, v_out_coord
+      type(StateItemAdapterWrapper), allocatable :: adapters(:)
+      integer :: i
 
       new_spec = this ! plus one modification from below
+      adapters = this%make_adapters(dst_spec, _RC)
 
-      _ASSERT(allocated(this%geom), 'Source spec must specify a valid geom.')
-      if (.not. same_geom(this%geom, dst_spec%geom)) then
-         action = RegridAction(this%geom, dst_spec%geom, dst_spec%regrid_param)
-         new_spec%geom = dst_spec%geom
-         _RETURN(_SUCCESS)
-      end if
-
+      do i = 1, size(adapters)
+         if (adapters(i)%adapter%match(new_spec)) cycle
+         call adapters(i)%adapter%adapt(new_spec, action)
+         exit
+      end do
+      _RETURN_IF(allocated(action))
+      
       _ASSERT(allocated(this%vertical_grid), 'Source spec must specify a valid vertical grid.')
       if (.not. same_vertical_grid(this%vertical_grid, dst_spec%vertical_grid)) then
          call this%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
@@ -1078,24 +1006,6 @@ contains
          call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
               'ignore', dst_spec%geom, dst_spec%typekind, dst_spec%units, _RC)
          action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, VERTICAL_REGRID_LINEAR)
-         _RETURN(_SUCCESS)
-      end if
-      
-!#   if (.not. same_freq_spec(this%freq_spec, dst_spec%freq_spec)) then
-!#      action = VerticalRegridAction(this%freq_spec, dst_spec%freq_spec
-!#      new_spec%freq_spec = dst_spec%freq_spec
-!!$         _RETURN(_SUCCESS)
-!#   end if
-      
-      if (.not. match(this%typekind, dst_spec%typekind)) then
-         action = CopyAction(this%typekind, dst_spec%typekind)
-         new_spec%typekind = dst_spec%typekind
-         _RETURN(_SUCCESS)
-      end if
-      
-      if (.not. same_units(this%units, dst_spec%units)) then
-         action = ConvertUnitsAction(this%units, dst_spec%units)
-         new_spec%units = dst_spec%units
          _RETURN(_SUCCESS)
       end if
 
@@ -1106,18 +1016,6 @@ contains
 
    contains
 
-      
-      logical function same_geom(src_geom, dst_geom)
-         type(ESMF_Geom), intent(in) :: src_geom
-         type(ESMF_Geom), allocatable, intent(in) :: dst_geom
-         
-         same_geom = .true.
-         if (.not. allocated(dst_geom)) return ! mirror geom
-         
-         same_geom = MAPL_SameGeom(src_geom, dst_geom)
-         
-      end function same_geom
- 
      logical function same_vertical_grid(src_grid, dst_grid)
         class(VerticalGrid), intent(in) :: src_grid
         class(VerticalGrid), allocatable, intent(in) :: dst_grid
@@ -1143,17 +1041,6 @@ contains
 
       end function same_vertical_grid
       
-      logical function same_units(src_units, dst_units)
-         character(*), intent(in) :: src_units
-         character(:), allocatable, intent(in) :: dst_units
-         
-         same_units = .true.
-         if (.not. allocated(dst_units)) return ! mirror units
-      
-         same_units = (src_units == dst_units)
-         
-      end function same_units
-      
    end subroutine make_extension_safely
 
 
@@ -1162,3 +1049,4 @@ end module mapl3g_FieldSpec
 
 #undef _SET_FIELD
 #undef _SET_ALLOCATED_FIELD
+
