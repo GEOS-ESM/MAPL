@@ -15,8 +15,6 @@ module mapl3g_VerticalGrid
       procedure(I_get_coordinate_field), deferred :: get_coordinate_field
       procedure(I_can_connect_to), deferred :: can_connect_to
 
-!#      procedure(I_make_filters), deferred :: make_filters
-
       procedure :: set_id
       procedure :: get_id
       procedure :: same_id
@@ -53,14 +51,6 @@ module mapl3g_VerticalGrid
          integer, optional, intent(out) :: rc
       end function I_can_connect_to
 
-!#      function I_make_filters(this, goal_spec, rc) result(filters)
-!#         import StateItemSpec
-!#         import StateItemFilterWrapper
-!#         type(StateItemFilterWrapper), allocatable :: filters(:)
-!#         class(StateItemSpec), intent(in) :: this
-!#         class(StateItemSpec), intent(in) :: goal_spec
-!#         integer, optional, intent(out) :: rc
-!#      end function I_make_filters
    end interface
 
 contains

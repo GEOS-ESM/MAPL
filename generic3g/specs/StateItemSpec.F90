@@ -3,30 +3,32 @@
 module mapl3g_StateItemSpec
    use mapl_ErrorHandling
    use mapl3g_ActualPtVector
+   use mapl3g_ExtensionAction
    use gftl2_stringvector
    implicit none
    private
 
    public :: StateItemSpec
    public :: StateItemSpecPtr
-   public :: StateItemFilter
-   public :: StateItemFilterWrapper
+   public :: StateItemAdapter
+   public :: StateItemAdapterWrapper
 
-   ! Concrete filter subclasses are used to identify members of an
-   ! ExtensionFamily that match some aspect of a "goal" spec.
-   ! A sequence of filters can then be used.
-   ! Note that to avoid circularity, Filters actually act on
-   ! an array of ptr wrappers of StateItemSpecs.
-   type, abstract :: StateItemFilter
+   ! Concrete adapter subclasses are used to identify members of an
+   ! ExtensionFamily that match some aspect of a "goal" spec.  A
+   ! sequence of adapters can then be used.  Note that to avoid
+   ! circularity, Adapters actually act on an array of ptr wrappers of
+   ! StateItemSpecs.
+   type, abstract :: StateItemAdapter
    contains
-      procedure(I_apply_one), deferred :: apply_one
-      procedure :: apply_ptr
-      generic :: apply => apply_one, apply_ptr
-   end type StateItemFilter
+      generic :: adapt => adapt_one
+      generic :: match => match_one
+      procedure(I_adapt_one), deferred :: adapt_one
+      procedure(I_match_one), deferred :: match_one
+   end type StateItemAdapter
 
-   type :: StateItemFilterWrapper
-      class(StateItemFilter), allocatable :: filter
-   end type StateItemFilterWrapper
+   type :: StateItemAdapterWrapper
+      class(StateItemAdapter), allocatable :: adapter
+   end type StateItemAdapterWrapper
 
    type, abstract :: StateItemSpec
       private
@@ -45,9 +47,8 @@ module mapl3g_StateItemSpec
       procedure(I_connect), deferred :: connect_to
       procedure(I_can_connect), deferred :: can_connect_to
       procedure(I_make_extension), deferred :: make_extension
-      procedure(I_extension_cost), deferred :: extension_cost
 
-      procedure(I_make_filters), deferred :: make_filters
+      procedure(I_make_adapters), deferred :: make_adapters
 
       procedure(I_add_to_state), deferred :: add_to_state
       procedure(I_add_to_bundle), deferred :: add_to_bundle
@@ -70,12 +71,25 @@ module mapl3g_StateItemSpec
 
    abstract interface
 
-      logical function I_apply_one(this, spec)
-         import StateItemFilter
+      ! Modify "this" to match attribute in spec.
+      subroutine I_adapt_one(this, spec, action, rc)
+         import StateItemAdapter
          import StateItemSpec
-         class(StateItemFilter), intent(in) :: this
+         import ExtensionAction
+         class(StateItemAdapter), intent(in) :: this
+         class(StateItemSpec), intent(inout) :: spec
+         class(ExtensionAction), allocatable, intent(out) :: action
+         integer, optional, intent(out) :: rc
+      end subroutine I_adapt_one
+
+
+      ! Detect if "this" matches attribute in spec.
+      logical function I_match_one(this, spec) result(match)
+         import StateItemAdapter
+         import StateItemSpec
+         class(StateItemAdapter), intent(in) :: this
          class(StateItemSpec), intent(in) :: spec
-      end function I_apply_one
+      end function I_match_one
 
       subroutine I_connect(this, src_spec, actual_pt, rc)
          use mapl3g_ActualConnectionPt
@@ -123,13 +137,6 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_make_extension
 
-      integer function I_extension_cost(this, src_spec, rc) result(cost)
-         import StateItemSpec
-         class(StateItemSpec), intent(in) :: this
-         class(StateItemSpec), intent(in) :: src_spec
-         integer, optional, intent(out) :: rc
-       end function I_extension_cost
-
       subroutine I_add_to_state(this, multi_state, actual_pt, rc)
          use mapl3g_MultiState
          use mapl3g_ActualConnectionPt
@@ -160,21 +167,21 @@ module mapl3g_StateItemSpec
       end subroutine I_set_geometry
 
 
-      ! Returns an ordered list of filters that priorities matching
+      ! Returns an ordered list of adapters that priorities matching
       ! rules for connecting a family of extension to a goal spec.
-      ! The intent is that the filters are ordered to prioritize
+      ! The intent is that the adapters are ordered to prioritize
       ! coupling to avoid more expensive and/or diffusive couplers.
-      ! E.g., The first filter for a FieldSpec is expected to be
-      ! a GeomFilter so that a new RegridAction is only needed when
+      ! E.g., The first adapter for a FieldSpec is expected to be
+      ! a GeomAdapter so that a new RegridAction is only needed when
       ! no existing extensions match the geom of the goal_spec.
-      function I_make_filters(this, goal_spec, rc) result(filters)
+      function I_make_adapters(this, goal_spec, rc) result(adapters)
          import StateItemSpec
-         import StateItemFilterWrapper
-         type(StateItemFilterWrapper), allocatable :: filters(:)
+         import StateItemAdapterWrapper
+         type(StateItemAdapterWrapper), allocatable :: adapters(:)
          class(StateItemSpec), intent(in) :: this
          class(StateItemSpec), intent(in) :: goal_spec
          integer, optional, intent(out) :: rc
-      end function I_make_filters
+      end function I_make_adapters
    end interface
 
 contains
@@ -245,11 +252,5 @@ contains
       type(StringVector), intent(in):: raw_dependencies
       this%raw_dependencies = raw_dependencies
    end subroutine set_raw_dependencies
-
-   logical function apply_ptr(this, spec_ptr) result(match)
-      class(StateItemFilter), intent(in) :: this
-      type(StateItemSpecPtr), intent(in) :: spec_ptr
-      match = this%apply(spec_ptr%ptr)
-   end function apply_ptr
 
 end module mapl3g_StateItemSpec
