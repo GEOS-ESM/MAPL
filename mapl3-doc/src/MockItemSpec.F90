@@ -347,16 +347,18 @@ contains
       _UNUSED_DUMMY(goal_spec)
    end function make_adapters
 
-   subroutine adapt_subtype(this, spec, action)
+   subroutine adapt_subtype(this, spec, action, rc)
       class(SubtypeAdapter), intent(in) :: this
       class(StateItemSpec), intent(inout) :: spec
       class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
 
       select type (spec)
       type is (MockItemSpec)
          spec%subtype = this%subtype
          action = MockAction(spec%subtype, this%subtype)
       end select
+      _RETURN(_SUCCESS)
    end subroutine adapt_subtype
 
    logical function match_subtype(this, spec) result(match)
@@ -379,15 +381,19 @@ contains
       
    end function match_subtype
 
-   subroutine adapt_name(this, spec, action)
+   subroutine adapt_name(this, spec, action, rc)
       class(NameAdapter), intent(in) :: this
       class(StateItemSpec), intent(inout) :: spec
       class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+
       select type (spec)
       type is (MockItemSpec)
          spec%name = this%name
          action = MockAction()
       end select
+
+      _RETURN(_SUCCESS)
    end subroutine adapt_name
 
    logical function match_name(this, spec) result(match)

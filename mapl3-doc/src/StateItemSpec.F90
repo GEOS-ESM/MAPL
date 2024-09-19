@@ -72,13 +72,14 @@ module mapl3g_StateItemSpec
    abstract interface
 
       ! Modify "this" to match attribute in spec.
-      subroutine I_adapt_one(this, spec, action)
+      subroutine I_adapt_one(this, spec, action, rc)
          import StateItemAdapter
          import StateItemSpec
          import ExtensionAction
          class(StateItemAdapter), intent(in) :: this
          class(StateItemSpec), intent(inout) :: spec
          class(ExtensionAction), allocatable, intent(out) :: action
+         integer, optional, intent(out) :: rc
       end subroutine I_adapt_one
 
 
