@@ -4,40 +4,20 @@ module mapl3g_VerticalRegridActionNew
 
    use mapl_ErrorHandling
    use mapl3g_ExtensionAction
+   use mapl3g_VerticalRegridMethod, only: VerticalRegridMethod_Flag
    use mapl3g_CSR_SparseMatrix
    use esmf
+   use, intrinsic :: iso_fortran_env, only: REAL32
 
    implicit none
    private
 
    public :: VerticalRegridAction
-   public :: Vertical_RegridMethod_Flag
-   public :: VERTICAL_REGRID_UNKNOWN
-   public :: VERTICAL_REGRID_LINEAR
-   public :: VERTICAL_REGRID_CONSERVATIVE
-   public :: operator(==), operator(/=)
-
-   type :: Vertical_RegridMethod_Flag
-      private
-      integer :: id = -1
-   end type Vertical_RegridMethod_Flag
-
-   interface operator(==)
-      procedure :: equal_to
-   end interface operator(==)
-
-   interface operator(/=)
-      procedure :: not_equal_to
-   end interface operator(/=)
-
-   type(Vertical_RegridMethod_Flag), parameter :: VERTICAL_REGRID_UNKNOWN = Vertical_RegridMethod_Flag(-1)
-   type(Vertical_RegridMethod_Flag), parameter :: VERTICAL_REGRID_LINEAR = Vertical_RegridMethod_Flag(1)
-   type(Vertical_RegridMethod_Flag), parameter :: VERTICAL_REGRID_CONSERVATIVE = Vertical_RegridMethod_Flag(2)
 
    type, extends(ExtensionAction) :: VerticalRegridAction
-      real(ESMF_KIND_R4), allocatable :: src_vertical_coord(:)
-      real(ESMF_KIND_R4), allocatable :: dst_vertical_coord(:)
-      type(Vertical_RegridMethod_Flag) :: regrid_method
+      real(REAL32), allocatable :: src_vertical_coord(:)
+      real(REAL32), allocatable :: dst_vertical_coord(:)
+      type(VerticalRegridMethod_Flag) :: regrid_method
       type(CSR_SparseMatrix_sp), allocatable :: weights(:) ! size of horz dims
    contains
       procedure :: initialize
@@ -53,9 +33,9 @@ contains
 
    function new_VerticalRegridAction(src_vertical_coord, dst_vertical_coord, regrid_method) result(action)
       type(VerticalRegridAction) :: action
-      real(ESMF_KIND_R4), intent(in) :: src_vertical_coord(:)
-      real(ESMF_KIND_R4), intent(in) :: dst_vertical_coord(:)
-      type(Vertical_RegridMethod_Flag), intent(in) :: regrid_method
+      real(REAL32), intent(in) :: src_vertical_coord(:)
+      real(REAL32), intent(in) :: dst_vertical_coord(:)
+      type(VerticalRegridMethod_Flag), intent(in) :: regrid_method
 
       action%src_vertical_coord = src_vertical_coord
       action%dst_vertical_coord = dst_vertical_coord
@@ -91,15 +71,5 @@ contains
       class(VerticalRegridAction), intent(inout) :: this
       ! this%weights = ...
    end subroutine compute_weights_
-
-   pure logical function equal_to(a, b)
-      type(Vertical_RegridMethod_Flag), intent(in) :: a, b
-      equal_to = (a%id == b%id)
-   end function equal_to
-
-   pure logical function not_equal_to(a, b)
-      type(Vertical_RegridMethod_Flag), intent(in) :: a, b
-      not_equal_to = .not. (a==b)
-   end function not_equal_to
 
 end module mapl3g_VerticalRegridActionNew
