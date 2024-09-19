@@ -1,0 +1,33 @@
+#include "MAPL_TestErr.h"
+
+module Test_WeightComputation
+
+   use mapl3g_VerticalRegridMethod
+   use mapl3g_CSR_SparseMatrix
+   use mapl3g_WeightComputation
+   use funit
+   use, intrinsic :: iso_fortran_env, only: REAL32
+
+   implicit none
+
+contains
+
+   @test
+   subroutine test_get_weights_fixedlevels_subset()
+
+      ! type(CSR_SparseMatrix_sp) :: weights
+      real(REAL32), allocatable :: vcoord_src(:), vcoord_dst(:), result(:)
+      real(REAL32), allocatable :: weights(:, :)
+      integer :: rc
+
+      vcoord_src = [30., 20., 10.]
+      vcoord_dst = [10.]
+      call get_weights_fixedlevels_subset(vcoord_src, vcoord_dst, VERTICAL_REGRID_SUBSET, weights, rc)
+      print *, "weights: ", weights
+      result = matmul(weights, vcoord_src)
+      print *, "result: ", result
+      @assertEqual(result, vcoord_dst)
+
+   end subroutine test_get_weights_fixedlevels_subset
+
+end module Test_WeightComputation

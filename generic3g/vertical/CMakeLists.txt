@@ -7,6 +7,7 @@ target_sources(MAPL.generic3g PRIVATE
   ModelVerticalGrid.F90
   VerticalRegridMethod.F90
   CSR_SparseMatrix.F90
+  WeightComputation.F90
 )
 
 esma_add_fortran_submodules(
