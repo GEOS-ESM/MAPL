@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Made the POSITIVE field attribute defaults to "down" in case it is not found
+- VLOCATION is not querried in MAPL_VerticalMethods.F90 for rank 2 fields
 - Fixed time print in Cap GC (from slashes to colons)
 - Added ability to read the attribute with explicit type "string" of a netcdf variable.
 - Start to implement changes for vertical regridding in ExtData
