@@ -12,6 +12,7 @@ module MAPL_FieldPointerUtilities
    public :: FieldsHaveUndef
    public :: GetFieldsUndef
    public :: assign_fptr
+   public :: assign_fptr_rank3
    public :: FieldGetLocalElementCount
    public :: FieldGetLocalSize
    public :: FieldGetCptr
@@ -34,6 +35,11 @@ module MAPL_FieldPointerUtilities
       module procedure assign_fptr_r4_rank2
       module procedure assign_fptr_r8_rank2
    end interface assign_fptr
+
+   interface assign_fptr_rank3
+      module procedure :: assign_fptr_r4_rank3
+      module procedure :: assign_fptr_r8_rank3
+   end interface assign_fptr_rank3
 
    interface FieldGetCptr
       procedure get_cptr
@@ -93,9 +99,8 @@ contains
       integer(ESMF_KIND_I8) :: local_size
       integer :: status
 
-!      local_size = FieldGetLocalSize(x, _RC)
-!      fp_shape = [ local_size ]
-      fp_shape = get_array_shape(x, _RC)
+      local_size = FieldGetLocalSize(x, _RC)
+      fp_shape = [ local_size ]
       call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
 
@@ -113,9 +118,8 @@ contains
       integer(ESMF_KIND_I8) :: local_size
       integer :: status
 
-      !local_size = FieldGetLocalSize(x, _RC)
-      !fp_shape = [ local_size ]
-      fp_shape = get_array_shape(x, _RC)
+      local_size = FieldGetLocalSize(x, _RC)
+      fp_shape = [ local_size ]
       call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
 
@@ -153,6 +157,42 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine assign_fptr_r8_rank2
+
+   subroutine assign_fptr_r4_rank3(x, fptr, rc)
+      type(ESMF_Field), intent(inout) :: x
+      real(kind=ESMF_KIND_R4), pointer, intent(out) :: fptr(:)
+      integer, optional, intent(out) :: rc
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
+      integer(ESMF_KIND_I8) :: local_size
+      integer :: status
+
+      fp_shape = get_array_shape(x, _RC)
+      call FieldGetCptr(x, cptr, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_r4_rank3
+
+   subroutine assign_fptr_r8_rank3(x, fptr, rc)
+      type(ESMF_Field), intent(inout) :: x
+      real(kind=ESMF_KIND_R8), pointer, intent(out) :: fptr(:)
+      integer, optional, intent(out) :: rc
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
+      integer(ESMF_KIND_I8) :: local_size
+      integer :: status
+
+      fp_shape = get_array_shape(x, _RC)
+      call FieldGetCptr(x, cptr, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_r8_rank3
 
    subroutine get_cptr(x, cptr, rc)
       type(ESMF_Field), intent(inout) :: x
@@ -964,11 +1004,13 @@ contains
       integer, allocatable :: localElementCount(:)
       integer, allocatable :: vertical_dimensions(:)
       integer :: num_levels
+      integer :: rank
 
       num_levels = 0
       vertical_dimensions = [integer::]
       call ESMF_FieldGet(f, gridToFieldMap=gridToFieldMap, _RC) 
-!      call ESMF_FieldGet(f, localElementCount=localElementCount, _RC)
+      call ESMF_FieldGet(f, rank=rank, _RC)
+      allocate(localElementCount(rank))
 !     Due to an ESMF bug, getting the localElementCount must use the module function.
 !     See FieldGetLocalElementCount (specific function) comments.
       localElementCount = FieldGetLocalElementCount(f, _RC)

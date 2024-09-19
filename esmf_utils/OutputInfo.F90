@@ -11,7 +11,7 @@ module mapl3g_output_info
    use esmf, only: ESMF_InfoDestroy, ESMF_InfoCreate
    use esmf, only: ESMF_InfoGet, ESMF_InfoGetFromHost
    use esmf, only: ESMF_InfoGetAlloc, ESMF_InfoGetCharAlloc
-   use esmf, only: ESMF_InfoPrint
+   use esmf, only: ESMF_InfoPrint, ESMF_MAXSTR, ESMF_SUCCESS
    use Mapl_ErrorHandling
 
    implicit none
@@ -45,6 +45,7 @@ module mapl3g_output_info
    end interface get_ungridded_dims
 
    character(len=*), parameter :: VERT_DIM_NONE = 'VERTICAL_DIM_NONE'
+   character(len=0), parameter :: EMPTY_STRING = ''
 
 contains
 
@@ -94,10 +95,16 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       logical :: is_none
+      character(len=:), allocatable :: spec_name
 
+      spec_name = EMPTY_STRING
       num = 0
-      is_none = VERT_DIM_NONE == get_vertical_dim_spec_info(info, _RC)
-      _RETURN_IF(is_none)
+      spec_name = get_vertical_dim_spec_info(info, _RC)
+      is_none = .TRUE.
+      if(spec_name /= EMPTY_STRING) is_none = (VERT_DIM_NONE == spec_name)
+      if(is_none) then
+         _RETURN(_SUCCESS)
+      end if
 
       call ESMF_InfoGet(info, key=KEY_NUM_LEVELS, value=num, _RC)
       _RETURN(_SUCCESS)
@@ -123,12 +130,14 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
-      character(len=:), allocatable :: name
+      character(len=:), allocatable :: spec_name
 
+      spec_name = EMPTY_STRING
       names = StringVector()
       do i=1, size(info)
-         name = get_vertical_dim_spec_info(info(i), _RC)
-         if(find_index(names, name) == 0) call names%push_back(name)
+         spec_name = get_vertical_dim_spec_info(info(i), _RC)
+         _ASSERT(spec_name /= EMPTY_STRING, 'No vertical dim spec found.')
+         if(find_index(names, spec_name) == 0) call names%push_back(spec_name)
       end do
       _RETURN(_SUCCESS)
 
@@ -141,6 +150,7 @@ contains
       integer :: status
       type(ESMF_Info) :: info
 
+      spec_name = EMPTY_STRING
       call ESMF_InfoGetFromHost(field, info, _RC)
       spec_name = get_vertical_dim_spec_info(info, _RC)
       _RETURN(_SUCCESS)
@@ -152,8 +162,15 @@ contains
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
       integer :: status
+      logical :: isPresent
+      character(len=ESMF_MAXSTR) :: raw
 
-      call ESMF_InfoGetCharAlloc(info, key=KEY_VLOC, value=spec_name, _RC)
+      spec_name = EMPTY_STRING
+      isPresent = ESMF_InfoIsPresent(info, key=KEY_VLOC, _RC)
+      _RETURN_UNLESS(isPresent)
+      call ESMF_InfoGet(info, key=KEY_VLOC, value=raw, rc=status)
+      _ASSERT(status==ESMF_SUCCESS, 'Failed to get vertical dimspec name.')
+      spec_name = trim(adjustl(raw))
       _RETURN(_SUCCESS)
 
    end function get_vertical_dim_spec_info

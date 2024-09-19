@@ -7,9 +7,9 @@ module mapl3g_FieldCondensedArray
    use esmf, only: ESMF_Field, ESMF_FieldGet
    implicit none
 
-!   public :: ! public procedures, variables, types, etc.
    private
 
+   public :: get_array_shape
 
 contains
 
@@ -22,11 +22,18 @@ contains
       integer, allocatable :: localElementCount(:)
       integer, allocatable :: vertical_dimensions(:)
       integer :: num_levels
+      integer :: rank
 
       num_levels = 0
       vertical_dimensions = [integer::]
       call ESMF_FieldGet(field_in, gridToFieldMap=gridToFieldMap, _RC) 
+      call ESMF_FieldGet(field_in, rank=rank, _RC)
+      allocate(localElementCount(rank))
+!     Due to an ESMF bug, getting the localElementCount should use the module function.
+!     For now, use this because of dependency issues.
       call ESMF_FieldGet(field_in, localElementCount=localElementCount, _RC)
+!     See FieldGetLocalElementCount (specific function) comments in FieldPointerUtilities.
+      !localElementCount = FieldGetLocalElementCount(f, _RC)
       num_levels = get_num_levels(field_in, _RC)
       if(num_levels > 0) vertical_dimensions = [num_levels]
       array_shape = get_array_shape_private(gridToFieldMap, localElementCount, vertical_dimensions, _RC)
