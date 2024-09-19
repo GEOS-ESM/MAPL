@@ -301,7 +301,6 @@ contains
       class(UngriddedDimVector), intent(in) :: vec
       class(UngriddedDim), intent(in) :: udim
       integer, optional, intent(out) :: rc
-      integer :: status
       type(UngriddedDimVectorIterator) :: iter
       type(UngriddedDim) :: vdim
 
@@ -330,7 +329,6 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: field_count, i
-      type(ESMF_Field) :: field
       type(ESMF_Field), allocatable :: fields(:)
       type(ESMF_Info) :: info
 

@@ -166,7 +166,6 @@ contains
       ! local declarations
       type(c_ptr) :: cptr
       integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
-      integer(ESMF_KIND_I8) :: local_size
       integer :: status
 
       fp_shape = get_array_shape(x, _RC)
@@ -184,7 +183,6 @@ contains
       ! local declarations
       type(c_ptr) :: cptr
       integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
-      integer(ESMF_KIND_I8) :: local_size
       integer :: status
 
       fp_shape = get_array_shape(x, _RC)

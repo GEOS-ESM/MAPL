@@ -8,7 +8,6 @@ set(srcs
   FieldUnaryFunctions.F90
   FieldBinaryOperations.F90
   FieldUnits.F90
-  FieldCondensedArray.F90
   FieldCondensedArray_private.F90
   )
 

@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 module mapl3g_FieldCondensedArray_private
 
+#include "MAPL_Generic.h"
    use MAPL_ExceptionHandling
    implicit none
 
@@ -16,7 +17,7 @@ contains
       integer, intent(in) :: localElementCount(:)
       integer, optional, intent(in) :: vert_dims(:)
       integer, optional, intent(out) :: rc
-      integer :: status, rank, i
+      integer :: rank, i
       integer, allocatable :: grid_dims(:)
       integer, allocatable :: vert_dims_(:)
       integer, allocatable :: ungridded_dims(:)

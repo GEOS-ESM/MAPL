@@ -1,10 +1,7 @@
-#if defined(TRIMALL)
-#  undef TRIMALL
-#endif
-#define TRIMALL(A) trim(adjustl(A))
+#include "MAPL_TestErr.h"
+module Test_FieldCondensedArray_private
 
-module Test_FieldCondensedArray
-
+    use MAPL_ExceptionHandling
     use pfunit
     use mapl3g_FieldCondensedArray_private
     implicit none
@@ -146,47 +143,5 @@ contains
        @assertExceptionRaised()
 
     end subroutine test_get_array_shape_wrong_order
-!    function make_error_message(prelude, actual, interlude,  expected, postlude) result(string)
-!       character(len=:), allocatable :: string
-!       character(len=*), intent(in) :: prelude, interlude, postlude
-!       integer, intent(in) :: actual(:), expected(:)
-!       character(len=:), allocatable :: raw
-!
-!       raw = make_array_string(actual)
-!       if(size(raw) == 0) raw = 'NO ACTUAL'
-!       string = trim(raw) // interlude
-!       raw = make_array_string(expected)
-!       if(size(raw) == 0) raw = 'NO EXPECTED'
-!       string = trim(prelude) // string // trim(raw) // trim(postlude)
-!
-!    end function make_error_message
-!
-!    function make_array_string(arr) result(string)
-!       character(len=:), allocatable :: string
-!       integer, intent(in) :: arr(:)
-!       character, parameter :: HFMT = '(I0)'
-!       character, parameter :: TFMT = '(1X, I0)'
-!       character(len=:), allocatable :: raw
-!       integer :: i, iostat
-!
-!       if(size(arr) == 0) then
-!          string = '[]'
-!          return
-!       end if
-!       string = ''
-!       write(raw, fmt=HFMT, iostat=iostat, advance = 'NO') arr(1)
-!       if(iostat /= 0) return
-!       string = '[ ' // TRIMALL(raw)
-!       do i=2, size(arr)
-!         write(raw, fmt=TFMT, iostat=iostat, advance='NO') arr(i)
-!         if(iostat /= 0) then
-!            string = ''
-!         end if
-!         string = string // TRIMALL(raw)
-!      end do
-!      string = string // ']'
-!
-!   end function make_array_string
 
-end module Test_FieldCondensedArray
-
+end module Test_FieldCondensedArray_private
