@@ -491,18 +491,22 @@ module MAPL_VerticalDataMod
 
         do i=1,numVars
            call ESMF_FieldBundleGet(bundle,i,field,_RC)
+           positive = 'down'
            call ESMF_InfoGetFromHost(field,infoh,_RC)
-           call ESMF_InfoGet(infoh,key='POSITIVE',value=positive,_RC)
+           isPresent = ESMF_InfoIsPresent(infoh,'POSITIVE',_RC)
+           if (isPresent) then
+              call ESMF_InfoGet(infoh,key='POSITIVE',value=positive,_RC)
+           end if
            if (i .eq. 1) this%positive=positive
            if (i .gt. 1) then
               _ASSERT(this%positive==positive,"Fields have mistmatched positive attributes")
               this%positive=positive
            end if
            call ESMF_FieldGet(field,dimCount=FieldRank,_RC)
-           call ESMF_InfoGet(infoh,key='VLOCATION',value=location(i),_RC)
            if (fieldRank==2) then
               varDims(i)=0
            else if (fieldRank==3) then
+              call ESMF_InfoGet(infoh,key='VLOCATION',value=location(i),_RC)
               call ESMF_FieldGet(field,farrayPtr=ptr3d,_RC)
               varDims(i)=size(ptr3d,3)
               if (location(i) == MAPL_VLocationNone) then

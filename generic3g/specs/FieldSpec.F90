@@ -104,7 +104,6 @@ module mapl3g_FieldSpec
       procedure :: add_to_state
       procedure :: add_to_bundle
 
-      procedure :: make_extension
       procedure :: make_adapters
 
       procedure :: set_info
@@ -1039,32 +1038,6 @@ contains
       _RETURN(_SUCCESS)
 
    end function make_adapters
-
-   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
-      class(FieldSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      class(StateItemSpec), allocatable, intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      type(StateItemAdapterWrapper), allocatable :: adapters(:)
-      integer :: i
-      integer :: status
-
-      new_spec = this
-      adapters = this%make_adapters(dst_spec, _RC)
-      do i = 1, size(adapters)
-         if (adapters(i)%adapter%match(new_spec)) cycle
-         call adapters(i)%adapter%adapt(new_spec, action)
-         exit
-      end do
-     _RETURN_IF(allocated(action))
-      
-      ! no action needed
-      action = NullAction()
-
-      _RETURN(_SUCCESS)
-   end subroutine make_extension
 
 
 end module mapl3g_FieldSpec
