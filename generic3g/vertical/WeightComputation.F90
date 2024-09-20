@@ -14,31 +14,34 @@ module mapl3g_WeightComputation
 
    type Bracket
       integer :: index
-      real(REAL32) :: value
+      real(REAL32) :: value_
    end type Bracket
 
 contains
 
    ! Compute linear interpolation weights when doing vertical regridding from
    ! fixed-levels vertical grid to fixed-levels vertical grid
-   subroutine get_weights_fixedlevels_to_fixedlevels_linear(src, dst, weights, rc)
+   subroutine get_weights_fixedlevels_to_fixedlevels_linear(src, dst, weight, rc)
       real(REAL32), intent(in) :: src(:)
       real(REAL32), intent(in) :: dst(:)
-      ! type(CSR_SparseMatrix_sp), intent(out) :: weights ! size of horz dims
-      real(REAL32), allocatable, intent(out) :: weights(:, :)
+      ! type(CSR_SparseMatrix_sp), intent(out) :: weight ! size of horz dims
+      real(REAL32), allocatable, intent(out) :: weight(:, :)
       integer, optional, intent(out) :: rc
 
-      real(REAL32) :: val
+      real(REAL32) :: val, weight_(2)
       integer :: ndx, status
       type(Bracket) :: bracket_(2)
 
       _ASSERT(maxval(dst) <= maxval(src), "maxval(dst) > maxval(src)")
       _ASSERT(minval(dst) >= minval(src), "minval(dst) < minval(src)")
 
-      allocate(weights(size(dst), size(src)), source=0., _STAT)
+      allocate(weight(size(dst), size(src)), source=0., _STAT)
       do ndx = 1, size(dst)
          val = dst(ndx)
-         call find_bracket_(val, src, bracket_, rc)
+         call find_bracket_(val, src, bracket_)
+         call compute_linear_interpolation_weights_(val, bracket_%value_, weight_)
+         weight(ndx, bracket_(1)%index) = weight_(1)
+         weight(ndx, bracket_(2)%index) = weight_(2)
       end do
 
       _RETURN(_SUCCESS)
@@ -46,11 +49,10 @@ contains
 
    ! Find array bracket containing val
    ! ASSUME: array is monotonic
-   subroutine find_bracket_(val, array, bracket_, rc)
+   subroutine find_bracket_(val, array, bracket_)
       real(REAL32), intent(in) :: val
       real(REAL32), intent(in) :: array(:)
       Type(Bracket), intent(out) :: bracket_(2)
-      integer, optional, intent(out) :: rc
 
       integer :: ndx1, ndx2
 
@@ -64,8 +66,23 @@ contains
          ndx2 = ndx1
       end if
       bracket_(2) = Bracket(ndx2, array(ndx2))
-
-      _RETURN(_SUCCESS)
    end subroutine find_bracket_
+
+   subroutine compute_linear_interpolation_weights_(val, value_, weight_)
+      real(REAL32), intent(in) :: val
+      real(REAL32), intent(in) :: value_(2)
+      real(REAL32), intent(out) :: weight_(2)
+
+      real(REAL32) :: denominator, epsilon_sp
+
+      denominator = abs(value_(2) - value_(1))
+      epsilon_sp = epsilon(1.0)
+      if (denominator < epsilon_sp) then
+         weight_ = 1.0
+      else
+         weight_(1) = abs(value_(2) - val)/denominator
+         weight_(2) = abs(val - value_(1))/denominator
+      end if
+   end subroutine compute_linear_interpolation_weights_
 
 end module mapl3g_WeightComputation

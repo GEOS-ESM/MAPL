@@ -15,11 +15,10 @@ program Test_WeightComputation
    real(REAL32), allocatable :: weights(:, :)
    integer :: status
 
-   src = [50., 40., 30., 20., 10.]
-   dst = [49., 32., 27., 25., 12., 10.]
+   src = [40., 30., 20., 10.]
+   dst = [40., 32., 38., 25., 21., 13., 10.]
    call get_weights_fixedlevels_to_fixedlevels_linear(src, dst, weights, _RC)
-
-   print *, "dst: ", dst
+   print *, "dst:    ", dst
    print *, "result: ", matmul(weights, src)
 
 end program Test_WeightComputation
