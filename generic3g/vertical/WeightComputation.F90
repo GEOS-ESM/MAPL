@@ -30,7 +30,7 @@ contains
 
       real(REAL32) :: val, weight_(2)
       integer :: ndx, status
-      type(Pair) :: pair_(2)
+      type(Pair) :: pair_(2) ! [pair_(1), pair_(2)] is a bracket
 
       _ASSERT(maxval(dst) <= maxval(src), "maxval(dst) > maxval(src)")
       _ASSERT(minval(dst) >= minval(src), "minval(dst) < minval(src)")
