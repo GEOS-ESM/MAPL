@@ -22,7 +22,7 @@ contains
        vertical_dims = [3]
        expected = [product(localElementCount(1:2)), localElementCount(3), 1]
        actual = get_array_shape(gridToFieldMap, localElementCount, vertical_dims)
-       @assertEqual(actual, expected, GENERIC_MESSAGE)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
 
     end subroutine test_get_array_shape_3D
 
@@ -36,7 +36,7 @@ contains
        localElementCount = [3, 5]
        expected = [product(localElementCount), 1, 1]
        actual = get_array_shape(gridToFieldMap, localElementCount)
-       @assertEqual(actual, expected, GENERIC_MESSAGE)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
 
     end subroutine test_get_array_shape_2D
 
@@ -52,7 +52,7 @@ contains
        localElementCount = [2, 3, 5, 7, 11]
        expected = [product(localElementCount(1:2)), localElementCount(3), product(localElementCount(4:))]
        actual = get_array_shape(gridToFieldMap, localElementCount, vertical_dims)
-       @assertEqual(actual, expected, GENERIC_MESSAGE)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
 
     end subroutine test_get_array_shape_general
 
@@ -66,7 +66,7 @@ contains
        localElementCount = [2, 3, 5, 7]
        expected = [product(localElementCount(1:2)), 1, product(localElementCount(3:))]
        actual = get_array_shape(gridToFieldMap, localElementCount)
-       @assertEqual(actual, expected, GENERIC_MESSAGE)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
 
     end subroutine test_get_array_shape_noz
 
@@ -80,10 +80,11 @@ contains
        localElementCount = [5, 7, 11]
        expected = [1, 1, product(localElementCount)]
        actual = get_array_shape(gridToFieldMap, localElementCount)
-       @assertEqual(actual, expected, GENERIC_MESSAGE)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
 
     end subroutine test_get_array_shape_0D
 
+    @Test
     subroutine test_get_array_shape_vert_only()
        integer :: expected(3), actual(3)
        integer, allocatable :: gridToFieldMap(:)
@@ -95,10 +96,11 @@ contains
        localElementCount = vertical_dims
        expected = [1, localElementCount(1), 1]
        actual = get_array_shape(gridToFieldMap, localElementCount, vertical_dims)
-       @assertEqual(actual, expected, GENERIC_MESSAGE)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
 
     end subroutine test_get_array_shape_vert_only
 
+    @Test
     subroutine test_get_array_shape_vert_ungrid()
        integer :: expected(3), actual(3)
        integer, allocatable :: gridToFieldMap(:)
@@ -110,7 +112,7 @@ contains
        localElementCount = [vertical_dims, 5, 7]
        expected = [1, localElementCount(1), product(localElementCount(2:))]
        actual = get_array_shape(gridToFieldMap, localElementCount, vertical_dims)
-       @assertEqual(actual, expected, GENERIC_MESSAGE)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
 
     end subroutine test_get_array_shape_vert_ungrid
     
@@ -124,7 +126,7 @@ contains
        localElementCount = [3, 5, 7, 11]
        expected = [product(localElementCount(1:2)), 1, product(localElementCount(3:))]
        actual = get_array_shape(gridToFieldMap, localElementCount)
-       @assertEqual(actual, expected, GENERIC_MESSAGE)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
 
     end subroutine test_get_array_shape_2D_ungrid
 
@@ -140,7 +142,7 @@ contains
        vertical_dims = [3]
        localElementCount = [2, 3, 5, 7, 11]
        actual = get_array_shape(gridToFieldMap, localElementCount, vertical_dims, rc=status)
-       @assertExceptionRaised()
+       @assert_that('An exception should be raised.', status, is(equal_to(0)))
 
     end subroutine test_get_array_shape_wrong_order
 

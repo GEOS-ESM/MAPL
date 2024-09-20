@@ -45,7 +45,6 @@ module mapl3g_output_info
    end interface get_ungridded_dims
 
    character(len=*), parameter :: VERT_DIM_NONE = 'VERTICAL_DIM_NONE'
-   character(len=0), parameter :: EMPTY_STRING = ''
 
 contains
 
@@ -95,13 +94,11 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       logical :: is_none
-      character(len=ESMF_MAXSTR) :: spec_name
+      character(len=:), allocatable :: spec_name
 
-      spec_name = EMPTY_STRING
       num = 0
       spec_name = get_vertical_dim_spec_info(info, _RC)
-      is_none = .TRUE.
-      if(spec_name /= EMPTY_STRING) is_none = (VERT_DIM_NONE == spec_name)
+      is_none = (VERT_DIM_NONE == spec_name)
       if(is_none) then
          _RETURN(_SUCCESS)
       end if
@@ -130,27 +127,24 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
-      character(len=ESMF_MAXSTR) :: spec_name
+      character(len=:), allocatable :: spec_name
 
-      spec_name = EMPTY_STRING
       names = StringVector()
       do i=1, size(info)
          spec_name = get_vertical_dim_spec_info(info(i), _RC)
-         _ASSERT(spec_name /= EMPTY_STRING, 'No vertical dim spec found.')
-         if(find_index(names, spec_name) == 0) call names%push_back(trim(spec_name))
+         if(find_index(names, spec_name) == 0) call names%push_back(spec_name)
       end do
       _RETURN(_SUCCESS)
 
    end function get_vertical_dim_spec_names_bundle_info
 
    function get_vertical_dim_spec_name_field(field, rc) result(spec_name)
-      character(len=ESMF_MAXSTR) :: spec_name
+      character(len=:), allocatable :: spec_name
       type(ESMF_Field), intent(in) :: field
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Info) :: info
 
-      spec_name = EMPTY_STRING
       call ESMF_InfoGetFromHost(field, info, _RC)
       spec_name = get_vertical_dim_spec_info(info, _RC)
       _RETURN(_SUCCESS)
@@ -158,22 +152,36 @@ contains
    end function get_vertical_dim_spec_name_field
 
    function get_vertical_dim_spec_info(info, rc) result(spec_name)
-      character(len=ESMF_MAXSTR) :: spec_name
+      character(len=:), allocatable :: spec_name
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
       integer :: status
       logical :: isPresent
       character(len=ESMF_MAXSTR) :: raw
-      character, parameter :: error_message = 'Failed to get vertical dim spec name.'
 
-      spec_name = EMPTY_STRING
       isPresent = ESMF_InfoIsPresent(info, key=KEY_VLOC, _RC)
-      _ASSERT(isPresent, error_message)
-      call ESMF_InfoGet(info, key=KEY_VLOC, value=spec_name, rc=status)
-      _ASSERT(status==ESMF_SUCCESS, error_message)
+      _ASSERT(isPresent, 'Failed to get vertical dim spec name.')
+      call ESMF_InfoGet(info, key=KEY_VLOC, value=raw, _RC)
+      spec_name = trim(adjustl(tmp_name))
+
       _RETURN(_SUCCESS)
 
    end function get_vertical_dim_spec_info
+
+!   function get_vertical_dim_spec_info(info, rc) result(spec_name)
+!      character(len=ESMF_MAXSTR) :: spec_name
+!      type(ESMF_Info), intent(in) :: info
+!      integer, optional, intent(out) :: rc
+!      integer :: status
+!      logical :: isPresent
+!      character, parameter :: error_message = 'Failed to get vertical dim spec name.'
+!
+!      isPresent = ESMF_InfoIsPresent(info, key=KEY_VLOC, _RC)
+!      _ASSERT(isPresent, error_message)
+!      call ESMF_InfoGet(info, key=KEY_VLOC, value=spec_name, _RC)
+!      _RETURN(_SUCCESS)
+!
+!   end function get_vertical_dim_spec_info
 
    function get_ungridded_dims_bundle(bundle, rc) result(dims)
       type(UngriddedDims) :: dims
@@ -243,25 +251,28 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Info) :: dim_info
-      character(len=ESMF_MAXSTR) :: key
-      character(len=ESMF_MAXSTR) :: name
-      character(len=ESMF_MAXSTR) :: units
+      character(len=ESMF_MAXSTR) :: raw
+      character(len=:), allocatable :: key
+      character(len=:), allocatable :: name
+      character(len=:), allocatable :: units
       real, allocatable :: coordinates(:)
       logical :: is_present
       character(len=1024) :: json_repr
 
       key = make_dim_key(n, _RC)
-      call ESMF_InfoGet(info, key=key, isPresent=is_present, _RC)
+      call ESMF_InfoGet(info, key=raw, isPresent=is_present, _RC)
       if(.not. is_present) then
          call ESMF_InfoPrint(info, unit=json_repr, _RC)
+         _FAIL('Key ' // trim(key) // ' not found in ' // trim(json_repr))
       end if
-      _ASSERT(is_present, 'Key ' // key // ' not found in ' // trim(json_repr))
-      dim_info = ESMF_InfoCreate(info, key=key, _RC)
-      call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_NAME, value=name, _RC)
-      call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_UNITS, value=units, _RC)
+      dim_info = ESMF_InfoCreate(info, key=trim(adjust(raw)), _RC)
+      call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_NAME, value=raw, _RC)
+      name = trim(adjustl(raw))
+      call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_UNITS, value=raw, _RC)
+      units = trim(adjustl(raw))
       call ESMF_InfoGetAlloc(dim_info, key=KEY_UNGRIDDED_COORD, values=coordinates, _RC)
       call ESMF_InfoDestroy(dim_info, _RC)
-      ungridded_dim = UngriddedDim(coordinates, name=trim(name), units=trim(units))
+      ungridded_dim = UngriddedDim(coordinates, name=name, units=units)
       _RETURN(_SUCCESS)
 
    end function make_ungridded_dim

@@ -10,9 +10,9 @@ module mapl3g_FieldCondensedArray_private
 
 contains
 
-   function get_array_shape(gridToFieldMap, localElementCount, vert_dims, rc) &
-         &result(array_shape)
-      integer :: array_shape(3)
+   function get_fptr_shape(gridToFieldMap, localElementCount, vert_dims, rc) &
+         &result(fptr_shape)
+      integer :: fptr_shape(3)
       integer, intent(in) :: gridToFieldMap(:)
       integer, intent(in) :: localElementCount(:)
       integer, optional, intent(in) :: vert_dims(:)
@@ -34,9 +34,9 @@ contains
       horz_size = product([(localElementCount(grid_dims(i)), i=1, size(grid_dims))])
       vert_size = product([(localElementCount(vert_dims_(i)), i=1, size(vert_dims_))])
       ungridded_size = product([(localElementCount(ungridded_dims(i)), i=1, size(ungridded_dims))])
-      array_shape = [horz_size, vert_size, ungridded_size]
+      fptr_shape = [horz_size, vert_size, ungridded_size]
       _RETURN(_SUCCESS)
 
-   end function get_array_shape
+   end function get_fptr_shape
 
 end module mapl3g_FieldCondensedArray_private
