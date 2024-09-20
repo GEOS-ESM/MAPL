@@ -12,10 +12,10 @@ module mapl3g_WeightComputation
 
    public :: get_weights_fixedlevels_to_fixedlevels_linear
 
-   type Bracket
+   type Pair
       integer :: index
       real(REAL32) :: value_
-   end type Bracket
+   end type Pair
 
 contains
 
@@ -30,7 +30,7 @@ contains
 
       real(REAL32) :: val, weight_(2)
       integer :: ndx, status
-      type(Bracket) :: bracket_(2)
+      type(Pair) :: pair_(2)
 
       _ASSERT(maxval(dst) <= maxval(src), "maxval(dst) > maxval(src)")
       _ASSERT(minval(dst) >= minval(src), "minval(dst) < minval(src)")
@@ -38,10 +38,10 @@ contains
       allocate(weight(size(dst), size(src)), source=0., _STAT)
       do ndx = 1, size(dst)
          val = dst(ndx)
-         call find_bracket_(val, src, bracket_)
-         call compute_linear_interpolation_weights_(val, bracket_%value_, weight_)
-         weight(ndx, bracket_(1)%index) = weight_(1)
-         weight(ndx, bracket_(2)%index) = weight_(2)
+         call find_bracket_(val, src, pair_)
+         call compute_linear_interpolation_weights_(val, pair_%value_, weight_)
+         weight(ndx, pair_(1)%index) = weight_(1)
+         weight(ndx, pair_(2)%index) = weight_(2)
       end do
 
       _RETURN(_SUCCESS)
@@ -49,15 +49,15 @@ contains
 
    ! Find array bracket containing val
    ! ASSUME: array is monotonic
-   subroutine find_bracket_(val, array, bracket_)
+   subroutine find_bracket_(val, array, pair_)
       real(REAL32), intent(in) :: val
       real(REAL32), intent(in) :: array(:)
-      Type(Bracket), intent(out) :: bracket_(2)
+      Type(Pair), intent(out) :: pair_(2)
 
       integer :: ndx1, ndx2
 
       ndx1 = minloc(abs(array - val), 1)
-      bracket_(1) = Bracket(ndx1, array(ndx1))
+      pair_(1) = Pair(ndx1, array(ndx1))
       if (array(ndx1) < val) then
          ndx2 = ndx1 - 1
       else if (array(ndx1) > val) then
@@ -65,7 +65,7 @@ contains
       else
          ndx2 = ndx1
       end if
-      bracket_(2) = Bracket(ndx2, array(ndx2))
+      pair_(2) = Pair(ndx2, array(ndx2))
    end subroutine find_bracket_
 
    subroutine compute_linear_interpolation_weights_(val, value_, weight_)
