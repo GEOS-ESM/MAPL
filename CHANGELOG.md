@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added 5 new ExtData tests to test compression, bit-shaving, and quantization
+
 ### Changed
 
 - Made the POSITIVE field attribute defaults to "down" in case it is not found
