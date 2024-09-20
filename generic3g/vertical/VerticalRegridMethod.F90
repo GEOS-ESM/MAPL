@@ -9,7 +9,6 @@ module mapl3g_VerticalRegridMethod
    public :: VERTICAL_REGRID_UNKNOWN
    public :: VERTICAL_REGRID_LINEAR
    public :: VERTICAL_REGRID_CONSERVATIVE
-   public :: VERTICAL_REGRID_SUBSET
    public :: operator(==), operator(/=)
 
    type :: VerticalRegridMethod_Flag
@@ -28,7 +27,6 @@ module mapl3g_VerticalRegridMethod
    type(VerticalRegridMethod_Flag), parameter :: VERTICAL_REGRID_UNKNOWN = VerticalRegridMethod_Flag(-1)
    type(VerticalRegridMethod_Flag), parameter :: VERTICAL_REGRID_LINEAR = VerticalRegridMethod_Flag(1)
    type(VerticalRegridMethod_Flag), parameter :: VERTICAL_REGRID_CONSERVATIVE = VerticalRegridMethod_Flag(2)
-   type(VerticalRegridMethod_Flag), parameter :: VERTICAL_REGRID_SUBSET = VerticalRegridMethod_Flag(3)
 
 contains
 
