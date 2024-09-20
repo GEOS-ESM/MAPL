@@ -9,25 +9,109 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add new option to Regrid_Util.x to write and re-use ESMF pregenerated weights
-- If file path length exceeds ESMF_MAXSTR, add _FAIL in subroutine fglob
-- Add GNU UFS-like CI test
-
 ### Changed
 
-- Propgated the error message from MAPL_Horzijindex function
-- fixed a bug in generate_newnxy in MAPL_SwathGridFactory.F90 (NX*NY=Ncore)
-- pFIO Clients don't send "Done" message when there is no request
+- Propagated the error message from MAPL_HorzIJIndex subroutine
+- Made the POSITIVE field attribute defaults to "down" in case it is not found
+- VLOCATION is not querried in MAPL_VerticalMethods.F90 for rank 2 fields
+- Fixed time print in Cap GC (from slashes to colons)
+- Added ability to read the attribute with explicit type "string" of a netcdf variable.
+- Start to implement changes for vertical regridding in ExtData
+- Add ability to connect export of the MAPL hierachy to ExtData via CAP.rc file
+- Added new driver, CapDriver.x, to excerise the MAPL_Cap with the configuratable component also used by ExtDataDriver.x
+- Added Fortran interface to UDUNITS2
+  - NOTE: This now means MAPL depends on UDUNITS2 (and transitively, expat)
+- Improve mask sampler by adding an MPI step and a LS_chunk (intermediate step)
+- CI Updates
+  - Update Baselibs in CI to 7.25.0
+  - Update to circleci-tools orb v4
+    - This adds the ability to do an `ifx` test along with the `ifort` test (though `ifx` is not yet enabled)
 - Update `components.yaml`
-  - ESMA_cmake v3.45.1
-    - Fix bug in meson detection
-- Updated `checkpoint_simulator` to not create and close file if not writing
+  - ESMA_env v4.30.1
+    - Update to Baselibs 7.25.0
+      - ESMF 8.6.1
+      - GFE v1.16.0
+        - gFTL v1.14.0
+        - gFTL-shared v1.9.0
+        - fArgParse v1.8.0
+        - pFUnit v4.10.0
+        - yaFyaml v1.4.0
+      - curl 8.8.0
+      - NCO 5.2.6
+      - Other various fixes from the v8 branch
+    - Move to use Intel ifort 2021.13 at NCCS SLES15, NAS, and GMAO Desktops
+    - Move to use Intel MPI at NCCS SLES15 and GMAO Desktops
+    - Move to GEOSpyD Min24.4.4 Python 3.11
+    - Fix for csh at NAS
+  - ESMA_cmake v3.51.0
+    - Update `esma_add_fortran_submodules` function
+    - Move MPI detection out of FindBaselibs
+    - Add SMOD to submodule generator
+    - NAG OpenMP Workaround
+    - Support for Jemalloc and LLVM Flang
+- Add support for preliminary CF Conventions quantization properties
+  - Add new quantization keyword `granular_bitround` to History. This will be the preferred keyword for quantization in the future
+    replacing `GranularBR`
 
 ### Fixed
+
+- Fix profiler PercentageColumn test for GCC 14
+- Fix bug in ExtData Tests. CMake was overwriting the `EXTDATA2G_SMALL_TESTS` LABEL with `ESSENTIAL`
 
 ### Removed
 
 ### Deprecated
+
+- Deprecate `GranularBR` as a quantization method keyword in History. We will prefer `granular_bitround` in the future to match
+  draft CF conventions. This will be removed in MAPL 3.
+
+## [2.47.2] - 2024-08-16
+
+### Fixed
+
+- Fix bug in supporting externally initialized MPI
+
+## [2.47.1] - 2024-07-17
+
+### Fixed
+
+- Fixed bug in FieldSet routines when passing R8 ESMF fields
+
+## [2.47.0] - 2024-06-24
+
+### Added
+
+- Add new option to `Regrid_Util.x` to write and re-use ESMF pregenerated weights
+- If file path length exceeds `ESMF_MAXSTR`, add `_FAIL` in subroutine fglob
+- Add GNU UFS-like CI test
+- Add capability to mangle `LONG_NAME` in ACG with a different prefix
+
+### Changed
+
+- pFIO Clients don't send "Done" message when there is no request
+- Update `components.yaml`
+  - ESMA_cmake v3.46.0
+    - Fix bugs in meson detection
+    - Fix for building on older macOS
+    - Add `esma_add_fortran_submodules` function
+- Updated `checkpoint_simulator` to not create and close file if not writing
+- Update ExtData tests
+  - Add new category of `SLOW` tests that take 10-30 seconds and remove them from the `ESSENTIAL`
+    label run in CI
+  - Remove ExtData1G tests from `ESSENTIAL` label, but run them in the UFS-like CI test
+- Improved timing for station sampler with GHCNd input: used LocStream with CS background, LS with uniform distributed points, and `MPI_GatherV`
+
+### Fixed
+
+- Fixed a bug in `generate_newnxy` in `MAPL_SwathGridFactory.F90` (`NX*NY=Ncore`)
+- Fixes for NVHPC 24.5
+  - Convert `MAPL_GeosatMaskMod` to "interface-in-both-files" submodule style
+
+## [2.46.2] - 2024-05-31
+
+### Removed
+
+- Remove excessive print statements in `generic/OpenMP_Support.F90`
 
 ## [2.46.1] - 2024-05-10
 

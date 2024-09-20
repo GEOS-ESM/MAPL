@@ -425,6 +425,7 @@ contains
     logical :: has_conservative_keyword, has_regrid_keyword
     integer :: create_mode
     character(len=:), allocatable :: uppercase_algorithm
+    character(len=2) :: tmpchar
 
 ! Begin
 !------
@@ -838,38 +839,49 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_algorithm_string, default='NONE', &
                                       label=trim(string) // 'quantize_algorithm:' ,_RC )
 
-       ! Uppercase the algorithm string just to allow for any case
-       uppercase_algorithm = ESMF_UtilStringUpperCase(list(n)%quantize_algorithm_string,_RC)
-       select case (trim(uppercase_algorithm))
-       case ('NONE')
-          list(n)%quantize_algorithm = MAPL_Quantize_Disabled
-       case ('BITGROOM')
-          list(n)%quantize_algorithm = MAPL_Quantize_BitGroom
-       case ('GRANULARBR')
-          list(n)%quantize_algorithm = MAPL_Quantize_GranularBR
-       case ('BITROUND')
-          list(n)%quantize_algorithm = MAPL_Quantize_BitRound
-       case default
-          _FAIL('Invalid quantize_algorithm. Allowed values are NONE, BitGroom, GranularBR, BitRound')
-       end select
-
        call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_level, default=0, &
                                       label=trim(string) // 'quantize_level:' ,_RC )
 
+       ! Uppercase the algorithm string just to allow for any case
+       ! CF Conventions will prefer 'bitgroom', 'bitround', and 'granular_bitround'
+       ! but we will allow 'GranularBR' in MAPL2, deprecate it, and remove it in MAPL3
+       uppercase_algorithm = ESMF_UtilStringUpperCase(list(n)%quantize_algorithm_string,_RC)
+       select case (trim(uppercase_algorithm))
+       case ('NONE')
+          list(n)%quantize_algorithm = MAPL_NOQUANTIZE
+          ! If quantize_algorithm is 0, then quantize_level must be 0
+          _ASSERT( list(n)%quantize_level == 0, 'quantize_algorithm is none, so quantize_level must be "none"')
+       case ('BITGROOM')
+          list(n)%quantize_algorithm = MAPL_QUANTIZE_BITGROOM
+       case ('GRANULARBR', 'GRANULAR_BITROUND')
+          list(n)%quantize_algorithm = MAPL_QUANTIZE_GRANULAR_BITROUND
+       case ('BITROUND')
+          list(n)%quantize_algorithm = MAPL_QUANTIZE_BITROUND
+       case default
+          _FAIL('Invalid quantize_algorithm. Allowed values are none, bitgroom, granular_bitround, granularbr (deprecated), and bitround')
+       end select
+
        ! If nbits_to_keep < MAPL_NBITS_UPPER_LIMIT (24) and quantize_algorithm greater than 0, then a user might be doing different
        ! shaving algorithms. We do not allow this
-       _ASSERT( .not. ( (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) .and. (list(n)%quantize_algorithm > 0) ), 'nbits < 24 and quantize_algorithm > 0 is not allowed. Choose one bit grooming method.')
-
-       ! quantize_algorithm must be between 0 and 3 where 0 means not enabled
-       _ASSERT( (list(n)%quantize_algorithm >= 0) .and. (list(n)%quantize_algorithm <= 3), 'quantize_algorithm must be between 0 and 3, where 0 means not enabled')
+       _ASSERT( .not. ( (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) .and. (list(n)%quantize_algorithm > MAPL_NOQUANTIZE) ), 'nbits < 24 and quantize_algorithm not "none" is not allowed. Choose a supported quantization method.')
 
        ! Now we test in the case that a valid quantize algorithm is chosen
-       if (list(n)%quantize_algorithm == 0) then
-         ! If quantize_algorithm is 0, then quantize_level must be 0
-          _ASSERT( list(n)%quantize_level == 0, 'quantize_algorithm is 0, so quantize_level must be 0')
-       else
+       if (list(n)%quantize_algorithm /= MAPL_NOQUANTIZE) then
          ! If quantize_algorithm is greater than 0, then quantize_level must be greater than or equal to 0
          _ASSERT( list(n)%quantize_level >= 0, 'netCDF quantize has been enabled, so quantize_level must be greater than or equal to 0')
+       end if
+
+       ! If a user has chosen MAPL_QUANTIZE_BITROUND, then we allow a maximum of 23 bits to be kept
+       if (list(n)%quantize_algorithm == MAPL_QUANTIZE_BITROUND) then
+          write(tmpchar, '(I2)') MAPL_QUANTIZE_MAX_NSB
+         _ASSERT( list(n)%quantize_level <= MAPL_QUANTIZE_MAX_NSB, 'netCDF bitround has been enabled, so number of significant bits (quantize_level) must be less than or equal to ' // trim(tmpchar))
+       end if
+
+       ! For MAPL_QUANTIZE_GRANULAR_BITROUND and MAPL_QUANTIZE_BITGROOM, these use number of
+       ! significant digits, so for single precision, we allow a maximum of 7 digits to be kept
+       if (list(n)%quantize_algorithm == MAPL_QUANTIZE_GRANULAR_BITROUND .or. list(n)%quantize_algorithm == MAPL_QUANTIZE_BITGROOM) then
+          write(tmpchar, '(I2)') MAPL_QUANTIZE_MAX_NSD
+         _ASSERT( list(n)%quantize_level <= MAPL_QUANTIZE_MAX_NSD, 'netCDF granular bitround or bitgroom has been enabled, so number of significant digits (quantize_level) must be less than or equal to ' // trim(tmpchar))
        end if
 
        tm_default = -1
@@ -2426,11 +2438,13 @@ ENDDO PARSER
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
-             list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,_RC)
+             call MAPL_TimerOn(GENSTATE,"mask_init")
+             list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,genstate=GENSTATE,_RC)
              call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             call MAPL_TimerOff(GENSTATE,"mask_init")
           elseif (list(n)%sampler_spec == 'station') then
-             list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, _RC)
-             call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             list(n)%station_sampler = StationSampler (list(n)%bundle, trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, genstate=GENSTATE, _RC)
+             call list(n)%station_sampler%add_metadata_route_handle(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
@@ -3706,11 +3720,9 @@ ENDDO PARSER
             call MAPL_TimerOff(GENSTATE,"Station")
          elseif (list(n)%sampler_spec == 'mask') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
-            call MAPL_TimerOn(GENSTATE,"Mask")
-            call MAPL_TimerOn(GENSTATE,"AppendFile")
+            call MAPL_TimerOn(GENSTATE,"Mask_append")
             call list(n)%mask_sampler%append_file(current_time,_RC)
-            call MAPL_TimerOff(GENSTATE,"AppendFile")
-            call MAPL_TimerOff(GENSTATE,"Mask")
+            call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif
 
 

@@ -2758,6 +2758,9 @@ contains
 
     logical :: good_grid
 
+    ! Return if no local points
+    _RETURN_IF(npts == 0)
+
     if ( .not. present(grid)) then
       _FAIL("need a cubed-sphere grid")
     endif
@@ -2806,9 +2809,6 @@ contains
 
     II = -1
     JJ = -1
-
-    ! Return if no local points
-   _RETURN_IF(npts == 0)
 
     ! The edge points are assigned in the order of face 1,2,3,4,5,6
     call calculate(x,y,z,II,JJ)
