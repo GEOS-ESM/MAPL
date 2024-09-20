@@ -151,9 +151,9 @@ module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
 end subroutine initialize_
 
 
-module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder, &
-     write_collection_id,regrid_hints,rc)
-  class (mask_sampler), intent(inout) :: this
+module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,&
+     nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
+  class (MaskSampler), intent(inout) :: this
   integer, optional, intent(in) :: deflation
   integer, optional, intent(in) :: quantize_algorithm
   integer, optional, intent(in) :: quantize_level
@@ -617,6 +617,7 @@ module subroutine  add_metadata(this,rc)
     character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
     character(len=40) :: datetime_units
 
+
     !__ 1. metadata add_dimension,
     !     add_variable for time, latlon, mask_points
     !
@@ -693,12 +694,13 @@ module subroutine  add_metadata(this,rc)
   end subroutine add_metadata
 
 
-
- module subroutine output_to_oserver(this,current_time,rc)
+ module subroutine output_to_server(this,current_time,filename,oClients,rc)
     implicit none
 
     class(MaskSampler), intent(inout) :: this
     type(ESMF_Time), intent(inout)          :: current_time
+    character(len=*), intent(in) :: filename
+    type (ClientManager), optional, intent(inout) :: oClients
     integer, optional, intent(out)          :: rc
     !
     integer :: status
@@ -729,7 +731,7 @@ module subroutine  add_metadata(this,rc)
     integer, allocatable :: global_count(:)
 
     ! __ s1. find local_start, global_start, etc.
-    this%obs_written=this%obs_written+1
+    this%obs_written=1
     
     ! -- fixed for all fields
     call ESMF_VMGetCurrent(vm,_RC)
@@ -769,7 +771,7 @@ module subroutine  add_metadata(this,rc)
     !if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
     !   call this%vdata%setup_eta_to_pressure(_RC)
     !endif
-
+    !
     iter = this%items%begin()
     do while (iter /= this%items%end())
        item => iter%get()
@@ -788,20 +790,7 @@ module subroutine  add_metadata(this,rc)
              allocate(global_start,source=[1,this%obs_written])
              allocate(global_count,source=[nx,1])
              call oClients%collective_stage_data(this%write_collection_id,trim(this%ofile),trim(item%xname), &
-                  ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-
-!!             nsend = nx
-!!             call MPI_gatherv ( p_dst_2d, nsend, MPI_REAL, &
-!!                  p_dst_2d_full, this%recvcounts, this%displs, MPI_REAL,&
-!!                  iroot, mpic, status )
-!!             _VERIFY(status)
-!!             call MAPL_TimerOn(this%GENSTATE,"put2D")
-!!             if (mapl_am_i_root()) then
-!!                call this%formatter%put_var(item%xname,p_dst_2d_full,&
-!!                     start=[1,this%obs_written],count=[this%npt_mask_tot,1],_RC)
-!!             end if
-!!             call MAPL_TimerOff(this%GENSTATE,"put2D")
-
+                  ref,start=local_start, global_start=global_start, global_count=global_count)
 
           else if (rank==3) then
              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
@@ -821,23 +810,7 @@ module subroutine  add_metadata(this,rc)
              allocate(global_start,source=[1,1,this%obs_written])
              allocate(global_count,source=[nx,nz,1])
              call oClients%collective_stage_data(this%write_collection_id,trim(this%ofile),trim(item%xname), &
-                  ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-
-!             nsend = nx * nz
-!             call MPI_gatherv ( p_dst_3d, nsend, MPI_REAL, &
-!                  p_dst_3d_full, recvcounts_3d, displs_3d, MPI_REAL,&
-!                  iroot, mpic, status )
-!             _VERIFY(status)
-!             call MAPL_TimerOn(this%GENSTATE,"put3D")
-!             if (mapl_am_i_root()) then
-!                allocate(arr(nz, this%npt_mask_tot), _STAT)
-!                arr=reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])
-!                call this%formatter%put_var(item%xname,arr,&
-!                     start=[1,1,this%obs_written],count=[nz,this%npt_mask_tot,1],_RC)
-!                !note:     lev,station,time
-!                deallocate(arr, _STAT)
-!             end if
-!             call MAPL_TimerOff(this%GENSTATE,"put3D")
+                  ref,start=local_start, global_start=global_start, global_count=global_count)
 
           else
              _FAIL('grid2LS regridder: rank > 3 not implemented')
@@ -848,74 +821,7 @@ module subroutine  add_metadata(this,rc)
     end do
 
     _RETURN(_SUCCESS)
-  end subroutine output_to_oserver
-
-
-
-  module subroutine create_file_handle(this,filename,rc)
-    class(MaskSampler), intent(inout) :: this
-    character(len=*), intent(in)            :: filename
-    integer, optional, intent(out)          :: rc
-    type(variable) :: v
-    integer :: status, j
-    real(kind=REAL64), allocatable :: x(:)
-    integer :: nx
-
-    this%ofile = trim(filename)
-    this%obs_written = 0
-
-    _RETURN(_SUCCESS)
-  end subroutine create_file_handle
-
-
-!!  outdated for putvar purpose
-!!  
-!!  module subroutine create_file_handle(this,filename,rc)
-!!    class(MaskSampler), intent(inout) :: this
-!!    character(len=*), intent(in)            :: filename
-!!    integer, optional, intent(out)          :: rc
-!!    type(variable) :: v
-!!    integer :: status, j
-!!    real(kind=REAL64), allocatable :: x(:)
-!!    integer :: nx
-!!
-!!    this%ofile = trim(filename)
-!!    v = this%time_info%define_time_variable(_RC)
-!!    call this%metadata%modify_variable('time',v,_RC)
-!!    this%obs_written = 0
-!!
-!!    if (.not. mapl_am_I_root()) then
-!!       _RETURN(_SUCCESS)
-!!    end if
-!!
-!!    call this%formatter%create(trim(filename),_RC)
-!!    call this%formatter%write(this%metadata,_RC)
-!!
-!!    nx = size (this%lons)
-!!    allocate ( x(nx), _STAT )
-!!    x(:) = this%lons(:) * MAPL_RADIANS_TO_DEGREES
-!!    call this%formatter%put_var('longitude',x,_RC)
-!!    x(:) = this%lats(:) * MAPL_RADIANS_TO_DEGREES
-!!    call this%formatter%put_var('latitude',x,_RC)
-!!!    call this%formatter%put_var('mask_id',this%mask_id,_RC)
-!!!    call this%formatter%put_var('mask_name',this%mask_name,_RC)
-!!
-!!    _RETURN(_SUCCESS)
-!!  end subroutine create_file_handle
-
-
-   module subroutine close_file_handle(this,rc)
-    class(MaskSampler), intent(inout) :: this
-    integer, optional, intent(out)          :: rc
-
-    integer :: status
-    if (trim(this%ofile) /= '') then
-       if (mapl_am_i_root()) then
-          call this%formatter%close(_RC)
-       end if
-    end if
-    _RETURN(_SUCCESS)
-  end subroutine close_file_handle
+  end subroutine output_to_server
 
 
   module function compute_time_for_current(this,current_time,rc) result(rtime)

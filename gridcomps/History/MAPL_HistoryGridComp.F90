@@ -3575,9 +3575,6 @@ ENDDO PARSER
             if (list(n)%unit.eq.0) then
                call lgr%debug('%a %a',&
                     "Mask_data output to new file:",trim(filename(n)))
-! start to use griddedio
-!               call list(n)%mask_sampler%close_file_handle(_RC)
-!               call list(n)%mask_sampler%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if

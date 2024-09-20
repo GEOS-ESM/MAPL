@@ -48,7 +48,7 @@ module MaskSamplerMod
      type(ESMF_Clock)         :: clock
      type(ESMF_Time)          :: RingTime
      type(ESMF_TimeInterval)  :: epoch_frequency
-     type(FileMetadata)       :: metadata
+     type(FileMetadata),public:: metadata
      type(NetCDF4_FileFormatter) :: formatter
      character(len=ESMF_MAXSTR)  :: ofile
      integer :: write_collection_id
@@ -98,8 +98,7 @@ module MaskSamplerMod
    contains
      procedure :: initialize => initialize_
      procedure :: add_metadata
-     procedure :: create_file_handle
-     procedure :: close_file_handle
+!!     procedure :: create_file_handle
      procedure :: append_file => output_to_server
 !     procedure :: create_new_bundle
      procedure :: create_grid => create_Geosat_grid_find_mask
@@ -141,12 +140,20 @@ module MaskSamplerMod
        integer, optional, intent(out)          :: rc
      end subroutine create_Geosat_grid_find_mask
 
-!!     module function create_new_bundle(this,rc) result(new_bundle)
-!!       class(MaskSampler), intent(inout) :: this
-!!       type(ESMF_FieldBundle)                  :: new_bundle
-!!       integer, optional, intent(out)          :: rc
-!!     end function create_new_bundle
-
+!!     module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
+!!        class (MaskSampler), intent(inout) :: this
+!!        integer, optional, intent(in) :: deflation
+!!        integer, optional, intent(in) :: quantize_algorithm
+!!        integer, optional, intent(in) :: quantize_level
+!!        integer, optional, intent(in) :: chunking(:)
+!!        integer, optional, intent(in) :: nbits_to_keep
+!!        integer, optional, intent(in) :: regrid_method
+!!        logical, optional, intent(in) :: itemOrder
+!!        integer, optional, intent(in) :: write_collection_id
+!!        integer, optional, intent(in) :: regrid_hints
+!!        integer, optional, intent(out) :: rc
+!!     end subroutine set_param
+     
      !!     module subroutine  add_metadata(this,currTime,rc)
      module subroutine  add_metadata(this,rc)
        class(MaskSampler), intent(inout) :: this
@@ -164,21 +171,37 @@ module MaskSamplerMod
        integer, optional, intent(out)          :: rc
      end subroutine close_file_handle
 
-     module subroutine append_file(this,current_time,rc)
-       class(MaskSampler), intent(inout) :: this
+     module subroutine output_to_server(this,current_time,filename,oClients,rc)
+       class(MaskSampler), intent(inout)       :: this
        type(ESMF_Time), intent(inout)          :: current_time
+       character(len=*), intent(in)            :: filename
+       type (ClientManager), optional, intent(inout) :: oClients
        integer, optional, intent(out)          :: rc
-     end subroutine append_file
+     end subroutine output_to_server
 
      module subroutine append_file_oserver(this,current_time,rc)
        class(MaskSampler), intent(inout) :: this
        type(ESMF_Time), intent(inout)          :: current_time
        integer, optional, intent(out)          :: rc
      end subroutine append_file_oserver
+
+     module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,&
+          nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
+       class (MaskSampler), intent(inout) :: this
+       integer, optional, intent(in) :: deflation
+       integer, optional, intent(in) :: quantize_algorithm
+       integer, optional, intent(in) :: quantize_level
+       integer, optional, intent(in) :: chunking(:)
+       integer, optional, intent(in) :: nbits_to_keep
+       integer, optional, intent(in) :: regrid_method
+       logical, optional, intent(in) :: itemOrder
+       integer, optional, intent(in) :: write_collection_id
+       integer, optional, intent(in) :: regrid_hints
+       integer, optional, intent(out) :: rc
+     end subroutine set_param
      
      module function compute_time_for_current(this,current_time,rc) result(rtime)
        use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
-
        class(MaskSampler), intent(inout) :: this
        type(ESMF_Time), intent(in) :: current_time
        integer, optional, intent(out) :: rc
