@@ -10,7 +10,8 @@ module mapl3g_WeightComputation
    implicit none
    private
 
-   public :: get_weights_fixedlevels_to_fixedlevels_linear
+   public :: compute_linear_map_fixedlevels_to_fixedlevels
+   public :: apply_linear_map
 
    type IndexValuePair
       integer :: index
@@ -19,9 +20,17 @@ module mapl3g_WeightComputation
 
 contains
 
-   ! Compute linear interpolation transformation matrix (src*matrix = dst) when doing
-   ! vertical regridding from fixed-levels vertical grid to fixed-levels vertical grid
-   subroutine get_weights_fixedlevels_to_fixedlevels_linear(src, dst, matrix, rc)
+   subroutine apply_linear_map(matrix, fin, fout)
+      real(REAL32), intent(in) :: matrix(:, :)
+      real(REAL32), intent(in) :: fin(:)
+      real(REAL32), allocatable, intent(out) :: fout(:)
+
+      fout = matmul(matrix, fin)
+   end subroutine apply_linear_map
+
+   ! Compute linear interpolation transformation matrix (src*matrix = dst)
+   ! when regridding (vertical) from fixed-levels to fixed-levels
+   subroutine compute_linear_map_fixedlevels_to_fixedlevels(src, dst, matrix, rc)
       real(REAL32), intent(in) :: src(:)
       real(REAL32), intent(in) :: dst(:)
       ! type(CSR_SparseMatrix_sp), intent(out) :: matrix ! size of horz dims
@@ -45,7 +54,7 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-   end subroutine get_weights_fixedlevels_to_fixedlevels_linear
+   end subroutine compute_linear_map_fixedlevels_to_fixedlevels
 
    ! Find array bracket containing val
    ! ASSUME: array is monotonic
