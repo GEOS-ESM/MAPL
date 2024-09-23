@@ -30,6 +30,7 @@ contains
 
    ! Compute linear interpolation transformation matrix (src*matrix = dst)
    ! when regridding (vertical) from fixed-levels to fixed-levels
+   ! NOTE: find_bracket_ below ASSUMEs that src array is monotonic and decreasing
    subroutine compute_linear_map_fixedlevels_to_fixedlevels(src, dst, matrix, rc)
       real(REAL32), intent(in) :: src(:)
       real(REAL32), intent(in) :: dst(:)
@@ -57,7 +58,7 @@ contains
    end subroutine compute_linear_map_fixedlevels_to_fixedlevels
 
    ! Find array bracket containing val
-   ! ASSUME: array is monotonic
+   ! ASSUME: array is monotonic and decreasing
    subroutine find_bracket_(val, array, pair)
       real(REAL32), intent(in) :: val
       real(REAL32), intent(in) :: array(:)
