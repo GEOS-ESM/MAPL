@@ -13,7 +13,7 @@ set(cutoff "7")
 # be skipped for ESSENTIAL testing. Most ExtData tests
 # take 1-2 seconds at most, but some take 20-30 seconds.
 set(SLOW_TESTS
-  "case6"
+  "case06"
   "case14"
   "case15"
   "case16"
