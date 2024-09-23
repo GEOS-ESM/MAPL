@@ -97,10 +97,7 @@ contains
 
       num = 0
       spec_name = get_vertical_dim_spec_info(info, _RC)
-      if(spec_name==VERT_DIM_NONE) then
-         _RETURN(_SUCCESS)
-      end if
-
+      _RETURN_IF(spec_name == VERT_DIM_NONE)
       call ESMF_InfoGet(info, key=KEY_NUM_LEVELS, value=num, _RC)
       _RETURN(_SUCCESS)
 
