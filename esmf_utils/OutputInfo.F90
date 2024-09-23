@@ -162,7 +162,7 @@ contains
       isPresent = ESMF_InfoIsPresent(info, key=KEY_VLOC, _RC)
       _ASSERT(isPresent, 'Failed to get vertical dim spec name.')
       call ESMF_InfoGet(info, key=KEY_VLOC, value=raw, _RC)
-      spec_name = trim(adjustl(tmp_name))
+      spec_name = trim(adjustl(raw))
 
       _RETURN(_SUCCESS)
 
@@ -265,7 +265,7 @@ contains
          call ESMF_InfoPrint(info, unit=json_repr, _RC)
          _FAIL('Key ' // trim(key) // ' not found in ' // trim(json_repr))
       end if
-      dim_info = ESMF_InfoCreate(info, key=trim(adjust(raw)), _RC)
+      dim_info = ESMF_InfoCreate(info, key=trim(adjustl(raw)), _RC)
       call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_NAME, value=raw, _RC)
       name = trim(adjustl(raw))
       call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_UNITS, value=raw, _RC)
