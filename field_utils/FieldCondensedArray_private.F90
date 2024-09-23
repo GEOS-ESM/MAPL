@@ -5,13 +5,15 @@ module mapl3g_FieldCondensedArray_private
    implicit none
 
    private
-   public :: get_fptr_shape
+   public :: get_fptr_shape, ARRAY_RANK
+
+   integer, parameter :: ARRAY_RANK = 3
 
 contains
 
    function get_fptr_shape(gridToFieldMap, localElementCount, has_vertical, rc) &
          &result(fptr_shape)
-      integer :: fptr_shape(3)
+      integer :: fptr_shape(ARRAY_RANK)
       integer, intent(in) :: gridToFieldMap(:)
       integer, intent(in) :: localElementCount(:)
       logical, intent(in) :: has_vertical

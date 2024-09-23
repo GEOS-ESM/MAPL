@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 module mapl3g_FieldCondensedArray
    use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer
-   use mapl3g_FieldCondensedArray_private, only: get_shape => get_fptr_shape
+   use mapl3g_FieldCondensedArray_private, only: ARRAY_RANK, get_shape => get_fptr_shape
    use mapl3g_output_info, only: get_vertical_dim_spec_name
    use MAPL_FieldPointerUtilities, only: FieldGetLocalElementCount, FieldGetCptr
    use MAPL_ExceptionHandling
@@ -24,7 +24,7 @@ contains
       real(kind=ESMF_KIND_R4), pointer, intent(out) :: fptr(:,:,:)
       integer, optional, intent(out) :: rc
       type(c_ptr) :: cptr
-      integer(ESMF_KIND_I8) :: fp_shape(3)
+      integer(ESMF_KIND_I8) :: fp_shape(ARRAY_RANK)
       integer :: status
 
       fp_shape = get_fptr_shape(x, _RC)
@@ -39,7 +39,7 @@ contains
       real(kind=ESMF_KIND_R8), pointer, intent(out) :: fptr(:,:,:)
       integer, optional, intent(out) :: rc
       type(c_ptr) :: cptr
-      integer(ESMF_KIND_I8) :: fp_shape(3)
+      integer(ESMF_KIND_I8) :: fp_shape(ARRAY_RANK)
       integer :: status
 
       fp_shape = get_fptr_shape(x, _RC)
@@ -50,7 +50,7 @@ contains
    end subroutine assign_fptr_condensed_array_r8
 
    function get_fptr_shape(f, rc) result(fptr_shape)
-      integer :: fptr_shape(3)
+      integer :: fptr_shape(ARRAY_RANK)
       type(ESMF_Field), intent(inout) :: f
       integer, optional, intent(out) :: rc
       integer :: status
