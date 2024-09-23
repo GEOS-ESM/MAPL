@@ -5,7 +5,7 @@ module mapl3g_FieldCondensedArray_private
    implicit none
 
    private
-   public :: get_fptr_shape, only: FieldGetLocalElementCount
+   public :: get_fptr_shape
 
 contains
 

@@ -168,21 +168,6 @@ contains
 
    end function get_vertical_dim_spec_info
 
-!   function get_vertical_dim_spec_info(info, rc) result(spec_name)
-!      character(len=ESMF_MAXSTR) :: spec_name
-!      type(ESMF_Info), intent(in) :: info
-!      integer, optional, intent(out) :: rc
-!      integer :: status
-!      logical :: isPresent
-!      character, parameter :: error_message = 'Failed to get vertical dim spec name.'
-!
-!      isPresent = ESMF_InfoIsPresent(info, key=KEY_VLOC, _RC)
-!      _ASSERT(isPresent, error_message)
-!      call ESMF_InfoGet(info, key=KEY_VLOC, value=spec_name, _RC)
-!      _RETURN(_SUCCESS)
-!
-!   end function get_vertical_dim_spec_info
-
    function get_ungridded_dims_bundle(bundle, rc) result(dims)
       type(UngriddedDims) :: dims
       type(ESMF_FieldBundle), intent(in) :: bundle
