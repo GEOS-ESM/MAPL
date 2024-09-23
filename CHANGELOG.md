@@ -9,9 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added 5 new ExtData tests to test compression, bit-shaving, and quantization
+
 ### Changed
 
-- Add restart benchmark code `restart_simulator.x` in bechmark directory
+- Rename all single-digit ExtData tests to have a leading zero (i.e., `case1` -> `case01`)
+- Add restart benchmark code `restart_simulator.x` in benchmark directory
 - Start implementing changes for vertical regridding in ExtData
 - Made the POSITIVE field attribute defaults to "down" in case it is not found
 - VLOCATION is not querried in MAPL_VerticalMethods.F90 for rank 2 fields
