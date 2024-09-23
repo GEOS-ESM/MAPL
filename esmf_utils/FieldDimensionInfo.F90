@@ -1,5 +1,5 @@
 #include "MAPL_Generic.h"
-module mapl3g_output_info
+module mapl3g_FieldDimensionInfo
 
    use mapl3g_UngriddedDim
    use mapl3g_UngriddedDimVector
@@ -342,4 +342,4 @@ contains
 
    end subroutine destroy_bundle_info
 
-end module mapl3g_output_info
+end module mapl3g_FieldDimensionInfo

@@ -1,7 +1,6 @@
 #include "MAPL_Generic.h"
 
 module MAPL_FieldPointerUtilities
-!   use mapl3g_output_info, only: get_vertical_dim_spec_name
    use ESMF
    use MAPL_ExceptionHandling
    use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc
@@ -79,6 +78,7 @@ module MAPL_FieldPointerUtilities
    interface MAPL_FieldDestroy
       procedure destroy
    end interface
+
 contains
 
    subroutine assign_fptr_r4_rank1(x, fptr, rc)
@@ -129,6 +129,7 @@ contains
       type(c_ptr) :: cptr
       integer :: status
 
+      _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
       call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
 
@@ -145,11 +146,46 @@ contains
       type(c_ptr) :: cptr
       integer :: status
 
+      _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
       call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
 
       _RETURN(_SUCCESS)
    end subroutine assign_fptr_r8_rank2
+
+   subroutine assign_fptr_r4_rank3(x, fp_shape, fptr, rc)
+      type(ESMF_Field), intent(inout) :: x
+      integer(ESMF_KIND_I8), intent(in) :: fp_shape(:)
+      real(kind=ESMF_KIND_R4), pointer, intent(out) :: fptr(:,:,:)
+      integer, optional, intent(out) :: rc
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer :: status
+
+      _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
+      call FieldGetCptr(x, cptr, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_r4_rank3
+
+   subroutine assign_fptr_r8_rank3(x, fp_shape, fptr, rc)
+      type(ESMF_Field), intent(inout) :: x
+      integer(ESMF_KIND_I8), intent(in) :: fp_shape(:)
+      real(kind=ESMF_KIND_R8), pointer, intent(out) :: fptr(:,:,:)
+      integer, optional, intent(out) :: rc
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer :: status
+
+      _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
+      call FieldGetCptr(x, cptr, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_r8_rank3
 
    subroutine get_cptr(x, cptr, rc)
       type(ESMF_Field), intent(inout) :: x

@@ -2,7 +2,7 @@
 module mapl3g_FieldCondensedArray
    use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer
    use mapl3g_FieldCondensedArray_private, only: ARRAY_RANK, get_shape => get_fptr_shape
-   use mapl3g_output_info, only: get_vertical_dim_spec_name
+   use mapl3g_FieldDimensionInfo, only: get_vertical_dim_spec_name
    use MAPL_FieldPointerUtilities, only: FieldGetLocalElementCount, FieldGetCptr
    use MAPL_ExceptionHandling
    use ESMF, only: ESMF_Field, ESMF_FieldGet
@@ -23,13 +23,11 @@ contains
       type(ESMF_Field), intent(inout) :: x
       real(kind=ESMF_KIND_R4), pointer, intent(out) :: fptr(:,:,:)
       integer, optional, intent(out) :: rc
-      type(c_ptr) :: cptr
       integer(ESMF_KIND_I8) :: fp_shape(ARRAY_RANK)
       integer :: status
 
       fp_shape = get_fptr_shape(x, _RC)
-      call FieldGetCptr(x, cptr, _RC)
-      call c_f_pointer(cptr, fptr, fp_shape)
+      call assign_fptr(x, fp_shape, fptr, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine assign_fptr_condensed_array_r4
@@ -43,8 +41,7 @@ contains
       integer :: status
 
       fp_shape = get_fptr_shape(x, _RC)
-      call FieldGetCptr(x, cptr, _RC)
-      call c_f_pointer(cptr, fptr, fp_shape)
+      call assign_fptr(x, fp_shape, fptr, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine assign_fptr_condensed_array_r8
