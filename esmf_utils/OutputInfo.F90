@@ -93,13 +93,11 @@ contains
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
       integer :: status
-      logical :: is_none
       character(len=:), allocatable :: spec_name
 
       num = 0
       spec_name = get_vertical_dim_spec_info(info, _RC)
-      is_none = (VERT_DIM_NONE == spec_name)
-      if(is_none) then
+      if(spec_name==VERT_DIM_NONE) then
          _RETURN(_SUCCESS)
       end if
 
