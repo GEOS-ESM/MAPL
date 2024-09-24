@@ -38,7 +38,7 @@ contains
          
          associate(kind => child_meta%component_spec%geometry_spec%kind)
            _RETURN_IF(kind /= GEOMETRY_FROM_PARENT)
-           
+
            if (allocated(this%geom)) then
               call child_meta%set_geom(this%geom)
            end if

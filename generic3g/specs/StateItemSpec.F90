@@ -3,13 +3,33 @@
 module mapl3g_StateItemSpec
    use mapl_ErrorHandling
    use mapl3g_ActualPtVector
+   use mapl3g_ExtensionAction
    use gftl2_stringvector
    implicit none
    private
 
    public :: StateItemSpec
    public :: StateItemSpecPtr
-  
+   public :: StateItemAdapter
+   public :: StateItemAdapterWrapper
+
+   ! Concrete adapter subclasses are used to identify members of an
+   ! ExtensionFamily that match some aspect of a "goal" spec.  A
+   ! sequence of adapters can then be used.  Note that to avoid
+   ! circularity, Adapters actually act on an array of ptr wrappers of
+   ! StateItemSpecs.
+   type, abstract :: StateItemAdapter
+   contains
+      generic :: adapt => adapt_one
+      generic :: match => match_one
+      procedure(I_adapt_one), deferred :: adapt_one
+      procedure(I_match_one), deferred :: match_one
+   end type StateItemAdapter
+
+   type :: StateItemAdapterWrapper
+      class(StateItemAdapter), allocatable :: adapter
+   end type StateItemAdapterWrapper
+
    type, abstract :: StateItemSpec
       private
 
@@ -26,8 +46,7 @@ module mapl3g_StateItemSpec
 
       procedure(I_connect), deferred :: connect_to
       procedure(I_can_connect), deferred :: can_connect_to
-      procedure(I_make_extension), deferred :: make_extension
-      procedure(I_extension_cost), deferred :: extension_cost
+      procedure(I_make_adapters), deferred :: make_adapters
 
       procedure(I_add_to_state), deferred :: add_to_state
       procedure(I_add_to_bundle), deferred :: add_to_bundle
@@ -49,6 +68,26 @@ module mapl3g_StateItemSpec
    end type StateItemSpecPtr
 
    abstract interface
+
+      ! Modify "this" to match attribute in spec.
+      subroutine I_adapt_one(this, spec, action, rc)
+         import StateItemAdapter
+         import StateItemSpec
+         import ExtensionAction
+         class(StateItemAdapter), intent(in) :: this
+         class(StateItemSpec), intent(inout) :: spec
+         class(ExtensionAction), allocatable, intent(out) :: action
+         integer, optional, intent(out) :: rc
+      end subroutine I_adapt_one
+
+
+      ! Detect if "this" matches attribute in spec.
+      logical function I_match_one(this, spec) result(match)
+         import StateItemAdapter
+         import StateItemSpec
+         class(StateItemAdapter), intent(in) :: this
+         class(StateItemSpec), intent(in) :: spec
+      end function I_match_one
 
       subroutine I_connect(this, src_spec, actual_pt, rc)
          use mapl3g_ActualConnectionPt
@@ -86,23 +125,6 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_allocate
 
-      subroutine I_make_extension(this, dst_spec, new_spec, action, rc)
-         use mapl3g_ExtensionAction
-         import StateItemSpec
-         class(StateItemSpec), intent(in) :: this
-         class(StateItemSpec), intent(in) :: dst_spec
-         class(StateItemSpec), allocatable, intent(out) :: new_spec
-         class(ExtensionAction), allocatable, intent(out) :: action
-         integer, optional, intent(out) :: rc
-      end subroutine I_make_extension
-
-      integer function I_extension_cost(this, src_spec, rc) result(cost)
-         import StateItemSpec
-         class(StateItemSpec), intent(in) :: this
-         class(StateItemSpec), intent(in) :: src_spec
-         integer, optional, intent(out) :: rc
-       end function I_extension_cost
-
       subroutine I_add_to_state(this, multi_state, actual_pt, rc)
          use mapl3g_MultiState
          use mapl3g_ActualConnectionPt
@@ -132,6 +154,22 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_set_geometry
 
+
+      ! Returns an ordered list of adapters that priorities matching
+      ! rules for connecting a family of extension to a goal spec.
+      ! The intent is that the adapters are ordered to prioritize
+      ! coupling to avoid more expensive and/or diffusive couplers.
+      ! E.g., The first adapter for a FieldSpec is expected to be
+      ! a GeomAdapter so that a new RegridAction is only needed when
+      ! no existing extensions match the geom of the goal_spec.
+      function I_make_adapters(this, goal_spec, rc) result(adapters)
+         import StateItemSpec
+         import StateItemAdapterWrapper
+         type(StateItemAdapterWrapper), allocatable :: adapters(:)
+         class(StateItemSpec), intent(in) :: this
+         class(StateItemSpec), intent(in) :: goal_spec
+         integer, optional, intent(out) :: rc
+      end function I_make_adapters
    end interface
 
 contains

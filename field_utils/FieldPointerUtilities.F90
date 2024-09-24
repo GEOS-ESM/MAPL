@@ -31,6 +31,8 @@ module MAPL_FieldPointerUtilities
       module procedure assign_fptr_r8_rank1
       module procedure assign_fptr_r4_rank2
       module procedure assign_fptr_r8_rank2
+      module procedure assign_fptr_r4_rank3
+      module procedure assign_fptr_r8_rank3
    end interface assign_fptr
 
    interface FieldGetCptr
@@ -78,8 +80,8 @@ module MAPL_FieldPointerUtilities
    interface MAPL_FieldDestroy
       procedure destroy
    end interface
-contains
 
+contains
 
    subroutine assign_fptr_r4_rank1(x, fptr, rc)
       type(ESMF_Field), intent(inout) :: x
@@ -129,6 +131,7 @@ contains
       type(c_ptr) :: cptr
       integer :: status
 
+      _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
       call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
 
@@ -145,11 +148,46 @@ contains
       type(c_ptr) :: cptr
       integer :: status
 
+      _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
       call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
 
       _RETURN(_SUCCESS)
    end subroutine assign_fptr_r8_rank2
+
+   subroutine assign_fptr_r4_rank3(x, fp_shape, fptr, rc)
+      type(ESMF_Field), intent(inout) :: x
+      integer(ESMF_KIND_I8), intent(in) :: fp_shape(:)
+      real(kind=ESMF_KIND_R4), pointer, intent(out) :: fptr(:,:,:)
+      integer, optional, intent(out) :: rc
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer :: status
+
+      _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
+      call FieldGetCptr(x, cptr, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_r4_rank3
+
+   subroutine assign_fptr_r8_rank3(x, fp_shape, fptr, rc)
+      type(ESMF_Field), intent(inout) :: x
+      integer(ESMF_KIND_I8), intent(in) :: fp_shape(:)
+      real(kind=ESMF_KIND_R8), pointer, intent(out) :: fptr(:,:,:)
+      integer, optional, intent(out) :: rc
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer :: status
+
+      _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
+      call FieldGetCptr(x, cptr, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_r8_rank3
 
    subroutine get_cptr(x, cptr, rc)
       type(ESMF_Field), intent(inout) :: x
@@ -525,7 +563,7 @@ contains
       _RETURN(_SUCCESS)
    end function are_same_type_kind
 
-    subroutine verify_typekind_scalar(x, expected_tk, rc)
+   subroutine verify_typekind_scalar(x, expected_tk, rc)
       type(ESMF_Field), intent(inout) :: x
       type(ESMF_TypeKind_Flag), intent(in) :: expected_tk
       integer, optional, intent(out) :: rc
@@ -720,7 +758,7 @@ contains
       call FieldGetCptr(y, cptr_y, _RC)
       call ESMF_FieldGet(y, typekind = tk_y, _RC)
 
-     !wdb  fixme convert between precisions ? get rid of extra cases
+      !wdb  fixme convert between precisions ? get rid of extra cases
       y_is_double = (tk_y == ESMF_TYPEKIND_R8)
       _ASSERT(y_is_double .or. (tk_y == ESMF_TYPEKIND_R4), UNSUPPORTED_TK//'y.')
 
@@ -796,159 +834,160 @@ contains
       y_ptr=x_ptr
    end subroutine copy_r8_r8
 
-! this procedure must go away as soon as ESMF Fixes their bug
+   ! this procedure must go away as soon as ESMF Fixes their bug
 
-  subroutine MAPL_FieldGetLocalElementCount(field,local_count,rc)
-     type(ESMF_Field), intent(inout) :: field
-     integer, allocatable, intent(out) :: local_count(:)
-     integer, optional, intent(out) :: rc
+   subroutine MAPL_FieldGetLocalElementCount(field,local_count,rc)
+      type(ESMF_Field), intent(inout) :: field
+      integer, allocatable, intent(out) :: local_count(:)
+      integer, optional, intent(out) :: rc
 
-     integer :: status, rank
-     type(ESMF_TypeKind_Flag) :: tk
+      integer :: status, rank
+      type(ESMF_TypeKind_Flag) :: tk
 
-     real(kind=ESMF_KIND_R4), pointer :: r4_1d(:),r4_2d(:,:),r4_3d(:,:,:),r4_4d(:,:,:,:)
-     real(kind=ESMF_KIND_R8), pointer :: r8_1d(:),r8_2d(:,:),r8_3d(:,:,:),r8_4d(:,:,:,:)
+      real(kind=ESMF_KIND_R4), pointer :: r4_1d(:),r4_2d(:,:),r4_3d(:,:,:),r4_4d(:,:,:,:)
+      real(kind=ESMF_KIND_R8), pointer :: r8_1d(:),r8_2d(:,:),r8_3d(:,:,:),r8_4d(:,:,:,:)
 
-     call ESMF_FieldGet(field,rank=rank,typekind=tk,_RC)
-     if (tk == ESMF_TypeKind_R4) then
-        if (rank==1) then
-           call ESMF_FieldGet(field,0,farrayptr=r4_1d,_RC)
-           local_count = shape(r4_1d)
-        else if (rank ==2) then
-           call ESMF_FieldGet(field,0,farrayptr=r4_2d,_RC)
-           local_count = shape(r4_2d)
-        else if (rank ==3) then
-           call ESMF_FieldGet(field,0,farrayptr=r4_3d,_RC)
-           local_count = shape(r4_3d)
-        else if (rank ==4) then
-           call ESMF_FieldGet(field,0,farrayptr=r4_4d,_RC)
-           local_count = shape(r4_4d)
-        else
-           _FAIL("Unsupported rank")
-        end if
-     else if (tk == ESMF_TypeKind_R8) then
-        if (rank==1) then
-           call ESMF_FieldGet(field,0,farrayptr=r8_1d,_RC)
-           local_count = shape(r8_1d)
-        else if (rank ==2) then
-           call ESMF_FieldGet(field,0,farrayptr=r8_2d,_RC)
-           local_count = shape(r8_2d)
-        else if (rank ==3) then
-           call ESMF_FieldGet(field,0,farrayptr=r8_3d,_RC)
-           local_count = shape(r8_3d)
-        else if (rank ==4) then
-           call ESMF_FieldGet(field,0,farrayptr=r8_4d,_RC)
-           local_count = shape(r8_4d)
-        else
-           _FAIL("Unsupported rank")
-        end if
-     else
-        _FAIL("Unsupported type")
-     end if
-     _RETURN(_SUCCESS)
-  end subroutine MAPL_FieldGetLocalElementCount
+      call ESMF_FieldGet(field,rank=rank,typekind=tk,_RC)
+      if (tk == ESMF_TypeKind_R4) then
+         if (rank==1) then
+            call ESMF_FieldGet(field,0,farrayptr=r4_1d,_RC)
+            local_count = shape(r4_1d)
+         else if (rank ==2) then
+            call ESMF_FieldGet(field,0,farrayptr=r4_2d,_RC)
+            local_count = shape(r4_2d)
+         else if (rank ==3) then
+            call ESMF_FieldGet(field,0,farrayptr=r4_3d,_RC)
+            local_count = shape(r4_3d)
+         else if (rank ==4) then
+            call ESMF_FieldGet(field,0,farrayptr=r4_4d,_RC)
+            local_count = shape(r4_4d)
+         else
+            _FAIL("Unsupported rank")
+         end if
+      else if (tk == ESMF_TypeKind_R8) then
+         if (rank==1) then
+            call ESMF_FieldGet(field,0,farrayptr=r8_1d,_RC)
+            local_count = shape(r8_1d)
+         else if (rank ==2) then
+            call ESMF_FieldGet(field,0,farrayptr=r8_2d,_RC)
+            local_count = shape(r8_2d)
+         else if (rank ==3) then
+            call ESMF_FieldGet(field,0,farrayptr=r8_3d,_RC)
+            local_count = shape(r8_3d)
+         else if (rank ==4) then
+            call ESMF_FieldGet(field,0,farrayptr=r8_4d,_RC)
+            local_count = shape(r8_4d)
+         else
+            _FAIL("Unsupported rank")
+         end if
+      else
+         _FAIL("Unsupported type")
+      end if
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_FieldGetLocalElementCount
 
-  function FieldsHaveUndef(fields,rc) result(all_have_undef)
-     logical :: all_have_undef
-     type(ESMF_Field), intent(inout) :: fields(:)
-     integer, optional, intent(out) :: rc
+   function FieldsHaveUndef(fields,rc) result(all_have_undef)
+      logical :: all_have_undef
+      type(ESMF_Field), intent(inout) :: fields(:)
+      integer, optional, intent(out) :: rc
 
-     integer :: status, i
-     logical :: isPresent
-     type(ESMF_Info) :: infoh
+      integer :: status, i
+      logical :: isPresent
+      type(ESMF_Info) :: infoh
 
-     all_have_undef = .true.
-     do i =1,size(fields)
-        call ESMF_InfoGetFromHost(fields(i),infoh,_RC)
-        isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
-        all_have_undef = (all_have_undef .and. isPresent)
-     enddo
-     _RETURN(_SUCCESS)
-  end function
+      all_have_undef = .true.
+      do i =1,size(fields)
+         call ESMF_InfoGetFromHost(fields(i),infoh,_RC)
+         isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
+         all_have_undef = (all_have_undef .and. isPresent)
+      enddo
+      _RETURN(_SUCCESS)
+   end function
 
-  subroutine GetFieldsUndef_r4(fields,undef_values,rc)
-     type(ESMF_Field), intent(inout) :: fields(:)
-     real(kind=ESMF_KIND_R4), allocatable,intent(inout) :: undef_values(:)
-     integer, optional, intent(out) :: rc
+   subroutine GetFieldsUndef_r4(fields,undef_values,rc)
+      type(ESMF_Field), intent(inout) :: fields(:)
+      real(kind=ESMF_KIND_R4), allocatable,intent(inout) :: undef_values(:)
+      integer, optional, intent(out) :: rc
 
-     integer :: status, i
-     logical :: isPresent
-     type(ESMF_Info) :: infoh
+      integer :: status, i
+      logical :: isPresent
+      type(ESMF_Info) :: infoh
 
-     allocate(undef_values(size(fields)))
-     do i =1,size(fields)
-        call ESMF_InfoGetFromHost(fields(i),infoh,_RC)
-        isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
-        _ASSERT(isPresent,"missing undef value")
-        call ESMF_InfoGet(infoh,value=undef_values(i),key="missing_value",_RC)
-     enddo
-     _RETURN(_SUCCESS)
-  end subroutine GetFieldsUndef_r4
+      allocate(undef_values(size(fields)))
+      do i =1,size(fields)
+         call ESMF_InfoGetFromHost(fields(i),infoh,_RC)
+         isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
+         _ASSERT(isPresent,"missing undef value")
+         call ESMF_InfoGet(infoh,value=undef_values(i),key="missing_value",_RC)
+      enddo
+      _RETURN(_SUCCESS)
+   end subroutine GetFieldsUndef_r4
 
-  subroutine GetFieldsUndef_r8(fields,undef_values,rc)
-     type(ESMF_Field), intent(inout) :: fields(:)
-     real(kind=ESMF_KIND_R8), allocatable,intent(inout) :: undef_values(:)
-     integer, optional, intent(out) :: rc
+   subroutine GetFieldsUndef_r8(fields,undef_values,rc)
+      type(ESMF_Field), intent(inout) :: fields(:)
+      real(kind=ESMF_KIND_R8), allocatable,intent(inout) :: undef_values(:)
+      integer, optional, intent(out) :: rc
 
-     integer :: status, i
-     logical :: isPresent
-     type(ESMF_Info) :: infoh
+      integer :: status, i
+      logical :: isPresent
+      type(ESMF_Info) :: infoh
 
-     allocate(undef_values(size(fields)))
-     do i =1,size(fields)
-        call ESMF_InfoGetFromHost(fields(i),infoh,_RC)
-        isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
-        _ASSERT(isPresent,"missing undef value")
-        call ESMF_InfoGet(infoh,value=undef_values(i),key="missing_value",_RC)
-     enddo
-     _RETURN(_SUCCESS)
-  end subroutine GetFieldsUndef_r8
+      allocate(undef_values(size(fields)))
+      do i =1,size(fields)
+         call ESMF_InfoGetFromHost(fields(i),infoh,_RC)
+         isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
+         _ASSERT(isPresent,"missing undef value")
+         call ESMF_InfoGet(infoh,value=undef_values(i),key="missing_value",_RC)
+      enddo
+      _RETURN(_SUCCESS)
+   end subroutine GetFieldsUndef_r8
 
-subroutine Destroy(Field,RC)
-    type(ESMF_Field),          intent(INOUT) :: Field
-    integer, optional,         intent(OUT  ) :: RC
+   subroutine Destroy(Field,RC)
+      type(ESMF_Field),          intent(INOUT) :: Field
+      integer, optional,         intent(OUT  ) :: RC
 
-    integer                               :: STATUS
+      integer                               :: STATUS
 
-    real(kind=ESMF_KIND_R4), pointer      :: VR4_1D(:), VR4_2D(:,:), VR4_3D(:,:,:), VR4_4D(:,:,:,:)
-    real(kind=ESMF_KIND_R8), pointer      :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
-    integer                      :: rank
-    type(ESMF_TypeKind_Flag)     :: tk
-    logical :: esmf_allocated
+      real(kind=ESMF_KIND_R4), pointer      :: VR4_1D(:), VR4_2D(:,:), VR4_3D(:,:,:), VR4_4D(:,:,:,:)
+      real(kind=ESMF_KIND_R8), pointer      :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
+      integer                      :: rank
+      type(ESMF_TypeKind_Flag)     :: tk
+      logical :: esmf_allocated
 
-    call ESMF_FieldGet(Field,typekind=tk,dimCount=rank,isESMFAllocated=esmf_allocated,_RC)
-    if (.not. esmf_allocated) then
-       if (tk == ESMF_TYPEKIND_R4 .and. rank == 1) then
-          call ESMF_FieldGet(Field,0,VR4_1d,_RC)
-          deallocate(VR4_1d,_STAT)
-       else if (tk == ESMF_TYPEKIND_R8 .and. rank == 1) then
-          call ESMF_FieldGet(Field,0,VR8_1d,_RC)
-          deallocate(VR8_1d,_STAT)
-       else if (tk == ESMF_TYPEKIND_R4 .and. rank == 2) then
-          call ESMF_FieldGet(Field,0,VR4_2d,_RC)
-          deallocate(VR4_2d,_STAT)
-       else if (tk == ESMF_TYPEKIND_R8 .and. rank == 2) then
-          call ESMF_FieldGet(Field,0,VR8_2d,_RC)
-          deallocate(VR8_2d,_STAT)
-       else if (tk == ESMF_TYPEKIND_R4 .and. rank == 3) then
-          call ESMF_FieldGet(Field,0,VR4_3D,_RC)
-          deallocate(VR4_3d,_STAT)
-       else if (tk == ESMF_TYPEKIND_R8 .and. rank == 3) then
-          call ESMF_FieldGet(Field,0,VR8_3D,_RC)
-          deallocate(VR8_3d,_STAT)
-       else if (tk == ESMF_TYPEKIND_R4 .and. rank == 4) then
-          call ESMF_FieldGet(Field,0,VR4_4D,_RC)
-          deallocate(VR4_3d,_STAT)
-       else if (tk == ESMF_TYPEKIND_R8 .and. rank == 4) then
-          call ESMF_FieldGet(Field,0,VR8_4D,_RC)
-          deallocate(VR8_3d,_STAT)
-       else
-          _FAIL( 'unsupported typekind+rank')
-       end if
-    end if
-    call ESMF_FieldDestroy(Field,noGarbage = .true., rc=status)
-    _VERIFY(STATUS)
-    _RETURN(ESMF_SUCCESS)
+      call ESMF_FieldGet(Field,typekind=tk,dimCount=rank,isESMFAllocated=esmf_allocated,_RC)
+      if (.not. esmf_allocated) then
+         if (tk == ESMF_TYPEKIND_R4 .and. rank == 1) then
+            call ESMF_FieldGet(Field,0,VR4_1d,_RC)
+            deallocate(VR4_1d,_STAT)
+         else if (tk == ESMF_TYPEKIND_R8 .and. rank == 1) then
+            call ESMF_FieldGet(Field,0,VR8_1d,_RC)
+            deallocate(VR8_1d,_STAT)
+         else if (tk == ESMF_TYPEKIND_R4 .and. rank == 2) then
+            call ESMF_FieldGet(Field,0,VR4_2d,_RC)
+            deallocate(VR4_2d,_STAT)
+         else if (tk == ESMF_TYPEKIND_R8 .and. rank == 2) then
+            call ESMF_FieldGet(Field,0,VR8_2d,_RC)
+            deallocate(VR8_2d,_STAT)
+         else if (tk == ESMF_TYPEKIND_R4 .and. rank == 3) then
+            call ESMF_FieldGet(Field,0,VR4_3D,_RC)
+            deallocate(VR4_3d,_STAT)
+         else if (tk == ESMF_TYPEKIND_R8 .and. rank == 3) then
+            call ESMF_FieldGet(Field,0,VR8_3D,_RC)
+            deallocate(VR8_3d,_STAT)
+         else if (tk == ESMF_TYPEKIND_R4 .and. rank == 4) then
+            call ESMF_FieldGet(Field,0,VR4_4D,_RC)
+            deallocate(VR4_3d,_STAT)
+         else if (tk == ESMF_TYPEKIND_R8 .and. rank == 4) then
+            call ESMF_FieldGet(Field,0,VR8_4D,_RC)
+            deallocate(VR8_3d,_STAT)
+         else
+            _FAIL( 'unsupported typekind+rank')
+         end if
+      end if
+      call ESMF_FieldDestroy(Field,noGarbage = .true., rc=status)
+      _VERIFY(STATUS)
+      _RETURN(ESMF_SUCCESS)
 
-  end subroutine Destroy
-end module
+   end subroutine Destroy
+
+end module MAPL_FieldPointerUtilities

@@ -6,7 +6,6 @@ module mapl3g_StateRegistry
    use mapl3g_RegistryPtrMap
    use mapl3g_VirtualConnectionPt
    use mapl3g_VirtualConnectionPtVector
-   use mapl3g_ActualConnectionPt
    use mapl3g_ConnectionPt
    use mapl3g_StateItemExtension
    use mapl3g_StateItemExtensionVector
@@ -48,7 +47,6 @@ module mapl3g_StateRegistry
       procedure :: add_spec
       procedure :: add_family
 
-
       procedure :: propagate_unsatisfied_imports_all
       procedure :: propagate_unsatisfied_imports_subregistry
       procedure :: propagate_unsatisfied_imports_virtual_pt
@@ -88,6 +86,8 @@ module mapl3g_StateRegistry
 
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
+
+      procedure :: extend
 
    end type StateRegistry
 
@@ -652,8 +652,9 @@ contains
    end subroutine set_blanket_geometry
 
   subroutine add_to_states(this, multi_state, mode, rc)
-      use esmf
       use mapl3g_MultiState
+      use mapl3g_ActualConnectionPt
+      use esmf
       class(StateRegistry), target, intent(inout) :: this
       type(MultiState), intent(inout) :: multi_state
       character(*), intent(in) :: mode
@@ -791,6 +792,62 @@ contains
       end associate
 
    end function get_import_couplers
+
+   ! Repeatedly extend family at v_pt until extension can directly
+   ! connect to goal_spec.
+   function extend(registry, v_pt, goal_spec, rc) result(extension)
+      use mapl3g_MultiState
+      use mapl3g_ActualConnectionPt, only: ActualConnectionPt
+      type(StateItemExtension), pointer :: extension
+      class(StateRegistry), target, intent(inout) :: registry
+      type(VirtualConnectionPt), intent(in) :: v_pt
+      class(StateItemSpec), intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+      type(StateItemExtension), pointer :: closest_extension, new_extension
+      type(StateItemExtension) :: tmp_extension
+      type(ExtensionFamily), pointer :: family
+      type(GriddedComponentDriver), pointer :: producer
+      integer :: iter_count
+      integer, parameter :: MAX_ITERATIONS = 10
+      integer :: status
+      type(MultiState) :: coupler_states
+      type(ActualConnectionPt) :: a_pt
+      class(StateItemSpec), pointer :: last_spec, new_spec
+
+      family => registry%get_extension_family(v_pt, _RC)
+      
+      closest_extension => family%find_closest_extension(goal_spec, _RC)
+      iter_count = 0
+      do
+         iter_count = iter_count + 1
+         _ASSERT(iter_count <= MAX_ITERATIONS, "StateItem extensions for v_pt did not converge.")
+
+         tmp_extension = closest_extension%make_extension(goal_spec, _RC)
+         if (.not. associated(tmp_extension%get_producer())) exit ! no further extensions needed
+
+         ! Add permanent copy of extension to registry and retrieve a valid pointer:
+         new_extension => registry%add_extension(v_pt, tmp_extension, _RC)
+         producer => new_extension%get_producer()
+
+         coupler_states = producer%get_states()
+         a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name='import[1]'))
+         last_spec => closest_extension%get_spec()
+         call last_spec%set_active()
+         call last_spec%add_to_state(coupler_states, a_pt, _RC)
+         a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='export[1]'))
+         new_spec => new_extension%get_spec()
+         call new_spec%add_to_state(coupler_states, a_pt, _RC)
+         call closest_extension%add_consumer(producer)
+
+         closest_extension => new_extension
+
+      end do
+
+      extension => closest_extension
+
+      _RETURN(_SUCCESS)
+   end function extend
 
 end module mapl3g_StateRegistry
 

@@ -1681,7 +1681,7 @@ contains
     call MAPL_GetLogger(MAPLOBJ, lgr, _RC)
 
     call lgr%info('Read CAP restart properly, Current Date =   %i4.4~/%i2.2~/%i2.2', CUR_YY, CUR_MM, CUR_DD)
-    call lgr%info('                           Current Time =   %i2.2~/%i2.2~/%i2.2', CUR_H, CUR_M, CUR_S)
+    call lgr%info('                           Current Time =   %i2.2~:%i2.2~:%i2.2', CUR_H, CUR_M, CUR_S)
 
 
 999 continue  ! Initialize Current time

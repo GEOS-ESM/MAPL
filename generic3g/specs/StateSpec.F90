@@ -33,8 +33,8 @@ module mapl3g_StateSpec
       
       procedure :: connect_to
       procedure :: can_connect_to
-      procedure :: make_extension
-      procedure :: extension_cost
+      procedure :: make_adapters
+
       procedure :: add_to_state
       procedure :: add_to_bundle
 
@@ -168,33 +168,20 @@ contains
    end subroutine add_to_bundle
    
 
-   subroutine make_extension(this, dst_spec, new_spec, action, rc)
+
+   function make_adapters(this, goal_spec, rc) result(adapters)
+      type(StateItemAdapterWrapper), allocatable :: adapters(:)
       class(StateSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      class(StateItemSpec), allocatable, intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
+      class(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
 
-      action = NullAction() ! default
-      new_spec = this
 
-      _FAIL('not implemented')
-
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(dst_spec)
-   end subroutine make_extension
-
-   integer function extension_cost(this, src_spec, rc) result(cost)
-      class(StateSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc
-
-      cost = 0
+      allocate(adapters(0))
+      _FAIL('unimplemented')
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(src_spec)
-   end function extension_cost
-
+      _UNUSED_DUMMY(goal_spec)
+   end function make_adapters
 
 end module mapl3g_StateSpec

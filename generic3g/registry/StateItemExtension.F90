@@ -104,26 +104,41 @@ contains
    ! gains it as a reference (pointer).
 
    function make_extension(this, goal, rc) result(extension)
+      use mapl3g_NullAction
       type(StateItemExtension), target :: extension
       class(StateItemExtension), target, intent(inout) :: this
       class(StateItemSpec), target, intent(in) :: goal
       integer, intent(out) :: rc
 
       integer :: status
+      integer :: i
       class(StateItemSpec), allocatable :: new_spec
       class(ExtensionAction), allocatable :: action
       type(GriddedComponentDriver) :: producer
       type(ESMF_GridComp) :: coupler_gridcomp
+      type(StateItemAdapterWrapper), allocatable :: adapters(:)
       type(ESMF_Clock) :: fake_clock
 
-      call this%spec%make_extension(goal, new_spec, action, _RC)
+      call this%spec%set_active()
+
+      new_spec = this%spec
+      adapters = this%spec%make_adapters(goal, _RC)
+      do i = 1, size(adapters)
+         if (adapters(i)%adapter%match(new_spec)) cycle
+         call adapters(i)%adapter%adapt(new_spec, action)
+         exit
+      end do
+
+      if (.not. allocated(action)) then
+         extension = StateItemExtension(this%spec)
+         _RETURN(_SUCCESS)
+      end if
+
       call new_spec%create(_RC)
       call new_spec%set_active()
-      call this%spec%set_active
 
       coupler_gridcomp = make_coupler(action, _RC)
       producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
-
       extension = StateItemExtension(new_spec, producer)
 
       _RETURN(_SUCCESS)

@@ -31,12 +31,12 @@ module mapl3g_WildcardSpec
 
       procedure :: connect_to
       procedure :: can_connect_to
-      procedure :: make_extension
+      procedure :: make_adapters
       procedure :: add_to_state
       procedure :: add_to_bundle
-      procedure :: extension_cost
       procedure :: set_geometry
 
+      procedure :: get_reference_spec
    end type WildcardSpec
 
    interface WildcardSpec
@@ -197,33 +197,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   subroutine make_extension(this, dst_spec, new_spec, action, rc)
-      class(WildcardSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      class(StateItemSpec), allocatable, intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      action = NullAction() ! default
-      new_spec = this
-
-      _FAIL('not implemented')
-   end subroutine make_extension
-
-   integer function extension_cost(this, src_spec, rc) result(cost)
-      class(WildcardSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      cost = this%reference_spec%extension_cost(src_spec, _RC)
-
-      _RETURN(_SUCCESS)
-   end function extension_cost
-
    subroutine set_geometry(this, geom, vertical_grid, rc)
       class(WildcardSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -236,5 +209,25 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_geometry
+
+   function make_adapters(this, goal_spec, rc) result(adapters)
+      type(StateItemAdapterWrapper), allocatable :: adapters(:)
+      class(WildcardSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      associate (field_spec => this%reference_spec)
+        adapters = field_spec%make_adapters(field_spec, _RC)
+      end associate
+
+      _RETURN(_SUCCESS)
+   end function make_adapters
+
+   function get_reference_spec(this) result(reference_spec)
+      class(WildcardSpec), target, intent(in) :: this
+      class(StateItemSpec), pointer :: reference_spec
+      reference_spec => this%reference_spec
+   end function get_reference_spec
 
 end module mapl3g_WildcardSpec

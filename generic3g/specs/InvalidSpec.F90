@@ -34,9 +34,9 @@ module mapl3g_InvalidSpec
       procedure :: add_to_state
       procedure :: add_to_bundle
 
-      procedure :: make_extension
-      procedure :: extension_cost
       procedure :: set_geometry => set_geometry
+
+      procedure :: make_adapters
    end type InvalidSpec
 
 
@@ -138,35 +138,6 @@ contains
       _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
 
-   subroutine make_extension(this, dst_spec, new_spec, action, rc)
-      class(InvalidSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      class(StateItemSpec), allocatable, intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      action = NullAction() ! default
-      new_spec = this
-
-      _FAIL('attempt to use item of type InvalidSpec')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(dst_spec)
-   end subroutine make_extension
-
-   integer function extension_cost(this, src_spec, rc) result(cost)
-      class(InvalidSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc
-
-      cost = -1
-      _FAIL('Attempt to use item of type InvalidSpec')
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(src_spec)
-
-   end function extension_cost
-
    subroutine set_geometry(this, geom, vertical_grid, rc)
       class(InvalidSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -178,5 +149,20 @@ contains
       _UNUSED_DUMMY(geom)
       _UNUSED_DUMMY(vertical_grid)
    end subroutine set_geometry
+
+   ! Stub implementation
+   function make_adapters(this, goal_spec, rc) result(adapters)
+      type(StateItemAdapterWrapper), allocatable :: adapters(:)
+      class(InvalidSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+      allocate(adapters(0))
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(goal_spec)
+   end function make_adapters
+
 
 end module mapl3g_InvalidSpec

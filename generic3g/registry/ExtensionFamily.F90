@@ -28,6 +28,8 @@ module mapl3g_ExtensionFamily
       procedure :: get_extension
       procedure :: add_extension
       procedure :: num_variants
+
+      procedure :: find_closest_extension
    end type ExtensionFamily
 
    interface ExtensionFamily
@@ -105,5 +107,50 @@ contains
       num_variants = this%extensions%size()
    end function num_variants
 
+
+   function find_closest_extension(family, goal_spec, rc) result(closest_extension)
+      type(StateItemExtension), pointer :: closest_extension
+      class(ExtensionFamily), intent(in) :: family
+      class(StateItemSpec), intent(in) :: goal_spec
+      integer, optional, intent(out) :: rc
+
+      type(StateItemExtensionPtrVector) :: subgroup, new_subgroup
+      class(StateItemSpec), pointer :: archetype
+      integer :: i, j
+      type(StateItemAdapterWrapper), allocatable :: adapters(:)
+      integer :: status
+      type(StateItemExtensionPtr) :: extension_ptr
+      type(StateItemExtension), pointer :: primary
+      class(StateItemSpec), pointer :: spec
+      
+      closest_extension => null()
+      subgroup = family%get_extensions()
+      primary => family%get_primary()  ! archetype defines the rules
+      archetype => primary%get_spec()
+      adapters = archetype%make_adapters(goal_spec, _RC)
+
+      do i = 1, size(adapters)
+         new_subgroup = StateItemExtensionPtrVector()
+         do j = 1, subgroup%size()
+            extension_ptr = subgroup%of(j)
+            spec => extension_ptr%ptr%get_spec()
+            associate (adapter => adapters(i)%adapter)
+              if (adapter%match(spec)) then
+                 call new_subgroup%push_back(extension_ptr)
+              end if
+            end associate
+         end do
+         
+         if (new_subgroup%size() == 0) exit
+         subgroup = new_subgroup
+      end do
+
+      extension_ptr = subgroup%front()
+      closest_extension => extension_ptr%ptr
+
+      _RETURN(_SUCCESS)
+   end function find_closest_extension
+
+   
 end module mapl3g_ExtensionFamily
 

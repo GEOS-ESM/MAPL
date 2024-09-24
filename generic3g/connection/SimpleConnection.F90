@@ -138,23 +138,16 @@ contains
       integer, optional, intent(out) :: rc
 
 
-      type(StateItemExtensionPtr), target, allocatable :: src_extensions(:), dst_extensions(:)
-      type(StateItemExtension), pointer :: src_extension, dst_extension
-      class(StateItemSpec), pointer :: src_spec, dst_spec
+      type(StateItemExtensionPtr), target, allocatable :: dst_extensions(:)
+      type(StateItemExtension), pointer :: dst_extension
+      class(StateItemSpec), pointer :: dst_spec
       integer :: i
       integer :: status
       type(ConnectionPt) :: src_pt, dst_pt
-      integer :: i_extension
-      integer :: lowest_cost
-      type(StateItemExtension), pointer :: best_extension
       type(StateItemExtension), pointer :: last_extension
-      type(StateItemExtension) :: extension
       type(StateItemExtension), pointer :: new_extension
-      class(StateItemSpec), pointer :: last_spec
       class(StateItemSpec), pointer :: new_spec
-      class(StateItemSpec), pointer :: best_spec
       type(ActualConnectionPt) :: effective_pt
-
       type(GriddedComponentDriver), pointer :: coupler
       type(ActualConnectionPt) :: a_pt
       type(MultiState) :: coupler_states
@@ -168,53 +161,14 @@ contains
          dst_extension => dst_extensions(i)%ptr
          dst_spec => dst_extension%get_spec()
 
-         src_extensions = src_registry%get_extensions(src_pt%v_pt, _RC)
-
-
-         ! Connection is transitive -- if any src_specs can connect, all can connect.
-         ! So we can just check this property on the 1st item.
-         src_extension => src_extensions(1)%ptr
-         src_spec => src_extension%get_spec()
-         if (.not. dst_spec%can_connect_to(src_spec)) then
-            _HERE, 'cannot connect: ', src_pt%v_pt, ' --> ', dst_pt%v_pt
-         end if
-
-         call find_closest_extension(dst_extension, src_extensions, closest_extension=best_extension, lowest_cost=lowest_cost, _RC)
-         best_spec => best_extension%get_spec()
-         call best_spec%set_active()
-
-         last_extension => best_extension
-
-
-         do i_extension = 1, lowest_cost
-
-            extension = last_extension%make_extension(dst_spec, _RC)
-                 
-            new_extension => src_registry%add_extension(src_pt%v_pt, extension, _RC)
-            coupler => new_extension%get_producer()
-
-            ! WARNING TO FUTURE DEVELOPERS: There may be issues if
-            ! some spec needs to be a bit different in import and
-            ! export roles.  Here we use "last_extension" as an export
-            ! of src and an import of coupler.
-            coupler_states = coupler%get_states()
-            a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name='import[1]'))
-            last_spec => last_extension%get_spec()
-            call last_spec%add_to_state(coupler_states, a_pt, _RC)
-            a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='export[1]'))
-            new_spec => new_extension%get_spec()
-            call new_spec%add_to_state(coupler_states, a_pt, _RC)
-            
-            call last_extension%add_consumer(coupler)
-            last_extension => new_extension
-         end do
+         new_extension => src_registry%extend(src_pt%v_pt, dst_spec, _RC)
 
          ! In the case of wildcard specs, we need to pass an actual_pt to
          ! the dst_spec to support multiple matches.  A bit of a kludge.
          effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
               src_pt%v_pt%get_comp_name()//'/'//src_pt%v_pt%get_esmf_name()))
-         last_spec => last_extension%get_spec()
-         call dst_spec%connect_to(last_spec, effective_pt, _RC)
+         new_spec => new_extension%get_spec()
+         call dst_spec%connect_to(new_spec, effective_pt, _RC)
          call dst_spec%set_active()
             
       end do
@@ -251,40 +205,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine activate_dependencies
 
-   subroutine find_closest_extension(goal_extension, candidate_extensions, closest_extension, lowest_cost, rc)
-      type(StateItemExtension), intent(in) :: goal_extension
-      type(StateItemExtensionPtr), target, intent(in) :: candidate_extensions(:)
-      type(StateItemExtension), pointer :: closest_extension
-      integer, intent(out) :: lowest_cost
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(StateItemExtension), pointer :: extension
-      class(StateItemSpec), pointer :: spec
-      class(StateItemSpec), pointer :: goal_spec
-      integer :: cost
-      integer :: j
-      
-      _ASSERT(size(candidate_extensions) > 0, 'no candidates found')
-
-      goal_spec => goal_extension%get_spec()
-      closest_extension => candidate_extensions(1)%ptr
-      spec => closest_extension%get_spec()
-      lowest_cost = goal_spec%extension_cost(spec, _RC)
-      do j = 2, size(candidate_extensions)
-         if (lowest_cost == 0) exit
-
-         extension => candidate_extensions(j)%ptr
-         spec => extension%get_spec()
-         cost = goal_spec%extension_cost(spec)
-         if (cost < lowest_cost) then
-            lowest_cost = cost
-            closest_extension => extension
-         end if
-
-      end do
-
-   end subroutine find_closest_extension
 
 end module mapl3g_SimpleConnection
 
