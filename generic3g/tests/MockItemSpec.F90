@@ -32,8 +32,6 @@ module MockItemSpecMod
 
       procedure :: connect_to
       procedure :: can_connect_to
-      procedure :: make_extension
-      procedure :: extension_cost
       procedure :: make_adapters
       procedure :: add_to_state
       procedure :: add_to_bundle
@@ -57,7 +55,8 @@ module MockItemSpecMod
    type, extends(StateItemAdapter) :: SubtypeAdapter
       character(:), allocatable :: subtype
    contains
-      procedure :: apply_one => match_subtype
+      procedure :: adapt_one => adapt_subtype
+      procedure :: match_one => match_subtype
    end type SubtypeAdapter
 
    interface SubtypeAdapter
@@ -68,7 +67,8 @@ module MockItemSpecMod
    type, extends(StateItemAdapter) :: NameAdapter
       character(:), allocatable :: name
    contains
-      procedure :: apply_one => match_name
+      procedure :: adapt_one => adapt_name
+      procedure :: match_one => match_name
    end type NameAdapter
 
    interface NameAdapter
@@ -193,93 +193,17 @@ contains
 
    end subroutine add_to_bundle
 
-   function new_MockAction(src_spec, dst_spec) result(action)
+   function new_MockAction(src_subtype, dst_subtype) result(action)
       type(MockAction) :: action
-      type(MockItemSpec), intent(in) :: src_spec
-      type(MockItemSpec), intent(in) :: dst_spec
+      character(*), optional, intent(in) :: src_subtype
+      character(*), optional, intent(in) :: dst_subtype
 
-      if (allocated(src_spec%subtype) .and. allocated(dst_spec%subtype)) then
-         action%details = src_spec%subtype // ' ==> ' // dst_spec%subtype
+      if (present(src_subtype) .and. present(dst_subtype)) then
+         action%details = src_subtype // ' ==> ' // dst_subtype
       else
          action%details = 'no subtype'
       end if
    end function new_MockAction
-
-
-   recursive subroutine make_extension(this, dst_spec, new_spec, action, rc)
-      class(MockItemSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: dst_spec
-      class(StateItemSpec), allocatable, intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(MockItemSpec) :: tmp_spec
-
-      action = NullAction()
-      new_spec = this
-      select type(dst_spec)
-      type is (MockItemSpec)
-         call make_extension_typesafe(this, dst_spec, tmp_spec, action, _RC)
-         deallocate(new_spec)
-         allocate(new_spec, source=tmp_spec)
-         new_spec = tmp_spec
-      class default
-         _FAIL('incompatible spec')
-      end select
-      
-      _RETURN(_SUCCESS)
-   end subroutine make_extension
-
-   subroutine make_extension_typesafe(this, dst_spec, new_spec, action, rc)
-      class(MockItemSpec), intent(in) :: this
-      type(MockItemSpec), intent(in) :: dst_spec
-      class(MockItemSpec), intent(out) :: new_spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      action = NullAction()
-
-      if (this%name /= dst_spec%name) then
-         new_spec%name = dst_spec%name
-         action = MockAction(this, new_spec)
-         _RETURN(_SUCCESS)
-      end if
-      
-      if (allocated(dst_spec%subtype) .and. allocated(this%subtype)) then
-         if (this%subtype /= dst_spec%subtype) then
-            new_spec%subtype = dst_spec%subtype
-            action = MockAction(this, new_spec)
-            _RETURN(_SUCCESS)
-         end if
-      end if
-
-      _RETURN(_SUCCESS)
-
-   end subroutine make_extension_typesafe
- 
-  integer function extension_cost(this, src_spec, rc) result(cost)
-      class(MockItemSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      cost = 0
-      select type(src_spec)
-      type is (MockItemSpec)
-         if (this%name /= src_spec%name) cost = cost + 1
-         if (allocated(src_spec%subtype) .and. allocated(this%subtype)) then
-            if (this%subtype /= src_spec%subtype) cost = cost + 1
-         end if
-      class default
-         _FAIL('incompatible spec')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function extension_cost
 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf
@@ -345,6 +269,20 @@ contains
       _UNUSED_DUMMY(goal_spec)
    end function make_adapters
 
+   subroutine adapt_subtype(this, spec, action, rc)
+      class(SubtypeAdapter), intent(in) :: this
+      class(StateItemSpec), intent(inout) :: spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+
+      select type (spec)
+      type is (MockItemSpec)
+         spec%subtype = this%subtype
+         action = MockAction(spec%subtype, this%subtype)
+      end select
+      _RETURN(_SUCCESS)
+   end subroutine adapt_subtype
+
    logical function match_subtype(this, spec) result(match)
       class(SubtypeAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
@@ -364,6 +302,21 @@ contains
       end select
       
    end function match_subtype
+
+   subroutine adapt_name(this, spec, action, rc)
+      class(NameAdapter), intent(in) :: this
+      class(StateItemSpec), intent(inout) :: spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+
+      select type (spec)
+      type is (MockItemSpec)
+         spec%name = this%name
+         action = MockAction()
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine adapt_name
 
    logical function match_name(this, spec) result(match)
       class(NameAdapter), intent(in) :: this

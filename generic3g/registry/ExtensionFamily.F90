@@ -135,7 +135,7 @@ contains
             extension_ptr = subgroup%of(j)
             spec => extension_ptr%ptr%get_spec()
             associate (adapter => adapters(i)%adapter)
-              if (adapter%apply(spec)) then
+              if (adapter%match(spec)) then
                  call new_subgroup%push_back(extension_ptr)
               end if
             end associate
