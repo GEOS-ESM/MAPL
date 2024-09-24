@@ -2741,6 +2741,7 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
           call MPI_GATHER(  lNumReceivers, 1, MPI_INTEGER, &
                allSenders(:,1), 1, MPI_INTEGER, &
                I-1, Xform%Ptr%Comm,  status )
+          _VERIFY(status)
        enddo
      end block
      call ESMF_VMBarrier(vm, rc=status)

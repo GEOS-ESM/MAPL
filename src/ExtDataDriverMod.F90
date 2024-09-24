@@ -217,6 +217,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       call MPI_Init(ierror)
+      _VERIFY(ierror)
 
       this%comm_world=MPI_COMM_WORLD
       call MPI_Comm_rank(this%comm_world, this%rank, ierror); _VERIFY(ierror)

@@ -78,9 +78,11 @@ contains
       s%world_remote_rank = remote_rank
 
       call MPI_Comm_rank(comm, local_rank, ierror)
+      _VERIFY(ierror)
       s%world_local_rank = local_rank
 
       call MPI_Comm_group(comm, world_group, ierror)
+      _VERIFY(ierror)
 
       ! Enforce consistent ordering in new communicator/group
       if (local_rank < remote_rank) then
@@ -93,7 +95,9 @@ contains
          s%pair_remote_rank = 0
       end if
       call MPI_Group_incl(world_group, 2, ranks, pair_group, ierror)
+      _VERIFY(ierror)
       call MPI_Comm_create_group(comm, pair_group, PAIR_TAG, s%pair_comm, ierror)
+      _VERIFY(ierror)
       _RETURN(_SUCCESS)
    end function new_MpiSocket
 
@@ -108,11 +112,14 @@ contains
       integer :: count
 
       call MPI_Probe(this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, status, ierror)
+      _VERIFY(ierror)
       call MPI_Get_count(status, MPI_INTEGER, count, ierror)
+      _VERIFY(ierror)
 
       allocate(buffer(count))
       call MPI_Recv(buffer, count, MPI_INTEGER, this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, &
            & status, ierror)
+      _VERIFY(ierror)
 
       allocate(message, source=this%parser%decode(buffer))
       _RETURN(_SUCCESS)
@@ -129,6 +136,7 @@ contains
       buffer = this%parser%encode(message)
       call MPI_Send(buffer, size(buffer), MPI_INTEGER, this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, &
            & ierror)
+      _VERIFY(ierror)
       _RETURN(_SUCCESS)      
    end subroutine send
 
@@ -165,6 +173,7 @@ contains
       call c_f_pointer(local_reference%base_address, data, shape=[n_words])
       if (n_words ==0) allocate(data(1))
       call MPI_Isend(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)
+      _VERIFY(ierror)
       allocate(handle, source=MpiRequestHandle(local_reference, request))
       if (n_words ==0) deallocate(data)
       _RETURN(_SUCCESS)
@@ -190,6 +199,7 @@ contains
       call c_f_pointer(local_reference%base_address, data, shape=[n_words])
       if (n_words ==0) allocate(data(1))
       call MPI_Irecv(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)
+      _VERIFY(ierror)
       allocate(handle, source=MpiRequestHandle(local_reference, request))
       if (n_words ==0) deallocate(data)
       _RETURN(_SUCCESS)

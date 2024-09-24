@@ -114,6 +114,8 @@ contains
 
 end module collective_demo_CLI
 
+!#undef I_AM_MAIN
+#include "MAPL_ErrLog.h"
 module FakeExtDataMod_collective
    use, intrinsic :: iso_fortran_env, only: INT64
    use MAPL_ExceptionHandling
@@ -165,7 +167,7 @@ contains
       class (AbstractDirectoryService), target,intent(inout) :: d_s
       character(*), intent(in) :: port_name
 
-      integer :: ierror
+      integer :: ierror, status, rc
       type (FileMetadata) :: file_metadata
       type (NetCDF4_FileFormatter) :: formatter
       type (StringIntegerMap) :: dims
@@ -182,8 +184,10 @@ contains
 
 
       this%comm = comm
-      call MPI_Comm_rank(comm,this%rank,ierror)
-      call MPI_Comm_size(comm,this%npes,ierror)
+      call MPI_Comm_rank(comm,this%rank, ierror)
+      _VERIFY(ierror)
+      call MPI_Comm_size(comm,this%npes, ierror)
+      _VERIFY(ierror)
 
       allocate(this%bundle(this%vars%size()))
 
@@ -293,6 +297,8 @@ contains
 
 end module FakeExtDataMod_collective
 
+#define I_AM_MAIN
+#include "MAPL_ErrLog.h"
 program main
    use mpi
    use pFIO
@@ -302,7 +308,7 @@ program main
    implicit none
 
    integer :: rank, npes, ierror, provided,required
-   integer :: status, color, key
+   integer :: status, color, key, rc
    class(AbstractServer),pointer :: server
    class(AbstractDirectoryService), pointer :: d_s => null()
 
@@ -317,9 +323,12 @@ program main
    type (FakeExtData), target :: extData
 
    required = MPI_THREAD_MULTIPLE
-   call MPI_init_thread(required, provided, ierror)
-   call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
-   call MPI_Comm_size(MPI_COMM_WORLD, npes, ierror)
+   call MPI_init_thread(required, provided,  ierror)
+   _VERIFY(ierror)
+   call MPI_Comm_rank(MPI_COMM_WORLD, rank,  ierror)
+   _VERIFY(ierror)
+   call MPI_Comm_size(MPI_COMM_WORLD, npes,  ierror)
+   _VERIFY(ierror)
 
    call process_command_line(options, rc=status)
 
@@ -336,7 +345,8 @@ program main
    color = split_color(options%server_type,options%npes_server)
    key = 0
 
-   call MPI_Comm_split(MPI_COMM_WORLD, color, key, comm, ierror)
+   call MPI_Comm_split(MPI_COMM_WORLD, color, key, comm,  ierror)
+   _VERIFY(ierror)
 
    if (color == SERVER_COLOR .or. color == BOTH_COLOR) then ! server
       

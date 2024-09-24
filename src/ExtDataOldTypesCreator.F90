@@ -82,13 +82,10 @@ module MAPL_ExtDataOldTypesCreator
         call default_time_sample%set_defaults()
         time_sample=>default_time_sample
       end if
-      primary_item%isVector = allocated(rule%vector_partner)
-      ! name and file var
-      !primary_item%name = trim(item_name)
+      primary_item%vartype = MAPL_FieldItem
+      if (allocated(rule%vector_partner)) primary_item%vartype = MAPL_VectorField
       primary_item%name = trim(base_name)
-      if (primary_item%isVector) then
-         primary_item%vartype = MAPL_VectorField
-         !primary_item%vcomp1 = trim(item_name)
+      if (primary_item%vartype == MAPL_VectorField) then
          primary_item%vcomp1 = trim(base_name)
          primary_item%vcomp2 = trim(rule%vector_partner)
          primary_item%var = rule%file_var
@@ -98,8 +95,6 @@ module MAPL_ExtDataOldTypesCreator
          primary_item%fileVars%xname  = trim(rule%file_var)
          primary_item%fileVars%yname  = trim(rule%vector_file_partner)
       else
-         primary_item%vartype = MAPL_FieldItem
-         !primary_item%vcomp1 = trim(item_name)
          primary_item%vcomp1 = trim(base_name)
          primary_item%var = rule%file_var
          primary_item%fcomp1 = rule%file_var
@@ -136,8 +131,6 @@ module MAPL_ExtDataOldTypesCreator
 
       call primary_item%modelGridFields%comp1%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation,exact=exact)
       call primary_item%modelGridFields%comp2%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation,exact=exact)
-      call primary_item%modelGridFields%auxiliary1%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation,exact=exact)
-      call primary_item%modelGridFields%auxiliary2%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation,exact=exact)
 
       ! file_template
       primary_item%isConst = .false.
