@@ -21,7 +21,7 @@ program Test_WeightComputation
    call compute_linear_map_fixedlevels_to_fixedlevels(src, dst, matrix, _RC)
    fin = [7., 8., 3.]
    call apply_linear_map(matrix, fin, fout)
-   print *, "Expected: [8, 3]", ", found: ", fout
+   print *, "Expected: [8.0, 3.0]", ", found: ", fout
 
    src = [30., 20., 10.]
    dst = [25., 15.]
@@ -30,4 +30,10 @@ program Test_WeightComputation
    call apply_linear_map(matrix, fin, fout)
    print *, "Expected: [7.5, 5.5]", ", found: ", fout
 
+   src = [30., 20., 10.]
+   dst = [28., 11.]
+   call compute_linear_map_fixedlevels_to_fixedlevels(src, dst, matrix, _RC)
+   fin = [7., 8., 3.]
+   call apply_linear_map(matrix, fin, fout)
+   print *, "Expected: [7.2, 3.5]", ", found: ", fout
 end program Test_WeightComputation

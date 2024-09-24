@@ -24,7 +24,6 @@ contains
       vcoord_src = [30., 20., 10.]
       vcoord_dst = [20., 10.]
       call compute_linear_map_fixedlevels_to_fixedlevels(vcoord_src, vcoord_dst, matrix, _RC)
-
       fin = [7., 8., 3.]
       call apply_linear_map(matrix, fin, fout)
       @assertEqual(fout, [8., 3.])
@@ -32,10 +31,16 @@ contains
       vcoord_src = [30., 20., 10.]
       vcoord_dst = [25., 15.]
       call compute_linear_map_fixedlevels_to_fixedlevels(vcoord_src, vcoord_dst, matrix, _RC)
-
       fin = [7., 8., 3.]
       call apply_linear_map(matrix, fin, fout)
       @assertEqual(fout, [7.5, 5.5])
+
+      vcoord_src = [30., 20., 10.]
+      vcoord_dst = [28., 11.]
+      call compute_linear_map_fixedlevels_to_fixedlevels(vcoord_src, vcoord_dst, matrix, _RC)
+      fin = [7., 8., 3.]
+      call apply_linear_map(matrix, fin, fout)
+      @assert_that(norm2(fout - [7.2, 3.5]) < 2.4e-7, is(true()))
 
    end subroutine test_linear_map_fixedlevels_to_fixedlevels
 

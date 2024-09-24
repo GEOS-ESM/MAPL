@@ -56,10 +56,8 @@ contains
          call compute_linear_interpolation_weights_(val, pair%value_, weight)
          ! matrix(ndx, pair(1)%index) = weight(1)
          ! matrix(ndx, pair(2)%index) = weight(2)
-         if (pair(1)%index < pair(2)%index) then
+         if (pair(1)%index /= pair(2)%index) then
             call add_row(matrix, ndx, pair(1)%index, [weight(1), weight(2)])
-         else if (pair(1)%index > pair(2)%index) then
-            call add_row(matrix, ndx, pair(2)%index, [weight(2), weight(1)])
          else
             call add_row(matrix, ndx, pair(1)%index, [weight(1)])
          end if
@@ -79,14 +77,15 @@ contains
       integer :: ndx1, ndx2
 
       ndx1 = minloc(abs(array - val), 1)
-      pair(1) = IndexValuePair(ndx1, array(ndx1))
       if (array(ndx1) < val) then
-         ndx2 = ndx1 - 1
-      else if (array(ndx1) > val) then
-         ndx2 = ndx1 + 1
-      else
-         ndx2 = ndx1
+         ndx1 = ndx1 - 1
       end if
+      ndx2 = ndx1 ! array(ndx1) == val
+      if (array(ndx1) /= val) then
+         ndx2 = ndx1 +1
+      end if
+
+      pair(1) = IndexValuePair(ndx1, array(ndx1))
       pair(2) = IndexValuePair(ndx2, array(ndx2))
    end subroutine find_bracket_
 
