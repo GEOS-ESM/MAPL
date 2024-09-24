@@ -240,12 +240,12 @@ contains
       character(len=1024) :: json_repr
 
       key = make_dim_key(n, _RC)
-      call ESMF_InfoGet(info, key=raw, isPresent=is_present, _RC)
+      call ESMF_InfoGet(info, key=key, isPresent=is_present, _RC)
       if(.not. is_present) then
          call ESMF_InfoPrint(info, unit=json_repr, _RC)
          _FAIL('Key ' // trim(key) // ' not found in ' // trim(json_repr))
       end if
-      dim_info = ESMF_InfoCreate(info, key=trim(adjustl(raw)), _RC)
+      dim_info = ESMF_InfoCreate(info, key=key, _RC)
       call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_NAME, value=raw, _RC)
       name = trim(adjustl(raw))
       call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_UNITS, value=raw, _RC)

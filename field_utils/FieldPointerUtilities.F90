@@ -31,6 +31,8 @@ module MAPL_FieldPointerUtilities
       module procedure assign_fptr_r8_rank1
       module procedure assign_fptr_r4_rank2
       module procedure assign_fptr_r8_rank2
+      module procedure assign_fptr_r4_rank3
+      module procedure assign_fptr_r8_rank3
    end interface assign_fptr
 
    interface FieldGetCptr
