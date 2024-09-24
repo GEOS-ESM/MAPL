@@ -2,7 +2,7 @@
 
 module Test_WeightComputation
 
-   use mapl3g_CSR_SparseMatrix
+   use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp
    use mapl3g_WeightComputation, only: compute_linear_map_fixedlevels_to_fixedlevels
    use mapl3g_WeightComputation, only: apply_linear_map
    use funit
@@ -15,16 +15,15 @@ contains
    @test
    subroutine test_linear_map_fixedlevels_to_fixedlevels()
 
-      ! type(CSR_SparseMatrix_sp) :: matrix
       real(REAL32), allocatable :: vcoord_src(:), vcoord_dst(:)
       real(REAL32), allocatable :: fin(:), fout(:)
-      real(REAL32), allocatable :: matrix(:, :)
+      ! real(REAL32), allocatable :: matrix(:, :)
+      type(SparseMatrix_sp) :: matrix
       integer :: status
 
       vcoord_src = [30., 20., 10.]
       vcoord_dst = [20., 10.]
       call compute_linear_map_fixedlevels_to_fixedlevels(vcoord_src, vcoord_dst, matrix, _RC)
-      @assertEqual(matmul(matrix, vcoord_src), vcoord_dst)
 
       fin = [7., 8., 3.]
       call apply_linear_map(matrix, fin, fout)
@@ -33,7 +32,6 @@ contains
       vcoord_src = [30., 20., 10.]
       vcoord_dst = [25., 15.]
       call compute_linear_map_fixedlevels_to_fixedlevels(vcoord_src, vcoord_dst, matrix, _RC)
-      @assertEqual(matmul(matrix, vcoord_src), vcoord_dst)
 
       fin = [7., 8., 3.]
       call apply_linear_map(matrix, fin, fout)
