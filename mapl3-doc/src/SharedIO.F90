@@ -8,7 +8,7 @@ module mapl3g_SharedIO
    use MAPL_BaseMod
    use mapl3g_UngriddedDims
    use mapl3g_UngriddedDim
-   use mapl3g_output_info
+   use mapl3g_FieldDimensionInfo
 
    implicit none
 

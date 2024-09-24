@@ -10,5 +10,5 @@ module Generic3g
    use mapl3g_GriddedComponentDriver
    use mapl3g_UserSetServices
    use mapl3g_ESMF_HConfigUtilities, only: MAPL_HConfigMatch
-   use mapl3g_output_info
+   use mapl3g_FieldDimensionInfo
 end module Generic3g
