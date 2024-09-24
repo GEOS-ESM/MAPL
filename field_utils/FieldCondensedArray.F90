@@ -56,10 +56,6 @@ contains
       logical :: has_vertical
       character(len=:), allocatable :: spec_name
       character(len=*), parameter :: VERTICAL_DIM_NONE_NAME = 'VERTICAL_DIM_NONE'
-      !wdb fixme deleteme This seems fragile. We should probably make a utility function
-      !that selects the type(VerticalDimSpec) parameter based on a string. Perhaps a
-      !logical function in VerticalDimSpec.F90 that recogizes a VerticalDimSpec based on
-      !the string from the ESMF_Info.
 
       call ESMF_FieldGet(f, gridToFieldMap=gridToFieldMap, _RC) 
       call ESMF_FieldGet(f, rank=rank, _RC)
