@@ -1,0 +1,845 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>FillState &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>FillState
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">116 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataRoot_GridComp.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdataroot_gridcomp.f90.html'>ExtDataRoot_GridComp.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/extdatautroot_gridcompmod.html'>ExtDataUtRoot_GridCompMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">FillState</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/fillstate.html#src">FillState</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine FillState(inState, outState, time, grid, synth, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-instate~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>inState</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-outstate~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>outState</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time~29"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>time</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid~93"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-synth~4"></span>
+              type(<a href='../type/syntheticfieldsupport.html'>SyntheticFieldSupport</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>synth</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~697"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~fillstate~~CallsGraph Pages: 1 -->
+<svg id="procfillstateCallsGraph" width="272pt" height="578pt"
+ viewBox="0.00 0.00 272.00 578.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~fillstate~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 574)">
+<title>proc~~fillstate~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-574 268,-574 268,4 -4,4"/>
+<!-- proc~fillstate -->
+<g id="proc~~fillstate~~CallsGraph_node1" class="node">
+<title>proc~fillstate</title>
+<polygon fill="none" stroke="black" points="55,-297 0,-297 0,-273 55,-273 55,-297"/>
+<text text-anchor="middle" x="27.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50">FillState</text>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~fillstate~~CallsGraph_node2" class="node">
+<title>ESMF_VMGet</title>
+<g id="a_proc~~fillstate~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_vmget.html" xlink:title="ESMF_VMGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="218.5,-570 136.5,-570 136.5,-546 218.5,-546 218.5,-570"/>
+<text text-anchor="middle" x="177.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGet</text>
+</a>
+</g>
+</g>
+<!-- proc~fillstate&#45;&gt;ESMF_VMGet -->
+<g id="proc~~fillstate~~CallsGraph_edge1" class="edge">
+<title>proc~fillstate&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#ff0000" d="M29.85,-297.09C35.16,-342.5 56.06,-502.14 91,-537 100.48,-546.46 113.5,-551.91 126.51,-554.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="125.92,-558.43 136.41,-556.89 127.25,-551.55 125.92,-558.43"/>
+</g>
+<!-- ESMF_VMGetCurrent -->
+<g id="proc~~fillstate~~CallsGraph_node3" class="node">
+<title>ESMF_VMGetCurrent</title>
+<g id="a_proc~~fillstate~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_vmgetcurrent.html" xlink:title="ESMF_VMGetCurrent">
+<polygon fill="#d9534f" stroke="#d9534f" points="238,-528 117,-528 117,-504 238,-504 238,-528"/>
+<text text-anchor="middle" x="177.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGetCurrent</text>
+</a>
+</g>
+</g>
+<!-- proc~fillstate&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~fillstate~~CallsGraph_edge2" class="edge">
+<title>proc~fillstate&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#ff0000" d="M28.23,-297.05C28.11,-332.88 32.89,-439.64 91,-495 95.72,-499.5 101.24,-503.08 107.17,-505.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="106.17,-509.3 116.75,-509.82 108.8,-502.81 106.17,-509.3"/>
+</g>
+<!-- at -->
+<g id="proc~~fillstate~~CallsGraph_node4" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="204.5,-486 150.5,-486 150.5,-462 204.5,-462 204.5,-486"/>
+<text text-anchor="middle" x="177.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~fillstate&#45;&gt;at -->
+<g id="proc~~fillstate~~CallsGraph_edge3" class="edge">
+<title>proc~fillstate&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M29.28,-297.29C31.94,-328.36 43.37,-410.56 91,-453 104.42,-464.96 123.55,-470.36 140.32,-472.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="140.06,-476.2 150.38,-473.8 140.82,-469.24 140.06,-476.2"/>
+</g>
+<!-- esmf_stateadd -->
+<g id="proc~~fillstate~~CallsGraph_node5" class="node">
+<title>esmf_stateadd</title>
+<polygon fill="#777777" stroke="#777777" points="223,-444 132,-444 132,-420 223,-420 223,-444"/>
+<text text-anchor="middle" x="177.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateadd</text>
+</g>
+<!-- proc~fillstate&#45;&gt;esmf_stateadd -->
+<g id="proc~~fillstate~~CallsGraph_edge4" class="edge">
+<title>proc~fillstate&#45;&gt;esmf_stateadd</title>
+<path fill="none" stroke="#ff0000" d="M30.95,-297.2C36.69,-322.52 53.46,-380.92 91,-411 99.95,-418.17 111,-422.94 122.14,-426.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="121.37,-429.52 131.91,-428.49 123.03,-422.72 121.37,-429.52"/>
+</g>
+<!-- esmf_statecreate -->
+<g id="proc~~fillstate~~CallsGraph_node6" class="node">
+<title>esmf_statecreate</title>
+<polygon fill="#777777" stroke="#777777" points="229.5,-402 125.5,-402 125.5,-378 229.5,-378 229.5,-402"/>
+<text text-anchor="middle" x="177.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_statecreate</text>
+</g>
+<!-- proc~fillstate&#45;&gt;esmf_statecreate -->
+<g id="proc~~fillstate~~CallsGraph_edge5" class="edge">
+<title>proc~fillstate&#45;&gt;esmf_statecreate</title>
+<path fill="none" stroke="#ff0000" d="M34.09,-297.11C43.26,-315.58 63.29,-350.6 91,-369 98.4,-373.91 106.85,-377.68 115.49,-380.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.69,-383.98 125.28,-383.46 116.68,-377.27 114.69,-383.98"/>
+</g>
+<!-- esmf_stateget -->
+<g id="proc~~fillstate~~CallsGraph_node7" class="node">
+<title>esmf_stateget</title>
+<polygon fill="#777777" stroke="#777777" points="221.5,-360 133.5,-360 133.5,-336 221.5,-336 221.5,-360"/>
+<text text-anchor="middle" x="177.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateget</text>
+</g>
+<!-- proc~fillstate&#45;&gt;esmf_stateget -->
+<g id="proc~~fillstate~~CallsGraph_edge6" class="edge">
+<title>proc~fillstate&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#ff0000" d="M43.53,-297.32C55.67,-306.71 73.54,-319.28 91,-327 101.17,-331.5 112.46,-335.13 123.42,-338.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="122.79,-341.49 133.34,-340.5 124.48,-334.69 122.79,-341.49"/>
+</g>
+<!-- interface~esmfl_stategetpointertodata -->
+<g id="proc~~fillstate~~CallsGraph_node8" class="node">
+<title>interface~esmfl_stategetpointertodata</title>
+<g id="a_proc~~fillstate~~CallsGraph_node8"><a xlink:href="../interface/esmfl_stategetpointertodata.html" xlink:title="ESMFL_StateGetPointerToData">
+<polygon fill="#a7506f" stroke="#a7506f" points="264,-318 91,-318 91,-294 264,-294 264,-318"/>
+<text text-anchor="middle" x="177.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_StateGetPointerToData</text>
+</a>
+</g>
+</g>
+<!-- proc~fillstate&#45;&gt;interface~esmfl_stategetpointertodata -->
+<g id="proc~~fillstate~~CallsGraph_edge7" class="edge">
+<title>proc~fillstate&#45;&gt;interface~esmfl_stategetpointertodata</title>
+<path fill="none" stroke="#ff0000" d="M55.3,-288.8C63.15,-289.92 72.22,-291.2 81.79,-292.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="81.53,-296.06 91.92,-294 82.51,-289.13 81.53,-296.06"/>
+</g>
+<!-- interface~mapl_grid_interior -->
+<g id="proc~~fillstate~~CallsGraph_node9" class="node">
+<title>interface~mapl_grid_interior</title>
+<g id="a_proc~~fillstate~~CallsGraph_node9"><a xlink:href="../interface/mapl_grid_interior.html" xlink:title="MAPL_GRID_INTERIOR">
+<polygon fill="#a7506f" stroke="#a7506f" points="242,-276 113,-276 113,-252 242,-252 242,-276"/>
+<text text-anchor="middle" x="177.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GRID_INTERIOR</text>
+</a>
+</g>
+</g>
+<!-- proc~fillstate&#45;&gt;interface~mapl_grid_interior -->
+<g id="proc~~fillstate~~CallsGraph_edge8" class="edge">
+<title>proc~fillstate&#45;&gt;interface~mapl_grid_interior</title>
+<path fill="none" stroke="#ff0000" d="M55.3,-281.2C68.74,-279.29 85.74,-276.88 102.73,-274.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="103.3,-277.92 112.71,-273.05 102.31,-270.99 103.3,-277.92"/>
+</g>
+<!-- proc~compute_doy -->
+<g id="proc~~fillstate~~CallsGraph_node10" class="node">
+<title>proc~compute_doy</title>
+<g id="a_proc~~fillstate~~CallsGraph_node10"><a xlink:href="../proc/compute_doy.html" xlink:title="compute_doy">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="220,-234 135,-234 135,-210 220,-210 220,-234"/>
+<text text-anchor="middle" x="177.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_doy</text>
+</a>
+</g>
+</g>
+<!-- proc~fillstate&#45;&gt;proc~compute_doy -->
+<g id="proc~~fillstate~~CallsGraph_edge9" class="edge">
+<title>proc~fillstate&#45;&gt;proc~compute_doy</title>
+<path fill="none" stroke="#ff0000" d="M43.53,-272.68C55.67,-263.29 73.54,-250.72 91,-243 101.6,-238.32 113.41,-234.56 124.8,-231.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="125.76,-234.97 134.65,-229.2 124.11,-228.17 125.76,-234.97"/>
+</g>
+<!-- proc~evaluate_time -->
+<g id="proc~~fillstate~~CallsGraph_node11" class="node">
+<title>proc~evaluate_time</title>
+<g id="a_proc~~fillstate~~CallsGraph_node11"><a xlink:href="../proc/evaluate_time.html" xlink:title="timeVar%evaluate_time">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="247,-192 108,-192 108,-168 247,-168 247,-192"/>
+<text text-anchor="middle" x="177.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">timeVar%evaluate_time</text>
+</a>
+</g>
+</g>
+<!-- proc~fillstate&#45;&gt;proc~evaluate_time -->
+<g id="proc~~fillstate~~CallsGraph_edge10" class="edge">
+<title>proc~fillstate&#45;&gt;proc~evaluate_time</title>
+<path fill="none" stroke="#ff0000" d="M34.09,-272.89C43.26,-254.42 63.29,-219.4 91,-201 93.59,-199.28 96.31,-197.7 99.12,-196.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.71,-199.37 108.36,-192.05 97.81,-193 100.71,-199.37"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~fillstate~~CallsGraph_node12" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~fillstate~~CallsGraph_node12"><a xlink:href="../proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="221.5,-150 133.5,-150 133.5,-126 221.5,-126 221.5,-150"/>
+<text text-anchor="middle" x="177.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~fillstate&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~fillstate~~CallsGraph_edge11" class="edge">
+<title>proc~fillstate&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M30.95,-272.8C36.69,-247.48 53.46,-189.08 91,-159 100.23,-151.61 111.68,-146.76 123.18,-143.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="124.3,-146.94 133.23,-141.24 122.7,-140.12 124.3,-146.94"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~fillstate~~CallsGraph_node13" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~fillstate~~CallsGraph_node13"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="218.5,-108 136.5,-108 136.5,-84 218.5,-84 218.5,-108"/>
+<text text-anchor="middle" x="177.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~fillstate&#45;&gt;proc~mapl_return -->
+<g id="proc~~fillstate~~CallsGraph_edge12" class="edge">
+<title>proc~fillstate&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M29.28,-272.71C31.94,-241.64 43.37,-159.44 91,-117 100.73,-108.34 113.45,-103.11 126.1,-100"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="127.08,-103.37 136.17,-97.93 125.67,-96.52 127.08,-103.37"/>
+</g>
+<!-- proc~mapl_stateeval -->
+<g id="proc~~fillstate~~CallsGraph_node14" class="node">
+<title>proc~mapl_stateeval</title>
+<g id="a_proc~~fillstate~~CallsGraph_node14"><a xlink:href="../proc/mapl_stateeval.html" xlink:title="MAPL_StateEval">
+<polygon fill="#d9534f" stroke="#d9534f" points="226,-66 129,-66 129,-42 226,-42 226,-66"/>
+<text text-anchor="middle" x="177.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateEval</text>
+</a>
+</g>
+</g>
+<!-- proc~fillstate&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~fillstate~~CallsGraph_edge13" class="edge">
+<title>proc~fillstate&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M28.23,-272.95C28.11,-237.12 32.89,-130.36 91,-75 98.72,-67.65 108.57,-62.74 118.83,-59.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="119.96,-62.82 128.73,-56.87 118.16,-56.05 119.96,-62.82"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~fillstate~~CallsGraph_node15" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~fillstate~~CallsGraph_node15"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="215.5,-24 139.5,-24 139.5,0 215.5,0 215.5,-24"/>
+<text text-anchor="middle" x="177.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~fillstate&#45;&gt;proc~mapl_verify -->
+<g id="proc~~fillstate~~CallsGraph_edge14" class="edge">
+<title>proc~fillstate&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M29.85,-272.91C35.16,-227.5 56.06,-67.86 91,-33 101.19,-22.84 115.45,-17.31 129.4,-14.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="130.17,-17.8 139.45,-12.68 129.01,-10.9 130.17,-17.8"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~fillstate~~CalledByGraph Pages: 1 -->
+<svg id="procfillstateCalledByGraph" width="153pt" height="32pt"
+ viewBox="0.00 0.00 153.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~fillstate~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~fillstate~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 149,-28 149,4 -4,4"/>
+<!-- proc~fillstate -->
+<g id="proc~~fillstate~~CalledByGraph_node1" class="node">
+<title>proc~fillstate</title>
+<polygon fill="none" stroke="black" points="145,-24 90,-24 90,0 145,0 145,-24"/>
+<text text-anchor="middle" x="117.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">FillState</text>
+</g>
+<!-- proc~run_~2 -->
+<g id="proc~~fillstate~~CalledByGraph_node2" class="node">
+<title>proc~run_~2</title>
+<g id="a_proc~~fillstate~~CalledByGraph_node2"><a xlink:href="../proc/run_~2.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~2&#45;&gt;proc~fillstate -->
+<g id="proc~~fillstate~~CalledByGraph_edge1" class="edge">
+<title>proc~run_~2&#45;&gt;proc~fillstate</title>
+<path fill="none" stroke="#ff0000" d="M54.07,-12C62.12,-12 71.14,-12 79.76,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="80,-15.5 90,-12 80,-8.5 80,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">FillState</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="n">outState</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">grid</span><span class="p">,</span><span class="n">Synth</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">inState</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outState</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">Inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
+<span class="nb">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">SyntheticFieldSupport</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">synth</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">Exptr2</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">Exptr1</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">itemcount</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outNameList</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_StateItem_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">item_type</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expf</span><span class="p">,</span><span class="n">farray</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pstate</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fexpr</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i1</span><span class="p">,</span><span class="n">in</span><span class="p">,</span><span class="n">j1</span><span class="p">,</span><span class="n">jn</span><span class="p">,</span><span class="n">ldims</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">seed_size</span><span class="p">,</span><span class="n">mypet</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">seeds</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">synth</span><span class="p">%</span><span class="n">on_tiles</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">localcellcountperdim</span><span class="o">=</span><span class="n">ldims</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_Grid_Interior</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">i1</span><span class="p">,</span><span class="n">in</span><span class="p">,</span><span class="n">j1</span><span class="p">,</span><span class="n">jn</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">outState</span><span class="p">,</span><span class="n">itemcount</span><span class="o">=</span><span class="n">itemCount</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">outNameList</span><span class="p">(</span><span class="n">itemCount</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">item_type</span><span class="p">(</span><span class="n">itemCount</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">outState</span><span class="p">,</span><span class="n">itemTypeList</span><span class="o">=</span><span class="n">item_type</span><span class="p">,</span><span class="n">itemNameList</span><span class="o">=</span><span class="n">outNameList</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">synth</span><span class="p">%</span><span class="n">on_tiles</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="n">exPtr1</span><span class="p">,</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">exPtr1</span><span class="o">=</span><span class="n">synth</span><span class="p">%</span><span class="n">tFunc</span><span class="p">%</span><span class="n">evaluate_time</span><span class="p">(</span><span class="nb">Time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="n">exPtr2</span><span class="p">,</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">exPtr2</span><span class="o">=</span><span class="n">synth</span><span class="p">%</span><span class="n">tFunc</span><span class="p">%</span><span class="n">evaluate_time</span><span class="p">(</span><span class="nb">Time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">synth</span><span class="p">%</span><span class="n">on_tiles</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="n">exPtr2</span><span class="p">,</span><span class="s1">&#39;i_index&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">ldims</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">            </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">ldims</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">               </span><span class="n">exPtr2</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="o">=</span><span class="n">i1</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">            </span><span class="k">enddo</span>
+<span class="k">         enddo</span>
+<span class="k">         call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="n">exPtr2</span><span class="p">,</span><span class="s1">&#39;j_index&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">ldims</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">            </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">ldims</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">               </span><span class="n">exPtr2</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="o">=</span><span class="n">j1</span><span class="o">+</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">            </span><span class="k">enddo</span>
+<span class="k">         enddo</span>
+<span class="k">      end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">synth</span><span class="p">%</span><span class="n">on_tiles</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="n">exPtr1</span><span class="p">,</span><span class="s1">&#39;doy&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">exPtr1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute_doy</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="n">exPtr2</span><span class="p">,</span><span class="s1">&#39;doy&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">exPtr2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute_doy</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="nb">random_seed</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">seed_size</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">seeds</span><span class="p">(</span><span class="n">seed_size</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMGetCurrent</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="n">localPet</span><span class="o">=</span><span class="n">mypet</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">seeds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mypet</span>
+<span class="w">      </span><span class="k">call </span><span class="nb">random_seed</span><span class="p">(</span><span class="n">put</span><span class="o">=</span><span class="n">seeds</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">synth</span><span class="p">%</span><span class="n">on_tiles</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="n">exPtr1</span><span class="p">,</span><span class="s1">&#39;rand&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="nb">random_number</span><span class="p">(</span><span class="n">exPtr1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="n">exPtr2</span><span class="p">,</span><span class="s1">&#39;rand&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="nb">random_number</span><span class="p">(</span><span class="n">exPtr2</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="n">farray</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="s1">&#39;lons&#39;</span><span class="p">,</span><span class="n">farray</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="s1">&#39;lats&#39;</span><span class="p">,</span><span class="n">farray</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="s1">&#39;i_index&#39;</span><span class="p">,</span><span class="n">farray</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="s1">&#39;j_index&#39;</span><span class="p">,</span><span class="n">farray</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="s1">&#39;doy&#39;</span><span class="p">,</span><span class="n">farray</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">inState</span><span class="p">,</span><span class="s1">&#39;rand&#39;</span><span class="p">,</span><span class="n">farray</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">pstate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_StateCreate</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateAdd</span><span class="p">(</span><span class="n">pstate</span><span class="p">,</span><span class="n">farray</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">itemCount</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item_type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_STATEITEM_FIELD</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">outState</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">outNameList</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="n">expf</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="n">fexpr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">synth</span><span class="p">%</span><span class="n">fillDefs</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">outNameList</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_StateEval</span><span class="p">(</span><span class="n">pstate</span><span class="p">,</span><span class="n">fexpr</span><span class="p">,</span><span class="n">expf</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      enddo</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">FillState</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-24T15:00:06.366583             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

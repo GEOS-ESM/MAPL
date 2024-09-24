@@ -1,0 +1,1002 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>set_order &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>set_order
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">25 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/FileMetadata.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/filemetadata.f90.html'>FileMetadata.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_filemetadatamod.html'>pFIO_FileMetadataMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">set_order</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/set_order.html#src">set_order</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine set_order(this, newOrder, unusable, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/filemetadata.html'>FileMetadata</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2539"></span>
+              class(<a href='../type/filemetadata.html'>FileMetadata</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-neworder~3"></span>
+              type(StringVector),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>newOrder</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~243"></span>
+              class(<a href='../type/keywordenforcer~58.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1098"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~set_order~~CallsGraph Pages: 1 -->
+<svg id="procset_orderCallsGraph" width="641pt" height="282pt"
+ viewBox="0.00 0.00 641.00 282.13" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~set_order~~CallsGraph" class="graph" transform="scale(0.78 0.78) rotate(0) translate(4 360)">
+<title>proc~~set_order~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-360 823,-360 823,4 -4,4"/>
+<!-- proc~set_order -->
+<g id="proc~~set_order~~CallsGraph_node1" class="node">
+<title>proc~set_order</title>
+<polygon fill="none" stroke="black" points="141,-232 0,-232 0,-208 141,-208 141,-232"/>
+<text text-anchor="middle" x="70.5" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50">FileMetadata%set_order</text>
+</g>
+<!-- begin -->
+<g id="proc~~set_order~~CallsGraph_node2" class="node">
+<title>begin</title>
+<polygon fill="#777777" stroke="#777777" points="277,-356 223,-356 223,-332 277,-332 277,-356"/>
+<text text-anchor="middle" x="250" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
+</g>
+<!-- proc~set_order&#45;&gt;begin -->
+<g id="proc~~set_order~~CallsGraph_edge1" class="edge">
+<title>proc~set_order&#45;&gt;begin</title>
+<path fill="none" stroke="#ff0000" d="M80.55,-232.12C97.23,-253.62 135,-298.47 177,-323 187.98,-329.41 201.06,-333.99 213.04,-337.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="212.23,-340.6 222.78,-339.58 213.89,-333.8 212.23,-340.6"/>
+</g>
+<!-- erase -->
+<g id="proc~~set_order~~CallsGraph_node3" class="node">
+<title>erase</title>
+<polygon fill="#777777" stroke="#777777" points="277,-314 223,-314 223,-290 277,-290 277,-314"/>
+<text text-anchor="middle" x="250" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">erase</text>
+</g>
+<!-- proc~set_order&#45;&gt;erase -->
+<g id="proc~~set_order~~CallsGraph_edge2" class="edge">
+<title>proc~set_order&#45;&gt;erase</title>
+<path fill="none" stroke="#ff0000" d="M89.48,-232.2C109.93,-245.64 144.71,-267.19 177,-281 188.39,-285.87 201.26,-290.02 212.93,-293.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="212.25,-296.75 222.82,-295.98 214.07,-290 212.25,-296.75"/>
+</g>
+<!-- get -->
+<g id="proc~~set_order~~CallsGraph_node4" class="node">
+<title>get</title>
+<polygon fill="#777777" stroke="#777777" points="277,-272 223,-272 223,-248 277,-248 277,-272"/>
+<text text-anchor="middle" x="250" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get</text>
+</g>
+<!-- proc~set_order&#45;&gt;get -->
+<g id="proc~~set_order~~CallsGraph_edge3" class="edge">
+<title>proc~set_order&#45;&gt;get</title>
+<path fill="none" stroke="#ff0000" d="M124.76,-232C153.3,-238.43 187.7,-246.19 213.06,-251.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="212.47,-255.35 222.99,-254.14 214.01,-248.53 212.47,-255.35"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~set_order~~CallsGraph_node5" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~set_order~~CallsGraph_node5"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="289.5,-192 210.5,-192 210.5,-168 289.5,-168 289.5,-192"/>
+<text text-anchor="middle" x="250" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~set_order&#45;&gt;interface~mapl_assert -->
+<g id="proc~~set_order~~CallsGraph_edge4" class="edge">
+<title>proc~set_order&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M124.76,-208C148.77,-202.59 176.94,-196.24 200.38,-190.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="201.46,-194.3 210.45,-188.69 199.92,-187.47 201.46,-194.3"/>
+</g>
+<!-- next -->
+<g id="proc~~set_order~~CallsGraph_node6" class="node">
+<title>next</title>
+<polygon fill="#777777" stroke="#777777" points="277,-150 223,-150 223,-126 277,-126 277,-150"/>
+<text text-anchor="middle" x="250" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">next</text>
+</g>
+<!-- proc~set_order&#45;&gt;next -->
+<g id="proc~~set_order~~CallsGraph_edge5" class="edge">
+<title>proc~set_order&#45;&gt;next</title>
+<path fill="none" stroke="#ff0000" d="M89.48,-207.8C109.93,-194.36 144.71,-172.81 177,-159 188.39,-154.13 201.26,-149.98 212.93,-146.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="214.07,-150 222.82,-144.02 212.25,-143.25 214.07,-150"/>
+</g>
+<!-- proc~m_at~15 -->
+<g id="proc~~set_order~~CallsGraph_node7" class="node">
+<title>proc~m_at~15</title>
+<g id="a_proc~~set_order~~CallsGraph_node7"><a xlink:href="../proc/m_at~15.html" xlink:title="StringVariableMap%m_at">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="323,-108 177,-108 177,-84 323,-84 323,-108"/>
+<text text-anchor="middle" x="250" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%m_at</text>
+</a>
+</g>
+</g>
+<!-- proc~set_order&#45;&gt;proc~m_at~15 -->
+<g id="proc~~set_order~~CallsGraph_edge6" class="edge">
+<title>proc~set_order&#45;&gt;proc~m_at~15</title>
+<path fill="none" stroke="#ff0000" d="M80.55,-207.88C97.23,-186.38 135,-141.53 177,-117 180.17,-115.15 183.51,-113.45 186.94,-111.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="188.29,-115.13 196.22,-108.11 185.64,-108.65 188.29,-115.13"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~set_order~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~set_order~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="478,-234 396,-234 396,-210 478,-210 478,-234"/>
+<text text-anchor="middle" x="437" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~set_order&#45;&gt;proc~mapl_return -->
+<g id="proc~~set_order~~CallsGraph_edge7" class="edge">
+<title>proc~set_order&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M141.35,-220.38C212.92,-220.78 322.43,-221.38 385.84,-221.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="385.97,-225.23 395.99,-221.78 386.01,-218.23 385.97,-225.23"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~set_order~~CallsGraph_node11" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~set_order~~CallsGraph_node11"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="504,-150 370,-150 370,-126 504,-126 504,-150"/>
+<text text-anchor="middle" x="437" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~set_order~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M289.78,-171.2C313.84,-165.73 345.33,-158.58 372.92,-152.32"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="373.91,-155.69 382.88,-150.06 372.36,-148.86 373.91,-155.69"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~set_order~~CallsGraph_node12" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~set_order~~CallsGraph_node12"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="511,-192 363,-192 363,-168 511,-168 511,-192"/>
+<text text-anchor="middle" x="437" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~set_order~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M289.78,-180C308.16,-180 330.86,-180 352.86,-180"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="352.89,-183.5 362.89,-180 352.89,-176.5 352.89,-183.5"/>
+</g>
+<!-- proc~m_find~15 -->
+<g id="proc~~set_order~~CallsGraph_node10" class="node">
+<title>proc~m_find~15</title>
+<g id="a_proc~~set_order~~CallsGraph_node10"><a xlink:href="../proc/m_find~15.html" xlink:title="StringVariableMap%m_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="515,-108 359,-108 359,-84 515,-84 515,-108"/>
+<text text-anchor="middle" x="437" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%m_find</text>
+</a>
+</g>
+</g>
+<!-- proc~m_at~15&#45;&gt;proc~m_find~15 -->
+<g id="proc~~set_order~~CallsGraph_edge10" class="edge">
+<title>proc~m_at~15&#45;&gt;proc~m_find~15</title>
+<path fill="none" stroke="#4800ff" d="M323.06,-96C331.51,-96 340.21,-96 348.85,-96"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="348.94,-99.5 358.94,-96 348.94,-92.5 348.94,-99.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~set_order~~CallsGraph_node9" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~set_order~~CallsGraph_node9"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="675,-234 560,-234 560,-210 675,-210 675,-234"/>
+<text text-anchor="middle" x="617.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~set_order~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00da" d="M478.06,-222C499.19,-222 525.68,-222 549.82,-222"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="549.99,-225.5 559.99,-222 549.99,-218.5 549.99,-225.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~set_order~~CallsGraph_node13" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~set_order~~CallsGraph_node13"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="684,-192 551,-192 551,-168 684,-168 684,-192"/>
+<text text-anchor="middle" x="617.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~set_order~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M478.06,-212.57C500.84,-207.22 529.83,-200.39 555.39,-194.38"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="556.43,-197.73 565.36,-192.03 554.83,-190.92 556.43,-197.73"/>
+</g>
+<!-- at -->
+<g id="proc~~set_order~~CallsGraph_node14" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="796.5,-234 742.5,-234 742.5,-210 796.5,-210 796.5,-234"/>
+<text text-anchor="middle" x="769.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~set_order~~CallsGraph_edge13" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M675.21,-222C694.31,-222 715.09,-222 732.19,-222"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="732.31,-225.5 742.3,-222 732.3,-218.5 732.31,-225.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~set_order~~CallsGraph_node15" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="796.5,-276 742.5,-276 742.5,-252 796.5,-252 796.5,-276"/>
+<text text-anchor="middle" x="769.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~set_order~~CallsGraph_edge14" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M661.48,-234.04C684.05,-240.36 711.39,-248.01 732.78,-254"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="731.88,-257.38 742.45,-256.71 733.77,-250.64 731.88,-257.38"/>
+</g>
+<!-- proc~s_find~15 -->
+<g id="proc~~set_order~~CallsGraph_node17" class="node">
+<title>proc~s_find~15</title>
+<g id="a_proc~~set_order~~CallsGraph_node17"><a xlink:href="../proc/s_find~15.html" xlink:title="set2%s_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="655.5,-108 579.5,-108 579.5,-84 655.5,-84 655.5,-108"/>
+<text text-anchor="middle" x="617.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%s_find</text>
+</a>
+</g>
+</g>
+<!-- proc~m_find~15&#45;&gt;proc~s_find~15 -->
+<g id="proc~~set_order~~CallsGraph_edge15" class="edge">
+<title>proc~m_find~15&#45;&gt;proc~s_find~15</title>
+<path fill="none" stroke="#cbff00" d="M515.25,-96C533.5,-96 552.42,-96 568.9,-96"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="569.34,-99.5 579.34,-96 569.34,-92.5 569.34,-99.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~set_order~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff66" d="M489.15,-150.04C509.88,-154.91 533.98,-160.58 555.6,-165.67"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="554.81,-169.08 565.34,-167.96 556.41,-162.27 554.81,-169.08"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~set_order~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0066ff" d="M489.15,-192.04C509.88,-196.91 533.98,-202.58 555.6,-207.67"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="554.81,-211.08 565.34,-209.96 556.41,-204.27 554.81,-211.08"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~set_order~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M511.12,-180C520.91,-180 530.97,-180 540.8,-180"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="540.94,-183.5 550.94,-180 540.94,-176.5 540.94,-183.5"/>
+</g>
+<!-- proc~initialize~16 -->
+<g id="proc~~set_order~~CallsGraph_node16" class="node">
+<title>proc~initialize~16</title>
+<g id="a_proc~~set_order~~CallsGraph_node16"><a xlink:href="../proc/initialize~16.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="798,-192 741,-192 741,-168 798,-168 798,-192"/>
+<text text-anchor="middle" x="769.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~16 -->
+<g id="proc~~set_order~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~16</title>
+<path fill="none" stroke="#cc00ff" d="M684.29,-180C700.1,-180 716.46,-180 730.51,-180"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="730.76,-183.5 740.76,-180 730.76,-176.5 730.76,-183.5"/>
+</g>
+<!-- none~at~251 -->
+<g id="proc~~set_order~~CallsGraph_node18" class="node">
+<title>none~at~251</title>
+<g id="a_proc~~set_order~~CallsGraph_node18"><a xlink:href="../type/tvector~12.html#boundprocedure-at~251" xlink:title="tVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="804.5,-108 734.5,-108 734.5,-84 804.5,-84 804.5,-108"/>
+<text text-anchor="middle" x="769.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~15&#45;&gt;none~at~251 -->
+<g id="proc~~set_order~~CallsGraph_edge20" class="edge">
+<title>proc~s_find~15&#45;&gt;none~at~251</title>
+<path fill="none" stroke="#7f00ff" d="M655.58,-96C676.4,-96 702.51,-96 724.38,-96"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="724.41,-99.5 734.41,-96 724.41,-92.5 724.41,-99.5"/>
+</g>
+<!-- proc~exists~13 -->
+<g id="proc~~set_order~~CallsGraph_node19" class="node">
+<title>proc~exists~13</title>
+<g id="a_proc~~set_order~~CallsGraph_node19"><a xlink:href="../proc/exists~13.html" xlink:title="exists">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="796.5,-66 742.5,-66 742.5,-42 796.5,-42 796.5,-66"/>
+<text text-anchor="middle" x="769.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">exists</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~15&#45;&gt;proc~exists~13 -->
+<g id="proc~~set_order~~CallsGraph_edge21" class="edge">
+<title>proc~s_find~15&#45;&gt;proc~exists~13</title>
+<path fill="none" stroke="#7f00ff" d="M655.58,-85.62C679.01,-79.06 709.13,-70.62 732.38,-64.11"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="733.51,-67.43 742.2,-61.36 731.62,-60.69 733.51,-67.43"/>
+</g>
+<!-- proc~find_index~13 -->
+<g id="proc~~set_order~~CallsGraph_node20" class="node">
+<title>proc~find_index~13</title>
+<g id="a_proc~~set_order~~CallsGraph_node20"><a xlink:href="../proc/find_index~13.html" xlink:title="set2%find_index">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="819,-24 720,-24 720,0 819,0 819,-24"/>
+<text text-anchor="middle" x="769.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%find_index</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~15&#45;&gt;proc~find_index~13 -->
+<g id="proc~~set_order~~CallsGraph_edge22" class="edge">
+<title>proc~s_find~15&#45;&gt;proc~find_index~13</title>
+<path fill="none" stroke="#7f00ff" d="M636.36,-83.79C656.28,-70.45 689.68,-48.86 720,-33 723.06,-31.4 726.27,-29.81 729.52,-28.28"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="731.04,-31.43 738.68,-24.09 728.13,-25.06 731.04,-31.43"/>
+</g>
+<!-- proc~s_ordereq~15 -->
+<g id="proc~~set_order~~CallsGraph_node21" class="node">
+<title>proc~s_ordereq~15</title>
+<g id="a_proc~~set_order~~CallsGraph_node21"><a xlink:href="../proc/s_ordereq~15.html" xlink:title="s_orderEq">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="802.5,-150 736.5,-150 736.5,-126 802.5,-126 802.5,-150"/>
+<text text-anchor="middle" x="769.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">s_orderEq</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~15&#45;&gt;proc~s_ordereq~15 -->
+<g id="proc~~set_order~~CallsGraph_edge23" class="edge">
+<title>proc~s_find~15&#45;&gt;proc~s_ordereq~15</title>
+<path fill="none" stroke="#7f00ff" d="M655.58,-106.38C677.1,-112.41 704.26,-120.01 726.56,-126.26"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="725.85,-129.69 736.42,-129.02 727.74,-122.95 725.85,-129.69"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocset_orderCallsGraph = svgPanZoom('#procset_orderCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~set_order~~CalledByGraph Pages: 1 -->
+<svg id="procset_orderCalledByGraph" width="641pt" height="104pt"
+ viewBox="0.00 0.00 641.00 103.93" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~set_order~~CalledByGraph" class="graph" transform="scale(0.58 0.58) rotate(0) translate(4 175)">
+<title>proc~~set_order~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-175 1100,-175 1100,4 -4,4"/>
+<!-- proc~set_order -->
+<g id="proc~~set_order~~CalledByGraph_node1" class="node">
+<title>proc~set_order</title>
+<polygon fill="none" stroke="black" points="1096,-66 955,-66 955,-42 1096,-42 1096,-66"/>
+<text text-anchor="middle" x="1025.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">FileMetadata%set_order</text>
+</g>
+<!-- proc~alphabatize_variables -->
+<g id="proc~~set_order~~CalledByGraph_node2" class="node">
+<title>proc~alphabatize_variables</title>
+<g id="a_proc~~set_order~~CalledByGraph_node2"><a xlink:href="../proc/alphabatize_variables.html" xlink:title="sampler%alphabatize_variables">
+<polygon fill="#d9534f" stroke="#d9534f" points="897,-108 715,-108 715,-84 897,-84 897,-108"/>
+<text text-anchor="middle" x="806" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sampler%alphabatize_variables</text>
+</a>
+</g>
+</g>
+<!-- proc~alphabatize_variables&#45;&gt;proc~set_order -->
+<g id="proc~~set_order~~CalledByGraph_edge1" class="edge">
+<title>proc~alphabatize_variables&#45;&gt;proc~set_order</title>
+<path fill="none" stroke="#ff0000" d="M871.87,-83.96C887.32,-81.06 903.75,-77.95 919,-75 930.53,-72.77 942.76,-70.37 954.66,-68.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="955.42,-71.43 964.55,-66.05 954.06,-64.57 955.42,-71.43"/>
+</g>
+<!-- proc~alphabatize_variables~2 -->
+<g id="proc~~set_order~~CalledByGraph_node3" class="node">
+<title>proc~alphabatize_variables~2</title>
+<g id="a_proc~~set_order~~CalledByGraph_node3"><a xlink:href="../proc/alphabatize_variables~2.html" xlink:title="MAPL_GriddedIO%alphabatize_variables">
+<polygon fill="#d9534f" stroke="#d9534f" points="919,-66 693,-66 693,-42 919,-42 919,-66"/>
+<text text-anchor="middle" x="806" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIO%alphabatize_variables</text>
+</a>
+</g>
+</g>
+<!-- proc~alphabatize_variables~2&#45;&gt;proc~set_order -->
+<g id="proc~~set_order~~CalledByGraph_edge2" class="edge">
+<title>proc~alphabatize_variables~2&#45;&gt;proc~set_order</title>
+<path fill="none" stroke="#ff0000" d="M919.25,-54C927.89,-54 936.5,-54 944.87,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="944.93,-57.5 954.93,-54 944.93,-50.5 944.93,-57.5"/>
+</g>
+<!-- proc~test_serialize~6 -->
+<g id="proc~~set_order~~CalledByGraph_node4" class="node">
+<title>proc~test_serialize~6</title>
+<g id="a_proc~~set_order~~CalledByGraph_node4"><a xlink:href="../proc/test_serialize~6.html" xlink:title="test_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="847,-24 765,-24 765,0 847,0 847,-24"/>
+<text text-anchor="middle" x="806" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize~6&#45;&gt;proc~set_order -->
+<g id="proc~~set_order~~CalledByGraph_edge3" class="edge">
+<title>proc~test_serialize~6&#45;&gt;proc~set_order</title>
+<path fill="none" stroke="#ff0000" d="M847.19,-19.42C868.54,-23.4 895.21,-28.4 919,-33 930.53,-35.23 942.76,-37.63 954.66,-39.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="954.06,-43.43 964.55,-41.95 955.42,-36.57 954.06,-43.43"/>
+</g>
+<!-- proc~createfilemetadata -->
+<g id="proc~~set_order~~CalledByGraph_node5" class="node">
+<title>proc~createfilemetadata</title>
+<g id="a_proc~~set_order~~CalledByGraph_node5"><a xlink:href="../proc/createfilemetadata.html" xlink:title="MAPL_GriddedIO%CreateFileMetaData">
+<polygon fill="#d9534f" stroke="#d9534f" points="657,-66 442,-66 442,-42 657,-42 657,-66"/>
+<text text-anchor="middle" x="549.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIO%CreateFileMetaData</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~alphabatize_variables~2 -->
+<g id="proc~~set_order~~CalledByGraph_edge4" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~alphabatize_variables~2</title>
+<path fill="none" stroke="#00ff00" d="M657.32,-54C665.64,-54 674.08,-54 682.49,-54"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="682.72,-57.5 692.72,-54 682.72,-50.5 682.72,-57.5"/>
+</g>
+<!-- proc~create_from_bundle -->
+<g id="proc~~set_order~~CalledByGraph_node6" class="node">
+<title>proc~create_from_bundle</title>
+<g id="a_proc~~set_order~~CalledByGraph_node6"><a xlink:href="../proc/create_from_bundle.html" xlink:title="FieldBundleWriter%create_from_bundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="406,-108 183,-108 183,-84 406,-84 406,-108"/>
+<text text-anchor="middle" x="294.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleWriter%create_from_bundle</text>
+</a>
+</g>
+</g>
+<!-- proc~create_from_bundle&#45;&gt;proc~createfilemetadata -->
+<g id="proc~~set_order~~CalledByGraph_edge5" class="edge">
+<title>proc~create_from_bundle&#45;&gt;proc~createfilemetadata</title>
+<path fill="none" stroke="#ff0000" d="M368,-83.96C398.57,-78.89 434.31,-72.96 465.89,-67.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="466.7,-71.13 475.99,-66.04 465.55,-64.22 466.7,-71.13"/>
+</g>
+<!-- proc~initialize~3 -->
+<g id="proc~~set_order~~CalledByGraph_node7" class="node">
+<title>proc~initialize~3</title>
+<g id="a_proc~~set_order~~CalledByGraph_node7"><a xlink:href="../proc/initialize~3.html" xlink:title="Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="323,-66 266,-66 266,-42 323,-42 323,-66"/>
+<text text-anchor="middle" x="294.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize~3&#45;&gt;proc~createfilemetadata -->
+<g id="proc~~set_order~~CalledByGraph_edge6" class="edge">
+<title>proc~initialize~3&#45;&gt;proc~createfilemetadata</title>
+<path fill="none" stroke="#ff0000" d="M323.06,-54C349.5,-54 391.29,-54 431.74,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="431.98,-57.5 441.98,-54 431.98,-50.5 431.98,-57.5"/>
+</g>
+<!-- proc~run~2 -->
+<g id="proc~~set_order~~CalledByGraph_node8" class="node">
+<title>proc~run~2</title>
+<g id="a_proc~~set_order~~CalledByGraph_node8"><a xlink:href="../proc/run~2.html" xlink:title="Run">
+<polygon fill="#d9534f" stroke="#d9534f" points="321.5,-24 267.5,-24 267.5,0 321.5,0 321.5,-24"/>
+<text text-anchor="middle" x="294.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~2&#45;&gt;proc~createfilemetadata -->
+<g id="proc~~set_order~~CalledByGraph_edge7" class="edge">
+<title>proc~run~2&#45;&gt;proc~createfilemetadata</title>
+<path fill="none" stroke="#ff0000" d="M321.62,-16.34C355.4,-21.94 415.84,-31.98 465.84,-40.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="465.58,-43.78 476.02,-41.97 466.72,-36.88 465.58,-43.78"/>
+</g>
+<!-- proc~main~2 -->
+<g id="proc~~set_order~~CalledByGraph_node9" class="node">
+<title>proc~main~2</title>
+<g id="a_proc~~set_order~~CalledByGraph_node9"><a xlink:href="../proc/main~2.html" xlink:title="main">
+<polygon fill="#d9534f" stroke="#d9534f" points="100.5,-171 46.5,-171 46.5,-147 100.5,-147 100.5,-171"/>
+<text text-anchor="middle" x="73.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
+</a>
+</g>
+</g>
+<!-- proc~main~2&#45;&gt;proc~create_from_bundle -->
+<g id="proc~~set_order~~CalledByGraph_edge8" class="edge">
+<title>proc~main~2&#45;&gt;proc~create_from_bundle</title>
+<path fill="none" stroke="#ff0000" d="M100.92,-151.4C135.71,-141.39 197.66,-123.57 241.91,-110.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="242.98,-114.17 251.62,-108.05 241.05,-107.45 242.98,-114.17"/>
+</g>
+<!-- proc~write_bundle_single_time -->
+<g id="proc~~set_order~~CalledByGraph_node10" class="node">
+<title>proc~write_bundle_single_time</title>
+<g id="a_proc~~set_order~~CalledByGraph_node10"><a xlink:href="../proc/write_bundle_single_time.html" xlink:title="write_bundle_single_time">
+<polygon fill="#d9534f" stroke="#d9534f" points="147,-129 0,-129 0,-105 147,-105 147,-129"/>
+<text text-anchor="middle" x="73.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">write_bundle_single_time</text>
+</a>
+</g>
+</g>
+<!-- proc~write_bundle_single_time&#45;&gt;proc~create_from_bundle -->
+<g id="proc~~set_order~~CalledByGraph_edge9" class="edge">
+<title>proc~write_bundle_single_time&#45;&gt;proc~create_from_bundle</title>
+<path fill="none" stroke="#ff0000" d="M147.12,-110.04C155.35,-109.25 163.9,-108.43 172.55,-107.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="173.1,-111.06 182.72,-106.62 172.44,-104.09 173.1,-111.06"/>
+</g>
+<!-- program~time_ave -->
+<g id="proc~~set_order~~CalledByGraph_node11" class="node">
+<title>program~time_ave</title>
+<g id="a_proc~~set_order~~CalledByGraph_node11"><a xlink:href="../program/time_ave.html" xlink:title="time_ave">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="104,-87 43,-87 43,-63 104,-63 104,-87"/>
+<text text-anchor="middle" x="73.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
+</a>
+</g>
+</g>
+<!-- program~time_ave&#45;&gt;proc~create_from_bundle -->
+<g id="proc~~set_order~~CalledByGraph_edge10" class="edge">
+<title>program~time_ave&#45;&gt;proc~create_from_bundle</title>
+<path fill="none" stroke="#ff0000" d="M104.04,-77.83C122.28,-79.58 147.03,-81.96 172.63,-84.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="172.56,-87.92 182.85,-85.39 173.23,-80.95 172.56,-87.92"/>
+</g>
+<!-- program~ut_regridding -->
+<g id="proc~~set_order~~CalledByGraph_node12" class="node">
+<title>program~ut_regridding</title>
+<g id="a_proc~~set_order~~CalledByGraph_node12"><a xlink:href="../program/ut_regridding.html" xlink:title="ut_ReGridding">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="117.5,-45 29.5,-45 29.5,-21 117.5,-21 117.5,-45"/>
+<text text-anchor="middle" x="73.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ReGridding</text>
+</a>
+</g>
+</g>
+<!-- program~ut_regridding&#45;&gt;proc~create_from_bundle -->
+<g id="proc~~set_order~~CalledByGraph_edge11" class="edge">
+<title>program~ut_regridding&#45;&gt;proc~create_from_bundle</title>
+<path fill="none" stroke="#ff0000" d="M117.67,-43.61C127.47,-46.54 137.73,-50.02 147,-54 164.02,-61.3 165.65,-68.51 183,-75 189.33,-77.37 195.97,-79.48 202.71,-81.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="202.09,-84.81 212.65,-83.95 203.86,-78.04 202.09,-84.81"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocset_orderCalledByGraph = svgPanZoom('#procset_orderCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">set_order</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">newOrder</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringVector</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">newOrder</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StringVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">Variable</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">newOrder</span><span class="p">%</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">variables</span><span class="p">%</span><span class="n">size</span><span class="p">(),</span><span class="s1">&#39;New order must be same size as the variables&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">order</span><span class="p">%</span><span class="n">erase</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">order</span><span class="p">%</span><span class="n">begin</span><span class="p">(),</span><span class="n">this</span><span class="p">%</span><span class="n">order</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newOrder</span>
+<span class="w">      </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">order</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">      </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="o">/=</span><span class="n">this</span><span class="p">%</span><span class="n">order</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">         </span><span class="n">var_name</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">         </span><span class="n">var</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">variables</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">var_name</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">var</span><span class="p">),</span><span class="nb">trim</span><span class="p">(</span><span class="n">var_name</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39; not in metadata&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">      </span><span class="k">enddo</span>
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">set_order</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-24T15:00:06.366583             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

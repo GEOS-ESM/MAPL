@@ -1,0 +1,894 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>evaluate_box_mask &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>evaluate_box_mask
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">152 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataMasking.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatamasking.f90.html'>ExtDataMasking.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatamask.html'>MAPL_ExtDataMask</a></li>
+            <li class="breadcrumb-item active" aria-current="page">evaluate_box_mask</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/evaluate_box_mask.html#src">evaluate_box_mask</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine evaluate_box_mask(this, state, var_name, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/extdatamask.html'>ExtDataMask</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2558"></span>
+              class(<a href='../type/extdatamask.html'>ExtDataMask</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-state~29"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>state</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var_name~37"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1146"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~evaluate_box_mask~~CallsGraph Pages: 1 -->
+<svg id="procevaluate_box_maskCallsGraph" width="413pt" height="494pt"
+ viewBox="0.00 0.00 413.00 494.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~evaluate_box_mask~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 490)">
+<title>proc~~evaluate_box_mask~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-490 409,-490 409,4 -4,4"/>
+<!-- proc~evaluate_box_mask -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_node1" class="node">
+<title>proc~evaluate_box_mask</title>
+<polygon fill="none" stroke="black" points="196,-255 0,-255 0,-231 196,-231 196,-255"/>
+<text text-anchor="middle" x="98" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataMask%evaluate_box_mask</text>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_node2" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~evaluate_box_mask~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="362.5,-486 274.5,-486 274.5,-462 362.5,-462 362.5,-486"/>
+<text text-anchor="middle" x="318.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;ESMF_GridGet -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_edge1" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#ff0000" d="M103.03,-255.26C115.66,-291.65 158.08,-399.83 232,-453 241.5,-459.83 252.97,-464.46 264.37,-467.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.79,-471.04 274.33,-469.96 265.42,-464.23 263.79,-471.04"/>
+</g>
+<!-- ESMF_GridGetCoord -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_node3" class="node">
+<title>ESMF_GridGetCoord</title>
+<g id="a_proc~~evaluate_box_mask~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridgetcoord.html" xlink:title="ESMF_GridGetCoord">
+<polygon fill="#a7506f" stroke="#a7506f" points="378.5,-444 258.5,-444 258.5,-420 378.5,-420 378.5,-444"/>
+<text text-anchor="middle" x="318.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGetCoord</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;ESMF_GridGetCoord -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_edge2" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;ESMF_GridGetCoord</title>
+<path fill="none" stroke="#ff0000" d="M105.09,-255.44C121.15,-286.85 167.84,-369.78 232,-411 237.23,-414.36 242.96,-417.18 248.9,-419.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="247.76,-422.87 258.35,-422.92 250.11,-416.27 247.76,-422.87"/>
+</g>
+<!-- esmf_fielddestroy -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_node4" class="node">
+<title>esmf_fielddestroy</title>
+<polygon fill="#777777" stroke="#777777" points="371.5,-402 265.5,-402 265.5,-378 371.5,-378 371.5,-402"/>
+<text text-anchor="middle" x="318.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fielddestroy</text>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;esmf_fielddestroy -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_edge3" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;esmf_fielddestroy</title>
+<path fill="none" stroke="#ff0000" d="M108.17,-255.21C127.89,-280.55 177,-338.98 232,-369 239.33,-373 247.42,-376.25 255.62,-378.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="254.67,-382.26 265.26,-381.71 256.64,-375.54 254.67,-382.26"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_node5" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="361,-360 276,-360 276,-336 361,-336 361,-360"/>
+<text text-anchor="middle" x="318.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;esmf_fieldget -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_edge4" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M114.45,-255.12C138.33,-273.3 186.26,-307.55 232,-327 242.66,-331.53 254.51,-335.22 265.9,-338.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="265.2,-341.61 275.75,-340.57 266.86,-334.81 265.2,-341.61"/>
+</g>
+<!-- esmf_stateget -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_node6" class="node">
+<title>esmf_stateget</title>
+<polygon fill="#777777" stroke="#777777" points="362.5,-318 274.5,-318 274.5,-294 362.5,-294 362.5,-318"/>
+<text text-anchor="middle" x="318.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateget</text>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;esmf_stateget -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_edge5" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#ff0000" d="M134.94,-255.05C161.59,-263.81 198.89,-275.72 232,-285 242.48,-287.94 253.74,-290.87 264.55,-293.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.75,-296.97 274.3,-295.97 265.43,-290.18 263.75,-296.97"/>
+</g>
+<!-- interface~esmfl_stategetpointertodata -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_node7" class="node">
+<title>interface~esmfl_stategetpointertodata</title>
+<g id="a_proc~~evaluate_box_mask~~CallsGraph_node7"><a xlink:href="../interface/esmfl_stategetpointertodata.html" xlink:title="ESMFL_StateGetPointerToData">
+<polygon fill="#a7506f" stroke="#a7506f" points="405,-276 232,-276 232,-252 405,-252 405,-276"/>
+<text text-anchor="middle" x="318.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_StateGetPointerToData</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;interface~esmfl_stategetpointertodata -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_edge6" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;interface~esmfl_stategetpointertodata</title>
+<path fill="none" stroke="#ff0000" d="M196.11,-252.33C204.54,-253.14 213.06,-253.96 221.48,-254.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="221.39,-258.28 231.68,-255.75 222.06,-251.31 221.39,-258.28"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_node8" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~evaluate_box_mask~~CallsGraph_node8"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="358,-234 279,-234 279,-210 358,-210 358,-234"/>
+<text text-anchor="middle" x="318.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;interface~mapl_assert -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_edge7" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M196.11,-233.67C221.28,-231.25 247.33,-228.74 268.8,-226.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="269.34,-230.14 278.96,-225.7 268.67,-223.18 269.34,-230.14"/>
+</g>
+<!-- proc~create_field_from_field -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_node9" class="node">
+<title>proc~create_field_from_field</title>
+<g id="a_proc~~evaluate_box_mask~~CallsGraph_node9"><a xlink:href="../proc/create_field_from_field.html" xlink:title="create_field_from_field">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="385,-192 252,-192 252,-168 385,-168 385,-192"/>
+<text text-anchor="middle" x="318.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">create_field_from_field</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;proc~create_field_from_field -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_edge8" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;proc~create_field_from_field</title>
+<path fill="none" stroke="#ff0000" d="M134.94,-230.95C161.59,-222.19 198.89,-210.28 232,-201 239.85,-198.8 248.13,-196.61 256.34,-194.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="257.43,-197.84 266.27,-192.01 255.72,-191.06 257.43,-197.84"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_node10" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~evaluate_box_mask~~CallsGraph_node10"><a xlink:href="../proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="362.5,-150 274.5,-150 274.5,-126 362.5,-126 362.5,-150"/>
+<text text-anchor="middle" x="318.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_edge9" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M114.45,-230.88C138.33,-212.7 186.26,-178.45 232,-159 242.23,-154.65 253.55,-151.08 264.51,-148.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="265.58,-151.53 274.44,-145.73 263.89,-144.74 265.58,-151.53"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_node11" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~evaluate_box_mask~~CallsGraph_node11"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="359.5,-108 277.5,-108 277.5,-84 359.5,-84 359.5,-108"/>
+<text text-anchor="middle" x="318.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;proc~mapl_return -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_edge10" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M108.17,-230.79C127.89,-205.45 177,-147.02 232,-117 242.8,-111.11 255.25,-106.84 267.26,-103.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="268.25,-107.13 277.19,-101.45 266.66,-100.31 268.25,-107.13"/>
+</g>
+<!-- proc~mapl_stateeval -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_node12" class="node">
+<title>proc~mapl_stateeval</title>
+<g id="a_proc~~evaluate_box_mask~~CallsGraph_node12"><a xlink:href="../proc/mapl_stateeval.html" xlink:title="MAPL_StateEval">
+<polygon fill="#d9534f" stroke="#d9534f" points="367,-66 270,-66 270,-42 367,-42 367,-66"/>
+<text text-anchor="middle" x="318.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateEval</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_edge11" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M105.09,-230.56C121.15,-199.15 167.84,-116.22 232,-75 240.49,-69.55 250.28,-65.51 260.14,-62.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="261.24,-65.85 269.98,-59.87 259.42,-59.09 261.24,-65.85"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_node13" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~evaluate_box_mask~~CallsGraph_node13"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="356.5,-24 280.5,-24 280.5,0 356.5,0 356.5,-24"/>
+<text text-anchor="middle" x="318.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;proc~mapl_verify -->
+<g id="proc~~evaluate_box_mask~~CallsGraph_edge12" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M103.03,-230.74C115.66,-194.35 158.08,-86.17 232,-33 243.17,-24.96 257.07,-19.98 270.38,-16.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="271.28,-20.29 280.4,-14.9 269.9,-13.43 271.28,-20.29"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~evaluate_box_mask~~CalledByGraph Pages: 1 -->
+<svg id="procevaluate_box_maskCalledByGraph" width="641pt" height="27pt"
+ viewBox="0.00 0.00 641.00 27.06" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~evaluate_box_mask~~CalledByGraph" class="graph" transform="scale(0.85 0.85) rotate(0) translate(4 28)">
+<title>proc~~evaluate_box_mask~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 754,-28 754,4 -4,4"/>
+<!-- proc~evaluate_box_mask -->
+<g id="proc~~evaluate_box_mask~~CalledByGraph_node1" class="node">
+<title>proc~evaluate_box_mask</title>
+<polygon fill="none" stroke="black" points="750,-24 554,-24 554,0 750,0 750,-24"/>
+<text text-anchor="middle" x="652" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataMask%evaluate_box_mask</text>
+</g>
+<!-- proc~evaluate_mask -->
+<g id="proc~~evaluate_box_mask~~CalledByGraph_node2" class="node">
+<title>proc~evaluate_mask</title>
+<g id="a_proc~~evaluate_box_mask~~CalledByGraph_node2"><a xlink:href="../proc/evaluate_mask.html" xlink:title="ExtDataMask%evaluate_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="518,-24 346,-24 346,0 518,0 518,-24"/>
+<text text-anchor="middle" x="432" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_mask&#45;&gt;proc~evaluate_box_mask -->
+<g id="proc~~evaluate_box_mask~~CalledByGraph_edge1" class="edge">
+<title>proc~evaluate_mask&#45;&gt;proc~evaluate_box_mask</title>
+<path fill="none" stroke="#ff0000" d="M518.22,-12C526.63,-12 535.24,-12 543.84,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="543.91,-15.5 553.91,-12 543.91,-8.5 543.91,-15.5"/>
+</g>
+<!-- proc~evaluate_derived_field -->
+<g id="proc~~evaluate_box_mask~~CalledByGraph_node3" class="node">
+<title>proc~evaluate_derived_field</title>
+<g id="a_proc~~evaluate_box_mask~~CalledByGraph_node3"><a xlink:href="../proc/evaluate_derived_field.html" xlink:title="DerivedExport%evaluate_derived_field">
+<polygon fill="#d9534f" stroke="#d9534f" points="310,-24 90,-24 90,0 310,0 310,-24"/>
+<text text-anchor="middle" x="200" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DerivedExport%evaluate_derived_field</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_derived_field&#45;&gt;proc~evaluate_mask -->
+<g id="proc~~evaluate_box_mask~~CalledByGraph_edge2" class="edge">
+<title>proc~evaluate_derived_field&#45;&gt;proc~evaluate_mask</title>
+<path fill="none" stroke="#ff0000" d="M310.27,-12C318.76,-12 327.29,-12 335.68,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="335.82,-15.5 345.82,-12 335.82,-8.5 335.82,-15.5"/>
+</g>
+<!-- proc~run_~5 -->
+<g id="proc~~evaluate_box_mask~~CalledByGraph_node4" class="node">
+<title>proc~run_~5</title>
+<g id="a_proc~~evaluate_box_mask~~CalledByGraph_node4"><a xlink:href="../proc/run_~5.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~5&#45;&gt;proc~evaluate_derived_field -->
+<g id="proc~~evaluate_box_mask~~CalledByGraph_edge3" class="edge">
+<title>proc~run_~5&#45;&gt;proc~evaluate_derived_field</title>
+<path fill="none" stroke="#ff0000" d="M54.34,-12C61.77,-12 70.37,-12 79.6,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.84,-15.5 89.84,-12 79.84,-8.5 79.84,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocevaluate_box_maskCalledByGraph = svgPanZoom('#procevaluate_box_maskCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">evaluate_box_mask</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">state</span><span class="p">,</span><span class="n">var_name</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtDataMask</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vartomask</span><span class="p">,</span><span class="n">strtmp</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">rvar2d</span><span class="p">(:,:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">rvar3d</span><span class="p">(:,:,:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">var2d</span><span class="p">(:,:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">var3d</span><span class="p">(:,:,:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lats</span><span class="p">(:,:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lons</span><span class="p">(:,:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">limitS</span><span class="p">,</span><span class="w"> </span><span class="n">limitN</span><span class="p">,</span><span class="w"> </span><span class="n">limitE</span><span class="p">,</span><span class="w"> </span><span class="n">limitW</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">limitE1</span><span class="p">,</span><span class="w"> </span><span class="n">limitW1</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">limitE2</span><span class="p">,</span><span class="w"> </span><span class="n">limitW2</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="n">temp_field</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="k">is</span><span class="p">,</span><span class="n">nargs</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">counts</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">logical</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">isCube</span><span class="p">,</span><span class="w"> </span><span class="n">twoBox</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">temp2d</span><span class="p">(:,:)</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">args</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CoordSys_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">coordSys</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="n">var_name</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">coordsys</span><span class="o">=</span><span class="n">coordsys</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">temp_field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_field_from_Field</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">       </span><span class="n">strtmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">mask_arguments</span>
+<span class="w">       </span><span class="k">do </span><span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span>
+<span class="w">          </span><span class="k">is</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">strtmp</span><span class="p">,</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">is</span><span class="w"> </span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">args</span><span class="p">(</span><span class="n">nargs</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strtmp</span><span class="p">(:</span><span class="k">is</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">          </span><span class="k">else</span>
+<span class="k">             </span><span class="n">args</span><span class="p">(</span><span class="n">nargs</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strtmp</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">          </span><span class="n">strtmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strtmp</span><span class="p">(</span><span class="k">is</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span>
+<span class="w">       </span><span class="k">end do</span>
+
+<span class="k">       </span><span class="n">varToMask</span><span class="o">=</span><span class="n">args</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">READ</span><span class="p">(</span><span class="n">args</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="o">*</span><span class="p">,</span><span class="n">IOSTAT</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="n">limitS</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">READ</span><span class="p">(</span><span class="n">args</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="o">*</span><span class="p">,</span><span class="n">IOSTAT</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="n">limitN</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">READ</span><span class="p">(</span><span class="n">args</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="o">*</span><span class="p">,</span><span class="n">IOSTAT</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="n">limitW</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">READ</span><span class="p">(</span><span class="n">args</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="o">*</span><span class="p">,</span><span class="n">IOSTAT</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="n">limitE</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">limitE</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">limitW</span><span class="p">,</span><span class="s1">&#39;LimitE must be greater than limitW&#39;</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">limitE</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">limitW</span><span class="p">,</span><span class="s1">&#39;LimitE cannot equal limitW&#39;</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">limitN</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">limitS</span><span class="p">,</span><span class="s1">&#39;LimitN cannot equal LimitS&#39;</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">((</span><span class="n">limitE</span><span class="o">-</span><span class="n">limitW</span><span class="p">)</span><span class="o">&lt;=</span><span class="mi">36</span><span class="mf">0.0d0</span><span class="p">,</span><span class="s1">&#39;(LimitE - LimitW) must be less than or equal to 360&#39;</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">       </span><span class="c">! do some tests if cube goes from 0 to 360, lat-lon -180 to 180</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">globalCellCountPerDim</span><span class="o">=</span><span class="n">COUNTS</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">counts</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">==</span><span class="mi">6</span><span class="o">*</span><span class="n">counts</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">isCube</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          </span><span class="n">isCube</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       </span><span class="n">twoBox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isCube</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="n">limitW</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.0d0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">limitE</span><span class="w"> </span><span class="o">&gt;=</span><span class="mf">0.0d0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">             </span><span class="c">! need two boxes</span>
+<span class="w">             </span><span class="n">twoBox</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">             </span><span class="n">limitW1</span><span class="o">=</span><span class="mf">0.0d0</span>
+<span class="w">             </span><span class="n">limitE1</span><span class="o">=</span><span class="n">limitE</span>
+<span class="w">             </span><span class="n">limitW2</span><span class="o">=</span><span class="n">limitW</span><span class="o">+</span><span class="mi">36</span><span class="mf">0.0d0</span>
+<span class="w">             </span><span class="n">limitE2</span><span class="o">=</span><span class="mi">36</span><span class="mf">0.0d0</span>
+
+<span class="w">          </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">limitW</span><span class="w"> </span><span class="o">&lt;</span><span class="mf">0.0d0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">limitE</span><span class="w"> </span><span class="o">&lt;</span><span class="mf">0.0d0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">             </span><span class="c">! just shift</span>
+<span class="w">             </span><span class="n">limitW1</span><span class="o">=</span><span class="n">limitW</span><span class="o">+</span><span class="mi">36</span><span class="mf">0.d0</span>
+<span class="w">             </span><span class="n">limitE1</span><span class="o">=</span><span class="n">limitE</span><span class="o">+</span><span class="mi">36</span><span class="mf">0.d0</span>
+
+<span class="w">          </span><span class="k">else</span>
+<span class="w">             </span><span class="c">! normal case</span>
+<span class="w">             </span><span class="n">limitW1</span><span class="o">=</span><span class="n">limitW</span>
+<span class="w">             </span><span class="n">limitE1</span><span class="o">=</span><span class="n">limitE</span>
+<span class="w">          </span><span class="k">end if</span>
+
+<span class="k">       else</span>
+
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="n">limitW</span><span class="w">  </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">18</span><span class="mf">0.0d0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">limitE</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">18</span><span class="mf">0.0d0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">             </span><span class="c">! need two boxes</span>
+<span class="w">             </span><span class="n">twoBox</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">             </span><span class="n">limitW1</span><span class="o">=</span><span class="n">limitW</span>
+<span class="w">             </span><span class="n">limitE1</span><span class="o">=</span><span class="mi">18</span><span class="mf">0.0d0</span>
+<span class="w">             </span><span class="n">limitW2</span><span class="o">=-</span><span class="mi">18</span><span class="mf">0.d0</span>
+<span class="w">             </span><span class="n">limitE2</span><span class="o">=</span><span class="n">limitE</span><span class="o">-</span><span class="mi">36</span><span class="mf">0.0d0</span>
+<span class="w">          </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">limitW</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">18</span><span class="mf">0.0d0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">limitE</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">18</span><span class="mf">0.0d0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">             </span><span class="c">! just shift</span>
+<span class="w">             </span><span class="n">limitW1</span><span class="o">=</span><span class="n">limitW</span><span class="o">-</span><span class="mi">36</span><span class="mf">0.d0</span>
+<span class="w">             </span><span class="n">limitE1</span><span class="o">=</span><span class="n">limitE</span><span class="o">-</span><span class="mi">36</span><span class="mf">0.d0</span>
+<span class="w">          </span><span class="k">else</span>
+<span class="w">             </span><span class="c">! normal case</span>
+<span class="w">             </span><span class="n">limitW1</span><span class="o">=</span><span class="n">limitW</span>
+<span class="w">             </span><span class="n">limitE1</span><span class="o">=</span><span class="n">limitE</span>
+<span class="w">          </span><span class="k">end if</span>
+
+<span class="k">       end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">coordSys</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_COORDSYS_SPH_RAD</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">limitE1</span><span class="o">=</span><span class="n">limitE1</span><span class="o">*</span><span class="n">MAPL_PI_R8</span><span class="o">/</span><span class="mi">18</span><span class="mf">0.0d0</span>
+<span class="w">          </span><span class="n">limitW1</span><span class="o">=</span><span class="n">limitW1</span><span class="o">*</span><span class="n">MAPL_PI_R8</span><span class="o">/</span><span class="mi">18</span><span class="mf">0.0d0</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">twoBox</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">limitE2</span><span class="o">=</span><span class="n">limitE2</span><span class="o">*</span><span class="n">MAPL_PI_R8</span><span class="o">/</span><span class="mi">18</span><span class="mf">0.0d0</span>
+<span class="w">             </span><span class="n">limitW2</span><span class="o">=</span><span class="n">limitW2</span><span class="o">*</span><span class="n">MAPL_PI_R8</span><span class="o">/</span><span class="mi">18</span><span class="mf">0.0d0</span>
+<span class="w">          </span><span class="k">end if</span>
+
+<span class="k">          </span><span class="n">limitN</span><span class="o">=</span><span class="n">limitN</span><span class="o">*</span><span class="n">MAPL_PI_R8</span><span class="o">/</span><span class="mi">18</span><span class="mf">0.0d0</span>
+<span class="w">          </span><span class="n">limitS</span><span class="o">=</span><span class="n">limitS</span><span class="o">*</span><span class="n">MAPL_PI_R8</span><span class="o">/</span><span class="mi">18</span><span class="mf">0.0d0</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="k">       call </span><span class="n">MAPL_StateEval</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="n">varToMask</span><span class="p">,</span><span class="n">temp_field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">temp_field</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">farrayptr</span><span class="o">=</span><span class="n">rvar2d</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="n">var2d</span><span class="p">,</span><span class="n">var_name</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">temp_field</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">farrayptr</span><span class="o">=</span><span class="n">rvar3d</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="n">var3d</span><span class="p">,</span><span class="n">var_name</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Rank must be 2 or 3&#39;</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">var2d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">          </span><span class="k">where</span><span class="p">(</span><span class="n">limitS</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">lats</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">lats</span><span class="w"> </span><span class="o">&lt;=</span><span class="n">limitN</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">limitW1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">lons</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">lons</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">limitE1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">var2d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rvar2d</span>
+<span class="w">       </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">var3d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">          </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">var3d</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">             </span><span class="k">where</span><span class="p">(</span><span class="n">limitS</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">lats</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">lats</span><span class="w"> </span><span class="o">&lt;=</span><span class="n">limitN</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">limitW1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">lons</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">lons</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">limitE1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">var3d</span><span class="p">(:,:,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rvar3d</span><span class="p">(:,:,</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="k">enddo</span>
+<span class="k">       end if</span>
+
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">twoBox</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">temp2d</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">var2d</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">size</span><span class="p">(</span><span class="n">var2d</span><span class="p">,</span><span class="mi">2</span><span class="p">)),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">temp2d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">             </span><span class="k">where</span><span class="p">(</span><span class="n">limitS</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">lats</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">lats</span><span class="w"> </span><span class="o">&lt;=</span><span class="n">limitN</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">limitW2</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">lons</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">lons</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">limitE2</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">temp2d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rvar2d</span>
+<span class="w">             </span><span class="n">var2d</span><span class="o">=</span><span class="n">var2d</span><span class="o">+</span><span class="n">temp2d</span>
+<span class="w">          </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">var3d</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">                </span><span class="n">temp2d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">                </span><span class="k">where</span><span class="p">(</span><span class="n">limitS</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">lats</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">lats</span><span class="w"> </span><span class="o">&lt;=</span><span class="n">limitN</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">limitW2</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">lons</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">lons</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">limitE2</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">temp2d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rvar3d</span><span class="p">(:,:,</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                </span><span class="n">var3d</span><span class="p">(:,:,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">var3d</span><span class="p">(:,:,</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="n">temp2d</span>
+<span class="w">             </span><span class="k">enddo</span>
+<span class="k">          end if</span>
+<span class="k">          deallocate</span><span class="p">(</span><span class="n">temp2d</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">temp_field</span><span class="p">,</span><span class="w"> </span><span class="n">noGarbage</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">       </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">evaluate_box_mask</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-24T15:00:06.366583             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
