@@ -1,0 +1,1101 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>GetBegDateTime &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>GetBegDateTime
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.2% of total for procedures.">126 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ESMF_CFIOUtilMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmf_cfioutilmod.f90.html'>ESMF_CFIOUtilMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmf_cfioutilmod.html'>ESMF_CFIOUtilMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">GetBegDateTime</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/getbegdatetime.html#src">GetBegDateTime</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine GetBegDateTime(fid, begDate, begTime, incSecs, rc)  
+</h2>
+    
+
+    <p><code>GetBegDateTime</code> - Get begin date/time of file</p>
+<p>This routine returns the begin date/begin time on file.
+ For a native CFIO file, it simply returns the value of
+ global attributes begin_date/begin_time. If these do no exist then
+ it attempts to parse the COARDS compliant time unit.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>1999.11.01  da Silva  Initial code.</li>
+<li>1999.11.08  da Silva  Generic time coordinate variable (no name assumed).</li>
+<li>2000.10.18  Lucchesi  Added ParseTimeUnits subroutine to handle a wider variety of Units formats.</li>
+</ul>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fid~9"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fid</strong></td>
+            <td>
+                <p>file ID</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-begdate~5"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>begDate</strong></td>
+            <td>
+                <p>beginning date</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-begtime~11"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>begTime</strong></td>
+            <td>
+                <p>beginning time</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-incsecs~5"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>incSecs</strong></td>
+            <td>
+                <p>time increment in secs</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1737"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                <p>error return code</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~getbegdatetime~~CallsGraph Pages: 1 -->
+<svg id="procgetbegdatetimeCallsGraph" width="641pt" height="434pt"
+ viewBox="0.00 0.00 641.00 434.44" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~getbegdatetime~~CallsGraph" class="graph" transform="scale(0.97 0.97) rotate(0) translate(4 444)">
+<title>proc~~getbegdatetime~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-444 657,-444 657,4 -4,4"/>
+<!-- proc~getbegdatetime -->
+<g id="proc~~getbegdatetime~~CallsGraph_node1" class="node">
+<title>proc~getbegdatetime</title>
+<polygon fill="none" stroke="black" points="104,-230 0,-230 0,-206 104,-206 104,-230"/>
+<text text-anchor="middle" x="52" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50">GetBegDateTime</text>
+</g>
+<!-- interface~getdate -->
+<g id="proc~~getbegdatetime~~CallsGraph_node2" class="node">
+<title>interface~getdate</title>
+<g id="a_proc~~getbegdatetime~~CallsGraph_node2"><a xlink:href="../interface/getdate.html" xlink:title="GetDate">
+<polygon fill="#a7506f" stroke="#a7506f" points="238,-440 181,-440 181,-416 238,-416 238,-440"/>
+<text text-anchor="middle" x="209.5" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GetDate</text>
+</a>
+</g>
+</g>
+<!-- proc~getbegdatetime&#45;&gt;interface~getdate -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge1" class="edge">
+<title>proc~getbegdatetime&#45;&gt;interface~getdate</title>
+<path fill="none" stroke="#ff0000" d="M55.06,-230.23C61.36,-263.69 83.44,-357.55 140,-407 148.68,-414.58 160.04,-419.43 171.02,-422.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.35,-425.97 180.9,-424.9 171.99,-419.16 170.35,-425.97"/>
+</g>
+<!-- nf90_get_att -->
+<g id="proc~~getbegdatetime~~CallsGraph_node3" class="node">
+<title>nf90_get_att</title>
+<polygon fill="#777777" stroke="#777777" points="249,-398 170,-398 170,-374 249,-374 249,-398"/>
+<text text-anchor="middle" x="209.5" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_att</text>
+</g>
+<!-- proc~getbegdatetime&#45;&gt;nf90_get_att -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge2" class="edge">
+<title>proc~getbegdatetime&#45;&gt;nf90_get_att</title>
+<path fill="none" stroke="#ff0000" d="M56.84,-230.33C66.24,-258.54 93.17,-328.13 140,-365 145.91,-369.66 152.86,-373.28 160.01,-376.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="159.24,-379.54 169.83,-379.49 161.51,-372.92 159.24,-379.54"/>
+</g>
+<!-- nf90_get_var -->
+<g id="proc~~getbegdatetime~~CallsGraph_node4" class="node">
+<title>nf90_get_var</title>
+<polygon fill="#777777" stroke="#777777" points="250.5,-356 168.5,-356 168.5,-332 250.5,-332 250.5,-356"/>
+<text text-anchor="middle" x="209.5" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
+</g>
+<!-- proc~getbegdatetime&#45;&gt;nf90_get_var -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge3" class="edge">
+<title>proc~getbegdatetime&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#ff0000" d="M59.7,-230.02C72.47,-251.81 102.38,-297.91 140,-323 145.7,-326.8 152.12,-329.94 158.69,-332.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="157.75,-335.9 168.34,-335.93 160.07,-329.3 157.75,-335.9"/>
+</g>
+<!-- nf90_inq_varid -->
+<g id="proc~~getbegdatetime~~CallsGraph_node5" class="node">
+<title>nf90_inq_varid</title>
+<polygon fill="#777777" stroke="#777777" points="255,-314 164,-314 164,-290 255,-290 255,-314"/>
+<text text-anchor="middle" x="209.5" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+</g>
+<!-- proc~getbegdatetime&#45;&gt;nf90_inq_varid -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge4" class="edge">
+<title>proc~getbegdatetime&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#ff0000" d="M66.54,-230.01C82.91,-243.99 111.79,-266.95 140,-281 144.55,-283.26 149.38,-285.34 154.31,-287.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="153.22,-290.56 163.82,-290.64 155.58,-283.97 153.22,-290.56"/>
+</g>
+<!-- nf90_inquire -->
+<g id="proc~~getbegdatetime~~CallsGraph_node6" class="node">
+<title>nf90_inquire</title>
+<polygon fill="#777777" stroke="#777777" points="249,-272 170,-272 170,-248 249,-248 249,-272"/>
+<text text-anchor="middle" x="209.5" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire</text>
+</g>
+<!-- proc~getbegdatetime&#45;&gt;nf90_inquire -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge5" class="edge">
+<title>proc~getbegdatetime&#45;&gt;nf90_inquire</title>
+<path fill="none" stroke="#ff0000" d="M97.56,-230.04C117.06,-235.3 139.99,-241.5 159.93,-246.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="159.18,-250.3 169.74,-249.53 161,-243.55 159.18,-250.3"/>
+</g>
+<!-- nf90_inquire_dimension -->
+<g id="proc~~getbegdatetime~~CallsGraph_node7" class="node">
+<title>nf90_inquire_dimension</title>
+<polygon fill="#777777" stroke="#777777" points="279,-230 140,-230 140,-206 279,-206 279,-230"/>
+<text text-anchor="middle" x="209.5" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_dimension</text>
+</g>
+<!-- proc~getbegdatetime&#45;&gt;nf90_inquire_dimension -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge6" class="edge">
+<title>proc~getbegdatetime&#45;&gt;nf90_inquire_dimension</title>
+<path fill="none" stroke="#ff0000" d="M104.35,-218C112.49,-218 121.06,-218 129.66,-218"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="129.73,-221.5 139.73,-218 129.73,-214.5 129.73,-221.5"/>
+</g>
+<!-- nf90_inquire_variable -->
+<g id="proc~~getbegdatetime~~CallsGraph_node8" class="node">
+<title>nf90_inquire_variable</title>
+<polygon fill="#777777" stroke="#777777" points="273,-188 146,-188 146,-164 273,-164 273,-188"/>
+<text text-anchor="middle" x="209.5" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_variable</text>
+</g>
+<!-- proc~getbegdatetime&#45;&gt;nf90_inquire_variable -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge7" class="edge">
+<title>proc~getbegdatetime&#45;&gt;nf90_inquire_variable</title>
+<path fill="none" stroke="#ff0000" d="M97.56,-205.96C115.21,-201.2 135.67,-195.67 154.17,-190.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="155.19,-194.02 163.93,-188.04 153.37,-187.27 155.19,-194.02"/>
+</g>
+<!-- proc~cfio_parseinttime -->
+<g id="proc~~getbegdatetime~~CallsGraph_node9" class="node">
+<title>proc~cfio_parseinttime</title>
+<g id="a_proc~~getbegdatetime~~CallsGraph_node9"><a xlink:href="../proc/cfio_parseinttime.html" xlink:title="CFIO_parseIntTime">
+<polygon fill="#d9534f" stroke="#d9534f" points="653,-232 541,-232 541,-208 653,-208 653,-232"/>
+<text text-anchor="middle" x="597" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIO_parseIntTime</text>
+</a>
+</g>
+</g>
+<!-- proc~getbegdatetime&#45;&gt;proc~cfio_parseinttime -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge8" class="edge">
+<title>proc~getbegdatetime&#45;&gt;proc~cfio_parseinttime</title>
+<path fill="none" stroke="#ff0000" d="M64.56,-205.83C80.03,-190.51 109.13,-165 140,-155 290.65,-106.18 481.09,-171.79 559.62,-204"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="558.49,-207.32 569.07,-207.94 561.18,-200.86 558.49,-207.32"/>
+</g>
+<!-- proc~err -->
+<g id="proc~~getbegdatetime~~CallsGraph_node10" class="node">
+<title>proc~err</title>
+<g id="a_proc~~getbegdatetime~~CallsGraph_node10"><a xlink:href="../proc/err.html" xlink:title="err">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="236.5,-108 182.5,-108 182.5,-84 236.5,-84 236.5,-108"/>
+<text text-anchor="middle" x="209.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">err</text>
+</a>
+</g>
+</g>
+<!-- proc~getbegdatetime&#45;&gt;proc~err -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge9" class="edge">
+<title>proc~getbegdatetime&#45;&gt;proc~err</title>
+<path fill="none" stroke="#ff0000" d="M61.21,-205.68C75.17,-185.57 105.44,-145.58 140,-122 149.82,-115.3 161.59,-110.03 172.58,-106.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="174.03,-109.24 182.38,-102.73 171.79,-102.61 174.03,-109.24"/>
+</g>
+<!-- proc~identifydim -->
+<g id="proc~~getbegdatetime~~CallsGraph_node11" class="node">
+<title>proc~identifydim</title>
+<g id="a_proc~~getbegdatetime~~CallsGraph_node11"><a xlink:href="../proc/identifydim.html" xlink:title="IdentifyDim">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="246.5,-66 172.5,-66 172.5,-42 246.5,-42 246.5,-66"/>
+<text text-anchor="middle" x="209.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IdentifyDim</text>
+</a>
+</g>
+</g>
+<!-- proc~getbegdatetime&#45;&gt;proc~identifydim -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge10" class="edge">
+<title>proc~getbegdatetime&#45;&gt;proc~identifydim</title>
+<path fill="none" stroke="#ff0000" d="M56.94,-206C66.55,-178.56 93.89,-110.85 140,-75 146.71,-69.79 154.71,-65.86 162.84,-62.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="163.91,-66.24 172.37,-59.86 161.78,-59.57 163.91,-66.24"/>
+</g>
+<!-- proc~parsetimeunits -->
+<g id="proc~~getbegdatetime~~CallsGraph_node12" class="node">
+<title>proc~parsetimeunits</title>
+<g id="a_proc~~getbegdatetime~~CallsGraph_node12"><a xlink:href="../proc/parsetimeunits.html" xlink:title="ParseTimeUnits">
+<polygon fill="#d9534f" stroke="#d9534f" points="256.5,-24 162.5,-24 162.5,0 256.5,0 256.5,-24"/>
+<text text-anchor="middle" x="209.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ParseTimeUnits</text>
+</a>
+</g>
+</g>
+<!-- proc~getbegdatetime&#45;&gt;proc~parsetimeunits -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge11" class="edge">
+<title>proc~getbegdatetime&#45;&gt;proc~parsetimeunits</title>
+<path fill="none" stroke="#ff0000" d="M55.24,-205.55C61.87,-172.38 84.49,-81.13 140,-33 143.89,-29.62 148.32,-26.79 153.01,-24.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="154.5,-27.58 162.27,-20.38 151.71,-21.16 154.5,-27.58"/>
+</g>
+<!-- proc~getdateint4 -->
+<g id="proc~~getbegdatetime~~CallsGraph_node13" class="node">
+<title>proc~getdateint4</title>
+<g id="a_proc~~getbegdatetime~~CallsGraph_node13"><a xlink:href="../proc/getdateint4.html" xlink:title="GetDateInt4">
+<polygon fill="#d9534f" stroke="#d9534f" points="392,-440 315,-440 315,-416 392,-416 392,-440"/>
+<text text-anchor="middle" x="353.5" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GetDateInt4</text>
+</a>
+</g>
+</g>
+<!-- interface~getdate&#45;&gt;proc~getdateint4 -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge12" class="edge">
+<title>interface~getdate&#45;&gt;proc~getdateint4</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M238.22,-428C257.1,-428 282.59,-428 304.7,-428"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="304.91,-431.5 314.91,-428 304.91,-424.5 304.91,-431.5"/>
+</g>
+<!-- proc~getdateint8 -->
+<g id="proc~~getbegdatetime~~CallsGraph_node14" class="node">
+<title>proc~getdateint8</title>
+<g id="a_proc~~getbegdatetime~~CallsGraph_node14"><a xlink:href="../proc/getdateint8.html" xlink:title="GetDateInt8">
+<polygon fill="#d9534f" stroke="#d9534f" points="505,-400 428,-400 428,-376 505,-376 505,-400"/>
+<text text-anchor="middle" x="466.5" y="-385.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GetDateInt8</text>
+</a>
+</g>
+</g>
+<!-- interface~getdate&#45;&gt;proc~getdateint8 -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge13" class="edge">
+<title>interface~getdate&#45;&gt;proc~getdateint8</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M238.34,-421.83C259.34,-417.32 288.88,-411.27 315,-407 349.29,-401.4 388.22,-396.52 417.89,-393.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="418.43,-396.57 427.97,-391.97 417.64,-389.62 418.43,-396.57"/>
+</g>
+<!-- proc~getdateint4&#45;&gt;proc~getdateint8 -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge14" class="edge">
+<title>proc~getdateint4&#45;&gt;proc~getdateint8</title>
+<path fill="none" stroke="#ff0000" d="M387.8,-416C398.68,-412.08 410.92,-407.67 422.41,-403.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="423.61,-406.81 431.84,-400.13 421.24,-400.23 423.61,-406.81"/>
+</g>
+<!-- proc~getdateint8&#45;&gt;proc~cfio_parseinttime -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge16" class="edge">
+<title>proc~getdateint8&#45;&gt;proc~cfio_parseinttime</title>
+<path fill="none" stroke="#00ffff" d="M476.74,-375.92C498.49,-347.48 553.12,-276.06 580.23,-240.61"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="583.2,-242.5 586.5,-232.43 577.64,-238.24 583.2,-242.5"/>
+</g>
+<!-- proc~caldat -->
+<g id="proc~~getbegdatetime~~CallsGraph_node15" class="node">
+<title>proc~caldat</title>
+<g id="a_proc~~getbegdatetime~~CallsGraph_node15"><a xlink:href="../proc/caldat.html" xlink:title="CALDAT">
+<polygon fill="#d9534f" stroke="#d9534f" points="624.5,-421 569.5,-421 569.5,-397 624.5,-397 624.5,-421"/>
+<text text-anchor="middle" x="597" y="-406.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CALDAT</text>
+</a>
+</g>
+</g>
+<!-- proc~getdateint8&#45;&gt;proc~caldat -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge15" class="edge">
+<title>proc~getdateint8&#45;&gt;proc~caldat</title>
+<path fill="none" stroke="#00ffff" d="M505.01,-394.13C522.07,-396.92 542.18,-400.2 559.15,-402.98"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="558.83,-406.47 569.26,-404.63 559.96,-399.56 558.83,-406.47"/>
+</g>
+<!-- proc~julday -->
+<g id="proc~~getbegdatetime~~CallsGraph_node16" class="node">
+<title>proc~julday</title>
+<g id="a_proc~~getbegdatetime~~CallsGraph_node16"><a xlink:href="../proc/julday.html" xlink:title="julday">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="624,-379 570,-379 570,-355 624,-355 624,-379"/>
+<text text-anchor="middle" x="597" y="-364.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">julday</text>
+</a>
+</g>
+</g>
+<!-- proc~getdateint8&#45;&gt;proc~julday -->
+<g id="proc~~getbegdatetime~~CallsGraph_edge17" class="edge">
+<title>proc~getdateint8&#45;&gt;proc~julday</title>
+<path fill="none" stroke="#00ffff" d="M505.01,-381.87C522.19,-379.06 542.47,-375.75 559.52,-372.96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="560.36,-376.37 569.66,-371.3 559.23,-369.46 560.36,-376.37"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocgetbegdatetimeCallsGraph = svgPanZoom('#procgetbegdatetimeCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~getbegdatetime~~CalledByGraph Pages: 1 -->
+<svg id="procgetbegdatetimeCalledByGraph" width="641pt" height="211pt"
+ viewBox="0.00 0.00 641.00 210.99" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~getbegdatetime~~CalledByGraph" class="graph" transform="scale(0.8 0.8) rotate(0) translate(4 259)">
+<title>proc~~getbegdatetime~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-259 795,-259 795,4 -4,4"/>
+<!-- proc~getbegdatetime -->
+<g id="proc~~getbegdatetime~~CalledByGraph_node1" class="node">
+<title>proc~getbegdatetime</title>
+<polygon fill="none" stroke="black" points="791,-129 687,-129 687,-105 791,-105 791,-129"/>
+<text text-anchor="middle" x="739" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">GetBegDateTime</text>
+</g>
+<!-- proc~esmf_cfiosdffileopen -->
+<g id="proc~~getbegdatetime~~CalledByGraph_node2" class="node">
+<title>proc~esmf_cfiosdffileopen</title>
+<g id="a_proc~~getbegdatetime~~CalledByGraph_node2"><a xlink:href="../proc/esmf_cfiosdffileopen.html" xlink:title="ESMF_CFIOSdfFileOpen">
+<polygon fill="#d9534f" stroke="#d9534f" points="651,-129 516,-129 516,-105 651,-105 651,-129"/>
+<text text-anchor="middle" x="583.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOSdfFileOpen</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiosdffileopen&#45;&gt;proc~getbegdatetime -->
+<g id="proc~~getbegdatetime~~CalledByGraph_edge1" class="edge">
+<title>proc~esmf_cfiosdffileopen&#45;&gt;proc~getbegdatetime</title>
+<path fill="none" stroke="#ff0000" d="M651.38,-117C659.67,-117 668.12,-117 676.33,-117"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="676.58,-120.5 686.58,-117 676.58,-113.5 676.58,-120.5"/>
+</g>
+<!-- proc~esmf_cfiofileopen -->
+<g id="proc~~getbegdatetime~~CalledByGraph_node3" class="node">
+<title>proc~esmf_cfiofileopen</title>
+<g id="a_proc~~getbegdatetime~~CalledByGraph_node3"><a xlink:href="../proc/esmf_cfiofileopen.html" xlink:title="ESMF_CFIOFileOpen">
+<polygon fill="#d9534f" stroke="#d9534f" points="480,-129 362,-129 362,-105 480,-105 480,-129"/>
+<text text-anchor="middle" x="421" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CFIOFileOpen</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiofileopen&#45;&gt;proc~esmf_cfiosdffileopen -->
+<g id="proc~~getbegdatetime~~CalledByGraph_edge2" class="edge">
+<title>proc~esmf_cfiofileopen&#45;&gt;proc~esmf_cfiosdffileopen</title>
+<path fill="none" stroke="#ff0000" d="M480.4,-117C488.71,-117 497.36,-117 505.95,-117"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="505.99,-120.5 515.99,-117 505.99,-113.5 505.99,-120.5"/>
+</g>
+<!-- none~find~17 -->
+<g id="proc~~getbegdatetime~~CalledByGraph_node4" class="node">
+<title>none~find~17</title>
+<g id="a_proc~~getbegdatetime~~CalledByGraph_node4"><a xlink:href="../type/cfiocollection.html#boundprocedure-find~17" xlink:title="CFIOCollection%find">
+<polygon fill="#a7506f" stroke="#a7506f" points="323,-234 202,-234 202,-210 323,-210 323,-234"/>
+<text text-anchor="middle" x="262.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CFIOCollection%find</text>
+</a>
+</g>
+</g>
+<!-- none~find~17&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~getbegdatetime~~CalledByGraph_edge3" class="edge">
+<title>none~find~17&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ff0000" d="M306.87,-209.99C313.48,-207.44 320.06,-204.45 326,-201 355.96,-183.58 384.83,-155.56 402.49,-136.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="405.15,-139.01 409.34,-129.28 400,-134.27 405.15,-139.01"/>
+</g>
+<!-- proc~mapl_cfioopenwrite -->
+<g id="proc~~getbegdatetime~~CalledByGraph_node5" class="node">
+<title>proc~mapl_cfioopenwrite</title>
+<g id="a_proc~~getbegdatetime~~CalledByGraph_node5"><a xlink:href="../proc/mapl_cfioopenwrite.html" xlink:title="MAPL_CFIOOpenWrite">
+<polygon fill="#d9534f" stroke="#d9534f" points="326,-192 199,-192 199,-168 326,-168 326,-192"/>
+<text text-anchor="middle" x="262.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOOpenWrite</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioopenwrite&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~getbegdatetime~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_cfioopenwrite&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ff0000" d="M301.39,-167.92C309.56,-165.13 318.11,-162.08 326,-159 345.95,-151.21 367.82,-141.51 385.43,-133.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="387.15,-136.46 394.75,-129.08 384.2,-130.11 387.15,-136.46"/>
+</g>
+<!-- program~test~14 -->
+<g id="proc~~getbegdatetime~~CalledByGraph_node6" class="node">
+<title>program~test~14</title>
+<g id="a_proc~~getbegdatetime~~CalledByGraph_node6"><a xlink:href="../program/test~14.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289.5,-150 235.5,-150 235.5,-126 289.5,-126 289.5,-150"/>
+<text text-anchor="middle" x="262.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~14&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~getbegdatetime~~CalledByGraph_edge5" class="edge">
+<title>program~test~14&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ff0000" d="M289.69,-134.49C306.75,-132.2 329.84,-129.1 351.85,-126.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="352.41,-129.6 361.86,-124.8 351.48,-122.66 352.41,-129.6"/>
+</g>
+<!-- program~test~3 -->
+<g id="proc~~getbegdatetime~~CalledByGraph_node7" class="node">
+<title>program~test~3</title>
+<g id="a_proc~~getbegdatetime~~CalledByGraph_node7"><a xlink:href="../program/test~3.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289.5,-108 235.5,-108 235.5,-84 289.5,-84 289.5,-108"/>
+<text text-anchor="middle" x="262.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~3&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~getbegdatetime~~CalledByGraph_edge6" class="edge">
+<title>program~test~3&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ff0000" d="M289.69,-99.51C306.75,-101.8 329.84,-104.9 351.85,-107.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="351.48,-111.34 361.86,-109.2 352.41,-104.4 351.48,-111.34"/>
+</g>
+<!-- program~test~4 -->
+<g id="proc~~getbegdatetime~~CalledByGraph_node8" class="node">
+<title>program~test~4</title>
+<g id="a_proc~~getbegdatetime~~CalledByGraph_node8"><a xlink:href="../program/test~4.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289.5,-66 235.5,-66 235.5,-42 289.5,-42 289.5,-66"/>
+<text text-anchor="middle" x="262.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~4&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~getbegdatetime~~CalledByGraph_edge7" class="edge">
+<title>program~test~4&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ff0000" d="M289.55,-62.13C300.84,-65.82 314.16,-70.38 326,-75 345.95,-82.79 367.82,-92.49 385.43,-100.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="384.2,-103.89 394.75,-104.92 387.15,-97.54 384.2,-103.89"/>
+</g>
+<!-- program~test~9 -->
+<g id="proc~~getbegdatetime~~CalledByGraph_node9" class="node">
+<title>program~test~9</title>
+<g id="a_proc~~getbegdatetime~~CalledByGraph_node9"><a xlink:href="../program/test~9.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289.5,-24 235.5,-24 235.5,0 289.5,0 289.5,-24"/>
+<text text-anchor="middle" x="262.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~9&#45;&gt;proc~esmf_cfiofileopen -->
+<g id="proc~~getbegdatetime~~CalledByGraph_edge8" class="edge">
+<title>program~test~9&#45;&gt;proc~esmf_cfiofileopen</title>
+<path fill="none" stroke="#ff0000" d="M289.75,-18.25C301.33,-21.64 314.82,-26.5 326,-33 355.96,-50.42 384.83,-78.44 402.49,-97.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="400,-99.73 409.34,-104.72 405.15,-94.99 400,-99.73"/>
+</g>
+<!-- proc~mapl_cfiocreatefromfile -->
+<g id="proc~~getbegdatetime~~CalledByGraph_node10" class="node">
+<title>proc~mapl_cfiocreatefromfile</title>
+<g id="a_proc~~getbegdatetime~~CalledByGraph_node10"><a xlink:href="../proc/mapl_cfiocreatefromfile.html" xlink:title="MAPL_CFIOCreateFromFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="157,-255 6,-255 6,-231 157,-231 157,-255"/>
+<text text-anchor="middle" x="81.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOCreateFromFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;none~find~17 -->
+<g id="proc~~getbegdatetime~~CalledByGraph_edge9" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;none~find~17</title>
+<path fill="none" stroke="#ff0000" d="M157.12,-234.25C168.57,-232.9 180.37,-231.52 191.71,-230.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.46,-233.62 201.99,-228.98 191.65,-226.67 192.46,-233.62"/>
+</g>
+<!-- proc~mapl_cfioreadbundleread -->
+<g id="proc~~getbegdatetime~~CalledByGraph_node11" class="node">
+<title>proc~mapl_cfioreadbundleread</title>
+<g id="a_proc~~getbegdatetime~~CalledByGraph_node11"><a xlink:href="../proc/mapl_cfioreadbundleread.html" xlink:title="MAPL_CFIOReadBundleRead">
+<polygon fill="#d9534f" stroke="#d9534f" points="163,-213 0,-213 0,-189 163,-189 163,-213"/>
+<text text-anchor="middle" x="81.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOReadBundleRead</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadbundleread&#45;&gt;none~find~17 -->
+<g id="proc~~getbegdatetime~~CalledByGraph_edge10" class="edge">
+<title>proc~mapl_cfioreadbundleread&#45;&gt;none~find~17</title>
+<path fill="none" stroke="#ff0000" d="M163.1,-210.46C172.71,-211.58 182.45,-212.73 191.89,-213.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="191.65,-217.33 201.99,-215.02 192.46,-210.38 191.65,-217.33"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocgetbegdatetimeCalledByGraph = svgPanZoom('#procgetbegdatetimeCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">GetBegDateTime</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">begDate</span><span class="p">,</span><span class="w"> </span><span class="n">begTime</span><span class="p">,</span><span class="w"> </span><span class="n">incSecs</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
+<span class="c">!</span>
+<span class="c">! !USES:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="k">Implicit NONE</span>
+<span class="c">!</span>
+<span class="c">! !INPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">fid</span><span class="w">      </span><span class="c">!! file ID</span>
+<span class="c">!</span>
+<span class="c">! !OUTPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">begDate</span><span class="w">  </span><span class="c">!! beginning date</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">begTime</span><span class="w">  </span><span class="c">!! beginning time</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">incSecs</span><span class="w">  </span><span class="c">!! time increment in secs</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">rc</span><span class="w">       </span><span class="c">!! error return code</span>
+<span class="c">!</span>
+<span class="c">!-------------------------------------------------------------------------</span>
+
+<span class="w">      </span><span class="kt">integer </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">timeId</span><span class="p">,</span><span class="w"> </span><span class="n">hour</span><span class="p">,</span><span class="w"> </span><span class="nb">min</span><span class="p">,</span><span class="w"> </span><span class="n">sec</span><span class="p">,</span><span class="w"> </span><span class="n">corner</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">timInc</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">day</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">timeUnits</span><span class="p">,</span><span class="w"> </span><span class="n">dimUnits</span><span class="p">,</span><span class="w"> </span><span class="n">stdName</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="p">,</span><span class="w"> </span><span class="n">dimName</span>
+<span class="w">      </span><span class="kt">integer </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="n">nvDims</span><span class="p">,</span><span class="w"> </span><span class="n">vdims</span><span class="p">(</span><span class="n">MAXVDIMS</span><span class="p">),</span><span class="w"> </span><span class="n">nvAtts</span><span class="p">,</span><span class="w"> </span><span class="n">dimSize</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">nDims</span><span class="p">,</span><span class="w"> </span><span class="n">nvars</span><span class="p">,</span><span class="w"> </span><span class="n">ngatts</span><span class="p">,</span><span class="w"> </span><span class="n">dimId</span>
+
+<span class="c">!     Time conversion local variables</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w">   </span><span class="n">rtime</span><span class="p">,</span><span class="w"> </span><span class="n">rtime_array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w">   </span><span class="nb">dtime</span><span class="p">,</span><span class="w"> </span><span class="n">dtime_array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT16</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">itime</span><span class="p">,</span><span class="w"> </span><span class="n">itime_array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">ltime</span><span class="p">,</span><span class="w"> </span><span class="n">ltime_array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer   </span><span class="n">t1</span><span class="p">,</span><span class="w"> </span><span class="n">t2</span><span class="p">,</span><span class="w"> </span><span class="n">tMult</span><span class="p">,</span><span class="w"> </span><span class="n">newDate</span><span class="p">,</span><span class="w"> </span><span class="n">newTime</span>
+
+
+<span class="c">!     Start by determing the ID of the time coordinate variable</span>
+<span class="c">!     ---------------------------------------------------------</span>
+<span class="w">      </span><span class="n">timeId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE</span><span class="w"> </span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">nDims</span><span class="p">,</span><span class="w"> </span><span class="n">nvars</span><span class="p">,</span><span class="w"> </span><span class="n">ngatts</span><span class="p">,</span><span class="w"> </span><span class="n">dimId</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;GetBegDateTime: NF90_INQUIRE failed&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">48</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="k">return</span>
+<span class="k">      do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nDims</span>
+<span class="w">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE_DIMENSION</span><span class="w"> </span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">dimName</span><span class="p">,</span><span class="w"> </span><span class="n">dimSize</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;GetBegDateTime: can&#39;t get dim info&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">41</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="s1">&#39;station&#39;</span><span class="p">)</span><span class="w">  </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">dimName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;nv&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">dimName</span><span class="p">,</span><span class="s1">&#39;edges&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="n">dimName</span><span class="o">==</span><span class="s1">&#39;nf&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="n">dimName</span><span class="o">==</span><span class="s1">&#39;orientationStrLen&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="n">dimName</span><span class="o">==</span><span class="s1">&#39;ncontact&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">dimName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;XCdim&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">dimName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;YCdim&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_VARID</span><span class="w"> </span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">dimName</span><span class="p">,</span><span class="w"> </span><span class="n">dimId</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;GetBegDateTime: NF90_INQ_VARID failed&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">40</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="w">        </span><span class="c">! If it has the standard_name attribute, use that instead</span>
+<span class="w">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">dimId</span><span class="p">,</span><span class="s1">&#39;standard_name&#39;</span><span class="p">,</span><span class="n">stdName</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">stdName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">dimName</span><span class="p">)</span>
+<span class="w">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">dimId</span><span class="p">,</span><span class="s1">&#39;units&#39;</span><span class="p">,</span><span class="n">dimUnits</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;GetBegDateTime: could not get units for dimension&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">53</span><span class="p">)&amp;</span>
+<span class="w">            </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">IdentifyDim</span><span class="w"> </span><span class="p">(</span><span class="n">stdName</span><span class="p">,</span><span class="w"> </span><span class="n">dimUnits</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">timeId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dimId</span>
+<span class="w">             </span><span class="n">timeUnits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dimUnits</span>
+<span class="w">             </span><span class="k">exit</span>
+<span class="k">        end if</span>
+<span class="k">      end do</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">timeId</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">43</span>
+<span class="w">         </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;GetBegDateTime: could not find time coord&quot;</span>
+<span class="w">         </span><span class="k">return</span>
+<span class="k">      end if</span>
+
+<span class="c">!     Try assuming this file has been written with CFIO</span>
+<span class="c">!     -------------------------------------------------</span>
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeId</span><span class="p">,</span><span class="s1">&#39;begin_date&#39;</span><span class="p">,</span><span class="n">begDate</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeId</span><span class="p">,</span><span class="s1">&#39;begin_time&#39;</span><span class="p">,</span><span class="n">begTime</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="c">!     Well, it must be a native CFIO file</span>
+<span class="c">!     -----------------------------------</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeId</span><span class="p">,</span><span class="s1">&#39;time_increment&#39;</span><span class="p">,</span><span class="n">timInc</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;GetBegDateTime: missing time increment&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">44</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="c">!ams     write (strTmp,&#39;(i6)&#39;) timinc</span>
+<span class="c">!ams     read (strTmp,&#39;(3I2)&#39;) hour, min, sec</span>
+<span class="w">         </span><span class="k">call </span><span class="n">CFIO_parseIntTime</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">timinc</span><span class="p">,</span><span class="w"> </span><span class="n">hour</span><span class="p">,</span><span class="w"> </span><span class="nb">min</span><span class="p">,</span><span class="w"> </span><span class="n">sec</span><span class="w"> </span><span class="p">)</span>
+<span class="w">        </span><span class="n">incSecs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hour</span><span class="o">*</span><span class="mi">3600</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">min</span><span class="o">*</span><span class="mi">60</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sec</span>
+<span class="c">!ams     print *, &#39;begdate, begtime, incsecs: &#39;,begdate, begtime, incsecs</span>
+<span class="w">         </span><span class="k">return</span><span class="w">                               </span><span class="c">! all done.</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="c">!     If could not find begin_date/begin_time attributes</span>
+<span class="c">!     then this is not a native CFIO file. In this case</span>
+<span class="c">!     attempt to parse the COARDS compliant time units</span>
+<span class="c">!     --------------------------------------------------</span>
+<span class="c">!ams      rc = NF90_GET_ATT(fid,timeId,&#39;units&#39;,timeUnits)</span>
+<span class="c">!ams      if (err(&quot;GetBegDateTime: missing time.units&quot;,rc,-44) .NE. 0) return</span>
+<span class="w">      </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">timeUnits</span><span class="p">,</span><span class="s1">&#39;since&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="p">.</span><span class="n">le</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;GetBegDateTime: invalid time units&quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">44</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">      endif</span>
+
+<span class="c">!     Call to ParseTimeUnits replaces an internal read, that made assumptions</span>
+<span class="c">!     about the format of the Time Units string that were not always true.</span>
+<span class="c">!     (RL: 10/2000)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ParseTimeUnits</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">timeUnits</span><span class="p">,</span><span class="w"> </span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">day</span><span class="p">,</span><span class="w"> </span><span class="n">hour</span><span class="p">,</span><span class="w"> </span><span class="nb">min</span><span class="p">,</span><span class="w"> </span><span class="n">sec</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="n">begDate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">year</span><span class="o">*</span><span class="mi">10000</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">month</span><span class="o">*</span><span class="mi">100</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">day</span>
+<span class="w">      </span><span class="n">begTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hour</span><span class="o">*</span><span class="mi">10000</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">min</span><span class="o">*</span><span class="mi">100</span><span class="w">   </span><span class="o">+</span><span class="w"> </span><span class="n">sec</span>
+
+<span class="c">!     Determine time increment.</span>
+<span class="c">!     -------------------------</span>
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE_VARIABLE</span><span class="w"> </span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">timeID</span><span class="p">,</span><span class="w"> </span><span class="n">varName</span><span class="p">,</span><span class="w"> </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="n">nvDims</span><span class="p">,</span><span class="w"> </span><span class="n">vDims</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">          </span><span class="n">nvAtts</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;GetBegDateTime: error in time variable inquire&quot;</span><span class="p">,&amp;</span>
+<span class="w">         </span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">52</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_FLOAT</span><span class="w"> </span><span class="p">)</span><span class="w">  </span><span class="k">then</span>
+<span class="k">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">           </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeID</span><span class="p">,</span><span class="n">rtime_array</span><span class="p">,</span><span class="n">corner</span><span class="p">,(</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="p">))</span>
+<span class="w">           </span><span class="n">rtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtime_array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="n">t1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">rtime</span><span class="p">)</span>
+<span class="w">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">           </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeID</span><span class="p">,</span><span class="n">rtime_array</span><span class="p">,</span><span class="n">corner</span><span class="p">,(</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="p">))</span>
+<span class="w">           </span><span class="n">rtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtime_array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="n">t2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">rtime</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_DOUBLE</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">           </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeID</span><span class="p">,</span><span class="n">dtime_array</span><span class="p">,</span><span class="n">corner</span><span class="p">,(</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="p">))</span>
+<span class="w">           </span><span class="nb">dtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dtime_array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="n">t1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="nb">dtime</span><span class="p">)</span>
+<span class="c">!ams       print *, t1, dtime, rc</span>
+<span class="w">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">           </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeID</span><span class="p">,</span><span class="n">dtime_array</span><span class="p">,</span><span class="n">corner</span><span class="p">,(</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="p">))</span>
+<span class="w">           </span><span class="nb">dtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dtime_array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="n">t2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="nb">dtime</span><span class="p">)</span>
+<span class="c">!ams       print *, t2, dtime, rc</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_SHORT</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">           </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeID</span><span class="p">,</span><span class="n">itime_array</span><span class="p">,</span><span class="n">corner</span><span class="p">,(</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="p">))</span>
+<span class="w">           </span><span class="nb">itime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itime_array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="n">t1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">itime</span>
+<span class="nb">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">           </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeID</span><span class="p">,</span><span class="n">itime_array</span><span class="p">,</span><span class="n">corner</span><span class="p">,(</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="p">))</span>
+<span class="w">           </span><span class="nb">itime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itime_array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="n">t2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">itime</span>
+<span class="nb">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_INT</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">           </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeID</span><span class="p">,</span><span class="n">ltime_array</span><span class="p">,</span><span class="n">corner</span><span class="p">,(</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="p">))</span>
+<span class="w">           </span><span class="nb">ltime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ltime_array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="n">t1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">ltime</span>
+<span class="nb">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">           </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeID</span><span class="p">,</span><span class="n">ltime_array</span><span class="p">,</span><span class="n">corner</span><span class="p">,(</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="p">))</span>
+<span class="w">           </span><span class="nb">ltime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ltime_array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="n">t2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">ltime</span>
+<span class="nb">      </span><span class="k">else</span>
+<span class="k">           if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;GetBegDateTime: invalid time data type&quot;</span><span class="p">,&amp;</span>
+<span class="w">              </span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">44</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">      endif</span>
+
+
+<span class="c">!     Convert time increment to seconds if necessary</span>
+<span class="c">!     ----------------------------------------------</span>
+<span class="w">      </span><span class="n">incSecs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t1</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">timeUnits</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w">  </span><span class="s1">&#39;minute&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">tMult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">60</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">timeUnits</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;hour&#39;</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">tMult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">timeUnits</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w">  </span><span class="s1">&#39;day&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">tMult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">24</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">           if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;GetBegDateTime: invalid time unit name&quot;</span><span class="p">,&amp;</span>
+<span class="w">              </span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">44</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">      endif</span>
+
+<span class="k">      </span><span class="n">incSecs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">incSecs</span><span class="o">*</span><span class="n">tMult</span>
+
+<span class="c">!     Combine the first time offset with the reference time to get the beginning</span>
+<span class="c">!     date and time</span>
+<span class="c">!     -----------------------------------------------------------------------------</span>
+<span class="w">      </span><span class="k">Call </span><span class="n">GetDate</span><span class="p">(</span><span class="n">begDate</span><span class="p">,</span><span class="n">begTime</span><span class="p">,</span><span class="n">t1</span><span class="o">*</span><span class="n">tMult</span><span class="p">,</span><span class="n">newDate</span><span class="p">,</span><span class="n">newTime</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="n">begDate</span><span class="o">=</span><span class="n">newDate</span>
+<span class="w">      </span><span class="n">begTime</span><span class="o">=</span><span class="n">newTime</span>
+
+<span class="c">!ams  print *, &#39;begdate, begtime, incsecs: &#39;,begdate, begtime, incsecs</span>
+
+<span class="w">      </span><span class="n">incSecs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">incSecs</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c">! all done</span>
+
+<span class="w">      </span><span class="k">return</span>
+<span class="k">      end subroutine </span><span class="n">GetBegDateTime</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-24T16:07:38.905248             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

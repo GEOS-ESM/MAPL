@@ -1,0 +1,749 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_CollectiveWait &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_CollectiveWait
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">82 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Comms.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_comms.f90.html'>MAPL_Comms.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_commsmod.html'>MAPL_CommsMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_CollectiveWait</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_collectivewait.html#src">MAPL_CollectiveWait</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_CollectiveWait(request, DstArray, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-request~6"></span>
+              type(<a href='../type/mapl_commrequest.html'>MAPL_CommRequest</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>request</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dstarray~3"></span>
+              real,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>DstArray</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2134"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_collectivewait~~CallsGraph Pages: 1 -->
+<svg id="procmapl_collectivewaitCallsGraph" width="417pt" height="158pt"
+ viewBox="0.00 0.00 417.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_collectivewait~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154)">
+<title>proc~~mapl_collectivewait~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 413,-154 413,4 -4,4"/>
+<!-- proc~mapl_collectivewait -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_node1" class="node">
+<title>proc~mapl_collectivewait</title>
+<polygon fill="none" stroke="black" points="122,-87 0,-87 0,-63 122,-63 122,-87"/>
+<text text-anchor="middle" x="61" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CollectiveWait</text>
+</g>
+<!-- mpi_recv -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_node2" class="node">
+<title>mpi_recv</title>
+<polygon fill="#777777" stroke="#777777" points="229.5,-150 168.5,-150 168.5,-126 229.5,-126 229.5,-150"/>
+<text text-anchor="middle" x="199" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_recv</text>
+</g>
+<!-- proc~mapl_collectivewait&#45;&gt;mpi_recv -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_collectivewait&#45;&gt;mpi_recv</title>
+<path fill="none" stroke="#ff0000" d="M88.22,-87.15C109.39,-96.95 139.37,-110.84 162.66,-121.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="161.31,-124.86 171.86,-125.89 164.26,-118.51 161.31,-124.86"/>
+</g>
+<!-- mpi_wait -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_node3" class="node">
+<title>mpi_wait</title>
+<polygon fill="#777777" stroke="#777777" points="229,-108 169,-108 169,-84 229,-84 229,-108"/>
+<text text-anchor="middle" x="199" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_wait</text>
+</g>
+<!-- proc~mapl_collectivewait&#45;&gt;mpi_wait -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_collectivewait&#45;&gt;mpi_wait</title>
+<path fill="none" stroke="#ff0000" d="M122.05,-84.27C134.47,-86.19 147.25,-88.16 158.7,-89.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.38,-93.42 168.79,-91.49 159.44,-86.51 158.38,-93.42"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_collectivewait~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="240,-66 158,-66 158,-42 240,-42 240,-66"/>
+<text text-anchor="middle" x="199" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivewait&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_collectivewait&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M122.05,-65.73C130.65,-64.4 139.42,-63.05 147.8,-61.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="148.45,-65.19 157.8,-60.21 147.38,-58.27 148.45,-65.19"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_collectivewait~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="237,-24 161,-24 161,0 237,0 237,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivewait&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_collectivewait&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M88.22,-62.85C109.39,-53.05 139.37,-39.16 162.66,-28.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="164.26,-31.49 171.86,-24.11 161.31,-25.14 164.26,-31.49"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_node6" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="369.5,-108 315.5,-108 315.5,-84 369.5,-84 369.5,-108"/>
+<text text-anchor="middle" x="342.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#00ffff" d="M240.17,-65.92C260.72,-72.02 285.53,-79.39 305.46,-85.3"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="304.51,-88.67 315.1,-88.16 306.51,-81.96 304.51,-88.67"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_node7" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="369.5,-66 315.5,-66 315.5,-42 369.5,-42 369.5,-66"/>
+<text text-anchor="middle" x="342.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#00ffff" d="M240.17,-54C260.53,-54 285.08,-54 304.91,-54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="305.1,-57.5 315.1,-54 305.1,-50.5 305.1,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_node8" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_collectivewait~~CallsGraph_node8"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="409,-24 276,-24 276,0 409,0 409,-24"/>
+<text text-anchor="middle" x="342.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M240.17,-42.08C256.02,-37.37 274.4,-31.92 291.12,-26.95"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="292.15,-30.3 300.74,-24.1 290.16,-23.59 292.15,-30.3"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_collectivewait~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M237.18,-12C245.99,-12 255.71,-12 265.56,-12"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="265.84,-15.5 275.84,-12 265.84,-8.5 265.84,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_collectivewait~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_collectivewaitCalledByGraph" width="326pt" height="158pt"
+ viewBox="0.00 0.00 326.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_collectivewait~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154)">
+<title>proc~~mapl_collectivewait~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 322,-154 322,4 -4,4"/>
+<!-- proc~mapl_collectivewait -->
+<g id="proc~~mapl_collectivewait~~CalledByGraph_node1" class="node">
+<title>proc~mapl_collectivewait</title>
+<polygon fill="none" stroke="black" points="318,-87 196,-87 196,-63 318,-63 318,-87"/>
+<text text-anchor="middle" x="257" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CollectiveWait</text>
+</g>
+<!-- proc~mapl_cfioreadbundlewait -->
+<g id="proc~~mapl_collectivewait~~CalledByGraph_node2" class="node">
+<title>proc~mapl_cfioreadbundlewait</title>
+<g id="a_proc~~mapl_collectivewait~~CalledByGraph_node2"><a xlink:href="../proc/mapl_cfioreadbundlewait.html" xlink:title="MAPL_CFIOReadBundleWait">
+<polygon fill="#d9534f" stroke="#d9534f" points="159.5,-150 0.5,-150 0.5,-126 159.5,-126 159.5,-150"/>
+<text text-anchor="middle" x="80" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOReadBundleWait</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadbundlewait&#45;&gt;proc~mapl_collectivewait -->
+<g id="proc~~mapl_collectivewait~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_cfioreadbundlewait&#45;&gt;proc~mapl_collectivewait</title>
+<path fill="none" stroke="#ff0000" d="M131.08,-125.92C140.76,-123.24 150.76,-120.23 160,-117 180.87,-109.71 203.55,-99.88 221.63,-91.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="223.57,-94.52 231.15,-87.12 220.61,-88.17 223.57,-94.52"/>
+</g>
+<!-- proc~mapl_cfiowritebundlewait -->
+<g id="proc~~mapl_collectivewait~~CalledByGraph_node3" class="node">
+<title>proc~mapl_cfiowritebundlewait</title>
+<g id="a_proc~~mapl_collectivewait~~CalledByGraph_node3"><a xlink:href="../proc/mapl_cfiowritebundlewait.html" xlink:title="MAPL_CFIOWriteBundleWait">
+<polygon fill="#d9534f" stroke="#d9534f" points="160,-108 0,-108 0,-84 160,-84 160,-108"/>
+<text text-anchor="middle" x="80" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOWriteBundleWait</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewait&#45;&gt;proc~mapl_collectivewait -->
+<g id="proc~~mapl_collectivewait~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_cfiowritebundlewait&#45;&gt;proc~mapl_collectivewait</title>
+<path fill="none" stroke="#ff0000" d="M160.05,-86.51C168.62,-85.49 177.29,-84.45 185.74,-83.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.4,-86.88 195.92,-82.21 185.57,-79.93 186.4,-86.88"/>
+</g>
+<!-- proc~mapl_collectivegather3d -->
+<g id="proc~~mapl_collectivewait~~CalledByGraph_node4" class="node">
+<title>proc~mapl_collectivegather3d</title>
+<g id="a_proc~~mapl_collectivewait~~CalledByGraph_node4"><a xlink:href="../proc/mapl_collectivegather3d.html" xlink:title="MAPL_CollectiveGather3D">
+<polygon fill="#d9534f" stroke="#d9534f" points="155.5,-66 4.5,-66 4.5,-42 155.5,-42 155.5,-66"/>
+<text text-anchor="middle" x="80" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CollectiveGather3D</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivegather3d&#45;&gt;proc~mapl_collectivewait -->
+<g id="proc~~mapl_collectivewait~~CalledByGraph_edge3" class="edge">
+<title>proc~mapl_collectivegather3d&#45;&gt;proc~mapl_collectivewait</title>
+<path fill="none" stroke="#ff0000" d="M155.72,-62.97C165.65,-64.16 175.8,-65.38 185.66,-66.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="185.44,-70.06 195.79,-67.77 186.28,-63.11 185.44,-70.06"/>
+</g>
+<!-- proc~mapl_collectivescatter3d -->
+<g id="proc~~mapl_collectivewait~~CalledByGraph_node5" class="node">
+<title>proc~mapl_collectivescatter3d</title>
+<g id="a_proc~~mapl_collectivewait~~CalledByGraph_node5"><a xlink:href="../proc/mapl_collectivescatter3d.html" xlink:title="MAPL_CollectiveScatter3D">
+<polygon fill="#d9534f" stroke="#d9534f" points="156,-24 4,-24 4,0 156,0 156,-24"/>
+<text text-anchor="middle" x="80" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CollectiveScatter3D</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivescatter3d&#45;&gt;proc~mapl_collectivewait -->
+<g id="proc~~mapl_collectivewait~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_collectivescatter3d&#45;&gt;proc~mapl_collectivewait</title>
+<path fill="none" stroke="#ff0000" d="M131.08,-24.08C140.76,-26.76 150.76,-29.77 160,-33 180.87,-40.29 203.55,-50.12 221.63,-58.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="220.61,-61.83 231.15,-62.88 223.57,-55.48 220.61,-61.83"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_CollectiveWait</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">DstArray</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_COMMRequest</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">request</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">DstArray</span><span class="p">(:,:)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">       </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">n</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="nb">count</span>
+
+<span class="nb">    </span><span class="n">REQUEST_TYPE</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">RequestType</span><span class="o">==</span><span class="n">MAPL_IsGather</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">       </span><span class="n">ROOT_GATH</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">amRoot</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">          </span><span class="n">PE_GATH</span><span class="p">:</span><span class="w"> </span><span class="k">do </span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">request</span><span class="p">%</span><span class="n">nDEs</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">             </span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">%</span><span class="n">IM</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">request</span><span class="p">%</span><span class="n">JM</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">mype</span><span class="o">/=</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                if</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">IsPrePosted</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                   call </span><span class="n">MPI_Wait</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">recv</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="n">MPI_STATUS_IGNORE</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                </span><span class="k">else</span>
+<span class="k">                   call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">var</span><span class="p">(</span><span class="n">k</span><span class="p">),</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                        </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">%</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_STATUS_IGNORE</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">                   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                </span><span class="k">endif</span>
+<span class="k">                do </span><span class="n">J</span><span class="o">=</span><span class="n">request</span><span class="p">%</span><span class="n">J1</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="n">request</span><span class="p">%</span><span class="n">JN</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="w">                   </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="n">request</span><span class="p">%</span><span class="n">I1</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="n">request</span><span class="p">%</span><span class="n">IN</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="w">                      </span><span class="n">request</span><span class="p">%</span><span class="n">DstArray</span><span class="p">(</span><span class="n">I</span><span class="p">,</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">%</span><span class="n">var</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+<span class="w">                      </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">                   </span><span class="k">end do</span>
+<span class="k">                end do</span>
+<span class="k">             else</span>
+<span class="k">                </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">count</span>
+<span class="nb">             </span><span class="k">end if</span>
+<span class="k">          end do </span><span class="n">PE_GATH</span>
+<span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">DstArray</span><span class="p">))</span><span class="w"> </span><span class="n">DstArray</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">request</span><span class="p">%</span><span class="n">DstArray</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          call </span><span class="n">MPI_WAIT</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">send</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="n">MPI_STATUS_IGNORE</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">endif </span><span class="n">ROOT_GATH</span>
+
+<span class="w">    </span><span class="k">elseif</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">RequestType</span><span class="o">==</span><span class="n">MAPL_IsScatter</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">       </span><span class="n">ROOT_SCAT</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">request</span><span class="p">%</span><span class="n">amRoot</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">IsPrePosted</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">MPI_Wait</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">recv</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="n">MPI_STATUS_IGNORE</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">else</span>
+<span class="k">             call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">Var</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">Var</span><span class="p">),</span><span class="w"> </span><span class="n">MPI_REAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                           </span><span class="n">request</span><span class="p">%</span><span class="n">Root</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">%</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                           </span><span class="n">MPI_STATUS_IGNORE</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="k">endif</span>
+<span class="k">          </span><span class="n">k</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">          </span><span class="k">do </span><span class="n">J</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">request</span><span class="p">%</span><span class="n">JM0</span>
+<span class="w">             </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">request</span><span class="p">%</span><span class="n">IM0</span>
+<span class="w">                </span><span class="n">request</span><span class="p">%</span><span class="n">DstArray</span><span class="p">(</span><span class="n">I</span><span class="p">,</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">%</span><span class="n">var</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+<span class="w">                </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">             </span><span class="k">end do</span>
+<span class="k">          end do</span>
+
+<span class="k">       else</span>
+<span class="k">             </span><span class="n">PE_SCAT</span><span class="p">:</span><span class="w"> </span><span class="k">do </span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">request</span><span class="p">%</span><span class="n">nDEs</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">                </span><span class="k">if</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">request</span><span class="p">%</span><span class="n">mype</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                   call </span><span class="n">MPI_Wait</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">send</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="n">MPI_STATUS_IGNORE</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">                   </span><span class="k">deallocate</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">buff</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">A</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do </span><span class="n">PE_SCAT</span>
+<span class="w">          </span><span class="k">deallocate</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">Buff</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if </span><span class="n">ROOT_SCAT</span>
+
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">DstArray</span><span class="p">))</span><span class="w"> </span><span class="n">DstArray</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">request</span><span class="p">%</span><span class="n">DstArray</span>
+<span class="w">    </span><span class="k">end if </span><span class="n">REQUEST_TYPE</span>
+
+<span class="c">! Destroy the request</span>
+<span class="c">!--------------------</span>
+
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">var</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">recv</span><span class="p">)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">send</span><span class="p">)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">i1</span><span class="w">  </span><span class="p">)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">in</span><span class="w">  </span><span class="p">)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">j1</span><span class="w">  </span><span class="p">)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">jn</span><span class="w">  </span><span class="p">)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">im</span><span class="w">  </span><span class="p">)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">jm</span><span class="w">  </span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">nullify</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">var</span><span class="w">     </span><span class="p">)</span>
+<span class="w">    </span><span class="k">nullify</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">send</span><span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="k">nullify</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">recv</span><span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="k">nullify</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">DstArray</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">Local_Array</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">Local_Array</span><span class="p">)</span>
+<span class="w">    </span><span class="k">nullify</span><span class="p">(</span><span class="n">request</span><span class="p">%</span><span class="n">Local_Array</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">request</span><span class="p">%</span><span class="n">active</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_CollectiveWait</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-24T16:07:38.905248             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
