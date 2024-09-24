@@ -13,7 +13,6 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.shared
   TYPE SHARED
   )
-  #  DEPENDENCIES MAPL.shared MAPL.base
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
