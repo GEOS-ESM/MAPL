@@ -6,8 +6,8 @@ target_sources(MAPL.generic3g PRIVATE
   FixedLevelsVerticalGrid.F90
   ModelVerticalGrid.F90
   VerticalRegridMethod.F90
+  VerticalLinearMap.F90
   CSR_SparseMatrix.F90
-  WeightComputation.F90
 )
 
 esma_add_fortran_submodules(
@@ -23,7 +23,7 @@ esma_add_fortran_submodules(
 )
 
 ecbuild_add_executable(
-  TARGET Test_WeightComputation.x
-  SOURCES Test_WeightComputation.F90
+  TARGET Test_VerticalLinearMap.x
+  SOURCES Test_VerticalLinearMap.F90
   DEPENDS MAPL.generic3g ESMF::ESMF)
-target_link_libraries(Test_WeightComputation.x PRIVATE ${this})
+target_link_libraries(Test_VerticalLinearMap.x PRIVATE ${this})

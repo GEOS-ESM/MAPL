@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_WeightComputation
+module mapl3g_VerticalLinearMap
 
    use mapl_ErrorHandling
    use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp
@@ -118,4 +118,4 @@ contains
       end if
    end function equal_to
 
-end module mapl3g_WeightComputation
+end module mapl3g_VerticalLinearMap

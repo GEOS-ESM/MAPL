@@ -1,12 +1,12 @@
 #define I_AM_MAIN
 #include "MAPL_Generic.h"
 
-program Test_WeightComputation
+program Test_VerticalLinearMap
 
    use mapl_ErrorHandling
    use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp
-   use mapl3g_WeightComputation, only: compute_linear_map_fixedlevels_to_fixedlevels
-   use mapl3g_WeightComputation, only: apply_linear_map
+   use mapl3g_VerticalLinearMap, only: compute_linear_map_fixedlevels_to_fixedlevels
+   use mapl3g_VerticalLinearMap, only: apply_linear_map
    use, intrinsic :: iso_fortran_env, only: REAL32
 
    implicit none
@@ -36,4 +36,5 @@ program Test_WeightComputation
    fin = [7., 8., 3.]
    call apply_linear_map(matrix, fin, fout)
    print *, "Expected: [7.2, 3.5]", ", found: ", fout
-end program Test_WeightComputation
+
+end program Test_VerticalLinearMap
