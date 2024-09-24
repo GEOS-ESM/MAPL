@@ -1,5 +1,5 @@
 #include "MAPL_Generic.h"
-module mapl3g_output_info
+module mapl3g_FieldDimensionInfo
 
    use mapl3g_UngriddedDim
    use mapl3g_UngriddedDimVector
@@ -10,8 +10,8 @@ module mapl3g_output_info
    use esmf, only: ESMF_Info, ESMF_InfoIsPresent
    use esmf, only: ESMF_InfoDestroy, ESMF_InfoCreate
    use esmf, only: ESMF_InfoGet, ESMF_InfoGetFromHost
-   use esmf, only: ESMF_InfoGetAlloc, ESMF_InfoGetCharAlloc
-   use esmf, only: ESMF_InfoPrint
+   use esmf, only: ESMF_InfoGetAlloc, ESMF_InfoPrint
+   use esmf, only: ESMF_MAXSTR, ESMF_SUCCESS
    use Mapl_ErrorHandling
 
    implicit none
@@ -93,12 +93,11 @@ contains
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
       integer :: status
-      logical :: is_none
+      character(len=:), allocatable :: spec_name
 
       num = 0
-      is_none = VERT_DIM_NONE == get_vertical_dim_spec_info(info, _RC)
-      _RETURN_IF(is_none)
-
+      spec_name = get_vertical_dim_spec_info(info, _RC)
+      _RETURN_IF(spec_name == VERT_DIM_NONE)
       call ESMF_InfoGet(info, key=KEY_NUM_LEVELS, value=num, _RC)
       _RETURN(_SUCCESS)
 
@@ -123,12 +122,12 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
-      character(len=:), allocatable :: name
+      character(len=:), allocatable :: spec_name
 
       names = StringVector()
       do i=1, size(info)
-         name = get_vertical_dim_spec_info(info(i), _RC)
-         if(find_index(names, name) == 0) call names%push_back(name)
+         spec_name = get_vertical_dim_spec_info(info(i), _RC)
+         if(find_index(names, spec_name) == 0) call names%push_back(spec_name)
       end do
       _RETURN(_SUCCESS)
 
@@ -152,8 +151,14 @@ contains
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
       integer :: status
+      logical :: isPresent
+      character(len=ESMF_MAXSTR) :: raw
 
-      call ESMF_InfoGetCharAlloc(info, key=KEY_VLOC, value=spec_name, _RC)
+      isPresent = ESMF_InfoIsPresent(info, key=KEY_VLOC, _RC)
+      _ASSERT(isPresent, 'Failed to get vertical dim spec name.')
+      call ESMF_InfoGet(info, key=KEY_VLOC, value=raw, _RC)
+      spec_name = trim(adjustl(raw))
+
       _RETURN(_SUCCESS)
 
    end function get_vertical_dim_spec_info
@@ -225,8 +230,9 @@ contains
       type(ESMF_Info), intent(in) :: info
       integer, optional, intent(out) :: rc
       integer :: status
-      character(len=:), allocatable :: key
       type(ESMF_Info) :: dim_info
+      character(len=ESMF_MAXSTR) :: raw
+      character(len=:), allocatable :: key
       character(len=:), allocatable :: name
       character(len=:), allocatable :: units
       real, allocatable :: coordinates(:)
@@ -237,11 +243,13 @@ contains
       call ESMF_InfoGet(info, key=key, isPresent=is_present, _RC)
       if(.not. is_present) then
          call ESMF_InfoPrint(info, unit=json_repr, _RC)
+         _FAIL('Key ' // trim(key) // ' not found in ' // trim(json_repr))
       end if
-      _ASSERT(is_present, 'Key ' // key // ' not found in ' // trim(json_repr))
       dim_info = ESMF_InfoCreate(info, key=key, _RC)
-      call ESMF_InfoGetCharAlloc(dim_info, key=KEY_UNGRIDDED_NAME, value=name, _RC)
-      call ESMF_InfoGetCharAlloc(dim_info, key=KEY_UNGRIDDED_UNITS, value=units, _RC)
+      call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_NAME, value=raw, _RC)
+      name = trim(adjustl(raw))
+      call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_UNITS, value=raw, _RC)
+      units = trim(adjustl(raw))
       call ESMF_InfoGetAlloc(dim_info, key=KEY_UNGRIDDED_COORD, values=coordinates, _RC)
       call ESMF_InfoDestroy(dim_info, _RC)
       ungridded_dim = UngriddedDim(coordinates, name=name, units=units)
@@ -284,7 +292,6 @@ contains
       class(UngriddedDimVector), intent(in) :: vec
       class(UngriddedDim), intent(in) :: udim
       integer, optional, intent(out) :: rc
-      integer :: status
       type(UngriddedDimVectorIterator) :: iter
       type(UngriddedDim) :: vdim
 
@@ -300,20 +307,12 @@ contains
 
    end subroutine check_duplicate
 
-   logical function is_vertical_dim_none(s)
-      character(len=*), intent(in) :: s
-
-      is_vertical_dim_none = s == 'VERTICAL_DIM_NONE'
-
-   end function is_vertical_dim_none
-
    function create_bundle_info(bundle, rc) result(bundle_info)
       type(ESMF_Info), allocatable :: bundle_info(:)
       type(ESMF_FieldBundle), intent(in) :: bundle
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: field_count, i
-      type(ESMF_Field) :: field
       type(ESMF_Field), allocatable :: fields(:)
       type(ESMF_Info) :: info
 
@@ -343,4 +342,4 @@ contains
 
    end subroutine destroy_bundle_info
 
-end module mapl3g_output_info
+end module mapl3g_FieldDimensionInfo

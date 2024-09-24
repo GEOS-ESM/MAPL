@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added capability for HistoryCollectionGridComp to extract field names from expressions
 - Added ability for HistoryCollectionGridComp to extract multiple field names from expressions
 - Added vertical and ungridded dimensions to output for History3G
+- Create rank-agnostic representation of `ESMF_Field` objects as rank-3 array pointers.
 
 ### Changed
 
@@ -59,6 +60,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added constructor for DSO_SetServicesWrapper
 
 ## [Unreleased]
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.48.0] - 2024-09-24
 
 ### Added
 
@@ -113,8 +126,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix profiler PercentageColumn test for GCC 14
 - Fix bug in ExtData Tests. CMake was overwriting the `EXTDATA2G_SMALL_TESTS` LABEL with `ESSENTIAL`
-
-### Removed
 
 ### Deprecated
 
