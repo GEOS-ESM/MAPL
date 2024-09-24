@@ -95,7 +95,8 @@ contains
       integer :: npes
       integer :: n
 
-      call MPI_Comm_size(MPI_COMM_WORLD, npes, _IERROR)
+      call MPI_Comm_size(MPI_COMM_WORLD, npes, status)
+      _VERIFY(status)
       n = int(spec%nx,kind=INT64)**2 * 6 * spec%n_levs / npes
 
       kernel = GathervKernel(n, comm)

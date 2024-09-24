@@ -13,13 +13,20 @@ set(cutoff "7")
 # be skipped for ESSENTIAL testing. Most ExtData tests
 # take 1-2 seconds at most, but some take 20-30 seconds.
 set(SLOW_TESTS
-  "case6"
+  "case06"
   "case14"
   "case15"
   "case16"
   "case20"
   "case22"
   "case23"
+)
+
+# We have 3 tests that require netcdf Quantize support
+set(QUANTIZE_TESTS
+  "case32"
+  "case33"
+  "case34"
 )
 
 foreach(TEST_CASE ${TEST_CASES_1G})
@@ -52,6 +59,11 @@ file(STRINGS "test_cases/extdata_2g_cases.txt" TEST_CASES_2G)
 
 foreach(TEST_CASE ${TEST_CASES_2G})
 
+  # Skip tests that require Quantize support if we don't have it
+  if (NOT NETCDF_HAS_QUANTIZE AND ${TEST_CASE} IN_LIST QUANTIZE_TESTS)
+    continue()
+  endif()
+
   if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc)
     file(READ ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc num_procs)
   else()
@@ -73,7 +85,6 @@ foreach(TEST_CASE ${TEST_CASES_2G})
   elseif (${TEST_CASE} IN_LIST SLOW_TESTS)
     set_tests_properties ("ExtData2G_${TEST_CASE}" PROPERTIES LABELS "EXTDATA2G_SLOW_TESTS")
   else()
-    set_tests_properties ("ExtData2G_${TEST_CASE}" PROPERTIES LABELS "EXTDATA2G_SMALL_TESTS")
-    set_tests_properties ("ExtData2G_${TEST_CASE}" PROPERTIES LABELS "ESSENTIAL")
+    set_tests_properties ("ExtData2G_${TEST_CASE}" PROPERTIES LABELS "EXTDATA2G_SMALL_TESTS;ESSENTIAL")
   endif()
 endforeach()

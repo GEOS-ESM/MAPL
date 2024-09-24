@@ -17,6 +17,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.48.0] - 2024-09-24
+
+### Added
+
+- Added 5 new ExtData tests to test compression, bit-shaving, and quantization
+
+### Changed
+
+- Rename all single-digit ExtData tests to have a leading zero (i.e., `case1` -> `case01`)
+- Add restart benchmark code `restart_simulator.x` in benchmark directory
+- Start implementing changes for vertical regridding in ExtData
+- Made the POSITIVE field attribute defaults to "down" in case it is not found
+- VLOCATION is not querried in MAPL_VerticalMethods.F90 for rank 2 fields
+- Fixed time print in Cap GC (from slashes to colons)
+- Added ability to read the attribute with explicit type "string" of a netcdf variable.
+- Add ability to connect export of the MAPL hierachy to ExtData via CAP.rc file
+- Added new driver, CapDriver.x, to excerise the MAPL_Cap with the configuratable component also used by ExtDataDriver.x
+- Added Fortran interface to UDUNITS2
+  - NOTE: This now means MAPL depends on UDUNITS2 (and transitively, expat)
+- Improve mask sampler by adding an MPI step and a LS_chunk (intermediate step)
+- CI Updates
+  - Update Baselibs in CI to 7.25.0
+  - Update to circleci-tools orb v4
+    - This adds the ability to do an `ifx` test along with the `ifort` test (though `ifx` is not yet enabled)
+- Update `components.yaml`
+  - ESMA_env v4.30.1
+    - Update to Baselibs 7.25.0
+      - ESMF 8.6.1
+      - GFE v1.16.0
+        - gFTL v1.14.0
+        - gFTL-shared v1.9.0
+        - fArgParse v1.8.0
+        - pFUnit v4.10.0
+        - yaFyaml v1.4.0
+      - curl 8.8.0
+      - NCO 5.2.6
+      - Other various fixes from the v8 branch
+    - Move to use Intel ifort 2021.13 at NCCS SLES15, NAS, and GMAO Desktops
+    - Move to use Intel MPI at NCCS SLES15 and GMAO Desktops
+    - Move to GEOSpyD Min24.4.4 Python 3.11
+    - Fix for csh at NAS
+  - ESMA_cmake v3.51.0
+    - Update `esma_add_fortran_submodules` function
+    - Move MPI detection out of FindBaselibs
+    - Add SMOD to submodule generator
+    - NAG OpenMP Workaround
+    - Support for Jemalloc and LLVM Flang
+- Add support for preliminary CF Conventions quantization properties
+  - Add new quantization keyword `granular_bitround` to History. This will be the preferred keyword for quantization in the future
+    replacing `GranularBR`
+
+### Fixed
+
+- Fix profiler PercentageColumn test for GCC 14
+- Fix bug in ExtData Tests. CMake was overwriting the `EXTDATA2G_SMALL_TESTS` LABEL with `ESSENTIAL`
+
+### Deprecated
+
+- Deprecate `GranularBR` as a quantization method keyword in History. We will prefer `granular_bitround` in the future to match
+  draft CF conventions. This will be removed in MAPL 3.
+
 ## [2.47.2] - 2024-08-16
 
 ### Fixed
