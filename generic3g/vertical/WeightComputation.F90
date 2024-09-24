@@ -19,6 +19,10 @@ module mapl3g_WeightComputation
       real(REAL32) :: value_
    end type IndexValuePair
 
+   interface operator(==)
+      procedure equal_to
+   end interface operator(==)
+
 contains
 
    subroutine apply_linear_map(matrix, fin, fout)
@@ -47,22 +51,22 @@ contains
       _ASSERT(maxval(dst) <= maxval(src), "maxval(dst) > maxval(src)")
       _ASSERT(minval(dst) >= minval(src), "minval(dst) < minval(src)")
 
-      ! Expected 2 non zero entries in each row
       ! allocate(matrix(size(dst), size(src)), source=0., _STAT)
+      ! Expected 2 non zero entries in each row
       matrix = SparseMatrix_sp(size(dst), size(src), 2*size(dst))
       do ndx = 1, size(dst)
          val = dst(ndx)
          call find_bracket_(val, src, pair)
          call compute_linear_interpolation_weights_(val, pair%value_, weight)
-         ! matrix(ndx, pair(1)%index) = weight(1)
-         ! matrix(ndx, pair(2)%index) = weight(2)
-         if (pair(1)%index /= pair(2)%index) then
-            call add_row(matrix, ndx, pair(1)%index, [weight(1), weight(2)])
-         else
+         if (pair(1) == pair(2)) then
+            ! matrix(ndx, pair(1)%index) = weight(1)
             call add_row(matrix, ndx, pair(1)%index, [weight(1)])
+         else
+            ! matrix(ndx, pair(1)%index) = weight(1)
+            ! matrix(ndx, pair(2)%index) = weight(2)
+            call add_row(matrix, ndx, pair(1)%index, [weight(1), weight(2)])
          end if
       end do
-      ! print *, matrix
 
       _RETURN(_SUCCESS)
    end subroutine compute_linear_map_fixedlevels_to_fixedlevels
@@ -105,5 +109,13 @@ contains
          weight(2) = abs(val - value_(1))/denominator
       end if
    end subroutine compute_linear_interpolation_weights_
+
+   logical function equal_to(a, b)
+      type(IndexValuePair), intent(in) :: a, b
+      equal_to = .false.
+      if ((a%index == b%index) .and. (a%value_ == b%value_)) then
+         equal_to = .true.
+      end if
+   end function equal_to
 
 end module mapl3g_WeightComputation
