@@ -19,3 +19,6 @@ target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 target_link_libraries (${this} PUBLIC ESMF::ESMF)
 
+if (PFUNIT_FOUND)
+  add_subdirectory(tests)
+endif ()
