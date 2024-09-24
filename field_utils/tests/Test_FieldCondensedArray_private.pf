@@ -1,0 +1,161 @@
+#include "MAPL_TestErr.h"
+module Test_FieldCondensedArray_private
+
+    use MAPL_ExceptionHandling
+    use pfunit
+    use mapl3g_FieldCondensedArray_private
+    implicit none
+
+    character, parameter :: GENERIC_MESSAGE = 'actual does not match expected.'
+    
+contains
+
+    @Test
+    subroutine test_get_fptr_shape_3D()
+       integer :: expected(ARRAY_RANK), actual(ARRAY_RANK)
+       integer, allocatable :: gridToFieldMap(:)
+       integer, allocatable :: localElementCount(:)
+       logical :: has_vertical
+
+       has_vertical = .TRUE.
+       gridToFieldMap = [1, 2]
+       localElementCount = [3, 5, 7]
+       expected = [product(localElementCount(1:2)), localElementCount(3), 1]
+       actual = get_fptr_shape(gridToFieldMap, localElementCount, has_vertical)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
+
+    end subroutine test_get_fptr_shape_3D
+
+    @Test
+    subroutine test_get_fptr_shape_2D()
+       integer :: expected(ARRAY_RANK), actual(ARRAY_RANK)
+       integer, allocatable :: gridToFieldMap(:)
+       integer, allocatable :: localElementCount(:)
+       logical :: has_vertical
+
+       has_vertical = .FALSE.
+       gridToFieldMap = [1, 2]
+       localElementCount = [3, 5]
+       expected = [product(localElementCount), 1, 1]
+       actual = get_fptr_shape(gridToFieldMap, localElementCount, has_vertical)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
+
+    end subroutine test_get_fptr_shape_2D
+
+    @Test
+    subroutine test_get_fptr_shape_general()
+       integer :: expected(ARRAY_RANK), actual(ARRAY_RANK)
+       integer, allocatable :: gridToFieldMap(:)
+       integer, allocatable :: localElementCount(:)
+       logical :: has_vertical
+
+       has_vertical = .TRUE.
+       gridToFieldMap = [1, 2]
+       localElementCount = [2, 3, 5, 7, 11]
+       expected = [product(localElementCount(1:2)), localElementCount(3), product(localElementCount(4:))]
+       actual = get_fptr_shape(gridToFieldMap, localElementCount, has_vertical)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
+
+    end subroutine test_get_fptr_shape_general
+
+    @Test
+    subroutine test_get_fptr_shape_noz()
+       integer :: expected(ARRAY_RANK), actual(ARRAY_RANK)
+       integer, allocatable :: gridToFieldMap(:)
+       integer, allocatable :: localElementCount(:)
+       logical :: has_vertical
+
+       has_vertical = .FALSE.
+
+       gridToFieldMap = [1, 2]
+       localElementCount = [2, 3, 5, 7]
+       expected = [product(localElementCount(1:2)), 1, product(localElementCount(3:))]
+       actual = get_fptr_shape(gridToFieldMap, localElementCount, has_vertical)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
+
+    end subroutine test_get_fptr_shape_noz
+
+    @Test
+    subroutine test_get_fptr_shape_0D()
+       integer :: expected(ARRAY_RANK), actual(ARRAY_RANK)
+       integer, allocatable :: gridToFieldMap(:)
+       integer, allocatable :: localElementCount(:)
+       logical :: has_vertical
+
+       has_vertical = .FALSE.
+       gridToFieldMap = [0, 0]
+       localElementCount = [5, 7, 11]
+       expected = [1, 1, product(localElementCount)]
+       actual = get_fptr_shape(gridToFieldMap, localElementCount, has_vertical)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
+
+    end subroutine test_get_fptr_shape_0D
+
+    @Test
+    subroutine test_get_fptr_shape_vert_only()
+       integer :: expected(ARRAY_RANK), actual(ARRAY_RANK)
+       integer, allocatable :: gridToFieldMap(:)
+       integer, allocatable :: localElementCount(:)
+       logical :: has_vertical
+
+       has_vertical = .TRUE.
+       gridToFieldMap = [0, 0]
+       localElementCount = [3]
+       expected = [1, localElementCount(1), 1]
+       actual = get_fptr_shape(gridToFieldMap, localElementCount, has_vertical)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
+
+    end subroutine test_get_fptr_shape_vert_only
+
+    @Test
+    subroutine test_get_fptr_shape_vert_ungrid()
+       integer :: expected(ARRAY_RANK), actual(ARRAY_RANK)
+       integer, allocatable :: gridToFieldMap(:)
+       integer, allocatable :: localElementCount(:)
+       logical :: has_vertical
+
+       gridToFieldMap = [0, 0]
+       has_vertical = .TRUE.
+       localElementCount = [3, 5, 7]
+       expected = [1, localElementCount(1), product(localElementCount(2:))]
+       actual = get_fptr_shape(gridToFieldMap, localElementCount, has_vertical)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
+
+    end subroutine test_get_fptr_shape_vert_ungrid
+    
+    @Test
+    subroutine test_get_fptr_shape_2D_ungrid()
+       integer :: expected(ARRAY_RANK), actual(ARRAY_RANK)
+       integer, allocatable :: gridToFieldMap(:)
+       integer, allocatable :: localElementCount(:)
+       logical :: has_vertical
+
+       has_vertical = .FALSE.
+       gridToFieldMap = [1, 2]
+       localElementCount = [3, 5, 7, 11]
+       expected = [product(localElementCount(1:2)), 1, product(localElementCount(3:))]
+       actual = get_fptr_shape(gridToFieldMap, localElementCount, has_vertical)
+       @assert_that(GENERIC_MESSAGE, actual, is(equal_to(expected)))
+
+    end subroutine test_get_fptr_shape_2D_ungrid
+
+    @Test
+    subroutine test_get_fptr_shape_wrong_order_raise_exception()
+       integer :: expected(ARRAY_RANK), actual(ARRAY_RANK)
+       integer, allocatable :: gridToFieldMap(:)
+       integer, allocatable :: localElementCount(:)
+       logical :: has_vertical
+       integer :: status
+
+       gridToFieldMap = [4, 5]
+       has_vertical = .TRUE.
+       localElementCount = [2, 3, 5, 7, 11]
+       expected = [product(localElementCount(4:5)), localElementCount(3), product(localElementCount(1:2))]
+       ! This tests throws an Exception for improper input arguments.
+       ! In other words, the improper input arguments ARE the point.
+       actual = get_fptr_shape(gridToFieldMap, localElementCount, has_vertical, rc=status)
+       @assertExceptionRaised()
+
+    end subroutine test_get_fptr_shape_wrong_order_raise_exception
+
+end module Test_FieldCondensedArray_private
