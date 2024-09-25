@@ -80,7 +80,7 @@ foreach(TEST_CASE ${TEST_CASES_2G})
   endif()
 
   # Skip tests that require both Quantize and ZSTD support if we don't have it
-  if (NOT NETCDF_HAS_QUANTIZE AND NOT NETCDF_HAS_ZSTD AND ${TEST_CASE} IN_LIST QUANTIZE_AND_ZSTD_TESTS)
+  if (NOT (NETCDF_HAS_QUANTIZE AND NETCDF_HAS_ZSTD) AND ${TEST_CASE} IN_LIST QUANTIZE_AND_ZSTD_TESTS)
     continue()
   endif()
 
