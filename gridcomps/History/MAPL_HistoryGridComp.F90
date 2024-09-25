@@ -836,6 +836,18 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%deflate, default=0, &
                                       label=trim(string) // 'deflate:' ,_RC )
 
+       ! We only allow deflate level to be between 0 and 9
+       _ASSERT( .not. (list(n)%deflate < 0 .or. list(n)%deflate > 9), 'deflate level must be between 0 and 9')
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%zstandard_level, default=0, &
+                                      label=trim(string) // 'zstandard_level:' ,_RC )
+
+       ! We only allow zstandard level to be between 0 and 22
+       _ASSERT( .not. (list(n)%zstandard_level < 0 .or. list(n)%zstandard_level > 22), 'zstandard level must be between 0 and 22')
+
+       ! We only allow either deflate or zstandard compression to be used, not both
+       _ASSERT( .not. (list(n)%deflate > 0 .and. list(n)%zstandard_level > 0), 'deflate and zstandard_level cannot be used together')
+
        call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_algorithm_string, default='NONE', &
                                       label=trim(string) // 'quantize_algorithm:' ,_RC )
 
