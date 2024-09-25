@@ -34,6 +34,11 @@ set(ZSTD_TESTS
   "case35"
 )
 
+# We have one test which requires *both* Quantize and ZSTD support
+set(QUANTIZE_AND_ZSTD_TESTS
+  "case36"
+)
+
 foreach(TEST_CASE ${TEST_CASES_1G})
   if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc)
     file(READ ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc num_procs)
@@ -71,6 +76,11 @@ foreach(TEST_CASE ${TEST_CASES_2G})
 
   # Skip tests that require ZSTD support if we don't have it
   if (NOT NETCDF_HAS_ZSTD AND ${TEST_CASE} IN_LIST ZSTD_TESTS)
+    continue()
+  endif()
+
+  # Skip tests that require both Quantize and ZSTD support if we don't have it
+  if (NOT NETCDF_HAS_QUANTIZE AND NOT NETCDF_HAS_ZSTD AND ${TEST_CASE} IN_LIST QUANTIZE_AND_ZSTD_TESTS)
     continue()
   endif()
 
