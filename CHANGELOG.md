@@ -12,11 +12,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Propagated the error message from MAPL_HorzIJIndex subroutine
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.48.0] - 2024-09-24
+
+### Added
+
+- Added 5 new ExtData tests to test compression, bit-shaving, and quantization
+
+### Changed
+
+- Rename all single-digit ExtData tests to have a leading zero (i.e., `case1` -> `case01`)
+- Add restart benchmark code `restart_simulator.x` in benchmark directory
+- Start implementing changes for vertical regridding in ExtData
 - Made the POSITIVE field attribute defaults to "down" in case it is not found
 - VLOCATION is not querried in MAPL_VerticalMethods.F90 for rank 2 fields
 - Fixed time print in Cap GC (from slashes to colons)
 - Added ability to read the attribute with explicit type "string" of a netcdf variable.
-- Start to implement changes for vertical regridding in ExtData
 - Add ability to connect export of the MAPL hierachy to ExtData via CAP.rc file
 - Added new driver, CapDriver.x, to excerise the MAPL_Cap with the configuratable component also used by ExtDataDriver.x
 - Added Fortran interface to UDUNITS2
@@ -57,8 +74,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix profiler PercentageColumn test for GCC 14
 - Fix bug in ExtData Tests. CMake was overwriting the `EXTDATA2G_SMALL_TESTS` LABEL with `ESSENTIAL`
-
-### Removed
 
 ### Deprecated
 
