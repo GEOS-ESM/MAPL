@@ -117,7 +117,7 @@ contains
    elemental logical function equal_to(a, b)
       type(IndexValuePair), intent(in) :: a, b
       equal_to = .false.
-      equal_to = (a%index == b%index) .and. (a%value_ == b%value_))
+      equal_to = ((a%index == b%index) .and. (a%value_ == b%value_))
    end function equal_to
 
    elemental logical function not_equal_to(a, b)
