@@ -23,6 +23,10 @@ module mapl3g_VerticalLinearMap
       procedure equal_to
    end interface operator(==)
 
+   interface operator(/=)
+      procedure not_equal_to
+   end interface operator(/=)
+
 contains
 
    subroutine apply_linear_map(matrix, fin, fout)
@@ -110,12 +114,15 @@ contains
       end if
    end subroutine compute_linear_interpolation_weights_
 
-   logical function equal_to(a, b)
+   elemental logical function equal_to(a, b)
       type(IndexValuePair), intent(in) :: a, b
       equal_to = .false.
-      if ((a%index == b%index) .and. (a%value_ == b%value_)) then
-         equal_to = .true.
-      end if
+      equal_to = (a%index == b%index) .and. (a%value_ == b%value_))
    end function equal_to
+
+   elemental logical function not_equal_to(a, b)
+      type(IndexValuePair), intent(in) :: a, b
+      not_equal_to = .not. (a==b)
+   end function not_equal_to
 
 end module mapl3g_VerticalLinearMap

@@ -30,12 +30,12 @@ module mapl3g_VerticalRegridMethod
 
 contains
 
-   pure logical function equal_to(a, b)
+   elemental logical function equal_to(a, b)
       type(VerticalRegridMethod_Flag), intent(in) :: a, b
       equal_to = (a%id == b%id)
    end function equal_to
 
-   pure logical function not_equal_to(a, b)
+   elemental logical function not_equal_to(a, b)
       type(VerticalRegridMethod_Flag), intent(in) :: a, b
       not_equal_to = .not. (a==b)
    end function not_equal_to
