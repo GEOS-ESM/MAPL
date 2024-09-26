@@ -223,6 +223,7 @@ CONTAINS
    integer                           :: Status
 
    type(PrimaryExport), pointer      :: item
+   type(PrimaryExport)               :: new_item
    integer                           :: i,j
    integer                           :: ItemCount
    integer                           :: PrimaryItemCount, DerivedItemCount
@@ -243,7 +244,7 @@ CONTAINS
    integer :: item_type
    type(StringVector) :: unsatisfied_imports,extra_variables_needed
    type(StringVectorIterator) :: siter
-   character(len=:), pointer :: current_base_name,extra_var
+   character(len=:), pointer :: current_base_name,extra_var,import_name
    character(len=:), allocatable :: primary_var_name,derived_var_name
    type(ESMF_Time), allocatable :: time_ranges(:)
    character(len=1) :: sidx
@@ -251,6 +252,9 @@ CONTAINS
    type(ESMF_StateItem_Flag) :: state_item_type
    type(PrimaryExport), allocatable :: temp_item
    type(DerivedExport), allocatable :: derived_item
+   integer, pointer :: i_start
+   integer :: new_size
+   logical :: rules_with_ps
    !class(logger), pointer :: lgr
 
 !  Get my name and set-up traceback handle
@@ -398,9 +402,7 @@ CONTAINS
    enddo
 
    ! now see if we have to allocate any primary fields due to a derived item
-   ! also see if we have to allocate any primary fields due to PS
    PrimaryLoop: do i=1,self%primary%import_names%size()
-
       current_base_name => self%primary%import_names%at(i)
       idx = self%primary%get_item_index(current_base_name,time,_RC)
       item => self%primary%item_vec%at(idx)
@@ -409,20 +411,39 @@ CONTAINS
       call create_primary_field(item,self%ExtDataState,time,_RC)
    end do PrimaryLoop
 
-! Check if we have any files that would need to be vertically interpolated
-! if so ensure that PS is done first
-!!  check for PS
-   !idx = -1
-   !if (any(self%primary%item%do_VertInterp .eqv. .true.)) then
-      !do i=1,size(self%primary%item)
-         !if (self%primary%item(i)%name=='PS') then
-            !idx =i
-         !end if
-      !enddo
-      !_ASSERT(idx/=-1,'Surface pressure not present for vertical interpolation')
-      !self%primary%item(idx)%units = ESMF_UtilStringUppercase(self%primary%item(idx)%units,_RC)
-      !_ASSERT(trim(self%primary%item(idx)%units)=="PA",'PS must be in units of PA')
-   !end if
+   ! also see if we have to allocate any primary fields due to PS
+   num_primary = self%primary%import_names%size()
+   do i=1,num_primary
+      
+      i_start => self%primary%export_id_start%at(i)
+      rules_with_ps = .false.
+      
+      do j=1,self%primary%number_of_rules%at(i)
+         item => self%primary%item_vec%at(i_start+j-1)
+         !rules_with_ps = item%havePressure
+         rules_with_ps = .true.
+         if (rules_with_ps) exit
+      enddo
+      if (.not.rules_with_ps) cycle 
+
+      import_name => self%primary%import_names%at(i)
+      call self%primary%import_names%push_back("PS_"//import_name)
+      new_size = self%primary%item_vec%size()
+      do j=1,self%primary%number_of_rules%at(i)
+         item => self%primary%item_vec%at(i_start+j-1)
+         if (j==1) item%havePressure=.true.
+         if (j==2) item%havePressure=.false.
+         call copy_primary(item,new_item)
+         call self%primary%item_vec%push_back(new_item)
+         ! make a new name ps_importname, if that's not already in import names
+         call create_ps_field(new_item, self%ExtDataState, item, time, _RC)
+         item%havePressure=.false. 
+      enddo
+
+      num_rules = self%primary%number_of_rules%of(i)
+      call self%primary%export_id_start%push_back(new_size+1)
+      call self%primary%number_of_rules%push_back(num_rules)
+   enddo
 
    call extdata_lgr%info('*******************************************************')
    call extdata_lgr%info('** Variables to be provided by the ExtData Component **')
@@ -1516,6 +1537,41 @@ CONTAINS
 
      _RETURN(_SUCCESS)
   end subroutine
+
+  subroutine create_ps_field(item,ExtDataState,old_item,current_time,rc)
+     type(PrimaryExport), intent(inout) :: item
+     type(ESMF_State), intent(inout) :: extDataState
+     type(PrimaryExport), intent(inout) :: old_item
+     type(ESMF_Time), intent(in) :: current_time
+     integer, intent(out), optional :: rc
+
+     integer :: status
+     type(ESMF_Field) :: field,new_field
+     type(ESMF_Grid)  :: grid
+     real, pointer :: ptr2d(:,:)
+     logical :: has_ps
+     type(ESMF_StateItem_Flag) :: item_type
+
+     call ESMF_StateGet(ExtDataState,trim(old_item%name),field,_RC)
+     if (index(old_item%file_template,"/dev/null")/=0) then
+        _RETURN(_SUCCESS)
+     end if
+
+     call ESMF_StateGet(ExtDataState, itemName=item%name, itemType=item_type, _RC)
+     if (item_type == ESMF_STATEITEM_FIELD) then
+        _RETURN(_SUCCESS)
+     end if     
+
+     call ESMF_FieldGet(field,grid=grid,_RC)
+
+     new_field=ESMF_FieldCreate(grid,name=item%name,typekind=ESMF_TYPEKIND_R4,_RC)
+     call ESMF_FieldGet(new_field,0,farrayPtr=ptr2d,_RC)
+     ptr2d=0.0
+     call MAPL_StateAdd(ExtDataState,new_field,_RC)
+
+     _RETURN(_SUCCESS)
+
+  end subroutine create_ps_field
 
   subroutine create_primary_field(item,ExtDataState,current_time,rc)
      type(PrimaryExport), intent(inout) :: item

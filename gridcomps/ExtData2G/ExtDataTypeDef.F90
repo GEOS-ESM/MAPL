@@ -13,6 +13,7 @@ module MAPL_ExtDataTypeDef
    public PrimaryExport
    public DerivedExport
    public BracketingFields
+   public copy_primary
 
   integer, parameter         :: MAPL_ExtDataNullFrac      = -9999
 
@@ -31,7 +32,7 @@ module MAPL_ExtDataTypeDef
      character(len=ESMF_MAXSTR)   :: units=''
      integer                      :: Trans
      character(len=ESMF_MAXSTR)   :: var
-     character(len=ESMF_MAXPATHLEN)   :: file_template ! remove
+     character(len=ESMF_MAXPATHLEN)   :: file_template
 
      logical                      :: isConst
      real                         :: Const !remove
@@ -89,6 +90,23 @@ module MAPL_ExtDataTypeDef
 
   contains
 
+      subroutine copy_primary(p1, p2)
+         type(PrimaryExport), intent(in) :: p1
+         type(PrimaryExport), intent(out) :: p2
+
+         character(len=:), allocatable :: new_name
+
+         p2 = p1
+         p2%var='PS'
+         new_name = "PS_"//trim(p1%name)
+         p2%name=new_name
+         p2%fileVars%xname = 'PS'
+         p2%vcomp1=new_name
+         if (.not.p1%havePressure) p2%file_template = "/dev/null"
+         if (.not.p1%havePressure) p2%isConst = .true.
+
+      end subroutine
+         
       subroutine evaluate_derived_field(this,state,rc)
          class(DerivedExport), intent(inout) :: this
          type(ESMF_State), intent(inout) :: state
