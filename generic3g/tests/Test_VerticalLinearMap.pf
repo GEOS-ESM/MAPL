@@ -3,7 +3,7 @@
 module Test_VerticalLinearMap
 
    use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
-   use mapl3g_VerticalLinearMap, only: compute_linear_map_fixedlevels_to_fixedlevels
+   use mapl3g_VerticalLinearMap, only: compute_linear_map
    use funit
    use, intrinsic :: iso_fortran_env, only: REAL32
 
@@ -22,13 +22,13 @@ contains
 
       vcoord_src = [30., 20., 10.]
       vcoord_dst = [20., 10.]
-      call compute_linear_map_fixedlevels_to_fixedlevels(vcoord_src, vcoord_dst, matrix, _RC)
+      call compute_linear_map(vcoord_src, vcoord_dst, matrix, _RC)
       fin = [7., 8., 3.]
       @assertEqual([8., 3.], matmul(matrix, fin))
 
       vcoord_src = [30., 20., 10.]
       vcoord_dst = [25., 15.]
-      call compute_linear_map_fixedlevels_to_fixedlevels(vcoord_src, vcoord_dst, matrix, _RC)
+      call compute_linear_map(vcoord_src, vcoord_dst, matrix, _RC)
       fin = [2., 4., 6.]
       @assertEqual([3.,5.], matmul(matrix, fin))
       fin = [7., 8., 3.]
@@ -36,7 +36,7 @@ contains
 
       vcoord_src = [30., 20., 10.]
       vcoord_dst = [28., 12.]
-      call compute_linear_map_fixedlevels_to_fixedlevels(vcoord_src, vcoord_dst, matrix, _RC)
+      call compute_linear_map(vcoord_src, vcoord_dst, matrix, _RC)
       fin = [20., 10., 5.]
       @assertEqual([18., 6.], matmul(matrix, fin))
 
