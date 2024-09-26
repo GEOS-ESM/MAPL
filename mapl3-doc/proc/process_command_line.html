@@ -79,20 +79,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.1% of total for procedures.">67 statements</a>
+                 title=" 0.1% of total for procedures.">63 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/pfio_performance.F90"> Source File</a>
+              <a href="../src/pfio_server_demo.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/pfio_performance.f90.html'>pfio_performance.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/performace_cli.html'>performace_CLI</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/pfio_server_demo.f90.html'>pfio_server_demo.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/server_demo_cli.html'>server_demo_CLI</a></li>
             <li class="breadcrumb-item active" aria-current="page">process_command_line</li>
           </ol>
         </nav>
@@ -164,7 +164,7 @@
         <tr>
             <td>
               <span class="anchor" id="variable-options"></span>
-              type(<a href='../type/commandlineoptions.html'>CommandLineOptions</a>),
+              type(<a href='../type/commandlineoptions~2.html'>CommandLineOptions</a>),
             </td>
 <td>intent(inout)</td>
               <td></td>            <td>
@@ -178,7 +178,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~74"></span>
+              <span class="anchor" id="variable-rc~36"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -483,27 +483,23 @@ large graphs.</div>
 <span class="w">            </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_next_argument</span><span class="p">()</span>
 <span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">buffer</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;too many -&quot;</span><span class="p">)</span>
 <span class="w">            </span><span class="k">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">npes_client</span>
-<span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;-nso&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;--nodes_oserver&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;-ns&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;--npes_server&#39;</span><span class="p">)</span>
 <span class="w">            </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_next_argument</span><span class="p">()</span>
-<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">buffer</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="s2">&quot;too many -&quot;</span><span class="p">)</span>
-<span class="w">            </span><span class="k">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">nodes_oserver</span>
-<span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;-ncol&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;--num_collection&#39;</span><span class="p">)</span>
-<span class="w">            </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_next_argument</span><span class="p">()</span>
-<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">buffer</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="s2">&quot;too many -&quot;</span><span class="p">)</span>
-<span class="w">            </span><span class="k">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">num_collection</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">buffer</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;too many -&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">npes_server</span>
 <span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;-f1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;--file_1&#39;</span><span class="p">)</span>
 <span class="w">            </span><span class="k">options</span><span class="p">%</span><span class="n">file_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_next_argument</span><span class="p">()</span>
-<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="k">options</span><span class="p">%</span><span class="n">file_1</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="s2">&quot;too many -&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="k">options</span><span class="p">%</span><span class="n">file_1</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;too many -&quot;</span><span class="p">)</span>
 <span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;-f2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;--file_2&#39;</span><span class="p">)</span>
 <span class="w">            </span><span class="k">options</span><span class="p">%</span><span class="n">file_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_next_argument</span><span class="p">()</span>
-<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="k">options</span><span class="p">%</span><span class="n">file_2</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="s2">&quot;too many -&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="k">options</span><span class="p">%</span><span class="n">file_2</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;too many -&quot;</span><span class="p">)</span>
 <span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;--var&#39;</span><span class="p">)</span>
 <span class="w">            </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_next_argument</span><span class="p">()</span>
-<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="s2">&quot;too many -&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;too many -&quot;</span><span class="p">)</span>
 <span class="w">            </span><span class="k">options</span><span class="p">%</span><span class="n">requested_variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parse_vars</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
 <span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;--server_type&#39;</span><span class="p">)</span>
 <span class="w">            </span><span class="k">options</span><span class="p">%</span><span class="n">server_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_next_argument</span><span class="p">()</span>
-<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="k">options</span><span class="p">%</span><span class="n">server_type</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="s2">&quot;too many -&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="k">options</span><span class="p">%</span><span class="n">server_type</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;too many-&quot;</span><span class="p">)</span>
 <span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;--debug&#39;</span><span class="p">)</span>
 <span class="w">            </span><span class="k">options</span><span class="p">%</span><span class="n">debug</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
 <span class="w">         </span><span class="k">case </span><span class="n">default</span>
@@ -570,7 +566,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-09-24T17:17:19.173828             </p>
+ on 2024-09-26T16:06:55.712466             </p>
           </div>
         </div>
         <br>
