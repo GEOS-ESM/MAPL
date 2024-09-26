@@ -12,7 +12,6 @@ module mapl3g_VerticalLinearMap
    private
 
    public :: compute_linear_map_fixedlevels_to_fixedlevels
-   public :: apply_linear_map
 
    type IndexValuePair
       integer :: index
@@ -28,15 +27,6 @@ module mapl3g_VerticalLinearMap
    end interface operator(/=)
 
 contains
-
-   subroutine apply_linear_map(matrix, fin, fout)
-      ! real(REAL32), intent(in) :: matrix(:, :)
-      type(SparseMatrix_sp) :: matrix
-      real(REAL32), intent(in) :: fin(:)
-      real(REAL32), allocatable, intent(out) :: fout(:)
-
-      fout = sparse_matmul_sp(matrix, fin)
-   end subroutine apply_linear_map
 
    ! Compute linear interpolation transformation matrix (src*matrix = dst)
    ! when regridding (vertical) from fixed-levels to fixed-levels
