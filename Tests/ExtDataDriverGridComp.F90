@@ -224,7 +224,7 @@ contains
     !EOR
     enableTimers = ESMF_UtilStringUpperCase(enableTimers, rc = status)
     _VERIFY(status)
-    call MAPL_GetResource(maplobj,use_extdata2g,"USE_EXTDATA2G:",default=.false.,_RC)
+    call MAPL_GetResource(maplobj,use_extdata2g,"USE_EXTDATA2G:",default=.true.,_RC)
 
     if (enableTimers /= 'YES') then
        call MAPL_ProfDisable(rc = status)
