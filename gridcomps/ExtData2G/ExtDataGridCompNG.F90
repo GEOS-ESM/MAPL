@@ -390,6 +390,20 @@ CONTAINS
          end if
       end if
    enddo
+
+!  now lets establish the horizonal and vertical grid for each component, replaces getlevs
+   do i=1,self%primary%import_names%size()
+      
+      i_start => self%primary%export_id_start%at(i)
+      do j=1,self%primary%number_of_rules%at(i)
+         item => self%primary%item_vec%at(i_start+j-1)
+         item%pfioCOllection_id = MAPL_DataAddCollection(item%file_template)
+         call new_GetLevs(item, time, _RC)
+      enddo
+
+   enddo
+   ! done establishing grid and levels
+
    do i=1,self%derived%import_names%size()
       current_base_name => self%derived%import_names%at(i)
       num_derived=num_derived+1
@@ -407,7 +421,6 @@ CONTAINS
       idx = self%primary%get_item_index(current_base_name,time,_RC)
       item => self%primary%item_vec%at(idx)
 
-      item%pfioCOllection_id = MAPL_DataAddCollection(item%file_template)
       call create_primary_field(item,self%ExtDataState,time,_RC)
    end do PrimaryLoop
 
@@ -420,8 +433,8 @@ CONTAINS
       
       do j=1,self%primary%number_of_rules%at(i)
          item => self%primary%item_vec%at(i_start+j-1)
-         !rules_with_ps = item%havePressure
-         rules_with_ps = .true.
+         rules_with_ps = item%havePressure
+         !rules_with_ps = .true.
          if (rules_with_ps) exit
       enddo
       if (.not.rules_with_ps) cycle 
@@ -431,8 +444,6 @@ CONTAINS
       new_size = self%primary%item_vec%size()
       do j=1,self%primary%number_of_rules%at(i)
          item => self%primary%item_vec%at(i_start+j-1)
-         if (j==1) item%havePressure=.true.
-         if (j==2) item%havePressure=.false.
          call copy_primary(item,new_item)
          call self%primary%item_vec%push_back(new_item)
          ! make a new name ps_importname, if that's not already in import names
@@ -807,6 +818,94 @@ CONTAINS
       end if
 
    end function DerivedExportIsConstant_
+
+     subroutine new_GetLevs(item, current_time, rc)
+
+        type(PrimaryExport)      , intent(inout) :: item
+        type(ESMF_Time)          , intent(in) :: current_time
+        integer, optional        , intent(out  ) :: rc
+
+        integer :: status
+
+        real, allocatable          :: levFile(:)
+        character(len=ESMF_MAXSTR) :: levunits,tlevunits
+        character(len=:), allocatable :: levname
+        character(len=:), pointer :: positive
+        type(Variable), pointer :: var
+        integer :: i
+        logical :: file_found
+        type(FileMetadataUtils), pointer :: metadata
+        type(MAPLDataCollection), pointer :: collection
+        type(ESMF_Time) :: useable_time
+        character(len=ESMF_MAXPATHLEN) :: filename
+
+        if (trim(item%file_template) == "/dev/null") then
+           _RETURN(_SUCCESS)
+        end if
+        useable_time = current_time
+        if (allocated(item%filestream%valid_range)) then
+            useable_time = item%filestream%valid_range(1)
+        end if
+        call fill_grads_template(filename,item%file_template,time=useable_time,_RC )
+        inquire(file=trim(filename),exist=file_found)
+        _ASSERT(file_found,"Forcing extdata to allocate primary field but have gaps in data, not implemented currently")
+        collection => DataCollections%at(item%pfioCollection_id)
+        metadata => collection%find(filename,_RC)
+        item%file_metadata = metadata
+
+        positive=>null()
+        var => null()
+        if (item%vartype == MAPL_VectorField) then
+           var=>item%file_metadata%get_variable(trim(item%fcomp1))
+           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp1)//" not found in file "//TRIM(item%file_template))
+           var => null()
+           var=>item%file_metadata%get_variable(trim(item%fcomp2))
+           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp2)//" not found in file "//TRIM(item%file_template))
+        else
+           var=>item%file_metadata%get_variable(trim(item%var))
+           _ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file_template))
+        end if
+
+        levName = item%file_metadata%get_level_name(_RC)
+        if (trim(levName) /='') then
+           call item%file_metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits,coords=levFile,_RC)
+           levUnits=MAPL_TrimString(tlevUnits)
+           ! check if pressure
+           item%levUnit = ESMF_UtilStringLowerCase(levUnits)
+           if (trim(item%levUnit) == 'hpa' .or. trim(item%levUnit)=='pa') then
+              item%havePressure = .true.
+           end if
+           if (item%havePressure) then
+              if (levFile(1)>levFile(size(levFile))) item%fileVDir="up"
+           else
+              positive => item%file_metadata%get_variable_attribute(levName,'positive',_RC)
+              if (associated(positive)) then
+                 if (MAPL_TrimString(positive)=='up') item%fileVDir="up"
+              end if
+           end if
+
+           if (.not.allocated(item%levs)) allocate(item%levs(item%lm),__STAT__)
+           item%levs=levFile
+           if (trim(item%fileVDir)/=trim(item%importVDir)) then
+              do i=1,size(levFile)
+                 item%levs(i)=levFile(size(levFile)-i+1)
+              enddo
+           end if
+           if (trim(item%levunit)=='hpa') item%levs=item%levs*100.0
+           if (item%vartype == MAPL_VectorField) then
+              item%units = item%file_metadata%get_variable_attribute(trim(item%fcomp1),"units",_RC)
+           else
+              item%units = item%file_metadata%get_variable_attribute(trim(item%var),"units",_RC)
+           end if
+
+        else
+           item%LM=0
+        end if
+
+        _RETURN(ESMF_SUCCESS)
+
+     end subroutine new_GetLevs
+
 
      subroutine GetLevs(item, rc)
 
@@ -1459,7 +1558,7 @@ CONTAINS
      end if
 
      if (found_file) then
-        call GetLevs(item,_RC)
+        !call GetLevs(item,_RC)
         item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file_template))
         if (item%vartype == MAPL_FieldItem) then
 
@@ -1614,7 +1713,7 @@ CONTAINS
      metadata => collection%find(filename,_RC)
      item%file_metadata = metadata
 
-     call GetLevs(item,_RC)
+     !call GetLevs(item,_RC)
      if (item%vartype == MAPL_FieldItem) then
         field = create_simple_field(item%name,grid,item%lm,_RC)
         call MAPL_StateAdd(ExtDataState,field,_RC)
