@@ -39,7 +39,6 @@ module mapl3g_FieldSpec
    use mapl3g_FieldDictionary
    use mapl3g_GriddedComponentDriver
    use mapl3g_VariableSpec, only: VariableSpec
-   use mapl3g_VerticalRegridMethod, only: VerticalRegridMethod_Flag, VERTICAL_REGRID_LINEAR
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -148,7 +147,7 @@ module mapl3g_FieldSpec
       type(ESMF_Geom), allocatable :: geom
       type(ESMF_TypeKind_Flag) :: typekind
       character(:), allocatable :: units
-      type(VerticalRegridMethod_Flag), allocatable :: regrid_method
+      type(Vertical_RegridMethod_Flag), allocatable :: regrid_method
    contains
       procedure :: adapt_one => adapt_vertical_grid
       procedure :: match_one => adapter_match_vertical_grid
@@ -871,7 +870,7 @@ contains
       type(ESMF_Geom), optional, intent(in) :: geom
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       character(*), optional, intent(in) :: units
-      type(VerticalRegridMethod_Flag), optional, intent(in) :: regrid_method
+      type(Vertical_RegridMethod_Flag), optional, intent(in) :: regrid_method
 
       if (present(vertical_grid)) vertical_grid_adapter%vertical_grid = vertical_grid
       if (present(geom)) vertical_grid_adapter%geom = geom
@@ -898,7 +897,7 @@ contains
               'ignore', spec%geom, spec%typekind, spec%units, _RC)
          call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
               'ignore', this%geom, this%typekind, this%units, _RC)
-         action = VerticalRegridAction(v_in_coord, v_out_coord, this%regrid_method)
+         action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, this%regrid_method)
          spec%vertical_grid = this%vertical_grid
       end select
 
