@@ -836,19 +836,12 @@ CONTAINS
         logical :: file_found
         type(FileMetadataUtils), pointer :: metadata
         type(MAPLDataCollection), pointer :: collection
-        type(ESMF_Time) :: useable_time
-        character(len=ESMF_MAXPATHLEN) :: filename
+        character(len=:), allocatable :: filename
 
         if (trim(item%file_template) == "/dev/null") then
            _RETURN(_SUCCESS)
         end if
-        useable_time = current_time
-        if (allocated(item%filestream%valid_range)) then
-            useable_time = item%filestream%valid_range(1)
-        end if
-        call fill_grads_template(filename,item%file_template,time=useable_time,_RC )
-        inquire(file=trim(filename),exist=file_found)
-        _ASSERT(file_found,"Forcing extdata to allocate primary field but have gaps in data, not implemented currently")
+        filename = item%filestream%find_any_file(current_time, _RC)
         collection => DataCollections%at(item%pfioCollection_id)
         metadata => collection%find(filename,_RC)
         item%file_metadata = metadata
