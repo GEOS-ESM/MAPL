@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Propagated the error message from MAPL_HorzIJIndex subroutine
+- ExtDataDriver.x now uses ExtData2G by default
 
 ### Fixed
 
