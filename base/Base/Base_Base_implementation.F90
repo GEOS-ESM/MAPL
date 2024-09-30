@@ -24,6 +24,8 @@ submodule (MAPL_Base) Base_Implementation
   ! !USES:
   !
   use ESMF
+  use ESMFL_Mod
+
   use MAPL_FieldUtils
   use MAPL_Constants
   use MAPL_RangeMod
@@ -2596,6 +2598,7 @@ contains
     real(ESMF_KIND_R4) :: lonloc,latloc
     logical            :: localSearch
     real(ESMF_KIND_R8), allocatable :: tmp_lons(:),tmp_lats(:)
+    real(ESMF_KIND_R8) :: lonRe(npts), latRe(npts) ! returned from reversed_shmidt transform
     type(ESMF_CoordSys_Flag) :: coordSys
     character(len=ESMF_MAXSTR) :: grid_type
 
@@ -2756,7 +2759,7 @@ contains
     ! MAPL_PI_R8/18, Japan Fuji mountain shift
     real(ESMF_KIND_R8), parameter :: shift= 0.174532925199433d0
 
-    logical :: good_grid
+    logical :: good_grid, stretched
 
     ! Return if no local points
     _RETURN_IF(npts == 0)
@@ -2769,6 +2772,10 @@ contains
     JM_World = dims(2)
     _ASSERT( IM_WORLD*6 == JM_WORLD, "It only works for cubed-sphere grid")
 
+    allocate(lons(npts),lats(npts))
+    
+    call MAPL_Reverse_Schmidt(Grid, stretched, npts, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, lonRe=lons, latRe=lats, _RC) 
+
     dalpha = 2.0d0*alpha/IM_WORLD
 
     ! make sure the grid can be used in this subroutine
@@ -2777,15 +2784,6 @@ contains
     if ( .not. good_grid ) then
        _FAIL( "MAPL_GetGlobalHorzIJIndex cannot handle this grid")
     endif
-
-    allocate(lons(npts),lats(npts))
-    if (present(lon) .and. present(lat)) then
-       lons = lon
-       lats = lat
-    else if (present(lonR8) .and. present(latR8)) then
-       lons = lonR8
-       lats = latR8
-    end if
 
     ! shift the grid away from Japan Fuji Mt.
     lons = lons + shift
@@ -2870,7 +2868,8 @@ contains
        logical :: OK
        integer :: I1, I2, J1, J2, j
        real(ESMF_KIND_R8), pointer :: corner_lons(:,:), corner_lats(:,:)
-       real(ESMF_KIND_R8) :: accurate_lat, accurate_lon
+       real(ESMF_KIND_R8), allocatable :: lonRe(:), latRe(:)
+       real(ESMF_KIND_R8) :: accurate_lat, accurate_lon, stretch_factor, target_lon, target_lat
        real :: tolerance
 
        tolerance = epsilon(1.0)
@@ -2882,12 +2881,15 @@ contains
        call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER, &
             farrayPtr=corner_lats, rc=status)
 
+       allocate(lonRe(j2-j1+2), latRe(j2-j1+2))
+       call MAPL_Reverse_Schmidt(grid, stretched, J2-J1+1, lonR8=corner_lons(1,:), latR8=corner_lats(1,:), lonRe=lonRe, latRe=latRe, _RC)  
+
        if ( I1 ==1 .and. J2<=IM_WORLD ) then
           if (J1 == 1) then
             accurate_lon = 1.750d0*MAPL_PI_R8 - shift
-            if (abs(accurate_lon - corner_lons(1,1)) > tolerance) then
+            if (abs(accurate_lon - lonRe(1)) > tolerance) then
                print*, "accurate_lon: ", accurate_lon
-               print*, "corner_lon  : ", corner_lons(1,1)
+               print*, "corner_lon  : ", lonRe(1)
                print*, "Error: Grid should have pi/18 shift"
                OK = .false.
                return
@@ -2896,9 +2898,9 @@ contains
 
           do j = J1+1, J2
              accurate_lat = -alpha + (j-1)*dalpha
-             if ( abs(accurate_lat - corner_lats(1,j-J1+1)) > 5.0*tolerance) then
+             if ( abs(accurate_lat - latRe(j-J1+1)) > 5.0*tolerance) then
                 print*, "accurate_lat: ", accurate_lat
-                print*, "edge_lat    : ", corner_lats(1,j-J1+1)
+                print*, "edge_lat    : ", latRe(j-J1+1)
                 print*, "edge point  : ", j
                 print*, "Error: It could be "
                 print*, "  1)Grid is NOT gnomonic_ed;"
@@ -3382,5 +3384,94 @@ contains
      if (phase>10) phase=phase-10
      _RETURN(_SUCCESS)
   end function MAPL_GetCorrectedPhase
+
+  module subroutine MAPL_Reverse_Schmidt(Grid, stretched, npts, lon, lat, lonR8, latR8, lonRe, latRe, rc)
+     type(ESMF_Grid), intent(inout) :: Grid 
+     logical, intent(out)           :: stretched
+     integer,                      intent(in   ) :: npts        ! number of points in lat and lon arrays
+     real, optional,               intent(in   ) :: lon(npts)   ! array of longitudes in radians
+     real, optional,               intent(in   ) :: lat(npts)   ! array of latitudes in radians
+     real(ESMF_KIND_R8), optional, intent(in   ) :: lonR8(npts) ! array of longitudes in radians
+     real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) !     
+     real(ESMF_KIND_R8), optional, intent(out  ) :: lonRe(npts) ! 
+     real(ESMF_KIND_R8), optional, intent(out  ) :: latRe(npts) ! 
+     integer, optional, intent(out) :: rc
+
+     logical :: factorPresent, lonPresent, latPresent
+     integer :: status
+     real(ESMF_KIND_R8) :: c2p1, c2m1, half_pi, two_pi, stretch_factor, target_lon, target_lat
+     real(ESMF_KIND_R8), dimension(npts) :: x,y,z, Xx, Yy, Zz  
+     logical, dimension(npts) :: n_s
+
+     _RETURN_IF( npts == 0 )
+ 
+     call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', isPresent= factorPresent, _RC)
+     call ESMF_AttributeGet(grid, name='TARGET_LON',     isPresent= lonPresent,    _RC)
+     call ESMF_AttributeGet(grid, name='TARGET_LAT',     isPresent= latPresent,    _RC)
+
+     if ( factorPresent .and. lonPresent .and. latPresent) then
+        stretched = .true.
+     else 
+        stretched = .false.
+     endif
+
+     if (present(lonRe) .and. present(latRe)) then
+        if (present(lonR8) .and. present(latR8)) then
+           lonRe = lonR8
+           latRe = latR8
+        else if (present(lon) .and. present(lat)) then
+           lonRe = lon
+           latRe = lat
+        else
+           _FAIL("Need input to get the output lonRe, latRe")
+        endif
+     else
+        _RETURN(_SUCCESS)
+     endif
+
+     if (.not. stretched) then
+        _RETURN(_SUCCESS)
+     endif
+
+     call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', value=stretch_factor, _RC)
+     call ESMF_AttributeGet(grid, name='TARGET_LON',     value=target_lon,     _RC)
+     call ESMF_AttributeGet(grid, name='TARGET_LAT',     value=target_lat,     _RC)
+
+     c2p1 = 1 + stretch_factor*stretch_factor 
+     c2m1 = 1 - stretch_factor*stretch_factor
+
+     half_pi = MAPL_PI/2
+     two_pi  = MAPL_PI*2
+  
+     x = cos(latRe)*cos(lonRe - target_lon)
+     y = cos(latRe)*sin(lonRe - target_lon)
+     z = sin(latRe)
+
+     Xx =  sin(target_lat)*x - cos(target_lat)*z
+     Yy = -y
+     Zz = -cos(target_lat)*x - sin(target_lat)*z
+
+     n_s = (1. - abs(Zz)) < 10**(-7)
+
+     where(n_s)
+       lonRe = 0.0d0
+       latRe = half_pi*sign(1.0, Zz)
+     elsewhere
+       lonRe = atan2(Yy,Xx)
+       latRe = asin(Zz)
+     endwhere
+
+     if (abs(c2m1) > 10**(-7)) then !# unstretch
+        latRe  = asin( (c2m1-c2p1*sin(latRe))/(c2m1*sin(latRe)-c2p1))
+     endif
+
+     where ( lonRe < 0)
+         lonRe = lonRe + two_pi
+     elsewhere (lonRe >= two_pi)
+         lonRe = lonRe - two_pi
+     endwhere
+
+      _RETURN(_SUCCESS)
+  end subroutine
 
 end submodule Base_Implementation
