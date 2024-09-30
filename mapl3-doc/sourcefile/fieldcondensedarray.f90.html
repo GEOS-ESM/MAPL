@@ -1,0 +1,592 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>FieldCondensedArray.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>FieldCondensedArray.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">67 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/FieldCondensedArray.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">FieldCondensedArray.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_fieldcondensedarray.html">mapl3g_FieldCondensedArray</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/fieldcondensedarray.f90.html#src">FieldCondensedArray.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~fieldcondensedarray.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilefieldcondensedarrayf90EfferentGraph" width="641pt" height="118pt"
+ viewBox="0.00 0.00 641.00 117.61" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph" class="graph" transform="scale(0.53 0.53) rotate(0) translate(4 216.36)">
+<title>sourcefile~~fieldcondensedarray.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-216.36 1197,-216.36 1197,4 -4,4"/>
+<!-- sourcefile~fieldcondensedarray.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~fieldcondensedarray.f90</title>
+<polygon fill="none" stroke="black" points="1193,-172 1045,-172 1045,-148 1193,-148 1193,-172"/>
+<text text-anchor="middle" x="1119" y="-157.6" font-family="Helvetica,sans-Serif" font-size="10.50">FieldCondensedArray.F90</text>
+</g>
+<!-- sourcefile~fieldcondensedarray_private.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~fieldcondensedarray_private.f90</title>
+<g id="a_sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/fieldcondensedarray_private.f90.html" xlink:title="FieldCondensedArray_private.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1009,-193 817,-193 817,-169 1009,-169 1009,-193"/>
+<text text-anchor="middle" x="913" y="-178.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldCondensedArray_private.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~fieldcondensedarray_private.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~fieldcondensedarray_private.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1044.93,-167.52C1036.63,-168.38 1028.05,-169.26 1019.44,-170.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1018.92,-166.68 1009.33,-171.19 1019.64,-173.64 1018.92,-166.68"/>
+</g>
+<!-- sourcefile~fielddimensioninfo.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~fielddimensioninfo.f90</title>
+<g id="a_sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/fielddimensioninfo.f90.html" xlink:title="FieldDimensionInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="981,-81 845,-81 845,-57 981,-57 981,-81"/>
+<text text-anchor="middle" x="913" y="-66.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldDimensionInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~fielddimensioninfo.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~fielddimensioninfo.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1090.91,-147.92C1054.79,-131.8 990.73,-103.23 950.41,-85.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="951.76,-82.01 941.2,-81.13 948.91,-88.4 951.76,-82.01"/>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~fieldpointerutilities.f90</title>
+<g id="a_sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/fieldpointerutilities.f90.html" xlink:title="FieldPointerUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="981,-151 845,-151 845,-127 981,-127 981,-151"/>
+<text text-anchor="middle" x="913" y="-136.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldPointerUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1044.93,-152.48C1027.53,-150.69 1008.92,-148.77 991.34,-146.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="991.43,-143.45 981.13,-145.91 990.72,-150.42 991.43,-143.45"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="781,-201 612,-201 612,-177 781,-177 781,-201"/>
+<text text-anchor="middle" x="696.5" y="-186.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~fieldcondensedarray.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1094.08,-172.17C1072.48,-182.43 1039.5,-196.33 1009,-202 931.84,-216.35 842.16,-210.28 778.89,-202.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="779.34,-198.84 768.97,-201.02 778.44,-205.78 779.34,-198.84"/>
+</g>
+<!-- sourcefile~fieldcondensedarray_private.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~fieldcondensedarray_private.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M816.98,-184.54C808.54,-184.86 799.99,-185.18 791.55,-185.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="791.19,-182 781.33,-185.87 791.45,-189 791.19,-182"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="245,-161 136,-161 136,-137 245,-137 245,-161"/>
+<text text-anchor="middle" x="190.5" y="-146.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fielddimensioninfo.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~fielddimensioninfo.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M695.5,-130C642.17,-137.98 629.72,-146.32 576,-151 510.91,-156.68 493.95,-158.05 429,-151 387.83,-146.53 379.19,-126.77 338,-131"/>
+</g>
+<!-- sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~mapl_esmf_infokeys.f90</title>
+<g id="a_sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/mapl_esmf_infokeys.f90.html" xlink:title="MAPL_ESMF_InfoKeys.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="576,-142 429,-142 429,-118 576,-118 576,-142"/>
+<text text-anchor="middle" x="502.5" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMF_InfoKeys.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fielddimensioninfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~fielddimensioninfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M695.5,-130C660.04,-134.9 620.54,-135.69 586.64,-134.95"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="586.39,-131.45 576.3,-134.68 586.21,-138.44 586.39,-131.45"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~ungriddeddim.f90</title>
+<g id="a_sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/ungriddeddim.f90.html" xlink:title="UngriddedDim.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="393,-103 281,-103 281,-79 393,-79 393,-103"/>
+<text text-anchor="middle" x="337" y="-88.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDim.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fielddimensioninfo.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~fielddimensioninfo.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M880.26,-81.06C838.91,-96.05 764.04,-120.8 697.5,-130"/>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M695.5,-130C642.08,-137.38 629.51,-115.71 576,-109 517.97,-101.72 451.58,-97 403.69,-94.23"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="403.64,-90.72 393.46,-93.65 403.24,-97.71 403.64,-90.72"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="755.5,-64 637.5,-64 637.5,-40 755.5,-40 755.5,-64"/>
+<text text-anchor="middle" x="696.5" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fielddimensioninfo.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~fielddimensioninfo.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M844.72,-63.67C819.56,-61.67 790.97,-59.41 765.73,-57.41"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="765.75,-53.9 755.5,-56.6 765.19,-60.88 765.75,-53.9"/>
+</g>
+<!-- sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~ungriddeddimvector.f90</title>
+<g id="a_sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/ungriddeddimvector.f90.html" xlink:title="UngriddedDimVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="575,-24 430,-24 430,0 575,0 575,-24"/>
+<text text-anchor="middle" x="502.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fielddimensioninfo.f90&#45;&gt;sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~fielddimensioninfo.f90&#45;&gt;sourcefile~ungriddeddimvector.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M878,-56.96C851.83,-48.23 814.58,-36.95 781,-31 715.76,-19.44 640.73,-14.81 585.16,-13.01"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="585.11,-9.51 575.01,-12.7 584.9,-16.5 585.11,-9.51"/>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M856.7,-151.02C843.67,-153.91 829.83,-157.02 817,-160 797.08,-164.62 775.33,-169.84 755.91,-174.57"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="754.88,-171.22 746,-176.99 756.54,-178.02 754.88,-171.22"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M611.9,-200.62C539.34,-209 431.54,-217.32 338,-208"/>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M336,-208C293.12,-203.73 247.76,-182 219.54,-166.15"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="221.07,-162.99 210.65,-161.03 217.57,-169.05 221.07,-162.99"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-190 0,-190 0,-166 100,-166 100,-190"/>
+<text text-anchor="middle" x="50" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M336,-208C257.89,-200.21 167.8,-190.63 110.18,-184.42"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="110.47,-180.93 100.16,-183.34 109.72,-187.89 110.47,-180.93"/>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M135.95,-160.21C127.53,-161.98 118.77,-163.81 110.23,-165.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="109.4,-162.2 100.33,-167.67 110.83,-169.05 109.4,-162.2"/>
+</g>
+<!-- sourcefile~mapl_esmf_infokeys.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~mapl_esmf_infokeys.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M428.9,-127.46C400.48,-127.24 367.65,-127.96 338,-131"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M306.06,-103.02C284.26,-111.77 254.53,-123.7 230.82,-133.22"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="229.38,-130.02 221.4,-137 231.99,-136.52 229.38,-130.02"/>
+</g>
+<!-- sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~lu_bound.f90</title>
+<g id="a_sourcefile~~fieldcondensedarray.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/lu_bound.f90.html" xlink:title="LU_Bound.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="234.5,-83 146.5,-83 146.5,-59 234.5,-59 234.5,-83"/>
+<text text-anchor="middle" x="190.5" y="-68.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LU_Bound.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M280.96,-83.38C269.11,-81.74 256.62,-80.01 244.84,-78.38"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="245.09,-74.88 234.71,-76.98 244.13,-81.82 245.09,-74.88"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M501.5,-52C421.47,-62.38 418.28,-122.76 338,-131"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M336,-131C309.59,-133.71 280.52,-137.23 255.43,-140.43"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="254.78,-136.99 245.3,-141.74 255.67,-143.93 254.78,-136.99"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M501.5,-52C462.23,-56.56 418.73,-67.22 386.48,-76.24"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="385.51,-72.88 376.85,-78.98 387.42,-79.61 385.51,-72.88"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M637.89,-40C616.92,-35.63 593.01,-30.65 571.23,-26.11"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="571.9,-22.68 561.4,-24.06 570.47,-29.53 571.9,-22.68"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M637.32,-48.52C599.15,-47.09 548.2,-46.8 503.5,-52"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M501.5,-52C411.76,-62.43 306.69,-67.35 244.8,-69.5"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="244.38,-66.01 234.51,-69.84 244.62,-73.01 244.38,-66.01"/>
+</g>
+<!-- sourcefile~ungriddeddimvector.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~fieldcondensedarray.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~ungriddeddimvector.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M463.72,-24.08C452.38,-28.09 440.03,-32.86 429,-38 406.84,-48.32 383.01,-62.32 365.29,-73.33"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="363.23,-70.5 356.63,-78.79 366.95,-76.42 363.23,-70.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilefieldcondensedarrayf90EfferentGraph = svgPanZoom('#sourcefilefieldcondensedarrayf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="k">module </span><span class="n">mapl3g_FieldCondensedArray</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">iso_c_binding</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="kt">c_ptr</span><span class="p">,</span><span class="w"> </span><span class="nb">c_f_pointer</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="nb">   </span><span class="k">use </span><span class="n">mapl3g_FieldCondensedArray_private</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ARRAY_RANK</span><span class="p">,</span><span class="w"> </span><span class="n">get_shape</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_fptr_shape</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldDimensionInfo</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">get_vertical_dim_spec_name</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_FieldPointerUtilities</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">FieldGetLocalElementCount</span><span class="p">,</span><span class="w"> </span><span class="n">assign_fptr</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_ExceptionHandling</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ESMF_Field</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_FieldGet</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_KIND_R8</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_KIND_I8</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="k">   private</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">assign_fptr_condensed_array</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">interface </span><span class="n">assign_fptr_condensed_array</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">      </span><span class="k">module procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">assign_fptr_condensed_array_r4</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">      </span><span class="k">module procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">assign_fptr_condensed_array_r8</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="k">end interface </span><span class="n">assign_fptr_condensed_array</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="k">contains</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="k">   subroutine </span><span class="n">assign_fptr_condensed_array_r4</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">fptr</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fptr</span><span class="p">(:,:,:)</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">ESMF_KIND_I8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fp_shape</span><span class="p">(</span><span class="n">ARRAY_RANK</span><span class="p">)</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="n">fp_shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_fptr_shape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">fp_shape</span><span class="p">,</span><span class="w"> </span><span class="n">fptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">assign_fptr_condensed_array_r4</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">assign_fptr_condensed_array_r8</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">fptr</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fptr</span><span class="p">(:,:,:)</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">ESMF_KIND_I8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fp_shape</span><span class="p">(</span><span class="n">ARRAY_RANK</span><span class="p">)</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="n">fp_shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_fptr_shape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">fp_shape</span><span class="p">,</span><span class="w"> </span><span class="n">fptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">assign_fptr_condensed_array_r8</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">   </span><span class="k">function </span><span class="n">get_fptr_shape</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">fptr_shape</span><span class="p">)</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fptr_shape</span><span class="p">(</span><span class="n">ARRAY_RANK</span><span class="p">)</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridToFieldMap</span><span class="p">(:)</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">localElementCount</span><span class="p">(:)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">has_vertical</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec_name</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">VERTICAL_DIM_NONE_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;VERTICAL_DIM_NONE&#39;</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">gridToFieldMap</span><span class="o">=</span><span class="n">gridToFieldMap</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">localElementCount</span><span class="p">(</span><span class="n">rank</span><span class="p">))</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="c">!  Due to an ESMF bug, getting the localElementCount must use the module function.</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="c">!  See FieldGetLocalElementCount (specific function) comments.</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="n">localElementCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldGetLocalElementCount</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="n">spec_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_vertical_dim_spec_name</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="n">has_vertical</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spec_name</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">VERTICAL_DIM_NONE_NAME</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="n">fptr_shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_shape</span><span class="p">(</span><span class="n">gridToFieldMap</span><span class="p">,</span><span class="w"> </span><span class="n">localElementCount</span><span class="p">,</span><span class="w"> </span><span class="n">has_vertical</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_fptr_shape</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="k">end module </span><span class="n">mapl3g_FieldCondensedArray</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-30T18:24:01.351868             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,60 @@
+#include "MAPL_Exceptions.h"
+
+! These are the possbile datetime strings:
+! 2000-04-21T21:00:00              datetime with -, T, & delimiters
+! 20000421 210000              datetime without delimiters
+! This is how integer hour, min, & sec values are converted to an integer time.
+! time = hour*10000+min*100+sec              datetime with -, T, & delimiters
+! This is how integer year, month, & day values are converted to an integer day.
+! date = year*10000+month*100+day              datetime with -, T, & delimiters
+! These are datetime iterval strings:
+! PnYnMnDTnHnMnSn  ! This is a fully expressed datetime interval string.
+! P1D              ! This is a day-only interval string.
+! PT30             ! This is a time-only interval string.
+
+module Test_TimeStringConversion
+    use MAPL_ExceptionHandling
+    use MAPL_TimeStringConversion
+    use funit
+    implicit none
+    private
+
+    public :: test_string_to_integer_time_delimiters
+    public :: test_string_to_integer_date_delimiters
+
+    integer :: YEAR_FACTOR      = 10000
+    integer :: MONTH_FACTOR     =   100
+    integer :: DAY_FACTOR       =     1
+
+    integer :: HOUR_FACTOR      = 10000
+    integer :: MINUTE_FACTOR    =   100
+    integer :: SECOND_FACTOR    =     1
+
+contains
+
+    @test
+    subroutine test_string_to_integer_time_delimiters()
+        character(len=*), parameter :: time_string = '21:00:00'
+        integer :: expected_time = -1
+        integer :: actual_time = -2
+
+        expected_time = 21*HOUR_FACTOR + 0*MINUTE_FACTOR + 0*SECOND_FACTOR
+        actual_time = string_to_integer_time(time_string)
+         
+        @assertEqual(expected_time, actual_time)
+
+    end subroutine test_string_to_integer_time_delimiters
+
+    @test
+    subroutine test_string_to_integer_date_delimiters()
+        character(len=*), parameter :: date_string = '2000-04-21'
+        integer :: expected_date = -1
+        integer :: actual_date = -2
+
+        expected_date = 2000*YEAR_FACTOR + 4*MONTH_FACTOR + 21*DAY_FACTOR
+        actual_date = string_to_integer_date(date_string) 
+        @assertEqual(expected_date, actual_date)
+
+    end subroutine test_string_to_integer_date_delimiters
+
+end module Test_TimeStringConversion

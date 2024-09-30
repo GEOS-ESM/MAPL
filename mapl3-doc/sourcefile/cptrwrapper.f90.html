@@ -1,0 +1,594 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CptrWrapper.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>CptrWrapper.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">42 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/CptrWrapper.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">CptrWrapper.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/ud2f_cptrwrapper.html">ud2f_CptrWrapper</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/cptrwrapper.f90.html#src">CptrWrapper.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~cptrwrapper.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilecptrwrapperf90AfferentGraph" width="641pt" height="272pt"
+ viewBox="0.00 0.00 641.00 271.80" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph" class="graph" transform="scale(0.79 0.79) rotate(0) translate(4 342)">
+<title>sourcefile~~cptrwrapper.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-342 812,-342 812,4 -4,4"/>
+<!-- sourcefile~cptrwrapper.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~cptrwrapper.f90</title>
+<polygon fill="none" stroke="black" points="102,-275 0,-275 0,-251 102,-251 102,-275"/>
+<text text-anchor="middle" x="51" y="-260.6" font-family="Helvetica,sans-Serif" font-size="10.50">CptrWrapper.F90</text>
+</g>
+<!-- sourcefile~udsystem.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~udsystem.f90</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/udsystem.f90.html" xlink:title="UDSystem.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="228,-275 138,-275 138,-251 228,-251 228,-275"/>
+<text text-anchor="middle" x="183" y="-260.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UDSystem.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~udsystem.f90&#45;&gt;sourcefile~cptrwrapper.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~udsystem.f90&#45;&gt;sourcefile~cptrwrapper.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M137.99,-263C129.73,-263 120.96,-263 112.31,-263"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="112.24,-259.5 102.24,-263 112.24,-266.5 112.24,-259.5"/>
+</g>
+<!-- sourcefile~test_udsystem.pf -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~test_udsystem.pf</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/test_udsystem.pf.html" xlink:title="Test_UDSystem.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="505,-338 399,-338 399,-314 505,-314 505,-338"/>
+<text text-anchor="middle" x="452" y="-323.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_UDSystem.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_udsystem.pf&#45;&gt;sourcefile~udsystem.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~test_udsystem.pf&#45;&gt;sourcefile~udsystem.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M398.93,-318.91C371.54,-315.05 337.41,-310.05 307,-305"/>
+</g>
+<!-- sourcefile~udunits2f.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~udunits2f.f90</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/udunits2f.f90.html" xlink:title="udunits2f.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="348,-254 264,-254 264,-230 348,-230 348,-254"/>
+<text text-anchor="middle" x="306" y="-239.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">udunits2f.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_udsystem.pf&#45;&gt;sourcefile~udunits2f.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~test_udsystem.pf&#45;&gt;sourcefile~udunits2f.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M404.28,-313.9C397.3,-311.37 390.33,-308.41 384,-305 362.45,-293.38 341.16,-275.31 326.44,-261.5"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="328.62,-258.74 318.99,-254.33 323.77,-263.78 328.62,-258.74"/>
+</g>
+<!-- sourcefile~test_udunits2f.pf -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~test_udunits2f.pf</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/test_udunits2f.pf.html" xlink:title="Test_udunits2f.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="502,-296 402,-296 402,-272 502,-272 502,-296"/>
+<text text-anchor="middle" x="452" y="-281.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_udunits2f.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_udunits2f.pf&#45;&gt;sourcefile~udsystem.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~test_udunits2f.pf&#45;&gt;sourcefile~udsystem.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M412.73,-296.04C383.68,-303.62 342.76,-310.94 307,-305"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M305,-305C275.31,-300.07 243.19,-288.61 219.51,-278.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="220.81,-275.66 210.23,-275.02 218.1,-282.11 220.81,-275.66"/>
+</g>
+<!-- sourcefile~test_udunits2f.pf&#45;&gt;sourcefile~udunits2f.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~test_udunits2f.pf&#45;&gt;sourcefile~udunits2f.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M409.74,-271.96C393.62,-267.26 374.97,-261.82 358.02,-256.88"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="358.85,-253.48 348.27,-254.04 356.89,-260.2 358.85,-253.48"/>
+</g>
+<!-- sourcefile~udunits2f.f90&#45;&gt;sourcefile~udsystem.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~udunits2f.f90&#45;&gt;sourcefile~udsystem.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M263.7,-249.17C255.43,-250.6 246.63,-252.13 238.01,-253.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="237.26,-250.2 228.01,-255.36 238.46,-257.1 237.26,-250.2"/>
+</g>
+<!-- sourcefile~convertunitsaction.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~convertunitsaction.f90</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/convertunitsaction.f90.html" xlink:title="ConvertUnitsAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="520,-170 384,-170 384,-146 520,-146 520,-170"/>
+<text text-anchor="middle" x="452" y="-155.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConvertUnitsAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~convertunitsaction.f90&#45;&gt;sourcefile~udunits2f.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~convertunitsaction.f90&#45;&gt;sourcefile~udunits2f.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M404.28,-170.1C397.3,-172.63 390.33,-175.59 384,-179 362.45,-190.62 341.16,-208.69 326.44,-222.5"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="323.77,-220.22 318.99,-229.67 328.62,-225.26 323.77,-220.22"/>
+</g>
+<!-- sourcefile~fieldspec.f90~2 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~fieldspec.f90~2</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/fieldspec.f90~2.html" xlink:title="FieldSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="642,-150 556,-150 556,-126 642,-126 642,-150"/>
+<text text-anchor="middle" x="599" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~udunits2f.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~udunits2f.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M555.6,-126.95C510.45,-117.57 438.19,-109.54 384,-137 349.62,-154.42 326.88,-195.22 315.52,-220.52"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="312.19,-219.42 311.48,-230 318.62,-222.17 312.19,-219.42"/>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~convertunitsaction.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~convertunitsaction.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M555.67,-143.84C547.59,-144.95 538.91,-146.15 530.13,-147.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="529.64,-143.9 520.21,-148.73 530.59,-150.83 529.64,-143.9"/>
+</g>
+<!-- sourcefile~fieldunits.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~fieldunits.f90</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/fieldunits.f90.html" xlink:title="FieldUnits.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="495,-254 409,-254 409,-230 495,-230 495,-254"/>
+<text text-anchor="middle" x="452" y="-239.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUnits.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldunits.f90&#45;&gt;sourcefile~udunits2f.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~fieldunits.f90&#45;&gt;sourcefile~udunits2f.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M408.96,-242C393.15,-242 374.99,-242 358.42,-242"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="358.34,-238.5 348.34,-242 358.34,-245.5 358.34,-238.5"/>
+</g>
+<!-- sourcefile~mapl_initialize.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~mapl_initialize.f90</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/mapl_initialize.f90.html" xlink:title="MAPL_Initialize.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="508.5,-212 395.5,-212 395.5,-188 508.5,-188 508.5,-212"/>
+<text text-anchor="middle" x="452" y="-197.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Initialize.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_initialize.f90&#45;&gt;sourcefile~udunits2f.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~mapl_initialize.f90&#45;&gt;sourcefile~udunits2f.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M409.74,-212.04C393.62,-216.74 374.97,-222.18 358.02,-227.12"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="356.89,-223.8 348.27,-229.96 358.85,-230.52 356.89,-223.8"/>
+</g>
+<!-- sourcefile~bracketspec.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~bracketspec.f90</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/bracketspec.f90.html" xlink:title="BracketSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="794.5,-276 691.5,-276 691.5,-252 794.5,-252 794.5,-276"/>
+<text text-anchor="middle" x="743" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BracketSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~fieldspec.f90~2 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~fieldspec.f90~2</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M693.92,-251.88C688.29,-249.42 682.84,-246.49 678,-243 647.24,-220.83 623.42,-182.9 610.57,-159.21"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="613.65,-157.54 605.9,-150.31 607.45,-160.79 613.65,-157.54"/>
+</g>
+<!-- sourcefile~make_itemspec.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~make_itemspec.f90</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/make_itemspec.f90.html" xlink:title="make_itemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="803.5,-234 682.5,-234 682.5,-210 803.5,-210 803.5,-234"/>
+<text text-anchor="middle" x="743" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_itemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_itemspec.f90&#45;&gt;sourcefile~fieldspec.f90~2 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~make_itemspec.f90&#45;&gt;sourcefile~fieldspec.f90~2</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M698.08,-209.94C691.18,-207.39 684.27,-204.41 678,-201 656.2,-189.14 634.48,-170.94 619.52,-157.15"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="621.63,-154.33 611.95,-150.01 616.82,-159.42 621.63,-154.33"/>
+</g>
+<!-- sourcefile~modelverticalgrid.f90 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~modelverticalgrid.f90</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/modelverticalgrid.f90.html" xlink:title="ModelVerticalGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="808,-192 678,-192 678,-168 808,-168 808,-192"/>
+<text text-anchor="middle" x="743" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ModelVerticalGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~modelverticalgrid.f90&#45;&gt;sourcefile~fieldspec.f90~2 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~modelverticalgrid.f90&#45;&gt;sourcefile~fieldspec.f90~2</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M701.31,-167.96C685.41,-163.26 667.03,-157.82 650.31,-152.88"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="651.28,-149.52 640.7,-150.04 649.29,-156.23 651.28,-149.52"/>
+</g>
+<!-- sourcefile~test_addfieldspec.pf -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~test_addfieldspec.pf</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/test_addfieldspec.pf.html" xlink:title="Test_AddFieldSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="804.5,-150 681.5,-150 681.5,-126 804.5,-126 804.5,-150"/>
+<text text-anchor="middle" x="743" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_AddFieldSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_addfieldspec.pf&#45;&gt;sourcefile~fieldspec.f90~2 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~test_addfieldspec.pf&#45;&gt;sourcefile~fieldspec.f90~2</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M681.37,-138C671.74,-138 661.84,-138 652.42,-138"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="652.41,-134.5 642.41,-138 652.41,-141.5 652.41,-134.5"/>
+</g>
+<!-- sourcefile~test_bracketspec.pf -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~test_bracketspec.pf</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/test_bracketspec.pf.html" xlink:title="Test_BracketSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="802.5,-108 683.5,-108 683.5,-84 802.5,-84 802.5,-108"/>
+<text text-anchor="middle" x="743" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_BracketSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~fieldspec.f90~2 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~fieldspec.f90~2</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M701.31,-108.04C685.41,-112.74 667.03,-118.18 650.31,-123.12"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="649.29,-119.77 640.7,-125.96 651.28,-126.48 649.29,-119.77"/>
+</g>
+<!-- sourcefile~test_fieldinfo.pf -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~test_fieldinfo.pf</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/test_fieldinfo.pf.html" xlink:title="Test_FieldInfo.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="791,-66 695,-66 695,-42 791,-42 791,-66"/>
+<text text-anchor="middle" x="743" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_FieldInfo.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldinfo.pf&#45;&gt;sourcefile~fieldspec.f90~2 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~test_fieldinfo.pf&#45;&gt;sourcefile~fieldspec.f90~2</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M698.08,-66.06C691.18,-68.61 684.27,-71.59 678,-75 656.2,-86.86 634.48,-105.06 619.52,-118.85"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="616.82,-116.58 611.95,-125.99 621.63,-121.67 616.82,-116.58"/>
+</g>
+<!-- sourcefile~test_fieldspec.pf -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~test_fieldspec.pf</title>
+<g id="a_sourcefile~~cptrwrapper.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/test_fieldspec.pf.html" xlink:title="Test_FieldSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="794.5,-24 691.5,-24 691.5,0 794.5,0 794.5,-24"/>
+<text text-anchor="middle" x="743" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_FieldSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~fieldspec.f90~2 -->
+<g id="sourcefile~~cptrwrapper.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~fieldspec.f90~2</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M693.92,-24.12C688.29,-26.58 682.84,-29.51 678,-33 647.24,-55.17 623.42,-93.1 610.57,-116.79"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="607.45,-115.21 605.9,-125.69 613.65,-118.46 607.45,-115.21"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilecptrwrapperf90AfferentGraph = svgPanZoom('#sourcefilecptrwrapperf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">ud2f_CptrWrapper</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">iso_c_binding</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="kt">c_ptr</span><span class="p">,</span><span class="w"> </span><span class="nb">C_NULL_PTR</span><span class="p">,</span><span class="w"> </span><span class="nb">c_associated</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="nb">   </span><span class="k">implicit none</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="k">   private</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CptrWrapper</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="c">!================================ CPTRWRAPPER ==================================</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="c">! Base class to wrap type(c_ptr) instances used for udunits2 objects that cannot </span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="c">! interface directly to fortran. Each extended class must provide a subroutine</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="c">! to free the memory associated with cptr_</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CptrWrapper</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="k">      type</span><span class="p">(</span><span class="kt">c_ptr</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cptr_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">C_NULL_PTR</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="nb">   </span><span class="k">contains</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_cptr</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_cptr</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_free</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">free</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">      </span><span class="k">procedure</span><span class="p">(</span><span class="n">I_free_memory</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">free_memory</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">end type </span><span class="n">CptrWrapper</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">abstract interface</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="k">      subroutine </span><span class="n">I_free_memory</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">         </span><span class="k">import</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CptrWrapper</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">CptrWrapper</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">I_Free_Memory</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">   </span><span class="k">end interface</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="k">contains</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="k">   type</span><span class="p">(</span><span class="kt">c_ptr</span><span class="p">)</span><span class="w"> </span><span class="k">function </span><span class="n">get_cptr</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CptrWrapper</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="n">get_cptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">cptr_</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_cptr</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">set_cptr</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">cptr</span><span class="p">)</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CptrWrapper</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="kt">c_ptr</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cptr</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">cptr_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cptr</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">set_cptr</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">is_free</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CptrWrapper</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="n">is_free</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">c_associated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">cptr_</span><span class="p">)</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">   </span><span class="k">end function </span><span class="n">is_free</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">   </span><span class="c">! Free up memory pointed to by cptr_ and set cptr_ to c_null_ptr</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">free</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CptrWrapper</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">is_free</span><span class="p">())</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="k">      call </span><span class="n">this</span><span class="p">%</span><span class="n">free_memory</span><span class="p">()</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">cptr_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">c_null_ptr</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="nb">   </span><span class="k">end subroutine </span><span class="n">free</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="k">end module </span><span class="n">ud2f_CptrWrapper</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-30T18:24:01.351868             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
