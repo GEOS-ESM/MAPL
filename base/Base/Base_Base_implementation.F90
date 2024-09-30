@@ -2882,7 +2882,8 @@ contains
             farrayPtr=corner_lats, rc=status)
 
        allocate(lonRe(j2-j1+2), latRe(j2-j1+2))
-       call MAPL_Reverse_Schmidt(grid, stretched, J2-J1+1, lonR8=corner_lons(1,:), latR8=corner_lats(1,:), lonRe=lonRe, latRe=latRe, _RC)  
+       call MAPL_Reverse_Schmidt(grid, stretched, J2-J1+1, lonR8=corner_lons(1,:), &
+                                 latR8=corner_lats(1,:), lonRe=lonRe, latRe=latRe, _RC)  
 
        if ( I1 ==1 .and. J2<=IM_WORLD ) then
           if (J1 == 1) then
@@ -2905,7 +2906,6 @@ contains
                 print*, "Error: It could be "
                 print*, "  1)Grid is NOT gnomonic_ed;"
                 print*, "  2)lats lons from MAPL_GridGetCorners are NOT accurate (single precision from ESMF)"
-                print*, "  3)This is a stretched grid which is not yet supported"
                 OK = .false.
                 return
              endif
