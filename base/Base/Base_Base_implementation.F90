@@ -2594,8 +2594,8 @@ contains
     real(ESMF_KIND_R8), allocatable :: elats(:)
     integer :: i,iiloc,jjloc, i1, i2, j1, j2
     real(ESMF_KIND_R4) :: lonloc,latloc
-    logical                 :: localSearch
-    real(ESMF_KIND_R8), allocatable :: target_lons(:),target_lats(:)
+    logical            :: localSearch
+    real(ESMF_KIND_R8), allocatable :: tmp_lons(:),tmp_lats(:)
     type(ESMF_CoordSys_Flag) :: coordSys
     character(len=ESMF_MAXSTR) :: grid_type
 
@@ -2616,13 +2616,13 @@ contains
        localSearch = .false.
     end if
 
-    allocate(target_lons(npts),target_lats(npts))
+    allocate(tmp_lons(npts),tmp_lats(npts))
     if (present(lon) .and. present(lat)) then
-       target_lons = lon
-       target_lats = lat
+       tmp_lons = lon
+       tmp_lats = lat
     else if (present(lonR8) .and. present(latR8)) then
-       target_lons = lonR8
-       target_lats = latR8
+       tmp_lons = lonR8
+       tmp_lats = latR8
     end if
 
 !AOO change tusing GridType atribute    if (im_world*6==jm_world) then
@@ -2661,8 +2661,8 @@ contains
        ! lat-lon grid goes from -180 to 180 shift if we must
        ! BMA this -180 to 180 might change at some point
        do i=1,npts
-          lonloc = target_lons(i)
-          latloc = target_lats(i)
+          lonloc = tmp_lons(i)
+          latloc = tmp_lats(i)
           if (lonloc > MAPL_PI) lonloc = lonloc - 2.0*MAPL_PI
           IIloc = ijsearch(elons,im+1,lonloc,.false.)
           JJloc = ijsearch(elats,jm+1,latloc,.false.)
@@ -2672,7 +2672,7 @@ contains
        deallocate(elons,elats)
     end if
 
-    deallocate(target_lons, target_lats)
+    deallocate(tmp_lons, tmp_lats)
     _RETURN(ESMF_SUCCESS)
 
   contains
