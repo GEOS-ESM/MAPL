@@ -1,0 +1,1102 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>destroy_grid &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>destroy_grid
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">24 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_GridManager.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_gridmanager.f90.html'>MAPL_GridManager.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_gridmanager_private.html'>MAPL_GridManager_private</a></li>
+            <li class="breadcrumb-item active" aria-current="page">destroy_grid</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/destroy_grid.html#src">destroy_grid</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine destroy_grid(this, grid, unusable, rc)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~destroy_grid~~UsesGraph Pages: 1 -->
+<svg id="procdestroy_gridUsesGraph" width="255pt" height="32pt"
+ viewBox="0.00 0.00 255.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~destroy_grid~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~destroy_grid~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 251,-28 251,4 -4,4"/>
+<!-- proc~destroy_grid -->
+<g id="proc~~destroy_grid~~UsesGraph_node1" class="node">
+<title>proc~destroy_grid</title>
+<polygon fill="none" stroke="black" points="247,-24 90,-24 90,0 247,0 247,-24"/>
+<text text-anchor="middle" x="168.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">GridManager%destroy_grid</text>
+</g>
+<!-- ESMF -->
+<g id="proc~~destroy_grid~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<g id="a_proc~~destroy_grid~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- proc~destroy_grid&#45;&gt;ESMF -->
+<g id="proc~~destroy_grid~~UsesGraph_edge1" class="edge">
+<title>proc~destroy_grid&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M90,-12C81.02,-12 72.21,-12 64.18,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="64.12,-8.5 54.12,-12 64.12,-15.5 64.12,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/gridmanager.html'>GridManager</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1760"></span>
+              class(<a href='../type/gridmanager.html'>GridManager</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid~104"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~148"></span>
+              class(<a href='../type/keywordenforcer~57.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~747"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~destroy_grid~~CallsGraph Pages: 1 -->
+<svg id="procdestroy_gridCallsGraph" width="641pt" height="188pt"
+ viewBox="0.00 0.00 641.00 187.94" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~destroy_grid~~CallsGraph" class="graph" transform="scale(0.52 0.52) rotate(0) translate(4 354)">
+<title>proc~~destroy_grid~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-354 1217,-354 1217,4 -4,4"/>
+<!-- proc~destroy_grid -->
+<g id="proc~~destroy_grid~~CallsGraph_node1" class="node">
+<title>proc~destroy_grid</title>
+<polygon fill="none" stroke="black" points="157,-224 0,-224 0,-200 157,-200 157,-224"/>
+<text text-anchor="middle" x="78.5" y="-209.6" font-family="Helvetica,sans-Serif" font-size="10.50">GridManager%destroy_grid</text>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~destroy_grid~~CallsGraph_node2" class="node">
+<title>ESMF_AttributeGet</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_attributeget.html" xlink:title="ESMF_AttributeGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="342.5,-346 231.5,-346 231.5,-322 342.5,-322 342.5,-346"/>
+<text text-anchor="middle" x="287" y="-331.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AttributeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~destroy_grid&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~destroy_grid~~CallsGraph_edge1" class="edge">
+<title>proc~destroy_grid&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#ff0000" d="M89.35,-224.11C107.49,-245.56 148.42,-290.1 193,-313 201.83,-317.54 211.64,-321.1 221.47,-323.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="220.71,-327.32 231.27,-326.45 222.47,-320.55 220.71,-327.32"/>
+</g>
+<!-- none~erase~63 -->
+<g id="proc~~destroy_grid~~CallsGraph_node3" class="node">
+<title>none~erase~63</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node3"><a xlink:href="../type/integer64gridfactorymap.html#boundprocedure-erase~63" xlink:title="Integer64GridFactoryMap%erase">
+<polygon fill="#a7506f" stroke="#a7506f" points="381,-304 193,-304 193,-280 381,-280 381,-304"/>
+<text text-anchor="middle" x="287" y="-289.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Integer64GridFactoryMap%erase</text>
+</a>
+</g>
+</g>
+<!-- proc~destroy_grid&#45;&gt;none~erase~63 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge2" class="edge">
+<title>proc~destroy_grid&#45;&gt;none~erase~63</title>
+<path fill="none" stroke="#ff0000" d="M102.04,-224.14C124.59,-235.95 160.51,-253.83 193,-266 203.81,-270.05 215.53,-273.8 226.89,-277.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="226.17,-280.55 236.74,-279.92 228.08,-273.82 226.17,-280.55"/>
+</g>
+<!-- proc~destroy -->
+<g id="proc~~destroy_grid~~CallsGraph_node4" class="node">
+<title>proc~destroy</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node4"><a xlink:href="../proc/destroy.html" xlink:title="AbstractGridFactory%destroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="370.5,-224 203.5,-224 203.5,-200 370.5,-200 370.5,-224"/>
+<text text-anchor="middle" x="287" y="-209.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractGridFactory%destroy</text>
+</a>
+</g>
+</g>
+<!-- proc~destroy_grid&#45;&gt;proc~destroy -->
+<g id="proc~~destroy_grid~~CallsGraph_edge3" class="edge">
+<title>proc~destroy_grid&#45;&gt;proc~destroy</title>
+<path fill="none" stroke="#ff0000" d="M157.27,-212C169.06,-212 181.33,-212 193.39,-212"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="193.47,-215.5 203.47,-212 193.47,-208.5 193.47,-215.5"/>
+</g>
+<!-- proc~m_at~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_node5" class="node">
+<title>proc~m_at~17</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node5"><a xlink:href="../proc/m_at~17.html" xlink:title="Integer64GridFactoryMap%m_at">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="379,-144 195,-144 195,-120 379,-120 379,-144"/>
+<text text-anchor="middle" x="287" y="-129.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Integer64GridFactoryMap%m_at</text>
+</a>
+</g>
+</g>
+<!-- proc~destroy_grid&#45;&gt;proc~m_at~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge4" class="edge">
+<title>proc~destroy_grid&#45;&gt;proc~m_at~17</title>
+<path fill="none" stroke="#ff0000" d="M102.04,-199.86C124.59,-188.05 160.51,-170.17 193,-158 203.81,-153.95 215.53,-150.2 226.89,-146.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="228.08,-150.18 236.74,-144.08 226.17,-143.45 228.08,-150.18"/>
+</g>
+<!-- proc~m_find~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_node6" class="node">
+<title>proc~m_find~17</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node6"><a xlink:href="../proc/m_find~17.html" xlink:title="Integer64GridFactoryMap%m_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="628.5,-104 434.5,-104 434.5,-80 628.5,-80 628.5,-104"/>
+<text text-anchor="middle" x="531.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Integer64GridFactoryMap%m_find</text>
+</a>
+</g>
+</g>
+<!-- proc~destroy_grid&#45;&gt;proc~m_find~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge5" class="edge">
+<title>proc~destroy_grid&#45;&gt;proc~m_find~17</title>
+<path fill="none" stroke="#ff0000" d="M88.46,-199.84C105.75,-177.48 146.19,-130.33 193,-111 266,-80.85 355.53,-77.15 424.03,-80.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="424.24,-83.94 434.41,-80.98 424.61,-76.95 424.24,-83.94"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~destroy_grid~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="572.5,-266 490.5,-266 490.5,-242 572.5,-242 572.5,-266"/>
+<text text-anchor="middle" x="531.5" y="-251.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~destroy_grid&#45;&gt;proc~mapl_return -->
+<g id="proc~~destroy_grid~~CallsGraph_edge6" class="edge">
+<title>proc~destroy_grid&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M137.03,-224.04C154.9,-227.4 174.7,-230.75 193,-233 294.49,-245.5 414.12,-250.71 480.21,-252.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="480.25,-256.27 490.35,-253.07 480.46,-249.27 480.25,-256.27"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~destroy_grid~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="569.5,-182 493.5,-182 493.5,-158 569.5,-158 569.5,-182"/>
+<text text-anchor="middle" x="531.5" y="-167.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~destroy_grid&#45;&gt;proc~mapl_verify -->
+<g id="proc~~destroy_grid~~CallsGraph_edge7" class="edge">
+<title>proc~destroy_grid&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M137.03,-199.96C154.9,-196.6 174.7,-193.25 193,-191 296.15,-178.3 418.03,-173.12 483.41,-171.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="483.52,-174.63 493.41,-170.84 483.31,-167.64 483.52,-174.63"/>
+</g>
+<!-- proc~m_erase_one~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_node11" class="node">
+<title>proc~m_erase_one~17</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node11"><a xlink:href="../proc/m_erase_one~17.html" xlink:title="Integer64GridFactoryMap%m_erase_one">
+<polygon fill="#d9534f" stroke="#d9534f" points="646,-308 417,-308 417,-284 646,-284 646,-308"/>
+<text text-anchor="middle" x="531.5" y="-293.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Integer64GridFactoryMap%m_erase_one</text>
+</a>
+</g>
+</g>
+<!-- none~erase~63&#45;&gt;proc~m_erase_one~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge8" class="edge">
+<title>none~erase~63&#45;&gt;proc~m_erase_one~17</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M381.06,-293.54C389.51,-293.67 398.15,-293.82 406.81,-293.96"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="406.92,-297.46 416.97,-294.13 407.03,-290.46 406.92,-297.46"/>
+</g>
+<!-- proc~destroy&#45;&gt;proc~mapl_return -->
+<g id="proc~~destroy_grid~~CallsGraph_edge10" class="edge">
+<title>proc~destroy&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#48ff00" d="M357.49,-224.04C396.6,-230.81 444.55,-239.11 480.04,-245.26"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="479.72,-248.76 490.17,-247.01 480.91,-241.86 479.72,-248.76"/>
+</g>
+<!-- proc~destroy&#45;&gt;proc~mapl_verify -->
+<g id="proc~~destroy_grid~~CallsGraph_edge11" class="edge">
+<title>proc~destroy&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#48ff00" d="M357.49,-199.96C397.74,-192.99 447.37,-184.4 483.13,-178.2"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="484.04,-181.6 493.29,-176.44 482.84,-174.7 484.04,-181.6"/>
+</g>
+<!-- ESMF_GridDestroy -->
+<g id="proc~~destroy_grid~~CallsGraph_node9" class="node">
+<title>ESMF_GridDestroy</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node9"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_griddestroy.html" xlink:title="ESMF_GridDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="586,-224 477,-224 477,-200 586,-200 586,-224"/>
+<text text-anchor="middle" x="531.5" y="-209.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~destroy&#45;&gt;ESMF_GridDestroy -->
+<g id="proc~~destroy_grid~~CallsGraph_edge9" class="edge">
+<title>proc~destroy&#45;&gt;ESMF_GridDestroy</title>
+<path fill="none" stroke="#48ff00" d="M370.78,-212C402.2,-212 437.46,-212 466.85,-212"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="466.98,-215.5 476.98,-212 466.98,-208.5 466.98,-215.5"/>
+</g>
+<!-- proc~m_at~17&#45;&gt;proc~m_find~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge12" class="edge">
+<title>proc~m_at~17&#45;&gt;proc~m_find~17</title>
+<path fill="none" stroke="#00ff91" d="M360.76,-120C387.97,-115.51 419.08,-110.38 447.17,-105.74"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="448.08,-109.14 457.37,-104.06 446.94,-102.24 448.08,-109.14"/>
+</g>
+<!-- proc~s_find~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_node13" class="node">
+<title>proc~s_find~17</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node13"><a xlink:href="../proc/s_find~17.html" xlink:title="set2%s_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="786.5,-104 710.5,-104 710.5,-80 786.5,-80 786.5,-104"/>
+<text text-anchor="middle" x="748.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%s_find</text>
+</a>
+</g>
+</g>
+<!-- proc~m_find~17&#45;&gt;proc~s_find~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge13" class="edge">
+<title>proc~m_find~17&#45;&gt;proc~s_find~17</title>
+<path fill="none" stroke="#0091ff" d="M628.68,-92C653.45,-92 679.04,-92 700.09,-92"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="700.35,-95.5 710.35,-92 700.35,-88.5 700.35,-95.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~destroy_grid~~CallsGraph_node10" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node10"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="806,-266 691,-266 691,-242 806,-242 806,-266"/>
+<text text-anchor="middle" x="748.5" y="-251.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~destroy_grid~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#4800ff" d="M572.69,-254C603,-254 645.25,-254 680.63,-254"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="680.89,-257.5 690.88,-254 680.88,-250.5 680.89,-257.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~destroy_grid~~CallsGraph_node12" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node12"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="815,-182 682,-182 682,-158 815,-158 815,-182"/>
+<text text-anchor="middle" x="748.5" y="-167.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~destroy_grid~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#4800ff" d="M572.63,-250.27C594.81,-247.3 622.55,-242.08 646,-233 674.64,-221.92 704.11,-202.57 723.87,-188.24"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="726.01,-191.01 731.96,-182.24 721.84,-185.38 726.01,-191.01"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~destroy_grid~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M569.95,-170C597.98,-170 637.27,-170 671.77,-170"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="671.82,-173.5 681.82,-170 671.82,-166.5 671.82,-173.5"/>
+</g>
+<!-- at -->
+<g id="proc~~destroy_grid~~CallsGraph_node14" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="937,-224 883,-224 883,-200 937,-200 937,-224"/>
+<text text-anchor="middle" x="910" y="-209.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~destroy_grid~~CallsGraph_edge17" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#cbff00" d="M795.21,-241.96C819.9,-235.46 849.96,-227.55 872.99,-221.48"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="873.92,-224.86 882.7,-218.92 872.14,-218.09 873.92,-224.86"/>
+</g>
+<!-- insert -->
+<g id="proc~~destroy_grid~~CallsGraph_node15" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="937,-266 883,-266 883,-242 937,-242 937,-266"/>
+<text text-anchor="middle" x="910" y="-251.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~destroy_grid~~CallsGraph_edge18" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#cbff00" d="M806.18,-254C828.35,-254 853.11,-254 872.78,-254"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="872.85,-257.5 882.85,-254 872.85,-250.5 872.85,-257.5"/>
+</g>
+<!-- none~erase~62 -->
+<g id="proc~~destroy_grid~~CallsGraph_node17" class="node">
+<title>none~erase~62</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node17"><a xlink:href="../type/set2~15.html#boundprocedure-erase~62" xlink:title="set2%erase">
+<polygon fill="#a7506f" stroke="#a7506f" points="786,-308 711,-308 711,-284 786,-284 786,-308"/>
+<text text-anchor="middle" x="748.5" y="-293.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%erase</text>
+</a>
+</g>
+</g>
+<!-- proc~m_erase_one~17&#45;&gt;none~erase~62 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge19" class="edge">
+<title>proc~m_erase_one~17&#45;&gt;none~erase~62</title>
+<path fill="none" stroke="#00ff66" d="M646.3,-296C665.46,-296 684.37,-296 700.55,-296"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="700.77,-299.5 710.77,-296 700.77,-292.5 700.77,-299.5"/>
+</g>
+<!-- proc~initialize~8 -->
+<g id="proc~~destroy_grid~~CallsGraph_node20" class="node">
+<title>proc~initialize~8</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node20"><a xlink:href="../proc/initialize~8.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="938.5,-182 881.5,-182 881.5,-158 938.5,-158 938.5,-182"/>
+<text text-anchor="middle" x="910" y="-167.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~8 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~8</title>
+<path fill="none" stroke="#0066ff" d="M815.3,-170C834.16,-170 854.1,-170 870.72,-170"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="871.11,-173.5 881.11,-170 871.11,-166.5 871.11,-173.5"/>
+</g>
+<!-- none~at~241 -->
+<g id="proc~~destroy_grid~~CallsGraph_node16" class="node">
+<title>none~at~241</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node16"><a xlink:href="../type/tvector~14.html#boundprocedure-at~241" xlink:title="tVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="1075,-24 1005,-24 1005,0 1075,0 1075,-24"/>
+<text text-anchor="middle" x="1040" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~17&#45;&gt;none~at~241 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge21" class="edge">
+<title>proc~s_find~17&#45;&gt;none~at~241</title>
+<path fill="none" stroke="#cc00ff" d="M764.61,-79.96C783.56,-65.58 817.64,-42.09 851,-31 898.24,-15.3 955.52,-11.53 994.35,-11.07"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="994.81,-14.57 1004.79,-11.02 994.77,-7.57 994.81,-14.57"/>
+</g>
+<!-- proc~exists~15 -->
+<g id="proc~~destroy_grid~~CallsGraph_node18" class="node">
+<title>proc~exists~15</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node18"><a xlink:href="../proc/exists~15.html" xlink:title="exists">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1067,-104 1013,-104 1013,-80 1067,-80 1067,-104"/>
+<text text-anchor="middle" x="1040" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">exists</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~17&#45;&gt;proc~exists~15 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge22" class="edge">
+<title>proc~s_find~17&#45;&gt;proc~exists~15</title>
+<path fill="none" stroke="#cc00ff" d="M786.75,-92C842.56,-92 947.21,-92 1002.55,-92"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="1002.61,-95.5 1012.61,-92 1002.61,-88.5 1002.61,-95.5"/>
+</g>
+<!-- proc~find_index~15 -->
+<g id="proc~~destroy_grid~~CallsGraph_node19" class="node">
+<title>proc~find_index~15</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node19"><a xlink:href="../proc/find_index~15.html" xlink:title="set2%find_index">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="959.5,-64 860.5,-64 860.5,-40 959.5,-40 959.5,-64"/>
+<text text-anchor="middle" x="910" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%find_index</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~17&#45;&gt;proc~find_index~15 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge23" class="edge">
+<title>proc~s_find~17&#45;&gt;proc~find_index~15</title>
+<path fill="none" stroke="#cc00ff" d="M786.9,-82.62C805.97,-77.84 829.61,-71.91 850.98,-66.55"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="852.09,-69.88 860.94,-64.05 850.39,-63.09 852.09,-69.88"/>
+</g>
+<!-- proc~s_ordereq~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_node21" class="node">
+<title>proc~s_ordereq~17</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node21"><a xlink:href="../proc/s_ordereq~17.html" xlink:title="s_orderEq">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1073,-146 1007,-146 1007,-122 1073,-122 1073,-146"/>
+<text text-anchor="middle" x="1040" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">s_orderEq</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~17&#45;&gt;proc~s_ordereq~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge24" class="edge">
+<title>proc~s_find~17&#45;&gt;proc~s_ordereq~17</title>
+<path fill="none" stroke="#cc00ff" d="M786.75,-97.4C840.67,-105.23 940.16,-119.66 996.74,-127.87"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="996.39,-131.35 1006.78,-129.33 997.39,-124.43 996.39,-131.35"/>
+</g>
+<!-- proc~tt_at_32~15 -->
+<g id="proc~~destroy_grid~~CallsGraph_node25" class="node">
+<title>proc~tt_at_32~15</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node25"><a xlink:href="../proc/tt_at_32~15.html" xlink:title="tVector%tt_at_32">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1213,-24 1111,-24 1111,0 1213,0 1213,-24"/>
+<text text-anchor="middle" x="1162" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tVector%tt_at_32</text>
+</a>
+</g>
+</g>
+<!-- none~at~241&#45;&gt;proc~tt_at_32~15 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge25" class="edge">
+<title>none~at~241&#45;&gt;proc~tt_at_32~15</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1075.07,-12C1083.03,-12 1091.76,-12 1100.5,-12"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1100.72,-15.5 1110.72,-12 1100.72,-8.5 1100.72,-15.5"/>
+</g>
+<!-- proc~s_erase_multi~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_node22" class="node">
+<title>proc~s_erase_multi~17</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node22"><a xlink:href="../proc/s_erase_multi~17.html" xlink:title="set2%s_erase_multi">
+<polygon fill="#d9534f" stroke="#d9534f" points="969,-308 851,-308 851,-284 969,-284 969,-308"/>
+<text text-anchor="middle" x="910" y="-293.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%s_erase_multi</text>
+</a>
+</g>
+</g>
+<!-- none~erase~62&#45;&gt;proc~s_erase_multi~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge26" class="edge">
+<title>none~erase~62&#45;&gt;proc~s_erase_multi~17</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M786.09,-296C802.31,-296 821.93,-296 840.69,-296"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="840.7,-299.5 850.7,-296 840.7,-292.5 840.7,-299.5"/>
+</g>
+<!-- proc~s_erase_one~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_node23" class="node">
+<title>proc~s_erase_one~17</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node23"><a xlink:href="../proc/s_erase_one~17.html" xlink:title="set2%s_erase_one">
+<polygon fill="#d9534f" stroke="#d9534f" points="965.5,-350 854.5,-350 854.5,-326 965.5,-326 965.5,-350"/>
+<text text-anchor="middle" x="910" y="-335.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%s_erase_one</text>
+</a>
+</g>
+</g>
+<!-- none~erase~62&#45;&gt;proc~s_erase_one~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge27" class="edge">
+<title>none~erase~62&#45;&gt;proc~s_erase_one~17</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M786.09,-305.64C806.04,-310.89 831.15,-317.5 853.46,-323.37"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="852.59,-326.77 863.15,-325.93 854.38,-320 852.59,-326.77"/>
+</g>
+<!-- proc~find_index~15&#45;&gt;none~at~241 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge28" class="edge">
+<title>proc~find_index~15&#45;&gt;none~at~241</title>
+<path fill="none" stroke="#003fff" d="M949.4,-40C963.76,-35.51 980.18,-30.38 995.01,-25.75"/>
+<polygon fill="#003fff" stroke="#003fff" points="996.47,-28.96 1004.97,-22.63 994.38,-22.28 996.47,-28.96"/>
+</g>
+<!-- proc~find_index~15&#45;&gt;proc~exists~15 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge29" class="edge">
+<title>proc~find_index~15&#45;&gt;proc~exists~15</title>
+<path fill="none" stroke="#003fff" d="M949.4,-64C966.36,-69.3 986.18,-75.49 1002.86,-80.71"/>
+<polygon fill="#003fff" stroke="#003fff" points="1002.2,-84.17 1012.79,-83.81 1004.29,-77.49 1002.2,-84.17"/>
+</g>
+<!-- proc~find_index~15&#45;&gt;proc~s_ordereq~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge31" class="edge">
+<title>proc~find_index~15&#45;&gt;proc~s_ordereq~17</title>
+<path fill="none" stroke="#003fff" d="M929.29,-64.04C948.18,-76.44 978.54,-96.24 1005,-113 1006.71,-114.09 1008.48,-115.2 1010.27,-116.31"/>
+<polygon fill="#003fff" stroke="#003fff" points="1008.84,-119.55 1019.18,-121.86 1012.54,-113.6 1008.84,-119.55"/>
+</g>
+<!-- proc~s_lessthan~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_node24" class="node">
+<title>proc~s_lessthan~17</title>
+<g id="a_proc~~destroy_grid~~CallsGraph_node24"><a xlink:href="../proc/s_lessthan~17.html" xlink:title="s_lessThan">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1197,-106 1127,-106 1127,-82 1197,-82 1197,-106"/>
+<text text-anchor="middle" x="1162" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">s_lessThan</text>
+</a>
+</g>
+</g>
+<!-- proc~find_index~15&#45;&gt;proc~s_lessthan~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge30" class="edge">
+<title>proc~find_index~15&#45;&gt;proc~s_lessthan~17</title>
+<path fill="none" stroke="#003fff" d="M959.72,-55.77C992.49,-58.76 1036.57,-63.68 1075,-71 1088.79,-73.63 1103.62,-77.29 1117.02,-80.92"/>
+<polygon fill="#003fff" stroke="#003fff" points="1116.38,-84.37 1126.95,-83.67 1118.25,-77.62 1116.38,-84.37"/>
+</g>
+<!-- proc~s_ordereq~17&#45;&gt;proc~s_lessthan~17 -->
+<g id="proc~~destroy_grid~~CallsGraph_edge32" class="edge">
+<title>proc~s_ordereq~17&#45;&gt;proc~s_lessthan~17</title>
+<path fill="none" stroke="#ff00bf" d="M1073.16,-123.28C1086.58,-118.81 1102.4,-113.53 1116.88,-108.71"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="1118.27,-111.93 1126.65,-105.45 1116.06,-105.29 1118.27,-111.93"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocdestroy_gridCallsGraph = svgPanZoom('#procdestroy_gridCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~destroy_grid~~CalledByGraph Pages: 1 -->
+<svg id="procdestroy_gridCalledByGraph" width="641pt" height="31pt"
+ viewBox="0.00 0.00 641.00 30.85" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~destroy_grid~~CalledByGraph" class="graph" transform="scale(0.96 0.96) rotate(0) translate(4 28)">
+<title>proc~~destroy_grid~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 661,-28 661,4 -4,4"/>
+<!-- proc~destroy_grid -->
+<g id="proc~~destroy_grid~~CalledByGraph_node1" class="node">
+<title>proc~destroy_grid</title>
+<polygon fill="none" stroke="black" points="657,-24 500,-24 500,0 657,0 657,-24"/>
+<text text-anchor="middle" x="578.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">GridManager%destroy_grid</text>
+</g>
+<!-- none~destroy~3 -->
+<g id="proc~~destroy_grid~~CalledByGraph_node2" class="node">
+<title>none~destroy~3</title>
+<g id="a_proc~~destroy_grid~~CalledByGraph_node2"><a xlink:href="../type/gridmanager.html#boundprocedure-destroy~3" xlink:title="GridManager%destroy">
+<polygon fill="#a7506f" stroke="#a7506f" points="464,-24 333,-24 333,0 464,0 464,-24"/>
+<text text-anchor="middle" x="398.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GridManager%destroy</text>
+</a>
+</g>
+</g>
+<!-- none~destroy~3&#45;&gt;proc~destroy_grid -->
+<g id="proc~~destroy_grid~~CalledByGraph_edge1" class="edge">
+<title>none~destroy~3&#45;&gt;proc~destroy_grid</title>
+<path fill="none" stroke="#ff0000" d="M464.01,-12C472.38,-12 481.06,-12 489.72,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="489.87,-15.5 499.87,-12 489.87,-8.5 489.87,-15.5"/>
+</g>
+<!-- proc~destroy_rh_regen_ogrid -->
+<g id="proc~~destroy_grid~~CalledByGraph_node3" class="node">
+<title>proc~destroy_rh_regen_ogrid</title>
+<g id="a_proc~~destroy_grid~~CalledByGraph_node3"><a xlink:href="../proc/destroy_rh_regen_ogrid.html" xlink:title="samplerHQ%destroy_rh_regen_ogrid">
+<polygon fill="#d9534f" stroke="#d9534f" points="297,-24 90,-24 90,0 297,0 297,-24"/>
+<text text-anchor="middle" x="193.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">samplerHQ%destroy_rh_regen_ogrid</text>
+</a>
+</g>
+</g>
+<!-- proc~destroy_rh_regen_ogrid&#45;&gt;none~destroy~3 -->
+<g id="proc~~destroy_grid~~CalledByGraph_edge2" class="edge">
+<title>proc~destroy_rh_regen_ogrid&#45;&gt;none~destroy~3</title>
+<path fill="none" stroke="#ff0000" d="M297.19,-12C305.86,-12 314.52,-12 322.91,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="323,-15.5 333,-12 323,-8.5 323,-15.5"/>
+</g>
+<!-- proc~run~2 -->
+<g id="proc~~destroy_grid~~CalledByGraph_node4" class="node">
+<title>proc~run~2</title>
+<g id="a_proc~~destroy_grid~~CalledByGraph_node4"><a xlink:href="../proc/run~2.html" xlink:title="Run">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~2&#45;&gt;proc~destroy_rh_regen_ogrid -->
+<g id="proc~~destroy_grid~~CalledByGraph_edge3" class="edge">
+<title>proc~run~2&#45;&gt;proc~destroy_rh_regen_ogrid</title>
+<path fill="none" stroke="#ff0000" d="M54.07,-12C61.66,-12 70.49,-12 79.93,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.97,-15.5 89.97,-12 79.97,-8.5 79.97,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocdestroy_gridCalledByGraph = svgPanZoom('#procdestroy_gridCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">destroy_grid</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">use </span><span class="n">ESMF</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">GridManager</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_I8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">id</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">factory</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">Integer64GridFactoryMapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">factory_id_attribute</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">factories</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">factory</span><span class="p">%</span><span class="n">destroy</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">factories</span><span class="p">%</span><span class="n">find</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">factories</span><span class="p">%</span><span class="n">erase</span><span class="p">(</span><span class="n">iter</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">destroy_grid</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-09-30T18:16:17.319907             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
