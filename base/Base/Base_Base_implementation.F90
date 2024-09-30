@@ -3455,7 +3455,7 @@ contains
 
      where(n_s)
        lonRe = 0.0d0
-       latRe = half_pi*sign(1.0, Zz)
+       latRe = half_pi*sign(1.0d0, Zz)
      elsewhere
        lonRe = atan2(Yy,Xx)
        latRe = asin(Zz)
