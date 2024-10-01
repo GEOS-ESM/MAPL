@@ -437,6 +437,11 @@ CONTAINS
          !rules_with_ps = .true.
          if (rules_with_ps) exit
       enddo
+      if (rules_with_ps .and. mapl_am_i_root()) then
+         import_name => self%primary%import_names%at(i)
+         write(*,*)'bmaa ps ',trim(import_name)
+      end if
+   
       if (.not.rules_with_ps) cycle 
 
       import_name => self%primary%import_names%at(i)

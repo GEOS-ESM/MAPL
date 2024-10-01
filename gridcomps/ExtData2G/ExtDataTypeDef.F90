@@ -65,6 +65,7 @@ module MAPL_ExtDataTypeDef
      character(len=4)             :: fileVDir = "down"
      character(len=ESMF_MAXSTR)   :: levUnit
      logical                      :: havePressure = .false.
+     logical                      :: allow_vert_regrid = .false.
      type(ExtDataPointerUpdate) :: update_freq
 
      ! new stuff
