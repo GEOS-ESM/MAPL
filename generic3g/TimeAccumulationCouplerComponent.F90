@@ -1,6 +1,5 @@
 module mapl3g_TimeAccumulatorCouplerComponent
    use mapl3g_GenericCouplerComponent
-   use mapl3g_TimeAccumulationCounter
    use, intrinsic :: ieee_arithmetic
    implicit none
    private
@@ -11,23 +10,20 @@ module mapl3g_TimeAccumulatorCouplerComponent
    integer, parameter :: MEAN_ACCUMULATOR = 8
 
    type :: Accumulator
+      logical :: is_active = .FALSE.
       integer :: accumulator_type
       type(ESMF_Field), allocatable :: accumulation_data
-      type(Counter), pointer :: accumulation_counter => null()
-      procedure(BinaryR4Function), pointer :: accumulate_R4_ptr => null()
-      procedure(CoupleR4Function), pointer :: couple_R4_ptr => null()
-      procedure(UnaryR4Function), pointer :: clear_R4_ptr => null()
-      logical :: is_active = .FALSE.
+      type(ESMF_Field), pointer :: accumulation_counter => null()
+      procedure(BinaryR4Function), pointer :: accumulate_ptr => null()
+      procedure(CoupleR4Function), pointer :: couple_ptr => null()
+      procedure(UnaryR4Function), pointer :: clear_ptr => null()
       type(ESMF_Alarm), pointer   :: time_to_clear => null()
       type(ESMF_Alarm), pointer   :: time_to_couple => null()
       type(ESMF_Field), pointer :: field_data => null()
    contains
-      generic :: accumulate => accumulateR4
-      generic :: couple => coupleR4
-      generic :: clear => clearR4
-      procedure :: accumulateR4
-      procedure :: clearR4
-      procedure :: coupleR4
+      procedure :: accumulate
+      procedure :: clear
+      procedure :: couple
    end type Accumulator
 
    abstract interface
@@ -51,13 +47,14 @@ module mapl3g_TimeAccumulatorCouplerComponent
    end abstract interface
 
    interface Accumulator
-      module procedure :: construct_simple_coupler
+      module procedure :: construct_accumulator
    end interface Accumulator
 
 contains
 
-   function construct_accumulator_R4() result(acc)
-      type(Accumulator(R4)) :: acc
+   function construct_accumulator(accumulator_type) result(acc)
+      type(Accumulator) :: acc
+      integer, intent(in) :: accumulator_type
       procedure(BinaryR4Function), pointer, intent(in) :: ptrCouple
       procedure(BinaryR4Function), pointer, intent(in) :: ptrAccumulate
       real(kind=ESMF_KIND_R4), intent(in) :: clear_value
@@ -68,7 +65,7 @@ contains
       acc%clear_value = clear_value
       acc%counter_reset = counter_reset
 
-   end function construct_accumulator_R4
+   end function construct_accumulator
 
    subroutine initialize_Accumulator_internal(state, source_specs, destination_specs)
       type(AccumulatorInternal), pointer, intent(in) :: state
