@@ -1,118 +1,60 @@
-#if defined(IS_UNDEF_)
-#  undef(IS_UNDEF_)
-#endif
-#define IS_UNDEF_(T) ieee_class(T) == ieee_quiet_nan
-
-#if defined(SET_UNDEF_)
-#  undef(SET_UNDEF_)
-#endif
-#define SET_UNDEF_(T) ieee_value(T, ieee_quiet_nan)
-
-#if defined(TERTIARY_)
-#  undef(TERTIARY_)
-#endif
-#define TERTIARY_(I, B, E) E; if(B) I
-
-#if defined(CLEAR_)
-#  undef(CLEAR_)
-#endif
-#define CLEAR_(T) TERTIARY_(T, this%accumulate, set_undef(cleared))
-
 module mapl3g_TimeAccumulatorCouplerComponent
    use mapl3g_GenericCouplerComponent
-   use, intrinsic :: iso_c_binding, only: c_int
+   use mapl3g_TimeAccumulationCounter
    use, intrinsic :: ieee_arithmetic
    implicit none
    private
-!_   public ::
 
-   ! Do current compilers support: intel, gcc, nag
-   ! MAPL_UNDEF ?
-   ! Where for ESMF_Field?
-   ! Do we need the specs?
-   type :: Accumulator(k)
-      integer, kind :: k
-      ! Set at construction
-!      ! VarSpec or FieldSpec
-!      type(VarSpec), pointer :: source => null()
-!      type(VarSpec), pointer :: destination => null()
+   integer, parameter :: SIMPLE_ACCUMULATOR = 0
+   integer, parameter :: MIN_ACCUMULATOR = 5
+   integer, parameter :: MAX_ACCUMULATOR = 7
+   integer, parameter :: MEAN_ACCUMULATOR = 8
+
+   type :: Accumulator
+      integer :: accumulator_type
+      type(ESMF_Field), allocatable :: accumulation_data
+      type(Counter), pointer :: accumulation_counter => null()
+      procedure(BinaryR4Function), pointer :: accumulate_R4_ptr => null()
+      procedure(CoupleR4Function), pointer :: couple_R4_ptr => null()
+      procedure(UnaryR4Function), pointer :: clear_R4_ptr => null()
       logical :: is_active = .FALSE.
-      procedure(BinaryR8Function), pointer :: couple_function_R8 => null()
-      procedure(BinaryR8Function), pointer :: accumulate_function_R8 => null()
-      procedure(ClearR8Sub), pointer :: clear_sub_R8 => null()
-      procedure(BinaryR4Function), pointer :: couple_function_R4 => null()
-      procedure(BinaryR4Function), pointer :: accumulate_function_R4 => null()
-      procedure(ClearR4Sub), pointer :: clear_sub_R4 => null()
-      ! defaults
-      integer(ESMF_I4) :: scalar_count = -1
-      integer(ESMF_I4) :: clear_interval = -1
-      integer(ESMF_I4) :: couple_interval = -1
-      ! Set at initialization
       type(ESMF_Alarm), pointer   :: time_to_clear => null()
       type(ESMF_Alarm), pointer   :: time_to_couple => null()
       type(ESMF_Field), pointer :: field_data => null()
-      integer(ESMF_KIND_I4), pointer :: array_count(:) => null()
-      integer, allocatable :: shape(:)
+   contains
+      generic :: accumulate => accumulateR4
+      generic :: couple => coupleR4
+      generic :: clear => clearR4
+      procedure :: accumulateR4
+      procedure :: clearR4
+      procedure :: coupleR4
    end type Accumulator
 
    abstract interface
-      elemental function BinaryR8Function(t1, t2) result(t3)
-         real(kind=ESMF_KIND_R8) :: t3
-         real(kind=ESMF_KIND_R8), intent(in) :: t1, t2
-      end function BinaryR8Function
-      elemental function BinaryR4Function(t1, t2) result(t3)
-         real(kind=ESMF_KIND_R4) :: t3
+      elemental function UnaryR4Function(t) result(ft)
+         real(kind=ESMF_KIND_R4) :: ft
+         real(kind=ESMF_KIND_R4), intent(in) :: t
+      end function UnaryR4Function
+      elemental function BinaryR4Function(t1, t2) result(ft)
+         real(kind=ESMF_KIND_R4) :: ft
          real(kind=ESMF_KIND_R4), intent(in) :: t1, t2
       end function BinaryR4Function
-      elemental subroutine ClearR8Sub(t)
-         real(kind=ESMF_KIND_R8), intent(inout) :: t
-      end subroutine ClearR8Sub
-      elemental subroutine ClearR4Sub(t)
-         real(kind=ESMF_KIND_R4), intent(inout) :: t
-      end subroutine ClearR4Sub
-
+      subroutine CoupleR4Sub(this)
+         import :: Accumulator
+         class(Accumulator), intent(inout) :: this
+      end subroutine Coupler
+      elemental function CoupleR4Function(t, n) result(c)
+         real(kind=ESMF_KIND_R4) :: c
+         real(kind=ESMF_KIND_R4), intent(in) :: t
+         integer(kind=ESMF_KIND_I4), intent(in) :: n
+      end function CoupleR4Function
    end abstract interface
 
-   interface accumulate
-      module procedure :: accumulateR4
-      module procedure :: accumulateR8
-   end interface accumulate
-
-   interface couple
-      module procedure :: coupleR4
-      module procedure :: coupleR8
-   end interface couple
-
-   interface clear
-      module procedure :: clearR4
-      module procedure :: clearR8
-   end interface clear
+   interface Accumulator
+      module procedure :: construct_simple_coupler
+   end interface Accumulator
 
 contains
-
-   elemental subroutine clearR4(t, z)
-      real(kind=R4), intent(inout) :: t
-      real(kind=R4), intent(in) :: z
-   end subroutine clearR4
-
-   elemental subroutine clearR8(t, z)
-      real(kind=R8), intent(inout) :: t
-      real(kind=R8), intent(in) :: z
-   end subroutine clearR8
-
-   function construct_accumulator_R8() result(acc)
-      type(Accumulator(R8)) :: acc
-      procedure(BinaryR8Function), pointer, intent(in) :: ptrCouple
-      procedure(BinaryR8Function), pointer, intent(in) :: ptrAccumulate
-      real(kind=ESMF_KIND_R8), intent(in) :: clear_value
-      integer(kind=ESMF_KIND_I4), intent(in) :: counter_reset
-
-      acc%couple_function_R8 = ptrCouple
-      acc%accumulate_function_R8 = ptrAccumulate
-      acc%clear_value = clear_value
-      acc%counter_reset = counter_reset
-
-   end function construct_accumulator_R8
 
    function construct_accumulator_R4() result(acc)
       type(Accumulator(R4)) :: acc
@@ -121,8 +63,8 @@ contains
       real(kind=ESMF_KIND_R4), intent(in) :: clear_value
       integer(kind=ESMF_KIND_I4), intent(in) :: counter_reset
 
-      acc%couple_function_R4 = ptrCouple
-      acc%accumulate_function_R4 = ptrAccumulate
+      acc%couple_ptr_R4 = ptrCouple
+      acc%accumulate_ptr_R4 = ptrAccumulate
       acc%clear_value = clear_value
       acc%counter_reset = counter_reset
 
@@ -164,7 +106,7 @@ contains
 !   end function assign_fptr_i4_1d
 
    function construct_Accumulator_field(source, destination, use_mean, minimize) result(f)
-      type(Accumulator) :: f
+      type(AbstractAccumulator) :: f
       type(VarSpec), pointer, intent(in) :: source
       type(VarSpec), pointer, intent(in) :: destination
       logical, optional, intent(in) :: use_mean
@@ -208,7 +150,6 @@ contains
    end function accumulateR8
 
 end module mapl3g_TimeAccumulatorCouplerComponent
-
 
 ! QUESTIONS
 ! Use ESMF_Field for counter:
