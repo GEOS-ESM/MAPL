@@ -57,4 +57,3 @@ contains
    
       
 end module mapl3g_accumulation_functions
-
