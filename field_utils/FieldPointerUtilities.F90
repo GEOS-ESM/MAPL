@@ -1136,17 +1136,22 @@ contains
 
    end subroutine Destroy
 
+#if defined(TYPE_)
+#  undef TYPE_
+#endif
 #define TYPE_ integer
+
 #define KIND_ ESMF_KIND_I4
    subroutine assign_fptr_i4_rank1 \
-#include "AssignFptr1.H"
+#include "AssignFptrRank1.H"
    end subroutine assign_fptr_i4_rank1
 #undef KIND_
 #define KIND_ ESMF_KIND_I8
    subroutine assign_fptr_i8_rank1 \
-#include "AssignFptr1.H"
+#include "AssignFptrRank1.H"
    end subroutine assign_fptr_i8_rank1
 #undef TYPE_
 #undef KIND_
    
+
 end module MAPL_FieldPointerUtilities

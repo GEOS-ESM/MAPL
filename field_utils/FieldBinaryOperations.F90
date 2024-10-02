@@ -12,6 +12,7 @@ module MAPL_FieldBinaryOperations
    public fieldDivide
    public fieldMultiply
    public fieldPower
+   public fieldIntegerDivide
 
    interface set_quotient
       module procedure :: set_quotient_R4I4
