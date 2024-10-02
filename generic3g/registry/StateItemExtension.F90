@@ -104,7 +104,6 @@ contains
    ! gains it as a reference (pointer).
 
    function make_extension(this, goal, rc) result(extension)
-      use mapl3g_NullAction
       type(StateItemExtension), target :: extension
       class(StateItemExtension), target, intent(inout) :: this
       class(StateItemSpec), target, intent(in) :: goal
