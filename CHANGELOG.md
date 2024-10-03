@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Workaround for NVHPC 24.9 involving `use` statement in `block` construct
+
 ### Removed
 
 ### Deprecated
