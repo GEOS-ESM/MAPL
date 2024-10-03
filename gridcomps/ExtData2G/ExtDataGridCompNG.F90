@@ -924,6 +924,7 @@ CONTAINS
 
         real, allocatable          :: levFile(:)
         character(len=ESMF_MAXSTR) :: levunits,tlevunits
+        character(len=ESMF_MAXSTR) :: levstandardname,tlevstandardname
         character(len=:), allocatable :: levname
         character(len=:), pointer :: positive
         type(Variable), pointer :: var
@@ -945,12 +946,25 @@ CONTAINS
         levName = item%file_metadata%get_level_name(rc=status)
         _VERIFY(status)
         if (trim(levName) /='') then
-           call item%file_metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits,coords=levFile,_RC)
+           call item%file_metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits, &
+                coordStandardName=tLevStandardName,coords=levFile,_RC)
            levUnits=MAPL_TrimString(tlevUnits)
-           ! check if pressure
+           ! check if vertical coordinate is pressure or dimensionless pressure proxy
            item%levUnit = ESMF_UtilStringLowerCase(levUnits)
-           if (trim(item%levUnit) == 'hpa' .or. trim(item%levUnit)=='pa') then
+           if ( ( trim(item%levUnit) == 'hpa' ) .or. &
+                ( trim(item%levUnit) == 'pa' ) .or. &
+                ( trim(item%levUnit) == 'sigma_level' ) ) then
               item%havePressure = .true.
+           elseif ( trim(levStandardName) /= 'missing' ) then
+              ! check standard_name attribute to catch cases where lev values are
+              ! dimensionless vertical coordinates as proxy for pressure
+              levStandardName= trim(tlevStandardName)
+              item%levStandardName = ESMF_UtilStringLowerCase(levStandardName)
+              if ( ( index(trim(item%levStandardName),"atmosphere_hybrid_sigma_pressure_coordinate") > 0 ) .or. &
+                   ( index(trim(item%levStandardName),"atmosphere_sigma_coordinate") > 0 ) .or. &
+                   ( index(trim(item%levStandardName),"atmosphere_ln_pressure_coordinate") > 0 ) ) then
+                 item%havePressure = .true.
+              endif
            end if
            if (item%havePressure) then
               if (levFile(1)>levFile(size(levFile))) item%fileVDir="up"
