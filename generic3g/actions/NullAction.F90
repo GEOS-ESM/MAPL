@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 ! A NullAction object is just used so that a function that returns an
-! ExtensionAction can allocate its return value in the presenc of
+! ExtensionAction can allocate its return value in the presence of
 ! error conditions.
 
 module mapl3g_NullAction
