@@ -5,6 +5,9 @@ module mapl3g_esmf_info_keys
 
    implicit none
 
+   public :: KEY_SHARED
+   public :: KEY_PRIVATE
+   public :: KEY_INTERNAL
    public :: KEY_UNGRIDDED_DIMS
    public :: KEY_VERT_DIM
    public :: KEY_VERT_GEOM
@@ -24,6 +27,10 @@ module mapl3g_esmf_info_keys
 
    ! FieldSpec info keys
    character(len=*), parameter :: PREFIX = 'MAPL/'
+   character(len=*), parameter :: KEY_SHARED = PREFIX // 'shared/'
+   character(len=*), parameter :: KEY_PRIVATE = PREFIX // 'private/'
+   character(len=*), parameter :: KEY_INTERNAL = PREFIX // 'internal/'
+
    character(len=*), parameter :: KEY_UNGRIDDED_DIMS = PREFIX // 'ungridded_dims/'
    character(len=*), parameter :: KEY_VERT_DIM = PREFIX // 'vertical_dim/'
    character(len=*), parameter :: KEY_VERT_GEOM = PREFIX // 'vertical_geom/'
