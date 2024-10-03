@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.49.0] - 2024-10-04
+
+### Changed
+
 - ExtDataDriver.x now uses ExtData2G by default
 - Update `components.yaml`
   - ecbuild geos/v1.4.0
@@ -19,10 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Workaround for NVHPC 24.9 involving `use` statement in `block` construct
-
-### Removed
-
-### Deprecated
 
 ## [2.48.0] - 2024-09-24
 
