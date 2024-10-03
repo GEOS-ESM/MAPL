@@ -13,6 +13,7 @@ module mapl3g_InfoUtilities
    use esmf, only: ESMF_STATEITEM_FIELD
    use esmf, only: operator(==), operator(/=)
    use esmf, only: ESMF_Info
+   use esmf, only: ESMF_InfoIsPresent
    use esmf, only: ESMF_InfoGetFromHost
    use esmf, only: ESMF_InfoGet
    use esmf, only: ESMF_InfoGetCharAlloc
@@ -29,6 +30,7 @@ module mapl3g_InfoUtilities
    public :: MAPL_InfoSetShared
    public :: MAPL_InfoGetPrivate
    public :: MAPL_InfoSetPrivate
+   public :: MAPL_InfoSetNamespace
 
    interface MAPL_InfoGetShared
       procedure :: info_get_shared_string
@@ -54,6 +56,9 @@ module mapl3g_InfoUtilities
        procedure :: info_set_stateitem_private_i4
    end interface MAPL_InfoSetPrivate
 
+   interface MAPL_InfoSetNamespace
+      procedure :: set_namespace
+   end interface MAPL_InfoSetNamespace
 
 contains
 
@@ -65,6 +70,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: is_present
+
+      is_present = ESMF_InfoIsPresent(info, key=KEY_SHARED//key, _RC)
+      _ASSERT(is_present,  "Key not found in info object: " // key)
 
       call ESMF_InfoGetCharAlloc(info, key=KEY_SHARED//key, value=value, _RC)
 
@@ -78,6 +87,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: is_present
+
+      is_present = ESMF_InfoIsPresent(info, key=KEY_SHARED//key, _RC)
+      _ASSERT(is_present,  "Key not found in info object: " // key)
 
       call ESMF_InfoGet(info, key=KEY_SHARED//key, value=value, _RC)
       
@@ -202,13 +215,13 @@ contains
       integer :: status
       type(ESMF_Info) :: item_info
       character(:), allocatable :: namespace
+      character(:), allocatable :: private_key
 
-      call MAPL_InfoGetShared(state, key='gridcomp', value=namespace, _RC)
+      call get_namespace(state, namespace, _RC)
       
       call info_get_stateitem_info(state, short_name, item_info, _RC)
-      associate (private_key => namespace // '/' // key )
-        call MAPL_InfoGetPrivate(item_info, key=private_key, value=value, _RC)
-      end associate
+      private_key = namespace // '/' // key 
+      call MAPL_InfoGetPrivate(item_info, key=private_key, value=value, _RC)
       
       _RETURN(_SUCCESS)
    end subroutine info_get_stateitem_private_i4
@@ -239,13 +252,13 @@ contains
 
       type(ESMF_Info) :: item_info
       character(:), allocatable :: namespace
+      character(:), allocatable :: private_key
 
-      call MAPL_InfoGetShared(state, key='gridcomp', value=namespace, _RC)
+      call get_namespace(state, namespace, _RC)
       
       call info_get_stateitem_info(state, short_name, item_info, _RC)
-      associate (private_key => namespace // '/' // key )
-        call MAPL_InfoSetPrivate(item_info, key=private_key, value=value, _RC)
-      end associate
+      private_key = namespace // '/' // key
+      call MAPL_InfoSetPrivate(item_info, key=private_key, value=value, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine info_set_stateitem_private_i4
@@ -271,5 +284,31 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine info_get_stateitem_info
+
+   subroutine get_namespace(state, namespace, rc)
+      type(ESMF_State), intent(in) :: state
+      character(:), allocatable, intent(out) :: namespace
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Info) :: state_info
+      integer :: status
+
+      call MAPL_InfoGetShared(state, key='namespace', value=namespace, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_namespace
+
+   subroutine set_namespace(state, namespace, rc)
+      type(ESMF_State), intent(in) :: state
+      character(*), intent(in) :: namespace
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Info) :: state_info
+      integer :: status
+
+      call MAPL_InfoSetShared(state, key='namespace', value=namespace, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine set_namespace
 
 end module mapl3g_InfoUtilities

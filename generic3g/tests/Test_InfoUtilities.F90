@@ -5,7 +5,8 @@ module Test_InfoUtilities
    use mapl3g_InfoUtilities, only: MAPL_InfoGetShared
    use mapl3g_InfoUtilities, only: MAPL_InfosetShared
    use mapl3g_InfoUtilities, only: MAPL_InfoGetPrivate
-   use mapl3g_InfoUtilities, only: MAPL_InfosetPrivate
+   use mapl3g_InfoUtilities, only: MAPL_InfoSetPrivate
+   use mapl3g_InfoUtilities, only: MAPL_InfoSetNamespace
    use esmf
    use funit
 
@@ -58,7 +59,7 @@ contains
       integer :: i
 
       state = ESMF_StateCreate(name='import', _RC)
-      call MAPL_InfoSetShared(state, key='gridcomp', value='compA', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
 
       field = ESMF_FieldEmptyCreate(name='f', _RC)
       call ESMF_StateAdd(state, [field], _RC)
@@ -83,10 +84,10 @@ contains
       integer :: i_a, i_b
 
       state_a = ESMF_StateCreate(name='import', _RC)
-       call MAPL_InfoSetShared(state_a, key='gridcomp', value='compA', _RC)
+      call MAPL_InfoSetNameSpace(state_a, namespace='compA', _RC)
 
       state_b = ESMF_StateCreate(name='import', _RC)
-      call MAPL_InfoSetShared(state_b, key='gridcomp', value='compB', _RC)
+      call MAPL_InfoSetNameSpace(state_b, namespace='compB', _RC)
 
 
       field = ESMF_FieldEmptyCreate(name='f', _RC)
