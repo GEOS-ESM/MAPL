@@ -126,10 +126,12 @@ contains
        integer :: i
 
        v_pt = VirtualConnectionPt(state_intent='export', short_name=this%variants%of(1))
-       goal_spec = FieldSpec(geom=geom, vertical_grid=this, vertical_dim_spec=VERTICAL_DIM_EDGE, &
-            typekind=typekind, standard_name=standard_name, units=units, &
+       goal_spec = FieldSpec( &
+            geom=geom, vertical_grid=this, vertical_dim_spec=VERTICAL_DIM_EDGE, &
+            typekind=typekind, &
+            standard_name=standard_name, &
+            units=units, &
             ungridded_dims=UngriddedDims())
-
        new_extension => this%registry%extend(v_pt, goal_spec, _RC)
        coupler => new_extension%get_producer()
        new_spec => new_extension%get_spec()
@@ -141,7 +143,6 @@ contains
        end select
 
        _RETURN(_SUCCESS)
-
     end subroutine get_coordinate_field
 
 end module mapl3g_ModelVerticalGrid
