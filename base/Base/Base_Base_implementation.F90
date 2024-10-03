@@ -134,7 +134,6 @@ contains
     integer                               :: ub1, ub2, ub3
 
 ! SSI
-    character(len=ESMF_MAXSTR) :: name
     type(ESMF_Pin_Flag) :: pinflag
     type(ESMF_VM)       :: vm
     logical             :: ssiSharedMemoryEnabled
@@ -2598,7 +2597,6 @@ contains
     real(ESMF_KIND_R4) :: lonloc,latloc
     logical            :: localSearch
     real(ESMF_KIND_R8), allocatable :: tmp_lons(:),tmp_lats(:)
-    real(ESMF_KIND_R8) :: lonRe(npts), latRe(npts) ! returned from reversed_shmidt transform
     type(ESMF_CoordSys_Flag) :: coordSys
     character(len=ESMF_MAXSTR) :: grid_type
 
@@ -2747,7 +2745,7 @@ contains
     real(ESMF_KIND_R8), allocatable, dimension (:,:) :: xyz
     real(ESMF_KIND_R8), allocatable, dimension (:)   :: x,y,z
     real(ESMF_KIND_R8), allocatable :: max_abs(:)
-    real(ESMF_KIND_R8)              :: dalpha
+    real(ESMF_KIND_R8)              :: dalpha, shift0
     real(ESMF_KIND_R8), allocatable :: lons(:), lats(:)
 
     ! sqrt(2.0d0), distance from center to the mid of an edge for a 2x2x2 cube
@@ -2786,7 +2784,9 @@ contains
     endif
 
     ! shift the grid away from Japan Fuji Mt.
-    lons = lons + shift
+    shift0 = shift
+    if (stretched) shift0 = 0
+    lons = lons + shift0
 
     ! get xyz from sphere surface
     allocate(xyz(3, npts), max_abs(npts))
@@ -2869,7 +2869,8 @@ contains
        integer :: I1, I2, J1, J2, j
        real(ESMF_KIND_R8), pointer :: corner_lons(:,:), corner_lats(:,:)
        real(ESMF_KIND_R8), allocatable :: lonRe(:), latRe(:)
-       real(ESMF_KIND_R8) :: accurate_lat, accurate_lon, stretch_factor, target_lon, target_lat
+       real(ESMF_KIND_R8), allocatable :: accurate_lat(:), accurate_lon(:)
+       real(ESMF_KIND_R8) :: stretch_factor, target_lon, target_lat, shift0
        real :: tolerance
 
        tolerance = epsilon(1.0)
@@ -2881,36 +2882,38 @@ contains
        call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER, &
             farrayPtr=corner_lats, rc=status)
 
-       allocate(lonRe(j2-j1+2), latRe(j2-j1+2))
-       call MAPL_Reverse_Schmidt(grid, stretched, J2-J1+1, lonR8=corner_lons(1,:), &
-                                 latR8=corner_lats(1,:), lonRe=lonRe, latRe=latRe, _RC)  
 
-       if ( I1 ==1 .and. J2<=IM_WORLD ) then
-          if (J1 == 1) then
-            accurate_lon = 1.750d0*MAPL_PI_R8 - shift
-            if (abs(accurate_lon - lonRe(1)) > tolerance) then
+       if ( I1 == 1 .and. J1 == 1 ) then
+          allocate(lonRe(j2-j1+1),      latRe(j2-j1+1))
+          call MAPL_Reverse_Schmidt(grid, stretched, J2-J1+1, lonR8=corner_lons(1,:), &
+                                   latR8=corner_lats(1,:), lonRe=lonRe, latRe=latRe, _RC)  
+
+          allocate(accurate_lon(j2-j1+1), accurate_lat(j2-j1+1))
+
+          shift0 = shift
+          if (stretched) shift0 = 0
+
+          accurate_lon = 1.750d0*MAPL_PI_R8 - shift0
+          accurate_lat = [(-alpha + (j-1)*dalpha, j = j1, j2)]
+
+          if (any(abs(accurate_lon - lonRe) > 2.0* tolerance)) then
                print*, "accurate_lon: ", accurate_lon
-               print*, "corner_lon  : ", lonRe(1)
+               print*, "corner_lon  : ", lonRe
                print*, "Error: Grid should have pi/18 shift"
                OK = .false.
                return
-            endif
           endif
 
-          do j = J1+1, J2
-             accurate_lat = -alpha + (j-1)*dalpha
-             if ( abs(accurate_lat - latRe(j-J1+1)) > 5.0*tolerance) then
-                print*, "accurate_lat: ", accurate_lat
-                print*, "edge_lat    : ", latRe(j-J1+1)
-                print*, "edge point  : ", j
-                print*, "Error: It could be "
-                print*, "  1)Grid is NOT gnomonic_ed;"
-                print*, "  2)lats lons from MAPL_GridGetCorners are NOT accurate (single precision from ESMF)"
-                OK = .false.
-                return
-             endif
-          enddo
-       endif
+          if ( any(abs(accurate_lat - latRe) > 2.0*tolerance)) then
+             print*, "accurate_lat: ", accurate_lat
+             print*, "edge_lat    : ", latRe
+             print*, "Error: It could be "
+             print*, "  1)Grid is NOT gnomonic_ed;"
+             print*, "  2)lats lons from MAPL_GridGetCorners are NOT accurate (single precision from ESMF)"
+             OK = .false.
+             return
+          endif
+        endif
     end function
   end subroutine MAPL_GetGlobalHorzIJIndex
 
@@ -3207,7 +3210,7 @@ contains
     ! local vars
     integer :: status
     integer :: k, n
-    integer :: k1,k2,kk
+    integer :: k1,k2
     logical                    :: has_ungrd
     integer                    :: ungrd_cnt
     integer                    :: fieldRank
@@ -3440,8 +3443,11 @@ contains
      c2p1 = 1 + stretch_factor*stretch_factor 
      c2m1 = 1 - stretch_factor*stretch_factor
 
-     half_pi = MAPL_PI/2
-     two_pi  = MAPL_PI*2
+     half_pi = MAPL_PI_R8/2
+     two_pi  = MAPL_PI_R8*2
+
+     target_lon = target_lon*MAPL_DEGREES_TO_RADIANS_R8
+     target_lat = target_lat*MAPL_DEGREES_TO_RADIANS_R8
   
      x = cos(latRe)*cos(lonRe - target_lon)
      y = cos(latRe)*sin(lonRe - target_lon)
