@@ -165,8 +165,10 @@ contains
       call setup(vgrid, _RC)
       geom = make_geom(_RC)
 
-      call vgrid%get_coordinate_field(vcoord, coupler, &
-           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, units='hPa', _RC)
+      call vgrid%get_coordinate_field( &
+           vcoord, coupler, &
+           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, &
+           units='hPa', vertical_dim_spec=VERTICAL_DIM_EDGE, _RC)
       @assert_that(associated(coupler), is(false()))
 
       call ESMF_FieldGet(vcoord, fArrayPtr=a, _RC)
@@ -190,8 +192,10 @@ contains
 
       call setup(vgrid, _RC)
       geom = make_geom(_RC)
-      call vgrid%get_coordinate_field(vcoord, coupler, &
-           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, units='Pa', _RC)
+      call vgrid%get_coordinate_field( &
+           vcoord, coupler, &
+           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, &
+           units='Pa', vertical_dim_spec=VERTICAL_DIM_EDGE, _RC)
       @assert_that(associated(coupler), is(true()))
 
       call r%allocate(_RC)
@@ -207,5 +211,43 @@ contains
       end do
       @assert_that(a, every_item(is(equal_to(300.))))
    end subroutine test_get_coordinate_field_change_units
+
+   @test
+   ! Request the specific coordinate corresponding particular geom/unit.
+   ! Here we request different units which should return a coordinate
+   ! scaled by 100 (hPa = 100 Pa)
+   subroutine test_get_coordinate_field_change_vertical_dim_spec()
+      type(ModelVerticalGrid) :: vgrid
+      type(ESMF_Field) :: vcoord
+      type(ESMF_Geom) :: geom
+      integer :: status
+      real(ESMF_KIND_R4), pointer :: a(:,:,:)
+      type(ComponentDriverPtrVector) :: couplers
+      type(ComponentDriverPtr) :: driver
+      type(GriddedComponentDriver), pointer :: coupler
+      integer :: i
+
+      call setup(vgrid, _RC)
+      geom = make_geom(_RC)
+      call vgrid%get_coordinate_field( &
+           vcoord, coupler, &
+           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, &
+           units='Pa', vertical_dim_spec=VERTICAL_DIM_CENTER, _RC)
+      @assert_that(associated(coupler), is(true()))
+      _HERE
+
+      ! call r%allocate(_RC)
+
+      ! call ESMF_FieldGet(vcoord, fArrayPtr=a, _RC)
+      ! ! usually update is called on imports, but here we don't have an import handy,
+      ! ! so we force updates on all export couplers in registry r.
+      ! couplers = r%get_export_couplers()
+      ! do i = 1, couplers%size()
+      !    driver = couplers%of(i)
+      !    call driver%ptr%initialize(_RC)
+      !    call driver%ptr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+      ! end do
+      ! @assert_that(a, every_item(is(equal_to(300.))))
+   end subroutine test_get_coordinate_field_change_vertical_dim_spec
 
 end module Test_ModelVerticalGrid

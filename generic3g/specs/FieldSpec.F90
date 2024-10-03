@@ -894,9 +894,9 @@ contains
       select type (spec)
       type is (FieldSpec)
          call spec%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
-              'ignore', spec%geom, spec%typekind, spec%units, _RC)
+              'ignore', spec%geom, spec%typekind, spec%units, spec%vertical_dim_spec, _RC)
          call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
-              'ignore', this%geom, this%typekind, this%units, _RC)
+              'ignore', this%geom, this%typekind, this%units, spec%vertical_dim_spec, _RC)
          action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, this%regrid_method)
          spec%vertical_grid = this%vertical_grid
       end select

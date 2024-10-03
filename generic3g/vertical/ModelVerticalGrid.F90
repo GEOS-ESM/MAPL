@@ -108,7 +108,7 @@ contains
        registry => this%registry
     end function get_registry
 
-    subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
+    subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
        class(ModelVerticalGrid), intent(in) :: this
        type(ESMF_Field), intent(out) :: field
        type(GriddedComponentDriver), pointer, intent(out) :: coupler
@@ -116,6 +116,7 @@ contains
        type(ESMF_Geom), intent(in) :: geom
        type(ESMF_TypeKind_Flag), intent(in) :: typekind
        character(*), intent(in) :: units
+       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
        integer, optional, intent(out) :: rc
 
        integer :: status
@@ -127,7 +128,7 @@ contains
 
        v_pt = VirtualConnectionPt(state_intent='export', short_name=this%variants%of(1))
        goal_spec = FieldSpec( &
-            geom=geom, vertical_grid=this, vertical_dim_spec=VERTICAL_DIM_EDGE, &
+            geom=geom, vertical_grid=this, vertical_dim_spec=vertical_dim_spec, &
             typekind=typekind, &
             standard_name=standard_name, &
             units=units, &
