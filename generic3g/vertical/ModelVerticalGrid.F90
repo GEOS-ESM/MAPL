@@ -108,7 +108,6 @@ contains
        registry => this%registry
     end function get_registry
 
-
     subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
        class(ModelVerticalGrid), intent(in) :: this
        type(ESMF_Field), intent(out) :: field
@@ -144,7 +143,5 @@ contains
        _RETURN(_SUCCESS)
 
     end subroutine get_coordinate_field
-
-
 
 end module mapl3g_ModelVerticalGrid
