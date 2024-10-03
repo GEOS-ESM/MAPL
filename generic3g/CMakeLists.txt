@@ -36,6 +36,8 @@ set(srcs
 
   ESMF_Utilities.F90
   InfoUtilities.F90
+  FieldUtilities.F90
+
   ESMF_HConfigUtilities.F90
   RestartHandler.F90
   )

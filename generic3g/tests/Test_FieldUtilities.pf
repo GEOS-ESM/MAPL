@@ -1,0 +1,166 @@
+#include "MAPL_TestErr.h"
+
+module Test_FieldUtilities
+   use mapl3g_FieldUtilities
+   use esmf
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_change_typekind()
+      type(ESMF_Field) :: f
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+
+      integer :: status
+      type(ESMF_FieldStatus_Flag) :: field_status
+      type(ESMF_TypeKind_Flag) :: typekind
+      
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+
+      f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
+      call MAPL_FieldReallocate(f, typekind=ESMF_TYPEKIND_R8, _RC)
+
+      call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
+      @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
+      @assert_that(typekind == ESMF_TYPEKIND_R8, is(true()))
+
+      call ESMF_FieldDestroy(f, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+   end subroutine test_change_typekind
+
+   @test
+   subroutine test_same_typekind_do_not_reallocate()
+      type(ESMF_Field) :: f
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+
+      integer :: status
+      type(ESMF_FieldStatus_Flag) :: field_status
+      type(ESMF_TypeKind_Flag) :: typekind
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+      
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+      f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
+      call ESMF_FieldGet(f, fArrayPtr=x, _RC)
+      x = 99
+
+      call MAPL_FieldReallocate(f, typekind=ESMF_TYPEKIND_R4, _RC)
+
+      call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
+      @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
+      @assert_that(typekind == ESMF_TYPEKIND_R4, is(true()))
+
+      call ESMF_FieldGet(f, fArrayPtr=x, _RC)
+      @assert_that(all(x == 99), is(true()))
+
+      call ESMF_FieldDestroy(f, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+   end subroutine test_same_typekind_do_not_reallocate
+
+   @test
+   subroutine test_change_geom()
+      type(ESMF_Field) :: f
+      type(ESMF_Grid), target :: grid1, grid2
+      type(ESMF_Geom) :: geom1, geom2
+
+      integer :: status
+      type(ESMF_FieldStatus_Flag) :: field_status
+      type(ESMF_TypeKind_Flag) :: typekind
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+      
+      grid1 = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
+      geom1 = ESMF_GeomCreate(grid1, _RC)
+      f = ESMF_FieldCreate(geom1, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
+
+      grid2 = ESMF_GridCreateNoPeriDim(maxIndex=[3,5], name='I_AM_GROOT', _RC)
+      geom2 = ESMF_GeomCreate(grid2, _RC)
+      call MAPL_FieldReallocate(f, geom=geom2, _RC) ! same geom
+ 
+      call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
+      @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
+      @assert_that(typekind == ESMF_TYPEKIND_R4, is(true()))
+
+      call ESMF_FieldGet(f, fArrayPtr=x, _RC)
+      @assert_that(shape(x),is(equal_to([3,5])))
+
+      call ESMF_FieldDestroy(f, _RC)
+      call ESMF_GridDestroy(grid1, _RC)
+      call ESMF_GridDestroy(grid2, _RC)
+      call ESMF_GeomDestroy(geom2, _RC)
+
+   end subroutine test_change_geom
+
+   @test
+   subroutine test_same_geom_do_not_reallocate()
+      type(ESMF_Field) :: f
+      type(ESMF_Grid), target :: grid1
+      type(ESMF_Geom) :: geom1
+      type(ESMF_Geom) :: geom2
+
+      integer :: status
+      type(ESMF_FieldStatus_Flag) :: field_status
+      type(ESMF_TypeKind_Flag) :: typekind
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+      
+      grid1 = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
+      geom1 = ESMF_GeomCreate(grid1, _RC)
+      f = ESMF_FieldCreate(geom1, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
+      call ESMF_FieldGet(f, fArrayPtr=x, _RC)
+      x = 99
+
+      geom2 = geom1
+      call MAPL_FieldReallocate(f, geom=geom2, _RC) ! same geom
+ 
+      call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
+      @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
+      @assert_that(typekind == ESMF_TYPEKIND_R4, is(true()))
+
+      call ESMF_FieldGet(f, fArrayPtr=x, _RC)
+      @assert_that(all(x == 99), is(true()))
+
+      call ESMF_FieldDestroy(f, _RC)
+      call ESMF_GridDestroy(grid1, _RC)
+      call ESMF_GeomDestroy(geom2, _RC)
+
+   end subroutine test_same_geom_do_not_reallocate
+
+   @test
+   ! Probably exceedingly rare, but MAPL3 allows the vertical grid to change with time
+   ! which could change the number of levels ...
+   subroutine test_change_ungridded_bounds()
+      type(ESMF_Field) :: f
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+
+      integer :: status
+      type(ESMF_FieldStatus_Flag) :: field_status
+      real(ESMF_KIND_R4), pointer :: x(:,:,:,:)
+      type(ESMF_TypeKind_Flag) :: typekind
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+
+      f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
+           ungriddedLbound=[1,1], ungriddedUbound=[5,3], _RC)
+      call MAPL_FieldReallocate(f, ungriddedUbound=[4,3], _RC)
+
+      call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
+      @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
+      @assert_that(typekind == ESMF_TYPEKIND_R4, is(true()))
+
+      call ESMF_FieldGet(f, fArrayPtr=x, _RC)
+      @assert_that(shape(x), is(equal_to([4,4,4,3])))
+
+      call ESMF_FieldDestroy(f, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+   end subroutine test_change_ungridded_bounds
+
+end module Test_FieldUtilities
