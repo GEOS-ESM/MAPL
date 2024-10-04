@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 module mapl3g_FieldCondensedArray
    use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer
-   use mapl3g_FieldCondensedArray_private, only: ARRAY_RANK, get_shape => get_fptr_shape
+   use mapl3g_FieldCondensedArray_private, only: ARRAY_RANK, get_fptr_shape_private
    use mapl3g_FieldDimensionInfo, only: get_vertical_dim_spec_name
    use MAPL_FieldPointerUtilities, only: FieldGetLocalElementCount, assign_fptr
    use MAPL_ExceptionHandling
@@ -65,7 +65,7 @@ contains
       localElementCount = FieldGetLocalElementCount(f, _RC)
       spec_name = get_vertical_dim_spec_name(f, _RC)
       has_vertical = spec_name /= VERTICAL_DIM_NONE_NAME
-      fptr_shape = get_shape(gridToFieldMap, localElementCount, has_vertical, _RC)
+      fptr_shape = get_fptr_shape_private(gridToFieldMap, localElementCount, has_vertical, _RC)
 
    end function get_fptr_shape
 
