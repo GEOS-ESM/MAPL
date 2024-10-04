@@ -8,7 +8,6 @@ set (test_srcs
 
   Test_InfoUtilities.F90
   Test_VirtualConnectionPt.pf
-  Test_FieldUtilities.pf
 
   Test_SimpleLeafGridComp.pf
   Test_SimpleParentGridComp.pf

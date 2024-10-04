@@ -1,7 +1,7 @@
 #include "MAPL_TestErr.h"
-
+#include "UNUSED_DUMMY.H"
 module Test_FieldUtilities
-   use mapl3g_FieldUtilities
+   use mapl_FieldUtilities
    use esmf
    use ESMF_TestMethod_mod
    use funit
@@ -24,7 +24,7 @@ contains
       geom = ESMF_GeomCreate(grid, _RC)
 
       f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
-      call MAPL_FieldReallocate(f, typekind=ESMF_TYPEKIND_R8, _RC)
+      call FieldReallocate(f, typekind=ESMF_TYPEKIND_R8, _RC)
 
       call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
       @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
@@ -33,6 +33,8 @@ contains
       call ESMF_FieldDestroy(f, _RC)
       call ESMF_GridDestroy(grid, _RC)
       call ESMF_GeomDestroy(geom, _RC)
+
+      _UNUSED_DUMMY(this)
    end subroutine test_change_typekind
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -53,7 +55,7 @@ contains
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
       x = 99
 
-      call MAPL_FieldReallocate(f, typekind=ESMF_TYPEKIND_R4, _RC)
+      call FieldReallocate(f, typekind=ESMF_TYPEKIND_R4, _RC)
 
       call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
       @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
@@ -65,6 +67,8 @@ contains
       call ESMF_FieldDestroy(f, _RC)
       call ESMF_GridDestroy(grid, _RC)
       call ESMF_GeomDestroy(geom, _RC)
+
+      _UNUSED_DUMMY(this)
    end subroutine test_same_typekind_do_not_reallocate
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -85,7 +89,7 @@ contains
 
       grid2 = ESMF_GridCreateNoPeriDim(maxIndex=[3,5], name='I_AM_GROOT', _RC)
       geom2 = ESMF_GeomCreate(grid2, _RC)
-      call MAPL_FieldReallocate(f, geom=geom2, _RC) ! same geom
+      call FieldReallocate(f, geom=geom2, _RC) ! same geom
  
       call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
       @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
@@ -99,7 +103,8 @@ contains
       call ESMF_GridDestroy(grid2, _RC)
       call ESMF_GeomDestroy(geom2, _RC)
 
-   end subroutine test_change_geom
+       _UNUSED_DUMMY(this)
+  end subroutine test_change_geom
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_same_geom_do_not_reallocate(this)
@@ -121,7 +126,7 @@ contains
       x = 99
 
       geom2 = geom1
-      call MAPL_FieldReallocate(f, geom=geom2, _RC) ! same geom
+      call FieldReallocate(f, geom=geom2, _RC) ! same geom
  
       call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
       @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
@@ -134,6 +139,7 @@ contains
       call ESMF_GridDestroy(grid1, _RC)
       call ESMF_GeomDestroy(geom2, _RC)
 
+      _UNUSED_DUMMY(this)
    end subroutine test_same_geom_do_not_reallocate
 
     @test(type=ESMF_TestMethod, npes=[1])
@@ -155,7 +161,7 @@ contains
 
       f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
            ungriddedLbound=[1,1], ungriddedUbound=[5,3], _RC)
-      call MAPL_FieldReallocate(f, ungriddedUbound=[4,3], _RC)
+      call FieldReallocate(f, ungriddedUbound=[4,3], _RC)
 
       call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
       @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
@@ -167,6 +173,8 @@ contains
       call ESMF_FieldDestroy(f, _RC)
       call ESMF_GridDestroy(grid, _RC)
       call ESMF_GeomDestroy(geom, _RC)
+
+      _UNUSED_DUMMY(this)
    end subroutine test_change_ungridded_bounds
 
     @test(type=ESMF_TestMethod, npes=[1])
@@ -191,7 +199,7 @@ contains
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
       x = 99
 
-      call MAPL_FieldReallocate(f, ungriddedUbound=[5,3], _RC)
+      call FieldReallocate(f, ungriddedUbound=[5,3], _RC)
 
       call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
       @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
@@ -204,6 +212,8 @@ contains
       call ESMF_FieldDestroy(f, _RC)
       call ESMF_GridDestroy(grid, _RC)
       call ESMF_GeomDestroy(geom, _RC)
+
+      _UNUSED_DUMMY(this)
    end subroutine test_same_ungridded_bounds_do_not_allocate
 
 end module Test_FieldUtilities
