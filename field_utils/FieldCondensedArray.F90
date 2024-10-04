@@ -56,10 +56,14 @@ contains
       logical :: has_vertical
       character(len=:), allocatable :: spec_name
       character(len=*), parameter :: VERTICAL_DIM_NONE_NAME = 'VERTICAL_DIM_NONE'
+      integer :: dimCount
 
-      call ESMF_FieldGet(f, gridToFieldMap=gridToFieldMap, _RC) 
-      call ESMF_FieldGet(f, rank=rank, _RC)
+      call ESMF_FieldGet(f, dimCount=dimCount, rank=rank, _RC)
+      _ASSERT(.not. rank < 0, 'rank cannot be negative.')
+      _ASSERT(.not. dimCount < 0, 'dimCount cannot be negative.')
       allocate(localElementCount(rank))
+      allocate(gridToFieldMap(dimCount))
+      call ESMF_FieldGet(f, gridToFieldMap=gridToFieldMap, _RC) 
       !  Due to an ESMF bug, getting the localElementCount must use the module function.
       !  See FieldGetLocalElementCount (specific function) comments.
       localElementCount = FieldGetLocalElementCount(f, _RC)
