@@ -114,6 +114,27 @@ else ()
   message(STATUS "netCDF does not have quantize capability")
 endif ()
 
+################################################################
+# Check to see if zstandard capability is present in netcdf-c. #
+################################################################
+
+check_c_source_compiles("
+  #include <netcdf_meta.h>
+  #if !NC_HAS_ZSTD
+  choke me
+  #endif
+  int main(void) {
+    return 0;
+  }
+  "
+  NETCDF_HAS_ZSTD)
+if (NETCDF_HAS_ZSTD)
+  message(STATUS "netCDF has zstandard capability")
+  add_definitions(-DNF_HAS_ZSTD)
+else ()
+  message(STATUS "netCDF does not have zstandard capability")
+endif ()
+
 if (BUILD_WITH_PFLOGGER)
   find_package (PFLOGGER REQUIRED)
 endif ()
