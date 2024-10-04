@@ -65,6 +65,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.49.0] - 2024-10-04
+
+### Added
+
+- Added zstandard compression support
+  - Note this requires netCDF-C to have been compiled with zstandard support. We have a CMake test to check for this
+    and enabling zstandard output in History will fail if the library does not support it
+
+### Changed
+
 - ExtDataDriver.x now uses ExtData2G by default
 - Update `components.yaml`
   - ecbuild geos/v1.4.0
@@ -72,9 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-### Removed
-
-### Deprecated
+- Workaround for NVHPC 24.9 involving `use` statement in `block` construct
 
 ## [2.48.0] - 2024-09-24
 

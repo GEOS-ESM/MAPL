@@ -29,12 +29,32 @@ set(QUANTIZE_TESTS
   "case34"
 )
 
+# We have one test that requires netcdf zstandard support
+set(ZSTD_TESTS
+  "case35"
+)
+
+# We have one test which requires *both* Quantize and ZSTD support
+set(QUANTIZE_AND_ZSTD_TESTS
+  "case36"
+)
+
 file(STRINGS "test_cases/extdata_2g_cases.txt" TEST_CASES_2G)
 
 foreach(TEST_CASE ${TEST_CASES_2G})
 
   # Skip tests that require Quantize support if we don't have it
   if (NOT NETCDF_HAS_QUANTIZE AND ${TEST_CASE} IN_LIST QUANTIZE_TESTS)
+    continue()
+  endif()
+
+  # Skip tests that require ZSTD support if we don't have it
+  if (NOT NETCDF_HAS_ZSTD AND ${TEST_CASE} IN_LIST ZSTD_TESTS)
+    continue()
+  endif()
+
+  # Skip tests that require both Quantize and ZSTD support if we don't have it
+  if (NOT (NETCDF_HAS_QUANTIZE AND NETCDF_HAS_ZSTD) AND ${TEST_CASE} IN_LIST QUANTIZE_AND_ZSTD_TESTS)
     continue()
   endif()
 
