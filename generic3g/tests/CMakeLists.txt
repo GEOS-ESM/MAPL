@@ -6,6 +6,7 @@ add_subdirectory(gridcomps)
 
 set (test_srcs
 
+  Test_InfoUtilities.F90
   Test_VirtualConnectionPt.pf
 
   Test_SimpleLeafGridComp.pf
@@ -32,6 +33,7 @@ set (test_srcs
 
   Test_ModelVerticalGrid.pf
   Test_FixedLevelsVerticalGrid.pf
+  Test_VerticalLinearMap.pf
 
   Test_CSR_SparseMatrix.pf
   )

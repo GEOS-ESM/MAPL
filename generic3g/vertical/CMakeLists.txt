@@ -5,7 +5,8 @@ target_sources(MAPL.generic3g PRIVATE
   MirrorVerticalGrid.F90
   FixedLevelsVerticalGrid.F90
   ModelVerticalGrid.F90
-
+  VerticalRegridMethod.F90
+  VerticalLinearMap.F90
   CSR_SparseMatrix.F90
 )
 
@@ -21,3 +22,8 @@ esma_add_fortran_submodules(
   SOURCES can_connect_to.F90
 )
 
+ecbuild_add_executable(
+  TARGET Test_VerticalLinearMap.x
+  SOURCES Test_VerticalLinearMap.F90
+  DEPENDS MAPL.generic3g ESMF::ESMF)
+target_link_libraries(Test_VerticalLinearMap.x PRIVATE ${this})

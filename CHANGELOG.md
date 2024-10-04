@@ -65,6 +65,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- ExtDataDriver.x now uses ExtData2G by default
+- Update `components.yaml`
+  - ecbuild geos/v1.4.0
+    - Fixes bug between GCC, macOS, and the `-pipe` flag
+
 ### Fixed
 
 ### Removed
