@@ -1,71 +1,39 @@
 module mapl3g_TimeAccumulatorCouplerComponent
    use mapl3g_GenericCouplerComponent
-   use, intrinsic :: ieee_arithmetic
+   use mapl3g_Accumulator
+   use mapl3g_AccumulatorProcedures
    implicit none
    private
 
+   type(AccumulatorProcedures) :: MeanProcedures
+   type(AccumulatorProcedures) :: MinProcedures
+   type(AccumulatorProcedures) :: MaxProcedures
+   
    integer, parameter :: SIMPLE_ACCUMULATOR = 0
-   integer, parameter :: MIN_ACCUMULATOR = 5
-   integer, parameter :: MAX_ACCUMULATOR = 7
-   integer, parameter :: MEAN_ACCUMULATOR = 8
-
-   type :: Accumulator
-      logical :: is_active = .FALSE.
-      integer :: accumulator_type
-      type(ESMF_Field), allocatable :: accumulation_data
-      type(ESMF_Field), pointer :: accumulation_counter => null()
-      procedure(BinaryR4Function), pointer :: accumulate_ptr => null()
-      procedure(CoupleR4Function), pointer :: couple_ptr => null()
-      procedure(UnaryR4Function), pointer :: clear_ptr => null()
-      type(ESMF_Alarm), pointer   :: time_to_clear => null()
-      type(ESMF_Alarm), pointer   :: time_to_couple => null()
-      type(ESMF_Field), pointer :: field_data => null()
-   contains
-      procedure :: accumulate
-      procedure :: clear
-      procedure :: couple
-   end type Accumulator
-
-   abstract interface
-      elemental function UnaryR4Function(t) result(ft)
-         real(kind=ESMF_KIND_R4) :: ft
-         real(kind=ESMF_KIND_R4), intent(in) :: t
-      end function UnaryR4Function
-      elemental function BinaryR4Function(t1, t2) result(ft)
-         real(kind=ESMF_KIND_R4) :: ft
-         real(kind=ESMF_KIND_R4), intent(in) :: t1, t2
-      end function BinaryR4Function
-      subroutine CoupleR4Sub(this)
-         import :: Accumulator
-         class(Accumulator), intent(inout) :: this
-      end subroutine Coupler
-      elemental function CoupleR4Function(t, n) result(c)
-         real(kind=ESMF_KIND_R4) :: c
-         real(kind=ESMF_KIND_R4), intent(in) :: t
-         integer(kind=ESMF_KIND_I4), intent(in) :: n
-      end function CoupleR4Function
-   end abstract interface
-
-   interface Accumulator
-      module procedure :: construct_accumulator
-   end interface Accumulator
+   integer, parameter :: MEAN_ACCUMULATOR = 1
+   integer, parameter :: MIN_ACCUMULATOR = 2
+   integer, parameter :: MAX_ACCUMULATOR = 3
 
 contains
 
-   function construct_accumulator(accumulator_type) result(acc)
-      type(Accumulator) :: acc
-      integer, intent(in) :: accumulator_type
-      procedure(BinaryR4Function), pointer, intent(in) :: ptrCouple
-      procedure(BinaryR4Function), pointer, intent(in) :: ptrAccumulate
-      real(kind=ESMF_KIND_R4), intent(in) :: clear_value
-      integer(kind=ESMF_KIND_I4), intent(in) :: counter_reset
+   subroutine accumulate(acc, field_update, rc)
+      class(Accumulator), intent(inout) :: acc
+      type(ESMF_Field), intent(in) :: field_update
+      integer, optional, intent(out) :: rc
+      integer :: status
+   end subroutine accumulate
 
-      acc%couple_ptr_R4 = ptrCouple
-      acc%accumulate_ptr_R4 = ptrAccumulate
-      acc%clear_value = clear_value
-      acc%counter_reset = counter_reset
+   subroutine couple(acc, rc)
+      class(Accumulator), intent(inout) :: acc
+      integer, optional, intent(out) :: rc
+      integer :: status
+   end subroutine couple
 
-   end function construct_accumulator
+   subroutine clear(acc, rc)
+      class(Accumulator), intent(inout) :: acc
+      integer, optional, intent(out) :: rc
+      integer :: status
+   end subroutine clear
 
    subroutine initialize_Accumulator_internal(state, source_specs, destination_specs)
       type(AccumulatorInternal), pointer, intent(in) :: state
@@ -93,14 +61,6 @@ contains
    subroutine finalize_Accumulator_internal(state)
       type(AccumulatorInternal), pointer, intent(in) :: state
    end subroutine finalize_Accumulator_internal
-
-!   function assign_fptr_i4_1d(farray) result(fptr) !wdb fixme deleteme
-!      integer(ESMF_KIND_I4), pointer :: fptr
-!      integer(ESMF_KIND_I4), pointer, intent(in) :: farray(:)
-!
-!      call c_f_pointer(c_loc(farray), fptr, cptr, product(shape(farray)))
-!
-!   end function assign_fptr_i4_1d
 
    function construct_Accumulator_field(source, destination, use_mean, minimize) result(f)
       type(AbstractAccumulator) :: f

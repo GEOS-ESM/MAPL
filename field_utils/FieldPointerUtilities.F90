@@ -9,7 +9,6 @@ module MAPL_FieldPointerUtilities
 
    public :: FieldsHaveUndef
    public :: GetFieldsUndef
-   public :: GetFieldUndef
    public :: assign_fptr
    public :: FieldGetLocalElementCount
    public :: FieldGetLocalSize
@@ -27,13 +26,6 @@ module MAPL_FieldPointerUtilities
       module procedure GetFieldsUndef_r8
    end interface
 
-   interface GetFieldUndef
-      module procedure GetFieldUndef_r4
-      module procedure GetFieldUndef_r8
-      module procedure GetFieldUndef_i4
-      module procedure GetFieldUndef_i8
-   end interface GetFieldUndef
-
    interface assign_fptr
       module procedure assign_fptr_r4_rank1
       module procedure assign_fptr_r8_rank1
@@ -41,8 +33,6 @@ module MAPL_FieldPointerUtilities
       module procedure assign_fptr_r8_rank2
       module procedure assign_fptr_r4_rank3
       module procedure assign_fptr_r8_rank3
-      module procedure assign_fptr_i4_rank1
-      module procedure assign_fptr_i8_rank1
    end interface assign_fptr
 
    interface FieldGetCptr
@@ -933,74 +923,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine GetFieldsUndef_r4
 
-   subroutine GetFieldUndef_r4(field, undef_value, rc)
-      type(ESMF_Field), intent(inout) :: field
-      real(kind=ESMF_KIND_R4), intent(out) :: undef
-      integer, optional, intent(out) :: rc
-      integer :: status
-      logical :: isPresent
-      type(ESMF_Info) :: infoh
-      character(len=:), parameter :: key = "missing_value"
-
-      call ESMF_InfoGetHost(field, infoh, _RC)
-      isPresent = ESMF_InfoIsPresent(info, key, _RC)
-      _ASSERT(isPresent, "missing undef value")
-      call ESMF_InfoGet(infoh, value=undef,key=key, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine GetFieldUndef_r4
-
-   subroutine GetFieldUndef_r8(field, undef_value, rc)
-      type(ESMF_Field), intent(inout) :: field
-      real(kind=ESMF_KIND_R8), intent(out) :: undef
-      integer, optional, intent(out) :: rc
-      integer :: status
-      logical :: isPresent
-      type(ESMF_Info) :: infoh
-      character(len=:), parameter :: key = "missing_value"
-
-      call ESMF_InfoGetHost(field, infoh, _RC)
-      isPresent = ESMF_InfoIsPresent(info, key, _RC)
-      _ASSERT(isPresent, "missing undef value")
-      call ESMF_InfoGet(infoh, value=undef,key=key, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine GetFieldUndef_r8
-
-   subroutine GetFieldUndef_i4(field, undef_value, rc)
-      type(ESMF_Field), intent(inout) :: field
-      integer(kind=ESMF_KIND_I4), intent(out) :: undef
-      integer, optional, intent(out) :: rc
-      integer :: status
-      logical :: isPresent
-      type(ESMF_Info) :: infoh
-      character(len=:), parameter :: key = "missing_value"
-
-      call ESMF_InfoGetHost(field, infoh, _RC)
-      isPresent = ESMF_InfoIsPresent(info, key, _RC)
-      _ASSERT(isPresent, "missing undef value")
-      call ESMF_InfoGet(infoh, value=undef,key=key, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine GetFieldUndef_i4
-
-   subroutine GetFieldUndef_i8(field, undef_value, rc)
-      type(ESMF_Field), intent(inout) :: field
-      integer(kind=ESMF_KIND_I8), intent(out) :: undef
-      integer, optional, intent(out) :: rc
-      integer :: status
-      logical :: isPresent
-      type(ESMF_Info) :: infoh
-      character(len=:), parameter :: key = "missing_value"
-
-      call ESMF_InfoGetHost(field, infoh, _RC)
-      isPresent = ESMF_InfoIsPresent(info, key, _RC)
-      _ASSERT(isPresent, "missing undef value")
-      call ESMF_InfoGet(infoh, value=undef,key=key, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine GetFieldUndef_i8
-
    subroutine GetFieldsUndef_r8(fields,undef_values,rc)
       type(ESMF_Field), intent(inout) :: fields(:)
       real(kind=ESMF_KIND_R8), allocatable,intent(inout) :: undef_values(:)
@@ -1019,74 +941,6 @@ contains
       enddo
       _RETURN(_SUCCESS)
    end subroutine GetFieldsUndef_r8
-
-   subroutine GetFieldUndef_r4(field, undef_value, rc)
-      type(ESMF_Field), intent(inout) :: field
-      real(kind=ESMF_KIND_R4), intent(out) :: undef
-      integer, optional, intent(out) :: rc
-      integer :: status
-      logical :: isPresent
-      type(ESMF_Info) :: infoh
-      character(len=:), parameter :: key = "missing_value"
-
-      call ESMF_InfoGetHost(field, infoh, _RC)
-      isPresent = ESMF_InfoIsPresent(info, key, _RC)
-      _ASSERT(isPresent, "missing undef value")
-      call ESMF_InfoGet(infoh, value=undef,key=key, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine GetFieldUndef_r4
-
-   subroutine GetFieldUndef_r8(field, undef_value, rc)
-      type(ESMF_Field), intent(inout) :: field
-      real(kind=ESMF_KIND_R8), intent(out) :: undef
-      integer, optional, intent(out) :: rc
-      integer :: status
-      logical :: isPresent
-      type(ESMF_Info) :: infoh
-      character(len=:), parameter :: key = "missing_value"
-
-      call ESMF_InfoGetHost(field, infoh, _RC)
-      isPresent = ESMF_InfoIsPresent(info, key, _RC)
-      _ASSERT(isPresent, "missing undef value")
-      call ESMF_InfoGet(infoh, value=undef,key=key, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine GetFieldUndef_r8
-
-   subroutine GetFieldUndef_i4(field, undef_value, rc)
-      type(ESMF_Field), intent(inout) :: field
-      integer(kind=ESMF_KIND_I4), intent(out) :: undef
-      integer, optional, intent(out) :: rc
-      integer :: status
-      logical :: isPresent
-      type(ESMF_Info) :: infoh
-      character(len=:), parameter :: key = "missing_value"
-
-      call ESMF_InfoGetHost(field, infoh, _RC)
-      isPresent = ESMF_InfoIsPresent(info, key, _RC)
-      _ASSERT(isPresent, "missing undef value")
-      call ESMF_InfoGet(infoh, value=undef,key=key, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine GetFieldUndef_i4
-
-   subroutine GetFieldUndef_i8(field, undef_value, rc)
-      type(ESMF_Field), intent(inout) :: field
-      integer(kind=ESMF_KIND_I8), intent(out) :: undef
-      integer, optional, intent(out) :: rc
-      integer :: status
-      logical :: isPresent
-      type(ESMF_Info) :: infoh
-      character(len=:), parameter :: key = "missing_value"
-
-      call ESMF_InfoGetHost(field, infoh, _RC)
-      isPresent = ESMF_InfoIsPresent(info, key, _RC)
-      _ASSERT(isPresent, "missing undef value")
-      call ESMF_InfoGet(infoh, value=undef,key=key, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine GetFieldUndef_i8
 
    subroutine Destroy(Field,RC)
       type(ESMF_Field),          intent(INOUT) :: Field
@@ -1135,23 +989,5 @@ contains
       _RETURN(ESMF_SUCCESS)
 
    end subroutine Destroy
-
-#if defined(TYPE_)
-#  undef TYPE_
-#endif
-#define TYPE_ integer
-
-#define KIND_ ESMF_KIND_I4
-   subroutine assign_fptr_i4_rank1 \
-#include "AssignFptrRank1.H"
-   end subroutine assign_fptr_i4_rank1
-#undef KIND_
-#define KIND_ ESMF_KIND_I8
-   subroutine assign_fptr_i8_rank1 \
-#include "AssignFptrRank1.H"
-   end subroutine assign_fptr_i8_rank1
-#undef TYPE_
-#undef KIND_
-   
 
 end module MAPL_FieldPointerUtilities

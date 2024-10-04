@@ -1,62 +1,78 @@
-module mapl3g_TimeAccumulationCounter
+module mapl3g_AccumulationCounter
 
    implicit none
    private
-   public :: Counter
+   public :: AccumulationCounter
+   public :: GetAccumulationCount
+   public :: IncrementAccumulationCounter
+   public :: ResetAccumulationCounter
+   public :: IsScalarCounter
 
-   type :: Counter
-      private
-      integer :: scalar_count = -1
-      integer, pointer :: array_count(:) => null()
-      integer :: sz = -1
-   contains
-      procedure :: count => count_counter
-      procedure :: increment => increment_counter
-      procedure :: reset => reset_counter
-      procedure, private :: is_scalar => is_scalar_counter
-      procedure, private :: size => size_counter
-      procedure, private :: increment_all
-      procedure, private :: increment_where
-   end type Counter
+   type :: AccumulationCounter(k, r)
+      integer, kind :: k = 0
+      integer, len :: r = 0
+      type(ESMF_Field), allocatable :: counts
+      integer :: count =-1
+   end type AccumulationCounter(k, r)
 
-   interface Counter
-      module procedure :: construct_counter_scalar
-      module procedure :: construct_counter_array
-   end interface Counter
+   interface AccumulationCounter
+      module procedure :: construct_counter_r4
+      module procedure :: construct_counter_r8
+   end interface AccumulationCounter
+
+   interface GetAccumulationCount
+      module procedure :: get_scalar_count
+      module procedure :: get_r4_field
+      module procedure :: get_r8_field
+   end interface GetAccumulationCount
+
+   interface IncrementAccumulationCounter
+      module procedure :: increment_accumulation_counter
+   end interface IncrementAccumulationCounter
+
+   interface ResetAccumulationCounter
+      module procedure :: reset_accumulation_counter
+   end interface ResetAccumulationCounter
+
+   interface IsScalarCounter
+      module procedure :: is_scalar_counter
+   end interface IsScalarCounter
 
 contains
 
-   function construct_counter_scalar(size, initial_value) result(c)
-      type(Counter) :: c
+   function construct_counter_r4(initial_value) result(c)
+      type(AccumulationCounter) :: c
+      real(ESMF_KIND_R4) intent(in) :: initial_value
+      integer :: count
+
+      c = AccumulationCounter(ESMF_KIND_R4, 0)
+      count = integer(initial_value)
+      c%count = count
+
+   end function construct_counter_r4
+
+   function construct_counter_r8(initial_value) result(c)
+      type(AccumulationCounter) :: c
       integer, intent(in) :: size
-      integer, optional, intent(in) :: initial_value
-      integer :: initial_value_
+      real(ESMF_KIND_R8), intent(in) :: initial_value
+      integer :: count
 
-      initial_value_ = 0
-      if(present(initial_value)) initial_value_ = initial_value
-      c%sz = size
-      c%scalar_count = initial_value_
+      c = AccumulationCounter(ESMF_KIND_R8, 0)
+      count = integer(initial_value)
+      c%count = count
 
-   end function construct_counter_scalar
+   end function construct_counter_r8
 
-   function construct_counter_array(size, counter_values, initial_value) result(c)
-      type(Counter) :: c
-      integer, intent(in) :: counter_values(:)
-      integer, optional, intent(in) :: initial_value
-
-      allocate(c%array_count, SOURCE=counter_values)
-
-   end function construct_counter_array
-
+   subroutine initialize_field(
    logical function is_scalar_counter(this) result(lval)
-      class(Counter), intent(in) :: this
+      class(AccumulationCounter), intent(in) :: this
 
       lval = .not. associated(this%array_count)
 
    end function is_scalar_counter
 
    integer function size_counter(this) result(sz)
-      class(Counter), intent(in) :: this
+      class(AccumulationCounter), intent(in) :: this
 
       sz = this%sz
       if(this%is_scalar()) return
@@ -65,11 +81,11 @@ contains
    end function size_counter
 
    subroutine increment_all(this, increment_size)
-      class(Counter), intent(inout) :: this
+      class(AccumulationCounter), intent(inout) :: this
       integer, intent(in) :: increment_size
 
       if(this%is_scalar()) then
-         this%scalar_count = this%scalar_count + increment_size
+         this%count = this%count + increment_size
          return
       end if
       this%array_count = this%array_count + increment_size
@@ -77,19 +93,19 @@ contains
    end subroutine increment_all
 
    subroutine increment_where(this, mask, increment_size)
-      class(Counter), intent(inout) :: this
+      class(AccumulationCounter), intent(inout) :: this
       logical, intent(in) :: mask(:)
       integer, intent(in) :: increment_size
 
       if(this%is_scalar()) then
-         allocate(this%array_count(size(mask)), SOURCE=this%scalar_count)
+         allocate(this%array_count(size(mask)), SOURCE=this%count)
       end if
       where(mask) this%array_count = this%array_count + increment_size
 
    end subroutine increment_where
 
    subroutine increment_counter(this, mask, increment_size)
-      class(Counter), intent(inout) :: this
+      class(AccumulationCounter), intent(inout) :: this
       logical, optional, intent(in) :: mask(:)
       integer, optional, intent(in) :: increment_size
       integer :: incr_size
@@ -108,11 +124,11 @@ contains
 
    function count_counter(this) result(count)
       integer, allocatable :: count(:)
-      class(Counter), intent(in) :: this
+      class(AccumulationCounter), intent(in) :: this
 
       allocate(count(this%size()))
       if(this%is_scalar()) then
-         count = this%scalar_count
+         count = this%count
          return
       end if
       count = this%array_count
@@ -120,12 +136,12 @@ contains
    end function count_counter
 
    subroutine reset_counter(this, reset_value)
-      class(Counter), intent(inout) :: this
+      class(AccumulationCounter), intent(inout) :: this
       integer, optional, intent(in) :: reset_value
 
       this%array_count => null()
-      this%scalar_count = 0
-      if(present(reset_value)) this%scalar_count = reset_value
+      this%count = 0
+      if(present(reset_value)) this%count = reset_value
 
    end subroutine reset_counter
 

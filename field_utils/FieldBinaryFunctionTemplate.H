@@ -1,10 +1,11 @@
 #define _NAME field
 #include "function_overload.macro"
 
-   subroutine _SUB(field_out,left_field,right_field,rc)
+   subroutine _SUB(field_out,left_field,right_field,set_undef,rc)
       type(ESMF_Field), intent(inout) :: field_out
       type(ESMF_Field), intent(inout) :: left_field
       type(ESMF_Field), intent(inout) :: right_field
+      logical, optional, intent(in) :: set_undef
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -14,18 +15,11 @@
       type(ESMF_Field) :: fields(3)
       type(ESMF_TypeKind_Flag) :: tk_in
       type(ESMF_TypeKind_Flag) :: tk_out
-      logical :: has_undef, conformable
+      logical :: has_undef, conformable, setundef
 
-      real(kind = ESMF_Kind_R4), allocatable :: undef_r4(:)
-      real(kind=ESMF_KIND_R4), pointer :: ptr_r4_left(:) => null()
-      real(kind=ESMF_KIND_R4), pointer :: ptr_r4_right(:) => null()
-      real(kind=ESMF_KIND_R4), pointer :: ptr_r4_out(:) => null()
+      setundef = .TRUE.
+      if(present(set_undef)) setundef = set_undef
 
-      real(kind = ESMF_Kind_R8), allocatable :: undef_r8(:)
-      real(kind=ESMF_KIND_R8), pointer :: ptr_r8_left(:) => null()
-      real(kind=ESMF_KIND_R8), pointer :: ptr_r8_right(:) => null()
-      real(kind=ESMF_KIND_R8), pointer :: ptr_r8_out(:) => null()
-      
       conformable = FieldsAreConformable(left_field,field_out,_RC)
       _ASSERT(conformable,"Left field passed to binary function is not conformable with result field.")
       conformable = FieldsAreConformable(right_field,field_out,_RC)
@@ -41,37 +35,64 @@
       call ESMF_FieldGet(right_field,typekind=tk_in,_RC)
       _ASSERT(tk_in == tk_out, "Right field type does not match result field type.")
       if (tk_out ==ESMF_TypeKind_R4) then
-         call assign_fptr(left_field,ptr_r4_left,_RC)
-         call assign_fptr(right_field,ptr_r4_right,_RC)
-         call assign_fptr(field_out,ptr_r4_out,_RC)
-         if (has_undef) then
-            call GetFieldsUndef(fields,undef_r4,_RC)
-            where(ptr_r4_left /= undef_r4(LEFT) .or. ptr_r4_right /= undef_r4(RIGHT))
-               ptr_r4_out = _FUNC(ptr_r4_left, ptr_r4_right)
-            elsewhere
-               ptr_r4_out = undef_r4(OUT_)
-            end where
-         else
-            ptr_r4_out = _FUNC(ptr_r4_left, ptr_r4_right)
-         end if
+         call set_r4(_RC)
       else if (tk_out ==ESMF_TypeKind_R8) then
-         call assign_fptr(left_field,ptr_r8_left,_RC)
-         call assign_fptr(right_field,ptr_r8_right,_RC)
-         call assign_fptr(field_out,ptr_r8_out,_RC)
-         if (has_undef) then
-            call GetFieldsUndef(fields,undef_r8,_RC)
-            where(ptr_r8_left /= undef_r8(LEFT) .or. ptr_r8_right /= undef_r8(RIGHT))
-               ptr_r8_out = _FUNC(ptr_r8_left, ptr_r8_right)
-            elsewhere
-               ptr_r8_out = undef_r8(OUT_)
-            end where
-         else
-            ptr_r8_out = _FUNC(ptr_r8_left, ptr_r8_right)
-         end if
+         call set_r8(_RC)
       else
           _FAIL("unsupported type")
       end if
       _RETURN(_SUCCESS)
+
+   contains
+
+      subroutine set_r4(rc)
+         integer, optional, intent(out) :: rc
+         integer :: status
+
+         real(ESMF_KIND_R4), allocatable :: undef
+         real(kind=ESMF_KIND_R4), pointer :: ptr_left(:) => null()
+         real(kind=ESMF_KIND_R4), pointer :: ptr_right(:) => null()
+         real(kind=ESMF_KIND_R4), pointer :: ptr_out(:) => null()
+         
+         call assign_fptr(left_field,ptr_left,_RC)
+         call assign_fptr(right_field,ptr_right,_RC)
+         call assign_fptr(field_out,ptr_out,_RC)
+         if(has_undef) then
+            call GetFieldsUndef(fields,undef,_RC)
+            where(ptr_left /= undef(LEFT) .and. ptr_right /= undef(RIGHT))
+               ptr_out = _FUNC(ptr_left, ptr_right)
+            elsewhere
+               if(setundef) ptr_out = undef(OUT_)
+           end where
+         else
+            ptr_out = _FUNC(ptr_left, ptr_right)
+         end if
+      end subroutine set_r4
+
+      subroutine set_r8(rc)
+         integer, optional, intent(out) :: rc
+         integer :: status
+
+         real(ESMF_KIND_R8), allocatable :: undef
+         real(kind=ESMF_KIND_R8), pointer :: ptr_left(:) => null()
+         real(kind=ESMF_KIND_R8), pointer :: ptr_right(:) => null()
+         real(kind=ESMF_KIND_R8), pointer :: ptr_out(:) => null()
+         
+         call assign_fptr(left_field,ptr_left,_RC)
+         call assign_fptr(right_field,ptr_right,_RC)
+         call assign_fptr(field_out,ptr_out,_RC)
+         if(has_undef) then
+            call GetFieldsUndef(fields,undef,_RC)
+            where(ptr_left /= undef(LEFT) .and. ptr_right /= undef(RIGHT))
+               ptr_out = _FUNC(ptr_left, ptr_right)
+            elsewhere
+               if(setundef) ptr_out = undef(OUT_)
+           end where
+         else
+            ptr_out = _FUNC(ptr_left, ptr_right)
+         end if
+      end subroutine set_r8
+
    end subroutine _SUB
 
 #include "undo_function_overload.macro"
