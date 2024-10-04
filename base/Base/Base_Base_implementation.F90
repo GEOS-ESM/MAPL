@@ -2896,20 +2896,12 @@ contains
           accurate_lon = 1.750d0*MAPL_PI_R8 - shift0
           accurate_lat = [(-alpha + (j-1)*dalpha, j = j1, j2)]
 
-          if (any(abs(accurate_lon - lonRe) > 2.0* tolerance)) then
-               print*, "accurate_lon: ", accurate_lon
-               print*, "corner_lon  : ", lonRe
-               print*, "Error: Grid should have pi/18 shift"
-               OK = .false.
-               return
-          endif
-
-          if ( any(abs(accurate_lat - latRe) > 2.0*tolerance)) then
-             print*, "accurate_lat: ", accurate_lat
-             print*, "edge_lat    : ", latRe
+          if (any(abs(accurate_lon - lonRe) > 2.0* tolerance) .or. any(abs(accurate_lat - latRe) > 2.0*tolerance)) then
              print*, "Error: It could be "
-             print*, "  1)Grid is NOT gnomonic_ed;"
-             print*, "  2)lats lons from MAPL_GridGetCorners are NOT accurate (single precision from ESMF)"
+             print*, "  1) grid may not have pi/18 Japan mountain shift"
+             print*, "  2) grid is NOT gnomonic_ed;"
+             print*, "  3) lats lons from MAPL_GridGetCorners are NOT accurate (single precision from ESMF)"
+             print*, "  4) strtech grid rotates north pole"
              OK = .false.
              return
           endif
