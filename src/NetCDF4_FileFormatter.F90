@@ -709,6 +709,7 @@ contains
       integer :: deflation
       integer :: quantize_algorithm
       integer :: quantize_level
+      integer :: zstandard_level
       character(len=:), pointer :: var_name
       character(len=:), pointer :: dim_name
       class (Variable), pointer :: var
@@ -780,6 +781,18 @@ contains
            _VERIFY(status)
 #else
            _FAIL("netcdf was not built with quantize support")
+#endif
+         end if
+
+         zstandard_level = var%get_zstandard_level()
+         if (zstandard_level /= 0) then
+#ifdef NF_HAS_ZSTD
+           !$omp critical
+           status = nf90_def_var_zstandard(this%ncid, varid, zstandard_level)
+           !$omp end critical
+           _VERIFY(status)
+#else
+           _FAIL("netcdf was not built with zstandard support")
 #endif
          end if
 

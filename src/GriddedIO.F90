@@ -54,6 +54,7 @@ module MAPL_GriddedIOMod
      integer :: deflateLevel = 0
      integer :: quantizeAlgorithm = MAPL_NOQUANTIZE
      integer :: quantizeLevel = 0
+     integer :: zstandardLevel = 0
      integer, allocatable :: chunking(:)
      logical :: itemOrderAlphabetical = .true.
      integer :: fraction
@@ -250,11 +251,12 @@ module MAPL_GriddedIOMod
       end subroutine destroy
 
 
-     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
+     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,zstandard_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
         class (MAPL_GriddedIO), intent(inout) :: this
         integer, optional, intent(in) :: deflation
         integer, optional, intent(in) :: quantize_algorithm
         integer, optional, intent(in) :: quantize_level
+        integer, optional, intent(in) :: zstandard_level
         integer, optional, intent(in) :: chunking(:)
         integer, optional, intent(in) :: nbits_to_keep
         integer, optional, intent(in) :: regrid_method
@@ -270,6 +272,7 @@ module MAPL_GriddedIOMod
         if (present(deflation)) this%deflateLevel = deflation
         if (present(quantize_algorithm)) this%quantizeAlgorithm = quantize_algorithm
         if (present(quantize_level)) this%quantizeLevel = quantize_level
+        if (present(zstandard_level)) this%zstandardLevel = zstandard_level
         if (present(chunking)) then
            allocate(this%chunking,source=chunking,stat=status)
            _VERIFY(status)
@@ -409,7 +412,7 @@ module MAPL_GriddedIOMod
               _FAIL( 'Unsupported field rank')
            end if
         end if
-        v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel)
+        v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel,zstandard_level=this%zstandardLevel)
         call v%add_attribute('units',trim(units))
         call v%add_attribute('long_name',trim(longName))
         call v%add_attribute('standard_name',trim(longName))
