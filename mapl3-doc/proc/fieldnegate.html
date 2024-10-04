@@ -163,7 +163,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-field~136"></span>
+              <span class="anchor" id="variable-field~185"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
             </td>
 <td>intent(inout)</td>
@@ -178,7 +178,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~2090"></span>
+              <span class="anchor" id="variable-rc~2932"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -735,48 +735,48 @@ large graphs.</div>
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="k">subroutine </span><span class="n">FieldNegate</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
-<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span>
-<span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">FieldNegate</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
-<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TYPEKIND_FLAG</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">type_kind</span>
-<span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f_ptr_r4</span><span class="p">(:)</span>
-<span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f_ptr_r8</span><span class="p">(:)</span>
-<span class="w">   </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">has_undef</span>
-<span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_Kind_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">undef_r4</span><span class="p">(:)</span>
-<span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_Kind_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">undef_r8</span><span class="p">(:)</span><span class="w"> </span>
-<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
-<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fields</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TYPEKIND_FLAG</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">type_kind</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f_ptr_r4</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f_ptr_r8</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">has_undef</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_Kind_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">undef_r4</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_Kind_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">undef_r8</span><span class="p">(:)</span><span class="w"> </span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fields</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
 
-<span class="w">   </span><span class="n">fields</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">field</span><span class="w"> </span>
-<span class="w">   </span><span class="n">has_undef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldsHaveUndef</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w">  </span>
-<span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">typekind</span><span class="o">=</span><span class="n">type_kind</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">type_kind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">      call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">f_ptr_r4</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_undef</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         call </span><span class="n">GetFieldsUndef</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span><span class="n">undef_r4</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">         </span><span class="k">where</span><span class="p">(</span><span class="n">f_ptr_r4</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">undef_r4</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="w">            </span><span class="n">f_ptr_r4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">f_ptr_r4</span>
-<span class="w">         </span><span class="k">end where</span>
+<span class="w">      </span><span class="n">fields</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">field</span><span class="w"> </span>
+<span class="w">      </span><span class="n">has_undef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldsHaveUndef</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w">  </span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">typekind</span><span class="o">=</span><span class="n">type_kind</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">type_kind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">f_ptr_r4</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_undef</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">GetFieldsUndef</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span><span class="n">undef_r4</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">where</span><span class="p">(</span><span class="n">f_ptr_r4</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">undef_r4</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">               </span><span class="n">f_ptr_r4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">f_ptr_r4</span>
+<span class="w">            </span><span class="k">end where</span>
+<span class="k">         else</span>
+<span class="k">            </span><span class="n">f_ptr_r4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">f_ptr_r4</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      else if</span><span class="w"> </span><span class="p">(</span><span class="n">type_kind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">f_ptr_r8</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_undef</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">GetFieldsUndef</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span><span class="n">undef_r8</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">where</span><span class="p">(</span><span class="n">f_ptr_r8</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">undef_r8</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">               </span><span class="n">f_ptr_r8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">f_ptr_r8</span>
+<span class="w">            </span><span class="k">end where</span>
+<span class="k">         else</span>
+<span class="k">            </span><span class="n">f_ptr_r8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">f_ptr_r8</span>
+<span class="w">         </span><span class="k">end if</span>
 <span class="k">      else</span>
-<span class="k">         </span><span class="n">f_ptr_r4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">f_ptr_r4</span>
+<span class="k">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;unsupported typekind&#39;</span><span class="p">)</span>
 <span class="w">      </span><span class="k">end if</span>
-<span class="k">   else if</span><span class="w"> </span><span class="p">(</span><span class="n">type_kind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">      call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">f_ptr_r8</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_undef</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         call </span><span class="n">GetFieldsUndef</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span><span class="n">undef_r8</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">         </span><span class="k">where</span><span class="p">(</span><span class="n">f_ptr_r8</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">undef_r8</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="w">            </span><span class="n">f_ptr_r8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">f_ptr_r8</span>
-<span class="w">         </span><span class="k">end where</span>
-<span class="k">      else</span>
-<span class="k">         </span><span class="n">f_ptr_r8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">f_ptr_r8</span>
-<span class="w">      </span><span class="k">end if</span>
-<span class="k">   else</span>
-<span class="k">      </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;unsupported typekind&#39;</span><span class="p">)</span>
-<span class="w">   </span><span class="k">end if</span>
-<span class="k">   </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
-<span class="k">end subroutine </span><span class="n">FieldNegate</span>
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">FieldNegate</span>
 </pre></div>
 
     </section>
@@ -800,7 +800,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-10-04T16:08:56.909800             </p>
+ on 2024-10-04T19:33:23.899582             </p>
           </div>
         </div>
         <br>
