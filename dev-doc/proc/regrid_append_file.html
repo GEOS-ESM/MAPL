@@ -1,0 +1,1031 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>regrid_append_file &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>regrid_append_file
+      <small>Module Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">125 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_GeosatMaskMod_smod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_geosatmaskmod_smod.f90.html'>MAPL_GeosatMaskMod_smod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/masksamplergeosat_implement.html'>MaskSamplerGeosat_implement</a></li>
+            <li class="breadcrumb-item active" aria-current="page">regrid_append_file</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/regrid_append_file.html#src">regrid_append_file</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>module subroutine regrid_append_file(this, current_time, rc)  
+    <a href="../interface/regrid_append_file.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h2>
+    
+
+    <p>write(6,&rsquo;(2x,a,2x,i5,3x,10f8.1)&rsquo;) &lsquo;pet, p_dst_3d(j)&rsquo;, mypet, p_dst_3d(::10)</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2636"></span>
+              class(<a href='../type/masksamplergeosat.html'>MaskSamplerGeosat</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-current_time~11"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>current_time</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1067"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~regrid_append_file~~CallsGraph Pages: 1 -->
+<svg id="procregrid_append_fileCallsGraph" width="641pt" height="606pt"
+ viewBox="0.00 0.00 641.00 606.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~regrid_append_file~~CallsGraph" class="graph" transform="scale(0.92 0.92) rotate(0) translate(4 658)">
+<title>proc~~regrid_append_file~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-658 696,-658 696,4 -4,4"/>
+<!-- proc~regrid_append_file -->
+<g id="proc~~regrid_append_file~~CallsGraph_node1" class="node">
+<title>proc~regrid_append_file</title>
+<polygon fill="none" stroke="black" points="112,-339 0,-339 0,-315 112,-315 112,-339"/>
+<text text-anchor="middle" x="56" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50">regrid_append_file</text>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~regrid_append_file~~CallsGraph_node2" class="node">
+<title>ESMF_VMGet</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_vmget.html" xlink:title="ESMF_VMGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="325,-654 243,-654 243,-630 325,-630 325,-654"/>
+<text text-anchor="middle" x="284" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGet</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;ESMF_VMGet -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge1" class="edge">
+<title>proc~regrid_append_file&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#ff0000" d="M56.6,-339.16C55.82,-384.47 59.65,-544.68 148,-621 171.02,-640.89 204.86,-646.12 232.9,-646.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="232.97,-649.89 242.93,-646.28 232.9,-642.89 232.97,-649.89"/>
+</g>
+<!-- ESMF_VMGetCurrent -->
+<g id="proc~~regrid_append_file~~CallsGraph_node3" class="node">
+<title>ESMF_VMGetCurrent</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_vmgetcurrent.html" xlink:title="ESMF_VMGetCurrent">
+<polygon fill="#d9534f" stroke="#d9534f" points="344.5,-612 223.5,-612 223.5,-588 344.5,-588 344.5,-612"/>
+<text text-anchor="middle" x="284" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGetCurrent</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge2" class="edge">
+<title>proc~regrid_append_file&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#ff0000" d="M57.3,-339.14C59.04,-380.26 70.64,-515.25 148,-579 166.1,-593.91 190.35,-600.44 213.31,-602.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="213.14,-606.33 223.39,-603.64 213.7,-599.35 213.14,-606.33"/>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="proc~~regrid_append_file~~CallsGraph_node4" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="344.5,-570 223.5,-570 223.5,-546 344.5,-546 344.5,-570"/>
+<text text-anchor="middle" x="284" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge3" class="edge">
+<title>proc~regrid_append_file&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#ff0000" d="M58.27,-339.17C62.77,-375.79 81.51,-485.6 148,-537 166.39,-551.22 190.48,-557.63 213.22,-560.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="212.94,-563.61 223.2,-560.99 213.54,-556.64 212.94,-563.61"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~regrid_append_file~~CallsGraph_node5" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="326.5,-528 241.5,-528 241.5,-504 326.5,-504 326.5,-528"/>
+<text text-anchor="middle" x="284" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;esmf_fieldget -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge4" class="edge">
+<title>proc~regrid_append_file&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M59.67,-339.22C67.26,-370.83 92.16,-455.61 148,-495 171.98,-511.91 204.3,-517.38 231.31,-518.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="231.29,-522.02 241.37,-518.76 231.46,-515.02 231.29,-522.02"/>
+</g>
+<!-- interface~compute_time_for_current -->
+<g id="proc~~regrid_append_file~~CallsGraph_node6" class="node">
+<title>interface~compute_time_for_current</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node6"><a xlink:href="../interface/compute_time_for_current.html" xlink:title="MaskSamplerGeosat%compute_time_for_current">
+<polygon fill="#a7506f" stroke="#a7506f" points="420,-486 148,-486 148,-462 420,-462 420,-486"/>
+<text text-anchor="middle" x="284" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSamplerGeosat%compute_time_for_current</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;interface~compute_time_for_current -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge5" class="edge">
+<title>proc~regrid_append_file&#45;&gt;interface~compute_time_for_current</title>
+<path fill="none" stroke="#ff0000" d="M61.88,-339.17C72.92,-364.98 102.45,-425.08 148,-453 150.83,-454.74 153.76,-456.34 156.76,-457.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="155.41,-461.06 165.97,-461.96 158.27,-454.68 155.41,-461.06"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="proc~~regrid_append_file~~CallsGraph_node7" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node7"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="335,-444 233,-444 233,-420 335,-420 335,-444"/>
+<text text-anchor="middle" x="284" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge6" class="edge">
+<title>proc~regrid_append_file&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#ff0000" d="M66.09,-339.11C80.95,-357.93 112.38,-393.8 148,-411 170.99,-422.1 198.51,-427.58 222.69,-430.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="222.54,-433.7 232.82,-431.16 223.19,-426.73 222.54,-433.7"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~regrid_append_file~~CallsGraph_node8" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node8"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="323.5,-402 244.5,-402 244.5,-378 323.5,-378 323.5,-402"/>
+<text text-anchor="middle" x="284" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;interface~mapl_assert -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge7" class="edge">
+<title>proc~regrid_append_file&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M78.76,-339.14C96.79,-348.68 123.35,-361.55 148,-369 175.96,-377.45 208.26,-382.63 234.26,-385.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.92,-389.21 244.25,-386.86 234.71,-382.26 233.92,-389.21"/>
+</g>
+<!-- interface~mapl_timeroff -->
+<g id="proc~~regrid_append_file~~CallsGraph_node9" class="node">
+<title>interface~mapl_timeroff</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node9"><a xlink:href="../interface/mapl_timeroff.html" xlink:title="MAPL_TimerOff">
+<polygon fill="#a7506f" stroke="#a7506f" points="330.5,-360 237.5,-360 237.5,-336 330.5,-336 330.5,-360"/>
+<text text-anchor="middle" x="284" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimerOff</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge8" class="edge">
+<title>proc~regrid_append_file&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M112.29,-332.14C147.25,-335.39 192.3,-339.57 227.34,-342.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.12,-346.32 237.4,-343.76 227.77,-339.35 227.12,-346.32"/>
+</g>
+<!-- interface~mapl_timeron -->
+<g id="proc~~regrid_append_file~~CallsGraph_node10" class="node">
+<title>interface~mapl_timeron</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node10"><a xlink:href="../interface/mapl_timeron.html" xlink:title="MAPL_TimerOn">
+<polygon fill="#a7506f" stroke="#a7506f" points="330,-318 238,-318 238,-294 330,-294 330,-318"/>
+<text text-anchor="middle" x="284" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimerOn</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge9" class="edge">
+<title>proc~regrid_append_file&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#ff0000" d="M112.29,-321.86C147.37,-318.6 192.61,-314.4 227.7,-311.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="228.14,-314.61 237.77,-310.2 227.49,-307.64 228.14,-314.61"/>
+</g>
+<!-- mpi_gatherv -->
+<g id="proc~~regrid_append_file~~CallsGraph_node11" class="node">
+<title>mpi_gatherv</title>
+<polygon fill="#777777" stroke="#777777" points="323.5,-276 244.5,-276 244.5,-252 323.5,-252 323.5,-276"/>
+<text text-anchor="middle" x="284" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_gatherv</text>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;mpi_gatherv -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge10" class="edge">
+<title>proc~regrid_append_file&#45;&gt;mpi_gatherv</title>
+<path fill="none" stroke="#ff0000" d="M78.76,-314.86C96.79,-305.32 123.35,-292.45 148,-285 175.96,-276.55 208.26,-271.37 234.26,-268.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="234.71,-271.74 244.25,-267.14 233.92,-264.79 234.71,-271.74"/>
+</g>
+<!-- none~put_var~21 -->
+<g id="proc~~regrid_append_file~~CallsGraph_node12" class="node">
+<title>none~put_var~21</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node12"><a xlink:href="../type/netcdf4_fileformatter.html#boundprocedure-put_var~21" xlink:title="NetCDF4_FileFormatter%put_var">
+<polygon fill="#a7506f" stroke="#a7506f" points="376.5,-234 191.5,-234 191.5,-210 376.5,-210 376.5,-234"/>
+<text text-anchor="middle" x="284" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NetCDF4_FileFormatter%put_var</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;none~put_var~21 -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge11" class="edge">
+<title>proc~regrid_append_file&#45;&gt;none~put_var~21</title>
+<path fill="none" stroke="#ff0000" d="M66.09,-314.89C80.95,-296.07 112.38,-260.2 148,-243 158.51,-237.92 169.97,-234.02 181.63,-231.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="182.51,-234.42 191.45,-228.73 180.91,-227.61 182.51,-234.42"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~regrid_append_file~~CallsGraph_node13" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node13"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="325,-192 243,-192 243,-168 325,-168 325,-192"/>
+<text text-anchor="middle" x="284" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;proc~mapl_return -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge12" class="edge">
+<title>proc~regrid_append_file&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M61.88,-314.83C72.92,-289.02 102.45,-228.92 148,-201 173.08,-185.63 205.55,-180.22 232.36,-178.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="232.85,-182.22 242.71,-178.33 232.58,-175.22 232.85,-182.22"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~regrid_append_file~~CallsGraph_node14" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node14"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="322,-150 246,-150 246,-126 322,-126 322,-150"/>
+<text text-anchor="middle" x="284" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;proc~mapl_verify -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge13" class="edge">
+<title>proc~regrid_append_file&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M59.67,-314.78C67.26,-283.17 92.16,-198.39 148,-159 173.26,-141.18 207.8,-136.06 235.62,-135.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="235.94,-138.83 245.91,-135.25 235.89,-131.83 235.94,-138.83"/>
+</g>
+<!-- proc~v_begin~10 -->
+<g id="proc~~regrid_append_file~~CallsGraph_node15" class="node">
+<title>proc~v_begin~10</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node15"><a xlink:href="../proc/v_begin~10.html" xlink:title="GriddedIOitemVector%v_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="371.5,-108 196.5,-108 196.5,-84 371.5,-84 371.5,-108"/>
+<text text-anchor="middle" x="284" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedIOitemVector%v_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;proc~v_begin~10 -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge14" class="edge">
+<title>proc~regrid_append_file&#45;&gt;proc~v_begin~10</title>
+<path fill="none" stroke="#ff0000" d="M58.27,-314.83C62.77,-278.21 81.51,-168.4 148,-117 159.17,-108.36 172.45,-102.61 186.26,-98.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="187.45,-102.17 196.38,-96.47 185.84,-95.36 187.45,-102.17"/>
+</g>
+<!-- proc~v_iter_get~10 -->
+<g id="proc~~regrid_append_file~~CallsGraph_node16" class="node">
+<title>proc~v_iter_get~10</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node16"><a xlink:href="../proc/v_iter_get~10.html" xlink:title="GriddedIOitemVectorIterator%v_iter_get">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="397,-66 171,-66 171,-42 397,-42 397,-66"/>
+<text text-anchor="middle" x="284" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedIOitemVectorIterator%v_iter_get</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;proc~v_iter_get~10 -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge15" class="edge">
+<title>proc~regrid_append_file&#45;&gt;proc~v_iter_get~10</title>
+<path fill="none" stroke="#ff0000" d="M57.3,-314.86C59.04,-273.74 70.64,-138.75 148,-75 152.29,-71.46 156.93,-68.4 161.81,-65.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="163.34,-68.9 170.84,-61.42 160.31,-62.59 163.34,-68.9"/>
+</g>
+<!-- proc~v_iter_next~10 -->
+<g id="proc~~regrid_append_file~~CallsGraph_node17" class="node">
+<title>proc~v_iter_next~10</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node17"><a xlink:href="../proc/v_iter_next~10.html" xlink:title="GriddedIOitemVectorIterator%v_iter_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="399.5,-24 168.5,-24 168.5,0 399.5,0 399.5,-24"/>
+<text text-anchor="middle" x="284" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedIOitemVectorIterator%v_iter_next</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_append_file&#45;&gt;proc~v_iter_next~10 -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge16" class="edge">
+<title>proc~regrid_append_file&#45;&gt;proc~v_iter_next~10</title>
+<path fill="none" stroke="#ff0000" d="M56.6,-314.84C55.82,-269.53 59.65,-109.32 148,-33 151.53,-29.95 155.31,-27.25 159.29,-24.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="161.08,-27.87 168.28,-20.09 157.8,-21.68 161.08,-27.87"/>
+</g>
+<!-- proc~compute_time_for_current~2 -->
+<g id="proc~~regrid_append_file~~CallsGraph_node18" class="node">
+<title>proc~compute_time_for_current~2</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node18"><a xlink:href="../proc/compute_time_for_current~2.html" xlink:title="compute_time_for_current">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="650.5,-528 497.5,-528 497.5,-504 650.5,-504 650.5,-528"/>
+<text text-anchor="middle" x="574" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_time_for_current</text>
+</a>
+</g>
+</g>
+<!-- interface~compute_time_for_current&#45;&gt;proc~compute_time_for_current~2 -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge17" class="edge">
+<title>interface~compute_time_for_current&#45;&gt;proc~compute_time_for_current~2</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M367.53,-486.04C405.06,-491.51 449.46,-497.98 487.36,-503.51"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="486.96,-506.99 497.36,-504.97 487.97,-500.06 486.96,-506.99"/>
+</g>
+<!-- proc~mapl_am_i_root_layout -->
+<g id="proc~~regrid_append_file~~CallsGraph_node20" class="node">
+<title>proc~mapl_am_i_root_layout</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node20"><a xlink:href="../proc/mapl_am_i_root_layout.html" xlink:title="MAPL_Am_I_Root_Layout">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="645.5,-486 502.5,-486 502.5,-462 645.5,-462 645.5,-486"/>
+<text text-anchor="middle" x="574" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Layout</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge18" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout</title>
+<path fill="none" stroke="#1fff00" stroke-dasharray="5,2" d="M335.17,-439.32C378.53,-445.64 442,-454.9 492.46,-462.26"/>
+<polygon fill="#1fff00" stroke="#1fff00" points="491.97,-465.72 502.37,-463.7 492.98,-458.79 491.97,-465.72"/>
+</g>
+<!-- proc~mapl_am_i_root_vm -->
+<g id="proc~~regrid_append_file~~CallsGraph_node21" class="node">
+<title>proc~mapl_am_i_root_vm</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node21"><a xlink:href="../proc/mapl_am_i_root_vm.html" xlink:title="MAPL_Am_I_Root_Vm">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="636.5,-444 511.5,-444 511.5,-420 636.5,-420 636.5,-444"/>
+<text text-anchor="middle" x="574" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Vm</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge19" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm</title>
+<path fill="none" stroke="#1fff00" stroke-dasharray="5,2" d="M335.17,-432C381.1,-432 449.59,-432 501.29,-432"/>
+<polygon fill="#1fff00" stroke="#1fff00" points="501.39,-435.5 511.39,-432 501.39,-428.5 501.39,-435.5"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~regrid_append_file~~CallsGraph_node22" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node22"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="641,-402 507,-402 507,-378 641,-378 641,-402"/>
+<text text-anchor="middle" x="574" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge20" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M323.54,-390C367.62,-390 440.89,-390 496.65,-390"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="496.85,-393.5 506.85,-390 496.85,-386.5 496.85,-393.5"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~regrid_append_file~~CallsGraph_node23" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node23"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="648,-360 500,-360 500,-336 648,-336 648,-360"/>
+<text text-anchor="middle" x="574" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge21" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M323.54,-384.38C365.82,-378.21 434.95,-368.13 489.72,-360.14"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="490.38,-363.59 499.77,-358.68 489.37,-356.66 490.38,-363.59"/>
+</g>
+<!-- proc~mapl_genericstateclockoff -->
+<g id="proc~~regrid_append_file~~CallsGraph_node24" class="node">
+<title>proc~mapl_genericstateclockoff</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node24"><a xlink:href="../proc/mapl_genericstateclockoff.html" xlink:title="MAPL_GenericStateClockOff">
+<polygon fill="#d9534f" stroke="#d9534f" points="654.5,-318 493.5,-318 493.5,-294 654.5,-294 654.5,-318"/>
+<text text-anchor="middle" x="574" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericStateClockOff</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_timeroff&#45;&gt;proc~mapl_genericstateclockoff -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge22" class="edge">
+<title>interface~mapl_timeroff&#45;&gt;proc~mapl_genericstateclockoff</title>
+<path fill="none" stroke="#00ff9f" stroke-dasharray="5,2" d="M330.63,-341.34C371.53,-335.38 432.69,-326.46 483.34,-319.08"/>
+<polygon fill="#00ff9f" stroke="#00ff9f" points="483.93,-322.53 493.32,-317.62 482.92,-315.6 483.93,-322.53"/>
+</g>
+<!-- proc~mapl_genericstateclockon -->
+<g id="proc~~regrid_append_file~~CallsGraph_node25" class="node">
+<title>proc~mapl_genericstateclockon</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node25"><a xlink:href="../proc/mapl_genericstateclockon.html" xlink:title="MAPL_GenericStateClockOn">
+<polygon fill="#d9534f" stroke="#d9534f" points="654,-276 494,-276 494,-252 654,-252 654,-276"/>
+<text text-anchor="middle" x="574" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericStateClockOn</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_timeron&#45;&gt;proc~mapl_genericstateclockon -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge23" class="edge">
+<title>interface~mapl_timeron&#45;&gt;proc~mapl_genericstateclockon</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M330.32,-299.39C371.3,-293.41 432.85,-284.44 483.7,-277.02"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="484.33,-280.47 493.72,-275.56 483.32,-273.54 484.33,-280.47"/>
+</g>
+<!-- proc~put_var_real64_4 -->
+<g id="proc~~regrid_append_file~~CallsGraph_node27" class="node">
+<title>proc~put_var_real64_4</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node27"><a xlink:href="../proc/put_var_real64_4.html" xlink:title="NetCDF4_FileFormatter%put_var_real64_4">
+<polygon fill="#d9534f" stroke="#d9534f" points="692,-234 456,-234 456,-210 692,-210 692,-234"/>
+<text text-anchor="middle" x="574" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NetCDF4_FileFormatter%put_var_real64_4</text>
+</a>
+</g>
+</g>
+<!-- none~put_var~21&#45;&gt;proc~put_var_real64_4 -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge24" class="edge">
+<title>none~put_var~21&#45;&gt;proc~put_var_real64_4</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M376.52,-222C398.47,-222 422.31,-222 445.56,-222"/>
+<polygon fill="#003fff" stroke="#003fff" points="445.84,-225.5 455.84,-222 445.84,-218.5 445.84,-225.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~regrid_append_file~~CallsGraph_node19" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node19"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="631.5,-192 516.5,-192 516.5,-168 631.5,-168 631.5,-192"/>
+<text text-anchor="middle" x="574" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#1f00ff" d="M325.05,-180C371.9,-180 450.19,-180 506.27,-180"/>
+<polygon fill="#1f00ff" stroke="#1f00ff" points="506.47,-183.5 516.47,-180 506.47,-176.5 506.47,-183.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~regrid_append_file~~CallsGraph_node26" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~regrid_append_file~~CallsGraph_node26"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="640.5,-150 507.5,-150 507.5,-126 640.5,-126 640.5,-150"/>
+<text text-anchor="middle" x="574" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#1f00ff" d="M325.05,-174.16C369.42,-167.69 442.01,-157.1 497.21,-149.05"/>
+<polygon fill="#1f00ff" stroke="#1f00ff" points="497.91,-152.49 507.3,-147.58 496.9,-145.56 497.91,-152.49"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~regrid_append_file~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M322.06,-138C366.04,-138 440.51,-138 496.93,-138"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="497.24,-141.5 507.24,-138 497.24,-134.5 497.24,-141.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocregrid_append_fileCallsGraph = svgPanZoom('#procregrid_append_fileCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~regrid_append_file~~CalledByGraph Pages: 1 -->
+<svg id="procregrid_append_fileCalledByGraph" width="387pt" height="32pt"
+ viewBox="0.00 0.00 387.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~regrid_append_file~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~regrid_append_file~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 383,-28 383,4 -4,4"/>
+<!-- proc~regrid_append_file -->
+<g id="proc~~regrid_append_file~~CalledByGraph_node1" class="node">
+<title>proc~regrid_append_file</title>
+<polygon fill="none" stroke="black" points="379,-24 267,-24 267,0 379,0 379,-24"/>
+<text text-anchor="middle" x="323" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">regrid_append_file</text>
+</g>
+<!-- interface~regrid_append_file -->
+<g id="proc~~regrid_append_file~~CalledByGraph_node2" class="node">
+<title>interface~regrid_append_file</title>
+<g id="a_proc~~regrid_append_file~~CalledByGraph_node2"><a xlink:href="../interface/regrid_append_file.html" xlink:title="MaskSamplerGeosat%regrid_append_file">
+<polygon fill="#a7506f" stroke="#a7506f" points="231,-24 0,-24 0,0 231,0 231,-24"/>
+<text text-anchor="middle" x="115.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSamplerGeosat%regrid_append_file</text>
+</a>
+</g>
+</g>
+<!-- interface~regrid_append_file&#45;&gt;proc~regrid_append_file -->
+<g id="proc~~regrid_append_file~~CalledByGraph_edge1" class="edge">
+<title>interface~regrid_append_file&#45;&gt;proc~regrid_append_file</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M231.27,-12C239.93,-12 248.48,-12 256.66,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.8,-15.5 266.8,-12 256.8,-8.5 256.8,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w"> </span><span class="k">module subroutine </span><span class="n">regrid_append_file</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">current_time</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">    </span><span class="k">implicit none</span>
+
+<span class="k">    class</span><span class="p">(</span><span class="n">MaskSamplerGeosat</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">current_time</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">    </span><span class="c">!</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldCount</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ub</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">lb</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_field</span><span class="p">,</span><span class="n">dst_field</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p_src_3d</span><span class="p">(:,:,:),</span><span class="n">p_src_2d</span><span class="p">(:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p_dst_3d</span><span class="p">(:),</span><span class="n">p_dst_2d</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p_dst_3d_full</span><span class="p">(:),</span><span class="n">p_dst_2d_full</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">arr</span><span class="p">(:,:)</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">fieldNameList</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">xname</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rtimes</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="n">nz</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ix</span><span class="p">,</span><span class="w"> </span><span class="n">iy</span><span class="p">,</span><span class="w"> </span><span class="n">m</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mypet</span><span class="p">,</span><span class="w"> </span><span class="n">petcount</span><span class="p">,</span><span class="w"> </span><span class="n">nsend</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iroot</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mpic</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">recvcounts_3d</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">displs_3d</span><span class="p">(:)</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedIOitemVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedIOitem</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">item</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span>
+
+<span class="w">    </span><span class="n">this</span><span class="p">%</span><span class="n">obs_written</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">obs_written</span><span class="o">+</span><span class="mi">1</span>
+
+<span class="w">    </span><span class="c">! -- fixed for all fields</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_VMGetCurrent</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">mpiCommunicator</span><span class="o">=</span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">petcount</span><span class="o">=</span><span class="n">petcount</span><span class="p">,</span><span class="w"> </span><span class="n">localpet</span><span class="o">=</span><span class="n">mypet</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="n">iroot</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">    </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask</span>
+<span class="w">    </span><span class="n">nz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">lm</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">p_dst_2d</span><span class="w"> </span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">p_dst_3d</span><span class="w"> </span><span class="p">(</span><span class="n">nx</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">nz</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_i_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">p_dst_2d_full</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask_tot</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">p_dst_3d_full</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask_tot</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">nz</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">p_dst_2d_full</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">p_dst_3d_full</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+<span class="k">    allocate</span><span class="p">(</span><span class="w"> </span><span class="n">recvcounts_3d</span><span class="p">(</span><span class="n">petcount</span><span class="p">),</span><span class="w"> </span><span class="n">displs_3d</span><span class="p">(</span><span class="n">petcount</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="n">recvcounts_3d</span><span class="p">(:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nz</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">(:)</span>
+<span class="w">    </span><span class="n">displs_3d</span><span class="p">(:)</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">nz</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">(:)</span>
+
+
+<span class="w">    </span><span class="c">!__ 1. put_var: time variable</span>
+<span class="w">    </span><span class="c">!</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">rtimes</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="n">rtimes</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">compute_time_for_current</span><span class="p">(</span><span class="n">current_time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span><span class="c">! rtimes: seconds since opening file</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_i_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">this</span><span class="p">%</span><span class="n">formatter</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="n">rtimes</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">),&amp;</span>
+<span class="w">            </span><span class="n">start</span><span class="o">=</span><span class="p">[</span><span class="n">this</span><span class="p">%</span><span class="n">obs_written</span><span class="p">],</span><span class="nb">count</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+
+<span class="w">    </span><span class="c">!__ 2. put_var: ungridded_dim from src to dst [use index_mask]</span>
+<span class="w">    </span><span class="c">!</span>
+<span class="w">    </span><span class="c">!   Currently mask only pickup values</span>
+<span class="w">    </span><span class="c">!   It does not support vertical regridding</span>
+<span class="w">    </span><span class="c">!</span>
+<span class="w">    </span><span class="c">!if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then</span>
+<span class="w">    </span><span class="c">!   call this%vdata%setup_eta_to_pressure(_RC)</span>
+<span class="w">    </span><span class="c">!endif</span>
+
+<span class="w">    </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">items</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">    </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">items</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">       </span><span class="n">item</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ItemTypeScalar</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">bundle</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">xname</span><span class="p">),</span><span class="n">field</span><span class="o">=</span><span class="n">src_field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="n">farrayptr</span><span class="o">=</span><span class="n">p_src_2d</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">             </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">                </span><span class="n">ix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">index_mask</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+<span class="w">                </span><span class="n">iy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">index_mask</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+<span class="w">                </span><span class="n">p_dst_2d</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p_src_2d</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span><span class="w"> </span><span class="n">iy</span><span class="p">)</span>
+<span class="w">             </span><span class="k">end do</span>
+<span class="k">             </span><span class="n">nsend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">             </span><span class="k">call </span><span class="n">MPI_gatherv</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">p_dst_2d</span><span class="p">,</span><span class="w"> </span><span class="n">nsend</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                  </span><span class="n">p_dst_2d_full</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL</span><span class="p">,&amp;</span>
+<span class="w">                  </span><span class="n">iroot</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">GENSTATE</span><span class="p">,</span><span class="s2">&quot;put2D&quot;</span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_i_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                call </span><span class="n">this</span><span class="p">%</span><span class="n">formatter</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">xname</span><span class="p">,</span><span class="n">p_dst_2d_full</span><span class="p">,&amp;</span>
+<span class="w">                     </span><span class="n">start</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">obs_written</span><span class="p">],</span><span class="nb">count</span><span class="o">=</span><span class="p">[</span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask_tot</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">             </span><span class="k">end if</span>
+<span class="k">             call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">GENSTATE</span><span class="p">,</span><span class="s2">&quot;put2D&quot;</span><span class="p">)</span>
+<span class="w">          </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="n">farrayptr</span><span class="o">=</span><span class="n">p_src_3d</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">             </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="n">ungriddedLBound</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span><span class="n">ungriddedUBound</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">lm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="p">(</span><span class="n">ub</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="n">lb</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;vertical level is different from CS grid&#39;</span><span class="p">)</span>
+<span class="w">             </span><span class="n">m</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">             </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">                </span><span class="n">ix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">index_mask</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+<span class="w">                </span><span class="n">iy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">index_mask</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+<span class="w">                </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="w"> </span><span class="n">lb</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">ub</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">                   </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                   </span><span class="n">p_dst_3d</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p_src_3d</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span><span class="w"> </span><span class="n">iy</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end do</span>
+<span class="k">             end do</span>
+<span class="w">             </span><span class="c">!! write(6,&#39;(2x,a,2x,i5,3x,10f8.1)&#39;) &#39;pet, p_dst_3d(j)&#39;, mypet, p_dst_3d(::10)</span>
+<span class="w">             </span><span class="n">nsend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">nz</span>
+<span class="w">             </span><span class="k">call </span><span class="n">MPI_gatherv</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">p_dst_3d</span><span class="p">,</span><span class="w"> </span><span class="n">nsend</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                  </span><span class="n">p_dst_3d_full</span><span class="p">,</span><span class="w"> </span><span class="n">recvcounts_3d</span><span class="p">,</span><span class="w"> </span><span class="n">displs_3d</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL</span><span class="p">,&amp;</span>
+<span class="w">                  </span><span class="n">iroot</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">GENSTATE</span><span class="p">,</span><span class="s2">&quot;put3D&quot;</span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_i_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                allocate</span><span class="p">(</span><span class="n">arr</span><span class="p">(</span><span class="n">nz</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask_tot</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">                </span><span class="n">arr</span><span class="o">=</span><span class="nb">reshape</span><span class="p">(</span><span class="n">p_dst_3d_full</span><span class="p">,[</span><span class="n">nz</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask_tot</span><span class="p">],</span><span class="n">order</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="w">                </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">formatter</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">xname</span><span class="p">,</span><span class="n">arr</span><span class="p">,&amp;</span>
+<span class="w">                     </span><span class="n">start</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">obs_written</span><span class="p">],</span><span class="nb">count</span><span class="o">=</span><span class="p">[</span><span class="n">nz</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask_tot</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                </span><span class="c">!note:     lev,station,time</span>
+<span class="w">                </span><span class="k">deallocate</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">             </span><span class="k">end if</span>
+<span class="k">             call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">GENSTATE</span><span class="p">,</span><span class="s2">&quot;put3D&quot;</span><span class="p">)</span>
+<span class="w">          </span><span class="k">else</span>
+<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;grid2LS regridder: rank &gt; 3 not implemented&#39;</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">       end if</span>
+
+<span class="k">       call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">    </span><span class="k">end do</span>
+
+<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">regrid_append_file</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-04T14:13:52.571299             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

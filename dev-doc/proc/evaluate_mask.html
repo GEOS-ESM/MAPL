@@ -1,0 +1,956 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>evaluate_mask &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>evaluate_mask
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">20 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataMasking.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatamasking.f90.html'>ExtDataMasking.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatamask.html'>MAPL_ExtDataMask</a></li>
+            <li class="breadcrumb-item active" aria-current="page">evaluate_mask</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/evaluate_mask.html#src">evaluate_mask</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine evaluate_mask(this, state, var_name, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/extdatamask.html'>ExtDataMask</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2019"></span>
+              class(<a href='../type/extdatamask.html'>ExtDataMask</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-state~6"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>state</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var_name~71"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~725"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~evaluate_mask~~CallsGraph Pages: 1 -->
+<svg id="procevaluate_maskCallsGraph" width="641pt" height="427pt"
+ viewBox="0.00 0.00 641.00 426.80" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~evaluate_mask~~CallsGraph" class="graph" transform="scale(0.8 0.8) rotate(0) translate(4 532)">
+<title>proc~~evaluate_mask~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-532 801,-532 801,4 -4,4"/>
+<!-- proc~evaluate_mask -->
+<g id="proc~~evaluate_mask~~CallsGraph_node1" class="node">
+<title>proc~evaluate_mask</title>
+<polygon fill="none" stroke="black" points="172,-318 0,-318 0,-294 172,-294 172,-318"/>
+<text text-anchor="middle" x="86" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataMask%evaluate_mask</text>
+</g>
+<!-- proc~evaluate_box_mask -->
+<g id="proc~~evaluate_mask~~CallsGraph_node2" class="node">
+<title>proc~evaluate_box_mask</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node2"><a xlink:href="../proc/evaluate_box_mask.html" xlink:title="ExtDataMask%evaluate_box_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="411.5,-318 215.5,-318 215.5,-294 411.5,-294 411.5,-318"/>
+<text text-anchor="middle" x="313.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_box_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_mask&#45;&gt;proc~evaluate_box_mask -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge1" class="edge">
+<title>proc~evaluate_mask&#45;&gt;proc~evaluate_box_mask</title>
+<path fill="none" stroke="#ff0000" d="M172.25,-306C183.04,-306 194.19,-306 205.27,-306"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="205.41,-309.5 215.41,-306 205.41,-302.5 205.41,-309.5"/>
+</g>
+<!-- proc~evaluate_region_mask -->
+<g id="proc~~evaluate_mask~~CallsGraph_node3" class="node">
+<title>proc~evaluate_region_mask</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node3"><a xlink:href="../proc/evaluate_region_mask.html" xlink:title="ExtDataMask%evaluate_region_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="419,-234 208,-234 208,-210 419,-210 419,-234"/>
+<text text-anchor="middle" x="313.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_region_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_mask&#45;&gt;proc~evaluate_region_mask -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge2" class="edge">
+<title>proc~evaluate_mask&#45;&gt;proc~evaluate_region_mask</title>
+<path fill="none" stroke="#ff0000" d="M105.94,-293.98C129.13,-279.78 170.03,-256.4 208,-243 214.78,-240.61 221.91,-238.46 229.12,-236.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="230.15,-239.88 238.99,-234.05 228.43,-233.1 230.15,-239.88"/>
+</g>
+<!-- proc~evaluate_zone_mask -->
+<g id="proc~~evaluate_mask~~CallsGraph_node4" class="node">
+<title>proc~evaluate_zone_mask</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node4"><a xlink:href="../proc/evaluate_zone_mask.html" xlink:title="ExtDataMask%evaluate_zone_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="414.5,-276 212.5,-276 212.5,-252 414.5,-252 414.5,-276"/>
+<text text-anchor="middle" x="313.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_zone_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_mask&#45;&gt;proc~evaluate_zone_mask -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge3" class="edge">
+<title>proc~evaluate_mask&#45;&gt;proc~evaluate_zone_mask</title>
+<path fill="none" stroke="#ff0000" d="M151.62,-293.96C178.51,-288.96 209.9,-283.11 237.77,-277.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="238.68,-281.31 247.87,-276.04 237.4,-274.43 238.68,-281.31"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~evaluate_mask~~CallsGraph_node5" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node5"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="582.5,-444 500.5,-444 500.5,-420 582.5,-420 582.5,-444"/>
+<text text-anchor="middle" x="541.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_mask&#45;&gt;proc~mapl_return -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge4" class="edge">
+<title>proc~evaluate_mask&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M109.13,-318.1C132.93,-330.66 172.19,-350.11 208,-362 305.52,-394.37 424.26,-415.1 490.2,-425.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="489.92,-428.53 500.32,-426.54 490.94,-421.61 489.92,-428.53"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~evaluate_mask~~CallsGraph_node6" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node6"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="579.5,-402 503.5,-402 503.5,-378 579.5,-378 579.5,-402"/>
+<text text-anchor="middle" x="541.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_mask&#45;&gt;proc~mapl_verify -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge5" class="edge">
+<title>proc~evaluate_mask&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M151.98,-318.04C244.51,-335.18 412.06,-366.21 493.51,-381.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="493.01,-384.76 503.48,-383.14 494.28,-377.88 493.01,-384.76"/>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;proc~mapl_return -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge15" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M326.9,-318.07C350.08,-339.94 402.41,-386.16 455,-411 466.01,-416.2 478.45,-420.2 490.37,-423.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="489.67,-426.67 500.21,-425.57 491.29,-419.86 489.67,-426.67"/>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;proc~mapl_verify -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge17" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M354.98,-318.01C374.79,-324.56 398.69,-333.48 419,-344 436.3,-352.96 437.24,-360.99 455,-369 466.98,-374.41 480.56,-378.55 493.32,-381.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="492.79,-385.14 503.32,-383.96 494.35,-378.32 492.79,-385.14"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~evaluate_mask~~CallsGraph_node7" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node7"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="585.5,-486 497.5,-486 497.5,-462 585.5,-462 585.5,-486"/>
+<text text-anchor="middle" x="541.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;ESMF_GridGet -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge6" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#ff0000" d="M322.38,-318.1C341.48,-346.41 393.27,-417.29 455,-453 464.93,-458.74 476.38,-462.92 487.61,-465.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="486.83,-469.38 497.38,-468.35 488.49,-462.58 486.83,-469.38"/>
+</g>
+<!-- ESMF_GridGetCoord -->
+<g id="proc~~evaluate_mask~~CallsGraph_node8" class="node">
+<title>ESMF_GridGetCoord</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node8"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridgetcoord.html" xlink:title="ESMF_GridGetCoord">
+<polygon fill="#a7506f" stroke="#a7506f" points="601.5,-360 481.5,-360 481.5,-336 601.5,-336 601.5,-360"/>
+<text text-anchor="middle" x="541.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGetCoord</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;ESMF_GridGetCoord -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge7" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;ESMF_GridGetCoord</title>
+<path fill="none" stroke="#ff0000" d="M379.26,-318.04C407.97,-323.37 441.78,-329.65 471.01,-335.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="470.67,-338.58 481.14,-336.97 471.95,-331.7 470.67,-338.58"/>
+</g>
+<!-- esmf_fielddestroy -->
+<g id="proc~~evaluate_mask~~CallsGraph_node9" class="node">
+<title>esmf_fielddestroy</title>
+<polygon fill="#777777" stroke="#777777" points="594.5,-66 488.5,-66 488.5,-42 594.5,-42 594.5,-66"/>
+<text text-anchor="middle" x="541.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fielddestroy</text>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;esmf_fielddestroy -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge8" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;esmf_fielddestroy</title>
+<path fill="none" stroke="#ff0000" d="M407.87,-293.96C411.9,-291.42 415.65,-288.45 419,-285 485,-217.09 390.46,-144.3 455,-75 461.43,-68.1 469.72,-63.31 478.61,-60"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="479.9,-63.27 488.43,-56.98 477.84,-56.58 479.9,-63.27"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~evaluate_mask~~CallsGraph_node10" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="584,-318 499,-318 499,-294 584,-294 584,-318"/>
+<text text-anchor="middle" x="541.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;esmf_fieldget -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge9" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M411.66,-306C438.11,-306 465.75,-306 488.61,-306"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="488.76,-309.5 498.76,-306 488.76,-302.5 488.76,-309.5"/>
+</g>
+<!-- esmf_stateget -->
+<g id="proc~~evaluate_mask~~CallsGraph_node11" class="node">
+<title>esmf_stateget</title>
+<polygon fill="#777777" stroke="#777777" points="585.5,-276 497.5,-276 497.5,-252 585.5,-252 585.5,-276"/>
+<text text-anchor="middle" x="541.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateget</text>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;esmf_stateget -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge10" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#ff0000" d="M379.26,-293.96C413.39,-287.62 454.76,-279.93 487.04,-273.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="487.99,-277.32 497.18,-272.05 486.71,-270.44 487.99,-277.32"/>
+</g>
+<!-- interface~esmfl_stategetpointertodata -->
+<g id="proc~~evaluate_mask~~CallsGraph_node12" class="node">
+<title>interface~esmfl_stategetpointertodata</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node12"><a xlink:href="../interface/esmfl_stategetpointertodata.html" xlink:title="ESMFL_StateGetPointerToData">
+<polygon fill="#a7506f" stroke="#a7506f" points="628,-234 455,-234 455,-210 628,-210 628,-234"/>
+<text text-anchor="middle" x="541.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_StateGetPointerToData</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;interface~esmfl_stategetpointertodata -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge11" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;interface~esmfl_stategetpointertodata</title>
+<path fill="none" stroke="#ff0000" d="M399.58,-293.99C406.37,-291.52 412.93,-288.56 419,-285 440.21,-272.57 434.06,-255.88 455,-243 457.95,-241.18 461.06,-239.52 464.26,-238.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="465.65,-241.22 473.49,-234.1 462.92,-234.77 465.65,-241.22"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~evaluate_mask~~CallsGraph_node13" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node13"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="581,-192 502,-192 502,-168 581,-168 581,-192"/>
+<text text-anchor="middle" x="541.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;interface~mapl_assert -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge12" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M404.96,-293.98C409.96,-291.47 414.69,-288.5 419,-285 450.53,-259.39 424.02,-227.27 455,-201 465.31,-192.26 478.7,-187.05 491.82,-183.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="492.6,-187.39 501.74,-182.02 491.25,-180.52 492.6,-187.39"/>
+</g>
+<!-- proc~create_field_from_field -->
+<g id="proc~~evaluate_mask~~CallsGraph_node14" class="node">
+<title>proc~create_field_from_field</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node14"><a xlink:href="../proc/create_field_from_field.html" xlink:title="create_field_from_field">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="608,-150 475,-150 475,-126 608,-126 608,-150"/>
+<text text-anchor="middle" x="541.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">create_field_from_field</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;proc~create_field_from_field -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge13" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;proc~create_field_from_field</title>
+<path fill="none" stroke="#ff0000" d="M406.94,-293.79C411.27,-291.3 415.33,-288.39 419,-285 461.8,-245.5 413.05,-199.4 455,-159 458.16,-155.96 461.68,-153.33 465.45,-151.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="467.29,-154.07 474.63,-146.43 464.13,-147.82 467.29,-154.07"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~evaluate_mask~~CallsGraph_node17" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node17"><a xlink:href="../proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="585.5,-528 497.5,-528 497.5,-504 585.5,-504 585.5,-528"/>
+<text text-anchor="middle" x="541.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge14" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M319.99,-318.48C335.68,-352.59 384.16,-447.96 455,-495 464.65,-501.41 476.08,-505.86 487.39,-508.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="486.71,-512.4 497.26,-511.35 488.36,-505.59 486.71,-512.4"/>
+</g>
+<!-- proc~mapl_stateeval -->
+<g id="proc~~evaluate_mask~~CallsGraph_node18" class="node">
+<title>proc~mapl_stateeval</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node18"><a xlink:href="../proc/mapl_stateeval.html" xlink:title="MAPL_StateEval">
+<polygon fill="#d9534f" stroke="#d9534f" points="590,-108 493,-108 493,-84 590,-84 590,-108"/>
+<text text-anchor="middle" x="541.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateEval</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge16" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M407.69,-293.79C411.77,-291.29 415.58,-288.38 419,-285 473.34,-231.35 401.81,-171.79 455,-117 462.58,-109.19 472.56,-104.1 483.01,-100.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="483.9,-104.21 492.69,-98.29 482.13,-97.43 483.9,-104.21"/>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;proc~mapl_return -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge25" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#cbff00" d="M407.69,-234.21C411.77,-236.71 415.58,-239.62 419,-243 473.34,-296.65 401.81,-356.21 455,-411 464.33,-420.61 477.3,-426.11 490.31,-429.17"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="489.74,-432.63 500.22,-431.07 491.06,-425.75 489.74,-432.63"/>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;proc~mapl_verify -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge27" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#cbff00" d="M406.94,-234.21C411.27,-236.7 415.33,-239.61 419,-243 461.8,-282.5 413.05,-328.6 455,-369 465.28,-378.9 479.43,-384.37 493.26,-387.33"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="492.76,-390.79 503.21,-389.06 493.96,-383.9 492.76,-390.79"/>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;esmf_fielddestroy -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge18" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;esmf_fielddestroy</title>
+<path fill="none" stroke="#cbff00" d="M322.38,-209.9C341.48,-181.59 393.27,-110.71 455,-75 462.32,-70.76 470.47,-67.38 478.76,-64.67"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="479.89,-67.99 488.49,-61.8 477.91,-61.27 479.89,-67.99"/>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;esmf_fieldget -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge19" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#cbff00" d="M399.58,-234.01C406.37,-236.48 412.93,-239.44 419,-243 440.21,-255.43 434.06,-272.12 455,-285 465.27,-291.32 477.34,-295.74 489.11,-298.83"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="488.35,-302.24 498.89,-301.12 489.95,-295.43 488.35,-302.24"/>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;esmf_stateget -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge20" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#cbff00" d="M379.26,-234.04C413.39,-240.38 454.76,-248.07 487.04,-254.06"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="486.71,-257.56 497.18,-255.95 487.99,-250.68 486.71,-257.56"/>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;interface~esmfl_stategetpointertodata -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge21" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;interface~esmfl_stategetpointertodata</title>
+<path fill="none" stroke="#cbff00" d="M419.23,-222C427.69,-222 436.2,-222 444.59,-222"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="444.75,-225.5 454.75,-222 444.75,-218.5 444.75,-225.5"/>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;interface~mapl_assert -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge22" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#cbff00" d="M379.26,-209.96C415.2,-203.29 459.14,-195.12 492.08,-189"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="492.73,-192.44 501.92,-187.17 491.45,-185.56 492.73,-192.44"/>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;proc~create_field_from_field -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge23" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;proc~create_field_from_field</title>
+<path fill="none" stroke="#cbff00" d="M337.84,-209.96C365.29,-196.17 412.53,-173.6 455,-159 461.41,-156.8 468.16,-154.73 474.95,-152.81"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="476.15,-156.11 484.88,-150.11 474.32,-149.35 476.15,-156.11"/>
+</g>
+<!-- proc~extdataextractintegers -->
+<g id="proc~~evaluate_mask~~CallsGraph_node15" class="node">
+<title>proc~extdataextractintegers</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node15"><a xlink:href="../proc/extdataextractintegers.html" xlink:title="ExtDataExtractIntegers">
+<polygon fill="#d9534f" stroke="#d9534f" points="609.5,-24 473.5,-24 473.5,0 609.5,0 609.5,-24"/>
+<text text-anchor="middle" x="541.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataExtractIntegers</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;proc~extdataextractintegers -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge24" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;proc~extdataextractintegers</title>
+<path fill="none" stroke="#cbff00" d="M319.99,-209.52C335.68,-175.41 384.16,-80.04 455,-33 457.89,-31.08 460.94,-29.34 464.09,-27.75"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="465.51,-30.95 473.24,-23.7 462.68,-24.55 465.51,-30.95"/>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge26" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#cbff00" d="M326.9,-209.93C350.08,-188.06 402.41,-141.84 455,-117 463.72,-112.88 473.33,-109.52 482.87,-106.79"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="483.98,-110.11 492.74,-104.16 482.18,-103.35 483.98,-110.11"/>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;proc~mapl_return -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge36" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff66" d="M406.94,-276.21C411.27,-278.7 415.33,-281.61 419,-285 461.8,-324.5 413.05,-370.6 455,-411 464.47,-420.12 477.23,-425.48 489.99,-428.58"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="489.68,-432.09 500.17,-430.61 491.05,-425.22 489.68,-432.09"/>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;proc~mapl_verify -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge38" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff66" d="M404.96,-276.02C409.96,-278.53 414.69,-281.5 419,-285 450.53,-310.61 424.02,-342.73 455,-369 465.68,-378.06 479.67,-383.32 493.24,-386.35"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="492.99,-389.86 503.46,-388.25 494.27,-382.98 492.99,-389.86"/>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;ESMF_GridGet -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge28" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#00ff66" d="M407.69,-276.21C411.77,-278.71 415.58,-281.62 419,-285 473.34,-338.65 401.81,-398.21 455,-453 463.57,-461.83 475.2,-467.18 487.12,-470.37"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="486.62,-473.84 497.14,-472.57 488.12,-467 486.62,-473.84"/>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;ESMF_GridGetCoord -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge29" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;ESMF_GridGetCoord</title>
+<path fill="none" stroke="#00ff66" d="M399.58,-276.01C406.37,-278.48 412.93,-281.44 419,-285 440.21,-297.43 434.06,-314.12 455,-327 460.09,-330.13 465.61,-332.79 471.33,-335.06"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="470.48,-338.47 481.07,-338.51 472.82,-331.87 470.48,-338.47"/>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;esmf_fielddestroy -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge30" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;esmf_fielddestroy</title>
+<path fill="none" stroke="#00ff66" d="M407.69,-251.79C411.77,-249.29 415.58,-246.38 419,-243 473.34,-189.35 401.81,-129.79 455,-75 461.49,-68.31 469.74,-63.62 478.53,-60.35"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="479.73,-63.65 488.24,-57.34 477.65,-56.96 479.73,-63.65"/>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;esmf_fieldget -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge31" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#00ff66" d="M379.26,-276.04C413.98,-282.49 456.18,-290.33 488.7,-296.37"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="488.43,-299.88 498.9,-298.27 489.7,-293 488.43,-299.88"/>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;esmf_stateget -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge32" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#00ff66" d="M414.61,-264C439.69,-264 465.62,-264 487.38,-264"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="487.39,-267.5 497.39,-264 487.39,-260.5 487.39,-267.5"/>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;interface~esmfl_stategetpointertodata -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge33" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;interface~esmfl_stategetpointertodata</title>
+<path fill="none" stroke="#00ff66" d="M379.26,-251.96C406.21,-246.96 437.67,-241.11 465.61,-235.92"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="466.54,-239.31 475.73,-234.04 465.26,-232.42 466.54,-239.31"/>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;interface~mapl_assert -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge34" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff66" d="M399.58,-251.99C406.37,-249.52 412.93,-246.56 419,-243 440.21,-230.57 434.06,-213.88 455,-201 466.09,-194.17 479.28,-189.57 491.93,-186.46"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="492.89,-189.83 501.91,-184.27 491.39,-182.99 492.89,-189.83"/>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;proc~create_field_from_field -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge35" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;proc~create_field_from_field</title>
+<path fill="none" stroke="#00ff66" d="M404.96,-251.98C409.96,-249.47 414.69,-246.5 419,-243 450.53,-217.39 424.02,-185.27 455,-159 458.28,-156.22 461.87,-153.8 465.66,-151.69"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="467.32,-154.77 474.83,-147.31 464.3,-148.46 467.32,-154.77"/>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge37" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#00ff66" d="M406.94,-251.79C411.27,-249.3 415.33,-246.39 419,-243 461.8,-203.5 413.05,-157.4 455,-117 462.68,-109.61 472.51,-104.68 482.76,-101.43"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="483.89,-104.75 492.66,-98.8 482.1,-97.99 483.89,-104.75"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~evaluate_mask~~CallsGraph_node16" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node16"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="788,-444 673,-444 673,-420 788,-420 788,-444"/>
+<text text-anchor="middle" x="730.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0066ff" d="M582.62,-432C605.93,-432 635.9,-432 662.69,-432"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="662.78,-435.5 672.78,-432 662.78,-428.5 662.78,-435.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~evaluate_mask~~CallsGraph_node19" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~evaluate_mask~~CallsGraph_node19"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="797,-402 664,-402 664,-378 797,-378 797,-402"/>
+<text text-anchor="middle" x="730.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M582.62,-422.99C606.89,-417.54 638.39,-410.46 665.99,-404.26"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="666.97,-407.63 675.96,-402.02 665.44,-400.8 666.97,-407.63"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~evaluate_mask~~CallsGraph_edge41" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M579.89,-390C601.06,-390 628.33,-390 653.77,-390"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="653.78,-393.5 663.78,-390 653.78,-386.5 653.78,-393.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocevaluate_maskCallsGraph = svgPanZoom('#procevaluate_maskCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~evaluate_mask~~CalledByGraph Pages: 1 -->
+<svg id="procevaluate_maskCalledByGraph" width="526pt" height="32pt"
+ viewBox="0.00 0.00 526.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~evaluate_mask~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~evaluate_mask~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 522,-28 522,4 -4,4"/>
+<!-- proc~evaluate_mask -->
+<g id="proc~~evaluate_mask~~CalledByGraph_node1" class="node">
+<title>proc~evaluate_mask</title>
+<polygon fill="none" stroke="black" points="518,-24 346,-24 346,0 518,0 518,-24"/>
+<text text-anchor="middle" x="432" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataMask%evaluate_mask</text>
+</g>
+<!-- proc~evaluate_derived_field -->
+<g id="proc~~evaluate_mask~~CalledByGraph_node2" class="node">
+<title>proc~evaluate_derived_field</title>
+<g id="a_proc~~evaluate_mask~~CalledByGraph_node2"><a xlink:href="../proc/evaluate_derived_field.html" xlink:title="DerivedExport%evaluate_derived_field">
+<polygon fill="#d9534f" stroke="#d9534f" points="310,-24 90,-24 90,0 310,0 310,-24"/>
+<text text-anchor="middle" x="200" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DerivedExport%evaluate_derived_field</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_derived_field&#45;&gt;proc~evaluate_mask -->
+<g id="proc~~evaluate_mask~~CalledByGraph_edge1" class="edge">
+<title>proc~evaluate_derived_field&#45;&gt;proc~evaluate_mask</title>
+<path fill="none" stroke="#ff0000" d="M310.27,-12C318.76,-12 327.29,-12 335.68,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="335.82,-15.5 345.82,-12 335.82,-8.5 335.82,-15.5"/>
+</g>
+<!-- proc~run_~4 -->
+<g id="proc~~evaluate_mask~~CalledByGraph_node3" class="node">
+<title>proc~run_~4</title>
+<g id="a_proc~~evaluate_mask~~CalledByGraph_node3"><a xlink:href="../proc/run_~4.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~4&#45;&gt;proc~evaluate_derived_field -->
+<g id="proc~~evaluate_mask~~CalledByGraph_edge2" class="edge">
+<title>proc~run_~4&#45;&gt;proc~evaluate_derived_field</title>
+<path fill="none" stroke="#ff0000" d="M54.34,-12C61.77,-12 70.37,-12 79.6,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.84,-15.5 89.84,-12 79.84,-8.5 79.84,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">evaluate_mask</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">state</span><span class="p">,</span><span class="n">var_name</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtDataMask</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">select case</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">mask_type</span><span class="p">)</span>
+<span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="s2">&quot;regionmask&quot;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">evaluate_region_mask</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="n">var_name</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="s2">&quot;zonemask&quot;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">evaluate_zone_mask</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="n">var_name</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="s2">&quot;boxmask&quot;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">evaluate_box_mask</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="n">var_name</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end select</span>
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">evaluate_mask</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-04T14:13:52.571299             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
