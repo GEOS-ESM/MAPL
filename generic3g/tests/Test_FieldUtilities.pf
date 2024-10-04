@@ -169,4 +169,41 @@ contains
       call ESMF_GeomDestroy(geom, _RC)
    end subroutine test_change_ungridded_bounds
 
+    @test(type=ESMF_TestMethod, npes=[1])
+   ! Probably exceedingly rare, but MAPL3 allows the vertical grid to change with time
+   ! which could change the number of levels ...
+   subroutine test_same_ungridded_bounds_do_not_allocate(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Field) :: f
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+
+      integer :: status
+      type(ESMF_FieldStatus_Flag) :: field_status
+      real(ESMF_KIND_R4), pointer :: x(:,:,:,:)
+      type(ESMF_TypeKind_Flag) :: typekind
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+
+      f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
+           ungriddedLbound=[1,1], ungriddedUbound=[5,3], _RC)
+      call ESMF_FieldGet(f, fArrayPtr=x, _RC)
+      x = 99
+
+      call MAPL_FieldReallocate(f, ungriddedUbound=[5,3], _RC)
+
+      call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
+      @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
+      @assert_that(typekind == ESMF_TYPEKIND_R4, is(true()))
+
+      call ESMF_FieldGet(f, fArrayPtr=x, _RC)
+      @assert_that(all(x == 99), is(true()))
+      @assert_that(shape(x), is(equal_to([4,4,5,3])))
+
+      call ESMF_FieldDestroy(f, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+   end subroutine test_same_ungridded_bounds_do_not_allocate
+
 end module Test_FieldUtilities
