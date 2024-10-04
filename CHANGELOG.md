@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.49.0] - 2024-10-04
+
+### Added
+
 - Added zstandard compression support
   - Note this requires netCDF-C to have been compiled with zstandard support. We have a CMake test to check for this
     and enabling zstandard output in History will fail if the library does not support it
@@ -22,9 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-### Removed
-
-### Deprecated
+- Workaround for NVHPC 24.9 involving `use` statement in `block` construct
 
 ## [2.48.0] - 2024-09-24
 
