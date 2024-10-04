@@ -1,0 +1,92 @@
+module Test_ConcreteComposite
+   use funit
+   use mapl_ConcreteComposite
+   use mapl_MaplGenericComponent
+   use mapl_AbstractComposite
+   use mapl_AbstractFrameworkComponent
+   implicit none
+
+   type, extends(MaplGenericComponent) :: NamedComponent
+      character(:), allocatable :: name
+   end type NamedComponent
+
+contains
+
+   @test
+   subroutine test_get_parent_orphan()
+      type(ConcreteComposite) :: composite
+      type(MaplGenericComponent) :: component
+
+      composite = ConcreteComposite(component)
+      @assert_that(associated(composite%get_parent()), is(false()))
+
+   end subroutine test_get_parent_orphan
+
+   @test
+   subroutine test_get_parent()
+      type(ConcreteComposite) :: child
+      type(ConcreteComposite), target :: parent
+      type(MaplGenericComponent) :: component
+
+      class(AbstractComposite), pointer :: ptr
+      
+      parent = ConcreteComposite(component)
+      ptr => parent
+      child = ConcreteComposite(component, parent)
+      
+      ptr => child%get_parent()
+      @assert_that(associated(ptr), is(true()))
+      @assert_that(associated(ptr,parent), is(true()))
+
+   end subroutine test_get_parent
+
+   @test
+   subroutine test_get_component()
+      type(ConcreteComposite) :: composite
+
+      type(NamedComponent) :: component
+      class(AbstractFrameworkComponent), pointer :: component_ptr
+
+      component%name = 'foo'
+      composite = ConcreteComposite(component)
+      component_ptr => composite%get_component()
+      select type (component_ptr)
+      type is (NamedComponent)
+         @assert_that(component_ptr%name, is('foo'))
+      class default
+         @assert_that('incorrect type', .true., is(false()))
+      end select
+
+   end subroutine test_get_component
+
+   @test
+   subroutine test_get_child()
+      type(ConcreteComposite) :: child
+      type(ConcreteComposite), target :: parent
+      type(NamedComponent) :: P, A
+
+      class(AbstractComposite), pointer :: ptr
+
+      P%name = 'p'
+      A%name = 'A'
+      parent = ConcreteComposite(P)
+      child = ConcreteComposite(A)
+      ptr => parent%add_child('A', child)
+      ptr => parent%get_child('A')
+
+      @assert_that(associated(ptr), is(true()))
+      select type (ptr)
+      type is (ConcreteComposite)
+         select type (q => ptr%get_component())
+         type is (NamedComponent)
+            @assert_that(q%name, is('A'))
+         class default
+            @assert_that('incorrect type', .true., is(false()))
+         end select
+      class default
+         @assert_that('incorrect type', .true., is(false()))
+      end select
+
+   end subroutine test_get_child
+
+end module Test_ConcreteComposite

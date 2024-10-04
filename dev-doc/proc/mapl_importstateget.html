@@ -1,0 +1,968 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_ImportStateGet &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_ImportStateGet
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">44 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericmod.html'>MAPL_GenericMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_ImportStateGet</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_importstateget.html#src">MAPL_ImportStateGet</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public recursive subroutine MAPL_ImportStateGet(GC, import, name, result, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc~71"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-import~8"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>import</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-name~150"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-result~4"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>result</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1224"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_importstateget~~CallsGraph Pages: 1 -->
+<svg id="procmapl_importstategetCallsGraph" width="641pt" height="167pt"
+ viewBox="0.00 0.00 641.00 166.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_importstateget~~CallsGraph" class="graph" transform="scale(0.51 0.51) rotate(0) translate(4 322)">
+<title>proc~~mapl_importstateget~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-322 1251,-322 1251,4 -4,4"/>
+<!-- proc~mapl_importstateget -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node1" class="node">
+<title>proc~mapl_importstateget</title>
+<polygon fill="none" stroke="black" points="128,-191 0,-191 0,-167 128,-167 128,-191"/>
+<text text-anchor="middle" x="64" y="-176.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ImportStateGet</text>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~mapl_importstateget -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~mapl_importstateget</title>
+<path fill="none" stroke="#ff0000" d="M27.95,-191.01C15.37,-199.97 27.38,-209 64,-209 87.46,-209 100.82,-205.29 104.08,-200.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="107.25,-198.78 100.05,-191.01 100.83,-201.58 107.25,-198.78"/>
+</g>
+<!-- esmf_stateget -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node2" class="node">
+<title>esmf_stateget</title>
+<polygon fill="#777777" stroke="#777777" points="326,-317 238,-317 238,-293 326,-293 326,-317"/>
+<text text-anchor="middle" x="282" y="-302.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateget</text>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;esmf_stateget -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#ff0000" d="M72.54,-191.11C87.16,-213.49 121.7,-261.1 164,-284 183.42,-294.51 207.04,-299.91 227.96,-302.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.66,-306.11 237.99,-303.75 228.44,-299.15 227.66,-306.11"/>
+</g>
+<!-- proc~get_child_gridcomp -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node3" class="node">
+<title>proc~get_child_gridcomp</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node3"><a xlink:href="../proc/get_child_gridcomp.html" xlink:title="MAPL_MetaComp%get_child_gridcomp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="391,-233 173,-233 173,-209 391,-209 391,-233"/>
+<text text-anchor="middle" x="282" y="-218.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_child_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~get_child_gridcomp -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~get_child_gridcomp</title>
+<path fill="none" stroke="#ff0000" d="M120.18,-191.03C134.44,-194.04 149.77,-197.22 164,-200 176.23,-202.39 189.19,-204.83 201.87,-207.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="201.49,-210.63 211.95,-208.98 202.74,-203.75 201.49,-210.63"/>
+</g>
+<!-- proc~get_child_import_state -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node4" class="node">
+<title>proc~get_child_import_state</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node4"><a xlink:href="../proc/get_child_import_state.html" xlink:title="MAPL_MetaComp%get_child_import_state">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="399,-275 165,-275 165,-251 399,-251 399,-275"/>
+<text text-anchor="middle" x="282" y="-260.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_child_import_state</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~get_child_import_state -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~get_child_import_state</title>
+<path fill="none" stroke="#ff0000" d="M79.76,-191.03C98.28,-205.48 131.55,-229.33 164,-242 169.99,-244.34 176.26,-246.42 182.65,-248.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="182.2,-251.77 192.76,-250.99 184.02,-245.01 182.2,-251.77"/>
+</g>
+<!-- proc~get_num_children -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node5" class="node">
+<title>proc~get_num_children</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node5"><a xlink:href="../proc/get_num_children.html" xlink:title="CompositeComponent%get_num_children">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="400,-191 164,-191 164,-167 400,-167 400,-191"/>
+<text text-anchor="middle" x="282" y="-176.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CompositeComponent%get_num_children</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~get_num_children -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~get_num_children</title>
+<path fill="none" stroke="#ff0000" d="M128.06,-179C136.29,-179 144.95,-179 153.78,-179"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="153.82,-182.5 163.82,-179 153.82,-175.5 153.82,-182.5"/>
+</g>
+<!-- proc~mapl_internalstateget -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node6" class="node">
+<title>proc~mapl_internalstateget</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node6"><a xlink:href="../proc/mapl_internalstateget.html" xlink:title="MAPL_InternalStateGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="349,-108 215,-108 215,-84 349,-84 349,-108"/>
+<text text-anchor="middle" x="282" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_InternalStateGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~mapl_internalstateget -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~mapl_internalstateget</title>
+<path fill="none" stroke="#ff0000" d="M83.65,-166.93C103.04,-154.84 134.63,-136.43 164,-125 178.56,-119.33 194.57,-114.51 209.96,-110.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="211.11,-113.83 219.96,-108 209.41,-107.04 211.11,-113.83"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="597.5,-150 515.5,-150 515.5,-126 597.5,-126 597.5,-150"/>
+<text text-anchor="middle" x="556.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M114.09,-166.99C129.93,-163.54 147.62,-160.14 164,-158 285.81,-142.07 430.49,-138.66 505.22,-138.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="505.32,-141.54 515.3,-137.97 505.27,-134.54 505.32,-141.54"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="594.5,-24 518.5,-24 518.5,0 594.5,0 594.5,-24"/>
+<text text-anchor="middle" x="556.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M72.53,-166.93C87.14,-144.65 121.65,-97.3 164,-75 276.71,-15.63 431.04,-9.17 507.92,-10.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="508.18,-13.66 518.25,-10.34 508.31,-6.66 508.18,-13.66"/>
+</g>
+<!-- proc~get_gridcomp -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node12" class="node">
+<title>proc~get_gridcomp</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node12"><a xlink:href="../proc/get_gridcomp.html" xlink:title="MaplGenericComponent%get_gridcomp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="669.5,-276 443.5,-276 443.5,-252 669.5,-252 669.5,-276"/>
+<text text-anchor="middle" x="556.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGenericComponent%get_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_gridcomp&#45;&gt;proc~get_gridcomp -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge9" class="edge">
+<title>proc~get_child_gridcomp&#45;&gt;proc~get_gridcomp</title>
+<path fill="none" stroke="#ffda00" d="M359.27,-233.04C393.38,-238.42 433.75,-244.79 468.98,-250.35"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="468.83,-253.87 479.25,-251.97 469.92,-246.95 468.83,-253.87"/>
+</g>
+<!-- proc~get_ith_child -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node14" class="node">
+<title>proc~get_ith_child</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node14"><a xlink:href="../proc/get_ith_child.html" xlink:title="MAPL_MetaComp%get_ith_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="647,-234 466,-234 466,-210 647,-210 647,-234"/>
+<text text-anchor="middle" x="556.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_ith_child</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_gridcomp&#45;&gt;proc~get_ith_child -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge10" class="edge">
+<title>proc~get_child_gridcomp&#45;&gt;proc~get_ith_child</title>
+<path fill="none" stroke="#ffda00" d="M391.09,-221.4C412.42,-221.47 434.7,-221.56 455.74,-221.63"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="455.94,-225.13 465.96,-221.67 455.97,-218.13 455.94,-225.13"/>
+</g>
+<!-- proc~get_import_state -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node13" class="node">
+<title>proc~get_import_state</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node13"><a xlink:href="../proc/get_import_state.html" xlink:title="MaplGenericComponent%get_import_state">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="677,-318 436,-318 436,-294 677,-294 677,-318"/>
+<text text-anchor="middle" x="556.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGenericComponent%get_import_state</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_import_state&#45;&gt;proc~get_import_state -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge11" class="edge">
+<title>proc~get_child_import_state&#45;&gt;proc~get_import_state</title>
+<path fill="none" stroke="#48ff00" d="M359.27,-275.04C393.38,-280.42 433.75,-286.79 468.98,-292.35"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="468.83,-295.87 479.25,-293.97 469.92,-288.95 468.83,-295.87"/>
+</g>
+<!-- proc~get_child_import_state&#45;&gt;proc~get_ith_child -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge12" class="edge">
+<title>proc~get_child_import_state&#45;&gt;proc~get_ith_child</title>
+<path fill="none" stroke="#48ff00" d="M362.92,-250.98C395.08,-246.14 432.33,-240.53 465.45,-235.55"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="466.22,-238.97 475.58,-234.02 465.17,-232.05 466.22,-238.97"/>
+</g>
+<!-- proc~get_num_children~2 -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node15" class="node">
+<title>proc~get_num_children~2</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node15"><a xlink:href="../proc/get_num_children~2.html" xlink:title="ConcreteComposite%get_num_children">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="667.5,-192 445.5,-192 445.5,-168 667.5,-168 667.5,-192"/>
+<text text-anchor="middle" x="556.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConcreteComposite%get_num_children</text>
+</a>
+</g>
+</g>
+<!-- proc~get_num_children&#45;&gt;proc~get_num_children~2 -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge13" class="edge">
+<title>proc~get_num_children&#45;&gt;proc~get_num_children~2</title>
+<path fill="none" stroke="#00ff91" d="M400.15,-179.43C411.75,-179.47 423.54,-179.52 435.18,-179.56"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="435.34,-183.06 445.35,-179.6 435.36,-176.06 435.34,-183.06"/>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0091ff" d="M349.31,-106.22C397.3,-113.62 461.16,-123.46 505.03,-130.22"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="504.76,-133.72 515.17,-131.78 505.82,-126.8 504.76,-133.72"/>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0091ff" d="M312.83,-83.81C336.49,-74.14 370.38,-60.25 400,-48 416.02,-41.38 419.36,-37.86 436,-33 459.39,-26.16 486.04,-21.22 508.23,-17.85"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="509.02,-21.27 518.41,-16.37 508.01,-14.35 509.02,-21.27"/>
+</g>
+<!-- ESMF_GridCompGet -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node9" class="node">
+<title>ESMF_GridCompGet</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node9"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_gridcompget.html" xlink:title="ESMF_GridCompGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="616,-108 497,-108 497,-84 616,-84 616,-108"/>
+<text text-anchor="middle" x="556.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;ESMF_GridCompGet -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;ESMF_GridCompGet</title>
+<path fill="none" stroke="#0091ff" d="M349.31,-96C390.94,-96 444.51,-96 486.61,-96"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="486.78,-99.5 496.78,-96 486.78,-92.5 486.78,-99.5"/>
+</g>
+<!-- ESMF_UserCompGetInternalState -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node10" class="node">
+<title>ESMF_UserCompGetInternalState</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node10"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_usercompgetinternalstate.html" xlink:title="ESMF_UserCompGetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="651.5,-66 461.5,-66 461.5,-42 651.5,-42 651.5,-66"/>
+<text text-anchor="middle" x="556.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_UserCompGetInternalState</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;ESMF_UserCompGetInternalState -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;ESMF_UserCompGetInternalState</title>
+<path fill="none" stroke="#0091ff" d="M349.31,-85.78C384.74,-80.32 428.83,-73.52 467.14,-67.62"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="467.9,-71.04 477.25,-66.06 466.84,-64.12 467.9,-71.04"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node11" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node11"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="897.5,-150 782.5,-150 782.5,-126 897.5,-126 897.5,-150"/>
+<text text-anchor="middle" x="840" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#4800ff" d="M597.53,-138C642.95,-138 717.75,-138 772.08,-138"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="772.32,-141.5 782.32,-138 772.32,-134.5 772.32,-141.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node16" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node16"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="906.5,-35 773.5,-35 773.5,-11 906.5,-11 906.5,-35"/>
+<text text-anchor="middle" x="840" y="-20.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#4800ff" d="M597.7,-134.5C621.33,-131.57 651.47,-126.31 677,-117 728.99,-98.03 783.46,-62.73 814.13,-41.21"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="816.36,-43.91 822.49,-35.26 812.31,-38.2 816.36,-43.91"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M594.59,-13.45C637.23,-15.12 708.35,-17.89 762.9,-20.03"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="763.1,-23.54 773.23,-20.43 763.38,-16.54 763.1,-23.54"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node17" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1152,-119 1098,-119 1098,-95 1152,-95 1152,-119"/>
+<text text-anchor="middle" x="1125" y="-104.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge21" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#7fff00" d="M897.59,-131.8C954.24,-125.6 1039.71,-116.23 1087.81,-110.96"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1088.2,-114.44 1097.76,-109.87 1087.44,-107.48 1088.2,-114.44"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node18" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1152,-161 1098,-161 1098,-137 1152,-137 1152,-161"/>
+<text text-anchor="middle" x="1125" y="-146.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge22" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#7fff00" d="M897.59,-140.2C954.12,-142.4 1039.36,-145.71 1087.5,-147.58"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1087.63,-151.09 1097.76,-147.98 1087.91,-144.09 1087.63,-151.09"/>
+</g>
+<!-- proc~get_current_thread -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node20" class="node">
+<title>proc~get_current_thread</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node20"><a xlink:href="../proc/get_current_thread.html" xlink:title="get_current_thread">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="896.5,-276 783.5,-276 783.5,-252 896.5,-252 896.5,-276"/>
+<text text-anchor="middle" x="840" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_current_thread</text>
+</a>
+</g>
+</g>
+<!-- proc~get_gridcomp&#45;&gt;proc~get_current_thread -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge23" class="edge">
+<title>proc~get_gridcomp&#45;&gt;proc~get_current_thread</title>
+<path fill="none" stroke="#00ff3f" d="M669.57,-264C704.69,-264 742.31,-264 773.15,-264"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="773.34,-267.5 783.34,-264 773.34,-260.5 773.34,-267.5"/>
+</g>
+<!-- proc~is_threading_active -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node22" class="node">
+<title>proc~is_threading_active</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node22"><a xlink:href="../proc/is_threading_active.html" xlink:title="MaplGenericComponent%is_threading_active">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="967,-318 713,-318 713,-294 967,-294 967,-318"/>
+<text text-anchor="middle" x="840" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGenericComponent%is_threading_active</text>
+</a>
+</g>
+</g>
+<!-- proc~get_gridcomp&#45;&gt;proc~is_threading_active -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge24" class="edge">
+<title>proc~get_gridcomp&#45;&gt;proc~is_threading_active</title>
+<path fill="none" stroke="#00ff3f" d="M638.17,-276.04C672.47,-281.15 712.64,-287.15 748,-292.42"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="747.91,-295.95 758.32,-293.96 748.95,-289.03 747.91,-295.95"/>
+</g>
+<!-- proc~get_import_state&#45;&gt;proc~get_current_thread -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge25" class="edge">
+<title>proc~get_import_state&#45;&gt;proc~get_current_thread</title>
+<path fill="none" stroke="#00ffff" d="M638.17,-293.96C681,-287.57 732.98,-279.82 773.32,-273.8"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="773.94,-277.25 783.31,-272.31 772.91,-270.32 773.94,-277.25"/>
+</g>
+<!-- proc~get_import_state&#45;&gt;proc~is_threading_active -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge26" class="edge">
+<title>proc~get_import_state&#45;&gt;proc~is_threading_active</title>
+<path fill="none" stroke="#00ffff" d="M677.29,-306C685.59,-306 693.99,-306 702.36,-306"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="702.57,-309.5 712.57,-306 702.57,-302.5 702.57,-309.5"/>
+</g>
+<!-- none~get_child~26 -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node19" class="node">
+<title>none~get_child~26</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node19"><a xlink:href="../type/mapl_metacomp.html#boundprocedure-get_child~26" xlink:title="MAPL_MetaComp%get_child">
+<polygon fill="#a7506f" stroke="#a7506f" points="921,-234 759,-234 759,-210 921,-210 921,-234"/>
+<text text-anchor="middle" x="840" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_child</text>
+</a>
+</g>
+</g>
+<!-- proc~get_ith_child&#45;&gt;none~get_child~26 -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge27" class="edge">
+<title>proc~get_ith_child&#45;&gt;none~get_child~26</title>
+<path fill="none" stroke="#003fff" d="M647.34,-222C679.57,-222 715.92,-222 748.23,-222"/>
+<polygon fill="#003fff" stroke="#003fff" points="748.57,-225.5 758.57,-222 748.57,-218.5 748.57,-225.5"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node21" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node21"><a xlink:href="../proc/initialize~12.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1153.5,-35 1096.5,-35 1096.5,-11 1153.5,-11 1153.5,-35"/>
+<text text-anchor="middle" x="1125" y="-20.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="#ff00bf" d="M906.64,-23C962.38,-23 1040.43,-23 1086.25,-23"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="1086.35,-26.5 1096.35,-23 1086.35,-19.5 1086.35,-26.5"/>
+</g>
+<!-- proc~get_child_by_index -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node23" class="node">
+<title>proc~get_child_by_index</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node23"><a xlink:href="../proc/get_child_by_index.html" xlink:title="CompositeComponent%get_child_by_index">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1245.5,-213 1004.5,-213 1004.5,-189 1245.5,-189 1245.5,-213"/>
+<text text-anchor="middle" x="1125" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CompositeComponent%get_child_by_index</text>
+</a>
+</g>
+</g>
+<!-- none~get_child~26&#45;&gt;proc~get_child_by_index -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge29" class="edge">
+<title>none~get_child~26&#45;&gt;proc~get_child_by_index</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M921.34,-216.04C944.03,-214.35 969.32,-212.48 994.13,-210.64"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="994.64,-214.11 1004.35,-209.88 994.12,-207.13 994.64,-214.11"/>
+</g>
+<!-- proc~get_child_by_name -->
+<g id="proc~~mapl_importstateget~~CallsGraph_node24" class="node">
+<title>proc~get_child_by_name</title>
+<g id="a_proc~~mapl_importstateget~~CallsGraph_node24"><a xlink:href="../proc/get_child_by_name.html" xlink:title="CompositeComponent%get_child_by_name">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1247,-255 1003,-255 1003,-231 1247,-231 1247,-255"/>
+<text text-anchor="middle" x="1125" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CompositeComponent%get_child_by_name</text>
+</a>
+</g>
+</g>
+<!-- none~get_child~26&#45;&gt;proc~get_child_by_name -->
+<g id="proc~~mapl_importstateget~~CallsGraph_edge30" class="edge">
+<title>none~get_child~26&#45;&gt;proc~get_child_by_name</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M921.34,-227.96C943.6,-229.61 968.36,-231.45 992.72,-233.26"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="992.53,-236.75 1002.76,-234 993.04,-229.77 992.53,-236.75"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_importstategetCallsGraph = svgPanZoom('#procmapl_importstategetCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_importstateget~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_importstategetCalledByGraph" width="419pt" height="50pt"
+ viewBox="0.00 0.00 419.00 50.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_importstateget~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 46)">
+<title>proc~~mapl_importstateget~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-46 415,-46 415,4 -4,4"/>
+<!-- proc~mapl_importstateget -->
+<g id="proc~~mapl_importstateget~~CalledByGraph_node1" class="node">
+<title>proc~mapl_importstateget</title>
+<polygon fill="none" stroke="black" points="411,-24 283,-24 283,0 411,0 411,-24"/>
+<text text-anchor="middle" x="347" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ImportStateGet</text>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~mapl_importstateget -->
+<g id="proc~~mapl_importstateget~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~mapl_importstateget</title>
+<path fill="none" stroke="#ff0000" d="M310.29,-24.01C297.48,-32.97 309.71,-42 347,-42 370.89,-42 384.49,-38.29 387.82,-33.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="390.96,-31.73 383.71,-24.01 384.57,-34.57 390.96,-31.73"/>
+</g>
+<!-- proc~get_field_from_import -->
+<g id="proc~~mapl_importstateget~~CalledByGraph_node2" class="node">
+<title>proc~get_field_from_import</title>
+<g id="a_proc~~mapl_importstateget~~CalledByGraph_node2"><a xlink:href="../proc/get_field_from_import.html" xlink:title="MAPL_CapGridComp%get_field_from_import">
+<polygon fill="#d9534f" stroke="#d9534f" points="247,-24 0,-24 0,0 247,0 247,-24"/>
+<text text-anchor="middle" x="123.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp%get_field_from_import</text>
+</a>
+</g>
+</g>
+<!-- proc~get_field_from_import&#45;&gt;proc~mapl_importstateget -->
+<g id="proc~~mapl_importstateget~~CalledByGraph_edge1" class="edge">
+<title>proc~get_field_from_import&#45;&gt;proc~mapl_importstateget</title>
+<path fill="none" stroke="#ff0000" d="M247.23,-12C255.87,-12 264.4,-12 272.62,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="272.86,-15.5 282.86,-12 272.86,-8.5 272.86,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">MAPL_ImportStateGet</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="k">import</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">result</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INout</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="k">import</span>
+<span class="k">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">result</span>
+<span class="k">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="o">=</span><span class="s2">&quot;MAPL_ImportStateGet&quot;</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">have_ens</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">sname</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="k">pointer</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">STATE</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_import_state</span>
+
+<span class="w">      </span><span class="n">have_ens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="s2">&quot;:&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="k">import</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">sname</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">have_ens</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">sname</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;_Imports&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">import</span>
+<span class="k">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      else</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">sname</span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">sname</span><span class="p">,</span><span class="s2">&quot;:&quot;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;_Imports&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">import</span>
+<span class="k">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end if</span>
+
+<span class="k">      call </span><span class="n">MAPL_InternalStateGet</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_num_children</span><span class="p">()</span>
+<span class="w">         </span><span class="n">gridcomp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">GET_CHILD_GRIDCOMP</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="w">         </span><span class="n">child_import_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_import_state</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_ImportStateGet</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">child_import_state</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">result</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end do</span>
+
+<span class="k">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FAILURE</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="k">   end subroutine </span><span class="n">MAPL_ImportStateGet</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-04T15:10:44.923756             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

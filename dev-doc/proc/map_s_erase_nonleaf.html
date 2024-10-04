@@ -1,0 +1,847 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>map_s_erase_nonleaf &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>map_s_erase_nonleaf
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">71 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/CallbackMap.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/callbackmap.f90.html'>CallbackMap.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_callbackmap.html'>mapl_CallbackMap</a></li>
+            <li class="breadcrumb-item active" aria-current="page">map_s_erase_nonleaf</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine map_s_erase_nonleaf(this, pos, side)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/map_set.html'>map_Set</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~823"></span>
+              class(<a href='../type/map_set.html'>map_Set</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pos~18"></span>
+              type(<a href='../type/map_s_node.html'>map_s_Node</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>pos</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-side~17"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>side</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~map_s_erase_nonleaf~~CallsGraph Pages: 1 -->
+<svg id="procmap_s_erase_nonleafCallsGraph" width="641pt" height="207pt"
+ viewBox="0.00 0.00 641.00 207.17" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph" class="graph" transform="scale(0.49 0.49) rotate(0) translate(4 416.16)">
+<title>proc~~map_s_erase_nonleaf~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-416.16 1296,-416.16 1296,4 -4,4"/>
+<!-- proc~map_s_erase_nonleaf -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node1" class="node">
+<title>proc~map_s_erase_nonleaf</title>
+<polygon fill="none" stroke="black" points="184,-106 0,-106 0,-82 184,-82 184,-106"/>
+<text text-anchor="middle" x="92" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50">map_Set%map_s_erase_nonleaf</text>
+</g>
+<!-- proc~map_s_advpos -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node2" class="node">
+<title>proc~map_s_advpos</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CallsGraph_node2"><a xlink:href="../proc/map_s_advpos.html" xlink:title="map_Set%map_s_advpos">
+<polygon fill="#d9534f" stroke="#d9534f" points="374.5,-146 227.5,-146 227.5,-122 374.5,-122 374.5,-146"/>
+<text text-anchor="middle" x="301" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_advpos</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_erase_nonleaf&#45;&gt;proc~map_s_advpos -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge1" class="edge">
+<title>proc~map_s_erase_nonleaf&#45;&gt;proc~map_s_advpos</title>
+<path fill="none" stroke="#ff0000" d="M155.11,-106C177.93,-110.41 203.96,-115.44 227.61,-120.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.1,-123.48 237.58,-121.94 228.43,-116.6 227.1,-123.48"/>
+</g>
+<!-- proc~map_s_get_child -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node3" class="node">
+<title>proc~map_s_get_child</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CallsGraph_node3"><a xlink:href="../proc/map_s_get_child.html" xlink:title="map_s_Node%map_s_get_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1292,-186 1114,-186 1114,-162 1292,-162 1292,-186"/>
+<text text-anchor="middle" x="1203" y="-171.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node%map_s_get_child</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_erase_nonleaf&#45;&gt;proc~map_s_get_child -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge2" class="edge">
+<title>proc~map_s_erase_nonleaf&#45;&gt;proc~map_s_get_child</title>
+<path fill="none" stroke="#ff0000" d="M166.72,-81.96C249.25,-69.55 387.08,-52 506.5,-52 506.5,-52 506.5,-52 743,-52 892.13,-52 939.23,-16.39 1078,-71 1123.16,-88.77 1164.03,-129.72 1185.71,-154.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1183.12,-156.66 1192.3,-161.95 1188.42,-152.09 1183.12,-156.66"/>
+</g>
+<!-- proc~map_s_rebalance -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node4" class="node">
+<title>proc~map_s_rebalance</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CallsGraph_node4"><a xlink:href="../proc/map_s_rebalance.html" xlink:title="map_Set%map_s_rebalance">
+<polygon fill="#d9534f" stroke="#d9534f" points="382,-326 220,-326 220,-302 382,-302 382,-326"/>
+<text text-anchor="middle" x="301" y="-311.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_rebalance</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_erase_nonleaf&#45;&gt;proc~map_s_rebalance -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge3" class="edge">
+<title>proc~map_s_erase_nonleaf&#45;&gt;proc~map_s_rebalance</title>
+<path fill="none" stroke="#ff0000" d="M104.42,-106.14C138.49,-142.35 239.62,-249.83 281.51,-294.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="279.21,-297.01 288.61,-301.9 284.31,-292.21 279.21,-297.01"/>
+</g>
+<!-- proc~map_s_which_side_am_i -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node5" class="node">
+<title>proc~map_s_which_side_am_i</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CallsGraph_node5"><a xlink:href="../proc/map_s_which_side_am_i.html" xlink:title="map_s_Node%map_s_which_side_am_i">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="851,-126 633,-126 633,-102 851,-102 851,-126"/>
+<text text-anchor="middle" x="742" y="-111.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node%map_s_which_side_am_i</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_erase_nonleaf&#45;&gt;proc~map_s_which_side_am_i -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge4" class="edge">
+<title>proc~map_s_erase_nonleaf&#45;&gt;proc~map_s_which_side_am_i</title>
+<path fill="none" stroke="#ff0000" d="M184.13,-96.81C298.93,-100.36 496.44,-106.45 622.77,-110.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="622.77,-113.85 632.87,-110.66 622.98,-106.86 622.77,-113.85"/>
+</g>
+<!-- set_parent -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node6" class="node">
+<title>set_parent</title>
+<polygon fill="#777777" stroke="#777777" points="335,-24 267,-24 267,0 335,0 335,-24"/>
+<text text-anchor="middle" x="301" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_parent</text>
+</g>
+<!-- proc~map_s_erase_nonleaf&#45;&gt;set_parent -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge5" class="edge">
+<title>proc~map_s_erase_nonleaf&#45;&gt;set_parent</title>
+<path fill="none" stroke="#ff0000" d="M118.47,-81.86C143.88,-69.96 184.21,-51.67 220,-38 231.83,-33.48 244.83,-29.04 256.84,-25.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="258.19,-28.39 266.65,-22.01 256.06,-21.72 258.19,-28.39"/>
+</g>
+<!-- proc~map_s_advpos&#45;&gt;proc~map_s_get_child -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge6" class="edge">
+<title>proc~map_s_advpos&#45;&gt;proc~map_s_get_child</title>
+<path fill="none" stroke="#ff0000" d="M358.39,-146.02C377.25,-149.55 398.45,-153.01 418,-155 663.78,-180.07 955.03,-179.15 1103.81,-176.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1103.9,-179.98 1113.83,-176.3 1103.77,-172.98 1103.9,-179.98"/>
+</g>
+<!-- to_node -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node13" class="node">
+<title>to_node</title>
+<polygon fill="#777777" stroke="#777777" points="535,-146 480,-146 480,-122 535,-122 535,-146"/>
+<text text-anchor="middle" x="507.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">to_node</text>
+</g>
+<!-- proc~map_s_advpos&#45;&gt;to_node -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge7" class="edge">
+<title>proc~map_s_advpos&#45;&gt;to_node</title>
+<path fill="none" stroke="#ff0000" d="M374.67,-134C406.76,-134 443.1,-134 469.49,-134"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="469.79,-137.5 479.79,-134 469.79,-130.5 469.79,-137.5"/>
+</g>
+<!-- proc~map_s_rebalance&#45;&gt;proc~map_s_get_child -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge9" class="edge">
+<title>proc~map_s_rebalance&#45;&gt;proc~map_s_get_child</title>
+<path fill="none" stroke="#00ff66" d="M314.17,-326.25C333.9,-345.14 375.02,-380.62 418,-394 576.61,-443.39 998.46,-380.36 1078,-335 1135.43,-302.25 1175.22,-231.18 1192.43,-195.44"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="1195.61,-196.9 1196.68,-186.36 1189.27,-193.93 1195.61,-196.9"/>
+</g>
+<!-- get_height -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node7" class="node">
+<title>get_height</title>
+<polygon fill="#777777" stroke="#777777" points="1017,-326 948,-326 948,-302 1017,-302 1017,-326"/>
+<text text-anchor="middle" x="982.5" y="-311.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_height</text>
+</g>
+<!-- proc~map_s_rebalance&#45;&gt;get_height -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge8" class="edge">
+<title>proc~map_s_rebalance&#45;&gt;get_height</title>
+<path fill="none" stroke="#00ff66" d="M382.18,-317.13C394.18,-317.49 406.41,-317.8 418,-318 611.75,-321.34 843.02,-317.12 937.76,-315.03"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="937.91,-318.53 947.83,-314.81 937.76,-311.53 937.91,-318.53"/>
+</g>
+<!-- proc~map_s_has_child -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node9" class="node">
+<title>proc~map_s_has_child</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CallsGraph_node9"><a xlink:href="../proc/map_s_has_child.html" xlink:title="map_s_Node%map_s_has_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="597,-385 418,-385 418,-361 597,-361 597,-385"/>
+<text text-anchor="middle" x="507.5" y="-370.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node%map_s_has_child</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_rebalance&#45;&gt;proc~map_s_has_child -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge10" class="edge">
+<title>proc~map_s_rebalance&#45;&gt;proc~map_s_has_child</title>
+<path fill="none" stroke="#00ff66" d="M343.88,-326.08C376,-335.35 420.5,-348.19 454.83,-358.09"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="454.1,-361.53 464.68,-360.93 456.04,-354.8 454.1,-361.53"/>
+</g>
+<!-- proc~map_s_rot -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node10" class="node">
+<title>proc~map_s_rot</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CallsGraph_node10"><a xlink:href="../proc/map_s_rot.html" xlink:title="map_Set%map_s_rot">
+<polygon fill="#d9534f" stroke="#d9534f" points="569,-264 446,-264 446,-240 569,-240 569,-264"/>
+<text text-anchor="middle" x="507.5" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_rot</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_rebalance&#45;&gt;proc~map_s_rot -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge11" class="edge">
+<title>proc~map_s_rebalance&#45;&gt;proc~map_s_rot</title>
+<path fill="none" stroke="#00ff66" d="M341.92,-301.9C374.85,-291.91 421.74,-277.7 457.05,-266.99"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="458.13,-270.32 466.69,-264.07 456.1,-263.62 458.13,-270.32"/>
+</g>
+<!-- proc~map_s_update_height -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node11" class="node">
+<title>proc~map_s_update_height</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CallsGraph_node11"><a xlink:href="../proc/map_s_update_height.html" xlink:title="map_s_Node%map_s_update_height">
+<polygon fill="#d9534f" stroke="#d9534f" points="845,-306 639,-306 639,-282 845,-282 845,-306"/>
+<text text-anchor="middle" x="742" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node%map_s_update_height</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_rebalance&#45;&gt;proc~map_s_update_height -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge12" class="edge">
+<title>proc~map_s_rebalance&#45;&gt;proc~map_s_update_height</title>
+<path fill="none" stroke="#00ff66" d="M382.01,-310.35C451,-307.21 551.39,-302.64 628.48,-299.13"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="628.88,-302.61 638.71,-298.66 628.57,-295.62 628.88,-302.61"/>
+</g>
+<!-- proc~map_s_get_parent -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node8" class="node">
+<title>proc~map_s_get_parent</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CallsGraph_node8"><a xlink:href="../proc/map_s_get_parent.html" xlink:title="map_s_Node%map_s_get_parent">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1076,-146 889,-146 889,-122 1076,-122 1076,-146"/>
+<text text-anchor="middle" x="982.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node%map_s_get_parent</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_which_side_am_i&#45;&gt;proc~map_s_get_parent -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge13" class="edge">
+<title>proc~map_s_which_side_am_i&#45;&gt;proc~map_s_get_parent</title>
+<path fill="none" stroke="#0066ff" d="M851.08,-123.06C860.22,-123.83 869.44,-124.6 878.53,-125.37"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="878.48,-128.87 888.73,-126.22 879.06,-121.9 878.48,-128.87"/>
+</g>
+<!-- proc~map_s_which_child -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node12" class="node">
+<title>proc~map_s_which_child</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CallsGraph_node12"><a xlink:href="../proc/map_s_which_child.html" xlink:title="map_s_Node%map_s_which_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1078,-104 887,-104 887,-80 1078,-80 1078,-104"/>
+<text text-anchor="middle" x="982.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node%map_s_which_child</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_which_side_am_i&#45;&gt;proc~map_s_which_child -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge14" class="edge">
+<title>proc~map_s_which_side_am_i&#45;&gt;proc~map_s_which_child</title>
+<path fill="none" stroke="#0066ff" d="M851.08,-104.03C859.68,-103.24 868.35,-102.44 876.92,-101.65"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="877.28,-105.13 886.92,-100.72 876.64,-98.16 877.28,-105.13"/>
+</g>
+<!-- proc~map_s_rot&#45;&gt;proc~map_s_get_child -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge15" class="edge">
+<title>proc~map_s_rot&#45;&gt;proc~map_s_get_child</title>
+<path fill="none" stroke="#00ff91" d="M569.16,-240.88C589.42,-237.41 612.14,-233.76 633,-231 829.98,-204.9 880.38,-208.7 1078,-188 1086.36,-187.12 1095.04,-186.19 1103.74,-185.24"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="1104.4,-188.69 1113.96,-184.12 1103.63,-181.73 1104.4,-188.69"/>
+</g>
+<!-- proc~map_s_rot&#45;&gt;proc~map_s_which_side_am_i -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge18" class="edge">
+<title>proc~map_s_rot&#45;&gt;proc~map_s_which_side_am_i</title>
+<path fill="none" stroke="#00ff91" d="M528.73,-239.99C570.03,-215.48 664.22,-159.57 712.02,-131.2"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="713.84,-134.19 720.66,-126.08 710.27,-128.17 713.84,-134.19"/>
+</g>
+<!-- proc~map_s_rot&#45;&gt;proc~map_s_update_height -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge17" class="edge">
+<title>proc~map_s_rot&#45;&gt;proc~map_s_update_height</title>
+<path fill="none" stroke="#00ff91" d="M569.28,-262.98C598.42,-268.24 633.63,-274.6 664.56,-280.19"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="663.98,-283.64 674.44,-281.98 665.22,-276.75 663.98,-283.64"/>
+</g>
+<!-- proc~map_s_set_parent -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_node14" class="node">
+<title>proc~map_s_set_parent</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CallsGraph_node14"><a xlink:href="../proc/map_s_set_parent.html" xlink:title="map_s_Node%map_s_set_parent">
+<polygon fill="#d9534f" stroke="#d9534f" points="834.5,-264 649.5,-264 649.5,-240 834.5,-240 834.5,-264"/>
+<text text-anchor="middle" x="742" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_s_Node%map_s_set_parent</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_rot&#45;&gt;proc~map_s_set_parent -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge16" class="edge">
+<title>proc~map_s_rot&#45;&gt;proc~map_s_set_parent</title>
+<path fill="none" stroke="#00ff91" d="M569.28,-252C590.71,-252 615.42,-252 639.3,-252"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="639.47,-255.5 649.47,-252 639.47,-248.5 639.47,-255.5"/>
+</g>
+<!-- proc~map_s_update_height&#45;&gt;get_height -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge19" class="edge">
+<title>proc~map_s_update_height&#45;&gt;get_height</title>
+<path fill="none" stroke="#0091ff" d="M845.18,-302.57C877.52,-305.28 911.57,-308.14 937.54,-310.31"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="937.54,-313.83 947.8,-311.17 938.12,-306.85 937.54,-313.83"/>
+</g>
+<!-- proc~map_s_which_child&#45;&gt;proc~map_s_get_child -->
+<g id="proc~~map_s_erase_nonleaf~~CallsGraph_edge20" class="edge">
+<title>proc~map_s_which_child&#45;&gt;proc~map_s_get_child</title>
+<path fill="none" stroke="#4800ff" d="M1047.37,-104.01C1057.73,-106.58 1068.25,-109.57 1078,-113 1111.52,-124.78 1147.75,-143.34 1172.34,-156.9"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="1170.73,-160.01 1181.17,-161.82 1174.14,-153.89 1170.73,-160.01"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmap_s_erase_nonleafCallsGraph = svgPanZoom('#procmap_s_erase_nonleafCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~map_s_erase_nonleaf~~CalledByGraph Pages: 1 -->
+<svg id="procmap_s_erase_nonleafCalledByGraph" width="641pt" height="81pt"
+ viewBox="0.00 0.00 641.00 81.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph" class="graph" transform="scale(0.7 0.7) rotate(0) translate(4 112)">
+<title>proc~~map_s_erase_nonleaf~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 914,-112 914,4 -4,4"/>
+<!-- proc~map_s_erase_nonleaf -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_node1" class="node">
+<title>proc~map_s_erase_nonleaf</title>
+<polygon fill="none" stroke="black" points="910,-108 726,-108 726,-84 910,-84 910,-108"/>
+<text text-anchor="middle" x="818" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">map_Set%map_s_erase_nonleaf</text>
+</g>
+<!-- proc~map_s_erase_range -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_node2" class="node">
+<title>proc~map_s_erase_range</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CalledByGraph_node2"><a xlink:href="../proc/map_s_erase_range.html" xlink:title="map_Set%map_s_erase_range">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="690,-108 515,-108 515,-84 690,-84 690,-108"/>
+<text text-anchor="middle" x="602.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_erase_range</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_erase_range&#45;&gt;proc~map_s_erase_nonleaf -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_edge1" class="edge">
+<title>proc~map_s_erase_range&#45;&gt;proc~map_s_erase_nonleaf</title>
+<path fill="none" stroke="#ff0000" d="M690.03,-96C698.5,-96 707.16,-96 715.76,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="715.82,-99.5 725.82,-96 715.82,-92.5 715.82,-99.5"/>
+</g>
+<!-- none~erase~10 -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_node3" class="node">
+<title>none~erase~10</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CalledByGraph_node3"><a xlink:href="../type/map_set.html#boundprocedure-erase~10" xlink:title="map_Set%erase">
+<polygon fill="#a7506f" stroke="#a7506f" points="479,-66 380,-66 380,-42 479,-42 479,-66"/>
+<text text-anchor="middle" x="429.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%erase</text>
+</a>
+</g>
+</g>
+<!-- none~erase~10&#45;&gt;proc~map_s_erase_range -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_edge2" class="edge">
+<title>none~erase~10&#45;&gt;proc~map_s_erase_range</title>
+<path fill="none" stroke="#ff0000" d="M478.75,-66.04C490.6,-68.98 503.26,-72.12 515,-75 523.61,-77.12 532.71,-79.34 541.65,-81.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="541.09,-84.98 551.63,-83.94 542.74,-78.18 541.09,-84.98"/>
+</g>
+<!-- proc~map_s_erase_iter -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_node6" class="node">
+<title>proc~map_s_erase_iter</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CalledByGraph_node6"><a xlink:href="../proc/map_s_erase_iter.html" xlink:title="map_Set%map_s_erase_iter">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="683.5,-66 521.5,-66 521.5,-42 683.5,-42 683.5,-66"/>
+<text text-anchor="middle" x="602.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_erase_iter</text>
+</a>
+</g>
+</g>
+<!-- none~erase~10&#45;&gt;proc~map_s_erase_iter -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_edge9" class="edge">
+<title>none~erase~10&#45;&gt;proc~map_s_erase_iter</title>
+<path fill="none" stroke="#00ff66" d="M479.04,-47.84C489.17,-47.5 500.16,-47.3 511.26,-47.26"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="511.45,-50.76 521.45,-47.26 511.45,-43.76 511.45,-50.76"/>
+</g>
+<!-- proc~map_s_erase_value -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_node7" class="node">
+<title>proc~map_s_erase_value</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CalledByGraph_node7"><a xlink:href="../proc/map_s_erase_value.html" xlink:title="map_Set%map_s_erase_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="689,-24 516,-24 516,0 689,0 689,-24"/>
+<text text-anchor="middle" x="602.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_erase_value</text>
+</a>
+</g>
+</g>
+<!-- none~erase~10&#45;&gt;proc~map_s_erase_value -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_edge10" class="edge">
+<title>none~erase~10&#45;&gt;proc~map_s_erase_value</title>
+<path fill="none" stroke="#0066ff" d="M450.3,-41.89C465.01,-36.63 485.85,-31.22 506.06,-26.21"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="507.03,-29.57 515.9,-23.78 505.35,-22.78 507.03,-29.57"/>
+</g>
+<!-- proc~map_erase_iter -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_node4" class="node">
+<title>proc~map_erase_iter</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CalledByGraph_node4"><a xlink:href="../proc/map_erase_iter.html" xlink:title="CallbackMap%map_erase_iter">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="337,-108 164,-108 164,-84 337,-84 337,-108"/>
+<text text-anchor="middle" x="250.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CallbackMap%map_erase_iter</text>
+</a>
+</g>
+</g>
+<!-- proc~map_erase_iter&#45;&gt;none~erase~10 -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_edge3" class="edge">
+<title>proc~map_erase_iter&#45;&gt;none~erase~10</title>
+<path fill="none" stroke="#ff0000" d="M305.35,-83.97C318.03,-81.08 331.5,-77.97 344,-75 352.65,-72.94 361.8,-70.72 370.74,-68.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="371.86,-71.85 380.73,-66.05 370.18,-65.05 371.86,-71.85"/>
+</g>
+<!-- proc~map_erase_range -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_node5" class="node">
+<title>proc~map_erase_range</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CalledByGraph_node5"><a xlink:href="../proc/map_erase_range.html" xlink:title="CallbackMap%map_erase_range">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="344,-66 157,-66 157,-42 344,-42 344,-66"/>
+<text text-anchor="middle" x="250.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CallbackMap%map_erase_range</text>
+</a>
+</g>
+</g>
+<!-- proc~map_erase_range&#45;&gt;none~erase~10 -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_edge4" class="edge">
+<title>proc~map_erase_range&#45;&gt;none~erase~10</title>
+<path fill="none" stroke="#ff0000" d="M344.15,-54C352.85,-54 361.5,-54 369.76,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="369.99,-57.5 379.99,-54 369.99,-50.5 369.99,-57.5"/>
+</g>
+<!-- proc~map_s_erase_iter&#45;&gt;none~erase~10 -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_edge5" class="edge">
+<title>proc~map_s_erase_iter&#45;&gt;none~erase~10</title>
+<path fill="none" stroke="#ff0000" d="M521.45,-60.74C510.59,-60.79 499.61,-60.69 489.22,-60.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="489.14,-56.94 479.04,-60.16 488.94,-63.94 489.14,-56.94"/>
+</g>
+<!-- proc~map_s_erase_value&#45;&gt;none~erase~10 -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_edge6" class="edge">
+<title>proc~map_s_erase_value&#45;&gt;none~erase~10</title>
+<path fill="none" stroke="#ff0000" d="M581.22,-24.04C563.68,-30.13 537.66,-36.43 515,-42 506.57,-44.07 497.68,-46.27 488.95,-48.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="488.15,-44.92 479.19,-50.59 489.73,-51.74 488.15,-44.92"/>
+</g>
+<!-- proc~map_s_merge -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_node8" class="node">
+<title>proc~map_s_merge</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CalledByGraph_node8"><a xlink:href="../proc/map_s_merge.html" xlink:title="map_Set%map_s_merge">
+<polygon fill="#d9534f" stroke="#d9534f" points="322.5,-24 178.5,-24 178.5,0 322.5,0 322.5,-24"/>
+<text text-anchor="middle" x="250.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_Set%map_s_merge</text>
+</a>
+</g>
+</g>
+<!-- proc~map_s_merge&#45;&gt;none~erase~10 -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_edge7" class="edge">
+<title>proc~map_s_merge&#45;&gt;none~erase~10</title>
+<path fill="none" stroke="#ff0000" d="M305.35,-24.03C318.03,-26.92 331.5,-30.03 344,-33 352.65,-35.06 361.8,-37.28 370.74,-39.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="370.18,-42.95 380.73,-41.95 371.86,-36.15 370.18,-42.95"/>
+</g>
+<!-- none~erase~13 -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_node9" class="node">
+<title>none~erase~13</title>
+<g id="a_proc~~map_s_erase_nonleaf~~CalledByGraph_node9"><a xlink:href="../type/callbackmap.html#boundprocedure-erase~13" xlink:title="CallbackMap%erase">
+<polygon fill="#a7506f" stroke="#a7506f" points="121,-66 0,-66 0,-42 121,-42 121,-66"/>
+<text text-anchor="middle" x="60.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CallbackMap%erase</text>
+</a>
+</g>
+</g>
+<!-- none~erase~13&#45;&gt;proc~map_erase_range -->
+<g id="proc~~map_s_erase_nonleaf~~CalledByGraph_edge8" class="edge">
+<title>none~erase~13&#45;&gt;proc~map_erase_range</title>
+<path fill="none" stroke="#cbff00" d="M121.24,-54C129.43,-54 138.03,-54 146.72,-54"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="146.96,-57.5 156.96,-54 146.96,-50.5 146.96,-57.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmap_s_erase_nonleafCalledByGraph = svgPanZoom('#procmap_s_erase_nonleafCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-04T15:10:44.923756             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

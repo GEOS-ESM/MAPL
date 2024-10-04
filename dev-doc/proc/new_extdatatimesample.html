@@ -1,0 +1,886 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>new_ExtDataTimeSample &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>new_ExtDataTimeSample
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">53 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataSample.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatasample.f90.html'>ExtDataSample.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatatimesample.html'>MAPL_ExtDataTimeSample</a></li>
+            <li class="breadcrumb-item active" aria-current="page">new_ExtDataTimeSample</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/new_extdatatimesample.html#src">new_ExtDataTimeSample</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function new_ExtDataTimeSample(config, unusable, rc) result(TimeSample)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-config~66"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_hconfig.html'>ESMF_HConfig</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>config</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~360"></span>
+              class(<a href='../type/keywordenforcer~57.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2026"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-timesample"></span>
+          type(<a href='../type/extdatatimesample.html'>ExtDataTimeSample</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~new_extdatatimesample~~CallsGraph Pages: 1 -->
+<svg id="procnew_extdatatimesampleCallsGraph" width="641pt" height="269pt"
+ viewBox="0.00 0.00 641.00 269.24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~new_extdatatimesample~~CallsGraph" class="graph" transform="scale(0.64 0.64) rotate(0) translate(4 416.03)">
+<title>proc~~new_extdatatimesample~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-416.03 996,-416.03 996,4 -4,4"/>
+<!-- proc~new_extdatatimesample -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node1" class="node">
+<title>proc~new_extdatatimesample</title>
+<polygon fill="none" stroke="black" points="148,-269.03 0,-269.03 0,-245.03 148,-245.03 148,-269.03"/>
+<text text-anchor="middle" x="74" y="-254.63" font-family="Helvetica,sans-Serif" font-size="10.50">new_ExtDataTimeSample</text>
+</g>
+<!-- esmf_hconfigaslogical -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node2" class="node">
+<title>esmf_hconfigaslogical</title>
+<polygon fill="#777777" stroke="#777777" points="347,-412.03 216,-412.03 216,-388.03 347,-388.03 347,-412.03"/>
+<text text-anchor="middle" x="281.5" y="-397.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigaslogical</text>
+</g>
+<!-- proc~new_extdatatimesample&#45;&gt;esmf_hconfigaslogical -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge1" class="edge">
+<title>proc~new_extdatatimesample&#45;&gt;esmf_hconfigaslogical</title>
+<path fill="none" stroke="#ff0000" d="M82.23,-269.37C97.56,-294.37 135.91,-350.98 184,-379.03 190.9,-383.05 198.48,-386.3 206.27,-388.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="205.25,-392.28 215.84,-391.85 207.29,-385.59 205.25,-392.28"/>
+</g>
+<!-- esmf_hconfigasstring -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node3" class="node">
+<title>esmf_hconfigasstring</title>
+<polygon fill="#777777" stroke="#777777" points="344.5,-370.03 218.5,-370.03 218.5,-346.03 344.5,-346.03 344.5,-370.03"/>
+<text text-anchor="middle" x="281.5" y="-355.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigasstring</text>
+</g>
+<!-- proc~new_extdatatimesample&#45;&gt;esmf_hconfigasstring -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge2" class="edge">
+<title>proc~new_extdatatimesample&#45;&gt;esmf_hconfigasstring</title>
+<path fill="none" stroke="#ff0000" d="M87.61,-269.1C106.82,-286.8 145.27,-319.56 184,-337.03 191.7,-340.5 200,-343.41 208.39,-345.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="207.69,-349.29 218.26,-348.5 209.51,-342.53 207.69,-349.29"/>
+</g>
+<!-- esmf_hconfigisdefined -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node4" class="node">
+<title>esmf_hconfigisdefined</title>
+<polygon fill="#777777" stroke="#777777" points="348,-328.03 215,-328.03 215,-304.03 348,-304.03 348,-328.03"/>
+<text text-anchor="middle" x="281.5" y="-313.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigisdefined</text>
+</g>
+<!-- proc~new_extdatatimesample&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge3" class="edge">
+<title>proc~new_extdatatimesample&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#ff0000" d="M113.76,-269.08C134.54,-275.46 160.62,-283.34 184,-290.03 197.16,-293.79 211.37,-297.7 224.74,-301.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="224.2,-304.8 234.77,-304.01 226.02,-298.04 224.2,-304.8"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node5" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~new_extdatatimesample~~CallsGraph_node5"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="520,-292.03 441,-292.03 441,-268.03 520,-268.03 520,-292.03"/>
+<text text-anchor="middle" x="480.5" y="-277.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~new_extdatatimesample&#45;&gt;interface~mapl_assert -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge4" class="edge">
+<title>proc~new_extdatatimesample&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M148.25,-261.19C230.11,-265.85 360.35,-273.25 430.65,-277.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="430.81,-280.76 440.99,-277.84 431.21,-273.77 430.81,-280.76"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node6" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~new_extdatatimesample~~CallsGraph_node6"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="697,-170.03 615,-170.03 615,-146.03 697,-146.03 697,-170.03"/>
+<text text-anchor="middle" x="656" y="-155.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~new_extdatatimesample&#45;&gt;proc~mapl_return -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge5" class="edge">
+<title>proc~new_extdatatimesample&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M81.58,-244.8C96.52,-218.09 135.45,-153.9 184,-116.03 272.35,-47.11 305.32,-37.96 415,-15.03 471.99,-3.11 493.82,10.81 546,-15.03 597.46,-40.51 631.25,-103.22 646.19,-136.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="643.04,-138.01 650.22,-145.79 649.46,-135.22 643.04,-138.01"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node7" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~new_extdatatimesample~~CallsGraph_node7"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="518.5,-250.03 442.5,-250.03 442.5,-226.03 518.5,-226.03 518.5,-250.03"/>
+<text text-anchor="middle" x="480.5" y="-235.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~new_extdatatimesample&#45;&gt;proc~mapl_verify -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge6" class="edge">
+<title>proc~new_extdatatimesample&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M148.25,-253.59C230.65,-249.71 362.07,-243.54 432.04,-240.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="432.49,-243.74 442.32,-239.77 432.16,-236.75 432.49,-243.74"/>
+</g>
+<!-- proc~set_defaults~3 -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node8" class="node">
+<title>proc~set_defaults~3</title>
+<g id="a_proc~~new_extdatatimesample~~CallsGraph_node8"><a xlink:href="../proc/set_defaults~3.html" xlink:title="ExtDataTimeSample%set_defaults">
+<polygon fill="#d9534f" stroke="#d9534f" points="379,-210.03 184,-210.03 184,-186.03 379,-186.03 379,-210.03"/>
+<text text-anchor="middle" x="281.5" y="-195.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataTimeSample%set_defaults</text>
+</a>
+</g>
+</g>
+<!-- proc~new_extdatatimesample&#45;&gt;proc~set_defaults~3 -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge7" class="edge">
+<title>proc~new_extdatatimesample&#45;&gt;proc~set_defaults~3</title>
+<path fill="none" stroke="#ff0000" d="M113.76,-244.97C134.54,-238.59 160.62,-230.71 184,-224.03 197.16,-220.26 211.37,-216.35 224.74,-212.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="226.02,-216.02 234.77,-210.04 224.2,-209.26 226.02,-216.02"/>
+</g>
+<!-- proc~string_to_esmf_time -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node9" class="node">
+<title>proc~string_to_esmf_time</title>
+<g id="a_proc~~new_extdatatimesample~~CallsGraph_node9"><a xlink:href="../proc/string_to_esmf_time.html" xlink:title="string_to_esmf_time">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="341,-149.03 222,-149.03 222,-125.03 341,-125.03 341,-149.03"/>
+<text text-anchor="middle" x="281.5" y="-134.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">string_to_esmf_time</text>
+</a>
+</g>
+</g>
+<!-- proc~new_extdatatimesample&#45;&gt;proc~string_to_esmf_time -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge8" class="edge">
+<title>proc~new_extdatatimesample&#45;&gt;proc~string_to_esmf_time</title>
+<path fill="none" stroke="#ff0000" d="M89.05,-244.98C109.12,-228.2 147.6,-197.53 184,-177.03 200.38,-167.8 219.31,-159.49 236.05,-152.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="237.55,-156.03 245.62,-149.16 235.03,-149.5 237.55,-156.03"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node12" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~new_extdatatimesample~~CallsGraph_node12"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="723,-292.03 589,-292.03 589,-268.03 723,-268.03 723,-292.03"/>
+<text text-anchor="middle" x="656" y="-277.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M520.01,-280.03C537.34,-280.03 558.45,-280.03 578.77,-280.03"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="578.99,-283.53 588.99,-280.03 578.99,-276.53 578.99,-283.53"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node13" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~new_extdatatimesample~~CallsGraph_node13"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="730,-250.03 582,-250.03 582,-226.03 730,-226.03 730,-250.03"/>
+<text text-anchor="middle" x="656" y="-235.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M520.01,-270.7C542.22,-265.33 570.61,-258.45 595.62,-252.4"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="596.49,-255.79 605.38,-250.04 594.84,-248.99 596.49,-255.79"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node11" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~new_extdatatimesample~~CallsGraph_node11"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="890,-189.03 775,-189.03 775,-165.03 890,-165.03 890,-189.03"/>
+<text text-anchor="middle" x="832.5" y="-174.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M697.03,-162.38C717.11,-164.57 741.95,-167.28 764.8,-169.76"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="764.47,-173.25 774.79,-170.85 765.23,-166.29 764.47,-173.25"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node14" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~new_extdatatimesample~~CallsGraph_node14"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="899,-245.03 766,-245.03 766,-221.03 899,-221.03 899,-245.03"/>
+<text text-anchor="middle" x="832.5" y="-230.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M693.31,-170.09C705.12,-174.25 718.21,-179.1 730,-184.03 753.58,-193.88 779.53,-206.44 799.28,-216.37"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="797.94,-219.62 808.44,-221.02 801.1,-213.37 797.94,-219.62"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#003fff" d="M518.91,-228.29C537.7,-223.9 560.9,-219.21 582,-217.03 647.43,-210.26 664.42,-211.89 730,-217.03 738.37,-217.68 747.1,-218.64 755.76,-219.76"/>
+<polygon fill="#003fff" stroke="#003fff" points="755.5,-223.26 765.89,-221.15 756.45,-216.32 755.5,-223.26"/>
+</g>
+<!-- proc~set_defaults~3&#45;&gt;proc~mapl_return -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge14" class="edge">
+<title>proc~set_defaults~3&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7f00ff" d="M379.14,-193.8C429.1,-190.93 490.98,-186.28 546,-179.03 565.34,-176.47 586.44,-172.66 604.87,-168.97"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="605.71,-172.37 614.81,-166.95 604.31,-165.51 605.71,-172.37"/>
+</g>
+<!-- proc~set_defaults~3&#45;&gt;proc~mapl_verify -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge15" class="edge">
+<title>proc~set_defaults~3&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#7f00ff" d="M341.61,-210.03C370.65,-215.92 405.16,-222.93 432.4,-228.46"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="431.95,-231.94 442.45,-230.5 433.35,-225.08 431.95,-231.94"/>
+</g>
+<!-- proc~string_to_esmf_time&#45;&gt;proc~mapl_return -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge17" class="edge">
+<title>proc~string_to_esmf_time&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff00bf" d="M341.26,-133.84C394.76,-131.69 475.87,-130.33 546,-137.03 565.42,-138.88 586.53,-142.55 604.96,-146.31"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="604.38,-149.77 614.89,-148.4 605.82,-142.92 604.38,-149.77"/>
+</g>
+<!-- proc~string_to_esmf_time&#45;&gt;proc~mapl_verify -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge18" class="edge">
+<title>proc~string_to_esmf_time&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff00bf" d="M315.22,-149.15C334.17,-156.53 358.3,-166.53 379,-177.03 404.89,-190.15 433.03,-207.52 452.93,-220.37"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="451.17,-223.39 461.46,-225.92 454.99,-217.53 451.17,-223.39"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node10" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_proc~~new_extdatatimesample~~CallsGraph_node10"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="525.5,-90.03 435.5,-90.03 435.5,-66.03 525.5,-66.03 525.5,-90.03"/>
+<text text-anchor="middle" x="480.5" y="-75.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~string_to_esmf_time&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge16" class="edge">
+<title>proc~string_to_esmf_time&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#ff00bf" d="M322.84,-124.94C353.65,-115.72 396.28,-102.95 429.3,-93.06"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="430.64,-96.31 439.21,-90.09 428.63,-89.61 430.64,-96.31"/>
+</g>
+<!-- proc~string_to_integer_date -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node15" class="node">
+<title>proc~string_to_integer_date</title>
+<g id="a_proc~~new_extdatatimesample~~CallsGraph_node15"><a xlink:href="../proc/string_to_integer_date.html" xlink:title="string_to_integer_date">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="546,-48.03 415,-48.03 415,-24.03 546,-24.03 546,-48.03"/>
+<text text-anchor="middle" x="480.5" y="-33.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">string_to_integer_date</text>
+</a>
+</g>
+</g>
+<!-- proc~string_to_esmf_time&#45;&gt;proc~string_to_integer_date -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge19" class="edge">
+<title>proc~string_to_esmf_time&#45;&gt;proc~string_to_integer_date</title>
+<path fill="none" stroke="#ff00bf" d="M299.79,-124.81C324.44,-107.83 371.5,-76.92 415,-57.03 419.15,-55.13 423.52,-53.32 427.95,-51.63"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="429.47,-54.8 437.67,-48.1 427.08,-48.22 429.47,-54.8"/>
+</g>
+<!-- proc~string_to_integer_time -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node16" class="node">
+<title>proc~string_to_integer_time</title>
+<g id="a_proc~~new_extdatatimesample~~CallsGraph_node16"><a xlink:href="../proc/string_to_integer_time.html" xlink:title="string_to_integer_time">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="546,-170.03 415,-170.03 415,-146.03 546,-146.03 546,-170.03"/>
+<text text-anchor="middle" x="480.5" y="-155.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">string_to_integer_time</text>
+</a>
+</g>
+</g>
+<!-- proc~string_to_esmf_time&#45;&gt;proc~string_to_integer_time -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge20" class="edge">
+<title>proc~string_to_esmf_time&#45;&gt;proc~string_to_integer_time</title>
+<path fill="none" stroke="#ff00bf" d="M341.07,-143.27C361.05,-145.4 383.67,-147.81 404.75,-150.06"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="404.64,-153.57 414.96,-151.15 405.38,-146.61 404.64,-153.57"/>
+</g>
+<!-- at -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node17" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="990.5,-156.03 936.5,-156.03 936.5,-132.03 990.5,-132.03 990.5,-156.03"/>
+<text text-anchor="middle" x="963.5" y="-141.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge21" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ffda00" d="M880.44,-165.02C895.62,-161.13 912.22,-156.89 926.49,-153.24"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="927.59,-156.57 936.41,-150.7 925.86,-149.79 927.59,-156.57"/>
+</g>
+<!-- insert -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node18" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="990.5,-198.03 936.5,-198.03 936.5,-174.03 990.5,-174.03 990.5,-198.03"/>
+<text text-anchor="middle" x="963.5" y="-183.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge22" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ffda00" d="M890.08,-180.97C902.29,-181.83 914.89,-182.7 926.08,-183.48"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="926.1,-186.99 936.32,-184.2 926.59,-180.01 926.1,-186.99"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#48ff00" d="M701.94,-267.92C724.84,-261.75 752.87,-254.21 776.99,-247.71"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="777.97,-251.07 786.71,-245.09 776.15,-244.31 777.97,-251.07"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff91" d="M691.48,-225.97C718.96,-216.37 757.64,-202.85 787.38,-192.45"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="788.81,-195.66 797.1,-189.05 786.5,-189.05 788.81,-195.66"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff91" d="M730.25,-235.93C738.67,-235.69 747.27,-235.44 755.72,-235.2"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="756.04,-238.69 765.94,-234.9 755.84,-231.69 756.04,-238.69"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_node19" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~new_extdatatimesample~~CallsGraph_node19"><a xlink:href="../proc/initialize~12.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="992,-245.03 935,-245.03 935,-221.03 992,-221.03 992,-245.03"/>
+<text text-anchor="middle" x="963.5" y="-230.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="#0091ff" d="M899.13,-233.03C907.88,-233.03 916.59,-233.03 924.63,-233.03"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="924.77,-236.53 934.77,-233.03 924.77,-229.53 924.77,-236.53"/>
+</g>
+<!-- proc~string_to_integer_date&#45;&gt;proc~mapl_return -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge27" class="edge">
+<title>proc~string_to_integer_date&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#4800ff" d="M527,-48.07C533.58,-50.6 540.11,-53.57 546,-57.03 583.45,-79.02 618.77,-115.76 638.58,-138.34"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="635.97,-140.67 645.15,-145.97 641.27,-136.11 635.97,-140.67"/>
+</g>
+<!-- proc~string_to_integer_time&#45;&gt;proc~mapl_return -->
+<g id="proc~~new_extdatatimesample~~CallsGraph_edge28" class="edge">
+<title>proc~string_to_integer_time&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff00da" d="M546.1,-158.03C565.44,-158.03 586.36,-158.03 604.64,-158.03"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="604.78,-161.53 614.78,-158.03 604.78,-154.53 604.78,-161.53"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocnew_extdatatimesampleCallsGraph = svgPanZoom('#procnew_extdatatimesampleCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~new_extdatatimesample~~CalledByGraph Pages: 1 -->
+<svg id="procnew_extdatatimesampleCalledByGraph" width="313pt" height="32pt"
+ viewBox="0.00 0.00 313.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~new_extdatatimesample~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~new_extdatatimesample~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 309,-28 309,4 -4,4"/>
+<!-- proc~new_extdatatimesample -->
+<g id="proc~~new_extdatatimesample~~CalledByGraph_node1" class="node">
+<title>proc~new_extdatatimesample</title>
+<polygon fill="none" stroke="black" points="305,-24 157,-24 157,0 305,0 305,-24"/>
+<text text-anchor="middle" x="231" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">new_ExtDataTimeSample</text>
+</g>
+<!-- interface~extdatatimesample -->
+<g id="proc~~new_extdatatimesample~~CalledByGraph_node2" class="node">
+<title>interface~extdatatimesample</title>
+<g id="a_proc~~new_extdatatimesample~~CalledByGraph_node2"><a xlink:href="../interface/extdatatimesample.html" xlink:title="ExtDataTimeSample">
+<polygon fill="#a7506f" stroke="#a7506f" points="121,-24 0,-24 0,0 121,0 121,-24"/>
+<text text-anchor="middle" x="60.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataTimeSample</text>
+</a>
+</g>
+</g>
+<!-- interface~extdatatimesample&#45;&gt;proc~new_extdatatimesample -->
+<g id="proc~~new_extdatatimesample~~CalledByGraph_edge1" class="edge">
+<title>interface~extdatatimesample&#45;&gt;proc~new_extdatatimesample</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M121.38,-12C129.61,-12 138.17,-12 146.73,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="146.74,-15.5 156.74,-12 146.74,-8.5 146.74,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">new_ExtDataTimeSample</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">unusable</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">TimeSample</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataTimeSample</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TimeSample</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source_str</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">idx</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">TimeSample</span><span class="p">%</span><span class="n">set_defaults</span><span class="p">()</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;extrapolation&quot;</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">TimeSample</span><span class="p">%</span><span class="n">extrap_outside</span><span class="o">=</span><span class="n">ESMF_HConfigAsString</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;extrapolation&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;time_interpolation&quot;</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">TimeSample</span><span class="p">%</span><span class="n">time_interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsLogical</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;time_interpolation&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">TimeSample</span><span class="p">%</span><span class="n">time_interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;exact&quot;</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">TimeSample</span><span class="p">%</span><span class="n">exact</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsLogical</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;exact&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">TimeSample</span><span class="p">%</span><span class="n">exact</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;update_reference_time&quot;</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">TimeSample</span><span class="p">%</span><span class="n">refresh_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsString</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;update_reference_time&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;update_frequency&quot;</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">TimeSample</span><span class="p">%</span><span class="n">refresh_frequency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsString</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;update_frequency&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;update_offset&quot;</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">TimeSample</span><span class="p">%</span><span class="n">refresh_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsString</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;update_offset&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;source_time&quot;</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">source_str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsString</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="n">keyString</span><span class="o">=</span><span class="s2">&quot;source_time&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">TimeSample</span><span class="p">%</span><span class="n">source_time</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">TimeSample</span><span class="p">%</span><span class="n">source_time</span><span class="p">)</span>
+<span class="w">         </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">source_str</span><span class="p">,</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">idx</span><span class="o">/=</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;invalid specification of source_time&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">TimeSample</span><span class="p">%</span><span class="n">source_time</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="w">         </span><span class="n">TimeSample</span><span class="p">%</span><span class="n">source_time</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">string_to_esmf_time</span><span class="p">(</span><span class="n">source_str</span><span class="p">(:</span><span class="n">idx</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">         </span><span class="n">TimeSample</span><span class="p">%</span><span class="n">source_time</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="n">string_to_esmf_time</span><span class="p">(</span><span class="n">source_str</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:))</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">allocated</span><span class="p">(</span><span class="n">TimeSample</span><span class="p">%</span><span class="n">source_time</span><span class="p">))</span><span class="w"> </span><span class="k">allocate</span><span class="p">(</span><span class="n">TimeSample</span><span class="p">%</span><span class="n">source_time</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end function </span><span class="n">new_ExtDataTimeSample</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-04T15:10:44.923756             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

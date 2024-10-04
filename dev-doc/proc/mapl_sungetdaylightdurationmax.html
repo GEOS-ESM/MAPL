@@ -1,0 +1,716 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_SunGetDaylightDurationMax &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_SunGetDaylightDurationMax
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">36 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_sun_uc.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_sun_uc.f90.html'>MAPL_sun_uc.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_sunmod.html'>MAPL_SunMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_SunGetDaylightDurationMax</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_sungetdaylightdurationmax.html#src">MAPL_SunGetDaylightDurationMax</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_SunGetDaylightDurationMax(ORBIT, LATS, DAYL, currTime, CLOCK, RC)  
+</h2>
+    
+
+    <p>Return the daylight duration in seconds (i.e, the time between sunrise and sunset) for
+its MAXIMUM at the summer solstice. The routine is accurate enough for most purposes,
+but does not solve for precise sunrise/sunset times influenced by changes in the orbital
+parameters between those times. The time input does NOT need to be noon &mdash; it is used
+simply to evaluate the obliquity needed for the maximum daylight duration calculation.
+In order of preference, time is taken from currTime, if present, or else the currTime
+of CLOCK, if present, or else the currTime of the ORBIT&rsquo;s associated clock.
+Note: Unless ORBIT_ANAL2B, the obliquity is fixed and the time is irrelevant.</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orbit~15"></span>
+              type(<a href='../type/mapl_sunorbit.html'>MAPL_SunOrbit</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ORBIT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lats~11"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:)
+            </td>
+            <td>::</td>
+            <td><strong>LATS</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dayl~2"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(:)
+            </td>
+            <td>::</td>
+            <td><strong>DAYL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-currtime~30"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>currTime</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~57"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLOCK</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~454"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_sungetdaylightdurationmax~~CallsGraph Pages: 1 -->
+<svg id="procmapl_sungetdaylightdurationmaxCallsGraph" width="641pt" height="192pt"
+ viewBox="0.00 0.00 641.00 192.38" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph" class="graph" transform="scale(0.78 0.78) rotate(0) translate(4 243)">
+<title>proc~~mapl_sungetdaylightdurationmax~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-243 819,-243 819,4 -4,4"/>
+<!-- proc~mapl_sungetdaylightdurationmax -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node1" class="node">
+<title>proc~mapl_sungetdaylightdurationmax</title>
+<polygon fill="none" stroke="black" points="198,-137 0,-137 0,-113 198,-113 198,-137"/>
+<text text-anchor="middle" x="99" y="-122.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SunGetDaylightDurationMax</text>
+</g>
+<!-- ESMF_ClockGet -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node2" class="node">
+<title>ESMF_ClockGet</title>
+<g id="a_proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockget.html" xlink:title="ESMF_ClockGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="348.5,-239 254.5,-239 254.5,-215 348.5,-215 348.5,-239"/>
+<text text-anchor="middle" x="301.5" y="-224.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sungetdaylightdurationmax&#45;&gt;ESMF_ClockGet -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_sungetdaylightdurationmax&#45;&gt;ESMF_ClockGet</title>
+<path fill="none" stroke="#ff0000" d="M117.04,-137.13C141.82,-154.33 189.67,-185.95 234,-206 238.32,-207.96 242.88,-209.8 247.5,-211.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="246.42,-214.86 257.01,-214.91 248.76,-208.27 246.42,-214.86"/>
+</g>
+<!-- ESMF_TimeIntervalGet -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node3" class="node">
+<title>ESMF_TimeIntervalGet</title>
+<g id="a_proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalget.html" xlink:title="ESMF_TimeIntervalGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="367.5,-197 235.5,-197 235.5,-173 367.5,-173 367.5,-197"/>
+<text text-anchor="middle" x="301.5" y="-182.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sungetdaylightdurationmax&#45;&gt;ESMF_TimeIntervalGet -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_sungetdaylightdurationmax&#45;&gt;ESMF_TimeIntervalGet</title>
+<path fill="none" stroke="#ff0000" d="M140.57,-137.14C172.34,-146.65 216.67,-159.91 250.61,-170.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="249.75,-173.46 260.33,-172.98 251.75,-166.76 249.75,-173.46"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node4" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node4"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="341,-117 262,-117 262,-93 341,-93 341,-117"/>
+<text text-anchor="middle" x="301.5" y="-102.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sungetdaylightdurationmax&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_sungetdaylightdurationmax&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M198.19,-115.21C216.75,-113.35 235.4,-111.49 251.6,-109.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="252.27,-113.33 261.87,-108.85 251.57,-106.36 252.27,-113.33"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node5" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node5"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="520,-35 438,-35 438,-11 520,-11 520,-35"/>
+<text text-anchor="middle" x="479" y="-20.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sungetdaylightdurationmax&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_sungetdaylightdurationmax&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M114.48,-112.71C137.86,-93.68 186.14,-57.65 234,-42 298.28,-20.97 376.96,-18.75 427.28,-20.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="427.46,-23.58 437.57,-20.41 427.69,-16.59 427.46,-23.58"/>
+</g>
+<!-- proc~mapl_sunorbitcreated -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node6" class="node">
+<title>proc~mapl_sunorbitcreated</title>
+<g id="a_proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node6"><a xlink:href="../proc/mapl_sunorbitcreated.html" xlink:title="MAPL_SunOrbitCreated">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="369,-75 234,-75 234,-51 369,-51 369,-75"/>
+<text text-anchor="middle" x="301.5" y="-60.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SunOrbitCreated</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sungetdaylightdurationmax&#45;&gt;proc~mapl_sunorbitcreated -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_sungetdaylightdurationmax&#45;&gt;proc~mapl_sunorbitcreated</title>
+<path fill="none" stroke="#ff0000" d="M139.13,-112.9C171.29,-102.96 217.01,-88.82 251.58,-78.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="252.94,-81.37 261.46,-75.07 250.88,-74.68 252.94,-81.37"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node7" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node7"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="517,-161 441,-161 441,-137 517,-137 517,-161"/>
+<text text-anchor="middle" x="479" y="-146.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_sungetdaylightdurationmax&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_sungetdaylightdurationmax&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M198.33,-131.24C273.08,-135.99 372.64,-142.31 430.58,-145.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="430.7,-149.5 440.9,-146.64 431.15,-142.52 430.7,-149.5"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node9" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node9"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="546,-119 412,-119 412,-95 546,-95 546,-119"/>
+<text text-anchor="middle" x="479" y="-104.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge7" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M341.01,-105.44C358.88,-105.64 380.76,-105.89 401.76,-106.13"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="401.93,-109.63 411.97,-106.25 402.01,-102.63 401.93,-109.63"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node10" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node10"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="553,-77 405,-77 405,-53 553,-53 553,-77"/>
+<text text-anchor="middle" x="479" y="-62.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M341.01,-96.22C362.74,-91.27 390.42,-84.96 415.21,-79.31"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="416.29,-82.65 425.26,-77.02 414.74,-75.83 416.29,-82.65"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node8" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node8"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="713,-56 598,-56 598,-32 713,-32 713,-56"/>
+<text text-anchor="middle" x="655.5" y="-41.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M520.03,-27.82C540.11,-30.23 564.95,-33.22 587.8,-35.97"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="587.44,-39.46 597.79,-37.18 588.28,-32.51 587.44,-39.46"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node11"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="722,-113 589,-113 589,-89 722,-89 722,-113"/>
+<text text-anchor="middle" x="655.5" y="-98.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M520.02,-32.58C530.91,-35.71 542.57,-39.54 553,-44 570.03,-51.28 572.88,-55.87 589,-65 600.2,-71.34 612.56,-78.18 623.5,-84.17"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="621.84,-87.25 632.29,-88.98 625.19,-81.11 621.84,-87.25"/>
+</g>
+<!-- proc~mapl_sunorbitcreated&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_sunorbitcreated&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M355.16,-51C378.29,-45.73 405.31,-39.57 428.12,-34.37"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="428.97,-37.77 437.94,-32.13 427.41,-30.94 428.97,-37.77"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00ff" d="M517.01,-138.82C541.42,-132.1 573.8,-123.2 601,-115.72"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="602.05,-119.06 610.76,-113.03 600.19,-112.31 602.05,-119.06"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node12" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="813.5,-24 759.5,-24 759.5,0 813.5,0 813.5,-24"/>
+<text text-anchor="middle" x="786.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge13" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M704.9,-31.99C719.6,-28.35 735.49,-24.41 749.24,-20.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="750.43,-24.31 759.29,-18.5 748.74,-17.51 750.43,-24.31"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node13" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="813.5,-66 759.5,-66 759.5,-42 813.5,-42 813.5,-66"/>
+<text text-anchor="middle" x="786.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge14" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M713.08,-48.39C725.29,-49.33 737.89,-50.31 749.08,-51.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="749.08,-54.69 759.32,-51.97 749.62,-47.71 749.08,-54.69"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7fff00" d="M546.47,-104.71C556.98,-104.35 567.92,-103.98 578.62,-103.61"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="578.92,-107.1 588.79,-103.26 578.68,-100.11 578.92,-107.1"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M553.25,-56.19C564.67,-54.81 576.43,-53.4 587.7,-52.04"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="588.38,-55.48 597.89,-50.81 587.54,-48.53 588.38,-55.48"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M538.59,-77.09C553.78,-80.22 570.27,-83.62 585.92,-86.85"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="585.56,-90.35 596.06,-88.94 586.98,-83.5 585.56,-90.35"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node14" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~mapl_sungetdaylightdurationmax~~CallsGraph_node14"><a xlink:href="../proc/initialize~12.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="815,-113 758,-113 758,-89 815,-89 815,-113"/>
+<text text-anchor="middle" x="786.5" y="-98.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~mapl_sungetdaylightdurationmax~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="#7f00ff" d="M722.13,-101C730.88,-101 739.59,-101 747.63,-101"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="747.77,-104.5 757.77,-101 747.77,-97.5 747.77,-104.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_sungetdaylightdurationmaxCallsGraph = svgPanZoom('#procmapl_sungetdaylightdurationmaxCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">MAPL_SunGetDaylightDurationMax</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">,</span><span class="n">LATS</span><span class="p">,</span><span class="n">DAYL</span><span class="p">,</span><span class="n">currTime</span><span class="p">,</span><span class="n">CLOCK</span><span class="p">,</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="c">! !ARGUMENTS:</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_SunOrbit</span><span class="p">),</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ORBIT</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:)</span><span class="w"> </span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LATS</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:)</span><span class="w"> </span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DAYL</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">currTime</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">             </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="c">!EOPI</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;MAPL_SunGetDaylightDurationMax&quot;</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CURRENTTIME</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">days</span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">OBQ</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">MAPL_SunOrbitCreated</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">),</span><span class="s1">&#39;MAPL_SunOrbit not yet created!&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Which time?</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">currTime</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">CURRENTTIME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CURRTIME</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">CLOCK</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">ESMF_ClockGet</span><span class="p">(</span><span class="w">      </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">currTime</span><span class="o">=</span><span class="n">CURRENTTIME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="k">else</span>
+<span class="k">            call </span><span class="n">ESMF_ClockGet</span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">currTime</span><span class="o">=</span><span class="n">CURRENTTIME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ANAL2B</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">         </span><span class="c">! time variation in obliquity from ref time</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">CURRENTTIME</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_TIME_REF</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">d_r8</span><span class="o">=</span><span class="n">days</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="n">OBQ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_OBQ_REF</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">days</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">ORB2B_OBQ_RATE</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="w">         </span><span class="c">! obliquity fixed in this case</span>
+<span class="w">         </span><span class="n">OBQ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ORBIT</span><span class="p">%</span><span class="n">OB</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_PI</span><span class="o">/</span><span class="mi">18</span><span class="mf">0.</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">OBQ</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Obliquity less than 0 detected!&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">OBQ</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MAPL_PI</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Obliquity greater than pi detected!&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Maximum daylight duration at summer solstice [secs]</span>
+<span class="w">      </span><span class="c">!   (an even function of latitude)</span>
+<span class="w">      </span><span class="n">DAYL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mi">8640</span><span class="mf">0.</span><span class="o">/</span><span class="n">MAPL_PI</span><span class="p">)</span><span class="o">*</span><span class="nb">acos</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span><span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="o">-</span><span class="nb">tan</span><span class="p">(</span><span class="nb">ABS</span><span class="p">(</span><span class="n">LATS</span><span class="p">))</span><span class="o">*</span><span class="nb">tan</span><span class="p">(</span><span class="n">OBQ</span><span class="p">))))</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_SunGetDaylightDurationMax</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-04T15:10:44.923756             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

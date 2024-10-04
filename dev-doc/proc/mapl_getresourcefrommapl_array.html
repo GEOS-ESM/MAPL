@@ -1,0 +1,1392 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_GetResourceFromMAPL_array &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_GetResourceFromMAPL_array
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">26 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericmod.html'>MAPL_GenericMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_GetResourceFromMAPL_array</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_getresourcefrommapl_array.html#src">MAPL_GetResourceFromMAPL_array</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_GetResourceFromMAPL_array(state, vals, label, unusable, default, value_is_set, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-state~29"></span>
+              type(<a href='../type/mapl_metacomp.html'>MAPL_MetaComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>state</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vals"></span>
+              class(*),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vals</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-label~18"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>label</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~138"></span>
+              class(<a href='../type/keywordenforcer~57.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-default~13"></span>
+              class(*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>default</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value_is_set~15"></span>
+              logical,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value_is_set</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1220"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_getresourcefrommapl_array~~CallsGraph Pages: 1 -->
+<svg id="procmapl_getresourcefrommapl_arrayCallsGraph" width="641pt" height="302pt"
+ viewBox="0.00 0.00 641.00 301.52" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph" class="graph" transform="scale(0.59 0.59) rotate(0) translate(4 510.13)">
+<title>proc~~mapl_getresourcefrommapl_array~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-510.13 1089,-510.13 1089,4 -4,4"/>
+<!-- proc~mapl_getresourcefrommapl_array -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node1" class="node">
+<title>proc~mapl_getresourcefrommapl_array</title>
+<polygon fill="none" stroke="black" points="202,-373 0,-373 0,-349 202,-349 202,-373"/>
+<text text-anchor="middle" x="101" y="-358.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GetResourceFromMAPL_array</text>
+</g>
+<!-- proc~mapl_getresource_config_array -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node2" class="node">
+<title>proc~mapl_getresource_config_array</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node2"><a xlink:href="../proc/mapl_getresource_config_array.html" xlink:title="MAPL_GetResource_config_array">
+<polygon fill="#d9534f" stroke="#d9534f" points="424,-273 238,-273 238,-249 424,-249 424,-273"/>
+<text text-anchor="middle" x="331" y="-258.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetResource_config_array</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresourcefrommapl_array&#45;&gt;proc~mapl_getresource_config_array -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_getresourcefrommapl_array&#45;&gt;proc~mapl_getresource_config_array</title>
+<path fill="none" stroke="#ff0000" d="M129.5,-348.94C170.41,-330.99 247.38,-297.23 293.14,-277.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="294.65,-280.33 302.4,-273.11 291.84,-273.92 294.65,-280.33"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node3"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="780,-505 698,-505 698,-481 780,-481 780,-505"/>
+<text text-anchor="middle" x="739" y="-490.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresourcefrommapl_array&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_getresourcefrommapl_array&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M125.02,-373.15C180.65,-401.75 327.58,-472.69 460,-497 538.44,-511.4 631.42,-505.54 687.51,-499.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="687.98,-503.05 697.54,-498.47 687.21,-496.1 687.98,-503.05"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node4" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node4"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="777,-337 701,-337 701,-313 777,-313 777,-337"/>
+<text text-anchor="middle" x="739" y="-322.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresourcefrommapl_array&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_getresourcefrommapl_array&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M202.28,-360.92C308.48,-360 480.9,-356.17 629,-342 649.36,-340.05 671.71,-336.77 690.84,-333.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="691.53,-337.04 700.81,-331.92 690.36,-330.14 691.53,-337.04"/>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M335.47,-273.05C346.61,-309.27 385.16,-417.48 460,-464 529.6,-507.25 628.33,-506.06 687.49,-500.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="688.13,-503.69 697.7,-499.15 687.39,-496.73 688.13,-503.69"/>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M424.33,-270.84C483.13,-277.67 560.8,-287.73 629,-300 649.41,-303.67 671.76,-308.63 690.88,-313.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="690.31,-316.63 700.85,-315.56 691.94,-309.82 690.31,-316.63"/>
+</g>
+<!-- ESMF_ConfigGetAttribute -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node5" class="node">
+<title>ESMF_ConfigGetAttribute</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_configgetattribute.html" xlink:title="ESMF_ConfigGetAttribute">
+<polygon fill="#a7506f" stroke="#a7506f" points="811.5,-211 666.5,-211 666.5,-187 811.5,-187 811.5,-211"/>
+<text text-anchor="middle" x="739" y="-196.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigGetAttribute</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;ESMF_ConfigGetAttribute -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;ESMF_ConfigGetAttribute</title>
+<path fill="none" stroke="#ff0000" d="M362.51,-248.99C388.11,-239.45 425.88,-226.66 460,-220 525.18,-207.28 600.35,-202.16 656.08,-200.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="656.38,-203.65 666.25,-199.81 656.14,-196.65 656.38,-203.65"/>
+</g>
+<!-- interface~array_format -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node6" class="node">
+<title>interface~array_format</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node6"><a xlink:href="../interface/array_format.html" xlink:title="array_format">
+<polygon fill="#a7506f" stroke="#a7506f" points="585.5,-173 503.5,-173 503.5,-149 585.5,-149 585.5,-173"/>
+<text text-anchor="middle" x="544.5" y="-158.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">array_format</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;interface~array_format -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;interface~array_format</title>
+<path fill="none" stroke="#ff0000" d="M349.98,-248.88C374.15,-232.99 418.86,-205.03 460,-187 470.65,-182.33 482.4,-178.13 493.63,-174.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="494.82,-177.83 503.34,-171.53 492.75,-171.15 494.82,-177.83"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node7" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node7"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="584,-333 505,-333 505,-309 584,-309 584,-333"/>
+<text text-anchor="middle" x="544.5" y="-318.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M374.55,-273.07C409.39,-282.95 458.69,-296.94 495.05,-307.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="494.36,-310.7 504.94,-310.06 496.27,-303.96 494.36,-310.7"/>
+</g>
+<!-- proc~compare_all -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node8" class="node">
+<title>proc~compare_all</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node8"><a xlink:href="../proc/compare_all.html" xlink:title="compare_all">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="583.5,-131 505.5,-131 505.5,-107 583.5,-107 583.5,-131"/>
+<text text-anchor="middle" x="544.5" y="-116.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compare_all</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;proc~compare_all -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;proc~compare_all</title>
+<path fill="none" stroke="#ff0000" d="M341.14,-248.93C360.34,-224.44 407.45,-168.83 460,-140 470.85,-134.05 483.42,-129.75 495.46,-126.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="496.46,-130.01 505.4,-124.33 494.87,-123.2 496.46,-130.01"/>
+</g>
+<!-- proc~get_actual_label -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node9" class="node">
+<title>proc~get_actual_label</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node9"><a xlink:href="../proc/get_actual_label.html" xlink:title="get_actual_label">
+<polygon fill="#d9534f" stroke="#d9534f" points="594.5,-413 494.5,-413 494.5,-389 594.5,-389 594.5,-413"/>
+<text text-anchor="middle" x="544.5" y="-398.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_actual_label</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;proc~get_actual_label -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;proc~get_actual_label</title>
+<path fill="none" stroke="#ff0000" d="M350.4,-273.18C387.91,-298.01 473.37,-354.58 516.92,-383.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="515.02,-386.35 525.29,-388.95 518.89,-380.51 515.02,-386.35"/>
+</g>
+<!-- proc~get_print_settings -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node11" class="node">
+<title>proc~get_print_settings</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node11"><a xlink:href="../proc/get_print_settings.html" xlink:title="get_print_settings">
+<polygon fill="#d9534f" stroke="#d9534f" points="597.5,-253 491.5,-253 491.5,-229 597.5,-229 597.5,-253"/>
+<text text-anchor="middle" x="544.5" y="-238.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_print_settings</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;proc~get_print_settings -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;proc~get_print_settings</title>
+<path fill="none" stroke="#ff0000" d="M424.15,-252.29C443.5,-250.46 463.47,-248.57 481.41,-246.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="481.81,-250.35 491.43,-245.92 481.15,-243.38 481.81,-250.35"/>
+</g>
+<!-- proc~make_string_character_array -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node12" class="node">
+<title>proc~make_string_character_array</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node12"><a xlink:href="../proc/make_string_character_array.html" xlink:title="make_string_character_array">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="629,-89 460,-89 460,-65 629,-65 629,-89"/>
+<text text-anchor="middle" x="544.5" y="-74.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_string_character_array</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;proc~make_string_character_array -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;proc~make_string_character_array</title>
+<path fill="none" stroke="#ff0000" d="M337.85,-248.95C353.27,-218.53 398.13,-138.16 460,-98 462.61,-96.3 465.35,-94.75 468.18,-93.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="469.78,-96.43 477.47,-89.15 466.92,-90.05 469.78,-96.43"/>
+</g>
+<!-- proc~print_resource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node14" class="node">
+<title>proc~print_resource</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node14"><a xlink:href="../proc/print_resource.html" xlink:title="print_resource">
+<polygon fill="#d9534f" stroke="#d9534f" points="588.5,-455 500.5,-455 500.5,-431 588.5,-431 588.5,-455"/>
+<text text-anchor="middle" x="544.5" y="-440.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">print_resource</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;proc~print_resource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;proc~print_resource</title>
+<path fill="none" stroke="#ff0000" d="M338.12,-273.34C353.85,-303.73 398.78,-382.52 460,-422 469.04,-427.83 479.6,-432.04 490.11,-435.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="489.57,-438.56 500.12,-437.66 491.31,-431.78 489.57,-438.56"/>
+</g>
+<!-- proc~set_do_print -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node15" class="node">
+<title>proc~set_do_print</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node15"><a xlink:href="../proc/set_do_print.html" xlink:title="set_do_print">
+<polygon fill="#d9534f" stroke="#d9534f" points="583,-47 506,-47 506,-23 583,-23 583,-47"/>
+<text text-anchor="middle" x="544.5" y="-32.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_do_print</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getresource_config_array&#45;&gt;proc~set_do_print -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_getresource_config_array&#45;&gt;proc~set_do_print</title>
+<path fill="none" stroke="#ff0000" d="M335.93,-248.8C348.08,-213.09 388.61,-108 460,-56 470.49,-48.36 483.46,-43.49 496.03,-40.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="496.93,-43.77 505.97,-38.25 495.46,-36.93 496.93,-43.77"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node10" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node10"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="978,-452 863,-452 863,-428 978,-428 978,-452"/>
+<text text-anchor="middle" x="920.5" y="-437.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff00" d="M780.19,-481.53C790.86,-478.46 802.37,-475.13 813,-472 831.68,-466.51 852.16,-460.38 870.13,-454.97"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="871.27,-458.28 879.83,-452.04 869.25,-451.58 871.27,-458.28"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node13" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node13"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="987,-358 854,-358 854,-334 987,-334 987,-358"/>
+<text text-anchor="middle" x="920.5" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M780.15,-486.75C791.51,-483.63 803.39,-478.96 813,-472 836.06,-455.29 831.04,-441.1 849,-419 864.66,-399.73 884.44,-379.56 899.06,-365.31"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="901.82,-367.51 906.59,-358.05 896.96,-362.47 901.82,-367.51"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M777.19,-329.35C796.42,-331.6 820.63,-334.43 843.59,-337.12"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="843.35,-340.61 853.69,-338.3 844.16,-333.66 843.35,-340.61"/>
+</g>
+<!-- proc~array_format_simple -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node20" class="node">
+<title>proc~array_format_simple</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node20"><a xlink:href="../proc/array_format_simple.html" xlink:title="array_format_simple">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="800.5,-169 677.5,-169 677.5,-145 800.5,-145 800.5,-169"/>
+<text text-anchor="middle" x="739" y="-154.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">array_format_simple</text>
+</a>
+</g>
+</g>
+<!-- interface~array_format&#45;&gt;proc~array_format_simple -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge18" class="edge">
+<title>interface~array_format&#45;&gt;proc~array_format_simple</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M585.85,-160.16C609.32,-159.67 639.56,-159.05 666.89,-158.48"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="667.28,-161.97 677.21,-158.26 667.14,-154.97 667.28,-161.97"/>
+</g>
+<!-- proc~array_format_string -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node21" class="node">
+<title>proc~array_format_string</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node21"><a xlink:href="../proc/array_format_string.html" xlink:title="array_format_string">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="798,-127 680,-127 680,-103 798,-103 798,-127"/>
+<text text-anchor="middle" x="739" y="-112.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">array_format_string</text>
+</a>
+</g>
+</g>
+<!-- interface~array_format&#45;&gt;proc~array_format_string -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge19" class="edge">
+<title>interface~array_format&#45;&gt;proc~array_format_string</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M585.85,-151.36C612.5,-144.99 647.89,-136.53 677.83,-129.38"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="678.85,-132.73 687.76,-127.01 677.22,-125.93 678.85,-132.73"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node24" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node24"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="806,-295 672,-295 672,-271 806,-271 806,-295"/>
+<text text-anchor="middle" x="739" y="-280.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge20" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M584.46,-313.31C608.13,-308.64 639.09,-302.53 666.99,-297.02"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="667.98,-300.39 677.12,-295.02 666.63,-293.52 667.98,-300.39"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node25" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node25"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="813,-379 665,-379 665,-355 813,-355 813,-379"/>
+<text text-anchor="middle" x="739" y="-364.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge21" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M584.46,-330.31C611.2,-336.7 647.23,-345.31 677.67,-352.58"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="677.22,-356.07 687.76,-354.99 678.84,-349.27 677.22,-356.07"/>
+</g>
+<!-- proc~get_actual_label&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge24" class="edge">
+<title>proc~get_actual_label&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff2e" d="M594.73,-407.37C606.65,-410.48 618.86,-415.11 629,-422 651.65,-437.38 642.61,-456.24 665,-472 671.98,-476.91 680.09,-480.68 688.31,-483.57"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="687.38,-486.95 697.97,-486.58 689.46,-480.26 687.38,-486.95"/>
+</g>
+<!-- proc~get_actual_label&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge25" class="edge">
+<title>proc~get_actual_label&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff2e" d="M594.87,-389C606.41,-385.28 618.42,-380.64 629,-375 647.13,-365.33 646.77,-355.47 665,-346 673.16,-341.76 682.3,-338.27 691.27,-335.44"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="692.28,-338.79 700.89,-332.62 690.31,-332.07 692.28,-338.79"/>
+</g>
+<!-- ESMF_ConfigFindLabel -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node16" class="node">
+<title>ESMF_ConfigFindLabel</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node16"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_configfindlabel.html" xlink:title="ESMF_ConfigFindLabel">
+<polygon fill="#d9534f" stroke="#d9534f" points="805,-463 673,-463 673,-439 805,-439 805,-463"/>
+<text text-anchor="middle" x="739" y="-448.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigFindLabel</text>
+</a>
+</g>
+</g>
+<!-- proc~get_actual_label&#45;&gt;ESMF_ConfigFindLabel -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge22" class="edge">
+<title>proc~get_actual_label&#45;&gt;ESMF_ConfigFindLabel</title>
+<path fill="none" stroke="#00ff2e" d="M594.1,-413.1C605.55,-415.99 617.71,-419.08 629,-422 646.67,-426.57 665.92,-431.66 683.26,-436.28"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="682.66,-439.74 693.22,-438.94 684.47,-432.98 682.66,-439.74"/>
+</g>
+<!-- proc~get_labels_with_prefix -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node22" class="node">
+<title>proc~get_labels_with_prefix</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node22"><a xlink:href="../proc/get_labels_with_prefix.html" xlink:title="get_labels_with_prefix">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="803.5,-421 674.5,-421 674.5,-397 803.5,-397 803.5,-421"/>
+<text text-anchor="middle" x="739" y="-406.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_labels_with_prefix</text>
+</a>
+</g>
+</g>
+<!-- proc~get_actual_label&#45;&gt;proc~get_labels_with_prefix -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge23" class="edge">
+<title>proc~get_actual_label&#45;&gt;proc~get_labels_with_prefix</title>
+<path fill="none" stroke="#00ff2e" d="M594.57,-403.04C615.73,-403.92 640.92,-404.97 664.24,-405.93"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="664.32,-409.44 674.46,-406.36 664.61,-402.45 664.32,-409.44"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node17" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1083.5,-473 1029.5,-473 1029.5,-449 1083.5,-449 1083.5,-473"/>
+<text text-anchor="middle" x="1056.5" y="-458.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge26" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ffb9" d="M978.33,-448.91C992.15,-451.07 1006.56,-453.33 1019.14,-455.3"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="1018.79,-458.79 1029.22,-456.88 1019.88,-451.87 1018.79,-458.79"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node18" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1083.5,-431 1029.5,-431 1029.5,-407 1083.5,-407 1083.5,-431"/>
+<text text-anchor="middle" x="1056.5" y="-416.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge27" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ffb9" d="M978.33,-431.09C992.15,-428.93 1006.56,-426.67 1019.14,-424.7"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="1019.88,-428.13 1029.22,-423.12 1018.79,-421.21 1019.88,-428.13"/>
+</g>
+<!-- proc~get_print_settings&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge30" class="edge">
+<title>proc~get_print_settings&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00b9ff" d="M597.58,-252.83C608.41,-256.47 619.42,-261.12 629,-267 648.55,-279 645.32,-292.21 665,-304 672.98,-308.78 682.1,-312.52 691.12,-315.43"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="690.25,-318.81 700.83,-318.27 692.21,-312.1 690.25,-318.81"/>
+</g>
+<!-- proc~get_print_settings&#45;&gt;ESMF_ConfigGetAttribute -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge28" class="edge">
+<title>proc~get_print_settings&#45;&gt;ESMF_ConfigGetAttribute</title>
+<path fill="none" stroke="#00b9ff" d="M597.59,-229.63C620.79,-224.57 648.35,-218.56 672.88,-213.21"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="673.81,-216.59 682.83,-211.04 672.32,-209.75 673.81,-216.59"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node19" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node19"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="790,-253 688,-253 688,-229 790,-229 790,-253"/>
+<text text-anchor="middle" x="739" y="-238.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~get_print_settings&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge29" class="edge">
+<title>proc~get_print_settings&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#00b9ff" d="M597.59,-241C622.36,-241 652.12,-241 677.85,-241"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="677.86,-244.5 687.86,-241 677.86,-237.5 677.86,-244.5"/>
+</g>
+<!-- proc~initialize~12 -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node23" class="node">
+<title>proc~initialize~12</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node23"><a xlink:href="../proc/initialize~12.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1085,-358 1028,-358 1028,-334 1085,-334 1085,-358"/>
+<text text-anchor="middle" x="1056.5" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~12 -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~12</title>
+<path fill="none" stroke="#5c00ff" d="M987.32,-346C997.71,-346 1008.13,-346 1017.6,-346"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="1017.82,-349.5 1027.82,-346 1017.82,-342.5 1017.82,-349.5"/>
+</g>
+<!-- proc~print_resource&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge32" class="edge">
+<title>proc~print_resource&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#e700ff" d="M588.7,-454.22C618.21,-461.89 657.39,-472.06 688.21,-480.07"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="687.34,-483.46 697.9,-482.58 689.1,-476.68 687.34,-483.46"/>
+</g>
+<!-- proc~vector_contains_str~2 -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node26" class="node">
+<title>proc~vector_contains_str~2</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node26"><a xlink:href="../proc/vector_contains_str~2.html" xlink:title="vector_contains_str">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="796.5,-66 681.5,-66 681.5,-42 796.5,-42 796.5,-66"/>
+<text text-anchor="middle" x="739" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_contains_str</text>
+</a>
+</g>
+</g>
+<!-- proc~set_do_print&#45;&gt;proc~vector_contains_str~2 -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge33" class="edge">
+<title>proc~set_do_print&#45;&gt;proc~vector_contains_str~2</title>
+<path fill="none" stroke="#ff008b" d="M583.07,-38.71C608.03,-41.17 641.5,-44.48 670.95,-47.38"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="670.88,-50.89 681.17,-48.39 671.56,-43.93 670.88,-50.89"/>
+</g>
+<!-- push_back -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node27" class="node">
+<title>push_back</title>
+<polygon fill="#777777" stroke="#777777" points="773.5,-24 704.5,-24 704.5,0 773.5,0 773.5,-24"/>
+<text text-anchor="middle" x="739" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">push_back</text>
+</g>
+<!-- proc~set_do_print&#45;&gt;push_back -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge34" class="edge">
+<title>proc~set_do_print&#45;&gt;push_back</title>
+<path fill="none" stroke="#ff008b" d="M583.07,-30.51C615,-26.7 660.86,-21.22 694.4,-17.21"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="694.87,-20.68 704.38,-16.02 694.04,-13.73 694.87,-20.68"/>
+</g>
+<!-- proc~mapl_am_i_root_layout -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node31" class="node">
+<title>proc~mapl_am_i_root_layout</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node31"><a xlink:href="../proc/mapl_am_i_root_layout.html" xlink:title="MAPL_Am_I_Root_Layout">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="992,-274 849,-274 849,-250 992,-250 992,-274"/>
+<text text-anchor="middle" x="920.5" y="-259.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Layout</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge35" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M790,-246.85C805.12,-248.62 822.13,-250.61 838.72,-252.55"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="838.64,-256.06 848.98,-253.75 839.45,-249.11 838.64,-256.06"/>
+</g>
+<!-- proc~mapl_am_i_root_vm -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node32" class="node">
+<title>proc~mapl_am_i_root_vm</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CallsGraph_node32"><a xlink:href="../proc/mapl_am_i_root_vm.html" xlink:title="MAPL_Am_I_Root_Vm">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="983,-232 858,-232 858,-208 983,-208 983,-232"/>
+<text text-anchor="middle" x="920.5" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Vm</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge36" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M790,-235.15C807.93,-233.05 828.52,-230.64 847.92,-228.37"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="848.41,-231.84 857.94,-227.2 847.6,-224.89 848.41,-231.84"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M784.61,-295.1C794.03,-297.86 803.89,-300.9 813,-304 835.96,-311.81 861.23,-321.72 881.39,-329.95"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="880.27,-333.27 890.85,-333.84 882.93,-326.8 880.27,-333.27"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#7f00ff" d="M786.35,-379.02C795.29,-381.7 804.51,-384.73 813,-388 839.15,-398.06 867.6,-412.12 888.52,-423.09"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="887.09,-426.29 897.56,-427.89 890.37,-420.11 887.09,-426.29"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M813.01,-358.46C823.13,-357.27 833.54,-356.06 843.71,-354.87"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="844.25,-358.33 853.78,-353.69 843.44,-351.38 844.25,-358.33"/>
+</g>
+<!-- begin -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node28" class="node">
+<title>begin</title>
+<polygon fill="#777777" stroke="#777777" points="947.5,-108 893.5,-108 893.5,-84 947.5,-84 947.5,-108"/>
+<text text-anchor="middle" x="920.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
+</g>
+<!-- proc~vector_contains_str~2&#45;&gt;begin -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge40" class="edge">
+<title>proc~vector_contains_str~2&#45;&gt;begin</title>
+<path fill="none" stroke="#ff00ff" d="M791.44,-66.04C820.89,-72.93 857.11,-81.4 883.51,-87.58"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="882.93,-91.04 893.46,-89.91 884.52,-84.22 882.93,-91.04"/>
+</g>
+<!-- next -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node29" class="node">
+<title>next</title>
+<polygon fill="#777777" stroke="#777777" points="947.5,-66 893.5,-66 893.5,-42 947.5,-42 947.5,-66"/>
+<text text-anchor="middle" x="920.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">next</text>
+</g>
+<!-- proc~vector_contains_str~2&#45;&gt;next -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge41" class="edge">
+<title>proc~vector_contains_str~2&#45;&gt;next</title>
+<path fill="none" stroke="#ff00ff" d="M796.79,-54C825.01,-54 858.28,-54 883.05,-54"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="883.11,-57.5 893.11,-54 883.11,-50.5 883.11,-57.5"/>
+</g>
+<!-- of -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_node30" class="node">
+<title>of</title>
+<polygon fill="#777777" stroke="#777777" points="947.5,-24 893.5,-24 893.5,0 947.5,0 947.5,-24"/>
+<text text-anchor="middle" x="920.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">of</text>
+</g>
+<!-- proc~vector_contains_str~2&#45;&gt;of -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CallsGraph_edge42" class="edge">
+<title>proc~vector_contains_str~2&#45;&gt;of</title>
+<path fill="none" stroke="#ff00ff" d="M791.44,-41.96C820.89,-35.07 857.11,-26.6 883.51,-20.42"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="884.52,-23.78 893.46,-18.09 882.93,-16.96 884.52,-23.78"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_getresourcefrommapl_arrayCallsGraph = svgPanZoom('#procmapl_getresourcefrommapl_arrayCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_getresourcefrommapl_array~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_getresourcefrommapl_arrayCalledByGraph" width="570pt" height="746pt"
+ viewBox="0.00 0.00 570.00 746.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 742)">
+<title>proc~~mapl_getresourcefrommapl_array~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-742 566,-742 566,4 -4,4"/>
+<!-- proc~mapl_getresourcefrommapl_array -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node1" class="node">
+<title>proc~mapl_getresourcefrommapl_array</title>
+<polygon fill="none" stroke="black" points="562,-381 360,-381 360,-357 562,-357 562,-381"/>
+<text text-anchor="middle" x="461" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GetResourceFromMAPL_array</text>
+</g>
+<!-- interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node2" class="node">
+<title>interface~mapl_getresource</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node2"><a xlink:href="../interface/mapl_getresource.html" xlink:title="MAPL_GetResource">
+<polygon fill="#a7506f" stroke="#a7506f" points="324,-381 210,-381 210,-357 324,-357 324,-381"/>
+<text text-anchor="middle" x="267" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetResource</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_getresource&#45;&gt;proc~mapl_getresourcefrommapl_array -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge1" class="edge">
+<title>interface~mapl_getresource&#45;&gt;proc~mapl_getresourcefrommapl_array</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M324.05,-369C332.25,-369 340.93,-369 349.77,-369"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="349.81,-372.5 359.81,-369 349.81,-365.5 349.81,-372.5"/>
+</g>
+<!-- proc~arrdescrsetncpar -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node3" class="node">
+<title>proc~arrdescrsetncpar</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node3"><a xlink:href="../proc/arrdescrsetncpar.html" xlink:title="ArrDescrSetNCPar">
+<polygon fill="#d9534f" stroke="#d9534f" points="141.5,-738 32.5,-738 32.5,-714 141.5,-714 141.5,-738"/>
+<text text-anchor="middle" x="87" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ArrDescrSetNCPar</text>
+</a>
+</g>
+</g>
+<!-- proc~arrdescrsetncpar&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge2" class="edge">
+<title>proc~arrdescrsetncpar&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M141.56,-722.03C153.48,-718.84 165.19,-713.57 174,-705 220,-660.26 252.95,-458.85 262.88,-391.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="266.36,-391.62 264.32,-381.22 259.43,-390.62 266.36,-391.62"/>
+</g>
+<!-- proc~capture -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node4" class="node">
+<title>proc~capture</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node4"><a xlink:href="../proc/capture.html" xlink:title="capture">
+<polygon fill="#d9534f" stroke="#d9534f" points="114,-696 60,-696 60,-672 114,-672 114,-696"/>
+<text text-anchor="middle" x="87" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">capture</text>
+</a>
+</g>
+</g>
+<!-- proc~capture&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge3" class="edge">
+<title>proc~capture&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M114.11,-684.13C133.02,-682.83 157.97,-678.04 174,-663 253.55,-588.37 264.74,-446.05 266,-391.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="269.5,-391.29 266.14,-381.24 262.5,-391.19 269.5,-391.29"/>
+</g>
+<!-- proc~get_test_framework_resource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node5" class="node">
+<title>proc~get_test_framework_resource</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node5"><a xlink:href="../proc/get_test_framework_resource.html" xlink:title="get_test_framework_resource">
+<polygon fill="#d9534f" stroke="#d9534f" points="171.5,-654 2.5,-654 2.5,-630 171.5,-630 171.5,-654"/>
+<text text-anchor="middle" x="87" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_test_framework_resource</text>
+</a>
+</g>
+</g>
+<!-- proc~get_test_framework_resource&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge4" class="edge">
+<title>proc~get_test_framework_resource&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M161.07,-629.88C165.73,-627.42 170.11,-624.49 174,-621 243.22,-559.04 260.42,-440.65 264.65,-391.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="268.16,-391.42 265.42,-381.18 261.18,-390.89 268.16,-391.42"/>
+</g>
+<!-- proc~initialize_gc -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node6" class="node">
+<title>proc~initialize_gc</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node6"><a xlink:href="../proc/initialize_gc.html" xlink:title="initialize_gc">
+<polygon fill="#d9534f" stroke="#d9534f" points="124.5,-612 49.5,-612 49.5,-588 124.5,-588 124.5,-612"/>
+<text text-anchor="middle" x="87" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge5" class="edge">
+<title>proc~initialize_gc&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M124.78,-598.32C141.41,-595.85 160.35,-590.47 174,-579 233.16,-529.3 255.5,-434.24 262.84,-391.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="266.32,-391.6 264.43,-381.18 259.4,-390.5 266.32,-391.6"/>
+</g>
+<!-- proc~initialize_gc~2 -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node7" class="node">
+<title>proc~initialize_gc~2</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node7"><a xlink:href="../proc/initialize_gc~2.html" xlink:title="initialize_gc">
+<polygon fill="#d9534f" stroke="#d9534f" points="124.5,-570 49.5,-570 49.5,-546 124.5,-546 124.5,-570"/>
+<text text-anchor="middle" x="87" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc~2&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge6" class="edge">
+<title>proc~initialize_gc~2&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M124.77,-555.7C141.2,-553.09 159.98,-547.76 174,-537 223.01,-499.38 249.34,-427.89 260.09,-391.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.59,-391.98 262.94,-381.4 256.86,-390.08 263.59,-391.98"/>
+</g>
+<!-- proc~mapl_clockinit~2 -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node8" class="node">
+<title>proc~mapl_clockinit~2</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node8"><a xlink:href="../proc/mapl_clockinit~2.html" xlink:title="MAPL_ClockInit">
+<polygon fill="#d9534f" stroke="#d9534f" points="133,-528 41,-528 41,-504 133,-504 133,-528"/>
+<text text-anchor="middle" x="87" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ClockInit</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_clockinit~2&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge7" class="edge">
+<title>proc~mapl_clockinit~2&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M133.31,-511.07C147.21,-508 161.99,-503.04 174,-495 213.67,-468.45 242.32,-418.75 256.32,-390.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="259.51,-391.8 260.66,-381.26 253.19,-388.78 259.51,-391.8"/>
+</g>
+<!-- proc~mapl_esmfstatereadfromfile -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node9" class="node">
+<title>proc~mapl_esmfstatereadfromfile</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node9"><a xlink:href="../proc/mapl_esmfstatereadfromfile.html" xlink:title="MAPL_ESMFStateReadFromFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="174,-486 0,-486 0,-462 174,-462 174,-486"/>
+<text text-anchor="middle" x="87" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFStateReadFromFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_esmfstatereadfromfile&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge8" class="edge">
+<title>proc~mapl_esmfstatereadfromfile&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M152.72,-461.96C160.1,-459.5 167.35,-456.54 174,-453 204.56,-436.71 232.89,-407.93 249.81,-388.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="252.49,-390.92 256.34,-381.05 247.18,-386.36 252.49,-390.92"/>
+</g>
+<!-- proc~mapl_esmfstatewritetofile -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node10" class="node">
+<title>proc~mapl_esmfstatewritetofile</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node10"><a xlink:href="../proc/mapl_esmfstatewritetofile.html" xlink:title="MAPL_ESMFStateWriteToFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="167,-444 7,-444 7,-420 167,-420 167,-444"/>
+<text text-anchor="middle" x="87" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFStateWriteToFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_esmfstatewritetofile&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge9" class="edge">
+<title>proc~mapl_esmfstatewritetofile&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M143.96,-419.96C154.06,-417.33 164.42,-414.32 174,-411 194.29,-403.96 216.2,-394.06 233.55,-385.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="235.25,-388.7 242.68,-381.14 232.16,-382.42 235.25,-388.7"/>
+</g>
+<!-- proc~mapl_genericfinalize -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node11" class="node">
+<title>proc~mapl_genericfinalize</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node11"><a xlink:href="../proc/mapl_genericfinalize.html" xlink:title="MAPL_GenericFinalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="151,-402 23,-402 23,-378 151,-378 151,-402"/>
+<text text-anchor="middle" x="87" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericFinalize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericfinalize&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge10" class="edge">
+<title>proc~mapl_genericfinalize&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M151.01,-382.57C166.76,-380.71 183.7,-378.71 199.61,-376.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="200.37,-380.27 209.89,-375.62 199.55,-373.32 200.37,-380.27"/>
+</g>
+<!-- proc~mapl_genericinitialize -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node12" class="node">
+<title>proc~mapl_genericinitialize</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node12"><a xlink:href="../proc/mapl_genericinitialize.html" xlink:title="MAPL_GenericInitialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="153.5,-360 20.5,-360 20.5,-336 153.5,-336 153.5,-360"/>
+<text text-anchor="middle" x="87" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericInitialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericinitialize&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge11" class="edge">
+<title>proc~mapl_genericinitialize&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M153.52,-355.73C168.58,-357.51 184.61,-359.4 199.7,-361.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="199.64,-364.7 209.98,-362.39 200.46,-357.74 199.64,-364.7"/>
+</g>
+<!-- proc~mapl_genericrecord -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node13" class="node">
+<title>proc~mapl_genericrecord</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node13"><a xlink:href="../proc/mapl_genericrecord.html" xlink:title="MAPL_GenericRecord">
+<polygon fill="#d9534f" stroke="#d9534f" points="150,-318 24,-318 24,-294 150,-294 150,-318"/>
+<text text-anchor="middle" x="87" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericRecord</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrecord&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge12" class="edge">
+<title>proc~mapl_genericrecord&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M143.96,-318.04C154.06,-320.67 164.42,-323.68 174,-327 194.29,-334.04 216.2,-343.94 233.55,-352.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="232.16,-355.58 242.68,-356.86 235.25,-349.3 232.16,-355.58"/>
+</g>
+<!-- proc~mapl_genericrefresh -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node14" class="node">
+<title>proc~mapl_genericrefresh</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node14"><a xlink:href="../proc/mapl_genericrefresh.html" xlink:title="MAPL_GenericRefresh">
+<polygon fill="#d9534f" stroke="#d9534f" points="151,-276 23,-276 23,-252 151,-252 151,-276"/>
+<text text-anchor="middle" x="87" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericRefresh</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrefresh&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge13" class="edge">
+<title>proc~mapl_genericrefresh&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M151.36,-275.59C159.21,-278.14 166.95,-281.24 174,-285 204.56,-301.29 232.89,-330.07 249.81,-349.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="247.18,-351.64 256.34,-356.95 252.49,-347.08 247.18,-351.64"/>
+</g>
+<!-- proc~mapl_genericstaterestore -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node15" class="node">
+<title>proc~mapl_genericstaterestore</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node15"><a xlink:href="../proc/mapl_genericstaterestore.html" xlink:title="MAPL_GenericStateRestore">
+<polygon fill="#d9534f" stroke="#d9534f" points="165,-234 9,-234 9,-210 165,-210 165,-234"/>
+<text text-anchor="middle" x="87" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericStateRestore</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericstaterestore&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge14" class="edge">
+<title>proc~mapl_genericstaterestore&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M157.01,-234.14C163,-236.57 168.76,-239.5 174,-243 213.67,-269.55 242.32,-319.25 256.32,-347.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="253.19,-349.22 260.66,-356.74 259.51,-346.2 253.19,-349.22"/>
+</g>
+<!-- proc~mapl_genericstatesave -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node16" class="node">
+<title>proc~mapl_genericstatesave</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node16"><a xlink:href="../proc/mapl_genericstatesave.html" xlink:title="MAPL_GenericStateSave">
+<polygon fill="#d9534f" stroke="#d9534f" points="158,-192 16,-192 16,-168 158,-168 158,-192"/>
+<text text-anchor="middle" x="87" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericStateSave</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericstatesave&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge15" class="edge">
+<title>proc~mapl_genericstatesave&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M158.37,-191.82C163.94,-194.33 169.25,-197.35 174,-201 223.01,-238.62 249.34,-310.11 260.09,-346.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.86,-347.92 262.94,-356.6 263.59,-346.02 256.86,-347.92"/>
+</g>
+<!-- proc~mapl_genericwrapper -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node17" class="node">
+<title>proc~mapl_genericwrapper</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node17"><a xlink:href="../proc/mapl_genericwrapper.html" xlink:title="MAPL_GenericWrapper">
+<polygon fill="#d9534f" stroke="#d9534f" points="154,-150 20,-150 20,-126 154,-126 154,-150"/>
+<text text-anchor="middle" x="87" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericWrapper</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericwrapper&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge16" class="edge">
+<title>proc~mapl_genericwrapper&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M154.01,-147.31C161.25,-150.24 168.12,-154.06 174,-159 233.16,-208.7 255.5,-303.76 262.84,-346.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="259.4,-347.5 264.43,-356.82 266.32,-346.4 259.4,-347.5"/>
+</g>
+<!-- proc~mapl_readforcingx -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node18" class="node">
+<title>proc~mapl_readforcingx</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node18"><a xlink:href="../proc/mapl_readforcingx.html" xlink:title="MAPL_ReadForcingX">
+<polygon fill="#d9534f" stroke="#d9534f" points="147,-108 27,-108 27,-84 147,-84 147,-108"/>
+<text text-anchor="middle" x="87" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcingX</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_readforcingx&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge17" class="edge">
+<title>proc~mapl_readforcingx&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M147.31,-102.35C157.06,-105.56 166.44,-110.23 174,-117 243.22,-178.96 260.42,-297.35 264.65,-346.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="261.18,-347.11 265.42,-356.82 268.16,-346.58 261.18,-347.11"/>
+</g>
+<!-- proc~mapl_staterecord -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node19" class="node">
+<title>proc~mapl_staterecord</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node19"><a xlink:href="../proc/mapl_staterecord.html" xlink:title="MAPL_StateRecord">
+<polygon fill="#d9534f" stroke="#d9534f" points="143,-66 31,-66 31,-42 143,-42 143,-66"/>
+<text text-anchor="middle" x="87" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateRecord</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_staterecord&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge18" class="edge">
+<title>proc~mapl_staterecord&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M143.13,-58.69C154.44,-61.91 165.48,-67.01 174,-75 253.55,-149.63 264.74,-291.95 266,-346.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="262.5,-346.81 266.14,-356.76 269.5,-346.71 262.5,-346.81"/>
+</g>
+<!-- proc~mapl_staterefresh -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node20" class="node">
+<title>proc~mapl_staterefresh</title>
+<g id="a_proc~~mapl_getresourcefrommapl_array~~CalledByGraph_node20"><a xlink:href="../proc/mapl_staterefresh.html" xlink:title="MAPL_StateRefresh">
+<polygon fill="#d9534f" stroke="#d9534f" points="144,-24 30,-24 30,0 144,0 144,-24"/>
+<text text-anchor="middle" x="87" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateRefresh</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_staterefresh&#45;&gt;interface~mapl_getresource -->
+<g id="proc~~mapl_getresourcefrommapl_array~~CalledByGraph_edge19" class="edge">
+<title>proc~mapl_staterefresh&#45;&gt;interface~mapl_getresource</title>
+<path fill="none" stroke="#ff0000" d="M144.23,-16.73C155.22,-19.97 165.85,-25.07 174,-33 220,-77.74 252.95,-279.15 262.88,-346.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="259.43,-347.38 264.32,-356.78 266.36,-346.38 259.43,-347.38"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">MAPL_GetResourceFromMAPL_array</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">vals</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="p">,</span><span class="w"> </span><span class="n">value_is_set</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">label</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vals</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">default</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">value_is_set</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">value_set</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_GetResource_config_array</span><span class="p">(</span><span class="n">state</span><span class="p">%</span><span class="n">cf</span><span class="p">,</span><span class="w"> </span><span class="n">vals</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">value_set</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">default</span><span class="p">,</span><span class="w"> </span><span class="n">component_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">compname</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.</span>
+<span class="w">      </span><span class="c">! Instead, optional argument value_is_set should to the value of value_set,</span>
+<span class="w">      </span><span class="c">! an intent(out) argument to MAPL_GetResource_config_array.</span>
+<span class="w">      </span><span class="c">! That differentiates a failed attempt to set value when there is no default</span>
+<span class="w">      </span><span class="c">! and label is not found. However, some existing code catches the non-zero</span>
+<span class="w">      </span><span class="c">! rc value to indicate failure to set the value and handles the failure</span>
+<span class="w">      </span><span class="c">! by an alternative action. That code needs to use the value_is_set argument</span>
+<span class="w">      </span><span class="c">! to determine failure. Once that code is fixed, the assertion should be</span>
+<span class="w">      </span><span class="c">! removed.</span>
+
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">value_is_set</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">value_is_set</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value_set</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">value_set</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FAILURE</span>
+<span class="w">         </span><span class="k">return</span>
+<span class="k">      end if</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_GetResourceFromMAPL_array</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-04T15:10:44.923756             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
