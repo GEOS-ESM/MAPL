@@ -39,3 +39,6 @@ path_to_script/run_extdatadriver_cases.py --builddir path_to_geos_install/bin --
 32. Case1 with deflate compression and NetCDF bitgroom quantization (only enabled if netcdf built with quantization support)
 33. Case1 with deflate compression and NetCDF bitround quantization (only enabled if netcdf built with quantization support)
 34. Case1 with deflate compression and NetCDF granular_bitround quantization (only enabled if netcdf built with quantization support)
+35. Case1 with zstandard compression (only enabled if netcdf built with zstandard support)
+36. Case1 with zstandard compression and NetCDF granular_bitround quantization (only enabled if netcdf built with quantization
+    support and zstandard support)

@@ -837,6 +837,18 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%deflate, default=0, &
                                       label=trim(string) // 'deflate:' ,_RC )
 
+       ! We only allow deflate level to be between 0 and 9
+       _ASSERT( .not. (list(n)%deflate < 0 .or. list(n)%deflate > 9), 'deflate level must be between 0 and 9')
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%zstandard_level, default=0, &
+                                      label=trim(string) // 'zstandard_level:' ,_RC )
+
+       ! We only allow zstandard level to be between 0 and 22
+       _ASSERT( .not. (list(n)%zstandard_level < 0 .or. list(n)%zstandard_level > 22), 'zstandard level must be between 0 and 22')
+
+       ! We only allow either deflate or zstandard compression to be used, not both
+       _ASSERT( .not. (list(n)%deflate > 0 .and. list(n)%zstandard_level > 0), 'deflate and zstandard_level cannot be used together')
+
        call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_algorithm_string, default='NONE', &
                                       label=trim(string) // 'quantize_algorithm:' ,_RC )
 
@@ -2410,6 +2422,7 @@ ENDDO PARSER
              call list(n)%xsampler%set_param(deflation=list(n)%deflate,_RC)
              call list(n)%xsampler%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
              call list(n)%xsampler%set_param(quantize_level=list(n)%quantize_level,_RC)
+             call list(n)%xsampler%set_param(zstandard_level=list(n)%zstandard_level,_RC)
              call list(n)%xsampler%set_param(chunking=list(n)%chunkSize,_RC)
              call list(n)%xsampler%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
              call list(n)%xsampler%set_param(regrid_method=list(n)%regrid_method,_RC)
@@ -2420,6 +2433,7 @@ ENDDO PARSER
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
           call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
           call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,_RC)
+          call list(n)%mGriddedIO%set_param(zstandard_level=list(n)%zstandard_level,_RC)
           call list(n)%mGriddedIO%set_param(chunking=list(n)%chunkSize,_RC)
           call list(n)%mGriddedIO%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
           call list(n)%mGriddedIO%set_param(regrid_method=list(n)%regrid_method,_RC)
@@ -2497,6 +2511,9 @@ ENDDO PARSER
          if (list(n)%quantize_algorithm > 0) then
             print *, 'Quantize Alg: ',       trim(list(n)%quantize_algorithm_string)
             print *, 'Quantize Lvl: ',       list(n)%quantize_level
+         end if
+         if (list(n)%zstandard_level > 0) then
+            print *, 'Zstandard Lvl: ',       list(n)%zstandard_level
          end if
          if (associated(list(n)%chunksize)) then
             print *, '   ChunkSize: ',       list(n)%chunksize
