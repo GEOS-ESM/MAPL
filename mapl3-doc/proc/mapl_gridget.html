@@ -1,0 +1,1378 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_GridGet &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_GridGet
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">91 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MaplGrid.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/maplgrid.f90.html'>MaplGrid.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_maplgrid.html'>mapl_MaplGrid</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_GridGet</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_gridget.html#src">MAPL_GridGet</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_GridGet(GRID, globalCellCountPerDim, localCellCountPerDim, layout, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid~24"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GRID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-globalcellcountperdim"></span>
+              integer,
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>globalCellCountPerDim</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-localcellcountperdim"></span>
+              integer,
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>localCellCountPerDim</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-layout~6"></span>
+              integer,
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>layout</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~150"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_gridget~~CallsGraph Pages: 1 -->
+<svg id="procmapl_gridgetCallsGraph" width="589pt" height="409pt"
+ viewBox="0.00 0.00 589.00 409.34" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_gridget~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 405.34)">
+<title>proc~~mapl_gridget~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-405.34 585,-405.34 585,4 -4,4"/>
+<!-- proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CallsGraph_node1" class="node">
+<title>proc~mapl_gridget</title>
+<polygon fill="none" stroke="black" points="88,-247 0,-247 0,-223 88,-223 88,-247"/>
+<text text-anchor="middle" x="44" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GridGet</text>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~mapl_gridget~~CallsGraph_node2" class="node">
+<title>ESMF_DistGridGet</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="408,-251 300,-251 300,-227 408,-227 408,-251"/>
+<text text-anchor="middle" x="354" y="-236.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#ff0000" d="M48.32,-247.26C56.24,-273.79 79.04,-336.12 124,-361 176.89,-390.26 205.83,-387.82 260,-361 271.13,-355.49 315.39,-293.28 338.61,-259.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="341.74,-261.52 344.55,-251.31 335.98,-257.54 341.74,-261.52"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~mapl_gridget~~CallsGraph_node3" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="398,-353 310,-353 310,-329 398,-329 398,-353"/>
+<text text-anchor="middle" x="354" y="-338.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#ff0000" d="M47.09,-247.21C52.95,-277.14 72.59,-353.97 124,-385 188.2,-423.75 279.39,-383.38 324.9,-358.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="326.68,-361.12 333.63,-353.13 323.21,-355.04 326.68,-361.12"/>
+</g>
+<!-- ESMF_InfoGet -->
+<g id="proc~~mapl_gridget~~CallsGraph_node4" class="node">
+<title>ESMF_InfoGet</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infoget.html" xlink:title="ESMF_InfoGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="234.5,-352 149.5,-352 149.5,-328 234.5,-328 234.5,-352"/>
+<text text-anchor="middle" x="192" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_InfoGet -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_InfoGet</title>
+<path fill="none" stroke="#ff0000" d="M53.25,-247.15C66.22,-265.36 93.13,-299.65 124,-319 128.96,-322.11 134.42,-324.79 140.02,-327.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="138.91,-330.42 149.5,-330.63 141.35,-323.86 138.91,-330.42"/>
+</g>
+<!-- ESMF_InfoGetFromHost -->
+<g id="proc~~mapl_gridget~~CallsGraph_node5" class="node">
+<title>ESMF_InfoGetFromHost</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_infogetfromhost.html" xlink:title="ESMF_InfoGetFromHost">
+<polygon fill="#a7506f" stroke="#a7506f" points="260,-310 124,-310 124,-286 260,-286 260,-310"/>
+<text text-anchor="middle" x="192" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoGetFromHost</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_InfoGetFromHost -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_InfoGetFromHost</title>
+<path fill="none" stroke="#ff0000" d="M65.28,-247.13C80.95,-256.16 103.36,-268.37 124,-277 128.73,-278.98 133.71,-280.87 138.74,-282.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="137.8,-286.04 148.4,-285.95 140.06,-279.41 137.8,-286.04"/>
+</g>
+<!-- ESMF_InfoIsPresent -->
+<g id="proc~~mapl_gridget~~CallsGraph_node6" class="node">
+<title>ESMF_InfoIsPresent</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_infoispresent.html" xlink:title="ESMF_InfoIsPresent">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="249,-268 135,-268 135,-244 249,-244 249,-268"/>
+<text text-anchor="middle" x="192" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_InfoIsPresent</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_InfoIsPresent -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_InfoIsPresent</title>
+<path fill="none" stroke="#ff0000" d="M88.02,-241.19C99.56,-242.85 112.32,-244.68 124.82,-246.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="124.35,-249.95 134.75,-247.91 125.35,-243.02 124.35,-249.95"/>
+</g>
+<!-- proc~mapl_distgridget -->
+<g id="proc~~mapl_gridget~~CallsGraph_node7" class="node">
+<title>proc~mapl_distgridget</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node7"><a xlink:href="../proc/mapl_distgridget.html" xlink:title="MAPL_DistGridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="246,-184 138,-184 138,-160 246,-160 246,-184"/>
+<text text-anchor="middle" x="192" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#ff0000" d="M65.28,-222.87C80.95,-213.84 103.36,-201.63 124,-193 128.73,-191.02 133.71,-189.13 138.74,-187.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="140.06,-190.59 148.4,-184.05 137.8,-183.96 140.06,-190.59"/>
+</g>
+<!-- proc~mapl_getimsjms -->
+<g id="proc~~mapl_gridget~~CallsGraph_node8" class="node">
+<title>proc~mapl_getimsjms</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node8"><a xlink:href="../proc/mapl_getimsjms.html" xlink:title="MAPL_GetImsJms">
+<polygon fill="#d9534f" stroke="#d9534f" points="243.5,-66 140.5,-66 140.5,-42 243.5,-42 243.5,-66"/>
+<text text-anchor="middle" x="192" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetImsJms</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_getimsjms -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_getimsjms</title>
+<path fill="none" stroke="#ff0000" d="M48.02,-222.68C55.72,-193.76 78.73,-120.9 124,-80 127.89,-76.48 132.31,-73.42 136.99,-70.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="138.85,-73.74 146.2,-66.11 135.7,-67.49 138.85,-73.74"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~mapl_gridget~~CallsGraph_node9" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node9"><a xlink:href="../proc/mapl_gridhasde.html" xlink:title="MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="244,-226 140,-226 140,-202 244,-202 244,-226"/>
+<text text-anchor="middle" x="192" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#ff0000" d="M88.02,-228.81C101.08,-226.93 115.69,-224.83 129.71,-222.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="130.39,-226.25 139.79,-221.37 129.39,-219.33 130.39,-226.25"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_gridget~~CallsGraph_node10" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node10"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="395,-108 313,-108 313,-84 395,-84 395,-108"/>
+<text text-anchor="middle" x="354" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M49.53,-223C59.16,-199.29 84.13,-146.73 124,-123 178.6,-90.5 253.51,-87.92 302.57,-90.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="302.43,-94.15 312.63,-91.31 302.88,-87.17 302.43,-94.15"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_gridget~~CallsGraph_node11" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node11"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="392,-150 316,-150 316,-126 392,-126 392,-150"/>
+<text text-anchor="middle" x="354" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M52.11,-222.81C64.13,-203.55 90.43,-166.65 124,-151 182,-123.95 257.42,-125.74 305.54,-130.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="305.34,-134.32 315.67,-131.98 306.14,-127.36 305.34,-134.32"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#00ffff" d="M238.06,-184.05C245.54,-186.64 253.1,-189.62 260,-193 277.49,-201.57 278.72,-209 296,-218 299.33,-219.73 302.84,-221.39 306.4,-222.96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="305.34,-226.31 315.92,-226.9 308.02,-219.84 305.34,-226.31"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffff" d="M246.28,-160.68C265.45,-156.6 286.94,-152.04 305.59,-148.08"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="306.56,-151.45 315.62,-145.94 305.11,-144.6 306.56,-151.45"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0066ff" d="M238.85,-66.04C258.93,-71.31 282.54,-77.5 303.06,-82.89"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="302.3,-86.31 312.86,-85.46 304.07,-79.54 302.3,-86.31"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0066ff" d="M210.27,-66.02C230.26,-79.58 264.49,-101.74 296,-117 299.74,-118.81 303.67,-120.56 307.66,-122.23"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="306.39,-125.49 316.98,-125.95 308.99,-118.99 306.39,-125.49"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_gridget~~CallsGraph_node15" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node15"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="393.5,-24 314.5,-24 314.5,0 393.5,0 393.5,-24"/>
+<text text-anchor="middle" x="354" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0066ff" d="M238.85,-41.96C259.4,-36.57 283.66,-30.2 304.51,-24.73"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="305.66,-28.04 314.45,-22.12 303.89,-21.27 305.66,-28.04"/>
+</g>
+<!-- interface~mapl_sort -->
+<g id="proc~~mapl_gridget~~CallsGraph_node16" class="node">
+<title>interface~mapl_sort</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node16"><a xlink:href="../interface/mapl_sort.html" xlink:title="MAPL_Sort">
+<polygon fill="#a7506f" stroke="#a7506f" points="388,-66 320,-66 320,-42 388,-42 388,-66"/>
+<text text-anchor="middle" x="354" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Sort</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_sort -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_sort</title>
+<path fill="none" stroke="#0066ff" d="M243.62,-54C264.83,-54 289.23,-54 309.6,-54"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="309.85,-57.5 319.85,-54 309.85,-50.5 309.85,-57.5"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#3200ff" d="M244.06,-221.98C258.55,-224.24 274.51,-226.74 289.63,-229.1"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="289.52,-232.62 299.94,-230.71 290.6,-225.71 289.52,-232.62"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#3200ff" d="M242.36,-226.02C248.54,-228.51 254.59,-231.47 260,-235 294.59,-257.53 323.96,-296.36 339.98,-320.25"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="337.24,-322.45 345.64,-328.9 343.09,-318.62 337.24,-322.45"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#3200ff" d="M244.06,-203.02C249.83,-200.37 255.31,-197.08 260,-193 288.2,-168.47 268.42,-142.22 296,-117 298.41,-114.79 301.08,-112.81 303.9,-111.04"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="305.57,-114.11 312.72,-106.3 302.26,-107.95 305.57,-114.11"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#3200ff" d="M236.43,-201.99C244.39,-199.34 252.54,-196.32 260,-193 283.49,-182.54 308.5,-167.51 326.65,-155.8"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="329.03,-158.43 335.48,-150.03 325.2,-152.57 329.03,-158.43"/>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~mapl_gridget~~CallsGraph_node12" class="node">
+<title>ESMF_DELayoutGet</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node12"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_delayoutget.html" xlink:title="ESMF_DELayoutGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="412,-209 296,-209 296,-185 412,-185 412,-209"/>
+<text text-anchor="middle" x="354" y="-194.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DELayoutGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#3200ff" d="M244.06,-208.57C257.31,-207.17 271.78,-205.63 285.72,-204.15"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="286.18,-207.62 295.76,-203.08 285.44,-200.66 286.18,-207.62"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_gridget~~CallsGraph_node13" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="541.5,-66 487.5,-66 487.5,-42 541.5,-42 541.5,-66"/>
+<text text-anchor="middle" x="514.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#cc00ff" d="M395.41,-85.29C420.61,-78.62 452.77,-70.09 477.16,-63.63"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="478.33,-66.94 487.1,-61 476.53,-60.17 478.33,-66.94"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_gridget~~CallsGraph_node14" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="541.5,-108 487.5,-108 487.5,-84 541.5,-84 541.5,-108"/>
+<text text-anchor="middle" x="514.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#cc00ff" d="M395.41,-96C420.49,-96 452.48,-96 476.83,-96"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="477.1,-99.5 487.1,-96 477.1,-92.5 477.1,-99.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_gridget~~CallsGraph_node17" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_gridget~~CallsGraph_node17"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="581,-150 448,-150 448,-126 581,-126 581,-150"/>
+<text text-anchor="middle" x="514.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M395.41,-106.71C414.48,-111.76 437.54,-117.87 458.21,-123.35"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="457.57,-126.8 468.13,-125.98 459.36,-120.03 457.57,-126.8"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_gridget~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff0098" d="M392.16,-138C405.75,-138 421.66,-138 437.4,-138"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="437.7,-141.5 447.7,-138 437.7,-134.5 437.7,-141.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_gridget~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_gridgetCalledByGraph" width="363pt" height="1292pt"
+ viewBox="0.00 0.00 363.00 1292.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_gridget~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 1288)">
+<title>proc~~mapl_gridget~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1288 359,-1288 359,4 -4,4"/>
+<!-- proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node1" class="node">
+<title>proc~mapl_gridget</title>
+<polygon fill="none" stroke="black" points="355,-654 267,-654 267,-630 355,-630 355,-654"/>
+<text text-anchor="middle" x="311" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GridGet</text>
+</g>
+<!-- none~check_chunking~2 -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node2" class="node">
+<title>none~check_chunking~2</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node2"><a xlink:href="../type/mapl_griddedio.html#boundprocedure-check_chunking~2" xlink:title="MAPL_GriddedIO%check_chunking">
+<polygon fill="#a7506f" stroke="#a7506f" points="213.5,-1284 17.5,-1284 17.5,-1260 213.5,-1260 213.5,-1284"/>
+<text text-anchor="middle" x="115.5" y="-1269.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIO%check_chunking</text>
+</a>
+</g>
+</g>
+<!-- none~check_chunking~2&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge1" class="edge">
+<title>none~check_chunking~2&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M213.75,-1263.82C220.13,-1260.49 225.99,-1256.28 231,-1251 313.15,-1164.43 312.03,-763.54 310.46,-664.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="313.96,-664.12 310.28,-654.18 306.96,-664.24 313.96,-664.12"/>
+</g>
+<!-- none~evaluate_box_mask -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node3" class="node">
+<title>none~evaluate_box_mask</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node3"><a xlink:href="../type/extdatamask.html#boundprocedure-evaluate_box_mask" xlink:title="ExtDataMask%evaluate_box_mask">
+<polygon fill="#a7506f" stroke="#a7506f" points="213.5,-1242 17.5,-1242 17.5,-1218 213.5,-1218 213.5,-1242"/>
+<text text-anchor="middle" x="115.5" y="-1227.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_box_mask</text>
+</a>
+</g>
+</g>
+<!-- none~evaluate_box_mask&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge2" class="edge">
+<title>none~evaluate_box_mask&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M213.69,-1221.77C220.09,-1218.45 225.97,-1214.25 231,-1209 307.47,-1129.17 310.69,-759.93 310.23,-664.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="313.72,-664.28 310.15,-654.3 306.72,-664.33 313.72,-664.28"/>
+</g>
+<!-- none~get_basis -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node4" class="node">
+<title>none~get_basis</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node4"><a xlink:href="../type/abstractgridfactory.html#boundprocedure-get_basis" xlink:title="AbstractGridFactory%get_basis">
+<polygon fill="#a7506f" stroke="#a7506f" points="204.5,-1200 26.5,-1200 26.5,-1176 204.5,-1176 204.5,-1200"/>
+<text text-anchor="middle" x="115.5" y="-1185.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractGridFactory%get_basis</text>
+</a>
+</g>
+</g>
+<!-- none~get_basis&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge3" class="edge">
+<title>none~get_basis&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M204.54,-1183.74C214.45,-1180 223.62,-1174.62 231,-1167 301.94,-1093.75 309.27,-754.91 309.95,-664.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="313.45,-664.34 310,-654.32 306.45,-664.3 313.45,-664.34"/>
+</g>
+<!-- none~request_data_from_file~2 -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node5" class="node">
+<title>none~request_data_from_file~2</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node5"><a xlink:href="../type/mapl_griddedio.html#boundprocedure-request_data_from_file~2" xlink:title="MAPL_GriddedIO%request_data_from_file">
+<polygon fill="#a7506f" stroke="#a7506f" points="231,-1158 0,-1158 0,-1134 231,-1134 231,-1158"/>
+<text text-anchor="middle" x="115.5" y="-1143.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIO%request_data_from_file</text>
+</a>
+</g>
+</g>
+<!-- none~request_data_from_file~2&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge4" class="edge">
+<title>none~request_data_from_file~2&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M220.05,-1133.89C223.99,-1131.34 227.67,-1128.39 231,-1125 296.34,-1058.39 307.71,-750.54 309.63,-664.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="313.13,-664.29 309.83,-654.22 306.13,-664.15 313.13,-664.29"/>
+</g>
+<!-- none~set_default_chunking~2 -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node6" class="node">
+<title>none~set_default_chunking~2</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node6"><a xlink:href="../type/mapl_griddedio.html#boundprocedure-set_default_chunking~2" xlink:title="MAPL_GriddedIO%set_default_chunking">
+<polygon fill="#a7506f" stroke="#a7506f" points="227,-1116 4,-1116 4,-1092 227,-1092 227,-1116"/>
+<text text-anchor="middle" x="115.5" y="-1101.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIO%set_default_chunking</text>
+</a>
+</g>
+</g>
+<!-- none~set_default_chunking~2&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge5" class="edge">
+<title>none~set_default_chunking~2&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M219.74,-1091.99C223.79,-1089.41 227.58,-1086.44 231,-1083 290.76,-1022.99 306.01,-745.99 309.24,-664.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="312.74,-664.54 309.62,-654.42 305.75,-664.28 312.74,-664.54"/>
+</g>
+<!-- none~setup_eta_to_pressure -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node7" class="node">
+<title>none~setup_eta_to_pressure</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node7"><a xlink:href="../type/verticaldata.html#boundprocedure-setup_eta_to_pressure" xlink:title="verticalData%setup_eta_to_pressure">
+<polygon fill="#a7506f" stroke="#a7506f" points="218,-1074 13,-1074 13,-1050 218,-1050 218,-1074"/>
+<text text-anchor="middle" x="115.5" y="-1059.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">verticalData%setup_eta_to_pressure</text>
+</a>
+</g>
+</g>
+<!-- none~setup_eta_to_pressure&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge6" class="edge">
+<title>none~setup_eta_to_pressure&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M218.12,-1050.85C222.77,-1048.09 227.11,-1044.83 231,-1041 285.28,-987.47 304.2,-740.41 308.79,-664.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="312.3,-664.22 309.39,-654.03 305.31,-663.82 312.3,-664.22"/>
+</g>
+<!-- none~set~59 -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node8" class="node">
+<title>none~set~59</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node8"><a xlink:href="../type/maplgrid.html#boundprocedure-set~59" xlink:title="MaplGrid%set">
+<polygon fill="#a7506f" stroke="#a7506f" points="158.5,-1032 72.5,-1032 72.5,-1008 158.5,-1008 158.5,-1032"/>
+<text text-anchor="middle" x="115.5" y="-1017.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGrid%set</text>
+</a>
+</g>
+</g>
+<!-- none~set~59&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge7" class="edge">
+<title>none~set~59&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M158.66,-1023C182.86,-1022.37 212.09,-1017.24 231,-999 279.8,-951.95 302.16,-734.93 308.23,-664.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="311.72,-664.51 309.07,-654.26 304.75,-663.93 311.72,-664.51"/>
+</g>
+<!-- proc~esmfl_field_is_undefined -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node9" class="node">
+<title>proc~esmfl_field_is_undefined</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node9"><a xlink:href="../proc/esmfl_field_is_undefined.html" xlink:title="ESMFL_field_is_undefined">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="189.5,-990 41.5,-990 41.5,-966 189.5,-966 189.5,-990"/>
+<text text-anchor="middle" x="115.5" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_field_is_undefined</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_field_is_undefined&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge8" class="edge">
+<title>proc~esmfl_field_is_undefined&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M189.5,-977.17C204.77,-973.79 219.65,-967.64 231,-957 274.35,-916.35 299.88,-729.05 307.54,-664.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="311.02,-664.54 308.69,-654.21 304.06,-663.74 311.02,-664.54"/>
+</g>
+<!-- proc~esmfl_fieldgetdims -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node10" class="node">
+<title>proc~esmfl_fieldgetdims</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node10"><a xlink:href="../proc/esmfl_fieldgetdims.html" xlink:title="ESMFL_FieldGetDims">
+<polygon fill="#d9534f" stroke="#d9534f" points="177,-948 54,-948 54,-924 177,-924 177,-948"/>
+<text text-anchor="middle" x="115.5" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_FieldGetDims</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_fieldgetdims&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge9" class="edge">
+<title>proc~esmfl_fieldgetdims&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M177.02,-937.02C196.29,-934.41 216.39,-928.22 231,-915 304.98,-848.09 311.38,-716.6 310.8,-664.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="314.3,-664 310.59,-654.08 307.3,-664.15 314.3,-664"/>
+</g>
+<!-- proc~esmfl_gridcoordget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node11" class="node">
+<title>proc~esmfl_gridcoordget</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node11"><a xlink:href="../proc/esmfl_gridcoordget.html" xlink:title="ESMFL_GridCoordGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="178.5,-906 52.5,-906 52.5,-882 178.5,-882 178.5,-906"/>
+<text text-anchor="middle" x="115.5" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_GridCoordGet</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_gridcoordget&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge10" class="edge">
+<title>proc~esmfl_gridcoordget&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M178.74,-894.31C197.35,-891.53 216.61,-885.4 231,-873 294.33,-818.42 306.97,-710.82 309.43,-664.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="312.94,-664.24 309.86,-654.1 305.94,-663.95 312.94,-664.24"/>
+</g>
+<!-- proc~has_level -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node12" class="node">
+<title>proc~has_level</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node12"><a xlink:href="../proc/has_level.html" xlink:title="regrid_support%has_level">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="190,-864 41,-864 41,-840 190,-840 190,-864"/>
+<text text-anchor="middle" x="115.5" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">regrid_support%has_level</text>
+</a>
+</g>
+</g>
+<!-- proc~has_level&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge11" class="edge">
+<title>proc~has_level&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M190.17,-849.48C204.87,-846.09 219.35,-840.38 231,-831 283.91,-788.38 301.85,-704.12 307.54,-664.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="311.03,-664.42 308.84,-654.06 304.09,-663.52 311.03,-664.42"/>
+</g>
+<!-- proc~has_level~2 -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node13" class="node">
+<title>proc~has_level~2</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node13"><a xlink:href="../proc/has_level~2.html" xlink:title="has_level">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146.5,-822 84.5,-822 84.5,-798 146.5,-798 146.5,-822"/>
+<text text-anchor="middle" x="115.5" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">has_level</text>
+</a>
+</g>
+</g>
+<!-- proc~has_level~2&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge12" class="edge">
+<title>proc~has_level~2&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M146.53,-811.36C171.4,-810.99 206.5,-806.85 231,-789 273.5,-758.04 295.45,-697.1 304.62,-664.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="308.09,-664.83 307.25,-654.26 301.32,-663.04 308.09,-664.83"/>
+</g>
+<!-- proc~latlon_zmean -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node14" class="node">
+<title>proc~latlon_zmean</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node14"><a xlink:href="../proc/latlon_zmean.html" xlink:title="latlon_zmean">
+<polygon fill="#d9534f" stroke="#d9534f" points="157.5,-780 73.5,-780 73.5,-756 157.5,-756 157.5,-780"/>
+<text text-anchor="middle" x="115.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">latlon_zmean</text>
+</a>
+</g>
+</g>
+<!-- proc~latlon_zmean&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge13" class="edge">
+<title>proc~latlon_zmean&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M157.52,-767.68C180.59,-765.81 209.08,-760.55 231,-747 263.75,-726.76 287.65,-687.58 300.14,-663.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="303.36,-664.61 304.64,-654.09 297.08,-661.51 303.36,-664.61"/>
+</g>
+<!-- proc~latlon_zstar -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node15" class="node">
+<title>proc~latlon_zstar</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node15"><a xlink:href="../proc/latlon_zstar.html" xlink:title="latlon_zstar">
+<polygon fill="#d9534f" stroke="#d9534f" points="152,-738 79,-738 79,-714 152,-714 152,-738"/>
+<text text-anchor="middle" x="115.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">latlon_zstar</text>
+</a>
+</g>
+</g>
+<!-- proc~latlon_zstar&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge14" class="edge">
+<title>proc~latlon_zstar&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M152.16,-723.96C175.46,-721.57 206.08,-716.35 231,-705 254.03,-694.51 276.2,-675.83 291.16,-661.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="294.02,-663.62 298.68,-654.11 289.1,-658.64 294.02,-663.62"/>
+</g>
+<!-- proc~mapl_cfiocreatefromfile -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node16" class="node">
+<title>proc~mapl_cfiocreatefromfile</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node16"><a xlink:href="../proc/mapl_cfiocreatefromfile.html" xlink:title="MAPL_CFIOCreateFromFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="191,-696 40,-696 40,-672 191,-672 191,-696"/>
+<text text-anchor="middle" x="115.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOCreateFromFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge15" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M186.92,-671.98C201.53,-669.24 216.8,-666.18 231,-663 239.55,-661.08 248.58,-658.87 257.35,-656.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="258.31,-659.98 267.1,-654.06 256.54,-653.2 258.31,-659.98"/>
+</g>
+<!-- proc~mapl_cfioreadbundleread -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node17" class="node">
+<title>proc~mapl_cfioreadbundleread</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node17"><a xlink:href="../proc/mapl_cfioreadbundleread.html" xlink:title="MAPL_CFIOReadBundleRead">
+<polygon fill="#d9534f" stroke="#d9534f" points="197,-654 34,-654 34,-630 197,-630 197,-654"/>
+<text text-anchor="middle" x="115.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOReadBundleRead</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadbundleread&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge16" class="edge">
+<title>proc~mapl_cfioreadbundleread&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M197.16,-642C217.28,-642 238.35,-642 256.77,-642"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.99,-645.5 266.99,-642 256.99,-638.5 256.99,-645.5"/>
+</g>
+<!-- proc~mapl_cfiowritebundlepost -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node18" class="node">
+<title>proc~mapl_cfiowritebundlepost</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node18"><a xlink:href="../proc/mapl_cfiowritebundlepost.html" xlink:title="MAPL_CFIOWriteBundlePost">
+<polygon fill="#d9534f" stroke="#d9534f" points="194.5,-612 36.5,-612 36.5,-588 194.5,-588 194.5,-612"/>
+<text text-anchor="middle" x="115.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOWriteBundlePost</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlepost&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge17" class="edge">
+<title>proc~mapl_cfiowritebundlepost&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M186.92,-612.02C201.53,-614.76 216.8,-617.82 231,-621 239.55,-622.92 248.58,-625.13 257.35,-627.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.54,-630.8 267.1,-629.94 258.31,-624.02 256.54,-630.8"/>
+</g>
+<!-- proc~mapl_cfiowritebundlewait -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node19" class="node">
+<title>proc~mapl_cfiowritebundlewait</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node19"><a xlink:href="../proc/mapl_cfiowritebundlewait.html" xlink:title="MAPL_CFIOWriteBundleWait">
+<polygon fill="#d9534f" stroke="#d9534f" points="195.5,-570 35.5,-570 35.5,-546 195.5,-546 195.5,-570"/>
+<text text-anchor="middle" x="115.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOWriteBundleWait</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewait&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge18" class="edge">
+<title>proc~mapl_cfiowritebundlewait&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M195.67,-567.24C207.81,-570.15 219.96,-573.97 231,-579 254.03,-589.49 276.2,-608.17 291.16,-622.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="289.1,-625.36 298.68,-629.89 294.02,-620.38 289.1,-625.36"/>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node20" class="node">
+<title>proc~mapl_cfiowritebundlewrite</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node20"><a xlink:href="../proc/mapl_cfiowritebundlewrite.html" xlink:title="MAPL_CFIOWriteBundleWrite">
+<polygon fill="#d9534f" stroke="#d9534f" points="197.5,-528 33.5,-528 33.5,-504 197.5,-504 197.5,-528"/>
+<text text-anchor="middle" x="115.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOWriteBundleWrite</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiowritebundlewrite&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge19" class="edge">
+<title>proc~mapl_cfiowritebundlewrite&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M197.54,-523.03C209.31,-526.24 220.86,-530.73 231,-537 263.75,-557.24 287.65,-596.42 300.14,-620.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="297.08,-622.49 304.64,-629.91 303.36,-619.39 297.08,-622.49"/>
+</g>
+<!-- proc~mapl_collectivegather3d -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node21" class="node">
+<title>proc~mapl_collectivegather3d</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node21"><a xlink:href="../proc/mapl_collectivegather3d.html" xlink:title="MAPL_CollectiveGather3D">
+<polygon fill="#d9534f" stroke="#d9534f" points="191,-486 40,-486 40,-462 191,-462 191,-486"/>
+<text text-anchor="middle" x="115.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CollectiveGather3D</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivegather3d&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge20" class="edge">
+<title>proc~mapl_collectivegather3d&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M191.29,-477.81C205.43,-481.17 219.4,-486.55 231,-495 273.5,-525.96 295.45,-586.9 304.62,-619.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="301.32,-620.96 307.25,-629.74 308.09,-619.17 301.32,-620.96"/>
+</g>
+<!-- proc~mapl_create_bundle_from_metdata_id -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node22" class="node">
+<title>proc~mapl_create_bundle_from_metdata_id</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node22"><a xlink:href="../proc/mapl_create_bundle_from_metdata_id.html" xlink:title="MAPL_create_bundle_from_metdata_id">
+<polygon fill="#d9534f" stroke="#d9534f" points="224,-444 7,-444 7,-420 224,-420 224,-444"/>
+<text text-anchor="middle" x="115.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_create_bundle_from_metdata_id</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_create_bundle_from_metdata_id&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge21" class="edge">
+<title>proc~mapl_create_bundle_from_metdata_id&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M217.25,-444.13C222.12,-446.64 226.75,-449.58 231,-453 283.91,-495.62 301.85,-579.88 307.54,-619.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="304.09,-620.48 308.84,-629.94 311.03,-619.58 304.09,-620.48"/>
+</g>
+<!-- proc~mapl_esmfstatereadfromfile -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node23" class="node">
+<title>proc~mapl_esmfstatereadfromfile</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node23"><a xlink:href="../proc/mapl_esmfstatereadfromfile.html" xlink:title="MAPL_ESMFStateReadFromFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="202.5,-402 28.5,-402 28.5,-378 202.5,-378 202.5,-402"/>
+<text text-anchor="middle" x="115.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFStateReadFromFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_esmfstatereadfromfile&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge22" class="edge">
+<title>proc~mapl_esmfstatereadfromfile&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M202.71,-395.38C213.04,-398.92 222.81,-403.94 231,-411 294.33,-465.58 306.97,-573.18 309.43,-619.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="305.94,-620.05 309.86,-629.9 312.94,-619.76 305.94,-620.05"/>
+</g>
+<!-- proc~mapl_genericfinalize -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node24" class="node">
+<title>proc~mapl_genericfinalize</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node24"><a xlink:href="../proc/mapl_genericfinalize.html" xlink:title="MAPL_GenericFinalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="179.5,-360 51.5,-360 51.5,-336 179.5,-336 179.5,-360"/>
+<text text-anchor="middle" x="115.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericFinalize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericfinalize&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge23" class="edge">
+<title>proc~mapl_genericfinalize&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M179.69,-347.37C198.14,-350.17 217.06,-356.39 231,-369 304.98,-435.91 311.38,-567.4 310.8,-619.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="307.3,-619.85 310.59,-629.92 314.3,-620 307.3,-619.85"/>
+</g>
+<!-- proc~mapl_genericinitialize -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node25" class="node">
+<title>proc~mapl_genericinitialize</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node25"><a xlink:href="../proc/mapl_genericinitialize.html" xlink:title="MAPL_GenericInitialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="182,-318 49,-318 49,-294 182,-294 182,-318"/>
+<text text-anchor="middle" x="115.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericInitialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericinitialize&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge24" class="edge">
+<title>proc~mapl_genericinitialize&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M182.06,-305.39C199.84,-308.34 217.81,-314.63 231,-327 274.35,-367.65 299.88,-554.95 307.54,-619.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="304.06,-620.26 308.69,-629.79 311.02,-619.46 304.06,-620.26"/>
+</g>
+<!-- proc~mapl_genericrecord -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node26" class="node">
+<title>proc~mapl_genericrecord</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node26"><a xlink:href="../proc/mapl_genericrecord.html" xlink:title="MAPL_GenericRecord">
+<polygon fill="#d9534f" stroke="#d9534f" points="178.5,-276 52.5,-276 52.5,-252 178.5,-252 178.5,-276"/>
+<text text-anchor="middle" x="115.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericRecord</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrecord&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge25" class="edge">
+<title>proc~mapl_genericrecord&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M178.7,-262.62C197.64,-265.28 217.11,-271.6 231,-285 279.8,-332.05 302.16,-549.07 308.23,-619.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="304.75,-620.07 309.07,-629.74 311.72,-619.49 304.75,-620.07"/>
+</g>
+<!-- proc~mapl_genericstatesave -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node27" class="node">
+<title>proc~mapl_genericstatesave</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node27"><a xlink:href="../proc/mapl_genericstatesave.html" xlink:title="MAPL_GenericStateSave">
+<polygon fill="#d9534f" stroke="#d9534f" points="186.5,-234 44.5,-234 44.5,-210 186.5,-210 186.5,-234"/>
+<text text-anchor="middle" x="115.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericStateSave</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericstatesave&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge26" class="edge">
+<title>proc~mapl_genericstatesave&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M186.63,-221.73C203.02,-224.95 219.13,-231.29 231,-243 285.28,-296.53 304.2,-543.59 308.79,-619.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="305.31,-620.18 309.39,-629.97 312.3,-619.78 305.31,-620.18"/>
+</g>
+<!-- proc~mapl_gridcoordadjust -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node28" class="node">
+<title>proc~mapl_gridcoordadjust</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node28"><a xlink:href="../proc/mapl_gridcoordadjust.html" xlink:title="MAPL_GridCoordAdjust">
+<polygon fill="#d9534f" stroke="#d9534f" points="182,-192 49,-192 49,-168 182,-168 182,-192"/>
+<text text-anchor="middle" x="115.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridCoordAdjust</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridcoordadjust&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge27" class="edge">
+<title>proc~mapl_gridcoordadjust&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M182.01,-178.73C200,-181.62 218.09,-188.04 231,-201 290.76,-261.01 306.01,-538.01 309.24,-619.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="305.75,-619.72 309.62,-629.58 312.74,-619.46 305.75,-619.72"/>
+</g>
+<!-- proc~mapl_tilemaskget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node29" class="node">
+<title>proc~mapl_tilemaskget</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node29"><a xlink:href="../proc/mapl_tilemaskget.html" xlink:title="MAPL_TileMaskGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="171,-150 60,-150 60,-126 171,-126 171,-150"/>
+<text text-anchor="middle" x="115.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TileMaskGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_tilemaskget&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge28" class="edge">
+<title>proc~mapl_tilemaskget&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M171.14,-135.26C192.53,-137.13 215.57,-143.27 231,-159 296.34,-225.61 307.71,-533.46 309.63,-619.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="306.13,-619.85 309.83,-629.78 313.13,-619.71 306.13,-619.85"/>
+</g>
+<!-- proc~test_main~5 -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node30" class="node">
+<title>proc~test_main~5</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node30"><a xlink:href="../proc/test_main~5.html" xlink:title="test_main">
+<polygon fill="#d9534f" stroke="#d9534f" points="147.5,-108 83.5,-108 83.5,-84 147.5,-84 147.5,-108"/>
+<text text-anchor="middle" x="115.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_main</text>
+</a>
+</g>
+</g>
+<!-- proc~test_main~5&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge29" class="edge">
+<title>proc~test_main~5&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M147.51,-92.65C173.51,-91.69 209.7,-95.01 231,-117 301.94,-190.25 309.27,-529.09 309.95,-619.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="306.45,-619.7 310,-629.68 313.45,-619.66 306.45,-619.7"/>
+</g>
+<!-- proc~vertinterpolation_presskappa -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node31" class="node">
+<title>proc~vertinterpolation_presskappa</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node31"><a xlink:href="../proc/vertinterpolation_presskappa.html" xlink:title="vertInterpolation_pressKappa">
+<polygon fill="#d9534f" stroke="#d9534f" points="200,-66 31,-66 31,-42 200,-42 200,-66"/>
+<text text-anchor="middle" x="115.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vertInterpolation_pressKappa</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge30" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M200.04,-56.59C211.69,-60.34 222.54,-66.17 231,-75 307.47,-154.83 310.69,-524.07 310.23,-619.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="306.72,-619.67 310.15,-629.7 313.72,-619.72 306.72,-619.67"/>
+</g>
+<!-- program~time_ave -->
+<g id="proc~~mapl_gridget~~CalledByGraph_node32" class="node">
+<title>program~time_ave</title>
+<g id="a_proc~~mapl_gridget~~CalledByGraph_node32"><a xlink:href="../program/time_ave.html" xlink:title="time_ave">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="146,-24 85,-24 85,0 146,0 146,-24"/>
+<text text-anchor="middle" x="115.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
+</a>
+</g>
+</g>
+<!-- program~time_ave&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gridget~~CalledByGraph_edge31" class="edge">
+<title>program~time_ave&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M146.09,-8.6C172.25,-7.39 209.51,-10.35 231,-33 313.15,-119.57 312.03,-520.46 310.46,-619.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="306.96,-619.76 310.28,-629.82 313.96,-619.88 306.96,-619.76"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">globalCellCountPerDim</span><span class="p">,</span><span class="w"> </span><span class="n">localCellCountPerDim</span><span class="p">,</span><span class="w"> </span><span class="n">layout</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GRID</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">globalCellCountPerDim</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">localCellCountPerDim</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">layout</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="c">! local vars</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mincounts</span><span class="p">(</span><span class="n">ESMF_MAXDIM</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">maxcounts</span><span class="p">(</span><span class="n">ESMF_MAXDIM</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridRank</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">UNGRID</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sz</span><span class="p">,</span><span class="w"> </span><span class="n">tileCount</span><span class="p">,</span><span class="w"> </span><span class="n">dimCount</span><span class="p">,</span><span class="w"> </span><span class="n">deCount</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">plocal</span><span class="p">,</span><span class="w"> </span><span class="n">pglobal</span><span class="p">,</span><span class="w"> </span><span class="n">lxtradim</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isPresent</span><span class="p">,</span><span class="n">hasDE</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_DistGrid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">distGrid</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">maxindex</span><span class="p">(:,:),</span><span class="n">minindex</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ims</span><span class="p">(:),</span><span class="n">jms</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Info</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">infoh</span>
+
+<span class="w">      </span><span class="n">pglobal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">globalCellCountPerDim</span><span class="p">)</span>
+<span class="w">      </span><span class="n">plocal</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">localCellCountPerDim</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pglobal</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">plocal</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">dimCount</span><span class="o">=</span><span class="n">gridRank</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_InfoGetFromHost</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">infoh</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="c">!ALT kludge</span>
+<span class="w">         </span><span class="n">lxtradim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gridRank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">isPresent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_InfoIsPresent</span><span class="p">(</span><span class="n">infoh</span><span class="p">,</span><span class="s1">&#39;GRID_EXTRADIM&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isPresent</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">ESMF_InfoGet</span><span class="p">(</span><span class="n">infoh</span><span class="p">,</span><span class="s1">&#39;GRID_EXTRADIM&#39;</span><span class="p">,</span><span class="n">UNGRID</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="n">lxtradim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">         else if</span><span class="w"> </span><span class="p">(</span><span class="n">gridRank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">isPresent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_InfoIsPresent</span><span class="p">(</span><span class="n">infoh</span><span class="p">,</span><span class="s1">&#39;GRID_LM&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isPresent</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">ESMF_InfoGet</span><span class="p">(</span><span class="n">infoh</span><span class="p">,</span><span class="s1">&#39;GRID_LM&#39;</span><span class="p">,</span><span class="n">UNGRID</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="n">lxtradim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">         end if</span>
+<span class="k">      end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">pglobal</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">         </span><span class="n">globalCellCountPerDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">tileCount</span><span class="o">=</span><span class="n">tileCount</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">tile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">staggerLoc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">minIndex</span><span class="o">=</span><span class="n">mincounts</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">maxIndex</span><span class="o">=</span><span class="n">maxcounts</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="err">_</span><span class="n">RC</span><span class="w">      </span><span class="p">)</span>
+
+<span class="w">         </span><span class="n">sz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">min</span><span class="p">(</span><span class="n">gridRank</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_MAXDIM</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">globalCellCountPerDim</span><span class="p">))</span>
+<span class="w">         </span><span class="n">globalCellCountPerDim</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">sz</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">maxcounts</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">sz</span><span class="p">)</span><span class="o">-</span><span class="n">mincounts</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">sz</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+
+<span class="w">         </span><span class="c">! kludge for new cube sphere from ESMF</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tileCount</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            if</span><span class="w"> </span><span class="p">(</span><span class="n">globalCellCountPerDim</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! kludge-on-the-kludge for Single-Column case</span>
+<span class="w">               </span><span class="n">globalCellCountPerDim</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="n">globalCellCountPerDim</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="mi">6</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">         end if</span>
+
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">lxtradim</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">globalCellCountPerDim</span><span class="p">(</span><span class="n">gridRank</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UNGRID</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">plocal</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">localCellCountPerDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+
+<span class="w">         </span><span class="n">HasDE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_GridHasDE</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">HasDE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">exclusiveCount</span><span class="o">=</span><span class="n">localCellCountPerDim</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">lxtradim</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">localCellCountPerDim</span><span class="p">(</span><span class="n">gridRank</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UNGRID</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">layout</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">distgrid</span><span class="o">=</span><span class="n">distgrid</span><span class="p">,</span><span class="n">dimCount</span><span class="o">=</span><span class="n">dimCount</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_DistGridGet</span><span class="p">(</span><span class="n">distgrid</span><span class="p">,</span><span class="n">deCount</span><span class="o">=</span><span class="n">deCount</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">minindex</span><span class="p">(</span><span class="n">dimCount</span><span class="p">,</span><span class="n">decount</span><span class="p">),</span><span class="n">maxindex</span><span class="p">(</span><span class="n">dimCount</span><span class="p">,</span><span class="n">decount</span><span class="p">))</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_DistGridGet</span><span class="p">(</span><span class="n">distgrid</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">minIndex</span><span class="o">=</span><span class="n">minindex</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">maxIndex</span><span class="o">=</span><span class="n">maxindex</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">nullify</span><span class="p">(</span><span class="n">ims</span><span class="p">,</span><span class="n">jms</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_GetImsJms</span><span class="p">(</span><span class="n">Imins</span><span class="o">=</span><span class="n">minindex</span><span class="p">(</span><span class="mi">1</span><span class="p">,:),</span><span class="n">Imaxs</span><span class="o">=</span><span class="n">maxindex</span><span class="p">(</span><span class="mi">1</span><span class="p">,:),&amp;</span>
+<span class="w">           </span><span class="n">Jmins</span><span class="o">=</span><span class="n">minindex</span><span class="p">(</span><span class="mi">2</span><span class="p">,:),</span><span class="n">Jmaxs</span><span class="o">=</span><span class="n">maxindex</span><span class="p">(</span><span class="mi">2</span><span class="p">,:),</span><span class="n">Ims</span><span class="o">=</span><span class="n">ims</span><span class="p">,</span><span class="n">Jms</span><span class="o">=</span><span class="n">jms</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="n">layout</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">ims</span><span class="p">)</span>
+<span class="w">         </span><span class="n">layout</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">jms</span><span class="p">)</span>
+<span class="w">         </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ims</span><span class="p">,</span><span class="n">jms</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">end subroutine </span><span class="n">MAPL_GridGet</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-04T16:08:56.909800             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

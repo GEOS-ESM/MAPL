@@ -1,0 +1,743 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>identity_regridder &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>identity_regridder
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">9 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_IdentityRegridder.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_identityregridder.f90.html'>MAPL_IdentityRegridder.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_identityregriddermod.html'>MAPL_IdentityRegridderMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">identity_regridder</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/identity_regridder.html#src">identity_regridder</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function identity_regridder() result(regridder)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~identity_regridder~~UsesGraph Pages: 1 -->
+<svg id="procidentity_regridderUsesGraph" width="205pt" height="32pt"
+ viewBox="0.00 0.00 205.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~identity_regridder~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~identity_regridder~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 201,-28 201,4 -4,4"/>
+<!-- proc~identity_regridder -->
+<g id="proc~~identity_regridder~~UsesGraph_node1" class="node">
+<title>proc~identity_regridder</title>
+<polygon fill="none" stroke="black" points="197,-24 90,-24 90,0 197,0 197,-24"/>
+<text text-anchor="middle" x="143.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">identity_regridder</text>
+</g>
+<!-- ESMF -->
+<g id="proc~~identity_regridder~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<g id="a_proc~~identity_regridder~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- proc~identity_regridder&#45;&gt;ESMF -->
+<g id="proc~~identity_regridder~~UsesGraph_edge1" class="edge">
+<title>proc~identity_regridder&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M89.94,-12C81.28,-12 72.47,-12 64.31,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="64.04,-8.5 54.04,-12 64.04,-15.5 64.04,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-regridder~6"></span>
+          type(IdentityRegridder), pointer
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~identity_regridder~~CallsGraph Pages: 1 -->
+<svg id="procidentity_regridderCallsGraph" width="317pt" height="74pt"
+ viewBox="0.00 0.00 317.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~identity_regridder~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~identity_regridder~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 313,-70 313,4 -4,4"/>
+<!-- proc~identity_regridder -->
+<g id="proc~~identity_regridder~~CallsGraph_node1" class="node">
+<title>proc~identity_regridder</title>
+<polygon fill="none" stroke="black" points="107,-45 0,-45 0,-21 107,-21 107,-45"/>
+<text text-anchor="middle" x="53.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">identity_regridder</text>
+</g>
+<!-- none~get_spec~3 -->
+<g id="proc~~identity_regridder~~CallsGraph_node2" class="node">
+<title>none~get_spec~3</title>
+<g id="a_proc~~identity_regridder~~CallsGraph_node2"><a xlink:href="../type/abstractregridder.html#boundprocedure-get_spec~3" xlink:title="AbstractRegridder%get_spec">
+<polygon fill="#a7506f" stroke="#a7506f" points="309,-66 143,-66 143,-42 309,-42 309,-66"/>
+<text text-anchor="middle" x="226" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractRegridder%get_spec</text>
+</a>
+</g>
+</g>
+<!-- proc~identity_regridder&#45;&gt;none~get_spec~3 -->
+<g id="proc~~identity_regridder~~CallsGraph_edge1" class="edge">
+<title>proc~identity_regridder&#45;&gt;none~get_spec~3</title>
+<path fill="none" stroke="#ff0000" d="M107.05,-39.47C115.29,-40.49 124.02,-41.56 132.85,-42.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="132.48,-46.13 142.84,-43.88 133.34,-39.18 132.48,-46.13"/>
+</g>
+<!-- none~set_spec -->
+<g id="proc~~identity_regridder~~CallsGraph_node3" class="node">
+<title>none~set_spec</title>
+<g id="a_proc~~identity_regridder~~CallsGraph_node3"><a xlink:href="../type/abstractregridder.html#boundprocedure-set_spec" xlink:title="AbstractRegridder%set_spec">
+<polygon fill="#a7506f" stroke="#a7506f" points="308.5,-24 143.5,-24 143.5,0 308.5,0 308.5,-24"/>
+<text text-anchor="middle" x="226" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractRegridder%set_spec</text>
+</a>
+</g>
+</g>
+<!-- proc~identity_regridder&#45;&gt;none~set_spec -->
+<g id="proc~~identity_regridder~~CallsGraph_edge2" class="edge">
+<title>proc~identity_regridder&#45;&gt;none~set_spec</title>
+<path fill="none" stroke="#ff0000" d="M107.05,-26.53C115.44,-25.49 124.32,-24.4 133.3,-23.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="133.97,-26.74 143.47,-22.04 133.11,-19.79 133.97,-26.74"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~identity_regridder~~CalledByGraph Pages: 1 -->
+<svg id="procidentity_regridderCalledByGraph" width="641pt" height="61pt"
+ viewBox="0.00 0.00 641.00 61.45" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~identity_regridder~~CalledByGraph" class="graph" transform="scale(0.53 0.53) rotate(0) translate(4 112)">
+<title>proc~~identity_regridder~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 1206,-112 1206,4 -4,4"/>
+<!-- proc~identity_regridder -->
+<g id="proc~~identity_regridder~~CalledByGraph_node1" class="node">
+<title>proc~identity_regridder</title>
+<polygon fill="none" stroke="black" points="1202,-45 1095,-45 1095,-21 1202,-21 1202,-45"/>
+<text text-anchor="middle" x="1148.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">identity_regridder</text>
+</g>
+<!-- none~make_regridder_ -->
+<g id="proc~~identity_regridder~~CalledByGraph_node2" class="node">
+<title>none~make_regridder_</title>
+<g id="a_proc~~identity_regridder~~CalledByGraph_node2"><a xlink:href="../type/newregriddermanager.html#boundprocedure-make_regridder_" xlink:title="NewRegridderManager%make_regridder_">
+<polygon fill="#a7506f" stroke="#a7506f" points="1042.5,-66 807.5,-66 807.5,-42 1042.5,-42 1042.5,-66"/>
+<text text-anchor="middle" x="925" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NewRegridderManager%make_regridder_</text>
+</a>
+</g>
+</g>
+<!-- none~make_regridder_&#45;&gt;proc~identity_regridder -->
+<g id="proc~~identity_regridder~~CalledByGraph_edge1" class="edge">
+<title>none~make_regridder_&#45;&gt;proc~identity_regridder</title>
+<path fill="none" stroke="#ff0000" d="M1042.59,-42.95C1057.06,-41.57 1071.4,-40.21 1084.62,-38.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1085.33,-42.41 1094.95,-37.98 1084.67,-35.44 1085.33,-42.41"/>
+</g>
+<!-- none~make_regridder_from_grids -->
+<g id="proc~~identity_regridder~~CalledByGraph_node3" class="node">
+<title>none~make_regridder_from_grids</title>
+<g id="a_proc~~identity_regridder~~CalledByGraph_node3"><a xlink:href="../type/regriddermanager~2.html#boundprocedure-make_regridder_from_grids" xlink:title="RegridderManager%make_regridder_from_grids">
+<polygon fill="#a7506f" stroke="#a7506f" points="1059,-24 791,-24 791,0 1059,0 1059,-24"/>
+<text text-anchor="middle" x="925" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderManager%make_regridder_from_grids</text>
+</a>
+</g>
+</g>
+<!-- none~make_regridder_from_grids&#45;&gt;proc~identity_regridder -->
+<g id="proc~~identity_regridder~~CalledByGraph_edge2" class="edge">
+<title>none~make_regridder_from_grids&#45;&gt;proc~identity_regridder</title>
+<path fill="none" stroke="#ff0000" d="M1052.6,-24C1063.72,-25.06 1074.62,-26.09 1084.85,-27.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1084.54,-30.55 1094.83,-28.01 1085.2,-23.58 1084.54,-30.55"/>
+</g>
+<!-- none~make_regridder~2 -->
+<g id="proc~~identity_regridder~~CalledByGraph_node4" class="node">
+<title>none~make_regridder~2</title>
+<g id="a_proc~~identity_regridder~~CalledByGraph_node4"><a xlink:href="../type/newregriddermanager.html#boundprocedure-make_regridder~2" xlink:title="NewRegridderManager%make_regridder">
+<polygon fill="#a7506f" stroke="#a7506f" points="755,-66 526,-66 526,-42 755,-42 755,-66"/>
+<text text-anchor="middle" x="640.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NewRegridderManager%make_regridder</text>
+</a>
+</g>
+</g>
+<!-- none~make_regridder~2&#45;&gt;none~make_regridder_ -->
+<g id="proc~~identity_regridder~~CalledByGraph_edge3" class="edge">
+<title>none~make_regridder~2&#45;&gt;none~make_regridder_</title>
+<path fill="none" stroke="#ff0000" d="M755.18,-54C769,-54 783.18,-54 797.18,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="797.33,-57.5 807.33,-54 797.33,-50.5 797.33,-57.5"/>
+</g>
+<!-- none~make_regridder~4 -->
+<g id="proc~~identity_regridder~~CalledByGraph_node5" class="node">
+<title>none~make_regridder~4</title>
+<g id="a_proc~~identity_regridder~~CalledByGraph_node5"><a xlink:href="../type/regriddermanager~2.html#boundprocedure-make_regridder~4" xlink:title="RegridderManager%make_regridder">
+<polygon fill="#a7506f" stroke="#a7506f" points="744,-24 537,-24 537,0 744,0 744,-24"/>
+<text text-anchor="middle" x="640.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderManager%make_regridder</text>
+</a>
+</g>
+</g>
+<!-- none~make_regridder~4&#45;&gt;none~make_regridder_from_grids -->
+<g id="proc~~identity_regridder~~CalledByGraph_edge4" class="edge">
+<title>none~make_regridder~4&#45;&gt;none~make_regridder_from_grids</title>
+<path fill="none" stroke="#00ffff" d="M744.29,-12C756.12,-12 768.34,-12 780.59,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="780.87,-15.5 790.87,-12 780.87,-8.5 780.87,-15.5"/>
+</g>
+<!-- none~createfilemetadata -->
+<g id="proc~~identity_regridder~~CalledByGraph_node6" class="node">
+<title>none~createfilemetadata</title>
+<g id="a_proc~~identity_regridder~~CalledByGraph_node6"><a xlink:href="../type/mapl_griddedio.html#boundprocedure-createfilemetadata" xlink:title="MAPL_GriddedIO%CreateFileMetaData">
+<polygon fill="#a7506f" stroke="#a7506f" points="482,-108 267,-108 267,-84 482,-84 482,-108"/>
+<text text-anchor="middle" x="374.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIO%CreateFileMetaData</text>
+</a>
+</g>
+</g>
+<!-- none~createfilemetadata&#45;&gt;none~make_regridder~2 -->
+<g id="proc~~identity_regridder~~CalledByGraph_edge5" class="edge">
+<title>none~createfilemetadata&#45;&gt;none~make_regridder~2</title>
+<path fill="none" stroke="#ff0000" d="M451.15,-83.96C483.19,-78.87 520.67,-72.9 553.73,-67.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="554.51,-71.07 563.84,-66.04 553.41,-64.15 554.51,-71.07"/>
+</g>
+<!-- none~request_data_from_file~2 -->
+<g id="proc~~identity_regridder~~CalledByGraph_node7" class="node">
+<title>none~request_data_from_file~2</title>
+<g id="a_proc~~identity_regridder~~CalledByGraph_node7"><a xlink:href="../type/mapl_griddedio.html#boundprocedure-request_data_from_file~2" xlink:title="MAPL_GriddedIO%request_data_from_file">
+<polygon fill="#a7506f" stroke="#a7506f" points="490,-66 259,-66 259,-42 490,-42 490,-66"/>
+<text text-anchor="middle" x="374.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIO%request_data_from_file</text>
+</a>
+</g>
+</g>
+<!-- none~request_data_from_file~2&#45;&gt;none~make_regridder~2 -->
+<g id="proc~~identity_regridder~~CalledByGraph_edge6" class="edge">
+<title>none~request_data_from_file~2&#45;&gt;none~make_regridder~2</title>
+<path fill="none" stroke="#ff0000" d="M490.14,-54C498.64,-54 507.24,-54 515.8,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="515.81,-57.5 525.81,-54 515.81,-50.5 515.81,-57.5"/>
+</g>
+<!-- proc~mapl_cfiocreatefromfile -->
+<g id="proc~~identity_regridder~~CalledByGraph_node8" class="node">
+<title>proc~mapl_cfiocreatefromfile</title>
+<g id="a_proc~~identity_regridder~~CalledByGraph_node8"><a xlink:href="../proc/mapl_cfiocreatefromfile.html" xlink:title="MAPL_CFIOCreateFromFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="450,-24 299,-24 299,0 450,0 450,-24"/>
+<text text-anchor="middle" x="374.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOCreateFromFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;none~make_regridder~4 -->
+<g id="proc~~identity_regridder~~CalledByGraph_edge7" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;none~make_regridder~4</title>
+<path fill="none" stroke="#00ffff" d="M450.09,-12C473.78,-12 500.54,-12 526.32,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="526.52,-15.5 536.52,-12 526.52,-8.5 526.52,-15.5"/>
+</g>
+<!-- none~create_from_bundle -->
+<g id="proc~~identity_regridder~~CalledByGraph_node9" class="node">
+<title>none~create_from_bundle</title>
+<g id="a_proc~~identity_regridder~~CalledByGraph_node9"><a xlink:href="../type/fieldbundlewriter.html#boundprocedure-create_from_bundle" xlink:title="FieldBundleWriter%create_from_bundle">
+<polygon fill="#a7506f" stroke="#a7506f" points="223,-108 0,-108 0,-84 223,-84 223,-108"/>
+<text text-anchor="middle" x="111.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleWriter%create_from_bundle</text>
+</a>
+</g>
+</g>
+<!-- none~create_from_bundle&#45;&gt;none~createfilemetadata -->
+<g id="proc~~identity_regridder~~CalledByGraph_edge8" class="edge">
+<title>none~create_from_bundle&#45;&gt;none~createfilemetadata</title>
+<path fill="none" stroke="#ff0000" d="M223.19,-96C234.25,-96 245.51,-96 256.63,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.8,-99.5 266.8,-96 256.8,-92.5 256.8,-99.5"/>
+</g>
+<!-- proc~mapl_read_bundle -->
+<g id="proc~~identity_regridder~~CalledByGraph_node10" class="node">
+<title>proc~mapl_read_bundle</title>
+<g id="a_proc~~identity_regridder~~CalledByGraph_node10"><a xlink:href="../proc/mapl_read_bundle.html" xlink:title="MAPL_read_bundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="167.5,-66 55.5,-66 55.5,-42 167.5,-42 167.5,-66"/>
+<text text-anchor="middle" x="111.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_read_bundle</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_read_bundle&#45;&gt;none~request_data_from_file~2 -->
+<g id="proc~~identity_regridder~~CalledByGraph_edge9" class="edge">
+<title>proc~mapl_read_bundle&#45;&gt;none~request_data_from_file~2</title>
+<path fill="none" stroke="#00ff00" d="M167.53,-54C191.35,-54 220.27,-54 248.82,-54"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="248.89,-57.5 258.89,-54 248.89,-50.5 248.89,-57.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocidentity_regridderCalledByGraph = svgPanZoom('#procidentity_regridderCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">identity_regridder</span><span class="p">()</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">regridder</span><span class="p">)</span>
+<span class="w">      </span><span class="k">use </span><span class="n">ESMF</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">IdentityRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+
+<span class="w">      </span><span class="n">regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">singleton</span>
+
+<span class="w">      </span><span class="c">! Due to how MAPL is set up, the default regrid_method is</span>
+<span class="w">      </span><span class="c">! bilinear. But if an identity regridder is requested, we</span>
+<span class="w">      </span><span class="c">! want to reflect that in the metadata by updating the spec.</span>
+<span class="w">      </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">regridder</span><span class="p">%</span><span class="n">get_spec</span><span class="p">()</span>
+<span class="w">      </span><span class="n">spec</span><span class="p">%</span><span class="n">regrid_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">REGRID_METHOD_IDENTITY</span>
+<span class="w">      </span><span class="k">call </span><span class="n">regridder</span><span class="p">%</span><span class="n">set_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end function </span><span class="n">identity_regridder</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-04T16:08:56.909800             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

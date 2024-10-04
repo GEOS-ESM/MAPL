@@ -1,0 +1,757 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MockServer.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MockServer.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">27 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MockServer.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">MockServer.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mockservermod.html">MockServerMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/mockserver.f90.html#src">MockServer.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mockserver.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilemockserverf90EfferentGraph" width="641pt" height="725pt"
+ viewBox="0.00 0.00 641.00 724.76" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mockserver.f90~~EfferentGraph" class="graph" transform="scale(0.96 0.96) rotate(0) translate(4 750.16)">
+<title>sourcefile~~mockserver.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-750.16 663,-750.16 663,4 -4,4"/>
+<!-- sourcefile~mockserver.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~mockserver.f90</title>
+<polygon fill="none" stroke="black" points="659,-422 562,-422 562,-398 659,-398 659,-422"/>
+<text text-anchor="middle" x="610.5" y="-407.6" font-family="Helvetica,sans-Serif" font-size="10.50">MockServer.F90</text>
+</g>
+<!-- sourcefile~abstractdatareference.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~abstractdatareference.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/abstractdatareference.f90.html" xlink:title="AbstractDataReference.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="379.5,-692 220.5,-692 220.5,-668 379.5,-668 379.5,-692"/>
+<text text-anchor="middle" x="300" y="-677.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractDataReference.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockserver.f90&#45;&gt;sourcefile~abstractdatareference.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~mockserver.f90&#45;&gt;sourcefile~abstractdatareference.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M602.5,-422.09C578.83,-461.87 497.52,-589.76 395,-654 388.44,-658.11 381.23,-661.58 373.81,-664.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="372.54,-661.25 364.32,-667.94 374.92,-667.83 372.54,-661.25"/>
+</g>
+<!-- sourcefile~baseserver.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~baseserver.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/baseserver.f90.html" xlink:title="BaseServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="526,-402 431,-402 431,-378 526,-378 526,-402"/>
+<text text-anchor="middle" x="478.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mockserver.f90&#45;&gt;sourcefile~baseserver.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~mockserver.f90&#45;&gt;sourcefile~baseserver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M561.83,-402.67C553.5,-401.38 544.75,-400.04 536.21,-398.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="536.71,-395.26 526.3,-397.2 535.65,-402.18 536.71,-395.26"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="169,-648 0,-648 0,-624 169,-624 169,-648"/>
+<text text-anchor="middle" x="84.5" y="-633.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractdatareference.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~abstractdatareference.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M240.66,-667.98C213.83,-662.45 181.82,-655.85 153.87,-650.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="154.27,-646.6 143.77,-648.01 152.86,-653.46 154.27,-646.6"/>
+</g>
+<!-- sourcefile~pfio_constants.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~pfio_constants.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/pfio_constants.f90.html" xlink:title="pFIO_Constants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="143,-690 26,-690 26,-666 143,-666 143,-690"/>
+<text text-anchor="middle" x="84.5" y="-675.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_Constants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractdatareference.f90&#45;&gt;sourcefile~pfio_constants.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~abstractdatareference.f90&#45;&gt;sourcefile~pfio_constants.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M220.41,-679.26C198.44,-679.06 174.76,-678.84 153.46,-678.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="153.25,-675.13 143.22,-678.54 153.18,-682.13 153.25,-675.13"/>
+</g>
+<!-- sourcefile~pfio_utilities.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~pfio_utilities.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/pfio_utilities.f90.html" xlink:title="pFIO_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="136,-732 33,-732 33,-708 136,-708 136,-732"/>
+<text text-anchor="middle" x="84.5" y="-717.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractdatareference.f90&#45;&gt;sourcefile~pfio_utilities.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~abstractdatareference.f90&#45;&gt;sourcefile~pfio_utilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M234.94,-692C206.83,-697.27 173.98,-703.42 146.26,-708.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="145.48,-705.2 136.29,-710.48 146.77,-712.08 145.48,-705.2"/>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractdatareference.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractdatareference.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M473.69,-402.32C457.63,-454.27 396.2,-652.84 395,-654 391.46,-657.43 387.51,-660.41 383.29,-663"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="381.46,-660.01 374.29,-667.81 384.76,-666.19 381.46,-660.01"/>
+</g>
+<!-- sourcefile~abstractdatamessage.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~abstractdatamessage.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/abstractdatamessage.f90.html" xlink:title="AbstractDataMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="375.5,-570 224.5,-570 224.5,-546 375.5,-546 375.5,-570"/>
+<text text-anchor="middle" x="300" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractDataMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractdatamessage.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractdatamessage.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M474.37,-402.15C466.38,-430.59 442.43,-501.72 395,-537 391.94,-539.28 388.67,-541.32 385.26,-543.15"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="383.53,-540.09 375.95,-547.49 386.49,-546.43 383.53,-540.09"/>
+</g>
+<!-- sourcefile~abstractmessage.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~abstractmessage.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/abstractmessage.f90.html" xlink:title="AbstractMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="363,-528 237,-528 237,-504 363,-504 363,-528"/>
+<text text-anchor="middle" x="300" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractmessage.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractmessage.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M471.49,-402.3C459.95,-424.56 432.46,-471.39 395,-495 388.16,-499.31 380.55,-502.74 372.71,-505.47"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="371.57,-502.16 363.06,-508.47 373.65,-508.84 371.57,-502.16"/>
+</g>
+<!-- sourcefile~abstractserver.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~abstractserver.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/abstractserver.f90.html" xlink:title="AbstractServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="356.5,-486 243.5,-486 243.5,-462 356.5,-462 356.5,-486"/>
+<text text-anchor="middle" x="300" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractserver.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractserver.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M465.23,-402.17C450.04,-416.53 422.77,-440.06 395,-453 386.13,-457.13 376.41,-460.47 366.68,-463.16"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="365.81,-459.78 356.99,-465.65 367.55,-466.56 365.81,-459.78"/>
+</g>
+<!-- sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~abstractsocket.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/abstractsocket.f90.html" xlink:title="AbstractSocket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="357.5,-444 242.5,-444 242.5,-420 357.5,-420 357.5,-444"/>
+<text text-anchor="middle" x="300" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractSocket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractsocket.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractsocket.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M431.31,-402.01C419.49,-405.02 406.79,-408.18 395,-411 385.71,-413.22 375.88,-415.5 366.21,-417.69"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="365.22,-414.33 356.24,-419.95 366.76,-421.16 365.22,-414.33"/>
+</g>
+<!-- sourcefile~abstractsocketvector.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~abstractsocketvector.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/abstractsocketvector.f90.html" xlink:title="AbstractSocketVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="374,-402 226,-402 226,-378 374,-378 374,-402"/>
+<text text-anchor="middle" x="300" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractSocketVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractsocketvector.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~abstractsocketvector.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M430.66,-390C416.42,-390 400.32,-390 384.43,-390"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="384.03,-386.5 374.03,-390 384.03,-393.5 384.03,-386.5"/>
+</g>
+<!-- sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~collectivestagedatamessage.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/collectivestagedatamessage.f90.html" xlink:title="CollectiveStageDataMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="395,-360 205,-360 205,-336 395,-336 395,-360"/>
+<text text-anchor="middle" x="300" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CollectiveStageDataMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~collectivestagedatamessage.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M431.31,-377.99C419.49,-374.98 406.79,-371.82 395,-369 385.71,-366.78 375.88,-364.5 366.21,-362.31"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="366.76,-358.84 356.24,-360.05 365.22,-365.67 366.76,-358.84"/>
+</g>
+<!-- sourcefile~donemessage.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~donemessage.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/donemessage.f90.html" xlink:title="DoneMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="355,-318 245,-318 245,-294 355,-294 355,-318"/>
+<text text-anchor="middle" x="300" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DoneMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~donemessage.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~donemessage.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M465.23,-377.83C450.04,-363.47 422.77,-339.94 395,-327 385.58,-322.61 375.2,-319.12 364.87,-316.34"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="365.57,-312.91 355.02,-313.89 363.88,-319.7 365.57,-312.91"/>
+</g>
+<!-- sourcefile~dummymessage.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~dummymessage.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/dummymessage.f90.html" xlink:title="DummyMessage.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="362,-276 238,-276 238,-252 362,-252 362,-276"/>
+<text text-anchor="middle" x="300" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DummyMessage.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~dummymessage.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~dummymessage.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M471.49,-377.7C459.95,-355.44 432.46,-308.61 395,-285 387.88,-280.51 379.93,-276.98 371.75,-274.2"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="372.66,-270.82 362.08,-271.27 370.63,-277.52 372.66,-270.82"/>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M473.93,-402.13C460.47,-447.54 412.63,-605.74 395,-621 362.78,-648.9 338.1,-619.02 301,-640"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M299,-640C278.7,-651.48 226.8,-650.71 179.25,-646.96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="179.44,-643.46 169.18,-646.12 178.86,-650.44 179.44,-643.46"/>
+</g>
+<!-- sourcefile~messagevector.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~messagevector.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/messagevector.f90.html" xlink:title="MessageVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="357,-234 243,-234 243,-210 357,-210 357,-234"/>
+<text text-anchor="middle" x="300" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~messagevector.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~messagevector.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M474.37,-377.85C466.38,-349.41 442.43,-278.28 395,-243 386.85,-236.94 377.27,-232.57 367.41,-229.43"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="368.06,-225.98 357.49,-226.69 366.19,-232.73 368.06,-225.98"/>
+</g>
+<!-- sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~mpisocket.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/mpisocket.f90.html" xlink:title="MpiSocket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="345,-192 255,-192 255,-168 345,-168 345,-192"/>
+<text text-anchor="middle" x="300" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MpiSocket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~mpisocket.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~mpisocket.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M475.95,-377.55C471.01,-343.53 452.46,-248.37 395,-201 383.89,-191.84 369.62,-186.47 355.57,-183.37"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="355.9,-179.87 345.43,-181.49 354.63,-186.75 355.9,-179.87"/>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~pfio_constants.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~pfio_constants.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M299,-640C292.55,-643.65 213.33,-657.17 153.25,-667.05"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="152.34,-663.66 143.04,-668.73 153.47,-670.56 152.34,-663.66"/>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~pfio_utilities.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~pfio_utilities.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M476.14,-402.2C470.02,-454.84 443.18,-661.53 395,-701 323.41,-759.66 208.38,-748.1 140.55,-734.18"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="141.01,-730.7 130.49,-732.03 139.54,-737.54 141.01,-730.7"/>
+</g>
+<!-- sourcefile~rdmareference.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~rdmareference.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/rdmareference.f90.html" xlink:title="RDMAReference.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="360.5,-150 239.5,-150 239.5,-126 360.5,-126 360.5,-150"/>
+<text text-anchor="middle" x="300" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RDMAReference.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~rdmareference.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~rdmareference.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M477.07,-377.99C475,-339.66 463.13,-219.21 395,-159 388.01,-152.82 379.6,-148.34 370.72,-145.1"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="371.53,-141.69 360.94,-142.06 369.45,-148.38 371.53,-141.69"/>
+</g>
+<!-- sourcefile~serverthread.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~serverthread.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/serverthread.f90.html" xlink:title="ServerThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="354,-108 246,-108 246,-84 354,-84 354,-108"/>
+<text text-anchor="middle" x="300" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~serverthread.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~serverthread.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M477.82,-377.72C478.24,-334.77 473.54,-189.96 395,-117 386.47,-109.08 375.63,-103.91 364.37,-100.59"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="364.95,-97.13 354.41,-98.12 363.27,-103.92 364.95,-97.13"/>
+</g>
+<!-- sourcefile~serverthreadvector.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~serverthreadvector.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/serverthreadvector.f90.html" xlink:title="ServerThreadVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="370,-66 230,-66 230,-42 370,-42 370,-66"/>
+<text text-anchor="middle" x="300" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~serverthreadvector.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~serverthreadvector.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M476,-377.83C469.3,-325.3 440.37,-118.75 395,-75 390.42,-70.58 385.12,-67.01 379.42,-64.14"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="380.75,-60.9 370.18,-60.17 377.99,-67.33 380.75,-60.9"/>
+</g>
+<!-- sourcefile~shmemreference.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~shmemreference.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/shmemreference.f90.html" xlink:title="ShmemReference.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="365,-24 235,-24 235,0 365,0 365,-24"/>
+<text text-anchor="middle" x="300" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ShmemReference.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~shmemreference.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~shmemreference.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M476.4,-377.78C471.03,-320.98 445.79,-83.42 395,-33 389.24,-27.28 382.29,-22.98 374.81,-19.76"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="375.68,-16.35 365.09,-16.23 373.29,-22.93 375.68,-16.35"/>
+</g>
+<!-- sourcefile~simplesocket.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~simplesocket.f90</title>
+<g id="a_sourcefile~~mockserver.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/simplesocket.f90.html" xlink:title="SimpleSocket.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="354,-612 246,-612 246,-588 354,-588 354,-612"/>
+<text text-anchor="middle" x="300" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleSocket.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseserver.f90&#45;&gt;sourcefile~simplesocket.f90 -->
+<g id="sourcefile~~mockserver.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~baseserver.f90&#45;&gt;sourcefile~simplesocket.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M475.95,-402.45C471.01,-436.47 452.46,-531.63 395,-579 386.12,-586.32 375.22,-591.23 364.02,-594.48"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="363.02,-591.12 354.16,-596.94 364.71,-597.92 363.02,-591.12"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilemockserverf90EfferentGraph = svgPanZoom('#sourcefilemockserverf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mockserver.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilemockserverf90AfferentGraph" width="281pt" height="74pt"
+ viewBox="0.00 0.00 281.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mockserver.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>sourcefile~~mockserver.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 277,-70 277,4 -4,4"/>
+<!-- sourcefile~mockserver.f90 -->
+<g id="sourcefile~~mockserver.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~mockserver.f90</title>
+<polygon fill="none" stroke="black" points="97,-45 0,-45 0,-21 97,-21 97,-45"/>
+<text text-anchor="middle" x="48.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">MockServer.F90</text>
+</g>
+<!-- sourcefile~test_directoryservice.pf -->
+<g id="sourcefile~~mockserver.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~test_directoryservice.pf</title>
+<g id="a_sourcefile~~mockserver.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/test_directoryservice.pf.html" xlink:title="Test_DirectoryService.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="273,-66 133,-66 133,-42 273,-42 273,-66"/>
+<text text-anchor="middle" x="203" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_DirectoryService.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~mockserver.f90 -->
+<g id="sourcefile~~mockserver.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~test_directoryservice.pf&#45;&gt;sourcefile~mockserver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M132.89,-44.48C124.37,-43.31 115.74,-42.12 107.41,-40.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="107.82,-37.5 97.44,-39.6 106.87,-44.43 107.82,-37.5"/>
+</g>
+<!-- sourcefile~test_serverthread.pf -->
+<g id="sourcefile~~mockserver.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~test_serverthread.pf</title>
+<g id="a_sourcefile~~mockserver.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/test_serverthread.pf.html" xlink:title="Test_ServerThread.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="265,-24 141,-24 141,0 265,0 265,-24"/>
+<text text-anchor="middle" x="203" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ServerThread.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_serverthread.pf&#45;&gt;sourcefile~mockserver.f90 -->
+<g id="sourcefile~~mockserver.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~test_serverthread.pf&#45;&gt;sourcefile~mockserver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M140.85,-20.42C129.69,-21.96 118.07,-23.56 107.01,-25.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="106.48,-21.62 97.05,-26.45 107.43,-28.56 106.48,-21.62"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;unused_dummy.H&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="k">module </span><span class="n">MockServerMod</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_BaseServerMod</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">pFIO_AbstractDataReferenceMod</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="k">   private</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MockServer</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="k">extends</span><span class="w"> </span><span class="p">(</span><span class="n">BaseServer</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MockServer</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">port_name</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">start</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">end type </span><span class="n">MockServer</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">interface </span><span class="n">MockServer</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_MockServer</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">end interface </span><span class="n">MockServer</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a>
+<a id="ln-23" name="ln-23" href="#ln-23"></a>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="k">contains</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="k">   function </span><span class="n">new_MockServer</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockServer</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">s</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">comm</span><span class="p">))</span><span class="w"> </span><span class="n">s</span><span class="p">%</span><span class="n">comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">s</span><span class="p">%</span><span class="n">serverthread_done_msgs</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="n">s</span><span class="p">%</span><span class="n">serverthread_done_msgs</span><span class="p">(:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_MockServer</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">start</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MockServer</span><span class="p">),</span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="k">end subroutine</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="k">end module </span><span class="n">MockServerMod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-04T16:08:56.909800             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
