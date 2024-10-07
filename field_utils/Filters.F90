@@ -17,8 +17,19 @@ contains
 
    end function filterR4
 
+   logical function filterI4(this, u, rc)
+      class(Filter), intent(in) :: this
+      integer(kind=ESMF_KIND_I4), intent(in) :: u
+      integer, optional, intent(out) :: rc
+      
+      if(present(rc)) rc = -1
+      filterI4 = .FALSE.
 
+   end function filterI4
 
+end type Filter
+
+type, extends(Filter)
 abstract interface
    logical function CompositeFilter(filters)
       class(Filter), intent(in) :: filters
