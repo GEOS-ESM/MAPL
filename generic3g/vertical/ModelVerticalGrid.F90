@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_ModelVerticalGrid
+
    use mapl3g_VerticalGrid
    use mapl3g_StateRegistry
    use mapl3g_MultiState
@@ -18,6 +19,7 @@ module mapl3g_ModelVerticalGrid
    use mapl3g_GriddedComponentDriver
    use gftl2_StringVector
    use esmf
+
    implicit none
    private
 
@@ -129,10 +131,7 @@ contains
        v_pt = VirtualConnectionPt(state_intent='export', short_name=this%variants%of(1))
        goal_spec = FieldSpec( &
             geom=geom, vertical_grid=this, vertical_dim_spec=vertical_dim_spec, &
-            typekind=typekind, &
-            standard_name=standard_name, &
-            units=units, &
-            ungridded_dims=UngriddedDims())
+            typekind=typekind, standard_name=standard_name, units=units, ungridded_dims=UngriddedDims())
        new_extension => this%registry%extend(v_pt, goal_spec, _RC)
        coupler => new_extension%get_producer()
        new_spec => new_extension%get_spec()
