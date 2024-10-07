@@ -1,0 +1,1392 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ESMF_CFIOVarInfoGet &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>ESMF_CFIOVarInfoGet
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.3% of total for procedures.">195 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ESMF_CFIOVarInfoMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmf_cfiovarinfomod.f90.html'>ESMF_CFIOVarInfoMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmf_cfiovarinfomod.html'>ESMF_CFIOVarInfoMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">ESMF_CFIOVarInfoGet</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/esmf_cfiovarinfoget.html#src">ESMF_CFIOVarInfoGet</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine ESMF_CFIOVarInfoGet(varObj, vName, grid, vTitle, vUnits, twoDimVar, validRange, amiss, addOffSet, scaleFactor, standardName, nVarAttChar, attCharNames, vAttCharCnts, varAttChars, nVarAttReal, attRealNames, vAttRealCnts, varAttReals, nVarAttInt, attIntNames, vAttIntCnts, varAttInts, ordering, attCharName, attCharCnt, attChar, attRealName, attRealCnt, attReal, attIntName, attIntCnt, attInt, packingRange, timAve, aveMethod, cellMthd, ChunkSize, rc)  
+</h2>
+    
+
+    <p><code>ESMF_CFIOVarInfoGet</code> &ndash; get information from a CFIO variable object</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-varobj~3"></span>
+              type(<a href='../type/esmf_cfiovarinfo.html'>ESMF_CFIOVarInfo</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>varObj</strong></td>
+            <td>
+                <p>variable obj </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vname~27"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vName</strong></td>
+            <td>
+                <p>variable short name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid~228"></span>
+              type(<a href='../type/esmf_cfiogrid.html'>ESMF_CFIOGrid</a>),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid</strong></td>
+            <td>
+                <p>grid </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vtitle~3"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vTitle</strong></td>
+            <td>
+                <p>variable long name </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vunits~3"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vUnits</strong></td>
+            <td>
+                <p>variable units      </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-twodimvar~3"></span>
+              logical,
+            </td>
+<td></td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>twoDimVar</strong></td>
+            <td>
+                <p>True for 2D</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-validrange~3"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>validRange</strong>(2)</td>
+            <td>
+                <p>Variable valid range</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-amiss~10"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>amiss</strong></td>
+            <td>
+                <p>FILL value</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-addoffset~3"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>addOffSet</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-scalefactor~3"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>scaleFactor</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-standardname~7"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>standardName</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nvarattchar~2"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nVarAttChar</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attcharnames~6"></span>
+              character(len=*),
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attCharNames</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vattcharcnts~2"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>vAttCharCnts</strong>(:)</td>
+            <td>
+                <p>length of attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-varattchars~3"></span>
+              character(len=*),
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>varAttChars</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nvarattreal~2"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nVarAttReal</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attrealnames~6"></span>
+              character(len=*),
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attRealNames</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vattrealcnts~2"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>vAttRealCnts</strong>(:)</td>
+            <td>
+                <p>length of attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-varattreals~3"></span>
+              real,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>varAttReals</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nvarattint~2"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nVarAttInt</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attintnames~6"></span>
+              character(len=*),
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attIntNames</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vattintcnts~2"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>vAttIntCnts</strong>(:)</td>
+            <td>
+                <p>length of attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-varattints~3"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>varAttInts</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ordering~3"></span>
+              character(len=*),
+            </td>
+<td></td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ordering</strong></td>
+            <td>
+                <p>(time, lev, lat, lon) (default)
+can be any combination of xyzt</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attcharname~4"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attCharName</strong></td>
+            <td>
+                <p>User defined  char attribute name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attcharcnt~2"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attCharCnt</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attchar~5"></span>
+              character(len=*),
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attChar</strong></td>
+            <td>
+                <p>User defined  char attribute</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attrealname~4"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attRealName</strong></td>
+            <td>
+                <p>User defined  real attribute name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attrealcnt~2"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attRealCnt</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attreal~5"></span>
+              real,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attReal</strong>(:)</td>
+            <td>
+                <p>User defined  real attribute</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attintname~4"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attIntName</strong></td>
+            <td>
+                <p>User defined  int attribute name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attintcnt~2"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attIntCnt</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attint~5"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attInt</strong>(:)</td>
+            <td>
+                <p>User defined  int attribute</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-packingrange~3"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>packingRange</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timave~3"></span>
+              logical,
+            </td>
+<td></td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timAve</strong></td>
+            <td>
+                <p>True for time average</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-avemethod~3"></span>
+              character(len=1),
+            </td>
+<td></td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>aveMethod</strong></td>
+            <td>
+                <p>&lsquo;c&rsquo;: center, &lsquo;d&rsquo;: downstream
+&lsquo;u&rsquo;: upstream</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cellmthd~4"></span>
+              character(len=MVARLEN),
+            </td>
+<td></td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cellMthd</strong></td>
+            <td>
+                <p>Cell methmod units</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-chunksize~3"></span>
+              integer,
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>ChunkSize</strong>(:)</td>
+            <td>
+                <p>User defined Chunksize int </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2876"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                <p>Error return code:             <br>
+0   all is well             <br>
+-1  Allocation for attCharNames failed             <br>
+-2  Allocation for attRealNames failed             <br>
+-3  Allocation for attIntNames failed              <br>
+-4  Allocation for vAttCharCnts failed             <br>
+-5  Allocation for vAttRealCnts failed              <br>
+-6  Allocation for vAttIntCnts failed              <br>
+-7  Allocation for varAttChars failed          <br>
+-8  Allocation for varAttReals failed          <br>
+-9  Allocation for varAttInts failed         </p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~esmf_cfiovarinfoget~~CallsGraph Pages: 1 -->
+<svg id="procesmf_cfiovarinfogetCallsGraph" width="225pt" height="32pt"
+ viewBox="0.00 0.00 225.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~esmf_cfiovarinfoget~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~esmf_cfiovarinfoget~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 221,-28 221,4 -4,4"/>
+<!-- proc~esmf_cfiovarinfoget -->
+<g id="proc~~esmf_cfiovarinfoget~~CallsGraph_node1" class="node">
+<title>proc~esmf_cfiovarinfoget</title>
+<polygon fill="none" stroke="black" points="127,-24 0,-24 0,0 127,0 127,-24"/>
+<text text-anchor="middle" x="63.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_CFIOVarInfoGet</text>
+</g>
+<!-- proc~err -->
+<g id="proc~~esmf_cfiovarinfoget~~CallsGraph_node2" class="node">
+<title>proc~err</title>
+<g id="a_proc~~esmf_cfiovarinfoget~~CallsGraph_node2"><a xlink:href="../proc/err.html" xlink:title="err">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="217,-24 163,-24 163,0 217,0 217,-24"/>
+<text text-anchor="middle" x="190" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">err</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfiovarinfoget&#45;&gt;proc~err -->
+<g id="proc~~esmf_cfiovarinfoget~~CallsGraph_edge1" class="edge">
+<title>proc~esmf_cfiovarinfoget&#45;&gt;proc~err</title>
+<path fill="none" stroke="#ff0000" d="M127.11,-12C135.87,-12 144.62,-12 152.66,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="152.78,-15.5 162.78,-12 152.78,-8.5 152.78,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~esmf_cfiovarinfoget~~CalledByGraph Pages: 1 -->
+<svg id="procesmf_cfiovarinfogetCalledByGraph" width="322pt" height="200pt"
+ viewBox="0.00 0.00 322.00 200.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~esmf_cfiovarinfoget~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 196)">
+<title>proc~~esmf_cfiovarinfoget~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 318,-196 318,4 -4,4"/>
+<!-- proc~esmf_cfiovarinfoget -->
+<g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_node1" class="node">
+<title>proc~esmf_cfiovarinfoget</title>
+<polygon fill="none" stroke="black" points="314,-108 187,-108 187,-84 314,-84 314,-108"/>
+<text text-anchor="middle" x="250.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_CFIOVarInfoGet</text>
+</g>
+<!-- proc~mapl_cfiocreatefromfile -->
+<g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_node2" class="node">
+<title>proc~mapl_cfiocreatefromfile</title>
+<g id="a_proc~~esmf_cfiovarinfoget~~CalledByGraph_node2"><a xlink:href="../proc/mapl_cfiocreatefromfile.html" xlink:title="MAPL_CFIOCreateFromFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="151,-192 0,-192 0,-168 151,-168 151,-192"/>
+<text text-anchor="middle" x="75.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOCreateFromFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfiocreatefromfile&#45;&gt;proc~esmf_cfiovarinfoget -->
+<g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_cfiocreatefromfile&#45;&gt;proc~esmf_cfiovarinfoget</title>
+<path fill="none" stroke="#ff0000" d="M126.91,-167.98C135.11,-165.4 143.4,-162.41 151,-159 178.14,-146.82 206.49,-127.94 225.77,-114.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.96,-116.75 233.95,-108.02 223.81,-111.11 227.96,-116.75"/>
+</g>
+<!-- program~test~10 -->
+<g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_node3" class="node">
+<title>program~test~10</title>
+<g id="a_proc~~esmf_cfiovarinfoget~~CalledByGraph_node3"><a xlink:href="../program/test~10.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="102.5,-150 48.5,-150 48.5,-126 102.5,-126 102.5,-150"/>
+<text text-anchor="middle" x="75.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~10&#45;&gt;proc~esmf_cfiovarinfoget -->
+<g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_edge2" class="edge">
+<title>program~test~10&#45;&gt;proc~esmf_cfiovarinfoget</title>
+<path fill="none" stroke="#ff0000" d="M102.77,-131.62C125.87,-126.01 160.35,-117.64 190.08,-110.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="191.06,-113.79 199.95,-108.03 189.41,-106.99 191.06,-113.79"/>
+</g>
+<!-- program~test~2 -->
+<g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_node4" class="node">
+<title>program~test~2</title>
+<g id="a_proc~~esmf_cfiovarinfoget~~CalledByGraph_node4"><a xlink:href="../program/test~2.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="102.5,-108 48.5,-108 48.5,-84 102.5,-84 102.5,-108"/>
+<text text-anchor="middle" x="75.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~2&#45;&gt;proc~esmf_cfiovarinfoget -->
+<g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_edge3" class="edge">
+<title>program~test~2&#45;&gt;proc~esmf_cfiovarinfoget</title>
+<path fill="none" stroke="#ff0000" d="M102.77,-96C122.38,-96 150.19,-96 176.34,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="176.64,-99.5 186.64,-96 176.64,-92.5 176.64,-99.5"/>
+</g>
+<!-- program~test~6 -->
+<g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_node5" class="node">
+<title>program~test~6</title>
+<g id="a_proc~~esmf_cfiovarinfoget~~CalledByGraph_node5"><a xlink:href="../program/test~6.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="102.5,-66 48.5,-66 48.5,-42 102.5,-42 102.5,-66"/>
+<text text-anchor="middle" x="75.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~6&#45;&gt;proc~esmf_cfiovarinfoget -->
+<g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_edge4" class="edge">
+<title>program~test~6&#45;&gt;proc~esmf_cfiovarinfoget</title>
+<path fill="none" stroke="#ff0000" d="M102.77,-60.38C125.87,-65.99 160.35,-74.36 190.08,-81.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="189.41,-85.01 199.95,-83.97 191.06,-78.21 189.41,-85.01"/>
+</g>
+<!-- program~test~7 -->
+<g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_node6" class="node">
+<title>program~test~7</title>
+<g id="a_proc~~esmf_cfiovarinfoget~~CalledByGraph_node6"><a xlink:href="../program/test~7.html" xlink:title="test">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="102.5,-24 48.5,-24 48.5,0 102.5,0 102.5,-24"/>
+<text text-anchor="middle" x="75.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test</text>
+</a>
+</g>
+</g>
+<!-- program~test~7&#45;&gt;proc~esmf_cfiovarinfoget -->
+<g id="proc~~esmf_cfiovarinfoget~~CalledByGraph_edge5" class="edge">
+<title>program~test~7&#45;&gt;proc~esmf_cfiovarinfoget</title>
+<path fill="none" stroke="#ff0000" d="M102.67,-17.38C117.26,-20.87 135.55,-26.07 151,-33 178.14,-45.18 206.49,-64.06 225.77,-77.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="223.81,-80.89 233.95,-83.98 227.96,-75.25 223.81,-80.89"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">ESMF_CFIOVarInfoGet</span><span class="w"> </span><span class="p">(</span><span class="n">varObj</span><span class="p">,</span><span class="w"> </span><span class="n">vName</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">vTitle</span><span class="p">,</span><span class="w"> </span><span class="n">vUnits</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">twoDimVar</span><span class="p">,</span><span class="w"> </span><span class="n">validRange</span><span class="p">,</span><span class="w"> </span><span class="n">amiss</span><span class="p">,</span><span class="w"> </span><span class="n">addOffSet</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">scaleFactor</span><span class="p">,</span><span class="w"> </span><span class="n">standardName</span><span class="p">,</span><span class="w"> </span><span class="n">nVarAttChar</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">attCharNames</span><span class="p">,</span><span class="w">  </span><span class="n">vAttCharCnts</span><span class="p">,</span><span class="w"> </span><span class="n">varAttChars</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">nVarAttReal</span><span class="p">,</span><span class="w"> </span><span class="n">attRealNames</span><span class="p">,</span><span class="w"> </span><span class="n">vAttRealCnts</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">varAttReals</span><span class="p">,</span><span class="w"> </span><span class="n">nVarAttInt</span><span class="p">,</span><span class="w"> </span><span class="n">attIntNames</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">vAttIntCnts</span><span class="p">,</span><span class="w"> </span><span class="n">varAttInts</span><span class="p">,</span><span class="w"> </span><span class="n">ordering</span><span class="p">,</span><span class="w">            </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">attCharName</span><span class="p">,</span><span class="w"> </span><span class="n">attCharCnt</span><span class="p">,</span><span class="w"> </span><span class="n">attChar</span><span class="p">,</span><span class="w"> </span><span class="n">attRealName</span><span class="p">,&amp;</span>
+<span class="w">                              </span><span class="n">attRealCnt</span><span class="p">,</span><span class="w"> </span><span class="n">attReal</span><span class="p">,</span><span class="w"> </span><span class="n">attIntName</span><span class="p">,</span><span class="w"> </span><span class="n">attIntCnt</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">attInt</span><span class="p">,</span><span class="w"> </span><span class="n">packingRange</span><span class="p">,</span><span class="w"> </span><span class="n">timAve</span><span class="p">,</span><span class="w"> </span><span class="n">aveMethod</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">cellMthd</span><span class="p">,</span><span class="w"> </span><span class="n">ChunkSize</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">implicit NONE</span>
+
+<span class="c">!</span>
+<span class="c">! !INPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIOVarInfo</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varObj</span><span class="w">      </span><span class="c">!! variable obj </span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attCharName</span><span class="w"> </span><span class="c">!! User defined  char attribute name</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attRealName</span><span class="w"> </span><span class="c">!! User defined  real attribute name</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attIntName</span><span class="w"> </span><span class="c">!! User defined  int attribute name</span>
+
+
+<span class="c">! !OUTPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vName</span><span class="w">  </span><span class="c">!! variable short name</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIOGrid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span><span class="w">  </span><span class="c">!! grid </span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vTitle</span><span class="w"> </span><span class="c">!! variable long name </span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vUnits</span><span class="w"> </span><span class="c">!! variable units      </span>
+<span class="w">       </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">twoDimVar</span><span class="w">                  </span><span class="c">!! True for 2D</span>
+<span class="w">       </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timAve</span><span class="w">                    </span><span class="c">!! True for time average</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">aveMethod</span><span class="w">  </span><span class="c">!! &#39;c&#39;: center, &#39;d&#39;: downstream</span>
+<span class="w">                                         </span><span class="c">!! &#39;u&#39;: upstream</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MVARLEN</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cellMthd</span><span class="w">    </span><span class="c">!! Cell methmod units</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">validRange</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">    </span><span class="c">!! Variable valid range</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">packingRange</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">amiss</span><span class="w">            </span><span class="c">!! FILL value</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">addOffSet</span><span class="w">    </span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">scaleFactor</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">standardName</span><span class="w"> </span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ordering</span><span class="w"> </span><span class="c">!! (time, lev, lat, lon) (default)</span>
+<span class="w">                                 </span><span class="c">!! can be any combination of xyzt</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nVarAttInt</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nVarAttReal</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nVarAttChar</span>
+
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attCharNames</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attRealNames</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attIntNames</span><span class="p">(:)</span>
+
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="k">OPTIONAL</span><span class="kd">::</span><span class="n">vAttCharCnts</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! length of attributes</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="k">OPTIONAL</span><span class="kd">::</span><span class="n">vAttRealCnts</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! length of attributes</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="k">OPTIONAL</span><span class="kd">::</span><span class="n">vAttIntCnts</span><span class="p">(:)</span><span class="w">  </span><span class="c">!! length of attributes</span>
+
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varAttChars</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varAttReals</span><span class="p">(:,:)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varAttInts</span><span class="p">(:,:)</span>
+<span class="w">                                                                                       </span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attIntCnt</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attRealCnt</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attCharCnt</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attChar</span><span class="w"> </span><span class="c">!! User defined  char attribute</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">    </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attReal</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! User defined  real attribute</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attInt</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! User defined  int attribute</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ChunkSize</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! User defined Chunksize int </span>
+
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="c">!! Error return code:               </span>
+<span class="w">                                    </span><span class="c">!! 0   all is well               </span>
+<span class="w">                                    </span><span class="c">!! -1  Allocation for attCharNames failed               </span>
+<span class="w">                                    </span><span class="c">!! -2  Allocation for attRealNames failed               </span>
+<span class="w">                                    </span><span class="c">!! -3  Allocation for attIntNames failed                </span>
+<span class="w">                                    </span><span class="c">!! -4  Allocation for vAttCharCnts failed               </span>
+<span class="w">                                    </span><span class="c">!! -5  Allocation for vAttRealCnts failed                </span>
+<span class="w">                                    </span><span class="c">!! -6  Allocation for vAttIntCnts failed                </span>
+<span class="w">                                    </span><span class="c">!! -7  Allocation for varAttChars failed            </span>
+<span class="w">                                    </span><span class="c">!! -8  Allocation for varAttReals failed            </span>
+<span class="w">                                    </span><span class="c">!! -9  Allocation for varAttInts failed         </span>
+
+<span class="c">!</span>
+<span class="c">!------------------------------------------------------------------------------</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="w">                                                                                     </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">vName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">vName</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">grid</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vTitle</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">vTitle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">vTitle</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vUnits</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">vUnits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">vUnits</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">twoDimVar</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">twoDimVar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">twoDimVar</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">timAve</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">timAve</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">timAve</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">aveMethod</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">aveMethod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">aveMethod</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">cellMthd</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">cellMthd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">cellMthd</span><span class="w">  </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">validRange</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">validRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">validRange</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">packingRange</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">packingRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">packingRange</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">amiss</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">amiss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">amiss</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">addOffSet</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">addOffSet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">addOffSet</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">scaleFactor</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">scaleFactor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">scaleFactor</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">standardName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w">  </span><span class="n">standardName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">standardName</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">ordering</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">ordering</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">ordering</span><span class="w"> </span>
+<span class="w">                                                                                     </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nVarAttInt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nVarAttInt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nVarAttReal</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nVarAttReal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">nVarAttChar</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">nVarAttChar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span>
+
+<span class="c">!      get all attribute names</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attCharNames</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for attCharNames failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+<span class="k">          </span><span class="n">attCharNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharNames</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attRealNames</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for attRealNames failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+<span class="k">          </span><span class="n">attRealNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealNames</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attIntNames</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for attIntNames failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+<span class="k">          </span><span class="n">attIntNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntNames</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="c">!      get all attribute counts</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vAttCharCnts</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">vAttCharCnts</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for vAttCharCnts failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+<span class="k">          </span><span class="n">vAttCharCnts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharCnts</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vAttRealCnts</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">vAttRealCnts</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for vAttRealCnts failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+<span class="k">          </span><span class="n">vAttRealCnts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealCnts</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">vAttIntCnts</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">vAttIntCnts</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for vAttIntCnts failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+<span class="k">          </span><span class="n">vAttIntCnts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntCnts</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="c">!      get all attribute data   </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">varAttChars</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then </span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">varAttChars</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for varAttChars failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">7</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+<span class="k">          </span><span class="n">varAttChars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttChars</span><span class="w"> </span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">varAttReals</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">varAttReals</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttReals</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="o">/</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for varAttReals failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+<span class="k">          </span><span class="n">varAttReals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttReals</span><span class="w"> </span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">varAttInts</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then </span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">varAttInts</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttInts</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="o">/</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for varAttInts failed&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">9</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+<span class="k">          </span><span class="n">varAttInts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttInts</span><span class="w">  </span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="c">!      Get Chunk Size</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">ChunkSize</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">ChunkSize</span><span class="p">))</span><span class="w">  </span><span class="k">then </span>
+<span class="k">             allocate</span><span class="p">(</span><span class="w"> </span><span class="n">ChunkSize</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">ChunkSize</span><span class="p">)),</span><span class="w"> </span><span class="nb">stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;Allocation for ChunkSize fialed&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">                </span><span class="k">return</span>
+<span class="k">             end if</span>
+<span class="k">             </span><span class="n">ChunkSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">ChunkSize</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">       end if</span>
+
+<span class="c">!      user provides integer attribute name to get its count and data </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attIntName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attIntCnt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attIntName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">attIntCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attInt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttInt</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attIntName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   allocate</span><span class="p">(</span><span class="n">attInt</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+<span class="w">                   </span><span class="n">attInt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttInts</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">varObj</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">       end if</span>
+
+<span class="c">!      user provides real attribute name to get its count and data </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attRealName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attRealCnt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attRealName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">attRealCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attReal</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttReal</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attRealName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   allocate</span><span class="p">(</span><span class="n">attReal</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+<span class="w">                   </span><span class="n">attReal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttReals</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">varObj</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">       end if</span>
+
+<span class="c">!      user provides char attribute name to get its count and data </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attCharName</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attCharCnt</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attCharName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">attCharCnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">attChar</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">varObj</span><span class="p">%</span><span class="n">nVarAttChar</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">attCharName</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">i</span><span class="p">)))&amp;</span>
+<span class="w">                    </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">attChar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varObj</span><span class="p">%</span><span class="n">varAttChars</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end do</span>
+<span class="k">          end if</span>
+<span class="k">       end if</span>
+
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+
+
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">ESMF_CFIOVarInfoGet</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-07T19:32:56.548858             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

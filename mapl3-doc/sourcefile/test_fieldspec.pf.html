@@ -1,0 +1,1163 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Test_FieldSpec.pf &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Test_FieldSpec.pf
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">141 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_FieldSpec.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">Test_FieldSpec.pf</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_fieldspec.html">Test_FieldSpec</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/test_fieldspec.pf.html#src">Test_FieldSpec.pf</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~test_fieldspec.pf~~EfferentGraph Pages: 1 -->
+<svg id="sourcefiletest_fieldspecpfEfferentGraph" width="641pt" height="718pt"
+ viewBox="0.00 0.00 641.00 718.33" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph" class="graph" transform="scale(0.7 0.7) rotate(0) translate(4 1018.03)">
+<title>sourcefile~~test_fieldspec.pf~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1018.03 908,-1018.03 908,4 -4,4"/>
+<!-- sourcefile~test_fieldspec.pf -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node1" class="node">
+<title>sourcefile~test_fieldspec.pf</title>
+<polygon fill="none" stroke="black" points="904,-535.03 801,-535.03 801,-511.03 904,-511.03 904,-535.03"/>
+<text text-anchor="middle" x="852.5" y="-520.63" font-family="Helvetica,sans-Serif" font-size="10.50">Test_FieldSpec.pf</text>
+</g>
+<!-- sourcefile~basicverticalgrid.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node2" class="node">
+<title>sourcefile~basicverticalgrid.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node2"><a xlink:href="../sourcefile/basicverticalgrid.f90.html" xlink:title="BasicVerticalGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="635,-867.03 509,-867.03 509,-843.03 635,-843.03 635,-867.03"/>
+<text text-anchor="middle" x="572" y="-852.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BasicVerticalGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~basicverticalgrid.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~basicverticalgrid.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M849.48,-535.24C839.06,-596.59 789.34,-870.08 723,-918.03"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M721,-918.03C689.09,-941.09 679.38,-891.1 643,-876.03 638.02,-873.96 632.76,-872.01 627.46,-870.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="628.5,-866.84 617.91,-867.03 626.31,-873.48 628.5,-866.84"/>
+</g>
+<!-- sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node3" class="node">
+<title>sourcefile~esmf_utilities.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node3"><a xlink:href="../sourcefile/esmf_utilities.f90.html" xlink:title="ESMF_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="626,-909.03 518,-909.03 518,-885.03 626,-885.03 626,-909.03"/>
+<text text-anchor="middle" x="572" y="-894.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~esmf_utilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M721,-918.03C705.76,-929.04 660.37,-920.86 623.84,-911.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="624.36,-908.21 613.8,-909.09 622.6,-914.98 624.36,-908.21"/>
+</g>
+<!-- sourcefile~fieldspec.f90~2 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node4" class="node">
+<title>sourcefile~fieldspec.f90~2</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node4"><a xlink:href="../sourcefile/fieldspec.f90~2.html" xlink:title="FieldSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="765,-535.03 679,-535.03 679,-511.03 765,-511.03 765,-535.03"/>
+<text text-anchor="middle" x="722" y="-520.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~fieldspec.f90~2 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~fieldspec.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M800.71,-523.03C792.33,-523.03 783.64,-523.03 775.22,-523.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="775.14,-519.53 765.14,-523.03 775.14,-526.53 775.14,-519.53"/>
+</g>
+<!-- sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node5" class="node">
+<title>sourcefile~geom_mgr.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node5"><a xlink:href="../sourcefile/geom_mgr.f90.html" xlink:title="geom_mgr.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="617.5,-993.03 526.5,-993.03 526.5,-969.03 617.5,-969.03 617.5,-993.03"/>
+<text text-anchor="middle" x="572" y="-978.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">geom_mgr.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M721,-918.03C689.09,-941.09 679.38,-944.96 643,-960.03 637.94,-962.12 632.61,-964.11 627.22,-965.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="625.94,-962.69 617.54,-969.14 628.13,-969.34 625.94,-962.69"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node6" class="node">
+<title>sourcefile~ungriddeddim.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node6"><a xlink:href="../sourcefile/ungriddeddim.f90.html" xlink:title="UngriddedDim.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="257,-477.03 145,-477.03 145,-453.03 257,-453.03 257,-477.03"/>
+<text text-anchor="middle" x="201" y="-462.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDim.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M850.49,-510.8C844.32,-439.53 809.04,-78.88 723,-21.03"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M721,-21.03C666.41,15.68 638.69,-17.63 573,-21.03"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M571,-21.03C447.32,-27.42 386.59,41.08 293,-40.03 231.04,-93.72 208.7,-362.51 203.36,-442.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="199.84,-442.71 202.69,-452.91 206.83,-443.15 199.84,-442.71"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node7" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node7"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="631,-73.03 513,-73.03 513,-49.03 631,-49.03 631,-73.03"/>
+<text text-anchor="middle" x="572" y="-58.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M721,-21.03C712.2,-15.11 657.01,-32.06 616.59,-45.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="615.26,-42.45 606.92,-48.99 617.52,-49.08 615.26,-42.45"/>
+</g>
+<!-- sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node8" class="node">
+<title>sourcefile~ungriddeddimvector.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node8"><a xlink:href="../sourcefile/ungriddeddimvector.f90.html" xlink:title="UngriddedDimVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="451.5,-73.03 306.5,-73.03 306.5,-49.03 451.5,-49.03 451.5,-73.03"/>
+<text text-anchor="middle" x="379" y="-58.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~ungriddeddimvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M571,-21.03C522.24,-23.55 467.84,-35.91 429.61,-46.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="428.48,-42.91 419.77,-48.94 430.34,-49.66 428.48,-42.91"/>
+</g>
+<!-- sourcefile~verticaldimspec.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node9" class="node">
+<title>sourcefile~verticaldimspec.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node9"><a xlink:href="../sourcefile/verticaldimspec.f90.html" xlink:title="VerticalDimSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="633.5,-951.03 510.5,-951.03 510.5,-927.03 633.5,-927.03 633.5,-951.03"/>
+<text text-anchor="middle" x="572" y="-936.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalDimSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~verticaldimspec.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~verticaldimspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M721,-918.03C699,-933.93 670.26,-940.34 643.97,-942.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="643.44,-938.89 633.65,-942.95 643.83,-945.88 643.44,-938.89"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node16" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node16"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="109,-597.03 0,-597.03 0,-573.03 109,-573.03 109,-597.03"/>
+<text text-anchor="middle" x="54.5" y="-582.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M526.8,-867.06C479.69,-879.47 408.1,-897.03 380,-897.03"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M378,-897.03C210.56,-897.03 96.95,-677.11 64.81,-606.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="67.94,-604.96 60.66,-597.26 61.55,-607.82 67.94,-604.96"/>
+</g>
+<!-- sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node21" class="node">
+<title>sourcefile~griddedcomponentdriver.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node21"><a xlink:href="../sourcefile/griddedcomponentdriver.f90.html" xlink:title="GriddedComponentDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-637.03 293,-637.03 293,-613.03 465,-613.03 465,-637.03"/>
+<text text-anchor="middle" x="379" y="-622.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M515.86,-842.96C510.55,-840.51 505.48,-837.57 501,-834.03 437.01,-783.46 400.41,-689.08 386.51,-646.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="389.83,-645.52 383.47,-637.05 383.15,-647.64 389.83,-645.52"/>
+</g>
+<!-- sourcefile~verticalgrid.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node30" class="node">
+<title>sourcefile~verticalgrid.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node30"><a xlink:href="../sourcefile/verticalgrid.f90.html" xlink:title="VerticalGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="427.5,-595.03 330.5,-595.03 330.5,-571.03 427.5,-571.03 427.5,-595.03"/>
+<text text-anchor="middle" x="379" y="-580.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~verticalgrid.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~verticalgrid.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M511.74,-842.98C507.74,-840.52 504.09,-837.57 501,-834.03 432.99,-756.06 534.91,-680.3 465,-604.03 457.76,-596.13 448.07,-590.99 437.82,-587.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="438.44,-584.23 427.88,-585.05 436.65,-591 438.44,-584.23"/>
+</g>
+<!-- sourcefile~esmf_utilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~esmf_utilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M517.85,-903.92C479.05,-907.3 425.49,-908.51 380,-897.03"/>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~basicverticalgrid.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~basicverticalgrid.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M719.54,-535.31C713.12,-587.38 685.78,-789.25 643,-834.03 642.06,-835.01 641.08,-835.94 640.06,-836.84"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="637.71,-834.22 631.59,-842.86 641.76,-839.92 637.71,-834.22"/>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~esmf_utilities.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~esmf_utilities.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M719.93,-535.4C714.78,-591.85 690.94,-824.4 643,-876.03 640.6,-878.62 637.89,-880.89 634.97,-882.89"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="633.24,-879.84 626.26,-887.81 636.69,-885.94 633.24,-879.84"/>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M720.5,-535.21C717.66,-599.05 701.46,-894.44 643,-960.03 638.62,-964.94 633.15,-968.72 627.2,-971.63"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="625.52,-968.54 617.55,-975.52 628.13,-975.03 625.52,-968.54"/>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M720.52,-510.73C717.76,-446.32 701.92,-148.24 643,-82.03 641.95,-80.84 640.83,-79.72 639.65,-78.67"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="641.36,-75.58 631.2,-72.55 637.25,-81.25 641.36,-75.58"/>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~verticaldimspec.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~verticaldimspec.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M720.25,-535.22C716.32,-595.31 696.21,-859.42 643,-918.03 642.11,-919.01 641.18,-919.94 640.21,-920.83"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="638.05,-918.08 632.11,-926.85 642.22,-923.69 638.05,-918.08"/>
+</g>
+<!-- sourcefile~abstractactionspec.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node10" class="node">
+<title>sourcefile~abstractactionspec.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node10"><a xlink:href="../sourcefile/abstractactionspec.f90.html" xlink:title="AbstractActionSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="641.5,-825.03 502.5,-825.03 502.5,-801.03 641.5,-801.03 641.5,-825.03"/>
+<text text-anchor="middle" x="572" y="-810.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractActionSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~abstractactionspec.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~abstractactionspec.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M721.3,-535.21C721.63,-577.21 716.92,-717.42 643,-792.03 641.91,-793.13 640.77,-794.17 639.58,-795.16"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="637.41,-792.4 631.11,-800.92 641.35,-798.18 637.41,-792.4"/>
+</g>
+<!-- sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node11" class="node">
+<title>sourcefile~actualconnectionpt.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node11"><a xlink:href="../sourcefile/actualconnectionpt.f90.html" xlink:title="ActualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="641.5,-783.03 502.5,-783.03 502.5,-759.03 641.5,-759.03 641.5,-783.03"/>
+<text text-anchor="middle" x="572" y="-768.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~actualconnectionpt.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~actualconnectionpt.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M720.54,-535.15C718.44,-572.76 706.84,-688.66 643,-750.03 641.74,-751.24 640.42,-752.38 639.04,-753.45"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="637.09,-750.54 630.59,-758.92 640.89,-756.42 637.09,-750.54"/>
+</g>
+<!-- sourcefile~actualptspecptrmap.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node12" class="node">
+<title>sourcefile~actualptspecptrmap.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node12"><a xlink:href="../sourcefile/actualptspecptrmap.f90.html" xlink:title="ActualPtSpecPtrMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="642.5,-741.03 501.5,-741.03 501.5,-717.03 642.5,-717.03 642.5,-741.03"/>
+<text text-anchor="middle" x="572" y="-726.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualPtSpecPtrMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~actualptspecptrmap.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~actualptspecptrmap.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M719.42,-535.47C714.55,-568.62 696.69,-659.82 643,-708.03 641.51,-709.36 639.94,-710.61 638.31,-711.78"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="636.41,-708.84 629.65,-717 640.02,-714.84 636.41,-708.84"/>
+</g>
+<!-- sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node13" class="node">
+<title>sourcefile~actualptvector.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node13"><a xlink:href="../sourcefile/actualptvector.f90.html" xlink:title="ActualPtVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="627,-699.03 517,-699.03 517,-675.03 627,-675.03 627,-699.03"/>
+<text text-anchor="middle" x="572" y="-684.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ActualPtVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~actualptvector.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~actualptvector.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M717.86,-535.04C710.05,-562.49 687.15,-630.22 643,-666.03 640.93,-667.71 638.73,-669.25 636.43,-670.67"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="634.38,-667.8 627.17,-675.56 637.65,-673.99 634.38,-667.8"/>
+</g>
+<!-- sourcefile~convertunitsaction.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node14" class="node">
+<title>sourcefile~convertunitsaction.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node14"><a xlink:href="../sourcefile/convertunitsaction.f90.html" xlink:title="ConvertUnitsAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="640,-657.03 504,-657.03 504,-633.03 640,-633.03 640,-657.03"/>
+<text text-anchor="middle" x="572" y="-642.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConvertUnitsAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~convertunitsaction.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~convertunitsaction.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M714.86,-535.29C703.58,-556.56 677.5,-600.3 643,-624.03 640.6,-625.68 638.06,-627.2 635.44,-628.61"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="633.79,-625.52 626.24,-632.95 636.78,-631.85 633.79,-625.52"/>
+</g>
+<!-- sourcefile~copyaction.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node15" class="node">
+<title>sourcefile~copyaction.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node15"><a xlink:href="../sourcefile/copyaction.f90.html" xlink:title="CopyAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="619.5,-615.03 524.5,-615.03 524.5,-591.03 619.5,-591.03 619.5,-615.03"/>
+<text text-anchor="middle" x="572" y="-600.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CopyAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~copyaction.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~copyaction.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M705.89,-535.2C690.69,-547.02 666.22,-564.92 643,-577.03 635.81,-580.78 627.95,-584.25 620.18,-587.35"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="618.89,-584.1 610.8,-590.95 621.39,-590.63 618.89,-584.1"/>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M683.06,-535.09C653.39,-544.08 610.94,-555.98 573,-563.03"/>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M571,-563.03C530.63,-570.53 242.96,-540.11 202,-543.03"/>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M200,-543.03C180.43,-543.82 134.23,-558.08 99.3,-569.77"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="98.13,-566.47 89.78,-572.99 100.37,-573.11 98.13,-566.47"/>
+</g>
+<!-- sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node17" class="node">
+<title>sourcefile~extensionaction.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node17"><a xlink:href="../sourcefile/extensionaction.f90.html" xlink:title="ExtensionAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="632,-535.03 512,-535.03 512,-511.03 632,-511.03 632,-535.03"/>
+<text text-anchor="middle" x="572" y="-520.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~extensionaction.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M678.99,-523.03C667.63,-523.03 655.04,-523.03 642.61,-523.03"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="642.24,-519.53 632.24,-523.03 642.24,-526.53 642.24,-519.53"/>
+</g>
+<!-- sourcefile~fielddictionary.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node18" class="node">
+<title>sourcefile~fielddictionary.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node18"><a xlink:href="../sourcefile/fielddictionary.f90.html" xlink:title="FieldDictionary.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="628.5,-493.03 515.5,-493.03 515.5,-469.03 628.5,-469.03 628.5,-493.03"/>
+<text text-anchor="middle" x="572" y="-478.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldDictionary.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~fielddictionary.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~fielddictionary.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M678.99,-511.1C662.34,-506.38 643.02,-500.9 625.47,-495.92"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="625.95,-492.42 615.38,-493.05 624.04,-499.15 625.95,-492.42"/>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~griddedcomponentdriver.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M571,-563.03C539.31,-568.91 530.61,-569.27 501,-582.03 483.78,-589.45 482.3,-596.81 465,-604.03 459.7,-606.24 454.11,-608.26 448.43,-610.09"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="447.39,-606.75 438.83,-613 449.42,-613.45 447.39,-606.75"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node22" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node22"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="634,-451.03 510,-451.03 510,-427.03 634,-427.03 634,-451.03"/>
+<text text-anchor="middle" x="572" y="-436.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M709.11,-510.9C694.68,-496.81 669.02,-473.75 643,-460.03 639.34,-458.1 635.47,-456.32 631.52,-454.68"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="632.76,-451.41 622.17,-451.12 630.27,-457.95 632.76,-451.41"/>
+</g>
+<!-- sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node23" class="node">
+<title>sourcefile~lu_bound.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node23"><a xlink:href="../sourcefile/lu_bound.f90.html" xlink:title="LU_Bound.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="98.5,-555.03 10.5,-555.03 10.5,-531.03 98.5,-531.03 98.5,-555.03"/>
+<text text-anchor="middle" x="54.5" y="-540.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LU_Bound.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M200,-543.03C169.82,-545.18 136.01,-545.3 108.69,-544.83"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="108.62,-541.33 98.55,-544.63 108.48,-548.33 108.62,-541.33"/>
+</g>
+<!-- sourcefile~multistate.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node24" class="node">
+<title>sourcefile~multistate.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node24"><a xlink:href="../sourcefile/multistate.f90.html" xlink:title="MultiState.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="616,-409.03 528,-409.03 528,-385.03 616,-385.03 616,-409.03"/>
+<text text-anchor="middle" x="572" y="-394.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiState.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M715.34,-510.97C704.45,-489.12 678.51,-442.93 643,-418.03 637.75,-414.35 631.85,-411.3 625.75,-408.78"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="626.67,-405.39 616.08,-405.24 624.27,-411.97 626.67,-405.39"/>
+</g>
+<!-- sourcefile~nullaction.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node25" class="node">
+<title>sourcefile~nullaction.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node25"><a xlink:href="../sourcefile/nullaction.f90.html" xlink:title="NullAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="616,-367.03 528,-367.03 528,-343.03 616,-343.03 616,-367.03"/>
+<text text-anchor="middle" x="572" y="-352.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NullAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~nullaction.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~nullaction.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M717.96,-510.69C710.37,-482.48 687.89,-412.87 643,-376.03 637.79,-371.76 631.74,-368.35 625.41,-365.64"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="626.6,-362.35 616,-362.14 624.16,-368.91 626.6,-362.35"/>
+</g>
+<!-- sourcefile~regridaction.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node26" class="node">
+<title>sourcefile~regridaction.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node26"><a xlink:href="../sourcefile/regridaction.f90.html" xlink:title="RegridAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="623.5,-325.03 520.5,-325.03 520.5,-301.03 623.5,-301.03 623.5,-325.03"/>
+<text text-anchor="middle" x="572" y="-310.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~regridaction.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~regridaction.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M719.58,-510.81C715.02,-477.37 697.75,-383.56 643,-334.03 639.96,-331.28 636.58,-328.89 632.99,-326.82"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="634.22,-323.52 623.7,-322.27 631.14,-329.81 634.22,-323.52"/>
+</g>
+<!-- sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node27" class="node">
+<title>sourcefile~stateitemspec.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node27"><a xlink:href="../sourcefile/stateitemspec.f90.html" xlink:title="StateItemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="628.5,-283.03 515.5,-283.03 515.5,-259.03 628.5,-259.03 628.5,-283.03"/>
+<text text-anchor="middle" x="572" y="-268.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~stateitemspec.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M720.62,-510.97C718.78,-472.99 707.83,-354.68 643,-292.03 641.3,-290.38 639.47,-288.86 637.54,-287.46"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="638.93,-284.21 628.56,-282.05 635.32,-290.21 638.93,-284.21"/>
+</g>
+<!-- sourcefile~udunits2f.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node28" class="node">
+<title>sourcefile~udunits2f.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node28"><a xlink:href="../sourcefile/udunits2f.f90.html" xlink:title="udunits2f.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-241.03 530,-241.03 530,-217.03 614,-217.03 614,-241.03"/>
+<text text-anchor="middle" x="572" y="-226.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">udunits2f.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~udunits2f.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~udunits2f.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M721.36,-510.96C721.92,-468.72 717.96,-325.98 643,-250.03 637.67,-244.63 631.01,-240.6 623.93,-237.61"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="624.7,-234.17 614.1,-234.13 622.36,-240.77 624.7,-234.17"/>
+</g>
+<!-- sourcefile~variablespec.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node29" class="node">
+<title>sourcefile~variablespec.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node29"><a xlink:href="../sourcefile/variablespec.f90.html" xlink:title="VariableSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="624.5,-199.03 519.5,-199.03 519.5,-175.03 624.5,-175.03 624.5,-199.03"/>
+<text text-anchor="middle" x="572" y="-184.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M719.61,-510.94C713.36,-458.78 686.32,-253.52 643,-208.03 640.22,-205.11 637.06,-202.6 633.65,-200.43"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="635.22,-197.3 624.74,-195.72 631.95,-203.49 635.22,-197.3"/>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~verticalgrid.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~verticalgrid.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M571,-563.03C526.8,-571.24 476.18,-576.35 438.16,-579.34"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="437.49,-575.88 427.79,-580.13 438.03,-582.86 437.49,-575.88"/>
+</g>
+<!-- sourcefile~verticalregridaction.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node31" class="node">
+<title>sourcefile~verticalregridaction.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node31"><a xlink:href="../sourcefile/verticalregridaction.f90.html" xlink:title="VerticalRegridAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="643,-157.03 501,-157.03 501,-133.03 643,-133.03 643,-157.03"/>
+<text text-anchor="middle" x="572" y="-142.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalRegridAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~verticalregridaction.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~verticalregridaction.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M719.98,-510.89C715,-454.48 691.5,-218.38 643,-166.03 642.08,-165.03 641.11,-164.08 640.11,-163.18"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="641.85,-160.12 631.7,-157.08 637.74,-165.79 641.85,-160.12"/>
+</g>
+<!-- sourcefile~wildcardspec.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node32" class="node">
+<title>sourcefile~wildcardspec.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node32"><a xlink:href="../sourcefile/wildcardspec.f90.html" xlink:title="WildcardSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="626.5,-115.03 517.5,-115.03 517.5,-91.03 626.5,-91.03 626.5,-115.03"/>
+<text text-anchor="middle" x="572" y="-100.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WildcardSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~wildcardspec.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~fieldspec.f90~2&#45;&gt;sourcefile~wildcardspec.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M720.27,-510.71C716.43,-450.02 696.67,-183.26 643,-124.03 640.74,-121.54 638.2,-119.34 635.46,-117.39"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="637.13,-114.31 626.72,-112.3 633.6,-120.36 637.13,-114.31"/>
+</g>
+<!-- sourcefile~geomspec.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node19" class="node">
+<title>sourcefile~geomspec.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node19"><a xlink:href="../sourcefile/geomspec.f90.html" xlink:title="GeomSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="426,-1014.03 332,-1014.03 332,-990.03 426,-990.03 426,-1014.03"/>
+<text text-anchor="middle" x="379" y="-999.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GeomSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geom_mgr.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~geom_mgr.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M526.22,-985.95C499.41,-988.9 465.09,-992.67 436.44,-995.82"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="435.72,-992.38 426.16,-996.95 436.48,-999.34 435.72,-992.38"/>
+</g>
+<!-- sourcefile~geomutilities.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_node20" class="node">
+<title>sourcefile~geomutilities.f90</title>
+<g id="a_sourcefile~~test_fieldspec.pf~~EfferentGraph_node20"><a xlink:href="../sourcefile/geomutilities.f90.html" xlink:title="GeomUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="432,-972.03 326,-972.03 326,-948.03 432,-948.03 432,-972.03"/>
+<text text-anchor="middle" x="379" y="-957.63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GeomUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geom_mgr.f90&#45;&gt;sourcefile~geomutilities.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~geom_mgr.f90&#45;&gt;sourcefile~geomutilities.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M526.22,-976.1C501.29,-973.36 469.86,-969.91 442.53,-966.9"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="442.61,-963.39 432.29,-965.78 441.84,-970.35 442.61,-963.39"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M165.15,-477.17C157.89,-480.82 150.72,-485.4 145,-491.03 119.21,-516.39 135.63,-539.55 109,-564.03 107.69,-565.23 106.3,-566.38 104.85,-567.45"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="102.64,-564.71 96,-572.96 106.34,-570.65 102.64,-564.71"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M173.2,-477.14C164.16,-481.37 154.07,-486.26 145,-491.03 124.14,-501.99 101.17,-515.37 83.72,-525.81"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="81.9,-522.82 75.14,-530.97 85.51,-528.82 81.9,-522.82"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M512.87,-73.12C508.52,-75.57 504.48,-78.51 501,-82.03 363.62,-221.18 549.26,-407.12 380,-505.03"/>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M378,-505.03C355.19,-518.22 286.41,-496.82 241.89,-480.58"/>
+<polygon fill="#003fff" stroke="#003fff" points="243.1,-477.3 232.51,-477.11 240.67,-483.86 243.1,-477.3"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M512.92,-61.03C496.77,-61.03 478.93,-61.03 461.7,-61.03"/>
+<polygon fill="#003fff" stroke="#003fff" points="461.64,-57.53 451.64,-61.03 461.64,-64.53 461.64,-57.53"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M378,-505.03C310.29,-544.2 278.79,-490.14 202,-505.03"/>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M200,-505.03C173.82,-510.1 167.14,-514.16 145,-529.03 126.47,-541.47 127.75,-551.94 109,-564.03 106.44,-565.68 103.73,-567.23 100.94,-568.69"/>
+<polygon fill="#003fff" stroke="#003fff" points="99.38,-565.56 91.87,-573.03 102.4,-571.88 99.38,-565.56"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M200,-505.03C168.25,-511.18 133.15,-520.36 105.49,-528.15"/>
+<polygon fill="#003fff" stroke="#003fff" points="104.32,-524.84 95.66,-530.95 106.24,-531.57 104.32,-524.84"/>
+</g>
+<!-- sourcefile~ungriddeddimvector.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge47" class="edge">
+<title>sourcefile~ungriddeddimvector.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M372.73,-73.12C347.99,-129.92 243.15,-370.57 211.25,-443.8"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="208.03,-442.42 207.25,-452.98 214.45,-445.21 208.03,-442.42"/>
+</g>
+<!-- sourcefile~verticaldimspec.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldspec.pf~~EfferentGraph_edge48" class="edge">
+<title>sourcefile~verticaldimspec.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M511.84,-927C474,-919.07 423.95,-908.12 380,-897.03"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefiletest_fieldspecpfEfferentGraph = svgPanZoom('#sourcefiletest_fieldspecpfEfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_TestErr.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">Test_FieldSpec</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">funit</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_geom_mgr</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldSpec</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_UngriddedDims</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_UngriddedDim</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_UngriddedDimVector</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_VerticalDimSpec</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_BasicVerticalGrid</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_ESMF_Utilities</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">MAPL_TYPEKIND_MIRROR</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">gftl2_StringVector</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="k">   type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="k">contains</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">   </span><span class="err">@</span><span class="n">before</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">setup</span><span class="p">()</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MaplGeom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mapl_geom</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">GeomManager</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom_mgr</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="n">hconfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="n">geom_mgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_geom_manager</span><span class="p">()</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="n">mapl_geom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">geom_mgr</span><span class="p">%</span><span class="n">get_mapl_geom</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="n">geom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapl_geom</span><span class="p">%</span><span class="n">get_geom</span><span class="p">()</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">setup</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">   </span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_can_connect_typekind</span><span class="p">()</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec_r4</span><span class="p">,</span><span class="w"> </span><span class="n">spec_r8</span><span class="p">,</span><span class="w"> </span><span class="n">spec_mirror</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_attributes</span><span class="p">,</span><span class="w"> </span><span class="n">export_attributes</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="n">spec_r4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="n">spec_r8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R8</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="n">spec_mirror</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">MAPL_TYPEKIND_MIRROR</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">spec_r4</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">spec_r4</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">spec_r4</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">spec_r8</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">spec_r8</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">spec_r4</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">spec_r8</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">spec_r8</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">spec_mirror</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">spec_r4</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">spec_mirror</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">spec_r8</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_can_connect_typekind</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a>
+<a id="ln-67" name="ln-67" href="#ln-67"></a>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">   </span><span class="c">! Verify that framework detects when an export spec does not</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">   </span><span class="c">! provide mandatory attributes specified by import spec.</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_mismatched_attribute</span><span class="p">()</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_spec</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_spec</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_attributes</span><span class="p">,</span><span class="w"> </span><span class="n">export_attributes</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="k">call </span><span class="n">import_attributes</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="s1">&#39;radius&#39;</span><span class="p">)</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">      </span><span class="n">import_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">           </span><span class="n">attributes</span><span class="o">=</span><span class="n">import_attributes</span><span class="p">)</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="n">export_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">           </span><span class="n">attributes</span><span class="o">=</span><span class="n">export_attributes</span><span class="p">)</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">import_spec</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">export_spec</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_mismatched_attribute</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">   </span><span class="c">! Only the import attributes need to match. Not all.</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_matched_attribute</span><span class="p">()</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_spec</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_spec</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_attributes</span><span class="p">,</span><span class="w"> </span><span class="n">export_attributes</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">      </span><span class="k">call </span><span class="n">import_attributes</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="s1">&#39;radius&#39;</span><span class="p">)</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="k">call </span><span class="n">export_attributes</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="s1">&#39;radius&#39;</span><span class="p">)</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">      </span><span class="k">call </span><span class="n">export_attributes</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="s1">&#39;other&#39;</span><span class="p">)</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="n">import_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">           </span><span class="n">attributes</span><span class="o">=</span><span class="n">import_attributes</span><span class="p">)</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span><span class="n">export_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">           </span><span class="n">attributes</span><span class="o">=</span><span class="n">export_attributes</span><span class="p">)</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">import_spec</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">export_spec</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_matched_attribute</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">   </span><span class="c">! Only the import attributes need to match. Not all.</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_multiple_attribute</span><span class="p">()</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_spec</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_spec</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_attributes</span><span class="p">,</span><span class="w"> </span><span class="n">export_attributes</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="k">call </span><span class="n">import_attributes</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="s1">&#39;radius&#39;</span><span class="p">)</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">      </span><span class="k">call </span><span class="n">import_attributes</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="s1">&#39;diameter&#39;</span><span class="p">)</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">      </span><span class="k">call </span><span class="n">export_attributes</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="s1">&#39;other&#39;</span><span class="p">)</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">      </span><span class="k">call </span><span class="n">export_attributes</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="s1">&#39;radius&#39;</span><span class="p">)</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="k">call </span><span class="n">export_attributes</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="s1">&#39;other2&#39;</span><span class="p">)</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">      </span><span class="k">call </span><span class="n">export_attributes</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="s1">&#39;diameter&#39;</span><span class="p">)</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a>
+<a id="ln-138" name="ln-138" href="#ln-138"></a>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">      </span><span class="n">import_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">           </span><span class="n">attributes</span><span class="o">=</span><span class="n">import_attributes</span><span class="p">)</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">      </span><span class="n">export_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">           </span><span class="n">attributes</span><span class="o">=</span><span class="n">export_attributes</span><span class="p">)</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">import_spec</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">export_spec</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_multiple_attribute</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_mismatched_units</span><span class="p">()</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_spec</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_spec</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">      </span><span class="n">import_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">attributes</span><span class="o">=</span><span class="n">StringVector</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">           </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="n">export_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">attributes</span><span class="o">=</span><span class="n">StringVector</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">           </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">import_spec</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">export_spec</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">false</span><span class="p">()))</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_mismatched_units</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">    </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_convertible_units</span><span class="p">()</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_spec</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_spec</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">      </span><span class="n">import_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">attributes</span><span class="o">=</span><span class="n">StringVector</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">           </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">      </span><span class="n">export_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">attributes</span><span class="o">=</span><span class="n">StringVector</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="w">           </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;km&#39;</span><span class="p">)</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">import_spec</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">export_spec</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_convertible_units</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_same_units</span><span class="p">()</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_spec</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_spec</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">      </span><span class="n">import_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">attributes</span><span class="o">=</span><span class="n">StringVector</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">           </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">      </span><span class="n">export_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">attributes</span><span class="o">=</span><span class="n">StringVector</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="w">           </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a>
+<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">import_spec</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">export_spec</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-222" name="ln-222" href="#ln-222"></a>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_same_units</span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a>
+<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_mirror_units</span><span class="p">()</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_spec</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_spec</span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a>
+<a id="ln-230" name="ln-230" href="#ln-230"></a>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="w">      </span><span class="n">import_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">attributes</span><span class="o">=</span><span class="n">StringVector</span><span class="p">())</span>
+<a id="ln-236" name="ln-236" href="#ln-236"></a>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">      </span><span class="n">export_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">attributes</span><span class="o">=</span><span class="n">StringVector</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-242" name="ln-242" href="#ln-242"></a><span class="w">           </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+<a id="ln-243" name="ln-243" href="#ln-243"></a>
+<a id="ln-244" name="ln-244" href="#ln-244"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">import_spec</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">export_spec</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-245" name="ln-245" href="#ln-245"></a>
+<a id="ln-246" name="ln-246" href="#ln-246"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_mirror_units</span>
+<a id="ln-247" name="ln-247" href="#ln-247"></a>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_mirror_geom</span><span class="p">()</span>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_spec</span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_spec</span>
+<a id="ln-252" name="ln-252" href="#ln-252"></a>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">      </span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a><span class="w">      </span><span class="n">import_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="w">           </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-257" name="ln-257" href="#ln-257"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-258" name="ln-258" href="#ln-258"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">attributes</span><span class="o">=</span><span class="n">StringVector</span><span class="p">())</span>
+<a id="ln-259" name="ln-259" href="#ln-259"></a>
+<a id="ln-260" name="ln-260" href="#ln-260"></a><span class="w">      </span><span class="n">export_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-261" name="ln-261" href="#ln-261"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-262" name="ln-262" href="#ln-262"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-264" name="ln-264" href="#ln-264"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">attributes</span><span class="o">=</span><span class="n">StringVector</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-265" name="ln-265" href="#ln-265"></a><span class="w">           </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+<a id="ln-266" name="ln-266" href="#ln-266"></a>
+<a id="ln-267" name="ln-267" href="#ln-267"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">import_spec</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">export_spec</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-268" name="ln-268" href="#ln-268"></a>
+<a id="ln-269" name="ln-269" href="#ln-269"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_mirror_geom</span>
+<a id="ln-270" name="ln-270" href="#ln-270"></a>
+<a id="ln-271" name="ln-271" href="#ln-271"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_mirror_ungridded_dims</span><span class="p">()</span>
+<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_spec</span>
+<a id="ln-273" name="ln-273" href="#ln-273"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_spec</span>
+<a id="ln-274" name="ln-274" href="#ln-274"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
+<a id="ln-275" name="ln-275" href="#ln-275"></a>
+<a id="ln-276" name="ln-276" href="#ln-276"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">UngriddedDims</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mirror_ungrid</span><span class="p">,</span><span class="w"> </span><span class="n">export_dims</span>
+<a id="ln-277" name="ln-277" href="#ln-277"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">UngriddedDimVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ungrid_dims</span>
+<a id="ln-278" name="ln-278" href="#ln-278"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">UngriddedDim</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ungrid_dim</span>
+<a id="ln-279" name="ln-279" href="#ln-279"></a>
+<a id="ln-280" name="ln-280" href="#ln-280"></a><span class="w">      </span><span class="n">mirror_ungrid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mirror_ungridded_dims</span><span class="p">()</span>
+<a id="ln-281" name="ln-281" href="#ln-281"></a><span class="w">      </span><span class="n">ungrid_dim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDim</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="ln-282" name="ln-282" href="#ln-282"></a><span class="w">      </span><span class="k">call </span><span class="n">ungrid_dims</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">ungrid_dim</span><span class="p">)</span>
+<a id="ln-283" name="ln-283" href="#ln-283"></a><span class="w">      </span><span class="n">export_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UngriddedDims</span><span class="p">(</span><span class="n">ungrid_dims</span><span class="p">)</span>
+<a id="ln-284" name="ln-284" href="#ln-284"></a>
+<a id="ln-285" name="ln-285" href="#ln-285"></a><span class="w">      </span><span class="n">import_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-286" name="ln-286" href="#ln-286"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-287" name="ln-287" href="#ln-287"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-288" name="ln-288" href="#ln-288"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mirror_ungrid</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-289" name="ln-289" href="#ln-289"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">attributes</span><span class="o">=</span><span class="n">StringVector</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-290" name="ln-290" href="#ln-290"></a><span class="w">           </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+<a id="ln-291" name="ln-291" href="#ln-291"></a>
+<a id="ln-292" name="ln-292" href="#ln-292"></a><span class="w">      </span><span class="n">export_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-293" name="ln-293" href="#ln-293"></a><span class="w">           </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">vertical_dim_spec</span><span class="o">=</span><span class="n">VerticalDimSpec</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-294" name="ln-294" href="#ln-294"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-295" name="ln-295" href="#ln-295"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">export_dims</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-296" name="ln-296" href="#ln-296"></a><span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">attributes</span><span class="o">=</span><span class="n">StringVector</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-297" name="ln-297" href="#ln-297"></a><span class="w">           </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+<a id="ln-298" name="ln-298" href="#ln-298"></a>
+<a id="ln-299" name="ln-299" href="#ln-299"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">import_spec</span><span class="p">%</span><span class="n">can_connect_to</span><span class="p">(</span><span class="n">export_spec</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<a id="ln-300" name="ln-300" href="#ln-300"></a>
+<a id="ln-301" name="ln-301" href="#ln-301"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_mirror_ungridded_dims</span>
+<a id="ln-302" name="ln-302" href="#ln-302"></a>
+<a id="ln-303" name="ln-303" href="#ln-303"></a><span class="k">end module </span><span class="n">Test_FieldSpec</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-07T19:32:56.548858             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

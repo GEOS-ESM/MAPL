@@ -1,0 +1,1808 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MaplGenericComponent.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MaplGenericComponent.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">304 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MaplGenericComponent.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">MaplGenericComponent.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_maplgenericcomponent.html">mapl_MaplGenericComponent</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/maplgenericcomponent.f90.html#src">MaplGenericComponent.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~maplgenericcomponent.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilemaplgenericcomponentf90EfferentGraph" width="641pt" height="386pt"
+ viewBox="0.00 0.00 641.00 386.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph" class="graph" transform="scale(0.51 0.51) rotate(0) translate(4 752.52)">
+<title>sourcefile~~maplgenericcomponent.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-752.52 1251,-752.52 1251,4 -4,4"/>
+<!-- sourcefile~maplgenericcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~maplgenericcomponent.f90</title>
+<polygon fill="none" stroke="black" points="1247,-406.81 1082,-406.81 1082,-382.81 1247,-382.81 1247,-406.81"/>
+<text text-anchor="middle" x="1164.5" y="-392.41" font-family="Helvetica,sans-Serif" font-size="10.50">MaplGenericComponent.F90</text>
+</g>
+<!-- sourcefile~abstractcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~abstractcomponent.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/abstractcomponent.f90.html" xlink:title="AbstractComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="813.5,-686.81 671.5,-686.81 671.5,-662.81 813.5,-662.81 813.5,-686.81"/>
+<text text-anchor="middle" x="742.5" y="-672.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~abstractcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~abstractcomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1160.48,-406.87C1147.14,-457.24 1088.08,-651.09 955.5,-714.81"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M953.5,-714.81C939.85,-721.36 858.26,-703.3 800.9,-689.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="801.39,-685.87 790.85,-686.89 799.73,-692.67 801.39,-685.87"/>
+</g>
+<!-- sourcefile~abstractframeworkcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~abstractframeworkcomponent.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/abstractframeworkcomponent.f90.html" xlink:title="AbstractFrameworkComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="446,-522.81 245,-522.81 245,-498.81 446,-498.81 446,-522.81"/>
+<text text-anchor="middle" x="345.5" y="-508.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractFrameworkComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~abstractframeworkcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~abstractframeworkcomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M741.5,-474.81C656.68,-485.28 638.42,-509.97 553,-512.81"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M551,-512.81C520.31,-513.82 487.02,-513.92 456.39,-513.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="456.15,-510.11 446.11,-513.49 456.07,-517.11 456.15,-510.11"/>
+</g>
+<!-- sourcefile~baseframeworkcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~baseframeworkcomponent.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/baseframeworkcomponent.f90.html" xlink:title="BaseFrameworkComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1046,-564.81 863,-564.81 863,-540.81 1046,-540.81 1046,-564.81"/>
+<text text-anchor="middle" x="954.5" y="-550.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseFrameworkComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~baseframeworkcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~baseframeworkcomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1147.52,-406.94C1111.3,-434.46 1022.75,-501.72 979.74,-534.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="977.38,-531.79 971.53,-540.63 981.61,-537.37 977.38,-531.79"/>
+</g>
+<!-- sourcefile~compositecomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~compositecomponent.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/compositecomponent.f90.html" xlink:title="CompositeComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="819.5,-564.81 665.5,-564.81 665.5,-540.81 819.5,-540.81 819.5,-564.81"/>
+<text text-anchor="middle" x="742.5" y="-550.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CompositeComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~compositecomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~compositecomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M953.5,-394.81C950.63,-394.98 821.91,-492.97 767.44,-534.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="765.19,-531.84 759.37,-540.69 769.44,-537.4 765.19,-531.84"/>
+</g>
+<!-- sourcefile~concretecomposite.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~concretecomposite.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/concretecomposite.f90.html" xlink:title="ConcreteComposite.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="622,-604.81 482,-604.81 482,-580.81 622,-580.81 622,-604.81"/>
+<text text-anchor="middle" x="552" y="-590.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConcreteComposite.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~concretecomposite.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~concretecomposite.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M953.5,-714.81C834.88,-771.81 778.17,-749.47 658,-695.81 618.13,-678 584.67,-638.02 566.85,-613.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="569.63,-611.31 561.01,-605.15 563.91,-615.34 569.63,-611.31"/>
+</g>
+<!-- sourcefile~entrypointvector.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~entrypointvector.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/entrypointvector.f90.html" xlink:title="EntryPointVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="803,-80.81 682,-80.81 682,-56.81 803,-56.81 803,-80.81"/>
+<text text-anchor="middle" x="742.5" y="-66.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EntryPointVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~entrypointvector.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~entrypointvector.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M953.5,-28.81C940.02,-21.82 857.93,-40.12 800.48,-54.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="799.28,-50.91 790.42,-56.71 800.97,-57.71 799.28,-50.91"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="606.5,-404.81 497.5,-404.81 497.5,-380.81 606.5,-380.81 606.5,-404.81"/>
+<text text-anchor="middle" x="552" y="-390.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M953.5,-394.81C891.2,-398.66 885.92,-435.19 827,-455.81 791.08,-468.37 781.27,-470.14 743.5,-474.81"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M741.5,-474.81C676.85,-482.79 608.56,-437.7 574.69,-411.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="576.83,-408.39 566.84,-404.86 572.45,-413.85 576.83,-408.39"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-236.81 490,-236.81 490,-212.81 614,-212.81 614,-236.81"/>
+<text text-anchor="middle" x="552" y="-222.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1081.94,-392.61C1043.54,-392.14 997.14,-392.37 955.5,-394.81"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M953.5,-394.81C891.19,-398.44 885.92,-354.42 827,-333.81 791.08,-321.24 780.66,-323.05 743.5,-314.81"/>
+</g>
+<!-- sourcefile~maplcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~maplcomponent.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/maplcomponent.f90.html" xlink:title="MaplComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="804,-446.81 681,-446.81 681,-422.81 804,-422.81 804,-446.81"/>
+<text text-anchor="middle" x="742.5" y="-432.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~maplcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~maplcomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M953.5,-394.81C900.17,-398.1 840.41,-410.34 798.32,-420.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="797.44,-417.03 788.55,-422.8 799.09,-423.84 797.44,-417.03"/>
+</g>
+<!-- sourcefile~maplgrid.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~maplgrid.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/maplgrid.f90.html" xlink:title="MaplGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="784,-366.81 701,-366.81 701,-342.81 784,-342.81 784,-366.81"/>
+<text text-anchor="middle" x="742.5" y="-352.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~maplgrid.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~maplgrid.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M953.5,-394.81C895.54,-398.39 829.99,-382.65 787.77,-369.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="788.67,-366.49 778.09,-366.87 786.6,-373.17 788.67,-366.49"/>
+</g>
+<!-- sourcefile~openmp_support.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~openmp_support.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/openmp_support.f90.html" xlink:title="OpenMP_Support.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1017.5,-244.81 891.5,-244.81 891.5,-220.81 1017.5,-220.81 1017.5,-244.81"/>
+<text text-anchor="middle" x="954.5" y="-230.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OpenMP_Support.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~openmp_support.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~openmp_support.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1147.87,-382.63C1111.64,-354.41 1021.78,-284.43 978.94,-251.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="981.07,-248.29 971.03,-244.9 976.77,-253.81 981.07,-248.29"/>
+</g>
+<!-- sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~pflogger_stub.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/pflogger_stub.f90.html" xlink:title="pflogger_stub.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="606,-362.81 498,-362.81 498,-338.81 606,-338.81 606,-362.81"/>
+<text text-anchor="middle" x="552" y="-348.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pflogger_stub.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~pflogger_stub.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M953.5,-394.81C822.15,-402.93 788.15,-395.34 658,-375.81 640.97,-373.25 622.63,-369.3 606.12,-365.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="606.65,-361.83 596.1,-362.81 604.96,-368.62 606.65,-361.83"/>
+</g>
+<!-- sourcefile~runentrypoint.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~runentrypoint.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/runentrypoint.f90.html" xlink:title="RunEntryPoint.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="606.5,-80.81 497.5,-80.81 497.5,-56.81 606.5,-56.81 606.5,-80.81"/>
+<text text-anchor="middle" x="552" y="-66.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RunEntryPoint.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~runentrypoint.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~maplgenericcomponent.f90&#45;&gt;sourcefile~runentrypoint.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1161.38,-382.61C1151.09,-327.85 1100.87,-104.1 955.5,-28.81"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M953.5,-28.81C832.06,34.09 662.23,-22.56 588.97,-52.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="587.56,-49.52 579.7,-56.62 590.27,-55.98 587.56,-49.52"/>
+</g>
+<!-- sourcefile~surrogateframeworkcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node27" class="node">
+<title>sourcefile~surrogateframeworkcomponent.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node27"><a xlink:href="../sourcefile/surrogateframeworkcomponent.f90.html" xlink:title="SurrogateFrameworkComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="209,-522.81 0,-522.81 0,-498.81 209,-498.81 209,-522.81"/>
+<text text-anchor="middle" x="104.5" y="-508.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SurrogateFrameworkComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractframeworkcomponent.f90&#45;&gt;sourcefile~surrogateframeworkcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~abstractframeworkcomponent.f90&#45;&gt;sourcefile~surrogateframeworkcomponent.f90</title>
+<path fill="none" stroke="#ff7500" stroke-dasharray="5,2" d="M244.87,-510.81C236.4,-510.81 227.8,-510.81 219.23,-510.81"/>
+<polygon fill="#ff7500" stroke="#ff7500" points="219.2,-507.31 209.2,-510.81 219.2,-514.31 219.2,-507.31"/>
+</g>
+<!-- sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~abstractcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~abstractcomponent.f90</title>
+<path fill="none" stroke="#ffeb00" stroke-dasharray="5,2" d="M940.87,-564.82C919.21,-584.86 872.84,-625.2 827,-648.81 819.15,-652.85 810.57,-656.39 801.98,-659.46"/>
+<polygon fill="#ffeb00" stroke="#ffeb00" points="800.68,-656.2 792.32,-662.72 802.92,-662.84 800.68,-656.2"/>
+</g>
+<!-- sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~abstractframeworkcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~abstractframeworkcomponent.f90</title>
+<path fill="none" stroke="#ffeb00" stroke-dasharray="5,2" d="M890.19,-540.79C811.37,-527.15 672.54,-507.44 553,-512.81"/>
+</g>
+<!-- sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~compositecomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~compositecomponent.f90</title>
+<path fill="none" stroke="#ffeb00" stroke-dasharray="5,2" d="M862.92,-552.81C851.98,-552.81 840.83,-552.81 829.96,-552.81"/>
+<polygon fill="#ffeb00" stroke="#ffeb00" points="829.63,-549.31 819.63,-552.81 829.63,-556.31 829.63,-549.31"/>
+</g>
+<!-- sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~maplgrid.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~maplgrid.f90</title>
+<path fill="none" stroke="#ffeb00" stroke-dasharray="5,2" d="M943.81,-540.46C923.61,-515.14 874.92,-456.16 827,-413.81 809.72,-398.53 788.47,-383.56 771.73,-372.52"/>
+<polygon fill="#ffeb00" stroke="#ffeb00" points="773.24,-369.33 762.95,-366.82 769.43,-375.2 773.24,-369.33"/>
+</g>
+<!-- sourcefile~componentspecification.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~componentspecification.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/componentspecification.f90.html" xlink:title="ComponentSpecification.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="825.5,-606.81 659.5,-606.81 659.5,-582.81 825.5,-582.81 825.5,-606.81"/>
+<text text-anchor="middle" x="742.5" y="-592.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecification.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~componentspecification.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~componentspecification.f90</title>
+<path fill="none" stroke="#ffeb00" stroke-dasharray="5,2" d="M893.32,-564.84C868.5,-569.81 839.56,-575.59 813.77,-580.75"/>
+<polygon fill="#ffeb00" stroke="#ffeb00" points="812.81,-577.37 803.69,-582.77 814.18,-584.24 812.81,-577.37"/>
+</g>
+<!-- sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~surrogateframeworkcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~baseframeworkcomponent.f90&#45;&gt;sourcefile~surrogateframeworkcomponent.f90</title>
+<path fill="none" stroke="#ffeb00" stroke-dasharray="5,2" d="M935.67,-565.05C912.06,-580.44 868.56,-606.03 827,-615.81 575.21,-675.04 490.32,-697.81 245,-615.81 194.67,-598.98 147.95,-556.07 123.43,-530.61"/>
+<polygon fill="#ffeb00" stroke="#ffeb00" points="125.67,-527.9 116.27,-523.02 120.58,-532.7 125.67,-527.9"/>
+</g>
+<!-- sourcefile~compositecomponent.f90&#45;&gt;sourcefile~abstractframeworkcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~compositecomponent.f90&#45;&gt;sourcefile~abstractframeworkcomponent.f90</title>
+<path fill="none" stroke="#9cff00" stroke-dasharray="5,2" d="M665.33,-554.56C630.99,-554.9 589.93,-554.68 553,-552.81"/>
+<path fill="none" stroke="#9cff00" stroke-dasharray="5,2" d="M551,-552.81C547.47,-552.63 472.1,-537.03 413.88,-524.89"/>
+<polygon fill="#9cff00" stroke="#9cff00" points="414.47,-521.44 403.97,-522.83 413.04,-528.29 414.47,-521.44"/>
+</g>
+<!-- sourcefile~compositecomponent.f90&#45;&gt;sourcefile~concretecomposite.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~compositecomponent.f90&#45;&gt;sourcefile~concretecomposite.f90</title>
+<path fill="none" stroke="#9cff00" stroke-dasharray="5,2" d="M684.94,-564.81C664.44,-569.16 641.09,-574.11 619.79,-578.63"/>
+<polygon fill="#9cff00" stroke="#9cff00" points="618.9,-575.24 609.84,-580.74 620.35,-582.09 618.9,-575.24"/>
+</g>
+<!-- sourcefile~abstractcomposite.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~abstractcomposite.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/abstractcomposite.f90.html" xlink:title="AbstractComposite.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="413.5,-564.81 277.5,-564.81 277.5,-540.81 413.5,-540.81 413.5,-564.81"/>
+<text text-anchor="middle" x="345.5" y="-550.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractComposite.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~compositecomponent.f90&#45;&gt;sourcefile~abstractcomposite.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~compositecomponent.f90&#45;&gt;sourcefile~abstractcomposite.f90</title>
+<path fill="none" stroke="#9cff00" stroke-dasharray="5,2" d="M551,-552.81C509.01,-550.68 462.11,-550.52 423.83,-550.96"/>
+<polygon fill="#9cff00" stroke="#9cff00" points="423.73,-547.46 413.78,-551.09 423.83,-554.46 423.73,-547.46"/>
+</g>
+<!-- sourcefile~concretecomposite.f90&#45;&gt;sourcefile~abstractframeworkcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~concretecomposite.f90&#45;&gt;sourcefile~abstractframeworkcomponent.f90</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M510.62,-580.76C500.87,-577.01 490.75,-572.36 482,-566.81 463.16,-554.84 465.69,-542.3 446,-531.81 442.23,-529.8 438.29,-527.98 434.23,-526.34"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="435.2,-522.96 424.61,-522.81 432.79,-529.54 435.2,-522.96"/>
+</g>
+<!-- sourcefile~concretecomposite.f90&#45;&gt;sourcefile~abstractcomposite.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~concretecomposite.f90&#45;&gt;sourcefile~abstractcomposite.f90</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M489.64,-580.8C467.1,-576.39 441.38,-571.36 418.02,-566.79"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="418.65,-563.35 408.17,-564.87 417.31,-570.22 418.65,-563.35"/>
+</g>
+<!-- sourcefile~stringcompositemap.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node26" class="node">
+<title>sourcefile~stringcompositemap.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node26"><a xlink:href="../sourcefile/stringcompositemap.f90.html" xlink:title="StringCompositeMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="418.5,-606.81 272.5,-606.81 272.5,-582.81 418.5,-582.81 418.5,-606.81"/>
+<text text-anchor="middle" x="345.5" y="-592.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringCompositeMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~concretecomposite.f90&#45;&gt;sourcefile~stringcompositemap.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~concretecomposite.f90&#45;&gt;sourcefile~stringcompositemap.f90</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M481.77,-593.48C464.81,-593.65 446.51,-593.83 429,-594"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="428.77,-590.5 418.81,-594.1 428.84,-597.5 428.77,-590.5"/>
+</g>
+<!-- sourcefile~entrypointvector.f90&#45;&gt;sourcefile~runentrypoint.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~entrypointvector.f90&#45;&gt;sourcefile~runentrypoint.f90</title>
+<path fill="none" stroke="#00ff4e" stroke-dasharray="5,2" d="M681.86,-68.81C661.09,-68.81 637.73,-68.81 616.65,-68.81"/>
+<polygon fill="#00ff4e" stroke="#00ff4e" points="616.51,-65.31 606.51,-68.81 616.51,-72.31 616.51,-65.31"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node24" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node24"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="395.5,-404.81 295.5,-404.81 295.5,-380.81 395.5,-380.81 395.5,-404.81"/>
+<text text-anchor="middle" x="345.5" y="-390.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#00ffc4" stroke-dasharray="5,2" d="M497.27,-392.81C469.23,-392.81 434.86,-392.81 406.02,-392.81"/>
+<polygon fill="#00ffc4" stroke="#00ffc4" points="405.67,-389.31 395.67,-392.81 405.67,-396.31 405.67,-389.31"/>
+</g>
+<!-- sourcefile~maplcomponent.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~maplcomponent.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#004eff" stroke-dasharray="5,2" d="M687.48,-422.77C665.4,-417.85 639.69,-412.12 616.71,-407"/>
+<polygon fill="#004eff" stroke="#004eff" points="617.22,-403.53 606.7,-404.77 615.7,-410.36 617.22,-403.53"/>
+</g>
+<!-- sourcefile~maplcomponent.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~maplcomponent.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#004eff" stroke-dasharray="5,2" d="M715.59,-422.6C696.94,-412.54 672.6,-396.57 658,-375.81 623.51,-326.77 663.85,-288.73 622,-245.81 620.93,-244.71 619.81,-243.68 618.65,-242.69"/>
+<polygon fill="#004eff" stroke="#004eff" points="620.55,-239.76 610.34,-236.95 616.58,-245.52 620.55,-239.76"/>
+</g>
+<!-- sourcefile~maplcomponent.f90&#45;&gt;sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~maplcomponent.f90&#45;&gt;sourcefile~pflogger_stub.f90</title>
+<path fill="none" stroke="#004eff" stroke-dasharray="5,2" d="M688.54,-422.68C678,-419.08 667.32,-414.52 658,-408.81 638.45,-396.8 641.59,-383.74 622,-371.81 619.02,-369.99 615.88,-368.32 612.63,-366.79"/>
+<polygon fill="#004eff" stroke="#004eff" points="613.87,-363.51 603.3,-362.82 611.13,-369.96 613.87,-363.51"/>
+</g>
+<!-- sourcefile~basecomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~basecomponent.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/basecomponent.f90.html" xlink:title="BaseComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-484.81 490,-484.81 490,-460.81 614,-460.81 614,-484.81"/>
+<text text-anchor="middle" x="552" y="-470.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplcomponent.f90&#45;&gt;sourcefile~basecomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~maplcomponent.f90&#45;&gt;sourcefile~basecomponent.f90</title>
+<path fill="none" stroke="#004eff" stroke-dasharray="5,2" d="M681.86,-446.83C663.03,-450.62 642.06,-454.85 622.6,-458.77"/>
+<polygon fill="#004eff" stroke="#004eff" points="621.69,-455.39 612.58,-460.79 623.07,-462.25 621.69,-455.39"/>
+</g>
+<!-- sourcefile~maplcomponent.f90&#45;&gt;sourcefile~surrogateframeworkcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~maplcomponent.f90&#45;&gt;sourcefile~surrogateframeworkcomponent.f90</title>
+<path fill="none" stroke="#004eff" stroke-dasharray="5,2" d="M680.8,-437.23C628.13,-439.71 549.87,-444.28 482,-451.81 376.9,-463.46 256.28,-483.56 180.49,-497.01"/>
+<polygon fill="#004eff" stroke="#004eff" points="179.79,-493.58 170.56,-498.79 181.02,-500.48 179.79,-493.58"/>
+</g>
+<!-- sourcefile~maplgrid.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~maplgrid.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#2700ff" stroke-dasharray="5,2" d="M700.6,-363.05C676.1,-367.99 644.44,-374.37 616.72,-379.96"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="615.82,-376.57 606.71,-381.98 617.21,-383.43 615.82,-376.57"/>
+</g>
+<!-- sourcefile~maplgrid.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~maplgrid.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#2700ff" stroke-dasharray="5,2" d="M701,-349.46C686.04,-345.74 669.86,-339.46 658,-328.81 628.08,-301.94 652,-272.57 622,-245.81 620.65,-244.6 619.23,-243.47 617.76,-242.4"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="619.17,-239.16 608.81,-236.95 615.54,-245.14 619.17,-239.16"/>
+</g>
+<!-- sourcefile~maplgrid.f90&#45;&gt;sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~maplgrid.f90&#45;&gt;sourcefile~pflogger_stub.f90</title>
+<path fill="none" stroke="#2700ff" stroke-dasharray="5,2" d="M700.6,-353.94C675.91,-353.41 643.94,-352.73 616.07,-352.14"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="616.08,-348.64 606.01,-351.93 615.93,-355.64 616.08,-348.64"/>
+</g>
+<!-- sourcefile~constants.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~constants.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/constants.f90.html" xlink:title="Constants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="596,-278.81 508,-278.81 508,-254.81 596,-254.81 596,-278.81"/>
+<text text-anchor="middle" x="552" y="-264.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Constants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgrid.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~maplgrid.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#2700ff" stroke-dasharray="5,2" d="M700.88,-346.94C686.57,-342.97 670.86,-337.16 658,-328.81 637.66,-315.6 642.38,-300.95 622,-287.81 617.01,-284.59 611.5,-281.84 605.84,-279.5"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="606.82,-276.13 596.23,-275.94 604.39,-282.7 606.82,-276.13"/>
+</g>
+<!-- sourcefile~mapl_sort.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node23" class="node">
+<title>sourcefile~mapl_sort.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node23"><a xlink:href="../sourcefile/mapl_sort.f90.html" xlink:title="MAPL_Sort.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="597.5,-320.81 506.5,-320.81 506.5,-296.81 597.5,-296.81 597.5,-320.81"/>
+<text text-anchor="middle" x="552" y="-306.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Sort.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgrid.f90&#45;&gt;sourcefile~mapl_sort.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~maplgrid.f90&#45;&gt;sourcefile~mapl_sort.f90</title>
+<path fill="none" stroke="#2700ff" stroke-dasharray="5,2" d="M700.6,-344.82C673.36,-338.18 637.26,-329.37 607.57,-322.12"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="608.32,-318.7 597.78,-319.73 606.66,-325.5 608.32,-318.7"/>
+</g>
+<!-- sourcefile~openmp_support.f90&#45;&gt;sourcefile~entrypointvector.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~openmp_support.f90&#45;&gt;sourcefile~entrypointvector.f90</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M945.6,-220.48C927.76,-193.62 881.61,-129.45 827,-94.81 820.74,-90.83 813.83,-87.43 806.75,-84.53"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="807.63,-81.12 797.03,-80.87 805.16,-87.67 807.63,-81.12"/>
+</g>
+<!-- sourcefile~openmp_support.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~openmp_support.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M939.22,-244.89C905.96,-271.58 820.3,-331.84 743.5,-314.81"/>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M741.5,-314.81C704.34,-306.56 689.73,-316.83 658,-295.81 635.17,-280.68 644.27,-261.74 622,-245.81 619.79,-244.22 617.45,-242.75 615.03,-241.4"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="616.47,-238.2 605.95,-236.94 613.39,-244.49 616.47,-238.2"/>
+</g>
+<!-- sourcefile~openmp_support.f90&#45;&gt;sourcefile~maplgrid.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~openmp_support.f90&#45;&gt;sourcefile~maplgrid.f90</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M940.87,-244.82C919.21,-264.86 872.84,-305.2 827,-328.81 816.66,-334.13 805.04,-338.59 793.83,-342.24"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="792.64,-338.94 784.12,-345.23 794.7,-345.63 792.64,-338.94"/>
+</g>
+<!-- sourcefile~openmp_support.f90&#45;&gt;sourcefile~runentrypoint.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~openmp_support.f90&#45;&gt;sourcefile~runentrypoint.f90</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M942.66,-220.54C922.31,-198.36 876.03,-151.64 827,-127.81 817.5,-123.19 694.74,-97.67 616.8,-81.75"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="617.08,-78.23 606.59,-79.66 615.68,-85.09 617.08,-78.23"/>
+</g>
+<!-- sourcefile~base_base.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~base_base.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/base_base.f90.html" xlink:title="Base_Base.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="789,-202.81 696,-202.81 696,-178.81 789,-178.81 789,-202.81"/>
+<text text-anchor="middle" x="742.5" y="-188.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Base.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~openmp_support.f90&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~openmp_support.f90&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M893.32,-220.77C863.72,-214.85 828.28,-207.76 799.29,-201.96"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="799.82,-198.5 789.33,-199.97 798.45,-205.36 799.82,-198.5"/>
+</g>
+<!-- sourcefile~callbackmap.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~callbackmap.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/callbackmap.f90.html" xlink:title="CallbackMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="794,-160.81 691,-160.81 691,-136.81 794,-136.81 794,-160.81"/>
+<text text-anchor="middle" x="742.5" y="-146.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CallbackMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~openmp_support.f90&#45;&gt;sourcefile~callbackmap.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~openmp_support.f90&#45;&gt;sourcefile~callbackmap.f90</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M932.64,-220.66C908.06,-206.77 865.66,-184.1 827,-169.81 819.71,-167.11 811.93,-164.64 804.16,-162.42"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="804.94,-159 794.37,-159.74 803.09,-165.75 804.94,-159"/>
+</g>
+<!-- sourcefile~mapl_esmf_interfaces.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~mapl_esmf_interfaces.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/mapl_esmf_interfaces.f90.html" xlink:title="MAPL_ESMF_Interfaces.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="820.5,-286.81 664.5,-286.81 664.5,-262.81 820.5,-262.81 820.5,-286.81"/>
+<text text-anchor="middle" x="742.5" y="-272.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMF_Interfaces.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~openmp_support.f90&#45;&gt;sourcefile~mapl_esmf_interfaces.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~openmp_support.f90&#45;&gt;sourcefile~mapl_esmf_interfaces.f90</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M893.32,-244.84C868.5,-249.81 839.56,-255.59 813.77,-260.75"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="812.81,-257.37 803.69,-262.77 814.18,-264.24 812.81,-257.37"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node22"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="827,-244.81 658,-244.81 658,-220.81 827,-220.81 827,-244.81"/>
+<text text-anchor="middle" x="742.5" y="-230.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~openmp_support.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~openmp_support.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M891.35,-232.81C874.41,-232.81 855.67,-232.81 837.39,-232.81"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="837.29,-229.31 827.29,-232.81 837.29,-236.31 837.29,-229.31"/>
+</g>
+<!-- sourcefile~pfl_keywordenforcer.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node25" class="node">
+<title>sourcefile~pfl_keywordenforcer.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node25"><a xlink:href="../sourcefile/pfl_keywordenforcer.f90.html" xlink:title="PFL_KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="419,-320.81 272,-320.81 272,-296.81 419,-296.81 419,-320.81"/>
+<text text-anchor="middle" x="345.5" y="-306.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pflogger_stub.f90&#45;&gt;sourcefile~pfl_keywordenforcer.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge47" class="edge">
+<title>sourcefile~pflogger_stub.f90&#45;&gt;sourcefile~pfl_keywordenforcer.f90</title>
+<path fill="none" stroke="#ff00eb" stroke-dasharray="5,2" d="M497.8,-339.88C472.62,-334.71 442.23,-328.47 415.31,-322.94"/>
+<polygon fill="#ff00eb" stroke="#ff00eb" points="415.69,-319.44 405.19,-320.86 414.28,-326.3 415.69,-319.44"/>
+</g>
+<!-- sourcefile~wraparray.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node28" class="node">
+<title>sourcefile~wraparray.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~EfferentGraph_node28"><a xlink:href="../sourcefile/wraparray.f90.html" xlink:title="WrapArray.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="391,-362.81 300,-362.81 300,-338.81 391,-338.81 391,-362.81"/>
+<text text-anchor="middle" x="345.5" y="-348.41" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WrapArray.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pflogger_stub.f90&#45;&gt;sourcefile~wraparray.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~EfferentGraph_edge48" class="edge">
+<title>sourcefile~pflogger_stub.f90&#45;&gt;sourcefile~wraparray.f90</title>
+<path fill="none" stroke="#ff00eb" stroke-dasharray="5,2" d="M497.8,-350.81C468.16,-350.81 431.31,-350.81 401.4,-350.81"/>
+<polygon fill="#ff00eb" stroke="#ff00eb" points="401.13,-347.31 391.13,-350.81 401.13,-354.31 401.13,-347.31"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilemaplgenericcomponentf90EfferentGraph = svgPanZoom('#sourcefilemaplgenericcomponentf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~maplgenericcomponent.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilemaplgenericcomponentf90AfferentGraph" width="641pt" height="235pt"
+ viewBox="0.00 0.00 641.00 234.85" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph" class="graph" transform="scale(0.42 0.42) rotate(0) translate(4 555.1)">
+<title>sourcefile~~maplgenericcomponent.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-555.1 1522,-555.1 1522,4 -4,4"/>
+<!-- sourcefile~maplgenericcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~maplgenericcomponent.f90</title>
+<polygon fill="none" stroke="black" points="165,-184 0,-184 0,-160 165,-160 165,-184"/>
+<text text-anchor="middle" x="82.5" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50">MaplGenericComponent.F90</text>
+</g>
+<!-- sourcefile~driver.f90~4 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~driver.f90~4</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/driver.f90~4.html" xlink:title="driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="312,-226 247,-226 247,-202 312,-202 312,-226"/>
+<text text-anchor="middle" x="279.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~driver.f90~4&#45;&gt;sourcefile~maplgenericcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~driver.f90~4&#45;&gt;sourcefile~maplgenericcomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M246.74,-207.16C220.43,-201.49 182.16,-193.25 149.3,-186.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="149.8,-182.7 139.29,-184.02 148.33,-189.54 149.8,-182.7"/>
+</g>
+<!-- sourcefile~maplgeneric.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~maplgeneric.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/maplgeneric.f90.html" xlink:title="MaplGeneric.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="331,-184 228,-184 228,-160 331,-160 331,-184"/>
+<text text-anchor="middle" x="279.5" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGeneric.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgeneric.f90&#45;&gt;sourcefile~maplgenericcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~maplgeneric.f90&#45;&gt;sourcefile~maplgenericcomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M227.78,-172C211.76,-172 193.53,-172 175.56,-172"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.32,-168.5 165.32,-172 175.32,-175.5 175.32,-168.5"/>
+</g>
+<!-- sourcefile~test_concretecomposite.pf -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~test_concretecomposite.pf</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/test_concretecomposite.pf.html" xlink:title="Test_ConcreteComposite.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="358,-142 201,-142 201,-118 358,-118 358,-142"/>
+<text text-anchor="middle" x="279.5" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ConcreteComposite.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_concretecomposite.pf&#45;&gt;sourcefile~maplgenericcomponent.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~test_concretecomposite.pf&#45;&gt;sourcefile~maplgenericcomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M222.62,-142.04C199.77,-146.96 173.17,-152.69 149.39,-157.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="148.43,-154.44 139.39,-159.96 149.9,-161.28 148.43,-154.44"/>
+</g>
+<!-- sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~mapl_generic.f90~2</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/mapl_generic.f90~2.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="505,-184 394,-184 394,-160 505,-160 505,-184"/>
+<text text-anchor="middle" x="449.5" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~maplgeneric.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~maplgeneric.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M393.96,-172C377.21,-172 358.69,-172 341.54,-172"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="341.07,-168.5 331.07,-172 341.07,-175.5 341.07,-168.5"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~comp_testing_driver.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/comp_testing_driver.f90.html" xlink:title="Comp_Testing_Driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1518,-442 1373,-442 1373,-418 1518,-418 1518,-442"/>
+<text text-anchor="middle" x="1445.5" y="-427.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Comp_Testing_Driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1436.58,-442.26C1420.88,-465.3 1383.29,-514.4 1337,-533 1269.37,-560.17 1243.13,-552.88 1173,-533 1009.24,-486.57 1017.13,-326.73 847,-332"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1089,-344 1025,-344 1025,-320 1089,-320 1089,-344"/>
+<text text-anchor="middle" x="1057" y="-329.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M1372.97,-441.3C1315.16,-446.77 1233.72,-445.93 1173,-411 1148.32,-396.8 1159.74,-375.14 1137,-358 1125.88,-349.62 1111.93,-343.86 1098.86,-339.94"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="1099.67,-336.53 1089.1,-337.29 1097.83,-343.29 1099.67,-336.53"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1327,-66 1183,-66 1183,-42 1327,-42 1327,-66"/>
+<text text-anchor="middle" x="1255" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M1444.77,-417.78C1445.21,-367.39 1439.87,-173.8 1337,-75 1335.74,-73.79 1334.42,-72.65 1333.05,-71.57"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="1334.95,-68.63 1324.67,-66.06 1331.1,-74.48 1334.95,-68.63"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~extdatagridcompmod.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/extdatagridcompmod.f90.html" xlink:title="ExtDataGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1134,-26 980,-26 980,-2 1134,-2 1134,-26"/>
+<text text-anchor="middle" x="1057" y="-11.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1012.4,-26.09C970.42,-36.84 904.94,-51.26 847,-54"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M845,-54C707.85,-60.49 667.81,-56.35 541,-109 515.02,-119.79 489.04,-138.95 471.63,-153.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="469.19,-150.8 463.81,-159.93 473.7,-156.15 469.19,-150.8"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~extdatagridcompng.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/extdatagridcompng.f90.html" xlink:title="ExtDataGridCompNG.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1130.5,-302 983.5,-302 983.5,-278 1130.5,-278 1130.5,-302"/>
+<text text-anchor="middle" x="1057" y="-287.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompNG.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1006.18,-302.01C954.58,-314.09 877.33,-331.06 847,-332"/>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1024.83,-331.4C983.98,-330.75 910.11,-330.05 847,-332"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1182.74,-48.85C1101.24,-44.15 963.98,-39.88 847,-54"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M1195.19,-42C1173.78,-37.63 1149.37,-32.65 1127.15,-28.11"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="1127.6,-24.63 1117.1,-26.06 1126.2,-31.49 1127.6,-24.63"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M1185.34,-66.06C1180.85,-68.53 1176.67,-71.48 1173,-75 1133.41,-112.94 1162.8,-144.62 1137,-193 1121.09,-222.85 1095.29,-252.28 1077.53,-270.76"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="1074.96,-268.38 1070.47,-277.97 1079.97,-273.28 1074.96,-268.38"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~mapl_historygridcomp.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/mapl_historygridcomp.f90.html" xlink:title="MAPL_HistoryGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1137,-184 977,-184 977,-160 1137,-160 1137,-184"/>
+<text text-anchor="middle" x="1057" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge39" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_historygridcomp.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M1194.88,-66C1187.32,-68.49 1179.84,-71.46 1173,-75 1134.15,-95.09 1096.93,-130.39 1075.82,-152.42"/>
+<polygon fill="#002eff" stroke="#002eff" points="1073.1,-150.2 1068.8,-159.88 1078.2,-154.99 1073.1,-150.2"/>
+</g>
+<!-- sourcefile~mapl_geosatmaskmod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~mapl_geosatmaskmod.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/mapl_geosatmaskmod.f90.html" xlink:title="MAPL_GeosatMaskMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="706,-184 550,-184 550,-160 706,-160 706,-184"/>
+<text text-anchor="middle" x="628" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GeosatMaskMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_geosatmaskmod.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~mapl_geosatmaskmod.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M549.84,-172C538.34,-172 526.58,-172 515.36,-172"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="515.23,-168.5 505.23,-172 515.23,-175.5 515.23,-168.5"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~mapl_historycollection.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/mapl_historycollection.f90.html" xlink:title="MAPL_HistoryCollection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="926,-224 766,-224 766,-200 926,-200 926,-224"/>
+<text text-anchor="middle" x="846" y="-209.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryCollection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M765.89,-210.64C704.32,-208.72 616.87,-204.1 541,-193 529.52,-191.32 517.35,-188.93 505.78,-186.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="506.33,-182.89 495.8,-184.06 504.76,-189.71 506.33,-182.89"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_geosatmaskmod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge35" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_geosatmaskmod.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M780.19,-200C756.27,-195.57 728.97,-190.51 704.21,-185.93"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="704.6,-182.44 694.13,-184.06 703.33,-189.32 704.6,-182.44"/>
+</g>
+<!-- sourcefile~mapl_stationsamplermod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~mapl_stationsamplermod.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/mapl_stationsamplermod.f90.html" xlink:title="MAPL_StationSamplerMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="715,-142 541,-142 541,-118 715,-118 715,-142"/>
+<text text-anchor="middle" x="628" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StationSamplerMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_stationsamplermod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge40" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_stationsamplermod.f90</title>
+<path fill="none" stroke="#e700ff" stroke-dasharray="5,2" d="M822.57,-199.79C797.1,-186.33 754.03,-164.77 715,-151 708.67,-148.77 702,-146.69 695.28,-144.77"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="696.02,-141.34 685.45,-142.08 694.17,-148.09 696.02,-141.34"/>
+</g>
+<!-- sourcefile~mapl_trajectorymod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~mapl_trajectorymod.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/mapl_trajectorymod.f90.html" xlink:title="MAPL_TrajectoryMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="700,-264 556,-264 556,-240 700,-240 700,-264"/>
+<text text-anchor="middle" x="628" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TrajectoryMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_trajectorymod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge42" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_trajectorymod.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M780.19,-224C756.27,-228.43 728.97,-233.49 704.21,-238.07"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="703.33,-234.68 694.13,-239.94 704.6,-241.56 703.33,-234.68"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1045.84,-184.49C1017.81,-218.92 941.44,-312.73 941,-313 904.51,-335.02 889.43,-327.96 847,-332"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M845,-332C707.99,-345.03 660.72,-340.9 541,-273 506.65,-253.52 478.46,-216.21 463.11,-192.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="466.01,-190.83 457.69,-184.28 460.1,-194.59 466.01,-190.83"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_geosatmaskmod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge36" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_geosatmaskmod.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M976.69,-172C902.71,-172 792.58,-172 716.17,-172"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="716.09,-168.5 706.09,-172 716.09,-175.5 716.09,-168.5"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_historycollection.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge37" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_historycollection.f90</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M993.29,-184C970.25,-188.41 943.97,-193.44 920.09,-198.01"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="919.19,-194.62 910.02,-199.94 920.5,-201.5 919.19,-194.62"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_stationsamplermod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge41" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_stationsamplermod.f90</title>
+<path fill="none" stroke="#e700ff" stroke-dasharray="5,2" d="M1039.54,-159.9C1018.12,-144.98 978.94,-120.44 941,-111 854.9,-89.58 751.51,-103.27 688.04,-115.96"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="687.29,-112.54 678.2,-117.98 688.7,-119.4 687.29,-112.54"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_trajectorymod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge43" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_trajectorymod.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M1038.69,-184.25C1017.02,-198.83 978.2,-222.53 941,-233 864.76,-254.45 774.05,-257.62 710.14,-256.38"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="710.2,-252.88 700.12,-256.14 710.04,-259.88 710.2,-252.88"/>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~mapl_orbgridcompmod.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/mapl_orbgridcompmod.f90.html" xlink:title="MAPL_OrbGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="710.5,-26 545.5,-26 545.5,-2 710.5,-2 710.5,-26"/>
+<text text-anchor="middle" x="628" y="-11.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OrbGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M567.58,-26.16C558.17,-29.68 548.93,-34.2 541,-40 501.28,-69.06 473.2,-121.09 459.67,-150.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="456.38,-149.19 455.49,-159.75 462.77,-152.04 456.38,-149.19"/>
+</g>
+<!-- sourcefile~mapl_stationsamplermod.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~mapl_stationsamplermod.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M576.42,-142.04C556.02,-146.89 532.31,-152.53 511,-157.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="510,-154.24 501.09,-159.96 511.62,-161.05 510,-154.24"/>
+</g>
+<!-- sourcefile~mapl_trajectorymod.f90&#45;&gt;sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~mapl_trajectorymod.f90&#45;&gt;sourcefile~mapl_generic.f90~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M579.83,-240C567,-236.13 553.27,-231.42 541,-226 518.2,-215.93 494.03,-201.28 476.41,-189.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="478.11,-186.71 467.84,-184.1 474.24,-192.54 478.11,-186.71"/>
+</g>
+<!-- sourcefile~capdriver.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~capdriver.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/capdriver.f90.html" xlink:title="CapDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1299,-402 1211,-402 1211,-378 1299,-378 1299,-402"/>
+<text text-anchor="middle" x="1255" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CapDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~capdriver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~capdriver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M1211,-379.34C1198.69,-376.16 1185.28,-372.56 1173,-369 1158.92,-364.91 1125.91,-354.25 1098.85,-345.42"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="1099.79,-342.04 1089.2,-342.26 1097.62,-348.7 1099.79,-342.04"/>
+</g>
+<!-- sourcefile~extdatadriver.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~extdatadriver.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/extdatadriver.f90.html" xlink:title="ExtDataDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1309.5,-360 1200.5,-360 1200.5,-336 1309.5,-336 1309.5,-360"/>
+<text text-anchor="middle" x="1255" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M1200.44,-343.63C1168.64,-341.03 1128.93,-337.79 1099.51,-335.39"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="1099.43,-331.87 1089.18,-334.55 1098.86,-338.85 1099.43,-331.87"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~extdatadrivergridcomp.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/extdatadrivergridcomp.f90.html" xlink:title="ExtDataDriverGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1337,-108 1173,-108 1173,-84 1337,-84 1337,-108"/>
+<text text-anchor="middle" x="1255" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompmod.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M1200.28,-83.96C1191.06,-81.36 1181.67,-78.37 1173,-75 1142.08,-62.98 1108.81,-44.69 1086.05,-31.27"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="1087.66,-28.16 1077.28,-26.03 1084.07,-34.17 1087.66,-28.16"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M1187.08,-108.1C1182.03,-110.54 1177.25,-113.48 1173,-117 1144.2,-140.82 1156.95,-161.39 1137,-193 1118.93,-221.64 1093.56,-251.38 1076.49,-270.25"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="1073.68,-268.14 1069.51,-277.88 1078.85,-272.86 1073.68,-268.14"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M1184.13,-108.06C1180.04,-110.54 1176.27,-113.49 1173,-117 1113.2,-181.15 1196.6,-246.67 1137,-311 1127.22,-321.56 1112.8,-327.04 1098.94,-329.82"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="1098.35,-326.37 1089.02,-331.4 1099.45,-333.29 1098.35,-326.37"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge38" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl_historygridcomp.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M1201.26,-108.1C1191.75,-110.73 1182.01,-113.71 1173,-117 1143.58,-127.74 1111.55,-143.41 1088.78,-155.28"/>
+<polygon fill="#002eff" stroke="#002eff" points="1087.14,-152.19 1079.93,-159.95 1090.41,-158.38 1087.14,-152.19"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~extdatadrivermod.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/extdatadrivermod.f90.html" xlink:title="ExtDataDriverMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1321.5,-318 1188.5,-318 1188.5,-294 1321.5,-294 1321.5,-318"/>
+<text text-anchor="middle" x="1255" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M1188.46,-314.69C1159.02,-318.6 1125.17,-323.09 1099.33,-326.52"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="1098.59,-323.08 1089.14,-327.87 1099.52,-330.02 1098.59,-323.08"/>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~extdataroot_gridcomp.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/extdataroot_gridcomp.f90.html" xlink:title="ExtDataRoot_GridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1335,-276 1175,-276 1175,-252 1335,-252 1335,-276"/>
+<text text-anchor="middle" x="1255" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataRoot_GridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M1196.41,-276.09C1188.38,-278.59 1180.36,-281.54 1173,-285 1155.14,-293.4 1154.83,-302.55 1137,-311 1125.16,-316.61 1111.59,-320.91 1099.07,-324.11"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="1098.22,-320.71 1089.31,-326.44 1099.85,-327.52 1098.22,-320.71"/>
+</g>
+<!-- sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~mapl_cap.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/mapl_cap.f90.html" xlink:title="MAPL_Cap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1490.5,-66 1400.5,-66 1400.5,-42 1490.5,-42 1490.5,-66"/>
+<text text-anchor="middle" x="1445.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M1400.31,-54C1381.52,-54 1358.99,-54 1337.38,-54"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="1337.21,-50.5 1327.2,-54 1337.2,-57.5 1337.21,-50.5"/>
+</g>
+<!-- sourcefile~mapl_demo_fargparse.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~mapl_demo_fargparse.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/mapl_demo_fargparse.f90.html" xlink:title="MAPL_demo_fargparse.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1333.5,-234 1176.5,-234 1176.5,-210 1333.5,-210 1333.5,-234"/>
+<text text-anchor="middle" x="1255" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_demo_fargparse.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_demo_fargparse.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~mapl_demo_fargparse.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M1187.65,-234.11C1182.42,-236.56 1177.45,-239.49 1173,-243 1146.17,-264.2 1163.76,-289.71 1137,-311 1126.2,-319.59 1112.21,-324.68 1099.01,-327.7"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="1098.28,-324.27 1089.14,-329.62 1099.62,-331.14 1098.28,-324.27"/>
+</g>
+<!-- sourcefile~mapl_geosatmaskmod_smod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~mapl_geosatmaskmod_smod.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/mapl_geosatmaskmod_smod.f90.html" xlink:title="MAPL_GeosatMaskMod_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="941,-144 751,-144 751,-120 941,-120 941,-144"/>
+<text text-anchor="middle" x="846" y="-129.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GeosatMaskMod_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_geosatmaskmod_smod.f90&#45;&gt;sourcefile~mapl_geosatmaskmod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge34" class="edge">
+<title>sourcefile~mapl_geosatmaskmod_smod.f90&#45;&gt;sourcefile~mapl_geosatmaskmod.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M780.19,-144C756.27,-148.43 728.97,-153.49 704.21,-158.07"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="703.33,-154.68 694.13,-159.94 704.6,-161.56 703.33,-154.68"/>
+</g>
+<!-- sourcefile~mapl_trajectorymod_smod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~mapl_trajectorymod_smod.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/mapl_trajectorymod_smod.f90.html" xlink:title="MAPL_TrajectoryMod_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="935,-304 757,-304 757,-280 935,-280 935,-304"/>
+<text text-anchor="middle" x="846" y="-289.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TrajectoryMod_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_trajectorymod_smod.f90&#45;&gt;sourcefile~mapl_trajectorymod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge44" class="edge">
+<title>sourcefile~mapl_trajectorymod_smod.f90&#45;&gt;sourcefile~mapl_trajectorymod.f90</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M780.19,-280C756.27,-275.57 728.97,-270.51 704.21,-265.93"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="704.6,-262.44 694.13,-264.06 703.33,-269.32 704.6,-262.44"/>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~pfio_mapl_demo.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node26"><a xlink:href="../sourcefile/pfio_mapl_demo.f90.html" xlink:title="pfio_MAPL_demo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1317,-192 1193,-192 1193,-168 1317,-168 1317,-192"/>
+<text text-anchor="middle" x="1255" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pfio_MAPL_demo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M1192.97,-188.56C1185.63,-191.59 1178.72,-195.63 1173,-201 1135.51,-236.22 1174.39,-275.67 1137,-311 1126.81,-320.63 1112.71,-325.96 1099.25,-328.86"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="1098.39,-325.46 1089.15,-330.65 1099.61,-332.36 1098.39,-325.46"/>
+</g>
+<!-- sourcefile~regrid_util.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node27" class="node">
+<title>sourcefile~regrid_util.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node27"><a xlink:href="../sourcefile/regrid_util.f90.html" xlink:title="Regrid_Util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1301,-150 1209,-150 1209,-126 1301,-126 1301,-150"/>
+<text text-anchor="middle" x="1255" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M1208.8,-140.96C1195.73,-143.94 1182.45,-149.35 1173,-159 1124.43,-208.61 1185.42,-261.25 1137,-311 1127.14,-321.13 1112.99,-326.56 1099.39,-329.41"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="1098.45,-326.01 1089.17,-331.12 1099.61,-332.92 1098.45,-326.01"/>
+</g>
+<!-- sourcefile~time_ave_util.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node28" class="node">
+<title>sourcefile~time_ave_util.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node28"><a xlink:href="../sourcefile/time_ave_util.f90.html" xlink:title="time_ave_util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1308,-524 1202,-524 1202,-500 1308,-500 1308,-524"/>
+<text text-anchor="middle" x="1255" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave_util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~time_ave_util.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~time_ave_util.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M1201.82,-506.97C1191.18,-503.77 1180.85,-498.77 1173,-491 1129.47,-447.93 1179.13,-402.45 1137,-358 1127.01,-347.46 1112.67,-341.19 1098.95,-337.46"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="1099.67,-334.03 1089.13,-335.17 1098.08,-340.85 1099.67,-334.03"/>
+</g>
+<!-- sourcefile~ut_extdata.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node29" class="node">
+<title>sourcefile~ut_extdata.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node29"><a xlink:href="../sourcefile/ut_extdata.f90.html" xlink:title="ut_ExtData.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1301.5,-24 1208.5,-24 1208.5,0 1301.5,0 1301.5,-24"/>
+<text text-anchor="middle" x="1255" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ExtData.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ut_extdata.f90&#45;&gt;sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~ut_extdata.f90&#45;&gt;sourcefile~extdatagridcompmod.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M1208.05,-12.47C1189.01,-12.66 1166.29,-12.9 1144.35,-13.12"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="1144.31,-9.62 1134.34,-13.22 1144.38,-16.62 1144.31,-9.62"/>
+</g>
+<!-- sourcefile~varspecdescription.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node30" class="node">
+<title>sourcefile~varspecdescription.f90</title>
+<g id="a_sourcefile~~maplgenericcomponent.f90~~AfferentGraph_node30"><a xlink:href="../sourcefile/varspecdescription.f90.html" xlink:title="VarspecDescription.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1324,-482 1186,-482 1186,-458 1324,-458 1324,-482"/>
+<text text-anchor="middle" x="1255" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarspecDescription.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varspecdescription.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~maplgenericcomponent.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~varspecdescription.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M1195.33,-457.97C1187.18,-454.45 1179.42,-449.89 1173,-444 1142.47,-415.98 1167.43,-386.13 1137,-358 1126.61,-348.39 1112.59,-342.33 1099.25,-338.51"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="1099.8,-335.04 1089.25,-336 1098.1,-341.83 1099.8,-335.04"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilemaplgenericcomponentf90AfferentGraph = svgPanZoom('#sourcefilemaplgenericcomponentf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Exceptions.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="k">module </span><span class="n">mapl_MaplGenericComponent</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_AbstractFrameworkComponent</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_BaseFrameworkComponent</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_keywordenforcermod</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_AbstractComponent</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_CompositeComponent</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ConcreteComposite</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_MaplComponent</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandlingMod</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">pFlogger</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_OpenMP_Support</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_MaplGrid</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_RunEntryPoint</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_EntryPointVector</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="k">   private</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MaplGenericComponent</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_grid</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">type </span><span class="n">SubComponent</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">internal_state</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_state</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_state</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MaplGrid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">   </span><span class="k">end type </span><span class="n">SubComponent</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">   </span><span class="k">abstract interface</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="k">      subroutine </span><span class="n">UserMethod</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="k">import</span><span class="p">,</span><span class="w"> </span><span class="n">export</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">         </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">         </span><span class="k">implicit none</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="k">         type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span><span class="w">     </span><span class="c">! Gridded component</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">         </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">import</span><span class="w"> </span><span class="c">! Import state</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">         </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export</span><span class="w"> </span><span class="c">! Export state</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">         </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span><span class="w">  </span><span class="c">! The clock</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">     </span><span class="c">! Error code:</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">UserMethod</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">   </span><span class="k">end interface</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="k">   type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">BaseFrameworkComponent</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MaplGenericComponent</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="c">!!$      private</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">SubComponent</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">subcomponents</span><span class="p">(:)</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">EntryPointVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">run_entry_points</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_state</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_state</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">internal_state</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">threading_active</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">use_threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a>
+<a id="ln-57" name="ln-57" href="#ln-57"></a>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">stub</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">stub</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">finalize</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">stub</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize_child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">stub_child</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">run_child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">stub_child</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">finalize_child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">stub_child</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_child_component</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">activate_threading</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">deactivate_threading</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">create_subobjects</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="c">! accessors</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_logger</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_logger</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">set_use_threads</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_use_threads</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_threading_active</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_internal_state</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_import_state</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_export_state</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_grid</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_gridcomp</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">   </span><span class="k">end type </span><span class="n">MaplGenericComponent</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="k">contains</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a>
+<a id="ln-89" name="ln-89" href="#ln-89"></a>
+<a id="ln-90" name="ln-90" href="#ln-90"></a>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="k">   subroutine </span><span class="n">stub</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">phase</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">user_component</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="n">user_component</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_component</span><span class="p">()</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">      </span><span class="k">call </span><span class="n">user_component</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">import_state</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">export_state</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">stub</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">stub_child</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">phase</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractFrameworkComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">      </span><span class="n">child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">      </span><span class="k">call </span><span class="n">child</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">stub_child</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a>
+<a id="ln-128" name="ln-128" href="#ln-128"></a>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">   </span><span class="k">function </span><span class="n">add_child_component</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">user_component</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractFrameworkComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">user_component</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmp</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">      </span><span class="n">child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">)</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">      </span><span class="k">call </span><span class="n">child</span><span class="p">%</span><span class="n">set_component</span><span class="p">(</span><span class="n">user_component</span><span class="p">)</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">   </span><span class="k">end function </span><span class="n">add_child_component</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a>
+<a id="ln-142" name="ln-142" href="#ln-142"></a>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">generic_entry_point</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="k">import</span><span class="p">,</span><span class="w"> </span><span class="n">export</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">import</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="k">      type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">phase</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Method_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">method</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MaplComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">component</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ComponentWrapper</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">MaplComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">component</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">      </span><span class="k">end type </span><span class="n">ComponentWrapper</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ComponentWrapper</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wrapper</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">phase_name</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_UserCompGetInternalState</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MaplComponent&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">wrapper</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">      </span><span class="n">component</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">wrapper</span><span class="p">%</span><span class="n">component</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">currentPhase</span><span class="o">=</span><span class="n">phase</span><span class="p">,</span><span class="w"> </span><span class="n">currentMethod</span><span class="o">=</span><span class="n">method</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">method</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="c">!!$         phase_name =&gt; component%init_phase_map%at(phase)</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="c">!!$         _ASSERT(associated(phase_name),&#39;no such phase&#39;)</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">         </span><span class="k">call </span><span class="n">component</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="k">import</span><span class="p">,</span><span class="w"> </span><span class="n">export</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">phase_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">method</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_METHOD_RUN</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="c">!!$         phase_name = component%run_phase_map%at(phase)</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="c">!!$         _ASSERT(associated(phase_name),&#39;no such phase&#39;)</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">         </span><span class="k">call </span><span class="n">component</span><span class="p">%</span><span class="n">run</span><span class="p">(</span><span class="k">import</span><span class="p">,</span><span class="w"> </span><span class="n">export</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">phase_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">method</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_METHOD_FINALIZE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="c">!!$         phase_name = component%finalize_phase_map%at(phase)</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="c">!!$         _ASSERT(associated(phase_name),&#39;no such phase&#39;)</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">         </span><span class="k">call </span><span class="n">component</span><span class="p">%</span><span class="n">finalize</span><span class="p">(</span><span class="k">import</span><span class="p">,</span><span class="w"> </span><span class="n">export</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">phase_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">      </span><span class="k">else</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="k">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;unknown value for ESMF_METHOD_FLAG&#39;</span><span class="p">)</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">generic_entry_point</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">   </span><span class="k">function </span><span class="n">get_logger</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">lgr</span><span class="p">)</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Logger</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lgr</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">component</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">      </span><span class="n">component</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_component</span><span class="p">()</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">      </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">component</span><span class="p">%</span><span class="n">get_logger</span><span class="p">()</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_logger</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">set_logger</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">lgr</span><span class="p">)</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Logger</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lgr</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">component</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">      </span><span class="n">component</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_component</span><span class="p">()</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">      </span><span class="k">call </span><span class="n">component</span><span class="p">%</span><span class="n">set_logger</span><span class="p">(</span><span class="n">lgr</span><span class="p">)</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">set_logger</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">set_use_threads</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">use_threads</span><span class="p">)</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">use_threads</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">use_threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">use_threads</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">set_use_threads</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="w">   </span><span class="k">function </span><span class="n">get_use_threads</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">use_threads</span><span class="p">)</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">use_threads</span>
+<a id="ln-225" name="ln-225" href="#ln-225"></a>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">      </span><span class="n">use_threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">use_threads</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="w">   </span><span class="k">end function </span><span class="n">get_use_threads</span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a>
+<a id="ln-230" name="ln-230" href="#ln-230"></a><span class="w">   </span><span class="k">function </span><span class="n">is_threading_active</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">threading_active</span><span class="p">)</span>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="w">     </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">threading_active</span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">     </span><span class="n">threading_active</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">threading_active</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">   </span><span class="k">end function </span><span class="n">is_threading_active</span>
+<a id="ln-236" name="ln-236" href="#ln-236"></a>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">   </span><span class="k">function </span><span class="n">get_internal_state</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">internal_state</span><span class="p">)</span>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">internal_state</span>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">thread</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a>
+<a id="ln-242" name="ln-242" href="#ln-242"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">NOT</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">is_threading_active</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="k">        </span><span class="n">internal_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">internal_state</span>
+<a id="ln-244" name="ln-244" href="#ln-244"></a><span class="w">     </span><span class="k">else</span>
+<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="k">        </span><span class="n">thread</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_current_thread</span><span class="p">()</span>
+<a id="ln-246" name="ln-246" href="#ln-246"></a><span class="w">        </span><span class="n">internal_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">subcomponents</span><span class="p">(</span><span class="n">thread</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">internal_state</span>
+<a id="ln-247" name="ln-247" href="#ln-247"></a><span class="w">     </span><span class="k">end if</span>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="k">   end function </span><span class="n">get_internal_state</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="w">   </span><span class="k">function </span><span class="n">get_import_state</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">import_state</span><span class="p">)</span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_state</span>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">thread</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a>
+<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">NOT</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">is_threading_active</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="k">        </span><span class="n">import_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">import_state</span>
+<a id="ln-257" name="ln-257" href="#ln-257"></a><span class="w">     </span><span class="k">else</span>
+<a id="ln-258" name="ln-258" href="#ln-258"></a><span class="k">        </span><span class="n">thread</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_current_thread</span><span class="p">()</span>
+<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="w">        </span><span class="n">import_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">subcomponents</span><span class="p">(</span><span class="n">thread</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">import_state</span>
+<a id="ln-260" name="ln-260" href="#ln-260"></a><span class="w">     </span><span class="k">end if</span>
+<a id="ln-261" name="ln-261" href="#ln-261"></a><span class="k">   end function </span><span class="n">get_import_state</span>
+<a id="ln-262" name="ln-262" href="#ln-262"></a>
+<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="w">   </span><span class="k">function </span><span class="n">get_export_state</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">export_state</span><span class="p">)</span>
+<a id="ln-264" name="ln-264" href="#ln-264"></a><span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-265" name="ln-265" href="#ln-265"></a><span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_state</span>
+<a id="ln-266" name="ln-266" href="#ln-266"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">thread</span>
+<a id="ln-267" name="ln-267" href="#ln-267"></a>
+<a id="ln-268" name="ln-268" href="#ln-268"></a><span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">NOT</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">is_threading_active</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-269" name="ln-269" href="#ln-269"></a><span class="k">        </span><span class="n">export_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">export_state</span>
+<a id="ln-270" name="ln-270" href="#ln-270"></a><span class="w">     </span><span class="k">else</span>
+<a id="ln-271" name="ln-271" href="#ln-271"></a><span class="k">        </span><span class="n">thread</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_current_thread</span><span class="p">()</span>
+<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="w">        </span><span class="n">export_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">subcomponents</span><span class="p">(</span><span class="n">thread</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">export_state</span>
+<a id="ln-273" name="ln-273" href="#ln-273"></a><span class="w">     </span><span class="k">end if</span>
+<a id="ln-274" name="ln-274" href="#ln-274"></a><span class="k">   end function </span><span class="n">get_export_state</span>
+<a id="ln-275" name="ln-275" href="#ln-275"></a>
+<a id="ln-276" name="ln-276" href="#ln-276"></a><span class="w">   </span><span class="k">function </span><span class="n">get_grid</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+<a id="ln-277" name="ln-277" href="#ln-277"></a><span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-278" name="ln-278" href="#ln-278"></a><span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">MaplGrid</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<a id="ln-279" name="ln-279" href="#ln-279"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">thread</span>
+<a id="ln-280" name="ln-280" href="#ln-280"></a>
+<a id="ln-281" name="ln-281" href="#ln-281"></a><span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">NOT</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">is_threading_active</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-282" name="ln-282" href="#ln-282"></a><span class="k">        </span><span class="n">grid</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">grid</span>
+<a id="ln-283" name="ln-283" href="#ln-283"></a><span class="w">     </span><span class="k">else</span>
+<a id="ln-284" name="ln-284" href="#ln-284"></a><span class="k">        </span><span class="n">thread</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_current_thread</span><span class="p">()</span>
+<a id="ln-285" name="ln-285" href="#ln-285"></a><span class="w">        </span><span class="n">grid</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">subcomponents</span><span class="p">(</span><span class="n">thread</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">grid</span><span class="w"> </span><span class="c">! subgrids is of type ESMF_Grid because of the return type of make_subgrids</span>
+<a id="ln-286" name="ln-286" href="#ln-286"></a><span class="w">     </span><span class="k">end if</span>
+<a id="ln-287" name="ln-287" href="#ln-287"></a><span class="k">   end function </span><span class="n">get_grid</span>
+<a id="ln-288" name="ln-288" href="#ln-288"></a>
+<a id="ln-289" name="ln-289" href="#ln-289"></a>
+<a id="ln-290" name="ln-290" href="#ln-290"></a><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">activate_threading</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">num_threads</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-291" name="ln-291" href="#ln-291"></a><span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-292" name="ln-292" href="#ln-292"></a><span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_threads</span>
+<a id="ln-293" name="ln-293" href="#ln-293"></a><span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-294" name="ln-294" href="#ln-294"></a><span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-295" name="ln-295" href="#ln-295"></a><span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractFrameworkComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span>
+<a id="ln-296" name="ln-296" href="#ln-296"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_children</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-297" name="ln-297" href="#ln-297"></a>
+<a id="ln-298" name="ln-298" href="#ln-298"></a><span class="w">     </span><span class="n">this</span><span class="p">%</span><span class="n">threading_active</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span>
+<a id="ln-299" name="ln-299" href="#ln-299"></a><span class="w">     </span><span class="n">num_children</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_num_children</span><span class="p">()</span>
+<a id="ln-300" name="ln-300" href="#ln-300"></a>
+<a id="ln-301" name="ln-301" href="#ln-301"></a><span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">NOT</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">subcomponents</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-302" name="ln-302" href="#ln-302"></a><span class="k">        call </span><span class="n">this</span><span class="p">%</span><span class="n">create_subobjects</span><span class="p">(</span><span class="n">num_threads</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-303" name="ln-303" href="#ln-303"></a><span class="w">     </span><span class="k">end if</span>
+<a id="ln-304" name="ln-304" href="#ln-304"></a>
+<a id="ln-305" name="ln-305" href="#ln-305"></a><span class="k">     do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">num_children</span>
+<a id="ln-306" name="ln-306" href="#ln-306"></a><span class="w">        </span><span class="n">child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<a id="ln-307" name="ln-307" href="#ln-307"></a><span class="w">        </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+<a id="ln-308" name="ln-308" href="#ln-308"></a><span class="w">        </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">)</span>
+<a id="ln-309" name="ln-309" href="#ln-309"></a><span class="w">           </span><span class="k">call </span><span class="n">child</span><span class="p">%</span><span class="n">activate_threading</span><span class="p">(</span><span class="n">num_threads</span><span class="p">)</span>
+<a id="ln-310" name="ln-310" href="#ln-310"></a><span class="w">        </span><span class="k">class </span><span class="n">default</span>
+<a id="ln-311" name="ln-311" href="#ln-311"></a><span class="w">           </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;illegal type for child&#39;</span><span class="p">)</span>
+<a id="ln-312" name="ln-312" href="#ln-312"></a><span class="w">        </span><span class="k">end select</span>
+<a id="ln-313" name="ln-313" href="#ln-313"></a><span class="k">     end do</span>
+<a id="ln-314" name="ln-314" href="#ln-314"></a><span class="k">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<a id="ln-315" name="ln-315" href="#ln-315"></a><span class="w">     </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-316" name="ln-316" href="#ln-316"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">activate_threading</span>
+<a id="ln-317" name="ln-317" href="#ln-317"></a>
+<a id="ln-318" name="ln-318" href="#ln-318"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">create_subobjects</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">num_threads</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-319" name="ln-319" href="#ln-319"></a><span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-320" name="ln-320" href="#ln-320"></a><span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_threads</span>
+<a id="ln-321" name="ln-321" href="#ln-321"></a><span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-322" name="ln-322" href="#ln-322"></a><span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-323" name="ln-323" href="#ln-323"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-324" name="ln-324" href="#ln-324"></a><span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">subgrids</span><span class="p">(:)</span>
+<a id="ln-325" name="ln-325" href="#ln-325"></a>
+<a id="ln-326" name="ln-326" href="#ln-326"></a><span class="w">     </span><span class="k">allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">subcomponents</span><span class="p">(</span><span class="n">num_threads</span><span class="p">))</span>
+<a id="ln-327" name="ln-327" href="#ln-327"></a>
+<a id="ln-328" name="ln-328" href="#ln-328"></a><span class="w">     </span><span class="n">this</span><span class="p">%</span><span class="n">subcomponents</span><span class="p">(:)%</span><span class="n">import_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_substates</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">import_state</span><span class="p">,</span><span class="w"> </span><span class="n">num_threads</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-329" name="ln-329" href="#ln-329"></a><span class="w">     </span><span class="n">this</span><span class="p">%</span><span class="n">subcomponents</span><span class="p">(:)%</span><span class="n">export_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_substates</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">export_state</span><span class="p">,</span><span class="w"> </span><span class="n">num_threads</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-330" name="ln-330" href="#ln-330"></a><span class="w">     </span><span class="n">this</span><span class="p">%</span><span class="n">subcomponents</span><span class="p">(:)%</span><span class="n">internal_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_substates</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">internal_state</span><span class="p">,</span><span class="w"> </span><span class="n">num_threads</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-331" name="ln-331" href="#ln-331"></a>
+<a id="ln-332" name="ln-332" href="#ln-332"></a><span class="w">     </span><span class="n">subgrids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_subgrids</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">ESMFGrid</span><span class="p">,</span><span class="w"> </span><span class="n">num_threads</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span><span class="c">! make_subgrids requires grid of type ESMF_Grid</span>
+<a id="ln-333" name="ln-333" href="#ln-333"></a><span class="w">     </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">subgrids</span><span class="p">)</span>
+<a id="ln-334" name="ln-334" href="#ln-334"></a><span class="w">        </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">subcomponents</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">grid</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-335" name="ln-335" href="#ln-335"></a><span class="w">     </span><span class="k">end do</span>
+<a id="ln-336" name="ln-336" href="#ln-336"></a><span class="k">     deallocate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">)</span>
+<a id="ln-337" name="ln-337" href="#ln-337"></a>
+<a id="ln-338" name="ln-338" href="#ln-338"></a><span class="w">     </span><span class="n">this</span><span class="p">%</span><span class="n">subcomponents</span><span class="p">(:)%</span><span class="n">gridcomp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_subgridcomps</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">run_entry_points</span><span class="p">,</span><span class="w"> </span><span class="n">num_threads</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-339" name="ln-339" href="#ln-339"></a>
+<a id="ln-340" name="ln-340" href="#ln-340"></a><span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<a id="ln-341" name="ln-341" href="#ln-341"></a><span class="w">     </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-342" name="ln-342" href="#ln-342"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">create_subobjects</span>
+<a id="ln-343" name="ln-343" href="#ln-343"></a>
+<a id="ln-344" name="ln-344" href="#ln-344"></a><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">deactivate_threading</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-345" name="ln-345" href="#ln-345"></a><span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-346" name="ln-346" href="#ln-346"></a><span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-347" name="ln-347" href="#ln-347"></a><span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-348" name="ln-348" href="#ln-348"></a><span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractFrameworkComponent</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span>
+<a id="ln-349" name="ln-349" href="#ln-349"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_children</span><span class="p">,</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-350" name="ln-350" href="#ln-350"></a>
+<a id="ln-351" name="ln-351" href="#ln-351"></a><span class="w">     </span><span class="n">num_children</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_num_children</span><span class="p">()</span>
+<a id="ln-352" name="ln-352" href="#ln-352"></a><span class="w">     </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">num_children</span>
+<a id="ln-353" name="ln-353" href="#ln-353"></a><span class="w">        </span><span class="n">child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<a id="ln-354" name="ln-354" href="#ln-354"></a><span class="w">        </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+<a id="ln-355" name="ln-355" href="#ln-355"></a><span class="w">        </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">)</span>
+<a id="ln-356" name="ln-356" href="#ln-356"></a><span class="w">           </span><span class="k">call </span><span class="n">child</span><span class="p">%</span><span class="n">deactivate_threading</span><span class="p">()</span>
+<a id="ln-357" name="ln-357" href="#ln-357"></a><span class="w">        </span><span class="k">class </span><span class="n">default</span>
+<a id="ln-358" name="ln-358" href="#ln-358"></a><span class="w">           </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;illegal type for child&#39;</span><span class="p">)</span>
+<a id="ln-359" name="ln-359" href="#ln-359"></a><span class="w">        </span><span class="k">end select</span>
+<a id="ln-360" name="ln-360" href="#ln-360"></a><span class="k">     end do</span>
+<a id="ln-361" name="ln-361" href="#ln-361"></a>
+<a id="ln-362" name="ln-362" href="#ln-362"></a><span class="k">     </span><span class="n">this</span><span class="p">%</span><span class="n">threading_active</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<a id="ln-363" name="ln-363" href="#ln-363"></a><span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<a id="ln-364" name="ln-364" href="#ln-364"></a><span class="w">     </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-365" name="ln-365" href="#ln-365"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">deactivate_threading</span>
+<a id="ln-366" name="ln-366" href="#ln-366"></a>
+<a id="ln-367" name="ln-367" href="#ln-367"></a>
+<a id="ln-368" name="ln-368" href="#ln-368"></a>
+<a id="ln-369" name="ln-369" href="#ln-369"></a><span class="w">   </span><span class="k">function </span><span class="n">get_gridcomp</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">)</span>
+<a id="ln-370" name="ln-370" href="#ln-370"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-371" name="ln-371" href="#ln-371"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<a id="ln-372" name="ln-372" href="#ln-372"></a>
+<a id="ln-373" name="ln-373" href="#ln-373"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">thread</span>
+<a id="ln-374" name="ln-374" href="#ln-374"></a>
+<a id="ln-375" name="ln-375" href="#ln-375"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">NOT</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">is_threading_active</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-376" name="ln-376" href="#ln-376"></a><span class="k">         </span><span class="n">gridcomp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">gridcomp</span>
+<a id="ln-377" name="ln-377" href="#ln-377"></a><span class="w">     </span><span class="k">else</span>
+<a id="ln-378" name="ln-378" href="#ln-378"></a><span class="k">        </span><span class="n">thread</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_current_thread</span><span class="p">()</span>
+<a id="ln-379" name="ln-379" href="#ln-379"></a><span class="w">        </span><span class="n">gridcomp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">subcomponents</span><span class="p">(</span><span class="n">thread</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">gridcomp</span>
+<a id="ln-380" name="ln-380" href="#ln-380"></a><span class="w">     </span><span class="k">end if</span>
+<a id="ln-381" name="ln-381" href="#ln-381"></a>
+<a id="ln-382" name="ln-382" href="#ln-382"></a><span class="k">  end function </span><span class="n">get_gridcomp</span>
+<a id="ln-383" name="ln-383" href="#ln-383"></a>
+<a id="ln-384" name="ln-384" href="#ln-384"></a><span class="k">end module </span><span class="n">mapl_MaplGenericComponent</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-07T19:32:56.548858             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
