@@ -110,20 +110,41 @@ contains
       type(ESMF_State) :: state
       type(ESMF_Field) :: field
       integer :: status
-      integer(ESMF_KIND_I4), allocatable :: i(:)
+      real(ESMF_KIND_R4), allocatable :: w(:)
 
       state = ESMF_StateCreate(name='import', _RC)
       field = ESMF_FieldEmptyCreate(name='f', _RC)
       call ESMF_StateAdd(state, [field], _RC)
 
-      call MAPL_InfoSetInternal(state, short_name='f', key='a', values=[1, 2], _RC)
-      call MAPL_InfoGetInternal(state, short_name='f', key='a', values=i, _RC)
+      call MAPL_InfoSetInternal(state, short_name='f', key='a', values=[1., 2.], _RC)
+      call MAPL_InfoGetInternal(state, short_name='f', key='a', values=w, _RC)
 
-      @assert_that(i, is(equal_to([1,2])))
+      @assert_that(w, is(equal_to([1.,2.])))
 
       call ESMF_FieldDestroy(field, _RC)
       call ESMF_StateDestroy(state, _RC)
 
    end subroutine test_setInternal
+
+   @test
+   subroutine test_setInternal_bundle()
+      type(ESMF_State) :: state
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+      real(ESMF_KIND_R4), allocatable :: w(:)
+
+      state = ESMF_StateCreate(name='import', _RC)
+      bundle = ESMF_FieldBundleCreate(name='b', _RC)
+      call ESMF_StateAdd(state, [bundle], _RC)
+
+      call MAPL_InfoSetInternal(state, short_name='b', key='a', values=[1., 2.], _RC)
+      call MAPL_InfoGetInternal(state, short_name='b', key='a', values=w, _RC)
+
+      @assert_that(w, is(equal_to([1.,2.])))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_setInternal_bundle
 
 end module Test_InfoUtilities
