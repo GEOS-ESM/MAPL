@@ -8,4 +8,6 @@ target_sources(MAPL.generic3g PRIVATE
   VerticalRegridAction.F90
   CopyAction.F90
   ConvertUnitsAction.F90
+
+  TimeInterpolateAction.F90
 )
