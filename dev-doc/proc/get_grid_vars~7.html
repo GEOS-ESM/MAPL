@@ -79,20 +79,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for procedures.">9 statements</a>
+                 title=" 0.0% of total for procedures.">11 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/MAPL_ExternalGridFactory.F90"> Source File</a>
+              <a href="../src/MAPL_SwathGridFactory.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/mapl_externalgridfactory.f90.html'>MAPL_ExternalGridFactory.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/mapl_externalgridfactorymod.html'>MAPL_ExternalGridFactoryMod</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_swathgridfactory.f90.html'>MAPL_SwathGridFactory.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_swathgridfactorymod.html'>MAPL_SwathGridFactoryMod</a></li>
             <li class="breadcrumb-item active" aria-current="page">get_grid_vars</li>
           </ol>
         </nav>
@@ -148,9 +148,11 @@
 </h2>
     
 
+    <p>key_lon=trim(this%var_name_lon)
+key_lat=trim(this%var_name_lat)</p>
 
     <h3>Type Bound</h3>
-    <p><a href='../type/externalgridfactory.html'>ExternalGridFactory</a></p>
+    <p><a href='../type/swathgridfactory.html'>SwathGridFactory</a></p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -165,8 +167,8 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~4077"></span>
-              class(<a href='../type/externalgridfactory.html'>ExternalGridFactory</a>),
+              <span class="anchor" id="variable-this~5917"></span>
+              class(<a href='../type/swathgridfactory.html'>SwathGridFactory</a>),
             </td>
 <td>intent(inout)</td>
               <td></td>            <td>
@@ -183,7 +185,7 @@
 
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-vars~41"></span>
+          <span class="anchor" id="variable-vars~53"></span>
           character(len=:), allocatable
         </small>
       </h3>
@@ -203,11 +205,17 @@
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">get_grid_vars</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">vars</span><span class="p">)</span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vars</span>
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExternalGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">SwathGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
 
-<span class="w">      </span><span class="n">vars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vars</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">key_lon</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">key_lat</span>
 <span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">!!key_lon=trim(this%var_name_lon)</span>
+<span class="w">      </span><span class="c">!!key_lat=trim(this%var_name_lat)</span>
+<span class="w">      </span><span class="n">vars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;lon,lat&#39;</span>
+
 <span class="w">   </span><span class="k">end function </span><span class="n">get_grid_vars</span>
 </pre></div>
 
@@ -232,7 +240,7 @@
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-10-07T17:48:42.464780             </p>
+ on 2024-10-07T17:50:02.209968             </p>
           </div>
         </div>
         <br>
