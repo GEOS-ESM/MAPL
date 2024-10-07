@@ -600,6 +600,7 @@ contains
       iter = attributes%begin()
       do while (iter /= attributes%end())
          attr_name => iter%key()
+
          p_attribute => iter%value()
          shp = p_attribute%get_shape()
          if (size(shp) == 0) then ! scalar
@@ -709,7 +710,6 @@ contains
       integer :: deflation
       integer :: quantize_algorithm
       integer :: quantize_level
-      integer :: zstandard_level
       character(len=:), pointer :: var_name
       character(len=:), pointer :: dim_name
       class (Variable), pointer :: var
@@ -781,18 +781,6 @@ contains
            _VERIFY(status)
 #else
            _FAIL("netcdf was not built with quantize support")
-#endif
-         end if
-
-         zstandard_level = var%get_zstandard_level()
-         if (zstandard_level /= 0) then
-#ifdef NF_HAS_ZSTD
-           !$omp critical
-           status = nf90_def_var_zstandard(this%ncid, varid, zstandard_level)
-           !$omp end critical
-           _VERIFY(status)
-#else
-           _FAIL("netcdf was not built with zstandard support")
 #endif
          end if
 
@@ -1091,12 +1079,9 @@ contains
             call var%add_attribute(trim(attr_name), str)
             deallocate(str)
          case (NF90_STRING)
-            !$omp critical
-            status = pfio_get_att_string(this%ncid, varid, trim(attr_name), str)
-            !$omp end critical
-            _VERIFY(status)
-            call var%add_attribute(trim(attr_name), str)
-            deallocate(str)
+            !W.Y. Note: pfio does not support variable's string attribute
+            !  It only supports global 1-d string attribute
+            cycle
          case default
             _RETURN(_FAILURE)
          end select

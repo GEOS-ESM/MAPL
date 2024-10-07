@@ -1530,9 +1530,9 @@ contains
               _VERIFY(status)
            case (REGRID_METHOD_PATCH)
 
-              _ASSERT(.not.has_mask, "destination masking with this regrid type is unsupported")
               call ESMF_FieldRegridStore(src_field, dst_field, &
                    & regridmethod=ESMF_REGRIDMETHOD_PATCH, &
+                   & dstMaskValues = dstMaskValues, &
                    & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
                    & srcTermProcessing = srcTermProcessing, &
                    & factorList=factorList, factorIndexList=factorIndexList, &
@@ -1540,26 +1540,28 @@ contains
               _VERIFY(status)
            case (REGRID_METHOD_CONSERVE_2ND)
 
-              _ASSERT(.not.has_mask, "destination masking with this regrid type is unsupported")
               call ESMF_FieldRegridStore(src_field, dst_field, &
                    & regridmethod=ESMF_REGRIDMETHOD_CONSERVE_2ND, &
+                   & dstMaskValues = dstMaskValues, &
                    & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
                    & srcTermProcessing = srcTermProcessing, &
                    & factorList=factorList, factorIndexList=factorIndexList, &
                    & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
               _VERIFY(status)
            case (REGRID_METHOD_CONSERVE, REGRID_METHOD_CONSERVE_MONOTONIC, REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION)
-              _ASSERT(.not.has_mask, "destination masking with this regrid type is unsupported")
+
               call ESMF_FieldRegridStore(src_field, dst_field, &
                    & regridmethod=ESMF_REGRIDMETHOD_CONSERVE, &
+                   & dstMaskValues = dstMaskValues, &
                    & srcTermProcessing = srcTermProcessing, &
                    & factorList=factorList, factorIndexList=factorIndexList, &
                    & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
               _VERIFY(status)
            case (REGRID_METHOD_NEAREST_STOD)
-              _ASSERT(.not.has_mask, "destination masking with this regrid type is unsupported")
+
               call ESMF_FieldRegridStore(src_field, dst_field, &
                    & regridmethod=ESMF_REGRIDMETHOD_NEAREST_STOD, &
+                   & dstMaskValues = dstMaskValues, &
                    & factorList=factorList, factorIndexList=factorIndexList, &
                    & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
               _VERIFY(status)

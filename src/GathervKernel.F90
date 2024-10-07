@@ -2,13 +2,14 @@
 
 module mapl_GathervKernel
    use mapl_ErrorHandlingMod
+   use Kernel_mod
    use mpi
    implicit none
    private
 
    public :: GathervKernel
 
-   type :: GathervKernel
+   type, extends(Kernel_T) :: GathervKernel
       integer :: n
       integer :: comm
       integer :: rank
@@ -47,10 +48,8 @@ contains
 
 
 
-      call MPI_Comm_rank(this%comm, this%rank, status)
-      _VERIFY(status)
-      call MPI_Comm_size(this%comm, this%np, status)
-      _VERIFY(status)
+      call MPI_Comm_rank(this%comm, this%rank, _IERROR)
+      call MPI_Comm_size(this%comm, this%np, _IERROR)
 
       associate (np => this%np, n => this%n)
         allocate(this%buffer(this%n))

@@ -26,8 +26,6 @@
       integer :: deflate, shave
       integer :: quantize_algorithm
       integer :: quantize_level
-      integer :: zstandard_level
-      logical :: use_weights
    contains
       procedure :: create_grid
       procedure :: process_command_line
@@ -97,10 +95,8 @@
     this%lat_range=uninit
     this%shave=64
     this%deflate=0
-    this%quantize_algorithm=0
+    this%quantize_algorithm=1
     this%quantize_level=0
-    this%zstandard_level=0
-    this%use_weights = .false.
     nargs = command_argument_count()
     do i=1,nargs
       call get_command_argument(i,str)
@@ -163,11 +159,6 @@
       case('-quantize_level')
          call get_command_argument(i+1,astr)
          read(astr,*)this%quantize_level
-      case('-zstandard_level')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%zstandard_level
-      case('-file_weights')
-         this%use_weights = .true.
       case('--help')
          if (mapl_am_I_root()) then
 
@@ -422,14 +413,13 @@ CONTAINS
          if (mapl_am_i_root()) write(*,*)'processing timestep from '//trim(filename)
          time = tSeries(i)
          if (support%onlyvars) then
-            call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=support%regridMethod,only_vars=support%vars,file_weights=support%use_weights, _RC)
+            call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=support%regridMethod,only_vars=support%vars,_RC)
          else
-            call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=support%regridMethod,file_weights=support%use_weights, _RC)
+            call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=support%regridMethod,_RC)
          end if
          call t_prof%stop("Read")
 
          call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-         _VERIFY(status)
 
          call t_prof%start("write")
 
@@ -437,7 +427,7 @@ CONTAINS
 
          call ESMF_ClockSet(clock,currtime=time,_RC)
          if (.not. writer_created) then
-            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits_to_keep=support%shave,deflate=support%deflate,vertical_data=vertical_data,quantize_algorithm=support%quantize_algorithm,quantize_level=support%quantize_level,zstandard_level=support%zstandard_level,_RC)
+            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits_to_keep=support%shave,deflate=support%deflate,vertical_data=vertical_data,quantize_algorithm=support%quantize_algorithm,quantize_level=support%quantize_level,_RC)
             writer_created=.true.
          end if
 

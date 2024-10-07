@@ -1,8 +1,5 @@
-#define I_AM_MAIN
-#include "MAPL_ErrLog.h"
 program main
    use mapl_Profiler
-   use MAPL_ErrorHandlingMod
    use MPI
    implicit none
 
@@ -15,15 +12,13 @@ program main
 
    character(:), allocatable :: report_lines(:)
    integer :: i
-   integer :: rank, ierror, rc, status
+   integer :: rank, ierror
    character(1) :: empty(0)
 
 !$   mem_prof = MemoryProfiler('TOTAL')
 
    call MPI_Init(ierror)
-   _VERIFY(ierror)
    call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
-   _VERIFY(ierror)
 
    main_prof = DistributedProfiler('TOTAL', MpiTimerGauge(), MPI_COMM_WORLD)   ! timer 1
    call main_prof%start()
@@ -114,7 +109,6 @@ program main
       write(*,'(a)') ''
    end if
    call MPI_Barrier(MPI_COMM_WORLD, ierror)
-   _VERIFY(ierror)
    if (rank == 1) then
       write(*,'(a)')'Final profile (1)'
       write(*,'(a)')'================'
@@ -124,7 +118,6 @@ program main
       write(*,'(a)') ''
    end if
    call MPI_Barrier(MPI_COMM_WORLD, ierror)
-   _VERIFY(ierror)
 
    report_lines = main_reporter%generate_report(main_prof)
    if (rank == 0) then
